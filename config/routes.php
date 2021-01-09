@@ -18,6 +18,7 @@ return [
     ],
 
     'web' => [
+        App\Http\Routes\DefaultRoute::class,
         /** @inject web **/
     ],
     'api' => [
