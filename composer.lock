@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a16c3c541bd99241cab1c21ce8e83ac",
+    "content-hash": "f594c81157523bf13e34d3505c21d3b0",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -891,6 +891,128 @@
                 "source": "https://github.com/guzzle/psr7/tree/1.7.0"
             },
             "time": "2020-09-30T07:37:11+00:00"
+        },
+        {
+            "name": "hashids/hashids",
+            "version": "4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vinkla/hashids.git",
+                "reference": "8cab111f78e0bd9c76953b082919fc9e251761be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vinkla/hashids/zipball/8cab111f78e0bd9c76953b082919fc9e251761be",
+                "reference": "8cab111f78e0bd9c76953b082919fc9e251761be",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0 || ^9.4",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "suggest": {
+                "ext-bcmath": "Required to use BC Math arbitrary precision mathematics (*).",
+                "ext-gmp": "Required to use GNU multiple precision mathematics (*)."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hashids\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ivan Akimov",
+                    "email": "ivan@barreleye.com"
+                },
+                {
+                    "name": "Vincent Klaiber",
+                    "email": "hello@doubledip.se"
+                }
+            ],
+            "description": "Generate short, unique, non-sequential ids (like YouTube and Bitly) from numbers",
+            "homepage": "https://hashids.org/php",
+            "keywords": [
+                "bitly",
+                "decode",
+                "encode",
+                "hash",
+                "hashid",
+                "hashids",
+                "ids",
+                "obfuscate",
+                "youtube"
+            ],
+            "support": {
+                "issues": "https://github.com/vinkla/hashids/issues",
+                "source": "https://github.com/vinkla/hashids/tree/4.1.0"
+            },
+            "time": "2020-11-26T19:24:33+00:00"
+        },
+        {
+            "name": "jalameta/jps-router",
+            "version": "v0.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jalameta/jps-router.git",
+                "reference": "53d35d531ea7859f335c33fc5df220dbe4137a0c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jalameta/jps-router/zipball/53d35d531ea7859f335c33fc5df220dbe4137a0c",
+                "reference": "53d35d531ea7859f335c33fc5df220dbe4137a0c",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": ">=5.6",
+                "illuminate/filesystem": ">=5.6",
+                "illuminate/routing": ">=5.6",
+                "illuminate/support": ">=5.6"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Jalameta\\Router\\RouterServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jalameta\\Router\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rifki Alhuraibi",
+                    "email": "veelasky@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/jalameta/jps-router/issues",
+                "source": "https://github.com/jalameta/jps-router/tree/master"
+            },
+            "time": "2019-10-28T01:59:32+00:00"
         },
         {
             "name": "laravel/framework",
@@ -4647,6 +4769,73 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/2.2.3"
             },
             "time": "2020-07-13T06:12:54+00:00"
+        },
+        {
+            "name": "veelasky/laravel-hashid",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/veelasky/laravel-hashid.git",
+                "reference": "e4719e7cf289a5f6c8a7337dd1363d60d7101283"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/veelasky/laravel-hashid/zipball/e4719e7cf289a5f6c8a7337dd1363d60d7101283",
+                "reference": "e4719e7cf289a5f6c8a7337dd1363d60d7101283",
+                "shasum": ""
+            },
+            "require": {
+                "hashids/hashids": "^4.0",
+                "illuminate/config": ">=6.18",
+                "illuminate/contracts": ">=6.18",
+                "illuminate/database": ">=6.18",
+                "illuminate/support": ">=6.18",
+                "illuminate/validation": ">=6.18",
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": ">=4.0",
+                "phpunit/phpunit": ">=8.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Veelasky\\LaravelHashId\\HashIdServiceProvider"
+                    ],
+                    "aliases": {
+                        "HashId": "Veelasky\\LaravelHashId\\Facade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Veelasky\\LaravelHashId\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rifki Alhuraibi",
+                    "email": "veelasky@gmail.com"
+                }
+            ],
+            "description": "HashId Implementation on Laravel Eloquent ORM",
+            "keywords": [
+                "eloquent",
+                "hashid",
+                "hashids",
+                "laravel",
+                "lumen"
+            ],
+            "support": {
+                "issues": "https://github.com/veelasky/laravel-hashid/issues",
+                "source": "https://github.com/veelasky/laravel-hashid/tree/v2.0.0"
+            },
+            "time": "2021-01-03T21:51:46+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
