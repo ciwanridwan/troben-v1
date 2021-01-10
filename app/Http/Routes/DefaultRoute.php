@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes;
 
-use App\Http\Controllers\DefaultController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\DefaultController;
 
 class DefaultRoute extends BaseRoute
 {
@@ -30,7 +30,7 @@ class DefaultRoute extends BaseRoute
     {
         $this->router->get($this->prefix(), [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 
