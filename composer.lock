@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff2ff5d98e05054efb28e8c3c738ce9d",
+    "content-hash": "4b78faf11177ed36774390898e971070",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -961,6 +961,62 @@
                 "source": "https://github.com/vinkla/hashids/tree/4.1.0"
             },
             "time": "2020-11-26T19:24:33+00:00"
+        },
+        {
+            "name": "jalameta/jps-attachments",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jalameta/jps-attachments.git",
+                "reference": "df36248dc038a724f1d706ee2302632b0405f92b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jalameta/jps-attachments/zipball/df36248dc038a724f1d706ee2302632b0405f92b",
+                "reference": "df36248dc038a724f1d706ee2302632b0405f92b",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": ">=5.6",
+                "illuminate/database": ">=5.6",
+                "illuminate/filesystem": ">=5.6",
+                "illuminate/support": ">=5.6",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0"
+            },
+            "suggest": {
+                "moontoast/math": "^1.2"
+            },
+            "type": "laravel-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Jalameta\\Attachments\\AttachmentServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jalameta\\Attachments\\": "src"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rifki Alhuraibi",
+                    "email": "veelasky@gmail.com"
+                }
+            ],
+            "description": "Easy attachment library to attach your media files into something attachable.",
+            "support": {
+                "source": "https://github.com/jalameta/jps-attachments/tree/v2.0.1",
+                "issues": "https://github.com/jalameta/jps-attachments/issues"
+            },
+            "time": "2020-11-13T17:41:55+00:00"
         },
         {
             "name": "jalameta/jps-router",

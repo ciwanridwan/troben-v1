@@ -6,12 +6,19 @@
         "framework",
         "laravel"
     ],
-    "license": "MIT",
+    "license": "proprietary",
+    "repositories": [
+        {
+            "type": "github",
+            "url": "https://github.com/jalameta/jps-attachments.git"
+        }
+    ],
     "require": {
         "php": "^7.4|^8.0",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "jalameta/jps-attachments": "^2.0",
         "jalameta/jps-router": "^0.1.6",
         "laravel/framework": "^8.12",
         "laravel/horizon": "^5.6",
