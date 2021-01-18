@@ -5,11 +5,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Create `attachments` table
+ * Create `attachments` table.
  *
  * @author      veelasky <veelasky@gmail.com>
  */
-
 class CreateAttachmentsTable extends Migration
 {
     /**
@@ -19,7 +18,7 @@ class CreateAttachmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attachments', function(Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->uuid('id');
             $table->string('title');
             $table->string('mime');

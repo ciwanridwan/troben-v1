@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreatePickupsTable extends Migration
 {
@@ -62,7 +62,6 @@ class CreatePickupsTable extends Migration
                 ->foreign('transporter_id')
                 ->references('id')
                 ->on('transporters');
-
         });
     }
 

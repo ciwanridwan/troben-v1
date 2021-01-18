@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Create `attachables` table
+ * Create `attachables` table.
  *
  * @author      veelasky <veelasky@gmail.com>
  */
