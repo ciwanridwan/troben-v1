@@ -26,6 +26,7 @@ class CreateWarehousesTable extends Migration
             $table->boolean('is_pool')->default(0);
             $table->boolean('is_counter')->default(0);
             $table->timestamps();
+            $table->softDeletes();
 
             $table
                 ->foreign('partner_id')
