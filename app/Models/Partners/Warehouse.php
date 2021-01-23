@@ -6,9 +6,9 @@ use App\Models\Geo\City;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Warehouse model.
@@ -22,8 +22,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $name
  * @property string $address
  * @property string $geo_area
- * @property boolean $is_pool
- * @property boolean $is_counter
+ * @property bool $is_pool
+ * @property bool $is_counter
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $deleted_at
@@ -59,7 +59,7 @@ class Warehouse extends Model
         'address',
         'geo_area',
         'is_pool',
-        'is_counter'
+        'is_counter',
     ];
 
     /**
@@ -70,7 +70,7 @@ class Warehouse extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
         'is_pool' => 'boolean',
-        'is_counter' => 'boolean'
+        'is_counter' => 'boolean',
     ];
 
     /**

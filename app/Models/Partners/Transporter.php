@@ -50,7 +50,7 @@ class Transporter extends Model
      * @var array
      */
     protected $casts = [
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
     ];
 
     /**

@@ -3,9 +3,9 @@
 namespace App\Models\Partners;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Partner Model.
@@ -44,7 +44,7 @@ class Partner extends Model
         'contact_email',
         'contact_phone',
         'address',
-        'geo_location'
+        'geo_location',
     ];
 
     /**
@@ -53,7 +53,7 @@ class Partner extends Model
      * @var array
      */
     protected $casts = [
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
     ];
 
     /**
