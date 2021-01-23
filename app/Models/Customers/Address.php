@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $geo_province_id
  * @property int $geo_city_id
  * @property int $geo_district_id
- * @property boolean $is_default
+ * @property bool $is_default
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *
@@ -57,7 +57,7 @@ class Address extends Model
      * @var array
      */
     protected $casts = [
-        'is_default' => 'boolean'
+        'is_default' => 'boolean',
     ];
 
     /**
