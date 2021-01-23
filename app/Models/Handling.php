@@ -33,7 +33,7 @@ class Handling extends Model
     protected $fillable = [
         'name',
         'price',
-        'type'
+        'type',
     ];
 
     /**
@@ -42,6 +42,6 @@ class Handling extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'decimal'
+        'price' => 'decimal',
     ];
 }

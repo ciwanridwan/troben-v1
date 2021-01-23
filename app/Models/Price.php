@@ -51,7 +51,7 @@ class Price extends Model
         'origin_district_id',
         'destination_id',
         'service_code',
-        'price'
+        'price',
     ];
 
     /**
@@ -60,7 +60,7 @@ class Price extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'float'
+        'price' => 'float',
     ];
 
     /**

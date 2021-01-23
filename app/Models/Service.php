@@ -19,18 +19,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Service extends Model
 {
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'services';
-
-    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
     public $incrementing = false;
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'services';
 
     /**
      * The primary key for the model.
@@ -54,7 +53,7 @@ class Service extends Model
     protected $fillable = [
         'code',
         'name',
-        'description'
+        'description',
     ];
 
     /**
