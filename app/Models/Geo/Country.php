@@ -37,7 +37,7 @@ class Country extends Model
     protected $fillable = [
         'name',
         'alpha_2',
-        'alpha_3'
+        'alpha_3',
     ];
 
     /**

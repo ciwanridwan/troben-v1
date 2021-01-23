@@ -43,7 +43,7 @@ class SubDistrict extends Model
         'city_id',
         'district_id',
         'name',
-        'zip_code'
+        'zip_code',
     ];
 
     /**

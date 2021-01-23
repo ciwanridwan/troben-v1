@@ -3,8 +3,8 @@
 namespace App\Models\Geo;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * District model.
@@ -40,7 +40,7 @@ class District extends Model
         'country_id',
         'province_id',
         'city_id',
-        'name'
+        'name',
     ];
 
     /**

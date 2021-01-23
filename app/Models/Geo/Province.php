@@ -3,8 +3,8 @@
 namespace App\Models\Geo;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Province model.
@@ -38,7 +38,7 @@ class Province extends Model
     protected $fillable = [
         'country_id',
         'name',
-        'alpha_3'
+        'alpha_3',
     ];
 
     /**
