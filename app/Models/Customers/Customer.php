@@ -3,9 +3,9 @@
 namespace App\Models\Customers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Customer model.
@@ -41,7 +41,7 @@ class Customer extends Model
         'name',
         'email',
         'phone',
-        'password'
+        'password',
     ];
 
     /**
@@ -50,7 +50,7 @@ class Customer extends Model
      * @var array
      */
     protected $casts = [
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
     ];
 
     /**
