@@ -22,6 +22,7 @@ class CreateCustomerAddressesTable extends Migration
             $table->unsignedBigInteger('geo_province_id');
             $table->unsignedBigInteger('geo_city_id');
             $table->unsignedBigInteger('geo_district_id');
+            $table->boolean('is_default')->default(0);
             $table->timestamps();
 
             $table
