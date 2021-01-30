@@ -2,6 +2,10 @@
 
 namespace App\Models\Customers;
 
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -21,9 +25,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model
+class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes, HashableId;
+    use SoftDeletes, HashableId, Authenticatable, CanResetPassword;
 
     /**
      * The table associated with the model.
