@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Collection;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use App\Models\Geo\Country;
@@ -16,6 +17,45 @@ use Illuminate\Database\Seeder;
 class GeoTableSeeder extends Seeder
 {
     /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $iso3166data;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $regencies;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $districts;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $subDistricts;
+
+    /**
+     * @param $filePath
+     * @return \Illuminate\Support\Collection
+     * @throws \League\Csv\Exception
+     */
+    public function loadFiles($filePath): Collection
+    {
+        $collection = new Collection();
+
+        $csv = Reader::createFromPath($filePath);
+        $csv->setHeaderOffset(0);
+
+        foreach ((new Statement())->process($csv) as $item) {
+            $collection->add($item);
+        }
+
+        return $collection;
+    }
+
+    /**
      * Seed the application's database.
      *
      * @return void
@@ -23,6 +63,12 @@ class GeoTableSeeder extends Seeder
      */
     public function run()
     {
+        $this->command->info('Load required files...');
+        $this->iso3166data = $this->loadFiles(__DIR__ . '/data/iso3166-2.csv');
+        $this->regencies = $this->loadFiles(__DIR__ . '/data/geo_regencies_ID.csv');
+        $this->districts = $this->loadFiles(__DIR__ . '/data/geo_districts_ID.csv');
+        $this->subDistricts = $this->loadFiles(__DIR__ . '/data/geo_subdistricts_ID.csv');
+
         $this->command->info('Populating geo data');
         $iso3166 = new ISO3166();
         collect($iso3166->all())->each(function ($item) {
@@ -30,13 +76,7 @@ class GeoTableSeeder extends Seeder
             $c->save();
 
             // populating province.
-            $csv = Reader::createFromPath(__DIR__.'/data/iso3166-2.csv');
-            $csv->setHeaderOffset(0);
-
-            $statement = (new Statement())
-                ->where(fn ($record) => $record['country_code'] === $c->alpha2);
-
-            foreach ($statement->process($csv) as $record) {
+            $this->iso3166data->where('country_code', $c->alpha2)->each(function ($record) use ($c) {
                 $p = new Province();
                 $p->fill([
                     'country_id' => $c->id,
@@ -49,28 +89,22 @@ class GeoTableSeeder extends Seeder
                 if ($c->alpha2 === 'ID') {
                     $this->seedRegencies($c, $p);
                 }
-            }
+            });
         });
+
         $this->command->info('Finished populating geo data.');
     }
 
     /**
      * Seed regencies by the given country and province.
      *
-     * @param \App\Models\Geo\Country  $country
+     * @param \App\Models\Geo\Country $country
      * @param \App\Models\Geo\Province $province
      *
-     * @throws \League\Csv\Exception
      */
     protected function seedRegencies(Country $country, Province $province): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/geo_regencies_ID.csv');
-        $csv->setHeaderOffset(0);
-
-        $statement = (new Statement())
-            ->where(fn ($record) => $record['province_iso'] === $province->iso_code);
-
-        foreach ($statement->process($csv) as $record) {
+        $this->regencies->where('province_iso', $province->iso_code)->each(function ($record) use ($country, $province) {
             $r = new Regency();
             $r->fill([
                 'country_id' => $country->id,
@@ -83,27 +117,20 @@ class GeoTableSeeder extends Seeder
             $r->save();
 
             $this->seedDistricts($country, $province, $r);
-        }
+        });
     }
 
     /**
      * Seed district with the given regency.
      *
-     * @param \App\Models\Geo\Country  $country
+     * @param \App\Models\Geo\Country $country
      * @param \App\Models\Geo\Province $province
-     * @param \App\Models\Geo\Regency  $regency
+     * @param \App\Models\Geo\Regency $regency
      *
-     * @throws \League\Csv\Exception
      */
     protected function seedDistricts(Country $country, Province $province, Regency $regency): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/geo_districts_ID.csv');
-        $csv->setHeaderOffset(0);
-
-        $statement = (new Statement())
-            ->where(fn ($record) => $record['bsn_code'] === $regency->bsn_code);
-
-        foreach ($statement->process($csv) as $record) {
+        $this->districts->where('bsn_code', $regency->bsn_code)->each(function ($record) use ($country, $province, $regency) {
             $r = new District();
             $r->fill([
                 'country_id' => $country->id,
@@ -114,29 +141,22 @@ class GeoTableSeeder extends Seeder
             $r->save();
 
             $this->seedSubDistricts($country, $province, $regency, $r, $record);
-        }
+        });
     }
 
     /**
      * Seed sub district with given district.
      *
-     * @param \App\Models\Geo\Country  $country
+     * @param \App\Models\Geo\Country $country
      * @param \App\Models\Geo\Province $province
-     * @param \App\Models\Geo\Regency  $regency
+     * @param \App\Models\Geo\Regency $regency
      * @param \App\Models\Geo\District $district
-     * @param array                    $original
+     * @param array $original
      *
-     * @throws \League\Csv\Exception
      */
     protected function seedSubDistricts(Country $country, Province $province, Regency $regency, District $district, $original = []): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/geo_subdistricts_ID.csv');
-        $csv->setHeaderOffset(0);
-
-        $statement = (new Statement())
-            ->where(fn ($record) => $record['district_id'] === $original['identifier']);
-
-        foreach ($statement->process($csv) as $record) {
+        $this->subDistricts->where('district_id', $original['identifier'])->each(function ($record) use ($country, $province, $regency, $district) {
             $r = new SubDistrict();
             $r->fill([
                 'country_id' => $country->id,
@@ -147,6 +167,6 @@ class GeoTableSeeder extends Seeder
                 'zip_code' => $record['zip_code'],
             ]);
             $r->save();
-        }
+        });
     }
 }
