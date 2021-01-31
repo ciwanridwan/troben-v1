@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Support\Collection;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use App\Models\Geo\Country;
@@ -13,6 +12,7 @@ use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeoTableSeeder extends Seeder
@@ -63,11 +63,11 @@ class GeoTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Load required files...');
-        $iso3166data = $this->loadFiles(__DIR__ . '/data/iso3166-2.csv')->groupBy('country_code');
-        $this->regencies = $this->loadFiles(__DIR__ . '/data/geo_regencies_ID.csv')->groupBy('province_iso');
-        $this->districts = $this->loadFiles(__DIR__ . '/data/geo_districts_ID.csv')->groupBy('bsn_code');
+        $iso3166data = $this->loadFiles(__DIR__.'/data/iso3166-2.csv')->groupBy('country_code');
+        $this->regencies = $this->loadFiles(__DIR__.'/data/geo_regencies_ID.csv')->groupBy('province_iso');
+        $this->districts = $this->loadFiles(__DIR__.'/data/geo_districts_ID.csv')->groupBy('bsn_code');
 
-        $subDistricts = $this->loadFiles(__DIR__ . '/data/geo_subdistricts_ID.csv');
+        $subDistricts = $this->loadFiles(__DIR__.'/data/geo_subdistricts_ID.csv');
 
         $totalSubDistrict = $subDistricts->count();
 
