@@ -13,13 +13,10 @@ use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeoTableSeeder extends Seeder
 {
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    private Collection $iso3166data;
 
     /**
      * @var \Illuminate\Support\Collection
@@ -35,6 +32,8 @@ class GeoTableSeeder extends Seeder
      * @var \Illuminate\Support\Collection
      */
     private Collection $subDistricts;
+
+    private ProgressBar $progressBar;
 
     /**
      * @param $filePath
@@ -64,19 +63,32 @@ class GeoTableSeeder extends Seeder
     public function run()
     {
         $this->command->info('Load required files...');
-        $this->iso3166data = $this->loadFiles(__DIR__ . '/data/iso3166-2.csv');
-        $this->regencies = $this->loadFiles(__DIR__ . '/data/geo_regencies_ID.csv');
-        $this->districts = $this->loadFiles(__DIR__ . '/data/geo_districts_ID.csv');
-        $this->subDistricts = $this->loadFiles(__DIR__ . '/data/geo_subdistricts_ID.csv');
+        $iso3166data = $this->loadFiles(__DIR__ . '/data/iso3166-2.csv')->groupBy('country_code');
+        $this->regencies = $this->loadFiles(__DIR__ . '/data/geo_regencies_ID.csv')->groupBy('province_iso');
+        $this->districts = $this->loadFiles(__DIR__ . '/data/geo_districts_ID.csv')->groupBy('bsn_code');
+
+        $subDistricts = $this->loadFiles(__DIR__ . '/data/geo_subdistricts_ID.csv');
+
+        $totalSubDistrict = $subDistricts->count();
+
+        $this->subDistricts = $subDistricts->groupBy('district_id');
 
         $this->command->info('Populating geo data');
         $iso3166 = new ISO3166();
-        collect($iso3166->all())->each(function ($item) {
+
+        $this->progressBar = $this->command->getOutput()->createProgressBar($totalSubDistrict);
+
+        foreach ($iso3166->all() as $item) {
             $c = new Country(Arr::except($item, 'currency'));
             $c->save();
 
+            if (empty($iso3166data->get($c->alpha2))) {
+                // $this->command->warn('[iso3166] '.$c->alpha2.' not found!');
+                continue;
+            }
+
             // populating province.
-            $this->iso3166data->where('country_code', $c->alpha2)->each(function ($record) use ($c) {
+            $iso3166data->get($c->alpha2)->each(function ($record) use ($c) {
                 $p = new Province();
                 $p->fill([
                     'country_id' => $c->id,
@@ -90,8 +102,10 @@ class GeoTableSeeder extends Seeder
                     $this->seedRegencies($c, $p);
                 }
             });
-        });
+        }
 
+        $this->progressBar->finish();
+        $this->command->newLine();
         $this->command->info('Finished populating geo data.');
     }
 
@@ -104,7 +118,7 @@ class GeoTableSeeder extends Seeder
      */
     protected function seedRegencies(Country $country, Province $province): void
     {
-        $this->regencies->where('province_iso', $province->iso_code)->each(function ($record) use ($country, $province) {
+        $this->regencies->get($province->iso_code)->each(function ($record) use ($country, $province) {
             $r = new Regency();
             $r->fill([
                 'country_id' => $country->id,
@@ -130,7 +144,7 @@ class GeoTableSeeder extends Seeder
      */
     protected function seedDistricts(Country $country, Province $province, Regency $regency): void
     {
-        $this->districts->where('bsn_code', $regency->bsn_code)->each(function ($record) use ($country, $province, $regency) {
+        $this->districts->get($regency->bsn_code)->each(function ($record) use ($country, $province, $regency) {
             $r = new District();
             $r->fill([
                 'country_id' => $country->id,
@@ -156,7 +170,9 @@ class GeoTableSeeder extends Seeder
      */
     protected function seedSubDistricts(Country $country, Province $province, Regency $regency, District $district, $original = []): void
     {
-        $this->subDistricts->where('district_id', $original['identifier'])->each(function ($record) use ($country, $province, $regency, $district) {
+        $this->subDistricts->get($original['identifier'])->each(function ($record) use ($country, $province, $regency, $district) {
+            $this->progressBar->advance();
+
             $r = new SubDistrict();
             $r->fill([
                 'country_id' => $country->id,
