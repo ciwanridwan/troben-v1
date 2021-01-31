@@ -3,13 +3,14 @@
 namespace App\Models\Customers;
 
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 /**
  * Customer model.
@@ -27,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes, HashableId, Authenticatable, CanResetPassword;
+    use SoftDeletes, HashableId, Authenticatable, CanResetPassword, Notifiable;
 
     /**
      * The table associated with the model.
