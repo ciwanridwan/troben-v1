@@ -16,8 +16,9 @@ class CreateGeoCountriesTable extends Migration
         Schema::create('geo_countries', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->char('alpha_2', 2);
-            $table->char('alpha_3', 3);
+            $table->char('alpha2', 2);
+            $table->char('alpha3', 3);
+            $table->char('numeric', 3);
             $table->timestamps();
         });
     }

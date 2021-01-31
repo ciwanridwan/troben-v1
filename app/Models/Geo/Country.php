@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property string $name
- * @property string $alpha_2
- * @property string $alpha_3
+ * @property string $alpha2
+ * @property string $alpha3
+ * @property string $numeric
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *
@@ -36,8 +37,9 @@ class Country extends Model
      */
     protected $fillable = [
         'name',
-        'alpha_2',
-        'alpha_3',
+        'alpha2',
+        'alpha3',
+        'numeric',
     ];
 
     /**
