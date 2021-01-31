@@ -17,7 +17,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeoTableSeeder extends Seeder
 {
-
     /**
      * @var \Illuminate\Support\Collection
      */
