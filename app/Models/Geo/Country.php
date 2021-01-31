@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Country model.
  *
- * @property int $id
- * @property string $name
- * @property string $alpha2
- * @property string $alpha3
- * @property string $numeric
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int                                                                         $id
+ * @property string                                                                      $name
+ * @property string                                                                      $alpha2
+ * @property string                                                                      $alpha3
+ * @property string                                                                      $numeric
+ * @property \Carbon\Carbon                                                              $created_at
+ * @property \Carbon\Carbon                                                              $updated_at
  *
- * @property-read \App\Models\Geo\Province[]|\Illuminate\Database\Eloquent\Collection $provinces
- * @property-read \App\Models\Geo\City[]|\Illuminate\Database\Eloquent\Collection $cities
- * @property-read \App\Models\Geo\District[]|\Illuminate\Database\Eloquent\Collection $districts
+ * @property-read \App\Models\Geo\Province[]|\Illuminate\Database\Eloquent\Collection    $provinces
+ * @property-read \App\Models\Geo\Regency[]|\Illuminate\Database\Eloquent\Collection     $regencies
+ * @property-read \App\Models\Geo\District[]|\Illuminate\Database\Eloquent\Collection    $districts
  * @property-read \App\Models\Geo\SubDistrict[]|\Illuminate\Database\Eloquent\Collection $sub_districts
  */
 class Country extends Model
@@ -57,9 +57,9 @@ class Country extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function cities(): HasMany
+    public function regencies(): HasMany
     {
-        return $this->hasMany(City::class, 'country_id', 'id');
+        return $this->hasMany(Regency::class, 'country_id', 'id');
     }
 
     /**

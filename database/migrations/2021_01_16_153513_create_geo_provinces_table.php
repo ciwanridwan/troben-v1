@@ -17,7 +17,7 @@ class CreateGeoProvincesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('country_id')->nullable();
             $table->string('name');
-            $table->char('alpha_3', 3);
+            $table->string('iso_code', 10);
             $table->timestamps();
 
             $table

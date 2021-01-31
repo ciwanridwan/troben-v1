@@ -2,7 +2,7 @@
 
 namespace App\Models\Partners;
 
-use App\Models\Geo\City;
+use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use Illuminate\Database\Eloquent\Model;
@@ -16,22 +16,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $partner_id
  * @property int $geo_province_id
- * @property int $geo_city_id
+ * @property int $geo_regency_id
  * @property int $geo_district_id
  * @property string $code
  * @property string $name
- * @property string $address
- * @property string $geo_area
- * @property bool $is_pool
- * @property bool $is_counter
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon|null $deleted_at
+ * @property string                            $address
+ * @property string                            $geo_area
+ * @property bool                              $is_pool
+ * @property bool                              $is_counter
+ * @property \Carbon\Carbon                    $created_at
+ * @property \Carbon\Carbon                    $updated_at
+ * @property \Carbon\Carbon|null               $deleted_at
  *
  * @property-read \App\Models\Partners\Partner $partner
- * @property-read \App\Models\Geo\Province $province
- * @property-read \App\Models\Geo\City $city
- * @property-read \App\Models\Geo\District $district
+ * @property-read \App\Models\Geo\Province     $province
+ * @property-read \App\Models\Geo\Regency      $regency
+ * @property-read \App\Models\Geo\District     $district
  */
 class Warehouse extends Model
 {
@@ -98,9 +98,9 @@ class Warehouse extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function city(): BelongsTo
+    public function regency(): BelongsTo
     {
-        return $this->belongsTo(City::class, 'geo_city_id', 'id');
+        return $this->belongsTo(Regency::class, 'geo_city_id', 'id');
     }
 
     /**

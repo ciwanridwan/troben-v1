@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * City model.
+ * Regency model.
  *
  * @property int $id
  * @property int $country_id
  * @property int $province_id
  * @property string $name
+ * @property string $capital
+ * @property string $bsn_code
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *
@@ -21,14 +23,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Geo\District[]|\Illuminate\Database\Eloquent\Collection $districts
  * @property-read \App\Models\Geo\SubDistrict[]|\Illuminate\Database\Eloquent\Collection $sub_districts
  */
-class City extends Model
+class Regency extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'geo_cities';
+    protected $table = 'geo_regencies';
 
     /**
      * The attributes that are mass assignable.
@@ -39,6 +41,8 @@ class City extends Model
         'country_id',
         'province_id',
         'name',
+        'capital',
+        'bsn_code',
     ];
 
     /**

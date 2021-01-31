@@ -17,7 +17,7 @@ class CreateGeoSubDistrictsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('country_id')->nullable();
             $table->unsignedBigInteger('province_id')->nullable();
-            $table->unsignedBigInteger('city_id')->nullable();
+            $table->unsignedBigInteger('regency_id')->nullable();
             $table->unsignedBigInteger('district_id')->nullable();
             $table->string('name');
             $table->string('zip_code');
@@ -36,9 +36,9 @@ class CreateGeoSubDistrictsTable extends Migration
                 ->nullOnDelete();
 
             $table
-                ->foreign('city_id')
+                ->foreign('regency_id')
                 ->references('id')
-                ->on('geo_cities')
+                ->on('geo_regencies')
                 ->nullOnDelete();
 
             $table

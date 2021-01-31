@@ -9,16 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Province model.
  *
- * @property int $id
- * @property int $country_id
- * @property string $name
- * @property string $alpha_3
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int                                                                         $id
+ * @property int                                                                         $country_id
+ * @property string                                                                      $name
+ * @property string                                                                      $iso_code
+ * @property \Carbon\Carbon                                                              $created_at
+ * @property \Carbon\Carbon                                                              $updated_at
  *
- * @property-read \App\Models\Geo\Country|null $country
- * @property-read \App\Models\Geo\City[]|\Illuminate\Database\Eloquent\Collection $cities
- * @property-read \App\Models\Geo\District[]|\Illuminate\Database\Eloquent\Collection $districts
+ * @property-read \App\Models\Geo\Country|null                                           $country
+ * @property-read \App\Models\Geo\Regency[]|\Illuminate\Database\Eloquent\Collection     $regencies
+ * @property-read \App\Models\Geo\District[]|\Illuminate\Database\Eloquent\Collection    $districts
  * @property-read \App\Models\Geo\SubDistrict[]|\Illuminate\Database\Eloquent\Collection $sub_districts
  */
 class Province extends Model
@@ -38,7 +38,7 @@ class Province extends Model
     protected $fillable = [
         'country_id',
         'name',
-        'alpha_3',
+        'iso_code',
     ];
 
     /**
@@ -56,9 +56,9 @@ class Province extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function cities(): HasMany
+    public function regencies(): HasMany
     {
-        return $this->hasMany(City::class, 'province_id', 'id');
+        return $this->hasMany(Regency::class, 'province_id', 'id');
     }
 
     /**

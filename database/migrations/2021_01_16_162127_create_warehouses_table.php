@@ -17,7 +17,7 @@ class CreateWarehousesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('partner_id');
             $table->unsignedBigInteger('geo_province_id')->nullable();
-            $table->unsignedBigInteger('geo_city_id')->nullable();
+            $table->unsignedBigInteger('geo_regency_id')->nullable();
             $table->unsignedBigInteger('geo_district_id')->nullable();
             $table->string('code');
             $table->string('name');
@@ -41,9 +41,9 @@ class CreateWarehousesTable extends Migration
                 ->cascadeOnDelete();
 
             $table
-                ->foreign('geo_city_id')
+                ->foreign('geo_regency_id')
                 ->references('id')
-                ->on('geo_cities')
+                ->on('geo_regencies')
                 ->cascadeOnDelete();
 
             $table

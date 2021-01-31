@@ -15,10 +15,10 @@ class CreatePricesTable extends Migration
     {
         Schema::create('prices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('origin_id'); // sub district
             $table->unsignedBigInteger('origin_province_id');
-            $table->unsignedBigInteger('origin_city_id');
+            $table->unsignedBigInteger('origin_regency_id');
             $table->unsignedBigInteger('origin_district_id');
+            $table->unsignedBigInteger('origin_id'); // sub district
             $table->unsignedBigInteger('destination_id'); // sub district
             $table->char('service_code', 3);
             $table->decimal('price', 14, 2); // per kg
@@ -37,9 +37,9 @@ class CreatePricesTable extends Migration
                 ->cascadeOnDelete();
 
             $table
-                ->foreign('origin_city_id')
+                ->foreign('origin_regency_id')
                 ->references('id')
-                ->on('geo_cities')
+                ->on('geo_regencies')
                 ->cascadeOnDelete();
 
             $table

@@ -20,7 +20,7 @@ class CreateCustomerAddressesTable extends Migration
             $table->string('address');
             $table->point('geo_location')->nullable();
             $table->unsignedBigInteger('geo_province_id');
-            $table->unsignedBigInteger('geo_city_id');
+            $table->unsignedBigInteger('geo_regency_id');
             $table->unsignedBigInteger('geo_district_id');
             $table->boolean('is_default')->default(0);
             $table->timestamps();
@@ -38,9 +38,9 @@ class CreateCustomerAddressesTable extends Migration
                 ->cascadeOnDelete();
 
             $table
-                ->foreign('geo_city_id')
+                ->foreign('geo_regency_id')
                 ->references('id')
-                ->on('geo_cities')
+                ->on('geo_regencies')
                 ->cascadeOnDelete();
 
             $table

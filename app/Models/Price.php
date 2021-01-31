@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Geo\City;
+use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
@@ -15,20 +15,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $origin_id
  * @property int $origin_province_id
- * @property int $origin_city_id
- * @property int $origin_district_id
- * @property int $destination_id
- * @property string $service_code
- * @property float $price
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int                              $origin_city_id
+ * @property int                              $origin_district_id
+ * @property int                              $destination_id
+ * @property string                           $service_code
+ * @property float                            $price
+ * @property \Carbon\Carbon                   $created_at
+ * @property \Carbon\Carbon                   $updated_at
  *
  * @property-read \App\Models\Geo\SubDistrict $origin
- * @property-read \App\Models\Geo\Province $province
- * @property-read \App\Models\Geo\City $city
- * @property-read \App\Models\Geo\District $district
+ * @property-read \App\Models\Geo\Province    $province
+ * @property-read \App\Models\Geo\Regency     $city
+ * @property-read \App\Models\Geo\District    $district
  * @property-read \App\Models\Geo\SubDistrict $destination
- * @property-read \App\Models\Service $service
+ * @property-read \App\Models\Service         $service
  */
 class Price extends Model
 {
@@ -90,7 +90,7 @@ class Price extends Model
      */
     public function city(): BelongsTo
     {
-        return $this->belongsTo(City::class, 'origin_city_id', 'id');
+        return $this->belongsTo(Regency::class, 'origin_city_id', 'id');
     }
 
     /**
