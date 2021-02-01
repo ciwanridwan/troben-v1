@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use League\Csv\Reader;
-use Illuminate\Bus\Batch;
 use League\Csv\Statement;
 use App\Models\Geo\Country;
 use App\Models\Geo\Regency;
@@ -11,25 +10,40 @@ use Illuminate\Support\Arr;
 use League\ISO3166\ISO3166;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
+use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
-use App\Jobs\Geo\CreateNewCountry;
-use App\Jobs\Geo\CreateNewRegency;
 use Illuminate\Support\Collection;
-use App\Jobs\Geo\CreateNewDistrict;
-use App\Jobs\Geo\CreateNewProvince;
-use Illuminate\Support\Facades\Bus;
-use App\Jobs\Geo\CreateNewSubDistrict;
+use libphonenumber\PhoneNumberUtil;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeoTableSeeder extends Seeder
 {
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $regencies;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $districts;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private Collection $subDistricts;
+
+    private ProgressBar $progressBar;
+
     /**
      * @param $filePath
      * @return \Illuminate\Support\Collection
      * @throws \League\Csv\Exception
      */
-    public static function loadFiles($filePath): Collection
+    public function loadFiles($filePath): Collection
     {
         $collection = new Collection();
+
         $csv = Reader::createFromPath($filePath);
         $csv->setHeaderOffset(0);
 
@@ -44,153 +58,130 @@ class GeoTableSeeder extends Seeder
      * Seed the application's database.
      *
      * @return void
-     * @throws \Throwable
+     * @throws \League\Csv\Exception
      */
     public function run()
     {
+        $this->command->info('Load required files...');
+        $iso3166data = $this->loadFiles(__DIR__.'/data/iso3166-2.csv')->groupBy('country_code');
+        $this->regencies = $this->loadFiles(__DIR__.'/data/geo_regencies_ID.csv')->groupBy('province_iso');
+        $this->districts = $this->loadFiles(__DIR__.'/data/geo_districts_ID.csv')->groupBy('bsn_code');
+        $subDistricts = $this->loadFiles(__DIR__.'/data/geo_subdistricts_ID.csv');
+
+        $totalSubDistrict = $subDistricts->count();
+        $this->subDistricts = $subDistricts->groupBy('district_id');
+
         $this->command->info('Populating geo data');
         $iso3166 = new ISO3166();
 
-        $jobs = collect($iso3166->all())
-            ->map(fn ($item) => new CreateNewCountry(Arr::except($item, 'currency')))
-            ->filter();
+        $this->progressBar = $this->command->getOutput()->createProgressBar($totalSubDistrict);
 
-        Bus::batch($jobs->all())
-            ->finally(fn (Batch $batch) => self::seedProvinces())
-            ->name('geo-seeder-countries')
-            ->onQueue('long-running')
-            ->dispatch();
+        foreach ($iso3166->all() as $item) {
+            $c = new Country(Arr::except($item, 'currency'));
+            $c->phone_prefix =  PhoneNumberUtil::getInstance()->getCountryCodeForRegion($item['alpha2']);
+            $c->save();
 
-        $this->command->info('Finished populating geo data.');
-    }
-
-    /**
-     * Seed Provinces.
-     *
-     * @throws \League\Csv\Exception|\Throwable
-     */
-    public static function seedProvinces()
-    {
-        $iso3166 = self::loadFiles(__DIR__.'/data/iso3166-2.csv');
-
-        $batch = Bus::batch([])
-            ->finally(fn (Batch $batch) => self::seedRegencies())
-            ->onQueue('long-running')
-            ->name('geo-seeder-provinces');
-
-        foreach ($iso3166 as $row) {
-            $c = Country::query()->where('alpha2', $row['country_code'])->first();
-
-            if ($c instanceof Country) {
-                $batch->jobs->push(new CreateNewProvince([
-                    'country_id' => $c->id,
-                    'name' => $row['subdivision_name'],
-                    'iso_code' => $row['code'],
-                ]));
+            if (empty($iso3166data->get($c->alpha2))) {
+                // $this->command->warn('[iso3166] '.$c->alpha2.' not found!');
+                continue;
             }
+
+            // populating province.
+            $iso3166data->get($c->alpha2)->each(function ($record) use ($c) {
+                $p = new Province();
+                $p->fill([
+                    'country_id' => $c->id,
+                    'name' => $record['subdivision_name'],
+                    'iso_code' => $record['code']
+                ]);
+                $p->save();
+
+                // if in indonesia, let's go down further
+                if ($c->alpha2 === 'ID') {
+                    $this->seedRegencies($c, $p);
+                }
+            });
         }
 
-        $batch->dispatch();
+        $this->progressBar->finish();
+        $this->command->newLine();
+        $this->command->info('Finished populating geo data.');
     }
 
     /**
      * Seed regencies by the given country and province.
      *
-     * @throws \League\Csv\Exception
-     * @throws \Throwable
+     * @param \App\Models\Geo\Country $country
+     * @param \App\Models\Geo\Province $province
+     *
      */
-    public static function seedRegencies(): void
+    protected function seedRegencies(Country $country, Province $province): void
     {
-        $regencies = self::loadFiles(__DIR__.'/data/geo_regencies_ID.csv');
+        $this->regencies->get($province->iso_code)->each(function ($record) use ($country, $province) {
+            $r = new Regency();
+            $r->fill([
+                'country_id' => $country->id,
+                'province_id' => $province->id,
+                'name' => $record['regency'],
+                'capital' => $record['capital'],
+                'bsn_code' => $record['bsn_code'],
+            ]);
 
-        $batch = Bus::batch([])
-            ->finally(fn (Batch $batch) => self::seedDistricts())
-            ->onQueue('long-running')
-            ->name('geo-seeder-regencies');
+            $r->save();
 
-        foreach ($regencies as $row) {
-            $p = Province::query()->where('iso_code', $row['province_iso'])->first();
-            if ($p instanceof Province) {
-                $batch->jobs->push(
-                    new CreateNewRegency([
-                        'country_id' => $p->country_id,
-                        'province_id' => $p->id,
-                        'name' => $row['regency'],
-                        'capital' => $row['capital'],
-                        'bsn_code' => $row['bsn_code'],
-                    ])
-                );
-            }
-        }
-
-        $batch->dispatch();
+            $this->seedDistricts($country, $province, $r);
+        });
     }
 
     /**
      * Seed district with the given regency.
      *
-     * @throws \League\Csv\Exception|\Throwable
+     * @param \App\Models\Geo\Country $country
+     * @param \App\Models\Geo\Province $province
+     * @param \App\Models\Geo\Regency $regency
+     *
      */
-    public static function seedDistricts(): void
+    protected function seedDistricts(Country $country, Province $province, Regency $regency): void
     {
-        $districts = self::loadFiles(__DIR__.'/data/geo_districts_ID.csv');
+        $this->districts->get($regency->bsn_code)->each(function ($record) use ($country, $province, $regency) {
+            $r = new District();
+            $r->fill([
+                'country_id' => $country->id,
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'name' => $record['name'],
+            ]);
+            $r->save();
 
-        $batch = Bus::batch([])
-            ->finally(fn (Batch $batch) => self::seedSubDistricts())
-            ->onQueue('long-running')
-            ->name('geo-seeder-districts');
-
-        foreach ($districts as $row) {
-            $r = Regency::query()->where('bsn_code', $row['bsn_code'])->first();
-            if ($r instanceof Regency) {
-                $batch->jobs->push(new CreateNewDistrict([
-                    'country_id' => $r->country_id,
-                    'province_id' => $r->province_id,
-                    'regency_id' => $r->id,
-                    'name' => $row['name'],
-                ]));
-            }
-        }
-
-        $batch->dispatch();
+            $this->seedSubDistricts($country, $province, $regency, $r, $record);
+        });
     }
 
     /**
-     * Seed sub districts with the given districts.
+     * Seed sub district with given district.
      *
-     * @throws \League\Csv\Exception|\Throwable
+     * @param \App\Models\Geo\Country $country
+     * @param \App\Models\Geo\Province $province
+     * @param \App\Models\Geo\Regency $regency
+     * @param \App\Models\Geo\District $district
+     * @param array $original
+     *
      */
-    public static function seedSubDistricts(): void
+    protected function seedSubDistricts(Country $country, Province $province, Regency $regency, District $district, $original = []): void
     {
-        $districts = self::loadFiles(__DIR__.'/data/geo_districts_ID.csv');
-        $subDistricts = self::loadFiles(__DIR__.'/data/geo_sub_districts_ID.csv')->groupBy('district_id');
+        $this->subDistricts->get($original['identifier'])->each(function ($record) use ($country, $province, $regency, $district) {
+            $this->progressBar->advance();
 
-        $batch = Bus::batch([])
-            ->onQueue('long-running')
-            ->name('geo-seeder-sub-districts');
-
-        foreach ($districts as $district) {
-            $d = District::query()
-                ->whereHas('regency', fn ($q) => $q->where('bsn_code', $district['bsn_code']))
-                ->where('name', $district['name'])
-                ->first();
-
-            if ($d instanceof District) {
-                $subDistricts
-                    ->get($district['identifier'])
-                    ->each(fn ($row) => $batch->jobs->push(
-                        new CreateNewSubDistrict([
-                            'country_id' => $d->country_id,
-                            'province_id' => $d->province_id,
-                            'regency_id' => $d->regency_id,
-                            'district_id' => $d->id,
-                            'name' => $row['name'],
-                            'zip_code' => $row['zip_code'],
-                        ])
-                    ));
-            }
-        }
-
-        $batch->dispatch();
+            $r = new SubDistrict();
+            $r->fill([
+                'country_id' => $country->id,
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'district_id' => $district->id,
+                'name' => $record['name'],
+                'zip_code' => $record['zip_code'],
+            ]);
+            $r->save();
+        });
     }
 }
