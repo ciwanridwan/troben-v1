@@ -19,6 +19,7 @@ class CreateGeoCountriesTable extends Migration
             $table->char('alpha2', 2);
             $table->char('alpha3', 3);
             $table->char('numeric', 3);
+            $table->string('phone_prefix', 3)->nullable();
             $table->timestamps();
         });
     }

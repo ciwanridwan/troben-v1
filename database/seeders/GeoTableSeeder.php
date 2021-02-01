@@ -13,6 +13,7 @@ use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeoTableSeeder extends Seeder
@@ -65,11 +66,9 @@ class GeoTableSeeder extends Seeder
         $iso3166data = $this->loadFiles(__DIR__.'/data/iso3166-2.csv')->groupBy('country_code');
         $this->regencies = $this->loadFiles(__DIR__.'/data/geo_regencies_ID.csv')->groupBy('province_iso');
         $this->districts = $this->loadFiles(__DIR__.'/data/geo_districts_ID.csv')->groupBy('bsn_code');
-
         $subDistricts = $this->loadFiles(__DIR__.'/data/geo_subdistricts_ID.csv');
 
         $totalSubDistrict = $subDistricts->count();
-
         $this->subDistricts = $subDistricts->groupBy('district_id');
 
         $this->command->info('Populating geo data');
@@ -79,6 +78,7 @@ class GeoTableSeeder extends Seeder
 
         foreach ($iso3166->all() as $item) {
             $c = new Country(Arr::except($item, 'currency'));
+            $c->phone_prefix = PhoneNumberUtil::getInstance()->getCountryCodeForRegion($item['alpha2']);
             $c->save();
 
             if (empty($iso3166data->get($c->alpha2))) {

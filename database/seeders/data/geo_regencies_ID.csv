@@ -8,7 +8,7 @@ ID-AC,Kabupaten Aceh Singkil,Singkil,SKL
 ID-AC,Kabupaten Aceh Tamiang,Karang Baru,KRB
 ID-AC,Kabupaten Aceh Tengah,Takengon,TKN
 ID-AC,Kabupaten Aceh Tenggara,Kutacane,KTN
-ID-AC,Kabupaten Aceh Timur,Langsa,LGS
+ID-AC,Kabupaten Aceh Timur,Langsa,LGS-KAB
 ID-AC,Kabupaten Aceh Utara,Lhoksukon,LSK
 ID-AC,Kabupaten Bener Meriah,Simpang Tiga Redelong,STR
 ID-AC,Kabupaten Bireuen,Bireuen,BIR
@@ -33,7 +33,7 @@ ID-SU,Kabupaten Labuhanbatu Selatan,Kota Pinang,KPI
 ID-SU,Kabupaten Labuhanbatu Utara,Aek Kanopan,AKK
 ID-SU,Kabupaten Langkat,Stabat,STB
 ID-SU,Kabupaten Mandailing Natal,Panyabungan,PYB
-ID-SU,Kabupaten Nias,Gunungsitoli,GST
+ID-SU,Kabupaten Nias,Gunungsitoli,GST-KAB
 ID-SU,Kabupaten Nias Barat,Lahomi,LHM
 ID-SU,Kabupaten Nias Selatan,Teluk Dalam,TLD
 ID-SU,Kabupaten Nias Utara,Lotu,LTU
@@ -42,9 +42,9 @@ ID-SU,Kabupaten Padang Lawas Utara,Gunung Tua,GNT
 ID-SU,Kabupaten Pakpak Bharat,Salak,SAL
 ID-SU,Kabupaten Samosir,Pangururan,PRR
 ID-SU,Kabupaten Serdang Bedagai,Sei Rampah,SRH
-ID-SU,Kabupaten Simalungun,Pematang Siantar,PMS
-ID-SU,Kabupaten Tapanuli Selatan,Padang Sidempuan,PSP
-ID-SU,Kabupaten Tapanuli Tengah,Sibolga,SBG
+ID-SU,Kabupaten Simalungun,Pematang Siantar,PMS-KAB
+ID-SU,Kabupaten Tapanuli Selatan,Padang Sidempuan,PSP-KAB
+ID-SU,Kabupaten Tapanuli Tengah,Sibolga,SBG-KAB
 ID-SU,Kabupaten Tapanuli Utara,Tarutung,TRT
 ID-SU,Kabupaten Toba Samosir,Balige,BLG
 ID-SU,Kota Binjai,Binjai,BNJ
@@ -88,7 +88,7 @@ ID-RI,Kota Dumai,Dumai,DUM
 ID-RI,Kota Pekanbaru,Pekanbaru,PBR
 ID-JA,Kabupaten Batanghari,Muara Bulian,MBN
 ID-JA,Kabupaten Bungo,Muara Bungo,MRB
-ID-JA,Kabupaten Kerinci,Sungai Penuh,SPN
+ID-JA,Kabupaten Kerinci,Sungai Penuh,SPN-KAB
 ID-JA,Kabupaten Merangin,Bangko,BKO
 ID-JA,Kabupaten Muaro Jambi,Sengeti,SNT
 ID-JA,Kabupaten Sarolangun,Sarolangun,SRL
@@ -234,13 +234,13 @@ ID-JI,Kabupaten Bondowoso,Bondowoso,BDW
 ID-JI,Kabupaten Gresik,Gresik,GSK
 ID-JI,Kabupaten Jember,Jember,JMR
 ID-JI,Kabupaten Jombang,Jombang,JBG
-ID-JI,Kabupaten Kediri,Kediri,KDR
+ID-JI,Kabupaten Kediri,Kediri,KDR-KAB
 ID-JI,Kabupaten Lamongan,Lamongan,LMG
 ID-JI,Kabupaten Lumajang,Lumajang,LMJ
 ID-JI,Kabupaten Madiun,Mejayan,MJY
 ID-JI,Kabupaten Magetan,Magetan,MGT
 ID-JI,Kabupaten Malang,Kepanjen,KPN
-ID-JI,Kabupaten Mojokerto,Mojokerto,MJK
+ID-JI,Kabupaten Mojokerto,Mojokerto,MJK-KAB
 ID-JI,Kabupaten Nganjuk,Nganjuk,NJK
 ID-JI,Kabupaten Ngawi,Ngawi,NGW
 ID-JI,Kabupaten Pacitan,Pacitan,PCT
@@ -266,7 +266,7 @@ ID-JI,Kota Probolinggo,Probolinggo,PBL
 ID-JI,Kota Surabaya,Surabaya,SBY
 ID-BT,Kabupaten Lebak,Rangkas Bitung,RKB
 ID-BT,Kabupaten Pandeglang,Pandeglang,PDG
-ID-BT,Kabupaten Serang,Serang,SRG
+ID-BT,Kabupaten Serang,Serang,SRG-KAB
 ID-BT,Kabupaten Tangerang,Tigaraksa,TGR
 ID-BT,Kota Cilegon,Cilegon,CLG
 ID-BT,Kota Serang,Serang,SRG
@@ -295,7 +295,7 @@ ID-NT,Kabupaten Alor,Kalabahi,KLB
 ID-NT,Kabupaten Belu,Atambua,ATB
 ID-NT,Kabupaten Ende,Ende,END
 ID-NT,Kabupaten Flores Timur,Larantuka,LRT
-ID-NT,Kabupaten Kupang,Kupang,KPG
+ID-NT,Kabupaten Kupang,Kupang,KPG-KAB
 ID-NT,Kabupaten Lembata,Lewoleba,LWB
 ID-NT,Kabupaten Malaka,Betun,BTN
 ID-NT,Kabupaten Manggarai,Ruteng,RTG
@@ -405,7 +405,7 @@ ID-SN,Kabupaten Enrekang,Enrekang,ENR
 ID-SN,Kabupaten Gowa,Sungguminasa,SGM
 ID-SN,Kabupaten Jeneponto,Jeneponto,JNP
 ID-SN,Kabupaten Selayar (Kepulauan Selayar),Benteng,BEN
-ID-SN,Kabupaten Luwu,Palopo,PLP
+ID-SN,Kabupaten Luwu,Palopo,PLP-KAB
 ID-SN,Kabupaten Luwu Timur,Malili,MLL
 ID-SN,Kabupaten Luwu Utara,Masamba,MSB
 ID-SN,Kabupaten Maros,Maros,MRS
@@ -455,7 +455,7 @@ ID-MA,Kabupaten Buru Selatan,Namrole,NMR
 ID-MA,Kabupaten Kepulauan Aru,Dobo,DOB
 ID-MA,Kabupaten Maluku Barat Daya,Tiakur,TKR
 ID-MA,Kabupaten Maluku Tengah,Masohi,MSH
-ID-MA,Kabupaten Maluku Tenggara,Tual,TUL
+ID-MA,Kabupaten Maluku Tenggara,Tual,TUL-KAB
 ID-MA,Kabupaten Maluku Tenggara Barat,Saumlaki,SML
 ID-MA,Kabupaten Seram Bagian Barat,Dataran Hunipopu,DRH
 ID-MA,Kabupaten Seram Bagian Timur,Dataran Hunimoa,DTH
@@ -477,7 +477,7 @@ ID-PA,Kabupaten Boven Digoel,Tanah Merah,TMR
 ID-PA,Kabupaten Deiyai (Deliyai),Tigi,TIG
 ID-PA,Kabupaten Dogiyai,Kigamani,KGM
 ID-PA,Kabupaten Intan Jaya,Sugapa,SGP
-ID-PA,Kabupaten Jayapura,Jayapura,JAP
+ID-PA,Kabupaten Jayapura,Jayapura,JAP-KAB
 ID-PA,Kabupaten Jayawijaya,Wamena,WAM
 ID-PA,Kabupaten Keerom,Waris,WRS
 ID-PA,Kabupaten Kepulauan Yapen (Yapen Waropen),Serui,SRU
