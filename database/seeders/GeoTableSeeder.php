@@ -154,6 +154,8 @@ class GeoTableSeeder extends Seeder
             ->name('geo-seeder-districts')
             ->dispatch();
 
+        logger()->info('seeding districts: ' . $districts->count());
+
         $districts->each(function ($row) use ($batch) {
             $ticker = 0;
             while ($ticker < self::TIMEOUT) {
@@ -193,7 +195,11 @@ class GeoTableSeeder extends Seeder
         foreach ($districts as $rowDistrict) {
             $ticker = 0;
             while ($ticker < self::TIMEOUT) {
-                $d = District::query()->where('name', $rowDistrict['name'])->whereHas('regency', fn ($q) => $q->where('bsn_code', $rowDistrict['bsn_code']))->first();
+                $d = District::query()
+                    ->whereHas('regency', fn ($q) => $q->where('bsn_code', $rowDistrict['bsn_code']))
+                    ->where('name', $rowDistrict['name'])
+                    ->first();
+
                 if ($d instanceof District) {
                     $subDistricts
                         ->get($rowDistrict['identifier'])
