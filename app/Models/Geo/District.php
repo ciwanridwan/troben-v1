@@ -39,7 +39,7 @@ class District extends Model
     protected $fillable = [
         'country_id',
         'province_id',
-        'city_id',
+        'regency_id',
         'name',
     ];
 
@@ -70,7 +70,7 @@ class District extends Model
      */
     public function regency(): BelongsTo
     {
-        return $this->belongsTo(Regency::class, 'city_id', 'id');
+        return $this->belongsTo(Regency::class, 'regency_id', 'id');
     }
 
     /**

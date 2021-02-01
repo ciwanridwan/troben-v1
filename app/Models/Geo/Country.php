@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string                                                                      $alpha2
  * @property string                                                                      $alpha3
  * @property string                                                                      $numeric
+ * @property string                                                                      $phone_prefix
  * @property \Carbon\Carbon                                                              $created_at
  * @property \Carbon\Carbon                                                              $updated_at
  *
@@ -40,6 +41,7 @@ class Country extends Model
         'alpha2',
         'alpha3',
         'numeric',
+        'phone_prefix',
     ];
 
     /**

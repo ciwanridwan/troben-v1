@@ -40,7 +40,7 @@ class SubDistrict extends Model
     protected $fillable = [
         'country_id',
         'province_id',
-        'city_id',
+        'regency_id',
         'district_id',
         'name',
         'zip_code',
@@ -63,7 +63,7 @@ class SubDistrict extends Model
      */
     public function regency(): BelongsTo
     {
-        return $this->belongsTo(Regency::class, 'city_id', 'id');
+        return $this->belongsTo(Regency::class, 'regency_id', 'id');
     }
 
     /**
