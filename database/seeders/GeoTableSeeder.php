@@ -78,7 +78,7 @@ class GeoTableSeeder extends Seeder
 
         foreach ($iso3166->all() as $item) {
             $c = new Country(Arr::except($item, 'currency'));
-            $c->phone_prefix =  PhoneNumberUtil::getInstance()->getCountryCodeForRegion($item['alpha2']);
+            $c->phone_prefix = PhoneNumberUtil::getInstance()->getCountryCodeForRegion($item['alpha2']);
             $c->save();
 
             if (empty($iso3166data->get($c->alpha2))) {
@@ -92,7 +92,7 @@ class GeoTableSeeder extends Seeder
                 $p->fill([
                     'country_id' => $c->id,
                     'name' => $record['subdivision_name'],
-                    'iso_code' => $record['code']
+                    'iso_code' => $record['code'],
                 ]);
                 $p->save();
 
