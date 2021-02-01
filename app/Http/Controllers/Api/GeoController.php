@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Geo\Country;
+use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
-use App\Http\Controllers\Controller;
-use App\Models\Geo\Regency;
-use App\Models\Geo\SubDistrict;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Geo\SubDistrict;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class GeoController extends Controller
 {
@@ -27,13 +27,13 @@ class GeoController extends Controller
      *
      * @var array
      */
-    protected array $attributes  = [];
+    protected array $attributes = [];
 
     /**
      * Get list of geographical information
      * Route Path       : {API_DOMAIN}/geo
      * Route Method     : GET
-     * Route Name       : api.geo
+     * Route Name       : api.geo.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -43,19 +43,18 @@ class GeoController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'type' => [ 'required', Rule::in([
-                'country', 'province', 'regency', 'district', 'sub_district'
+            'type' => ['required', Rule::in([
+                'country', 'province', 'regency', 'district', 'sub_district',
             ])],
             'q' => 'string|nullable',
             'country_id' => 'nullable',
-            'province_id'=> 'nullable',
+            'province_id' => 'nullable',
             'regency_id' => 'nullable',
             'district_id' => 'nullable',
-            'id' => 'nullable'
+            'id' => 'nullable',
         ])->validate();
 
-        switch($this->attributes['type'])
-        {
+        switch ($this->attributes['type']) {
             case 'country':
                 return $this->getCountries();
             case 'province':
@@ -89,7 +88,7 @@ class GeoController extends Controller
     protected function getProvinces(): JsonResponse
     {
         $query = $this->getBasicBuilder(with(self::TYPE_PROVINCE)->query());
-        $query->when(request()->has('country_id'), fn($q) => $q->where('country_id', $this->attributes['country_id']));
+        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
 
         return response()->json($query->paginate(request('per_page', 15)));
     }
@@ -102,8 +101,8 @@ class GeoController extends Controller
     protected function getRegencies(): JsonResponse
     {
         $query = $this->getBasicBuilder(with(self::TYPE_REGENCY)->query());
-        $query->when(request()->has('country_id'), fn($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn($q) => $q->where('province_id', $this->attributes['province_id']));
+        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
+        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
 
         return response()->json($query->paginate(request('per_page', 15)));
     }
@@ -117,9 +116,9 @@ class GeoController extends Controller
     {
         $query = $this->getBasicBuilder(with(self::TYPE_DISTRICT)->query());
 
-        $query->when(request()->has('country_id'), fn($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->has('regency_id'), fn($q) => $q->where('regency_id', $this->attributes['regency_id']));
+        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
+        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
+        $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
 
         return response()->json($query->paginate(request('per_page', 15)));
     }
@@ -133,10 +132,10 @@ class GeoController extends Controller
     {
         $query = $this->getBasicBuilder(with(self::TYPE_SUB_DISTRICT)->query());
 
-        $query->when(request()->has('country_id'), fn($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->has('regency_id'), fn($q) => $q->where('regency_id', $this->attributes['regency_id']));
-        $query->when(request()->has('district_id'), fn($q) => $q->where('district_id', $this->attributes['district_id']));
+        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
+        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
+        $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
+        $query->when(request()->has('district_id'), fn ($q) => $q->where('district_id', $this->attributes['district_id']));
 
         return response()->json($query->paginate(request('per_page', 15)));
     }
