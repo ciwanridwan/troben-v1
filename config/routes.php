@@ -22,6 +22,7 @@ return [
         /** @inject web **/
     ],
     'api' => [
+        App\Http\Routes\Api\GeoRoute::class,
         /** @inject api **/
     ],
 ];
