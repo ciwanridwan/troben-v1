@@ -205,7 +205,7 @@ return [
             ],
             'supervisor-long-running' => [
                 'maxProcesses' => 10,
-            ]
+            ],
         ],
     ],
 ];
