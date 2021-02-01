@@ -22,8 +22,6 @@ use App\Jobs\Geo\CreateNewSubDistrict;
 
 class GeoTableSeeder extends Seeder
 {
-    const TIMEOUT = 60;
-
     /**
      * @param $filePath
      * @return \Illuminate\Support\Collection
@@ -57,12 +55,10 @@ class GeoTableSeeder extends Seeder
             ->map(fn ($item) => new CreateNewCountry(Arr::except($item, 'currency')))
             ->filter();
 
-        $batch = Bus::batch([])
+        Bus::batch($jobs->all())
             ->finally(fn (Batch $batch) => self::seedProvinces())
             ->name('geo-seeder-countries')
             ->dispatch();
-
-        $batch->add($jobs->all());
 
         $this->command->info('Finished populating geo data.');
     }
@@ -78,27 +74,21 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedRegencies())
-            ->name('geo-seeder-provinces')
-            ->dispatch();
+            ->name('geo-seeder-provinces');
 
-        $iso3166->each(function ($row) use ($batch) {
-            $ticker = 0;
-            while ($ticker < self::TIMEOUT) {
-                $c = Country::query()->where('alpha2', $row['country_code'])->first();
-                if ($c instanceof Country) {
-                    $batch->add([
-                        new CreateNewProvince([
-                            'country_id' => $c->id,
-                            'name' => $row['subdivision_name'],
-                            'iso_code' => $row['code'],
-                        ]),
-                    ]);
-                    break;
-                }
-                $ticker++;
-                sleep(1);
+        foreach ($iso3166 as $row) {
+            $c = Country::query()->where('alpha2', $row['country_code'])->first();
+
+            if ($c instanceof Country) {
+                $batch->jobs->push(new CreateNewProvince([
+                    'country_id' => $c->id,
+                    'name' => $row['subdivision_name'],
+                    'iso_code' => $row['code'],
+                ]));
             }
-        });
+        }
+
+        $batch->dispatch();
     }
 
     /**
@@ -113,31 +103,24 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedDistricts())
-            ->name('geo-seeder-regencies')
-            ->dispatch();
+            ->name('geo-seeder-regencies');
 
-        $regencies
-            ->each(function ($row) use ($batch) {
-                $ticker = 0;
-                while ($ticker < self::TIMEOUT) {
-                    $p = Province::query()->where('iso_code', $row['province_iso'])->first();
+        foreach ($regencies as $row) {
+            $p = Province::query()->where('iso_code', $row['province_iso'])->first();
+            if ($p instanceof Province) {
+                $batch->jobs->push(
+                    new CreateNewRegency([
+                        'country_id' => $p->country_id,
+                        'province_id' => $p->id,
+                        'name' => $row['regency'],
+                        'capital' => $row['capital'],
+                        'bsn_code' => $row['bsn_code'],
+                    ])
+                );
+            }
+        }
 
-                    if ($p instanceof Province) {
-                        $batch->add([
-                            new CreateNewRegency([
-                                'country_id' => $p->country_id,
-                                'province_id' => $p->id,
-                                'name' => $row['regency'],
-                                'capital' => $row['capital'],
-                                'bsn_code' => $row['bsn_code'],
-                            ]),
-                        ]);
-                        break;
-                    }
-                    $ticker++;
-                    sleep(1);
-                }
-            });
+        $batch->dispatch();
     }
 
     /**
@@ -151,31 +134,21 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedSubDistricts())
-            ->name('geo-seeder-districts')
-            ->dispatch();
+            ->name('geo-seeder-districts');
 
-        logger()->info('seeding districts: ' . $districts->count());
-
-        $districts->each(function ($row) use ($batch) {
-            $ticker = 0;
-            while ($ticker < self::TIMEOUT) {
-                $r = Regency::query()->where('bsn_code', $row['bsn_code'])->first();
-
-                if ($r instanceof Regency) {
-                    $batch->add([
-                        new CreateNewDistrict([
-                            'country_id' => $r->country_id,
-                            'province_id' => $r->province_id,
-                            'regency_id' => $r->id,
-                            'name' => $row['name'],
-                        ]),
-                    ]);
-                    break;
-                }
-                $ticker++;
-                sleep(1);
+        foreach ($districts as $row) {
+            $r = Regency::query()->where('bsn_code', $row['bsn_code'])->first();
+            if ($r instanceof Regency) {
+                $batch->jobs->push(new CreateNewDistrict([
+                    'country_id' => $r->country_id,
+                    'province_id' => $r->province_id,
+                    'regency_id' => $r->id,
+                    'name' => $row['name'],
+                ]));
             }
-        });
+        }
+
+        $batch->dispatch();
     }
 
     /**
@@ -188,35 +161,31 @@ class GeoTableSeeder extends Seeder
         $districts = self::loadFiles(__DIR__.'/data/geo_districts_ID.csv');
         $subDistricts = self::loadFiles(__DIR__.'/data/geo_sub_districts_ID.csv')->groupBy('district_id');
 
-        $subDistrictBatch = Bus::batch([])
-            ->name('geo-seeder-sub-districts')
-            ->dispatch();
+        $batch = Bus::batch([])
+            ->name('geo-seeder-sub-districts');
 
-        foreach ($districts as $rowDistrict) {
-            $ticker = 0;
-            while ($ticker < self::TIMEOUT) {
-                $d = District::query()
-                    ->whereHas('regency', fn ($q) => $q->where('bsn_code', $rowDistrict['bsn_code']))
-                    ->where('name', $rowDistrict['name'])
-                    ->first();
+        foreach ($districts as $district) {
+            $d = District::query()
+                ->whereHas('regency', fn ($q) => $q->where('bsn_code', $district['bsn_code']))
+                ->where('name', $district['name'])
+                ->first();
 
-                if ($d instanceof District) {
-                    $subDistricts
-                        ->get($rowDistrict['identifier'])
-                        ->each(fn ($row) => $subDistrictBatch->add([
-                            new CreateNewSubDistrict([
-                                'country_id' => $d->country_id,
-                                'province_id' => $d->province_id,
-                                'regency_id' => $d->regency_id,
-                                'district_id' => $d->id,
-                                'name' => $row['name'],
-                                'zip_code' => $row['zip_code'],
-                            ]),
-                        ]));
-                    break;
-                }
-                sleep(1);
+            if ($d instanceof District) {
+                $subDistricts
+                    ->get($district['identifier'])
+                    ->each(fn ($row) => $batch->jobs->push(
+                        new CreateNewSubDistrict([
+                            'country_id' => $d->country_id,
+                            'province_id' => $d->province_id,
+                            'regency_id' => $d->regency_id,
+                            'district_id' => $d->id,
+                            'name' => $row['name'],
+                            'zip_code' => $row['zip_code'],
+                        ])
+                    ));
             }
         }
+
+        $batch->dispatch();
     }
 }
