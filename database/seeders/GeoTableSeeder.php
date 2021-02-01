@@ -58,6 +58,7 @@ class GeoTableSeeder extends Seeder
         Bus::batch($jobs->all())
             ->finally(fn (Batch $batch) => self::seedProvinces())
             ->name('geo-seeder-countries')
+            ->onQueue('long-running')
             ->dispatch();
 
         $this->command->info('Finished populating geo data.');
@@ -74,6 +75,7 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedRegencies())
+            ->onQueue('long-running')
             ->name('geo-seeder-provinces');
 
         foreach ($iso3166 as $row) {
@@ -103,6 +105,7 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedDistricts())
+            ->onQueue('long-running')
             ->name('geo-seeder-regencies');
 
         foreach ($regencies as $row) {
@@ -134,6 +137,7 @@ class GeoTableSeeder extends Seeder
 
         $batch = Bus::batch([])
             ->finally(fn (Batch $batch) => self::seedSubDistricts())
+            ->onQueue('long-running')
             ->name('geo-seeder-districts');
 
         foreach ($districts as $row) {
@@ -162,6 +166,7 @@ class GeoTableSeeder extends Seeder
         $subDistricts = self::loadFiles(__DIR__.'/data/geo_sub_districts_ID.csv')->groupBy('district_id');
 
         $batch = Bus::batch([])
+            ->onQueue('long-running')
             ->name('geo-seeder-sub-districts');
 
         foreach ($districts as $district) {

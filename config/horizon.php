@@ -165,9 +165,18 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'supervisor' => [
             'connection' => 'redis',
             'queue' => ['default'],
+            'balance' => 'auto',
+            'maxProcesses' => 1,
+            'memory' => 128,
+            'tries' => 1,
+            'nice' => 0,
+        ],
+        'supervisor-long-running' => [
+            'connection' => 'redis-long-running',
+            'queue' => ['long-running'],
             'balance' => 'auto',
             'maxProcesses' => 1,
             'memory' => 128,
@@ -178,7 +187,12 @@ return [
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
+            'supervisor' => [
+                'maxProcesses' => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-long-running' => [
                 'maxProcesses' => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
@@ -186,9 +200,12 @@ return [
         ],
 
         'local' => [
-            'supervisor-1' => [
+            'supervisor' => [
                 'maxProcesses' => 10,
             ],
+            'supervisor-long-running' => [
+                'maxProcesses' => 10,
+            ]
         ],
     ],
 ];
