@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\GeoController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\GeoController;
 
 class GeoRoute extends BaseRoute
 {
@@ -30,7 +30,7 @@ class GeoRoute extends BaseRoute
     {
         $this->router->get($this->prefix(), [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 
