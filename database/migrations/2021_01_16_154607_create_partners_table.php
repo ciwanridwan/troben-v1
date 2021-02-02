@@ -20,6 +20,7 @@ class CreatePartnersTable extends Migration
             $table->string('contact_phone')->nullable();
             $table->string('address')->nullable();
             $table->point('geo_location')->nullable();
+            $table->string('type')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
