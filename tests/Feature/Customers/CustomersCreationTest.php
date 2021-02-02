@@ -18,10 +18,10 @@ class CustomersCreationTest extends TestCase
     {
         parent::setUp();
         $this->data = [
-            'name' => 'test', //"username test",
-            'phone' => '081283381238', //"08512345679",
-            'password' => '12398312', //"aLphAnumeric123",
-            'email' => 'test@email.comsdfasdasd', //"email@test.com"
+            'name' => "username test",
+            'phone' => "08512345679",
+            'password' => "aLphAnumeric123",
+            'email' => "email@test.com"
         ];
     }
 
