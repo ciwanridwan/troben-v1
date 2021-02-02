@@ -54,7 +54,7 @@ class PartnerTableSeeder extends Seeder
 
         // showing progressbar
         $this->command->info('Populating partner data');
-        $this->progressBar = $this->command->getOutput()->createProgressBar($this->partner->count()); 
+        $this->progressBar = $this->command->getOutput()->createProgressBar($this->partner->count());
 
         DB::beginTransaction();
         foreach ($this->partner as $item) {
