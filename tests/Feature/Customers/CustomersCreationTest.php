@@ -2,38 +2,32 @@
 
 namespace Tests\Feature\Customers;
 
-use App\Jobs\Auth\CreateNewCustomer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Faker\Factory as Faker;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Arr;
+use App\Jobs\Auth\CreateNewCustomer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\VarDumper\VarDumper;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CustomersCreationTest extends TestCase
 {
-
     use RefreshDatabase, DispatchesJobs;
 
     private $data;
-    function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
         $this->data = [
-            'name' => "test", //"username test",
-            'phone' => "081283381238", //"08512345679",
-            'password' => "12398312", //"aLphAnumeric123",
-            'email' => "test@email.comsdfasdasd" //"email@test.com"
+            'name' => 'test', //"username test",
+            'phone' => '081283381238', //"08512345679",
+            'password' => '12398312', //"aLphAnumeric123",
+            'email' => 'test@email.comsdfasdasd', //"email@test.com"
         ];
     }
 
     /** @test */
     public function test_on_valid_data()
     {
-
         $this->withoutExceptionHandling();
 
 
@@ -71,7 +65,6 @@ class CustomersCreationTest extends TestCase
     /** @test */
     public function test_on_invalid_data()
     {
-
         $this->withoutExceptionHandling();
 
         $invalid_field_name = 'email';
@@ -79,7 +72,7 @@ class CustomersCreationTest extends TestCase
 
         // test on invalid email
         $data = $this->data;
-        $data[$invalid_field_name] = "email";
+        $data[$invalid_field_name] = 'email';
 
         try {
             $response = $this->dispatch(new CreateNewCustomer($data));
