@@ -2,13 +2,11 @@
 
 namespace App\Jobs\Auth;
 
-use App\Events\Auth\NewCustomerCreated;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use App\Events\Geo\CustomerModified;
 use App\Models\Customers\Customer;
-use libphonenumber\PhoneNumberUtil;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Auth\NewCustomerCreated;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Queue\ShouldQueue;
