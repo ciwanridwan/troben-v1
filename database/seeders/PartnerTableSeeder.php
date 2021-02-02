@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use League\Csv\Reader;
+use App\Models\Userable;
 use League\Csv\Statement;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Warehouse;
-use App\Models\User;
-use App\Models\Userable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Models\Partners\Transporter;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class PartnerTableSeeder extends Seeder
@@ -71,7 +71,7 @@ class PartnerTableSeeder extends Seeder
             $u = new User();
             $u->name = $item['name'];
             $u->email = $item['email'];
-            $u->password = "Trawlbens".$item['phonenumber']; //test data
+            $u->password = 'Trawlbens'.$item['phonenumber']; //test data
             $u->save();
 
             $uable = new Userable();
@@ -80,7 +80,7 @@ class PartnerTableSeeder extends Seeder
                 ->associate($p)
                 ->save();
 
-            $this->validatePartner($p,$item);
+            $this->validatePartner($p, $item);
             DB::commit();
         }
 
@@ -120,17 +120,17 @@ class PartnerTableSeeder extends Seeder
      */
     protected function validatePartner(Partner $partner, $original = []) : void
     {
-        if (in_array($partner->type,['pool','space','business'])) {
+        if (in_array($partner->type, ['pool','space','business'])) {
             $w = new Warehouse();
             $w->partner_id = $partner->id;
             $w->code = $original['code']; //data test
             $w->name = $original['name']; //data test
             $w->is_pool = $partner->type == 'pool' ? true : false;
-            $w->is_counter = in_array($partner->type,['business','space']) ? true : false;
+            $w->is_counter = in_array($partner->type, ['business','space']) ? true : false;
             $w->save();
         }
 
-        if (in_array($partner->type,['business','transporter'])) {
+        if (in_array($partner->type, ['business','transporter'])) {
             $t = new Transporter();
             $t->partner_id = $partner->id;
             $t->name = $original['code']; //data test

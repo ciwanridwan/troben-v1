@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * Userable Model
+ * Userable Model.
  * 
  * @property int $id
  * @property int $user_id
@@ -25,6 +25,6 @@ class Userable extends Model
      */
     public function partnerable() : MorphTo
     {
-        return $this->morphTo('partner','userable_type','userable_id');
+        return $this->morphTo('partner', 'userable_type', 'userable_id');
     }
 }
