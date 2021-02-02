@@ -35,7 +35,7 @@ class CreateNewCustomer implements ShouldQueue
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
             'email' => ['nullable', 'email', 'unique:customers,email,NULL,id,deleted_at,NULL'],
-            'phone' => ['required', 'numeric'],
+            'phone' => ['required', 'numeric', 'phone:AUTO,ID'],
             'password' => ['required', 'min:8', 'alpha_num'],
             'fcm_token' => ['nullable'],
             'facebook_id' => ['nullable'],
