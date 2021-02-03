@@ -45,13 +45,21 @@ class Price extends Model
      * @var string[]
      */
     protected $fillable = [
-        'origin_id',
-        'origin_province_id',
-        'origin_city_id',
-        'origin_district_id',
-        'destination_id',
+        // 'origin_province_id',
+        'origin_regency_id',
+        // 'origin_district_id',
+        'zip_code',
         'service_code',
-        'price',
+        'tier_1',
+        'tier_2',
+        'tier_3',
+        'tier_4',
+        'tier_5',
+        'tier_6',
+        'tier_7',
+        'tier_8',
+        'tier_9',
+        'tier_10',
     ];
 
     /**
@@ -68,29 +76,29 @@ class Price extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function origin(): BelongsTo
-    {
-        return $this->belongsTo(SubDistrict::class, 'origin_id', 'id');
-    }
+    // public function origin(): BelongsTo
+    // {
+    //     return $this->belongsTo(SubDistrict::class, 'origin_id', 'id');
+    // }
 
     /**
      * Define `belongsTo` relationship with District model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function district(): BelongsTo
-    {
-        return $this->belongsTo(District::class, 'origin_district_id', 'id');
-    }
+    // public function district(): BelongsTo
+    // {
+    //     return $this->belongsTo(District::class, 'origin_district_id', 'id');
+    // }
 
     /**
-     * Define `belongsTo` relationship with City model.
+     * Define `belongsTo` relationship with Regency model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function city(): BelongsTo
+    public function regency(): BelongsTo
     {
-        return $this->belongsTo(Regency::class, 'origin_city_id', 'id');
+        return $this->belongsTo(Regency::class, 'origin_regency_id', 'id');
     }
 
     /**
@@ -98,20 +106,20 @@ class Price extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function province(): BelongsTo
-    {
-        return $this->belongsTo(Province::class, 'origin_province_id', 'id');
-    }
+    // public function province(): BelongsTo
+    // {
+    //     return $this->belongsTo(Province::class, 'origin_province_id', 'id');
+    // }
 
     /**
      * Define `belongsTo` relationship with SubDistrict model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function destination(): BelongsTo
-    {
-        return $this->belongsTo(SubDistrict::class, 'destination_id', 'id');
-    }
+    // public function destination(): BelongsTo
+    // {
+    //     return $this->belongsTo(SubDistrict::class, 'destination_id', 'id');
+    // }
 
     /**
      * Define `belongsTo` relationship with Service model.
