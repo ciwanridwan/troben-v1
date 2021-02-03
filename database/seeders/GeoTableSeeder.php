@@ -13,6 +13,7 @@ use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -62,6 +63,13 @@ class GeoTableSeeder extends Seeder
      */
     public function run()
     {
+        // truncate existing tables.
+        DB::table('geo_sub_districts')->truncate();
+        DB::table('geo_districts')->truncate();
+        DB::table('geo_regencies')->truncate();
+        DB::table('geo_provinces')->truncate();
+        DB::table('geo_countries')->truncate();
+
         $this->command->info('Load required files...');
         $iso3166data = $this->loadFiles(__DIR__.'/data/iso3166-2.csv')->groupBy('country_code');
         $this->regencies = $this->loadFiles(__DIR__.'/data/geo_regencies_ID.csv')->groupBy('province_iso');
