@@ -67,10 +67,10 @@ class UpdateExistingCustomer
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {
                 // TODO:: fire success event.
-                event(new CustomerModified);
+                event(new CustomerModified($this->customer));
             } else {
                 // TODO:: fire failed event.
-                event(new CustomerModificationFailed);
+                event(new CustomerModificationFailed($this->customer));
             }
         } else {
         }
