@@ -4,10 +4,10 @@ namespace Tests\Feature\Customers;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
-use App\Jobs\Customers\CreateNewCustomer;
-use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Models\Customers\Customer;
+use App\Jobs\Customers\CreateNewCustomer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Customers\UpdateExistingCustomer;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -56,7 +56,6 @@ class CustomerUpdatingTest extends TestCase
     /** @test */
     public function test_on_missing_data()
     {
-
         $this->withoutExceptionHandling();
 
 
