@@ -79,6 +79,7 @@ class PartnerTableSeeder extends Seeder
                     'userable_id' => $p->getKey(),
                     'role' => 'owner',
                 ]);
+                $pivot->save();
 
                 $this->validatePartner($p, $item);
             });
