@@ -1,0 +1,24 @@
+_id: env_308da0400dbf446bad244fa9177371a4
+type: Environment
+parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
+modified: 1612370420030
+created: 1612370393603
+name: Staging
+data:
+  base_url: https://api.staging.trawlbens.co.id
+  credentials:
+    customer:
+      phone: test
+      password: password
+dataPropertyOrder:
+  "&":
+    - base_url
+    - credentials
+  "&~|credentials":
+    - customer
+  "&~|credentials~|customer":
+    - phone
+    - password
+color: "#7d69cb"
+isPrivate: false
+metaSortKey: 1612370393603
