@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\Auth\CreateNewCustomer;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-
-
     /**
      * register customer only
      * Route Path       : {API_DOMAIN}/auth/register
@@ -26,19 +23,21 @@ class RegisterController extends Controller
     public function store(Request $request): JsonResponse
     {
         $response = $this->storeCustomer($request->all());
+
         return response()->json($response);
     }
 
 
     public function storeCustomer($inputs = [])
     {
-        $status =  $this->dispatch(new CreateNewCustomer($inputs));
+        $status = $this->dispatch(new CreateNewCustomer($inputs));
         // only for data dummy
         if ($status === true) {
             $response = [
-                'otp_token' => "0986"
+                'otp_token' => '0986',
             ];
         }
+
         return $response;
     }
 }
