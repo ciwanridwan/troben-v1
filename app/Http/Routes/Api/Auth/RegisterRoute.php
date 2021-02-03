@@ -2,24 +2,24 @@
 
 namespace App\Http\Routes\Api\Auth;
 
-use App\Http\Controllers\Api\Auth\RegisterController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Auth\RegisterController;
 
 class RegisterRoute extends BaseRoute
 {
     /**
      *
-     * Registered Name
+     * Registered Name.
      *
      */
-    protected $path = "/auth/register";
+    protected $path = '/auth/register';
 
     /**
      *
-     * Registered Name
+     * Registered Name.
      *
      */
-    protected $name = "api.auth.register";
+    protected $name = 'api.auth.register';
 
     /**
      * Register routes handled by this class.
@@ -31,7 +31,7 @@ class RegisterRoute extends BaseRoute
         // make an awesome route
         $this->router->post($this->path, [
             'as' => $this->name,
-            'uses' => $this->uses('store')
+            'uses' => $this->uses('store'),
         ]);
     }
 
