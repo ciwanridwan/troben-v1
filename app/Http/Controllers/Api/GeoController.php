@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Validator;
 
 class GeoController extends Controller
 {
-    const TYPE_COUNTRY = Country::class;
-    const TYPE_PROVINCE = Province::class;
-    const TYPE_REGENCY = Regency::class;
-    const TYPE_DISTRICT = District::class;
-    const TYPE_SUB_DISTRICT = SubDistrict::class;
-
     /**
      * Filtered attributes.
      *
@@ -75,7 +69,7 @@ class GeoController extends Controller
      */
     protected function getCountries(): JsonResponse
     {
-        $query = $this->getBasicBuilder(with(self::TYPE_COUNTRY)->query());
+        $query = $this->getBasicBuilder(Country::query());
 
         return response()->json($query->paginate(request('per_page', 15)));
     }
@@ -87,7 +81,7 @@ class GeoController extends Controller
      */
     protected function getProvinces(): JsonResponse
     {
-        $query = $this->getBasicBuilder(with(self::TYPE_PROVINCE)->query());
+        $query = $this->getBasicBuilder(Province::query());
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
 
         return response()->json($query->paginate(request('per_page', 15)));
@@ -100,7 +94,7 @@ class GeoController extends Controller
      */
     protected function getRegencies(): JsonResponse
     {
-        $query = $this->getBasicBuilder(with(self::TYPE_REGENCY)->query());
+        $query = $this->getBasicBuilder(Regency::query());
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
 
@@ -114,7 +108,7 @@ class GeoController extends Controller
      */
     protected function getDistricts(): JsonResponse
     {
-        $query = $this->getBasicBuilder(with(self::TYPE_DISTRICT)->query());
+        $query = $this->getBasicBuilder(District::query());
 
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
@@ -130,7 +124,7 @@ class GeoController extends Controller
      */
     protected function getSubDistricts(): JsonResponse
     {
-        $query = $this->getBasicBuilder(with(self::TYPE_SUB_DISTRICT)->query());
+        $query = $this->getBasicBuilder(SubDistrict::query());
 
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
