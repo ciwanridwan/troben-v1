@@ -39,7 +39,6 @@ class DeleteExistingCustomer
     public function handle(): bool
     {
         if ($this->customer->delete()) {
-            // TODO:: fire success event.
             event(new CustomerDeleted($this->customer));
         }
 

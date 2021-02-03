@@ -41,7 +41,6 @@ class UpdateExistingCustomer
     {
         $this->customer = $customer;
         $this->attributes = Validator::make($inputs, [
-            // TODO: add validation rules.
             'name' => ['filled'],
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID'],
@@ -59,17 +58,14 @@ class UpdateExistingCustomer
      */
     public function handle(): bool
     {
-        // TODO:: update existing customer logic.
         foreach ($this->attributes as $key => $value) {
             $this->customer->$key = $value;
         }
 
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {
-                // TODO:: fire success event.
                 event(new CustomerModified($this->customer));
             } else {
-                // TODO:: fire failed event.
                 event(new CustomerModificationFailed($this->customer));
             }
         } else {
