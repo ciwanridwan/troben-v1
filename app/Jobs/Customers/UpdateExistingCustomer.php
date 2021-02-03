@@ -43,7 +43,7 @@ class UpdateExistingCustomer
         $this->attributes = Validator::make($inputs, [
             // TODO: add validation rules.
             'name' => ['filled'],
-            'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
+            'email' => ['filled', 'email', 'unique:customers,email,' . $customer->id . ',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID'],
             'password' => ['filled', 'min:8', 'alpha_num'],
             'fcm_token' => ['nullable'],
@@ -67,10 +67,10 @@ class UpdateExistingCustomer
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {
                 // TODO:: fire success event.
-                event(new CustomerModified);
+                event(new CustomerModified($this->customer));
             } else {
                 // TODO:: fire failed event.
-                event(new CustomerModificationFailed);
+                event(new CustomerModificationFailed($this->customer));
             }
         } else {
         }
