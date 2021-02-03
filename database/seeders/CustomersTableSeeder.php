@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Customers\Customer;
 
-class DatabaseSeeder extends Seeder
+class CustomersTableSeeder extends Seeder
 {
     /**
      * Seed the application's database.
@@ -13,9 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            GeoTableSimpleSeeder::class,
-            CustomersTableSeeder::class,
-        ]);
+        Customer::factory(10)->create();
     }
 }

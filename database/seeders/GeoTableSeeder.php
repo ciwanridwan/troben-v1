@@ -66,7 +66,7 @@ class GeoTableSeeder extends Seeder
         $iso3166data = $this->loadFiles(__DIR__.'/data/iso3166-2.csv')->groupBy('country_code');
         $this->regencies = $this->loadFiles(__DIR__.'/data/geo_regencies_ID.csv')->groupBy('province_iso');
         $this->districts = $this->loadFiles(__DIR__.'/data/geo_districts_ID.csv')->groupBy('bsn_code');
-        $subDistricts = $this->loadFiles(__DIR__.'/data/geo_subdistricts_ID.csv');
+        $subDistricts = $this->loadFiles(__DIR__.'/data/geo_sub_districts_ID.csv');
 
         $totalSubDistrict = $subDistricts->count();
         $this->subDistricts = $subDistricts->groupBy('district_id');

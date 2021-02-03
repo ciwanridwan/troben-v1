@@ -2,13 +2,16 @@
 
 namespace App\Models\Customers;
 
+use libphonenumber\PhoneNumberUtil;
 use Illuminate\Auth\Authenticatable;
+use libphonenumber\PhoneNumberFormat;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
@@ -20,6 +23,10 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @property string $email
  * @property string $phone
  * @property string $password
+ * @property string $google_id
+ * @property string $facebook_id
+ * @property string $fcm_token
+ * @property \Carbon\Carbon $verified_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -28,7 +35,12 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  */
 class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes, HashableId, Authenticatable, CanResetPassword, Notifiable;
+    use SoftDeletes,
+        HashableId,
+        Authenticatable,
+        CanResetPassword,
+        Notifiable,
+        HasFactory;
 
     /**
      * The table associated with the model.
@@ -47,6 +59,9 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         'email',
         'phone',
         'password',
+        'google_id',
+        'facebook_id',
+        'fcm_token',
     ];
 
     /**
@@ -55,6 +70,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      * @var array
      */
     protected $casts = [
+        'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
@@ -66,6 +82,19 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    /**
+     * Set `phone` number attribute mutator.
+     *
+     * @param $value
+     *
+     * @throws \libphonenumber\NumberParseException
+     */
+    public function setPhoneAttribute($value)
+    {
+        $util = PhoneNumberUtil::getInstance();
+        $this->attributes['phone'] = $util->format($util->parse($value, 'ID'), PhoneNumberFormat::E164);
     }
 
     /**
