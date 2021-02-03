@@ -37,4 +37,24 @@ class AuthController extends Controller
 
         return (new AttemptLogin($inputs))->attempt();
     }
+
+    /**
+     * Register new user/customer.
+     * Route Path       : {API_DOMAIN}/auth/register
+     * Route Name       : api.auth.register
+     * Route Method     : POST.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function register(Request $request): JsonResponse
+    {
+        $inputs = $this->validate($request, [
+            // TODO: register rules, or based on guard, we can use job constructor to validate instead of controller.
+        ]);
+
+        // TODO: Register Customer/User
+    }
 }

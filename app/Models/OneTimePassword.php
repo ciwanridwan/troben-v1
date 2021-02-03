@@ -6,6 +6,20 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\UuidAsPrimaryKey;
 
+/**
+ * Class OneTimePassword
+ *
+ * @property string $id
+ * @property string $verifiable_type
+ * @property int $verifiable_id
+ * @property string $token
+ * @property \Carbon\Carbon $expired_at
+ * @property \Carbon\Carbon|null $claimed_at
+ * @property null|string $sent_with
+ * @property null|string $sent_ref_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class OneTimePassword extends Model
 {
     use UuidAsPrimaryKey;
@@ -67,7 +81,7 @@ class OneTimePassword extends Model
     {
         parent::boot();
 
-        self::creating(fn (self $self) => $this->attributes['expired_at'] = Carbon::now()->addSeconds(self::TOKEN_TTL));
+        self::creating(fn (self $self) => $self->expired_at = Carbon::now()->addSeconds(self::TOKEN_TTL));
     }
 
     /**

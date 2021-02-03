@@ -25,4 +25,11 @@ interface HasOtpToken
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function activeOtp(): MorphMany;
+
+    /**
+     * Create new OTP token.
+     *
+     * @return \App\Models\OneTimePassword
+     */
+    public function createOtp(): OneTimePassword;
 }

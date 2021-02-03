@@ -28,7 +28,6 @@ class AuthRoute extends BaseRoute
      */
     public function register()
     {
-        // make an awesome route
         $this->router->post($this->prefix('login'), [
             'as' => $this->name('login'),
             'uses' => $this->uses('login'),

@@ -3,6 +3,7 @@
 namespace App\Actions\Auth;
 
 use App\Models\User;
+use App\Contracts\HasOtpToken;
 use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -72,14 +73,26 @@ class AttemptLogin
         }
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse()
+            ? $this->askingOtpResponse($authenticatable)
             : $this->success([
                 'token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]);
     }
 
-    protected function askingOtpResponse(): JsonResponse
+    /**
+     * Asking for OTP response.
+     *
+     * @param \App\Contracts\HasOtpToken $authenticatable
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function askingOtpResponse(HasOtpToken $authenticatable): JsonResponse
     {
-        // TODO: create response when asking for otp.
+        $otp = $authenticatable->createOtp();
+
+        return $this->success([
+            'otp_id' => $otp->id,
+            'expired_at' => $otp->expired_at->timestamp
+        ]);
     }
 }

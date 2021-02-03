@@ -28,6 +28,21 @@ trait VerifiableByOtp
     }
 
     /**
+     * Create new OTP token.
+     *
+     * @return \App\Models\OneTimePassword
+     */
+    public function createOtp(): OneTimePassword
+    {
+        $otp = $this->one_time_passwords()->create([
+            'token' => substr(str_shuffle(str_repeat('0123456789', 5)), 0,6),
+        ]);
+
+        /** @var \App\Models\OneTimePassword $otp */
+        return $otp;
+    }
+
+    /**
      * Get all active OTP.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
