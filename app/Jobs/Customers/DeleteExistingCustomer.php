@@ -40,7 +40,7 @@ class DeleteExistingCustomer
     {
         if ($this->customer->delete()) {
             // TODO:: fire success event.
-            event(new CustomerDeleted);
+            event(new CustomerDeleted($this->customer));
         }
 
         return $this->customer->deleted_at !== null;
