@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewCustomer implements ShouldQueue
+class CreateNewCustomer
 {
     use Dispatchable, SerializesModels, Queueable, InteractsWithQueue, Batchable;
 
@@ -56,7 +56,9 @@ class CreateNewCustomer implements ShouldQueue
         if ($customer->save()) {
             // run event when customer created
             event(new NewCustomerCreated($customer));
+            // send otp token
         }
+
 
         return $customer->exists;
     }
