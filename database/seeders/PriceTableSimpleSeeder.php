@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Geo\SubDistrict;
 use App\Models\Price;
+use Illuminate\Support\Arr;
 use League\Csv\Reader;
 use App\Models\Service;
 use League\Csv\Statement;
@@ -23,6 +25,7 @@ class PriceTableSimpleSeeder extends Seeder
      * Run the database seeds.
      *
      * @return void
+     * @throws \League\Csv\Exception
      */
     public function run(): void
     {
@@ -44,15 +47,19 @@ class PriceTableSimpleSeeder extends Seeder
             $value['service_code'] = $service->getKey();
 
             // get regency by bsn_code
+            /** @var \App\Models\Geo\Regency|null $regency */
             if (is_null($regency) || $regency->bsn_code != $value['bsn_code']) {
-                $regency = (new Regency(['bsn_code' => $value['bsn_code']]))->first();
+                $regency = Regency::query()->firstOrCreate(['bsn_code' => $value['bsn_code']]);
             }
 
             // seed price
-            unset($value['bsn_code']);
             Price::create(array_merge(
-                array_filter($value),
-                ['origin_regency_id' => $regency->getKey()]
+                Arr::except($value, 'bsn_code'),
+                [
+                    'origin_province_id' => $regency->province_id,
+                    'origin_regency_id' => $regency->getKey(),
+                    'destination_id' => SubDistrict::query()->where('zip_code', $value['zip_code'])->first()->getKey(),
+                ]
             ));
         }
     }

@@ -19,7 +19,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int                              $origin_district_id
  * @property int                              $destination_id
  * @property string                           $service_code
- * @property float                            $price
+ * @property float                            $tier_1
+ * @property float                            $tier_2
+ * @property float                            $tier_3
+ * @property float                            $tier_4
+ * @property float                            $tier_5
+ * @property float                            $tier_6
+ * @property float                            $tier_7
+ * @property float                            $tier_8
+ * @property float                            $tier_9
+ * @property float                            $tier_10
  * @property \Carbon\Carbon                   $created_at
  * @property \Carbon\Carbon                   $updated_at
  *
@@ -68,7 +77,16 @@ class Price extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'float',
+        'tier_1' => 'float',
+        'tier_2' => 'float',
+        'tier_3' => 'float',
+        'tier_4' => 'float',
+        'tier_5' => 'float',
+        'tier_6' => 'float',
+        'tier_7' => 'float',
+        'tier_8' => 'float',
+        'tier_9' => 'float',
+        'tier_10' => 'float',
     ];
 
     /**
@@ -76,20 +94,20 @@ class Price extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    // public function origin(): BelongsTo
-    // {
-    //     return $this->belongsTo(SubDistrict::class, 'origin_id', 'id');
-    // }
+    public function origin(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class, 'origin_id', 'id');
+    }
 
     /**
      * Define `belongsTo` relationship with District model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    // public function district(): BelongsTo
-    // {
-    //     return $this->belongsTo(District::class, 'origin_district_id', 'id');
-    // }
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'origin_district_id', 'id');
+    }
 
     /**
      * Define `belongsTo` relationship with Regency model.
@@ -106,20 +124,20 @@ class Price extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    // public function province(): BelongsTo
-    // {
-    //     return $this->belongsTo(Province::class, 'origin_province_id', 'id');
-    // }
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class, 'origin_province_id', 'id');
+    }
 
     /**
      * Define `belongsTo` relationship with SubDistrict model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    // public function destination(): BelongsTo
-    // {
-    //     return $this->belongsTo(SubDistrict::class, 'destination_id', 'id');
-    // }
+    public function destination(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class, 'destination_id', 'id');
+    }
 
     /**
      * Define `belongsTo` relationship with Service model.
