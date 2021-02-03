@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Customers;
 
-use App\Events\Customers\CustomerModificationFailed;
-use App\Events\Customers\CustomerModified;
 use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Customers\CustomerModified;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Customers\CustomerModificationFailed;
 
 class UpdateExistingCustomer
 {
@@ -43,7 +43,7 @@ class UpdateExistingCustomer
         $this->attributes = Validator::make($inputs, [
             // TODO: add validation rules.
             'name' => ['filled'],
-            'email' => ['filled', 'email', 'unique:customers,email,' . $customer->id . ',id,deleted_at,NULL'],
+            'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID'],
             'password' => ['filled', 'min:8', 'alpha_num'],
             'fcm_token' => ['nullable'],
