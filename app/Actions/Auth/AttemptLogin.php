@@ -92,7 +92,7 @@ class AttemptLogin
 
         return $this->success([
             'otp_id' => $otp->id,
-            'expired_at' => $otp->expired_at->timestamp
+            'expired_at' => $otp->expired_at->timestamp,
         ]);
     }
 }

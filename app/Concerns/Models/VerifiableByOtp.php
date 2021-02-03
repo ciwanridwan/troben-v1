@@ -35,7 +35,7 @@ trait VerifiableByOtp
     public function createOtp(): OneTimePassword
     {
         $otp = $this->one_time_passwords()->create([
-            'token' => substr(str_shuffle(str_repeat('0123456789', 5)), 0,6),
+            'token' => substr(str_shuffle(str_repeat('0123456789', 5)), 0, 6),
         ]);
 
         /** @var \App\Models\OneTimePassword $otp */

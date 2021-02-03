@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\UuidAsPrimaryKey;
 
 /**
- * Class OneTimePassword
+ * Class OneTimePassword.
  *
  * @property string $id
  * @property string $verifiable_type
