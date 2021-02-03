@@ -2,9 +2,11 @@
 
 namespace App\Models\Customers;
 
+use App\Contracts\HasOtpToken;
 use Illuminate\Auth\Authenticatable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -32,7 +34,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract
+class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken
 {
     use SoftDeletes,
         HashableId,
@@ -40,6 +42,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         CanResetPassword,
         Notifiable,
         HasPhoneNumber,
+        VerifiableByOtp,
         HasFactory;
 
     /**

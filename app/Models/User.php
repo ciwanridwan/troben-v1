@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Contracts\HasOtpToken;
 use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,9 +26,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  */
-class User extends Authenticatable
+class User extends Authenticatable implements HasOtpToken
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber;
+    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp;
 
     /**
      * The attributes that are mass assignable.
