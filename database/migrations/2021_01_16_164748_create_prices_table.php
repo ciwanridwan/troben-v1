@@ -17,15 +17,25 @@ class CreatePricesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('origin_province_id');
             $table->unsignedBigInteger('origin_regency_id');
-            $table->unsignedBigInteger('origin_district_id');
-            $table->unsignedBigInteger('origin_id'); // sub district
+            $table->unsignedBigInteger('origin_district_id')->nullable();
+            $table->unsignedBigInteger('origin_sub_district_id')->nullable(); // sub district
             $table->unsignedBigInteger('destination_id'); // sub district
+            $table->char('zip_code', 10);
+            $table->decimal('tier_1', 14, 2)->default(0);
+            $table->decimal('tier_2', 14, 2)->default(0);
+            $table->decimal('tier_3', 14, 2)->default(0);
+            $table->decimal('tier_4', 14, 2)->default(0);
+            $table->decimal('tier_5', 14, 2)->default(0);
+            $table->decimal('tier_6', 14, 2)->default(0);
+            $table->decimal('tier_7', 14, 2)->default(0);
+            $table->decimal('tier_8', 14, 2)->default(0);
+            $table->decimal('tier_9', 14, 2)->default(0);
+            $table->decimal('tier_10', 14, 2)->default(0);
             $table->char('service_code', 3);
-            $table->decimal('price', 14, 2); // per kg
             $table->timestamps();
 
             $table
-                ->foreign('origin_id')
+                ->foreign('origin_sub_district_id')
                 ->references('id')
                 ->on('geo_sub_districts')
                 ->cascadeOnDelete();
@@ -46,13 +56,13 @@ class CreatePricesTable extends Migration
                 ->foreign('origin_district_id')
                 ->references('id')
                 ->on('geo_districts')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table
                 ->foreign('destination_id')
                 ->references('id')
                 ->on('geo_sub_districts')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table
                 ->foreign('service_code')
