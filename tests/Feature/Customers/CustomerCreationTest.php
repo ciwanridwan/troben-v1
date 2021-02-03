@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class CustomersCreationTest extends TestCase
+class CustomerCreationTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs;
 
