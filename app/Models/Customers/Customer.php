@@ -3,6 +3,7 @@
 namespace App\Models\Customers;
 
 use App\Contracts\HasOtpToken;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Authenticatable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
@@ -43,6 +44,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         Notifiable,
         HasPhoneNumber,
         VerifiableByOtp,
+        HasApiTokens,
         HasFactory;
 
     /**

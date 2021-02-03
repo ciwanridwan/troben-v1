@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Customers;
 
-use Carbon\Carbon;
 use App\Models\Customers\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -27,7 +26,6 @@ class CustomerFactory extends Factory
             'email' => $this->faker->email,
             'phone' => $this->faker->phoneNumber,
             'password' => 'password',
-            'verified_at' => (rand(0, 1)) ? null : Carbon::now(),
         ];
     }
 }
