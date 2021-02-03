@@ -4,7 +4,7 @@ namespace Tests\Feature\Customers;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
-use App\Jobs\Auth\CreateNewCustomer;
+use App\Jobs\Customers\CreateNewCustomer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;

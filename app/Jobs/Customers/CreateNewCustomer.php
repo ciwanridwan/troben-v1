@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Jobs\Auth;
+namespace App\Jobs\Customers;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
-use App\Events\Auth\NewCustomerCreated;
+use App\Events\Customers\NewCustomerCreated;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
