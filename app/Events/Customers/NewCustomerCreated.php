@@ -27,5 +27,4 @@ class NewCustomerCreated
     {
         $this->customer = $customer;
     }
-
 }
