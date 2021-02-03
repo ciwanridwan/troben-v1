@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             GeoTableSimpleSeeder::class,
+            PartnerTableSeeder::class,
             CustomersTableSeeder::class,
         ]);
     }

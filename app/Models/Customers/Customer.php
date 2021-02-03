@@ -2,9 +2,8 @@
 
 namespace App\Models\Customers;
 
-use libphonenumber\PhoneNumberUtil;
 use Illuminate\Auth\Authenticatable;
-use libphonenumber\PhoneNumberFormat;
+use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -40,6 +39,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         Authenticatable,
         CanResetPassword,
         Notifiable,
+        HasPhoneNumber,
         HasFactory;
 
     /**
@@ -82,19 +82,6 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
-    }
-
-    /**
-     * Set `phone` number attribute mutator.
-     *
-     * @param $value
-     *
-     * @throws \libphonenumber\NumberParseException
-     */
-    public function setPhoneAttribute($value)
-    {
-        $util = PhoneNumberUtil::getInstance();
-        $this->attributes['phone'] = $util->format($util->parse($value, 'ID'), PhoneNumberFormat::E164);
     }
 
     /**
