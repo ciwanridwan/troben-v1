@@ -23,6 +23,8 @@ class CustomerDeletionTest extends TestCase
             'password' => 'aLphAnumeric123',
             'email' => 'email@test.com',
         ];
+
+        // create new Customer on Refresh Database
         $this->dispatch(new CreateNewCustomer($data));
 
         $this->customer = Customer::first();
