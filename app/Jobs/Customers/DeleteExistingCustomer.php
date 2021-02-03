@@ -2,13 +2,12 @@
 
 namespace App\Jobs\Customers;
 
-use App\Events\Customers\CustomerDeleted;
 use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Customers\CustomerDeleted;
 use Illuminate\Foundation\Bus\Dispatchable;
-use phpDocumentor\Reflection\Types\Null_;
 
 class DeleteExistingCustomer
 {
@@ -39,7 +38,6 @@ class DeleteExistingCustomer
      */
     public function handle(): bool
     {
-
         if ($this->customer->delete()) {
             // TODO:: fire success event.
             event(new CustomerDeleted);
