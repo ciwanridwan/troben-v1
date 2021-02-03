@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Geo\SubDistrict;
 use App\Models\Price;
-use Illuminate\Support\Arr;
 use League\Csv\Reader;
 use App\Models\Service;
 use League\Csv\Statement;
 use App\Models\Geo\Regency;
+use Illuminate\Support\Arr;
+use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
 
 class PriceTableSimpleSeeder extends Seeder
