@@ -49,6 +49,13 @@ class GeoTableBatchSeeder extends Seeder
      */
     public function run()
     {
+        // truncate existing tables.
+        DB::table('geo_sub_districts')->truncate();
+        DB::table('geo_districts')->truncate();
+        DB::table('geo_regencies')->truncate();
+        DB::table('geo_provinces')->truncate();
+        DB::table('geo_countries')->truncate();
+
         $this->command->info('Populating geo data');
         $iso3166 = new ISO3166();
 
@@ -72,13 +79,6 @@ class GeoTableBatchSeeder extends Seeder
      */
     public static function seedProvinces()
     {
-        // truncate existing tables.
-        DB::table('geo_sub_districts')->truncate();
-        DB::table('geo_districts')->truncate();
-        DB::table('geo_regencies')->truncate();
-        DB::table('geo_provinces')->truncate();
-        DB::table('geo_countries')->truncate();
-
         $iso3166 = self::loadFiles(__DIR__.'/data/iso3166-2.csv');
 
         $batch = Bus::batch([])
