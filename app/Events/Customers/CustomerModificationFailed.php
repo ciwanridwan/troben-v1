@@ -2,6 +2,7 @@
 
 namespace App\Events\Customers;
 
+use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -12,22 +13,19 @@ class CustomerModificationFailed
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
+     * Customer instance.
+     *
+     * @var \App\Models\Customers\Customer
+     */
+    public Customer $customer;
+
+    /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Customer $customer)
     {
-        //
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
+        $this->customer = $customer;
     }
 }
