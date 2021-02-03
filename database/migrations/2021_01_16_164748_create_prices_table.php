@@ -20,7 +20,7 @@ class CreatePricesTable extends Migration
             // $table->unsignedBigInteger('origin_district_id');
             // $table->unsignedBigInteger('origin_id'); // sub district
             // $table->unsignedBigInteger('destination_id'); // sub district
-            $table->char('zip_code',10);
+            $table->char('zip_code', 10);
             $table->char('service_code', 3);
             $table->decimal('tier_1', 14, 2)->nullable();
             $table->decimal('tier_2', 14, 2)->nullable();
