@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Router configuration.
+         * Router configuration.
  *
  * @author      veelasky <veelasky@gmail.com>
  */
@@ -23,6 +24,7 @@ return [
     ],
     'api' => [
         App\Http\Routes\Api\GeoRoute::class,
+        App\Http\Routes\Api\Auth\RegisterRoute::class,
         /** @inject api **/
     ],
 ];
