@@ -62,7 +62,7 @@ class CreatePricesTable extends Migration
                 ->foreign('destination_id')
                 ->references('id')
                 ->on('geo_sub_districts')
-                ->nullOnDelete();
+                ->cascadeOnDelete();
 
             $table
                 ->foreign('service_code')
