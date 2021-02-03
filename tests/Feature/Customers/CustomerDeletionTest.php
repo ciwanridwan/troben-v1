@@ -2,14 +2,12 @@
 
 namespace Tests\Feature\Customers;
 
-use App\Jobs\Customers\CreateNewCustomer;
-use App\Jobs\Customers\DeleteExistingCustomer;
-use App\Models\Customers\Customer;
-use Exception;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Customers\Customer;
+use App\Jobs\Customers\CreateNewCustomer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Customers\DeleteExistingCustomer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CustomerDeletionTest extends TestCase
 {
