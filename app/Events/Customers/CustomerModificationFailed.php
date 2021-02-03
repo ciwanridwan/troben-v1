@@ -4,7 +4,6 @@ namespace App\Events\Customers;
 
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
