@@ -15,7 +15,7 @@ class CreateNewCustomer
     use Dispatchable, SerializesModels, InteractsWithQueue, Batchable;
 
     /**
-     * Customer Instance
+     * Customer Instance.
      *
      * @var \App\Models\Customers\Customer
      */
