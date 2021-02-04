@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Customers;
 
+use App\Events\Customers\CustomerAddressCreated;
 use Illuminate\Bus\Queueable;
 use App\Models\Customers\Address;
 use App\Models\Customers\Customer;
@@ -20,6 +21,13 @@ class CreateCustomerAddress
      * @var \App\Models\Customers\Customer
      */
     public Customer $customer;
+
+    /**
+     * Customer instance.
+     *
+     * @var \App\Models\Customers\Address
+     */
+    public Address $customer_address;
 
 
 
@@ -60,11 +68,12 @@ class CreateCustomerAddress
      */
     public function handle()
     {
-        $customer_address = new Address($this->attributes);
-        if ($this->customer->addresses()->save($customer_address)) {
-            // event fire on address create
+        $this->customer_address = new Address($this->attributes);
+        if ($this->customer->addresses()->save($this->customer_address)) {
+            $this->customer_address = $this->customer->addresses->find($this->customer_address);
+            event(new CustomerAddressCreated($this->customer_address));
         }
 
-        return $this->customer->addresses->find($customer_address)->exists;
+        return $this->customer->addresses->find($this->customer_address)->exists;
     }
 }
