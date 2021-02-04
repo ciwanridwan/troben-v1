@@ -54,10 +54,10 @@ jobs:
       run: php artisan migrate --seed
 
     - name: Run Test
-      run: ./vendor/bin/phpunit
+      run: php artisan test
 
     - name: send coverage to codecov.io
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./clover.xml
+        file: ./coverage.xml
