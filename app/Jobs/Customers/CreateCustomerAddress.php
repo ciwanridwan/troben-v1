@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Customers;
 
-use App\Events\Customers\CustomerAddressCreated;
 use Illuminate\Bus\Queueable;
 use App\Models\Customers\Address;
 use App\Models\Customers\Customer;
@@ -10,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Customers\CustomerAddressCreated;
 
 class CreateCustomerAddress
 {
