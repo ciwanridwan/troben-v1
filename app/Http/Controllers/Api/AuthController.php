@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Actions\Auth\AttemptLogin;
+use App\Actions\Auth\CustomerRegister;
 use App\Http\Controllers\Controller;
-use App\Jobs\Customers\CreateNewCustomer;
+
 
 class AuthController extends Controller
 {
@@ -58,19 +59,6 @@ class AuthController extends Controller
 
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
 
-        switch ($inputs['guard']) {
-            case 'customer':
-                $this->dispatch(new CreateNewCustomer($request->all()));
-                break;
-            case 'user':
-                // user Register
-                break;
-        }
-
-        $dummy = [
-            'otp_token' => '03843',
-        ];
-
-        return response()->json($dummy, 200);
+        return (new CustomerRegister($request->all()))->register();
     }
 }
