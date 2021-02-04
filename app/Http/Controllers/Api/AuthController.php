@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Actions\Auth\AttemptLogin;
-use App\Actions\Auth\CustomerRegister;
 use App\Http\Controllers\Controller;
-
+use App\Actions\Auth\CustomerRegister;
 
 class AuthController extends Controller
 {
