@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Partner\Transporter;
 
-use App\Events\Partner\Transporter\TransporterCreated;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use Illuminate\Support\Facades\App;
@@ -10,6 +9,7 @@ use App\Models\Partners\Transporter;
 use Illuminate\Mail\Transport\Transport;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partner\Transporter\TransporterCreated;
 
 class CreateNewTransporter
 {
