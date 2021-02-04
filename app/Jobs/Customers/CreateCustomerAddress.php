@@ -73,6 +73,6 @@ class CreateCustomerAddress
             event(new CustomerAddressCreated($this->customer_address));
         }
 
-        return $this->customer->addresses->find($this->customer_address)->exists;
+        return $this->customer_address->exists;
     }
 }

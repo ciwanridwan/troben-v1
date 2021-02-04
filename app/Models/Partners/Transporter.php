@@ -25,6 +25,12 @@ class Transporter extends Model
 {
     use SoftDeletes, HashableId;
 
+    const TYPE_BIKE = 'bike';
+    const TYPE_MPV = 'mpv';
+    const TYPE_PICKUP = 'pickup';
+    const TYPE_PICKUP_BOX = 'pickup box';
+
+
     /**
      * The table associated with the model.
      *
@@ -52,6 +58,21 @@ class Transporter extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Get partner types.
+     *
+     * @return string[]
+     */
+    public static function getAvailableTypes(): array
+    {
+        return [
+            self::TYPE_BIKE,
+            self::TYPE_MPV,
+            self::TYPE_PICKUP,
+            self::TYPE_PICKUP_BOX,
+        ];
+    }
 
     /**
      * Define `belongsTo` relationship with partner model.
