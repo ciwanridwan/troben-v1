@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Service;
 use League\Csv\Reader;
+use App\Models\Service;
 use League\Csv\Statement;
 use Illuminate\Database\Seeder;
 
