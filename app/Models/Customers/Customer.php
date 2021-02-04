@@ -9,6 +9,7 @@ use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use Propaganistas\LaravelPhone\PhoneNumber;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
  * Customer model.
