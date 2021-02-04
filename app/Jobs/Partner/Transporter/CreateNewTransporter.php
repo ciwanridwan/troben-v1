@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Partner\Transporter;
 
+use App\Events\Partner\Transporter\TransporterCreated;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use Illuminate\Support\Facades\App;
@@ -60,7 +61,7 @@ class CreateNewTransporter
         $this->transporter = new Transporter($this->attributes);
 
         if ($this->partner->transporters()->save($this->transporter)) {
-            $this->transporter = $this->partner->transporters()->find($this->transporter);
+            event(new TransporterCreated($this->transporter));
         }
 
         return $this->transporter->exists;
