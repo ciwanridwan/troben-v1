@@ -28,9 +28,10 @@ class CustomerAddressCreationTest extends TestCase
             'password' => 'aLphAnumeric123',
             'email' => 'email@test.com',
         ];
-        $this->dispatch(new CreateNewCustomer($customer_data));
+        $job = new CreateNewCustomer($customer_data);
+        $this->dispatch($job);
         // get customer
-        $this->customer = Customer::first();
+        $this->customer = $job->customer;
 
         $this->data = [
             'name' => 'test',
@@ -52,14 +53,13 @@ class CustomerAddressCreationTest extends TestCase
         $this->withoutExceptionHandling();
 
         try {
-            $response = $this->dispatch(new CreateCustomerAddress($this->customer, $this->data));
+            $job = new CreateCustomerAddress($this->customer, $this->data);
+            $response = $this->dispatch($job);
+            $customer_address = $job->customer_address;
             $this->assertTrue($response);
 
-            // get customer address
-            $assert_data = $this->customer->addresses->first()->toArray();
-
             // assert in db
-            $this->assertDatabaseHas('customer_address', Arr::only($assert_data, ['id', 'customer_id']));
+            $this->assertDatabaseHas('customer_address', $customer_address->toArray());
         } catch (\Exception $e) {
             $this->assertNotInstanceOf(ValidationException::class, $e);
         }

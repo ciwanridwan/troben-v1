@@ -15,6 +15,13 @@ class CreateNewCustomer
     use Dispatchable, SerializesModels, InteractsWithQueue, Batchable;
 
     /**
+     * Customer Instance.
+     *
+     * @var \App\Models\Customers\Customer
+     */
+    public Customer $customer;
+
+    /**
      * Filtered attributes.
      *
      * @var array
@@ -30,6 +37,7 @@ class CreateNewCustomer
      */
     public function __construct($inputs = [])
     {
+        $this->customer = new Customer();
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
             'email' => ['nullable', 'email', 'unique:customers,email,NULL,id,deleted_at,NULL'],
@@ -48,16 +56,15 @@ class CreateNewCustomer
      */
     public function handle(): bool
     {
-        $customer = new Customer();
-        $customer->fill($this->attributes);
+        $this->customer->fill($this->attributes);
 
-        if ($customer->save()) {
+        if ($this->customer->save()) {
             // run event when customer created
-            event(new NewCustomerCreated($customer));
+            event(new NewCustomerCreated($this->customer));
             // send otp token
         }
 
 
-        return $customer->exists;
+        return $this->customer->exists;
     }
 }
