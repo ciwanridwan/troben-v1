@@ -19,6 +19,6 @@ class CustomerAddressCreated
      */
     public function __construct(Address $customer_address)
     {
-        //
+        $this->customer_address = $customer_address;
     }
 }
