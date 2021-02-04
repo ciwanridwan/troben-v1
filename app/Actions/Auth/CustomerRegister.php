@@ -4,7 +4,6 @@ namespace App\Actions\Auth;
 
 use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
-use App\Models\Customers\Customer;
 use App\Jobs\Customers\CreateNewCustomer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
