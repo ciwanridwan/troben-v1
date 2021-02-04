@@ -14,7 +14,7 @@ use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
 
-class PartnerTableSeeder extends Seeder
+class PartnerTableImport extends Seeder
 {
     protected $typeMapper = [
         'WAREHOUSE' => Partner::TYPE_POOL,

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class GeoTableSeeder extends Seeder
+class GeoTableImport extends Seeder
 {
     /**
      * @var \Illuminate\Support\Collection
