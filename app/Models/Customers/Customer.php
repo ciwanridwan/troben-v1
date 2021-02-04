@@ -2,13 +2,18 @@
 
 namespace App\Models\Customers;
 
+use App\Contracts\HasOtpToken;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Authenticatable;
+use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
@@ -20,15 +25,27 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @property string $email
  * @property string $phone
  * @property string $password
+ * @property string $google_id
+ * @property string $facebook_id
+ * @property string $fcm_token
+ * @property \Carbon\Carbon $verified_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract
+class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken
 {
-    use SoftDeletes, HashableId, Authenticatable, CanResetPassword, Notifiable;
+    use SoftDeletes,
+        HashableId,
+        Authenticatable,
+        CanResetPassword,
+        Notifiable,
+        HasPhoneNumber,
+        VerifiableByOtp,
+        HasApiTokens,
+        HasFactory;
 
     /**
      * The table associated with the model.
@@ -47,6 +64,9 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         'email',
         'phone',
         'password',
+        'google_id',
+        'facebook_id',
+        'fcm_token',
     ];
 
     /**
@@ -55,6 +75,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      * @var array
      */
     protected $casts = [
+        'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 

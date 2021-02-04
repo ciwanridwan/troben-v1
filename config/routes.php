@@ -14,7 +14,8 @@ return [
         ],
         'api' => [
             'middleware' => 'api',
-            'prefix' => 'api',
+            'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
+            'domain' => env('API_DOMAIN')
         ],
     ],
 
@@ -24,7 +25,7 @@ return [
     ],
     'api' => [
         App\Http\Routes\Api\GeoRoute::class,
-        App\Http\Routes\Api\Auth\RegisterRoute::class,
+        App\Http\Routes\Api\AuthRoute::class,
         /** @inject api **/
     ],
 ];

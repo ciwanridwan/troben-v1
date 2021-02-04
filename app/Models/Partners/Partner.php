@@ -2,20 +2,25 @@
 
 namespace App\Models\Partners;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Partner Model.
  *
  * @property int $id
  * @property string $name
+ * @property string $code
  * @property string $contact_email
  * @property string $contact_phone
  * @property string $address
  * @property string $geo_location
+ * @property string $type
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -26,6 +31,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Partner extends Model
 {
     use SoftDeletes, HashableId;
+
+    const TYPE_BUSINESS = 'business';
+    const TYPE_POOL = 'pool';
+    const TYPE_SPACE = 'space';
+    const TYPE_TRANSPORTER = 'transporter';
 
     /**
      * The table associated with the model.
@@ -41,10 +51,12 @@ class Partner extends Model
      */
     protected $fillable = [
         'name',
+        'code',
         'contact_email',
         'contact_phone',
         'address',
         'geo_location',
+        'type',
     ];
 
     /**
@@ -55,6 +67,21 @@ class Partner extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Get partner types.
+     *
+     * @return string[]
+     */
+    public static function getAvailableTypes(): array
+    {
+        return [
+            self::TYPE_BUSINESS,
+            self::TYPE_POOL,
+            self::TYPE_SPACE,
+            self::TYPE_TRANSPORTER,
+        ];
+    }
 
     /**
      * Define `hasMany` relationship with Warehouse model.
@@ -74,5 +101,16 @@ class Partner extends Model
     public function transporters(): HasMany
     {
         return $this->hasMany(Transporter::class, 'partner_id', 'id');
+    }
+
+    /**
+     * Define `morphToMany` relationship with User Model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function users(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'userable', 'userables')
+            ->using(UserablePivot::class);
     }
 }

@@ -19,6 +19,10 @@ class CreateCustomersTable extends Migration
             $table->string('email');
             $table->string('phone');
             $table->string('password');
+            $table->string('google_id')->nullable();
+            $table->string('facebook_id')->nullable();
+            $table->string('fcm_token')->nullable();
+            $table->timestamp('verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
