@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             GeoTableSimpleSeeder::class,
             PartnerTableSeeder::class,
             CustomersTableSeeder::class,
+            ServiceTableSeeder::class,
             PriceTableSimpleSeeder::class,
         ]);
     }

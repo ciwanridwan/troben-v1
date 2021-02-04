@@ -14,11 +14,10 @@ use Illuminate\Database\Seeder;
 class PriceTableSimpleSeeder extends Seeder
 {
     protected $serviceMapper = [
-        'PGD' => [
-            'code' => 'pgd',
-            'name' => 'TrawlPack Ground Delivery',
-            'description' => 'Forwarding ...',
-        ],
+        'TPI' => Service::TRAWLPACK_INSTANT,
+        'TPX' => Service::TRAWLPACK_EXPRESS,
+        'TPD' => Service::TRAWLPACK_SAMEDAY,
+        'TPS' => Service::TRAWLPACK_STANDARD,
     ];
 
     /**
@@ -32,19 +31,9 @@ class PriceTableSimpleSeeder extends Seeder
         $csv = Reader::createFromPath(__DIR__.'/data/price_list.csv');
         $csv->setHeaderOffset(0);
 
-        $service = null;
         $regency = null;
         foreach ((new Statement())->process($csv) as $value) {
-            // seed services
-            if (is_null($service) || $service->code != $this->serviceMapper[$value['service_code']]['code']) {
-                $service = (new Service())->fill([
-                    'code' => $this->serviceMapper[$value['service_code']]['code'],
-                    'name' => $this->serviceMapper[$value['service_code']]['name'],
-                    'description' => $this->serviceMapper[$value['service_code']]['description'],
-                ]);
-                $service->save();
-            }
-            $value['service_code'] = $service->getKey();
+            $value['service_code'] = $this->serviceMapper[$value['service_code']];
 
             // get regency by bsn_code
             /** @var \App\Models\Geo\Regency|null $regency */
