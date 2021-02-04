@@ -2,40 +2,37 @@
 
 namespace App\Jobs\Partner\Transporter;
 
-use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Transport\Transport;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\Partners\Partner;
+use Illuminate\Support\Facades\App;
+use App\Models\Partners\Transporter;
+use Illuminate\Mail\Transport\Transport;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewTransporter
 {
     use Dispatchable;
 
     /**
-     * Partner Instance
+     * Partner Instance.
      *
      * @var App\Models\Partners\Partner
      */
-
     public Partner $partner;
 
     /**
-     * Partner Instance
+     * Partner Instance.
      *
      * @var App\Models\Partners\Transporter
      */
-
     public Transporter $transporter;
 
     /**
-     * Partner Instance
+     * Partner Instance.
      *
      * @var array
      */
-
     protected array $attributes;
 
     /**
@@ -49,7 +46,7 @@ class CreateNewTransporter
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
             'registration_number' => ['required'],
-            'type' => ['required', Rule::in(Transport::getAvailableTypes())]
+            'type' => ['required', Rule::in(Transport::getAvailableTypes())],
         ]);
     }
 
@@ -64,7 +61,7 @@ class CreateNewTransporter
 
         if ($this->partner->transporters()->save($this->transporter)) {
             $this->transporter = $this->partner->transporters()->find($this->transporter);
-        };
+        }
 
         return $this->transporter->exists;
     }
