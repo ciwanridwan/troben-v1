@@ -19,7 +19,7 @@ trait RestfulResponse
     {
         $resp = new Response($code, $data);
 
-        return response()->json($resp, $resp->resolveHttpCode());
+        return response()->json($resp->getResponseData(request()), $resp->resolveHttpCode());
     }
 
     /**
@@ -31,6 +31,6 @@ trait RestfulResponse
     {
         $resp = new Response(Response::RC_ACCEPTED_NO_CONTENT);
 
-        return response()->json($resp, $resp->resolveHttpCode());
+        return response()->json($resp->getResponseData(request()), $resp->resolveHttpCode());
     }
 }

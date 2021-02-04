@@ -45,17 +45,17 @@ class Response implements Responsable
     /**
      * Response data.
      *
-     * @var array
+     * @var mixed
      */
-    public array $data;
+    public $data;
 
     /**
      * Response constructor.
      *
      * @param string $code
-     * @param array  $data
+     * @param $data
      */
-    public function __construct(string $code, array $data = [])
+    public function __construct(string $code, $data = [])
     {
         $this->code = $code;
         $this->data = $data;
@@ -130,7 +130,7 @@ class Response implements Responsable
     {
         $responseData = [
             'code' => $this->code,
-            'error' => (int) $this->code >= 100 ? null : $this->resolveErrorCode(),
+            'error' => (int) $this->code >= 100 ? $this->resolveErrorCode() : null,
             'message' => $this->resolveMessage(),
         ];
 
@@ -180,7 +180,7 @@ class Response implements Responsable
      */
     public function resolveMessage(): string
     {
-        return Str::ucfirst(str_replace(['RC', '_'], '', self::getErrorCodes()[$this->code]));
+        return Str::ucfirst(Str::lower(str_replace(['RC', '_'], '', self::getErrorCodes()[$this->code])));
     }
 
     /**

@@ -15,8 +15,6 @@ class LoginTest extends TestCase
         $this->seed();
 
         $valid = Customer::find(1);
-
-
         // test using phone number
         $response = $this->json('POST', route('api.auth.login'), [
             'username' => $valid->phone,
@@ -25,6 +23,7 @@ class LoginTest extends TestCase
         ], [
             'Accept' => 'application/json',
         ]);
+        
         $this->assertSuccessResponse($response);
 
         // test using email
