@@ -28,7 +28,7 @@
         "laravel/tinker": "^2.5",
         "league/csv": "^9.6",
         "propaganistas/laravel-phone": "^4.2",
-        "veelasky/laravel-hashid": "^2.0",
+        "veelasky/laravel-hashid": "^2.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
