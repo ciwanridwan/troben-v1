@@ -50,7 +50,6 @@ class CreateCustomerAddress
     {
         $this->customer = $customer;
         $this->attributes = Validator::make($inputs, [
-            // TODO: add validation rules.
             'name' => ['required'],
             'address' => ['required'],
             'geo_location' => ['nullable'],
