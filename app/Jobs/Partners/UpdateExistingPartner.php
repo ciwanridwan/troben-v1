@@ -2,16 +2,16 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\PartnerModificationFailed;
-use App\Events\Partners\PartnerModified;
+use Illuminate\Bus\Batchable;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
-use Illuminate\Bus\Batchable;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Partners\PartnerModified;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partners\PartnerModificationFailed;
 
 class UpdateExistingPartner implements ShouldQueue
 {
@@ -37,10 +37,10 @@ class UpdateExistingPartner implements ShouldQueue
      * 
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(Partner $partner,$inputs = [])
+    public function __construct(Partner $partner, $inputs = [])
     {
         $this->partner = $partner;
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'name' => ['required','string','max:255'],
             'code' => ['required','string','max:255'],
             'contact_email' => ['nullable','email'],

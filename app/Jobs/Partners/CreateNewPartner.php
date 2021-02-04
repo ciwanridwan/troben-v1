@@ -2,14 +2,13 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\NewPartnerCreated;
-use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
-use Illuminate\Bus\Batchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Partners\NewPartnerCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -33,7 +32,7 @@ class CreateNewPartner implements ShouldQueue
      */
     public function __construct($inputs = [])
     {
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'name' => ['required','string','max:255'],
             'code' => ['required','string','max:255'],
             'contact_email' => ['nullable','email'],

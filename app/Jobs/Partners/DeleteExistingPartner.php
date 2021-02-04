@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Partners;
 
-use App\Models\Partners\Partner;
 use Illuminate\Bus\Batchable;
+use App\Models\Partners\Partner;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class DeleteExistingPartner implements ShouldQueue
 {
