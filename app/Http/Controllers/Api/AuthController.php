@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Actions\Auth\AttemptLogin;
 use App\Http\Controllers\Controller;
+use App\Jobs\Customers\CreateNewCustomer;
 
 class AuthController extends Controller
 {
@@ -51,10 +52,25 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+
         $inputs = $this->validate($request, [
-            // TODO: register rules, or based on guard, we can use job constructor to validate instead of controller.
+            'guard' => ['nullable', Rule::in(['customer', 'user'])],
         ]);
 
-        // TODO: Register Customer/User
+        $inputs['guard'] = $inputs['guard'] ?? 'customer';
+
+        switch ($inputs['guard']) {
+            case 'customer':
+                $this->dispatch(new CreateNewCustomer($request->all()));
+                break;
+            case 'user':
+                // user Register
+                break;
+        }
+
+        $dummy = [
+            'otp_token' => "03843"
+        ];
+        return response()->json($dummy, 200);
     }
 }

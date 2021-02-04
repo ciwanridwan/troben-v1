@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
  * Customer model.
@@ -87,6 +88,17 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    /**
+     * Set `phone` attribute mutator.
+     *
+     * @param $value
+     */
+    public function setPhoneAttribute($value)
+    {
+        // assume for indonesia
+        $this->attributes['phone'] = PhoneNumber::make($value, 'ID')->formatE164();
     }
 
     /**
