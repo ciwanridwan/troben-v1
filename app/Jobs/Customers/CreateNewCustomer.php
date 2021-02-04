@@ -19,14 +19,14 @@ class CreateNewCustomer
      *
      * @var array
      */
-    protected array $attributes;
+    public Customer $customer;
 
     /**
      * Filtered attributes.
      *
      * @var array
      */
-    public Customer $customer;
+    protected array $attributes;
 
     /**
      * CreateNewCustomer constructor.
@@ -56,7 +56,6 @@ class CreateNewCustomer
      */
     public function handle(): bool
     {
-
         $this->customer->fill($this->attributes);
 
         if ($this->customer->save()) {
