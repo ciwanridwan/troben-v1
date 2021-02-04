@@ -43,7 +43,7 @@ class CustomerRegister
         $otp = $job->customer->createOtp();
 
         return $this->success([
-            'otp_token' => $otp->id,
+            'otp_token' => $otp->token,
         ]);
     }
 }
