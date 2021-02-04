@@ -2,15 +2,13 @@
 
 namespace App\Jobs\Customers;
 
+use Illuminate\Bus\Queueable;
 use App\Models\Customers\Address;
 use App\Models\Customers\Customer;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateCustomerAddress
 {
@@ -51,7 +49,7 @@ class CreateCustomerAddress
             'geo_province_id' => ['required', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['required', 'exists:geo_regencies,id'],
             'geo_district_id' => ['required', 'exists:geo_districts,id'],
-            'is_default' => ['nullable', 'boolean']
+            'is_default' => ['nullable', 'boolean'],
         ])->validate();
     }
 
