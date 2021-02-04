@@ -3,10 +3,10 @@
 namespace App\Actions\Auth;
 
 use App\Concerns\RestfulResponse;
-use App\Jobs\Customers\CreateNewCustomer;
-use App\Models\Customers\Customer;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
+use App\Models\Customers\Customer;
+use App\Jobs\Customers\CreateNewCustomer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class CustomerRegister
 {
@@ -31,7 +31,6 @@ class CustomerRegister
 
     public function register(): JsonResponse
     {
-
         switch ($this->attributes['guard']) {
             case 'customer':
                 $this->dispatch(new CreateNewCustomer($this->attributes));
