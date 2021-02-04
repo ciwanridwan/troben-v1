@@ -33,7 +33,7 @@ class CustomerRegister
     {
         switch ($this->attributes['guard']) {
             case 'customer':
-                $this->dispatch(new CreateNewCustomer($this->attributes));
+                $job = new CreateNewCustomer($this->attributes);
                 $query = Customer::query();
                 break;
                 // case 'user':
@@ -41,6 +41,8 @@ class CustomerRegister
                 //     // user Register
                 //     break;
         }
+
+        $this->dispatch($job);
 
         $authenticatable = $query->where('email', $this->attributes['email'])->first();
 
