@@ -83,7 +83,6 @@ class RegisterTest extends TestCase
 
     public function test_missing_data_register()
     {
-        // test using numeric password
         $response = $this->json('POST', route('api.auth.register'), [], [
             'Accept' => 'application/json',
         ]);
@@ -92,7 +91,6 @@ class RegisterTest extends TestCase
 
     public function test_invalid_data_register()
     {
-        // test using numeric password
         $response = $this->json('POST', route('api.auth.register'), [
             'name' => 'username test',
             'phone' => '+62555555555555',
