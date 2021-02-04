@@ -23,7 +23,7 @@ class LoginTest extends TestCase
         ], [
             'Accept' => 'application/json',
         ]);
-        
+
         $this->assertSuccessResponse($response);
 
         // test using email
