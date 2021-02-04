@@ -21,7 +21,7 @@ use App\Jobs\Geo\CreateNewProvince;
 use Illuminate\Support\Facades\Bus;
 use App\Jobs\Geo\CreateNewSubDistrict;
 
-class GeoTableBatchSeeder extends Seeder
+class GeoTableBatchImport extends Seeder
 {
     /**
      * @param $filePath
