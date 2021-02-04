@@ -9,7 +9,6 @@ use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
-use Propaganistas\LaravelPhone\PhoneNumber;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -88,17 +87,6 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
-    }
-
-    /**
-     * Set `phone` attribute mutator.
-     *
-     * @param $value
-     */
-    public function setPhoneAttribute($value)
-    {
-        // assume for indonesia
-        $this->attributes['phone'] = PhoneNumber::make($value, 'ID')->formatE164();
     }
 
     /**
