@@ -2,8 +2,8 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\NewPartnerCreated;
-use Illuminate\Bus\Queueable;
+use App\Events\Partners\PartnerModificationFailed;
+use App\Events\Partners\PartnerModified;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use Illuminate\Bus\Batchable;
@@ -13,26 +13,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewPartner implements ShouldQueue
+class UpdateExistingPartner implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Batchable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, SerializesModels, Batchable;
 
     /**
-     * filtered attributes.
+     * Partner instance.
+     * 
+     * @var App\Models\Partners\Partner
+     */
+    public Partner $partner;
+
+    /**
+     * Filtered Attributes.
      * 
      * @var array
      */
     protected array $attributes;
 
     /**
-     * CreateNewPartner constructor.
-     *
-     * @param array $inputs
-     *
+     * @param App\Models\Partners\Partner $partner
+     * @param array                       $inputs
+     * 
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct($inputs = [])
+    public function __construct(Partner $partner,$inputs = [])
     {
+        $this->partner = $partner;
         $this->attributes = Validator::make($inputs,[
             'name' => ['required','string','max:255'],
             'code' => ['required','string','max:255'],
@@ -45,18 +52,24 @@ class CreateNewPartner implements ShouldQueue
     }
 
     /**
-     * Execute the job.
-     *
+     * Handle the job.
+     * 
      * @return bool
      */
     public function handle(): bool
     {
-        $partner = (new Partner())->fill($this->attributes);
-
-        if ($partner->save()) {
-            event(new NewPartnerCreated($partner));
+        foreach ($this->attributes as $index => $partner) {
+            $this->partner->$index = $partner;
         }
 
-        return $partner->exists;
+        if ($this->partner->isDirty()) {
+            if ($this->partner->save()) {
+                event(new PartnerModified($this->partner));
+            } else {
+                event(new PartnerModificationFailed($this->partner));
+            }
+        }
+
+        return $this->partner->exists;
     }
 }
