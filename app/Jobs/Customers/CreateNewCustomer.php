@@ -15,9 +15,9 @@ class CreateNewCustomer
     use Dispatchable, SerializesModels, InteractsWithQueue, Batchable;
 
     /**
-     * Filtered attributes.
+     * Customer Instance
      *
-     * @var array
+     * @var \App\Models\Customers\Customer
      */
     public Customer $customer;
 
