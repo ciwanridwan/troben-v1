@@ -52,7 +52,6 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-
         $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
         ]);
@@ -69,8 +68,9 @@ class AuthController extends Controller
         }
 
         $dummy = [
-            'otp_token' => "03843"
+            'otp_token' => '03843',
         ];
+
         return response()->json($dummy, 200);
     }
 }
