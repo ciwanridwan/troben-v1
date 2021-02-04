@@ -14,7 +14,11 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            // GeoTableSeeder::class,
+            GeoTableSimpleSeeder::class,
+            PartnerTableSeeder::class,
+            CustomersTableSeeder::class,
+            ServiceTableSeeder::class,
+            PriceTableSimpleSeeder::class,
         ]);
     }
 }

@@ -2,13 +2,16 @@
 
 namespace App\Models\Partners;
 
+use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Warehouse model.
@@ -111,5 +114,16 @@ class Warehouse extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class, 'geo_district_id', 'id');
+    }
+
+    /**
+     * Define `morphToMany` relationship with User Model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function users(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'userable', 'userables')
+            ->using(UserablePivot::class);
     }
 }

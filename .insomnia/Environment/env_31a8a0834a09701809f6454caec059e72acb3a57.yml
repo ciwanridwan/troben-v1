@@ -1,0 +1,28 @@
+_id: env_31a8a0834a09701809f6454caec059e72acb3a57
+type: Environment
+parentId: wrk_1e397ee573584606a034d6ff98a9acdf
+modified: 1612385981320
+created: 1612369108997
+name: Base Environment
+data:
+  base_url: http://localhost:8000
+  credentials:
+    customer:
+      phone: "+625555555555"
+      email: customer@trawlbens.co.id
+      password: password
+  device_name: Insomnia-Test-Client
+dataPropertyOrder:
+  "&":
+    - base_url
+    - credentials
+    - device_name
+  "&~|credentials":
+    - customer
+  "&~|credentials~|customer":
+    - phone
+    - email
+    - password
+color: null
+isPrivate: false
+metaSortKey: 1612369108997

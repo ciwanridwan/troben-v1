@@ -15,6 +15,7 @@ use Illuminate\Database\Seeder;
 use App\Jobs\Geo\CreateNewCountry;
 use App\Jobs\Geo\CreateNewRegency;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\Geo\CreateNewDistrict;
 use App\Jobs\Geo\CreateNewProvince;
 use Illuminate\Support\Facades\Bus;
@@ -48,6 +49,13 @@ class GeoTableBatchSeeder extends Seeder
      */
     public function run()
     {
+        // truncate existing tables.
+        DB::table('geo_sub_districts')->truncate();
+        DB::table('geo_districts')->truncate();
+        DB::table('geo_regencies')->truncate();
+        DB::table('geo_provinces')->truncate();
+        DB::table('geo_countries')->truncate();
+
         $this->command->info('Populating geo data');
         $iso3166 = new ISO3166();
 
