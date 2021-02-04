@@ -59,11 +59,8 @@ class CreateNewCustomer
         $this->customer->fill($this->attributes);
 
         if ($this->customer->save()) {
-            // run event when customer created
             event(new NewCustomerCreated($this->customer));
-            // send otp token
         }
-
 
         return $this->customer->exists;
     }

@@ -29,8 +29,6 @@ class CreateCustomerAddress
      */
     public Address $customer_address;
 
-
-
     /**
      * Filtered attributes.
      *
@@ -63,16 +61,16 @@ class CreateCustomerAddress
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->customer_address = new Address($this->attributes);
+
         if ($this->customer->addresses()->save($this->customer_address)) {
-            $this->customer_address = $this->customer->addresses->find($this->customer_address);
             event(new CustomerAddressCreated($this->customer_address));
         }
 
-        return $this->customer->addresses->find($this->customer_address)->exists;
+        return $this->customer_address->exists;
     }
 }
