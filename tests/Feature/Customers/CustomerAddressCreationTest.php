@@ -2,13 +2,11 @@
 
 namespace Tests\Feature\Customers;
 
-use App\Jobs\Customers\CreateCustomerAddress;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
-use App\Jobs\Customers\CreateNewCustomer;
 use App\Models\Customers\Customer;
-use App\Models\Geo\Country;
-use Exception;
+use App\Jobs\Customers\CreateNewCustomer;
+use App\Jobs\Customers\CreateCustomerAddress;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,12 +33,12 @@ class CustomerAddressCreationTest extends TestCase
         $this->customer = Customer::first();
 
         $this->data = [
-            'name' => "test",
-            'address' => "Jl. Test",
+            'name' => 'test',
+            'address' => 'Jl. Test',
             'geo_location' => null,
-            'geo_province_id' => "1",
-            'geo_regency_id' => "1",
-            'geo_district_id' => "1",
+            'geo_province_id' => '1',
+            'geo_regency_id' => '1',
+            'geo_district_id' => '1',
             'is_default' => null,
         ];
 
