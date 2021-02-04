@@ -47,7 +47,7 @@ class CreateNewTransporter
             'name' => ['required'],
             'registration_number' => ['required'],
             'type' => ['required', Rule::in(Transport::getAvailableTypes())],
-        ]);
+        ])->validate();
     }
 
     /**
