@@ -31,26 +31,19 @@ class CustomerRegister
 
     public function register(): JsonResponse
     {
+        $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
+
         switch ($this->attributes['guard']) {
             case 'customer':
                 $job = new CreateNewCustomer($this->attributes);
-                $query = Customer::query();
                 break;
-                // case 'user':
-                //     $query = User::query();
-                //     // user Register
-                //     break;
         }
 
         $this->dispatch($job);
-
-        $authenticatable = $query->where('email', $this->attributes['email'])->first();
-
-        $otp = $authenticatable->createOtp();
+        $otp = $job->customer->createOtp();
 
         return $this->success([
-            'otp_id' => $otp->id,
-            'expired_at' => $otp->expired_at->timestamp,
+            'otp_token' => $otp->id,
         ]);
     }
 }

@@ -22,6 +22,13 @@ class CreateNewCustomer
     protected array $attributes;
 
     /**
+     * Filtered attributes.
+     *
+     * @var array
+     */
+    public Customer $customer;
+
+    /**
      * CreateNewCustomer constructor.
      *
      * @param array $inputs
@@ -30,6 +37,7 @@ class CreateNewCustomer
      */
     public function __construct($inputs = [])
     {
+        $this->customer = new Customer();
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
             'email' => ['nullable', 'email', 'unique:customers,email,NULL,id,deleted_at,NULL'],
@@ -48,16 +56,16 @@ class CreateNewCustomer
      */
     public function handle(): bool
     {
-        $customer = new Customer();
-        $customer->fill($this->attributes);
 
-        if ($customer->save()) {
+        $this->customer->fill($this->attributes);
+
+        if ($this->customer->save()) {
             // run event when customer created
-            event(new NewCustomerCreated($customer));
+            event(new NewCustomerCreated($this->customer));
             // send otp token
         }
 
 
-        return $customer->exists;
+        return $this->customer->exists;
     }
 }

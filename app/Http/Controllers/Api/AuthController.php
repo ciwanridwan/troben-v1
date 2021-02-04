@@ -52,11 +52,9 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        $inputs = $this->validate($request, [
+        $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
         ]);
-
-        $inputs['guard'] = $inputs['guard'] ?? 'customer';
 
         return (new CustomerRegister($request->all()))->register();
     }
