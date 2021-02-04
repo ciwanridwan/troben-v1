@@ -2,7 +2,7 @@
 
 namespace App\Concerns;
 
-use Illuminate\Http\Response;
+use App\Http\Response;
 use Illuminate\Http\JsonResponse;
 
 trait RestfulResponse
@@ -11,18 +11,15 @@ trait RestfulResponse
      * Success REST response.
      *
      * @param array  $data
-     * @param string $message
+     * @param string $code
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function success(array $data = [], $message = 'SUCCESS'): JsonResponse
+    public function success(array $data = [], $code = Response::RC_SUCCESS): JsonResponse
     {
-        return response()->json([
-            'code' => 0,
-            'error' => null,
-            'message' => $message,
-            'data' => $data,
-        ], Response::HTTP_OK);
+        $resp = new Response($code, $data);
+
+        return response()->json($resp->getResponseData(request()), $resp->resolveHttpCode());
     }
 
     /**
@@ -32,11 +29,8 @@ trait RestfulResponse
      */
     public function noContent(): JsonResponse
     {
-        return response()->json([
-            'code' => 0,
-            'error' => 'null',
-            'message' => 'NO_CONTENT',
-            'data' => null,
-        ], Response::HTTP_NO_CONTENT);
+        $resp = new Response(Response::RC_ACCEPTED_NO_CONTENT);
+
+        return response()->json($resp->getResponseData(request()), $resp->resolveHttpCode());
     }
 }

@@ -68,7 +68,6 @@ class UpdateExistingCustomer
             } else {
                 event(new CustomerModificationFailed($this->customer));
             }
-        } else {
         }
 
         return $this->customer->exists;

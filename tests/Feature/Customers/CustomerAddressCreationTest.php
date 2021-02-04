@@ -42,14 +42,14 @@ class CustomerAddressCreationTest extends TestCase
             'geo_district_id' => '1',
             'is_default' => null,
         ];
-
-        // seed geo
-        $this->seed('GeoTableSeeder');
     }
 
     /** @test */
     public function test_on_valid_data()
     {
+        // seed geo
+        $this->seed();
+
         $this->withoutExceptionHandling();
 
         try {
@@ -68,6 +68,9 @@ class CustomerAddressCreationTest extends TestCase
     /** @test */
     public function test_on_missing_data()
     {
+        // seed geo
+        $this->seed();
+
         $this->withoutExceptionHandling();
 
         try {
@@ -80,7 +83,6 @@ class CustomerAddressCreationTest extends TestCase
             }
         }
     }
-
 
     /** @test */
     public function test_on_invalid_data()
