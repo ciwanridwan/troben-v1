@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Partner\Transporter;
+namespace App\Events\Partners\Transporter;
 
 use App\Models\Partners\Transporter;
 use Illuminate\Queue\SerializesModels;
