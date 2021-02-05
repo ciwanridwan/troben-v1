@@ -9,10 +9,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Partners\NewPartnerCreated;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewPartner implements ShouldQueue
+class CreateNewPartner
 {
     use Dispatchable, InteractsWithQueue, Batchable, SerializesModels;
 

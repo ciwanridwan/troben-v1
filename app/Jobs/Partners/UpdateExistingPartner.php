@@ -9,11 +9,10 @@ use Illuminate\Queue\SerializesModels;
 use App\Events\Partners\PartnerModified;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Partners\PartnerModificationFailed;
 
-class UpdateExistingPartner implements ShouldQueue
+class UpdateExistingPartner
 {
     use Dispatchable, InteractsWithQueue, SerializesModels, Batchable;
 
