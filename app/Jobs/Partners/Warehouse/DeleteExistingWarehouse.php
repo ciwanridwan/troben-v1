@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Partners\Warehouse;
 
-use App\Events\Partners\Warehouse\WarehouseDeleted;
-use App\Models\Partners\Warehouse;
 use Illuminate\Bus\Batchable;
+use App\Models\Partners\Warehouse;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partners\Warehouse\WarehouseDeleted;
 
 class DeleteExistingWarehouse
 {

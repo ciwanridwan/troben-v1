@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Partners\Warehouse;
 
-use App\Jobs\Partners\Warehouse\DeleteExistingWarehouse;
+use Tests\TestCase;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Warehouse;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Jobs\Partners\Warehouse\DeleteExistingWarehouse;
 
 class WarehouseDeletionTest extends TestCase
 {
@@ -31,7 +31,7 @@ class WarehouseDeletionTest extends TestCase
 
         Partner::factory(1)->create();
         Warehouse::factory(1)->create([
-            'partner_id' => 1
+            'partner_id' => 1,
         ]);
 
         $this->warehouse = Warehouse::latest()->first();
