@@ -65,9 +65,9 @@ class CreateCustomerAddress
      */
     public function handle(): bool
     {
-        $this->customer_address = new Address($this->attributes);
+        $this->customer_address = $this->customer->addresses()->create($this->attributes);
 
-        if ($this->customer->addresses()->save($this->customer_address)) {
+        if ($this->customer_address) {
             event(new CustomerAddressCreated($this->customer_address));
         }
 
