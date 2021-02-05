@@ -70,3 +70,16 @@ jobs:
         username: ${{ secrets.DEPLOY_USERNAME }}
         key: ${{ secrets.DEPLOY_KEY }}
         script: "cd ~/www/trawlbens.core && chmod +x ./deploy.staging.sh && ./deploy.staging.sh"
+  deploy:
+    needs: test
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: staging
+        if: github.ref == 'refs/heads/master'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: "cd ~/www/trawlbens.core && chmod +x ./deploy.staging.sh && ./deploy.staging.sh"
