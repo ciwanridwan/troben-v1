@@ -3,6 +3,8 @@
 namespace App\Actions\Auth;
 
 use App\Models\User;
+use App\Http\Response;
+use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
 use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
@@ -41,6 +43,8 @@ class AttemptLogin
      *
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \libphonenumber\NumberParseException
+     * @throws \Throwable
      */
     public function attempt(): JsonResponse
     {
@@ -50,6 +54,10 @@ class AttemptLogin
                 break;
             case PhoneNumberUtil::getInstance()->isPossibleNumber($this->attributes['username']):
                 $column = self::CREDENTIAL_PHONE;
+                // $this->attributes['username'] = PhoneNumberUtil::getInstance()->format(
+                //     PhoneNumberUtil::getInstance()->parse($this->attributes['username']),
+                // PhoneNumberFormat::E164
+                // );
                 break;
             default:
                 $column = self::CREDENTIAL_USERNAME;
@@ -57,11 +65,6 @@ class AttemptLogin
         }
 
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
-
-        // if not asking for otp, make sure that the user is verified before.
-        if (! $this->attributes['otp']) {
-            $query->verified();
-        }
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
@@ -71,6 +74,9 @@ class AttemptLogin
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
+
+        // if not asking for otp, make sure that the user is verified before.
+        throw_if(! $this->attributes['otp'] && $authenticatable->is_verified, new Error(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable)

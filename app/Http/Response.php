@@ -24,11 +24,13 @@ class Response implements Responsable
     const RC_INVALID_DATA = '0100';
     const RC_RESOURCE_NOT_FOUND = '0101';
     const RC_ROUTE_NOT_FOUND = '0102';
+    const RC_INVALID_PHONE_NUMBER = '0103';
 
     // authentication / authorization related. 0200 - 0299
     const RC_UNAUTHENTICATED = '0200';
     const RC_INVALID_AUTHENTICATION_HEADER = '0201';
     const RC_MISSING_AUTHENTICATION_HEADER = '0202';
+    const RC_ACCOUNT_NOT_VERIFIED = '0203';
 
     // server side faults. 0900 - 0999
     const RC_SERVER_IN_MAINTENANCE = '0901';
@@ -87,6 +89,7 @@ class Response implements Responsable
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
+                self::RC_INVALID_PHONE_NUMBER,
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
@@ -94,6 +97,7 @@ class Response implements Responsable
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
+                self::RC_ACCOUNT_NOT_VERIFIED,
             ],
             LaravelResponse::HTTP_SERVICE_UNAVAILABLE => [
                 self::RC_SERVER_IN_MAINTENANCE,
@@ -180,7 +184,7 @@ class Response implements Responsable
      */
     public function resolveMessage(): string
     {
-        return Str::ucfirst(Str::lower(str_replace(['RC', '_'], '', self::getErrorCodes()[$this->code])));
+        return trim(Str::ucfirst(Str::lower(str_replace(['RC', '_'], ' ', self::getErrorCodes()[$this->code]))));
     }
 
     /**

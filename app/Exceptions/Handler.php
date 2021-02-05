@@ -3,6 +3,10 @@
 namespace App\Exceptions;
 
 use Throwable;
+use App\Http\Response;
+use libphonenumber\NumberParseException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -34,6 +38,28 @@ class Handler extends ExceptionHandler
         }
 
         return parent::report($e);
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof ValidationException) {
+            $e = new Error(Response::RC_INVALID_DATA, $e->errors(), $e);
+        } elseif ($e instanceof AuthenticationException) {
+            $e = new Error(Response::RC_UNAUTHENTICATED);
+        } elseif ($e instanceof NumberParseException) {
+            $e = new Error(Response::RC_INVALID_PHONE_NUMBER);
+        }
+
+        return parent::render($request, $e);
     }
 
     /**
