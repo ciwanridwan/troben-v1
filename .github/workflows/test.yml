@@ -69,4 +69,4 @@ jobs:
         host: ${{ secrets.DEPLOY_HOST }}
         username: ${{ secrets.DEPLOY_USERNAME }}
         key: ${{ secrets.DEPLOY_KEY }}
-        script: "cd ~/www/trawlbens.core && ./deploy.staging.sh"
+        script: "cd ~/www/trawlbens.core && chmod +x ./deploy.staging.sh && ./deploy.staging.sh"
