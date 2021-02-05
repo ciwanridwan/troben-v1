@@ -26,7 +26,7 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /** @inheritDoc */
+    /** {@inheritdoc} */
     public function report(Throwable $e)
     {
         if ($this->shouldReport($e) && app()->bound('sentry')) {
