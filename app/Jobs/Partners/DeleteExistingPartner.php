@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\PartnerDeleted;
 use Illuminate\Bus\Batchable;
 use App\Models\Partners\Partner;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Partners\PartnerDeleted;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
