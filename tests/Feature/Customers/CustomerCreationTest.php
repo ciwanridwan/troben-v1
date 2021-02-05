@@ -32,9 +32,11 @@ class CustomerCreationTest extends TestCase
 
 
         try {
-            $response = $this->dispatch(new CreateNewCustomer($this->data));
+            $job = new CreateNewCustomer($this->data);
+            $response = $this->dispatch($job);
+            $customer = $job->customer;
             $this->assertTrue($response);
-            $this->assertDatabaseHas('customers', Arr::only($this->data, ['username', 'email']));
+            $this->assertDatabaseHas('customers', $customer->toArray());
         } catch (\Exception $e) {
             $this->assertNotInstanceOf(ValidationException::class, $e);
         }
@@ -46,7 +48,6 @@ class CustomerCreationTest extends TestCase
         $missing_field_name = 'name';
         $this->withoutExceptionHandling();
         $data = Arr::except($this->data, $missing_field_name);
-
 
         // test on missing attribute
         try {
