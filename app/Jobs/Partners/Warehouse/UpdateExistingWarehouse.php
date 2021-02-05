@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Partners\Warehouse;
 
-use App\Events\Partners\Warehouse\WarehouseModificationFailed;
-use App\Events\Partners\Warehouse\WarehouseModified;
-use App\Models\Partners\Warehouse;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Partners\Warehouse;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partners\Warehouse\WarehouseModified;
+use App\Events\Partners\Warehouse\WarehouseModificationFailed;
 
 class UpdateExistingWarehouse
 {
@@ -25,7 +25,7 @@ class UpdateExistingWarehouse
     public function __construct(Warehouse $warehouse, $inputs = [])
     {
         $this->warehouse = $warehouse;
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'geo_district_id' => ['nullable', 'exists:geo_districts,id'],
