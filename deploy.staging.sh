@@ -9,6 +9,9 @@ echo "Deploying application ..."
     git fetch origin master
     git reset --hard origin/master
 
+    sudo chmod -R 777 storage
+    sudo chmod -R 777 boostrap/cache
+
     # Install dependencies based on lock file
     composer install --no-interaction --prefer-dist --optimize-autoloader
 
