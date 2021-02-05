@@ -3,7 +3,6 @@
 </p>
 
 <p align="center">
-[![CI Build](https://github.com/Trawlbens-Dev/trawlbens%2Ecore/workflows/CI%20Build/badge.svg)](https://github.com/Trawlbens-Dev/trawlbens%2Ecore/actions)
-    
+![CI Build](https://github.com/Trawlbens-Dev/trawlbens%2Ecore/workflows/CI%20Build/badge.svg)
 [![codecov](https://codecov.io/gh/Trawlbens-Dev/trawlbens.core/branch/master/graph/badge.svg?token=N1NBNHEB6O)](https://codecov.io/gh/Trawlbens-Dev/trawlbens.core)
 </p>
