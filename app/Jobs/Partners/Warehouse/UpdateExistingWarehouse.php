@@ -9,10 +9,9 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Validator as FacadesValidator;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
 
-class UpdateExistingPartner
+class UpdateExistingWarehouse
 {
     use Dispatchable, InteractsWithQueue, SerializesModels, Batchable;
 
@@ -26,7 +25,7 @@ class UpdateExistingPartner
     public function __construct(Warehouse $warehouse, $inputs = [])
     {
         $this->warehouse = $warehouse;
-        $this->attributes = FacadesValidator::make($inputs,[
+        $this->attributes = Validator::make($inputs,[
             'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'geo_district_id' => ['nullable', 'exists:geo_districts,id'],

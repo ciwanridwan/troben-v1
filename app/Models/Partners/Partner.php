@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -31,7 +32,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  */
 class Partner extends Model
 {
-    use SoftDeletes, HashableId, HasPhoneNumber;
+    use SoftDeletes, 
+        HashableId, 
+        HasPhoneNumber, 
+        HasFactory;
 
     const TYPE_BUSINESS = 'business';
     const TYPE_POOL = 'pool';

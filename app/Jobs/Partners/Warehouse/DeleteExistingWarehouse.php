@@ -2,16 +2,14 @@
 
 namespace App\Jobs\Partners\Warehouse;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Bus\Batchable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class DeleteExistingPartner implements ShouldQueue
+class DeleteExistingWarehouse
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Batchable, SerializesModels;
 
     /**
      * Create a new job instance.
