@@ -2,34 +2,33 @@
 
 namespace App\Jobs\Partners\Warehouse;
 
-use App\Events\Partners\Warehouse\WarehouseCreated;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Warehouse;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partners\Warehouse\WarehouseCreated;
 
 class CreateNewWarehouse
 {
+    use Dispatchable;
     /**
-     * Instance Warehouse
+     * Instance Warehouse.
      *
      * @var App\Models\Partners\Warehouse
      */
     public Warehouse $warehouse;
     /**
-     * Instance partner
+     * Instance partner.
      *
      * @var App\Models\Partners\Partner
      */
     public Partner $partner;
     /**
-     * Accept Attributes
+     * Accept Attributes.
      *
      * @var array
      */
     public array $attributes;
-
-    use Dispatchable;
 
     /**
      * Create a new job instance.
@@ -48,7 +47,7 @@ class CreateNewWarehouse
             'address' => ['nullable'],
             'geo_area' => ['nullable'],
             'is_pool' => ['nullable', 'boolean'],
-            'is_counter' => ['nullable', 'boolean']
+            'is_counter' => ['nullable', 'boolean'],
         ])->validate();
     }
 

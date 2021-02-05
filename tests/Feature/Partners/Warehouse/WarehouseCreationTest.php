@@ -6,7 +6,6 @@ use Exception;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Warehouse;
 use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
