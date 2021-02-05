@@ -35,12 +35,12 @@ class DeleteExistingPartner
      *
      * @return void
      */
-    public function handle()
+    public function handle(): bool
     {
         if ($this->partner->delete()) {
             event(new PartnerDeleted($this->partner));
         }
 
-        return $this->customer->deleted_at !== null;
+        return $this->partner->deleted_at !== null;
     }
 }

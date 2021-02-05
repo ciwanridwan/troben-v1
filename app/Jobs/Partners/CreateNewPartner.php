@@ -16,6 +16,13 @@ class CreateNewPartner
     use Dispatchable, InteractsWithQueue, Batchable, SerializesModels;
 
     /**
+     * Partner Instance.
+     * 
+     * @var \App\Models\Partners\Partner
+     */
+    public Partner $partner;
+
+    /**
      * filtered attributes.
      * 
      * @var array
@@ -31,6 +38,7 @@ class CreateNewPartner
      */
     public function __construct($inputs = [])
     {
+        $this->partner = new Partner();
         $this->attributes = Validator::make($inputs, [
             'name' => ['required','string','max:255'],
             'code' => ['required','string','max:255'],
@@ -49,12 +57,12 @@ class CreateNewPartner
      */
     public function handle(): bool
     {
-        $partner = (new Partner())->fill($this->attributes);
+        $this->partner->fill($this->attributes);
 
-        if ($partner->save()) {
-            event(new NewPartnerCreated($partner));
+        if ($this->partner->save()) {
+            event(new NewPartnerCreated($this->partner));
         }
 
-        return $partner->exists;
+        return $this->partner->exists;
     }
 }

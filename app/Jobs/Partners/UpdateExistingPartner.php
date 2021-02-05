@@ -40,13 +40,13 @@ class UpdateExistingPartner
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            'name' => ['required','string','max:255'],
-            'code' => ['required','string','max:255'],
+            'name' => ['filled','string','max:255'],
+            'code' => ['filled','string','max:255'],
             'contact_email' => ['nullable','email'],
             'contact_phone' => ['nullable','numeric','phone:AUTO,ID'],
             'address' => ['nullable','string','max:255'],
             'geo_location' => ['nullable'],
-            'type' => ['required',Rule::in(Partner::getAvailableTypes())],
+            'type' => ['filled',Rule::in(Partner::getAvailableTypes())],
         ])->validate();
     }
 
