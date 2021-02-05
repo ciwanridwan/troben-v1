@@ -26,6 +26,16 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+    /** @inheritDoc */
+    public function report(Throwable $e)
+    {
+        if ($this->shouldReport($e) && app()->bound('sentry')) {
+            app('sentry')->captureException($e);
+        }
+
+        return parent::report($e);
+    }
+
     /**
      * Register the exception handling callbacks for the application.
      *
