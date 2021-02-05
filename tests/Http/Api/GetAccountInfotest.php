@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Http\Api;
+namespace Tests\Http\Api;
 
 use Tests\TestCase;
 use App\Models\Customers\Customer;

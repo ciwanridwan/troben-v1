@@ -21,13 +21,22 @@ class DeleteExistingCustomer
     public Customer $customer;
 
     /**
+     * Soft Delete flag.
+     *
+     * @var bool
+     */
+    public bool $softDelete;
+
+    /**
      * DeleteExistingCustomer constructor.
      *
      * @param \App\Models\Customers\Customer $customer
+     * @param bool                           $force
      */
-    public function __construct(Customer $customer)
+    public function __construct(Customer $customer, $force = false)
     {
         $this->customer = $customer;
+        $this->softDelete = ! $force;
     }
 
     /**
@@ -38,10 +47,10 @@ class DeleteExistingCustomer
      */
     public function handle(): bool
     {
-        if ($this->customer->delete()) {
-            event(new CustomerDeleted($this->customer));
-        }
+        (bool) $result = $this->softDelete ? $this->customer->delete() : $this->customer->forceDelete();
 
-        return $this->customer->deleted_at !== null;
+        event(new CustomerDeleted($this->customer));
+
+        return $result;
     }
 }

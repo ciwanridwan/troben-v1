@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Partners\Warehouse;
+namespace Tests\Jobs\Partners\Warehouses;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;

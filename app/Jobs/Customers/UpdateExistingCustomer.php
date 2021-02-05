@@ -39,7 +39,6 @@ class UpdateExistingCustomer
      */
     public function __construct(Customer $customer, $inputs = [])
     {
-        $this->customer = $customer;
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
@@ -49,6 +48,8 @@ class UpdateExistingCustomer
             'facebook_id' => ['nullable'],
             'google_id' => ['nullable'],
         ])->validate();
+
+        $this->customer = $customer;
     }
 
     /**
@@ -58,9 +59,7 @@ class UpdateExistingCustomer
      */
     public function handle(): bool
     {
-        foreach ($this->attributes as $key => $value) {
-            $this->customer->$key = $value;
-        }
+        collect($this->attributes)->each(fn ($v, $k) => $this->customer->{$k} = $v);
 
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {

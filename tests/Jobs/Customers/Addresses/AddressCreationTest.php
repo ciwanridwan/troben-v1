@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Customers;
+namespace Tests\Jobs\Customers\Addresses;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
@@ -11,12 +11,19 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class CustomerAddressCreationTest extends TestCase
+class AddressCreationTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs;
 
-    private $data;
+    private array $data;
+
     private $customer;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function setUp(): void
     {
         parent::setUp();

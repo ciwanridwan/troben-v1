@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Partners;
+namespace Tests\Jobs\Partners;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;

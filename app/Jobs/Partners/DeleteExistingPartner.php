@@ -15,32 +15,43 @@ class DeleteExistingPartner
 
     /**
      * Partner instance.
-     * 
-     * @var App\Models\Partners\Partner
+     *
+     * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
 
     /**
-     * DeleteExistingPartner constructor.
-     * 
-     * @param App\Models\Partners\Partner $partner
+     * Soft delete flag.
+     *
+     * @var bool
      */
-    public function __construct(Partner $partner)
+    public bool $softDelete;
+
+    /**
+     * DeleteExistingPartner constructor.
+     *
+     * @param \App\Models\Partners\Partner $partner
+     * @param bool                         $force
+     */
+    public function __construct(Partner $partner, $force = false)
     {
         $this->partner = $partner;
+        $this->softDelete = ! $force;
     }
 
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
+     *
+     * @throws \Exception
      */
     public function handle(): bool
     {
-        if ($this->partner->delete()) {
-            event(new PartnerDeleted($this->partner));
-        }
+        (bool) $result = $this->softDelete ? $this->partner->delete() : $this->partner->forceDelete();
 
-        return $this->partner->deleted_at !== null;
+        event(new PartnerDeleted($this->partner));
+
+        return $result;
     }
 }

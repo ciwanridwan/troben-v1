@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Partners;
+namespace Tests\Jobs\Partners;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
@@ -14,7 +14,8 @@ class PartnerCreationTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs;
 
-    private $data;
+    private array $data;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -30,6 +31,7 @@ class PartnerCreationTest extends TestCase
             'type' => Partner::TYPE_BUSINESS,
         ];
     }
+
     public function test_on_valid_data()
     {
         $this->withoutExceptionHandling();

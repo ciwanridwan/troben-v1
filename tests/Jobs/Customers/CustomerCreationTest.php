@@ -1,10 +1,13 @@
 <?php
 
-namespace Tests\Feature\Customers;
+namespace Tests\Jobs\Customers;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
+use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\Event;
 use App\Jobs\Customers\CreateNewCustomer;
+use App\Events\Customers\NewCustomerCreated;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,33 +16,33 @@ class CustomerCreationTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs;
 
-    private $data;
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->data = [
-            'name' => 'username test',
-            'phone' => '08512345679',
-            'password' => 'aLphAnumeric123',
-            'email' => 'email@test.com',
-        ];
-    }
+    private array $data = [
+        'name' => 'username test',
+        'phone' => '08512345679',
+        'password' => 'aLphAnumeric123',
+        'email' => 'email@test.com',
+    ];
 
-    /** @test */
+    /**
+     * @test
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function test_on_valid_data()
     {
-        $this->withoutExceptionHandling();
+        Event::fake();
 
+        $job = new CreateNewCustomer($this->data);
 
-        try {
-            $job = new CreateNewCustomer($this->data);
-            $response = $this->dispatch($job);
-            $customer = $job->customer;
-            $this->assertTrue($response);
-            $this->assertDatabaseHas('customers', $customer->toArray());
-        } catch (\Exception $e) {
-            $this->assertNotInstanceOf(ValidationException::class, $e);
-        }
+        $this->assertTrue($this->dispatch($job));
+
+        $this->assertInstanceOf(Customer::class, $job->customer);
+
+        $this->assertTrue($job->customer->exists);
+
+        $this->assertDatabaseHas('customers', Arr::only($this->data, ['email']));
+
+        Event::assertDispatched(NewCustomerCreated::class);
     }
 
     /** @test */
@@ -69,7 +72,6 @@ class CustomerCreationTest extends TestCase
         $this->withoutExceptionHandling();
 
         $invalid_field_name = 'email';
-
 
         // test on invalid email
         $data = $this->data;

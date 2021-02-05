@@ -15,32 +15,42 @@ class DeleteExistingWarehouse
 
     /**
      * Warehouse instance.
-     * 
+     *
      * @var \App\Models\Partners\Warehouse
      */
     public Warehouse $warehouse;
 
     /**
-     * DeleteExistingWarehouse construct.
-     * 
-     * @param \App\Models\Partners\Warehouse $warehouse
+     * Soft delete flag.
+     *
+     * @var bool
      */
-    public function __construct(Warehouse $warehouse)
+    public bool $softDelete;
+
+    /**
+     * DeleteExistingWarehouse construct.
+     *
+     * @param \App\Models\Partners\Warehouse $warehouse
+     * @param bool                           $force
+     */
+    public function __construct(Warehouse $warehouse, $force = false)
     {
         $this->warehouse = $warehouse;
+        $this->softDelete = ! $force;
     }
 
     /**
      * Delete Warehouse job.
-     * 
+     *
      * @return bool
+     * @throws \Exception
      */
     public function handle(): bool
     {
-        if ($this->warehouse->delete()) {
-            event(new WarehouseDeleted($this->warehouse));
-        }
+        $result = $this->softDelete ? $this->warehouse->delete() : $this->warehouse->forceDelete();
 
-        return $this->warehouse->deleted_at !== null;
+        event(new WarehouseDeleted($this->warehouse));
+
+        return (bool) $result;
     }
 }
