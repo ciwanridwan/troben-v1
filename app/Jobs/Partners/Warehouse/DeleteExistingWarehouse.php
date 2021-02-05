@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Partners\Warehouse;
 
+use App\Events\Partners\Warehouse\WarehouseDeleted;
+use App\Models\Partners\Warehouse;
 use Illuminate\Bus\Batchable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,22 +14,33 @@ class DeleteExistingWarehouse
     use Dispatchable, InteractsWithQueue, Batchable, SerializesModels;
 
     /**
-     * Create a new job instance.
-     *
-     * @return void
+     * Warehouse instance.
+     * 
+     * @var \App\Models\Partners\Warehouse
      */
-    public function __construct()
+    public Warehouse $warehouse;
+
+    /**
+     * DeleteExistingWarehouse construct.
+     * 
+     * @param \App\Models\Partners\Warehouse $warehouse
+     */
+    public function __construct(Warehouse $warehouse)
     {
-        //
+        $this->warehouse = $warehouse;
     }
 
     /**
-     * Execute the job.
-     *
-     * @return void
+     * Delete Warehouse job.
+     * 
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
-        //
+        if ($this->warehouse->delete()) {
+            event(new WarehouseDeleted($this->warehouse));
+        }
+
+        return $this->warehouse->deleted_at !== null;
     }
 }
