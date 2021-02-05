@@ -28,6 +28,10 @@ trait HasPhoneNumber
      */
     public function assignPhoneAttribute($value = null): void
     {
+        if (empty($value)) {
+            return;
+        }
+
         $util = PhoneNumberUtil::getInstance();
         $value = $value ?: $this->{$this->getPhoneNumberColumn()};
 

@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Actions\Auth\AttemptLogin;
 use App\Http\Controllers\Controller;
-use App\Actions\Auth\CustomerRegister;
+use App\Actions\Auth\AccountRegister;
 
 class AuthController extends Controller
 {
@@ -20,7 +20,7 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     public function login(Request $request): JsonResponse
     {
@@ -56,6 +56,6 @@ class AuthController extends Controller
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
         ]);
 
-        return (new CustomerRegister($request->all()))->register();
+        return (new AccountRegister($request->all()))->register();
     }
 }

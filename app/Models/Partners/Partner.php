@@ -3,6 +3,7 @@
 namespace App\Models\Partners;
 
 use App\Models\User;
+use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,12 +31,13 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  */
 class Partner extends Model
 {
-    use SoftDeletes, HashableId;
+    use SoftDeletes, HashableId, HasPhoneNumber;
 
     const TYPE_BUSINESS = 'business';
     const TYPE_POOL = 'pool';
     const TYPE_SPACE = 'space';
     const TYPE_TRANSPORTER = 'transporter';
+
 
     /**
      * The table associated with the model.
@@ -67,6 +69,13 @@ class Partner extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Phone Number Column.
+     *
+     * @var string
+     */
+    protected string $phoneNumberColumn = 'contact_phone';
 
     /**
      * Get partner types.
