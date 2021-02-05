@@ -26,6 +26,7 @@ return [
     'api' => [
         App\Http\Routes\Api\GeoRoute::class,
         App\Http\Routes\Api\AuthRoute::class,
+        App\Http\Routes\Api\AccountRoute::class,
         /** @inject api **/
     ],
 ];
