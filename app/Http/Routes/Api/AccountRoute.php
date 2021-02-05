@@ -2,24 +2,24 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\AccountController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\AccountController;
 
 class AccountRoute extends BaseRoute
 {
     /**
-     * route prefix
+     * route prefix.
      *
      * @var string
      */
-    protected $prefix = "/me";
+    protected $prefix = '/me';
 
     /**
-     * route name
+     * route name.
      *
      * @var string
      */
-    protected $name = "api.me";
+    protected $name = 'api.me';
 
     /**
      * Register routes handled by this class.
@@ -30,7 +30,7 @@ class AccountRoute extends BaseRoute
     {
         $this->router->get($this->prefix(), [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

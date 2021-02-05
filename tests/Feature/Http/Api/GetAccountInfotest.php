@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Http\Api;
 
+use Tests\TestCase;
 use App\Models\Customers\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 
 class GetAccountInfotest extends TestCase
 {
@@ -37,7 +36,7 @@ class GetAccountInfotest extends TestCase
         $response = $this->get(route('api.me'), [
             'Accept' => 'application/json',
             'CONTENT_TYPE' => 'application/json',
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer '.$token,
         ]);
         $this->assertSuccessResponse($response);
     }

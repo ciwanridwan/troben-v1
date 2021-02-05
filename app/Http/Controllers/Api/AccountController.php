@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Actions\Accounts\AccountInfo;
-use App\Concerns\RestfulResponse;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\CustomerAccountResource;
-use App\Http\Resources\UserAccountResource;
-use App\Http\Response;
-use App\Models\Customers\Customer;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Concerns\RestfulResponse;
+use Illuminate\Http\JsonResponse;
+use App\Models\Customers\Customer;
+use App\Http\Controllers\Controller;
 
 class AccountController extends Controller
 {
@@ -30,7 +25,8 @@ class AccountController extends Controller
     public function index(Request $request)
     {
         $account = $request->user();
-        $response =  $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
+        $response = $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
+
         return $response;
     }
 
