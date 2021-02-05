@@ -28,6 +28,7 @@ class PartnerFactory extends Factory
             ['type' => Partner::TYPE_TRANSPORTER, 'code' => 'MTM'],
         ];
         $no = $this->faker->randomKey([0,1,2,3]);
+
         return [
             'name' => $this->faker->name,
             'code' => $typeMapper[$no]['code'].'-'.$this->faker->StateAbbr().'-'.$this->faker->unique()->randomDigit(),

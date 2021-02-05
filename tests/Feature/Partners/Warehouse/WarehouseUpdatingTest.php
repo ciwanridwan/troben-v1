@@ -8,7 +8,7 @@ use App\Models\Partners\Partner;
 use App\Models\Partners\Warehouse;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use \Illuminate\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Jobs\Partners\Warehouse\UpdateExistingWarehouse;
 
@@ -16,14 +16,14 @@ class WarehouseUpdatingTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs, WithFaker;
 
+    public bool $seed = true;
+
     /**
      * Warehouse instance.
      * 
      * @var App\Models\Partners\Warehouse
      */
     private Warehouse $warehouse;
-
-    public bool $seed = true;
 
     private $data;
 
@@ -54,7 +54,7 @@ class WarehouseUpdatingTest extends TestCase
             'is_counter' => $this->faker->boolean(),
         ];
     }
-    
+
     public function test_on_valid_data()
     {
         $this->withoutExceptionHandling();
