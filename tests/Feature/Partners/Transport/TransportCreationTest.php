@@ -2,17 +2,16 @@
 
 namespace Tests\Feature\Partners\Transport;
 
-use App\Jobs\Partners\CreateNewPartner;
-use App\Jobs\Partners\Transporter\CreateNewTransporter;
+use Exception;
+use Tests\TestCase;
+use Illuminate\Support\Arr;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
-use Exception;
+use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Jobs\Partners\Transporter\CreateNewTransporter;
 
 class TransportCreationTest extends TestCase
 {
@@ -38,8 +37,8 @@ class TransportCreationTest extends TestCase
         $this->data = [
             'name' => 'transporter',
             'registration_number' => 'B 1234 TKJ',
-            'type' => Transporter::TYPE_BIKE
-        ];;
+            'type' => Transporter::TYPE_BIKE,
+        ];
         $job = new CreateNewPartner($partner_data);
         $this->dispatch($job);
         $this->partner = $job->partner;
@@ -55,7 +54,6 @@ class TransportCreationTest extends TestCase
         $this->withoutExceptionHandling();
 
         try {
-
             $job = new CreateNewTransporter($this->partner, $this->data);
             $response = $this->dispatch($job);
             $this->assertTrue($response);
