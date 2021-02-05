@@ -3,9 +3,10 @@
 </p>
 
 <p align="center">
-
-![CI Build](https://github.com/Trawlbens-Dev/trawlbens%2Ecore/workflows/CI%20Build/badge.svg)
-
-[![codecov](https://codecov.io/gh/Trawlbens-Dev/trawlbens.core/branch/master/graph/badge.svg?token=N1NBNHEB6O)](https://codecov.io/gh/Trawlbens-Dev/trawlbens.core)
-
+<a href="https://github.com/Trawlbens-Dev/trawlbens.core/actions"><img src="https://github.com/Trawlbens-Dev/trawlbens%2Ecore/workflows/CI%20Build/badge.svg" alt="CI Build" /></a>
+<a href="https://codecov.io/gh/Trawlbens-Dev/trawlbens.core"><img src="https://codecov.io/gh/Trawlbens-Dev/trawlbens.core/branch/master/graph/badge.svg?token=N1NBNHEB6O" alt="coverage" /></a>
 </p>
+
+### License
+
+Proprietary Software, all rights reserved under [PT. TrawlBens Teknologi Anak Indonesia](https://trawlbens.co.id)
