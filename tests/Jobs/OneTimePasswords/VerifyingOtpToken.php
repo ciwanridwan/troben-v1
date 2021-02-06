@@ -2,13 +2,11 @@
 
 namespace Tests\Jobs\OneTimePasswords;
 
-use App\Jobs\OneTimePasswords\VerifyOtpToken;
+use Tests\TestCase;
 use App\Models\Customers\Customer;
+use App\Jobs\OneTimePasswords\VerifyOtpToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
 
 class VerifyingOtpToken extends TestCase
 {

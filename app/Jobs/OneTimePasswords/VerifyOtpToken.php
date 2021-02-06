@@ -2,10 +2,10 @@
 
 namespace App\Jobs\OneTimePasswords;
 
-use App\Models\Customers\Customer;
-use App\Models\OneTimePassword;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\OneTimePassword;
+use App\Models\Customers\Customer;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 class VerifyOtpToken
