@@ -3,6 +3,7 @@
 namespace App\Jobs\OneTimePasswords;
 
 use App\Contracts\HasOtpToken;
+use App\Events\OneTimePasswords\TokenVerified;
 use App\Http\Response;
 use Carbon\Carbon;
 use App\Models\User;
@@ -61,6 +62,7 @@ class VerifyOtpToken
             // set account verified
             $this->account->verified_at = Carbon::now();
             $this->account->save();
+            event(new TokenVerified($this->account, $this->otp));
         }
 
         return $this->account->is_verified;
