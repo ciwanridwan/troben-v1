@@ -16,9 +16,9 @@ return [
     'client_secret' => env('QONTAK_CLIENT_SECRET'),
 
     /**
-     * WhatsApp Template Factory
+     * WhatsApp Template Factory.
      */
     'templates' => [
         // list of all registered templates.
-    ]
+    ],
 ];

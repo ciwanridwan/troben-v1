@@ -14,6 +14,5 @@ class BusinessChannel
      */
     public function send($notifiable, Notification $notification)
     {
-
     }
 }
