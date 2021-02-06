@@ -5,10 +5,10 @@ namespace Tests\Jobs\OneTimePasswords;
 use App\Events\OneTimePasswords\TokenVerified;
 use Tests\TestCase;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\Event;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 
 class VerifyingOtpToken extends TestCase
 {

@@ -6,9 +6,7 @@ use App\Contracts\HasOtpToken;
 use App\Events\OneTimePasswords\TokenVerified;
 use App\Http\Response;
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\OneTimePassword;
-use App\Models\Customers\Customer;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 class VerifyOtpToken
@@ -52,7 +50,6 @@ class VerifyOtpToken
      */
     public function handle()
     {
-
         throw_if(($this->account->id !== $this->otp->verifiable_id) && !($this->account instanceof $this->otp->verifiable_type) && (Carbon::now() > $this->otp->expired_at), Response::RC_INVALID_AUTHENTICATION_HEADER);
 
         if ($this->otp->token === $this->token) {
