@@ -7,6 +7,7 @@ use App\Models\Customers\Customer;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 class VerifyingOtpToken extends TestCase
 {
@@ -19,14 +20,14 @@ class VerifyingOtpToken extends TestCase
      */
     public function test_on_valid_data()
     {
-        $this->seed();
-
-        $account = Customer::find(1);
+        // Event::fake();
+        $account = Customer::factory(1)->create()->first();
         $otp = $account->createOtp();
-        $job = new VerifyOtpToken($otp, $otp->token);
+        $job = new VerifyOtpToken($account, $otp, $otp->token);
         $response = $this->dispatch($job);
         $this->assertTrue($response);
         $this->assertTrue($job->account->is_verified);
         $this->assertNotNull($job->otp->claimed_at);
+        // Event::assertDispatched(VerifyOtpToken::class);
     }
 }
