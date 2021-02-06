@@ -2,12 +2,12 @@
 
 namespace App\Jobs\OneTimePasswords;
 
-use App\Contracts\HasOtpToken;
-use App\Events\OneTimePasswords\TokenVerified;
-use App\Http\Response;
 use Carbon\Carbon;
+use App\Http\Response;
+use App\Contracts\HasOtpToken;
 use App\Models\OneTimePassword;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\OneTimePasswords\TokenVerified;
 
 class VerifyOtpToken
 {
@@ -50,7 +50,7 @@ class VerifyOtpToken
      */
     public function handle()
     {
-        throw_if(($this->account->id !== $this->otp->verifiable_id) && !($this->account instanceof $this->otp->verifiable_type) && (Carbon::now() > $this->otp->expired_at), Response::RC_INVALID_AUTHENTICATION_HEADER);
+        throw_if(($this->account->id !== $this->otp->verifiable_id) && ! ($this->account instanceof $this->otp->verifiable_type) && (Carbon::now() > $this->otp->expired_at), Response::RC_INVALID_AUTHENTICATION_HEADER);
 
         if ($this->otp->token === $this->token) {
             // set otp claimed
