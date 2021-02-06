@@ -2,16 +2,16 @@
 
 namespace Tests\Jobs\OneTimePasswords;
 
+use Exception;
+use Carbon\Carbon;
 use Tests\TestCase;
+use App\Http\Response;
+use App\Exceptions\Error;
 use App\Models\Customers\Customer;
 use Illuminate\Support\Facades\Event;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\OneTimePasswords\TokenVerified;
-use App\Exceptions\Error;
-use App\Http\Response;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class VerifyingOtpToken extends TestCase
