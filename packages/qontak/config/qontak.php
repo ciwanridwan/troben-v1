@@ -6,7 +6,6 @@ return [
      */
     'base_url' => env('QONTAK_BASE_URL', 'https://chat-service.qontak.com/'),
 
-
     /**
      * Qontak API Hub Credentials.
      */
@@ -16,9 +15,9 @@ return [
     'client_secret' => env('QONTAK_CLIENT_SECRET'),
 
     /**
-     * WhatsApp Template Factory
+     * WhatsApp Template Factory.
      */
     'templates' => [
         // list of all registered templates.
-    ]
+    ],
 ];

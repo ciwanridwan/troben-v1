@@ -3,6 +3,7 @@
 namespace NotificationChannels\Qontak;
 
 use Illuminate\Support\ServiceProvider;
+use NotificationChannels\Qontak\WhatsApp\BusinessChannel;
 
 class QontakServiceProvider extends ServiceProvider
 {
@@ -11,22 +12,13 @@ class QontakServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Bootstrap code here.
+        $this->app->when(BusinessChannel::class)
+            ->needs(QontakClient::class)
+            ->give(function () {
+                $config = config('qontak');
 
-        /**
-         * Here's some example code we use for the pusher package.
-            $this->app->when(Channel::class)
-            ->needs(Pusher::class)
-        ->give(function () {
-        $pusherConfig = config('broadcasting.connections.pusher');
-        return new Pusher(
-        $pusherConfig['key'],
-        $pusherConfig['secret'],
-        $pusherConfig['app_id']
-        );
-        });
-         */
-
+                return new QontakClient($config);
+            });
     }
 
     /**

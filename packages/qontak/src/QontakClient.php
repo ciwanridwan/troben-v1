@@ -29,6 +29,20 @@ class QontakClient
     }
 
     /**
+     * Get Http Client.
+     *
+     * @return \GuzzleHttp\Client
+     */
+    public function getHttpClient(): Client
+    {
+        if (is_null($this->httpClient)) {
+            $this->httpClient = new Client();
+        }
+
+        return $this->httpClient;
+    }
+
+    /**
      * Set Http Client.
      *
      * @param \GuzzleHttp\Client $httpClient
