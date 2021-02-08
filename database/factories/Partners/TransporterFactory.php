@@ -37,6 +37,7 @@ class TransporterFactory extends Factory
             Transporter::TYPE_TRONTON,
             Transporter::TYPE_WINGBOX,
         ];
+
         return [
             'partner_id' => null,
             'name' => $this->faker->userName,

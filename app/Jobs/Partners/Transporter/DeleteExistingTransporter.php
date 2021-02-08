@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Partners\Transporter;
 
-use App\Events\Partners\Transporter\TransporterDeleted;
-use App\Models\Partners\Transporter;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Partners\Transporter;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Partners\Transporter\TransporterDeleted;
 
 class DeleteExistingTransporter
 {

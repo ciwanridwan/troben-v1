@@ -39,7 +39,7 @@ class UpdateExistingTransporter
     public function __construct(Transporter $transporter, $inputs = [])
     {
         $this->transporter = $transporter;
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
             'registration_number' => ['filled'],
             'type' => ['filled', Rule::in(Transporter::getAvailableTypes())],
