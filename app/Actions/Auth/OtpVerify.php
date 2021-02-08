@@ -6,6 +6,7 @@ use App\Concerns\RestfulResponse;
 use App\Contracts\HasOtpToken;
 use App\Http\Response;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
+use App\Models\Customers\Customer;
 use App\Models\OneTimePassword;
 use Exception;
 use Illuminate\Foundation\Bus\DispatchesJobs;

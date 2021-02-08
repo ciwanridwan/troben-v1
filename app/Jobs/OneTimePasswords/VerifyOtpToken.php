@@ -51,11 +51,11 @@ class VerifyOtpToken
      */
     public function handle()
     {
-        throw_if(! ($this->account->getkey() === $this->otp->verifiable_id) || ! ($this->account instanceof $this->otp->verifiable_type), new Error(Response::RC_MISSMATCH_TOKEN_OWNERSHIP));
+        throw_if(!($this->account->getkey() === (int)$this->otp->verifiable_id) || !($this->account instanceof $this->otp->verifiable_type), new Error(Response::RC_MISSMATCH_TOKEN_OWNERSHIP));
 
-        throw_if(! (Carbon::now()->lt($this->otp->expired_at)), new Error(Response::RC_TOKEN_HAS_EXPIRED));
+        throw_if(!(Carbon::now()->lt($this->otp->expired_at)), new Error(Response::RC_TOKEN_HAS_EXPIRED));
 
-        throw_if(! ($this->otp->token === $this->token), new Error(Response::RC_TOKEN_MISSMATCH));
+        throw_if(!($this->otp->token === $this->token), new Error(Response::RC_TOKEN_MISSMATCH));
 
         // set otp claimed
         $this->otp->claimed_at = Carbon::now();
