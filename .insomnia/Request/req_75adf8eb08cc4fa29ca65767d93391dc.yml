@@ -1,0 +1,47 @@
+_id: req_75adf8eb08cc4fa29ca65767d93391dc
+type: Request
+parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
+modified: 1612810489362
+created: 1612810263586
+url: "{{ _.base_url }}/auth/otp/verify"
+name: Verify
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: otp_token
+      value: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+        'b64::JC5kYXRhLm90cF9pZA==::46b', 'never', 60 %}"
+      description: ""
+      id: pair_1514377da4724ea8b9fe194455356972
+    - name: otp
+      value: "1234"
+      description: ""
+      id: pair_5fe64f606f54453a93c5b2534880bd19
+    - name: device_name
+      value: "{{ _.device_name }}"
+      description: ""
+      id: pair_808be66ec92048ceb747fa54001638df
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_39000aaad2fd4b5f8b6cc0169d7d151c
+  - name: ""
+    value: ""
+    description: ""
+    id: pair_6a5baefd027f45aaadf5c3047b8ce8ff
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_5b80befc5db3489a89e15b41aa5de403
+authentication: {}
+metaSortKey: -1612810263586
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
