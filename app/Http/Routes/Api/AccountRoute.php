@@ -32,6 +32,11 @@ class AccountRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->put($this->prefix(), [
+            'as' => $this->name('update'),
+            'uses' => $this->uses('update'),
+        ]);
     }
 
     /**
@@ -39,7 +44,7 @@ class AccountRoute extends BaseRoute
      *
      * @return string
      */
-    public function controller()
+    public function controller(): string
     {
         return AccountController::class;
     }

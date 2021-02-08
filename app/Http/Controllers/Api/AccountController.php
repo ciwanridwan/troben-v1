@@ -8,6 +8,8 @@ use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use App\Jobs\Customers\UpdateExistingCustomer;
 
 class AccountController extends Controller
 {
@@ -22,12 +24,28 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $account = $request->user();
-        $response = $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
 
-        return $response;
+        return $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request)
+    {
+        $account = ($request->user() instanceof Customer)
+            ? $this->updateCustomer($request->user(), $request)
+            : $this->updateUser($request->user(), $request);
+
+        return $account instanceof Customer
+            ? $this->getCustomerInfo($account)
+            : $this->getUserInfo($account);
     }
 
     /**
@@ -55,5 +73,31 @@ class AccountController extends Controller
             'email' => $account->email,
             'phone' => $account->phone,
         ]);
+    }
+
+    /**
+     * @param \App\Models\Customers\Customer $customer
+     * @param \Illuminate\Http\Request       $request
+     *
+     * @return \App\Models\Customers\Customer
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function updateCustomer(Customer $customer, Request $request): Customer
+    {
+        $inputs = Validator::make($request->all(), [
+            'avatar' => ['nullable','file'],
+            'name' => ['nullable'],
+        ])->validate();
+
+        $job = new UpdateExistingCustomer($request->user(), $inputs);
+
+        $this->dispatch($job);
+
+        return $job->customer;
+    }
+
+    protected function updateUser(User $user, Request $request): User
+    {
+        // TODO: update user.
     }
 }
