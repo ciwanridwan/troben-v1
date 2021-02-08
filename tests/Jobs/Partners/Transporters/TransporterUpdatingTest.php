@@ -2,15 +2,15 @@
 
 namespace Tests\Jobs\Partners\Transporters;
 
-use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
+use Tests\TestCase;
+use Illuminate\Support\Arr;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
 
 class TransporterUpdatingTest extends TestCase
 {

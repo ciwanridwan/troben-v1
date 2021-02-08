@@ -3,9 +3,9 @@
 namespace App\Events\Partners\Transporter;
 
 use App\Models\Partners\Transporter;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class TransporterModified
 {
