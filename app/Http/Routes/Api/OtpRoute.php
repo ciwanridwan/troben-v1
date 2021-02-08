@@ -2,12 +2,11 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\OtpController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\OtpController;
 
 class OtpRoute extends BaseRoute
 {
-
     /**
      * @var string
      */
@@ -28,7 +27,7 @@ class OtpRoute extends BaseRoute
     {
         $this->router->post($this->prefix('verify'), [
             'as' => $this->name('verify'),
-            'uses' => $this->uses('verifyToken')
+            'uses' => $this->uses('verifyToken'),
         ])->withoutMiddleware('api');
     }
 

@@ -2,13 +2,11 @@
 
 namespace Tests\Http\Api\Auth;
 
-use App\Http\Response;
-use App\Models\Customers\Customer;
-use App\Models\OneTimePassword;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Http\Response;
+use App\Models\OneTimePassword;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class OtpVerifyingTest extends TestCase
 {
