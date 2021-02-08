@@ -46,7 +46,7 @@ class AccountRegister
         $otp = $account->createOtp();
 
         return $this->success([
-            'otp_token' => $otp->token,
+            'otp' => $otp->getKey(),
         ]);
     }
 

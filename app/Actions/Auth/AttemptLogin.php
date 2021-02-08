@@ -81,7 +81,7 @@ class AttemptLogin
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable)
             : $this->success([
-                'token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]);
     }
 
