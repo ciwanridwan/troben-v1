@@ -8,7 +8,7 @@ use App\Http\Response;
 use App\Models\OneTimePassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class OtpVerifyingTest extends TestCase
+class OtpVerificationTest extends TestCase
 {
     use RefreshDatabase;
     /**
@@ -45,7 +45,7 @@ class OtpVerifyingTest extends TestCase
      *
      * @return void
      */
-    public function test_on_missmatch_otp_token()
+    public function test_on_mismatch_otp_token()
     {
         // test using any format number phone
         $response = $this->json('POST', route('api.auth.register'), [
@@ -67,7 +67,7 @@ class OtpVerifyingTest extends TestCase
             'Accept' => 'application/json',
         ]);
         $response->assertStatus(422);
-        $this->assertEquals($response->original['code'], Response::RC_TOKEN_MISSMATCH);
+        $this->assertEquals($response->original['code'], Response::RC_TOKEN_MISMATCH);
     }
 
     /**

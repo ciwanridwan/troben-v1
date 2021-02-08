@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Http\Request;
 use App\Actions\Auth\OtpVerify;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 class OtpController extends Controller
 {
-    public function verifyToken(Request $request)
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyToken(Request $request): JsonResponse
     {
         $inputs = $request->validate([
             'otp_token' => ['required'],

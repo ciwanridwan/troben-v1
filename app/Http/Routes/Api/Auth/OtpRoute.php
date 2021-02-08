@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Routes\Api;
+namespace App\Http\Routes\Api\Auth;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Api\OtpController;
+use App\Http\Controllers\Api\Auth\OtpController;
 
 class OtpRoute extends BaseRoute
 {
@@ -16,7 +16,6 @@ class OtpRoute extends BaseRoute
      * @var string
      */
     protected $name = 'api.auth.otp';
-
 
     /**
      * Register routes handled by this class.

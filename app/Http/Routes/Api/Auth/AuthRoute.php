@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Routes\Api;
+namespace App\Http\Routes\Api\Auth;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Auth\AuthController;
 
 class AuthRoute extends BaseRoute
 {
