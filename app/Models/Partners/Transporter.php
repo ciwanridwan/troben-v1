@@ -33,13 +33,14 @@ class Transporter extends Model
     const TYPE_PICKUP = 'pickup';
     const TYPE_PICKUP_BOX = 'pickup box';
     const TYPE_CDE_ENGKEL = 'cde engkel';
-    const TYPE_ENGKEL_BOX = 'engkel box';
-    const TYPE_ENGKEL_DOUBLE = 'engkel double';
-    const TYPE_ENGKEL_DOUBLE_BOX = 'engkel double box';
+    const TYPE_CDE_ENGKEL_BOX = 'engkel box';
+    const TYPE_CDE_ENGKEL_DOUBLE = 'engkel double';
+    const TYPE_CDE_ENGKEL_DOUBLE_BOX = 'engkel double box';
     const TYPE_FUSO_6M = 'fuso 6m';
     const TYPE_FUSO_9M = 'fuso 9m';
     const TYPE_TRONTON = 'tronton';
     const TYPE_WINGBOX = 'wingbox';
+    const TYPE_VAN = 'van';
 
 
     /**
@@ -83,13 +84,14 @@ class Transporter extends Model
             self::TYPE_PICKUP,
             self::TYPE_PICKUP_BOX,
             self::TYPE_CDE_ENGKEL,
-            self::TYPE_ENGKEL_BOX,
-            self::TYPE_ENGKEL_DOUBLE,
-            self::TYPE_ENGKEL_DOUBLE_BOX,
+            self::TYPE_CDE_ENGKEL_BOX,
+            self::TYPE_CDE_ENGKEL_DOUBLE,
+            self::TYPE_CDE_ENGKEL_DOUBLE_BOX,
             self::TYPE_FUSO_6M,
             self::TYPE_FUSO_9M,
             self::TYPE_TRONTON,
             self::TYPE_WINGBOX,
+            self::TYPE_VAN,
         ];
     }
 
