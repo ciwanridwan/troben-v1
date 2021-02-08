@@ -2,6 +2,8 @@
 
 namespace NotificationChannels\Qontak\Contracts\WhatsApp;
 
+use Illuminate\Support\Collection;
+
 interface Template
 {
     /**
@@ -21,9 +23,18 @@ interface Template
     /**
      * Get Payload.
      *
-     * @return array
+     * @return \Illuminate\Support\Collection|\NotificationChannels\Qontak\Contracts\WhatsApp\TemplateBody[]
      */
-    public function getPayload(): array;
+    public function getPayload(): Collection;
+
+    /**
+     * Add template body.
+     *
+     * @param \NotificationChannels\Qontak\Contracts\WhatsApp\TemplateBody $body
+     *
+     * @return $this
+     */
+    public function add(TemplateBody $body): self;
 
     /**
      * Get Channel ID.

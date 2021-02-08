@@ -36,7 +36,9 @@ class QontakClient
     public function getHttpClient(): Client
     {
         if (is_null($this->httpClient)) {
-            $this->httpClient = new Client();
+            $this->httpClient = new Client([
+                'base_uri' => $this->config['base_url'],
+            ]);
         }
 
         return $this->httpClient;

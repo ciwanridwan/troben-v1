@@ -40,5 +40,13 @@ class BusinessChannel
 
         /** @var \NotificationChannels\Qontak\Contracts\QontakNotification $notification */
         $template = $notification->toQontak($notifiable);
+
+        $this->qontak->getHttpClient()->request('POST', '/api/open/v1/broadcasts/whatsapp/direct', [
+            'headers' => [
+                'Authorization' => 'Bearer ',
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $template->toWhatsAppParams($notifiable),
+        ]);
     }
 }
