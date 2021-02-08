@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Transporter model.
@@ -23,12 +24,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Transporter extends Model
 {
-    use SoftDeletes, HashableId;
+    use SoftDeletes,
+        HashableId,
+        HasFactory;
 
     const TYPE_BIKE = 'bike';
     const TYPE_MPV = 'mpv';
     const TYPE_PICKUP = 'pickup';
     const TYPE_PICKUP_BOX = 'pickup box';
+    const TYPE_CDE_ENGKEL = 'cde engkel';
+    const TYPE_ENGKEL_BOX = 'engkel box';
+    const TYPE_ENGKEL_DOUBLE = 'engkel double';
+    const TYPE_ENGKEL_DOUBLE_BOX = 'engkel double box';
+    const TYPE_FUSO_6M = 'fuso 6m';
+    const TYPE_FUSO_9M = 'fuso 9m';
+    const TYPE_TRONTON = 'tronton';
+    const TYPE_WINGBOX = 'wingbox';
 
 
     /**
@@ -71,6 +82,14 @@ class Transporter extends Model
             self::TYPE_MPV,
             self::TYPE_PICKUP,
             self::TYPE_PICKUP_BOX,
+            self::TYPE_CDE_ENGKEL,
+            self::TYPE_ENGKEL_BOX,
+            self::TYPE_ENGKEL_DOUBLE,
+            self::TYPE_ENGKEL_DOUBLE_BOX,
+            self::TYPE_FUSO_6M,
+            self::TYPE_FUSO_9M,
+            self::TYPE_TRONTON,
+            self::TYPE_WINGBOX,
         ];
     }
 
