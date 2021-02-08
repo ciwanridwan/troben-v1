@@ -165,6 +165,7 @@ return [
         /*
          * Package Service Providers...
          */
+        NotificationChannels\Qontak\QontakServiceProvider::class,
 
         /*
          * Application Service Providers...
