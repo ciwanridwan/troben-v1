@@ -32,6 +32,11 @@ class Response implements Responsable
     const RC_MISSING_AUTHENTICATION_HEADER = '0202';
     const RC_ACCOUNT_NOT_VERIFIED = '0203';
 
+    // one time password 0300 - 0399
+    const RC_MISSMATCH_TOKEN_OWNERSHIP = '0301';
+    const RC_TOKEN_HAS_EXPIRED = '0302';
+    const RC_TOKEN_MISSMATCH = '0303';
+
     // server side faults. 0900 - 0999
     const RC_SERVER_IN_MAINTENANCE = '0901';
     const RC_DATABASE_ERROR = '0902';
@@ -90,10 +95,13 @@ class Response implements Responsable
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
                 self::RC_INVALID_PHONE_NUMBER,
+                self::RC_TOKEN_HAS_EXPIRED,
+                self::RC_TOKEN_MISSMATCH,
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
                 self::RC_INVALID_AUTHENTICATION_HEADER,
+                self::RC_MISSMATCH_TOKEN_OWNERSHIP,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
