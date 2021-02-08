@@ -5,16 +5,39 @@ namespace NotificationChannels\Qontak\Contracts\WhatsApp;
 interface Template
 {
     /**
-     * Get WhatsApp template id.
+     * Get template ID.
      *
      * @return string
      */
-    public function getWhatsAppTemplateId(): string;
+    public function getTemplateId(): string;
 
     /**
-     * Get WhatsApp template parameters.
+     * Get Language Code.
+     *
+     * @return string
+     */
+    public function getLanguage(): string;
+
+    /**
+     * Get Payload.
      *
      * @return array
      */
-    public function getWhatsAppTemplateParameters(): array;
+    public function getPayload(): array;
+
+    /**
+     * Get Channel ID.
+     *
+     * @return string
+     */
+    public function getChannelId(): string;
+
+    /**
+     * Convert message to WhatsApp parameters.
+     *
+     * @param $notifiable
+     *
+     * @return array
+     */
+    public function toWhatsAppParams($notifiable): array;
 }
