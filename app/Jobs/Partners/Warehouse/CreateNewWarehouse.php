@@ -14,13 +14,13 @@ class CreateNewWarehouse
     /**
      * Instance Warehouse.
      *
-     * @var App\Models\Partners\Warehouse
+     * @var \App\Models\Partners\Warehouse
      */
     public Warehouse $warehouse;
     /**
      * Instance partner.
      *
-     * @var App\Models\Partners\Partner
+     * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
     /**
@@ -33,7 +33,10 @@ class CreateNewWarehouse
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param \App\Models\Partners\Partner $partner
+     * @param array                        $inputs
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Partner $partner, $inputs = [])
     {
@@ -54,11 +57,12 @@ class CreateNewWarehouse
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->warehouse = $this->partner->warehouses()->create($this->attributes);
+
         if ($this->warehouse) {
             event(new WarehouseCreated($this->warehouse));
         }
