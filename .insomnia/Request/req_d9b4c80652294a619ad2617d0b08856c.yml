@@ -1,7 +1,7 @@
 _id: req_d9b4c80652294a619ad2617d0b08856c
 type: Request
 parentId: fld_6f6156d826694b62b2aa426135a6d093
-modified: 1612514966267
+modified: 1612810319713
 created: 1612514779446
 url: "{{ _.base_url }}/auth/register"
 name: Register Request
@@ -21,12 +21,12 @@ body:
       id: pair_88be9e4a15444fd393cbfb5cea5e2345
       disabled: false
     - name: email
-      value: "1"
+      value: ""
       description: ""
       id: pair_44855922107b4094a4106c4997fe5689
       disabled: false
     - name: phone
-      value: _.
+      value: ""
       description: ""
       id: pair_6e0c9039598848da803bf1b669bf55b4
 parameters: []

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateManifestPackageTable extends Migration
+class CreateDeliverablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateManifestPackageTable extends Migration
      */
     public function up()
     {
-        Schema::create('manifest_package', function (Blueprint $table) {
-            $table->unsignedBigInteger('manifest_id');
-            $table->unsignedBigInteger('package_id');
+        Schema::create('deliverables', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ class CreateManifestPackageTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('manifest_package');
+        Schema::dropIfExists('deliverables');
     }
 }

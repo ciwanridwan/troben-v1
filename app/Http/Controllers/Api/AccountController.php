@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
@@ -14,7 +13,6 @@ use App\Jobs\Users\UpdateExistingUser;
 
 class AccountController extends Controller
 {
-    use RestfulResponse;
     /**
      * Get Account Information
      * Route Path       : {API_DOMAIN}/me
@@ -60,7 +58,7 @@ class AccountController extends Controller
      */
     public function getCustomerInfo(Customer $account): JsonResponse
     {
-        return $this->success([
+        return $this->jsonSuccess([
             'name' => $account->name,
             'email' => $account->email,
             'phone' => $account->phone,
@@ -73,7 +71,7 @@ class AccountController extends Controller
      */
     public function getUserInfo(User $account): JsonResponse
     {
-        return $this->success([
+        return $this->jsonSuccess([
             'name' => $account->name,
             'email' => $account->email,
             'phone' => $account->phone,

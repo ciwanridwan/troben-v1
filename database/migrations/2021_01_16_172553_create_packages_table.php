@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Order;
+use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -15,12 +17,14 @@ class CreatePackagesTable extends Migration
     {
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
-            $table->char('service_code', 3);
-            $table->string('barcode');
 
-            $table->string('sender_name');
-            $table->string('sender_phone');
-            $table->string('sender_address');
+            $table->foreignIdFor(Order::class, 'order_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->string('barcode');
+            $table->char('service_code', 3);
 
             $table->string('receiver_name');
             $table->string('receiver_phone');
@@ -29,10 +33,13 @@ class CreatePackagesTable extends Migration
             $table->string('received_by')->nullable();
 
             $table->unsignedInteger('weight')->default(0);
-            $table->unsignedInteger('volume')->default(0);
+            $table->unsignedInteger('height')->default(0);
+            $table->unsignedInteger('length')->default(0);
+            $table->unsignedInteger('width')->default(0);
 
-            $table->decimal('total_price', 14, 2)->default(0);
-            $table->string('status')->default('accepted'); // accepted, in transit, delivery
+            $table->decimal('total_amount', 14, 2)->default(0);
+            $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);
+            $table->boolean('is_separate_item')->default(0);
 
             $table->timestamps();
             $table->softDeletes();

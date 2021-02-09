@@ -1,7 +1,7 @@
 _id: env_31a8a0834a09701809f6454caec059e72acb3a57
 type: Environment
 parentId: wrk_1e397ee573584606a034d6ff98a9acdf
-modified: 1612385981320
+modified: 1612602484307
 created: 1612369108997
 name: Base Environment
 data:
@@ -12,17 +12,33 @@ data:
       email: customer@trawlbens.co.id
       password: password
   device_name: Insomnia-Test-Client
+  vendors:
+    qontak:
+      base_url: https://service.qontak.com/oauth/token
+      username: qontak_username
+      password: qontak_password
+      client_id: qontak_client_id
+      client_secret: qontak_client_secret
 dataPropertyOrder:
   "&":
     - base_url
     - credentials
     - device_name
+    - vendors
   "&~|credentials":
     - customer
   "&~|credentials~|customer":
     - phone
     - email
     - password
+  "&~|vendors":
+    - qontak
+  "&~|vendors~|qontak":
+    - base_url
+    - username
+    - password
+    - client_id
+    - client_secret
 color: null
 isPrivate: false
 metaSortKey: 1612369108997

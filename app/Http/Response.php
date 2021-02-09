@@ -5,6 +5,7 @@ namespace App\Http;
 use ReflectionClass;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Support\Responsable;
@@ -33,9 +34,9 @@ class Response implements Responsable
     const RC_ACCOUNT_NOT_VERIFIED = '0203';
 
     // one time password 0300 - 0399
-    const RC_MISSMATCH_TOKEN_OWNERSHIP = '0301';
+    const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
     const RC_TOKEN_HAS_EXPIRED = '0302';
-    const RC_TOKEN_MISSMATCH = '0303';
+    const RC_TOKEN_MISMATCH = '0303';
 
     // server side faults. 0900 - 0999
     const RC_SERVER_IN_MAINTENANCE = '0901';
@@ -96,12 +97,12 @@ class Response implements Responsable
                 self::RC_INVALID_DATA,
                 self::RC_INVALID_PHONE_NUMBER,
                 self::RC_TOKEN_HAS_EXPIRED,
-                self::RC_TOKEN_MISSMATCH,
+                self::RC_TOKEN_MISMATCH,
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
                 self::RC_INVALID_AUTHENTICATION_HEADER,
-                self::RC_MISSMATCH_TOKEN_OWNERSHIP,
+                self::RC_MISMATCH_TOKEN_OWNERSHIP,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
@@ -163,16 +164,26 @@ class Response implements Responsable
         return $responseData;
     }
 
+    /**
+     * Get JSON representative.
+     *
+     * @param \Illuminate\Http\Request|null $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function json(?Request $request = null): JsonResponse
+    {
+        return response()->json($this->getResponseData($request ?? request()), $this->resolveHttpCode());
+    }
+
     /** {@inheritdoc} */
     public function toResponse($request)
     {
-        $responseData = $this->getResponseData($request);
-
         if ($request->expectsJson()) {
-            return response()->json($responseData, $this->resolveHttpCode());
+            return $this->json();
         }
 
-        return new LaravelResponse(json_encode($responseData), $this->resolveHttpCode());
+        return new LaravelResponse(json_encode($this->getResponseData($request)), $this->resolveHttpCode());
     }
 
     /**

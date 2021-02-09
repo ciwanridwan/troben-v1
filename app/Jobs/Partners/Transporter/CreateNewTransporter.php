@@ -4,7 +4,6 @@ namespace App\Jobs\Partners\Transporter;
 
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
-use Illuminate\Support\Facades\App;
 use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,14 +16,14 @@ class CreateNewTransporter
     /**
      * Partner Instance.
      *
-     * @var App\Models\Partners\Partner
+     * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
 
     /**
      * Partner Instance.
      *
-     * @var App\Models\Partners\Transporter
+     * @var \App\Models\Partners\Transporter
      */
     public Transporter $transporter;
 
@@ -38,7 +37,10 @@ class CreateNewTransporter
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param \App\Models\Partners\Partner $partner
+     * @param array                        $inputs
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Partner $partner, $inputs = [])
     {
@@ -53,11 +55,12 @@ class CreateNewTransporter
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->transporter = $this->partner->transporters()->create($this->attributes);
+
         if ($this->transporter) {
             event(new TransporterCreated($this->transporter));
         }

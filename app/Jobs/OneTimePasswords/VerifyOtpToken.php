@@ -15,9 +15,11 @@ class VerifyOtpToken
     use Dispatchable;
 
     /**
-     * @var HasOtpToken $account
+     * Account instance.
+     *
+     * @var \App\Models\Customers\Customer|\App\Models\User|HasOtpToken $account
      */
-    public $account;
+    public HasOtpToken $account;
 
     /**
      * @var string
@@ -32,10 +34,9 @@ class VerifyOtpToken
     /**
      * Create a new job instance.
      *
-     * @return void
-     *
-     * @param OneTimePassword $otp
-     * @param mixed $token
+     * @param \App\Contracts\HasOtpToken $account
+     * @param OneTimePassword            $otp
+     * @param mixed                      $token
      */
     public function __construct(HasOtpToken $account, OneTimePassword $otp, $token)
     {
@@ -48,14 +49,15 @@ class VerifyOtpToken
      * Execute the job.
      *
      * @return void
+     * @throws \Throwable
      */
     public function handle()
     {
-        throw_if(! ($this->account->getkey() === $this->otp->verifiable_id) || ! ($this->account instanceof $this->otp->verifiable_type), new Error(Response::RC_MISSMATCH_TOKEN_OWNERSHIP));
+        throw_if(! ($this->account->getkey() === (int) $this->otp->verifiable_id) || ! ($this->account instanceof $this->otp->verifiable_type), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
         throw_if(! (Carbon::now()->lt($this->otp->expired_at)), new Error(Response::RC_TOKEN_HAS_EXPIRED));
 
-        throw_if(! ($this->otp->token === $this->token), new Error(Response::RC_TOKEN_MISSMATCH));
+        throw_if(! ($this->otp->token === $this->token), new Error(Response::RC_TOKEN_MISMATCH));
 
         // set otp claimed
         $this->otp->claimed_at = Carbon::now();

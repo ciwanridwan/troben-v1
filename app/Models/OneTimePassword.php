@@ -84,6 +84,12 @@ class OneTimePassword extends Model
         self::creating(fn (self $self) => $self->expired_at = Carbon::now()->addSeconds(self::TOKEN_TTL));
     }
 
+    public function verifiable()
+    {
+        return $this->morphTo();
+    }
+
+
     /**
      * Set `token` attribute mutator.
      *

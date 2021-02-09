@@ -1,0 +1,56 @@
+_id: req_31cd1e868a144b728b7257074fa2a6a0
+type: Request
+parentId: fld_0c4f64831d4244ff89da8931295c6ece
+modified: 1612851633537
+created: 1612839908995
+url: "{{ _.base_url }}/geo"
+name: Get District
+description: ""
+method: GET
+body:
+  mimeType: multipart/form-data
+  params: []
+parameters:
+  - name: type
+    value: district
+    description: ""
+    id: pair_0eeec42c2fd84e2db23279edac93c95a
+  - name: country_id
+    value: ""
+    description: ""
+    id: pair_4f921406427344cbbee4f87699964178
+    disabled: true
+  - name: province_id
+    value: ""
+    description: ""
+    id: pair_c8cf398cc833437ebb177b565aeab6be
+    disabled: true
+  - name: regency_id
+    value: ""
+    description: ""
+    id: pair_6828b858f0c147129692deda320ad7c6
+    disabled: true
+  - name: q
+    value: ""
+    description: ""
+    id: pair_18c97afa95944ae091eee6ce59cb83aa
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_3e18205bde1d4bf28a1eec1f7603ca8b
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_5c8e15b7e2fb4c428d9c8644c5ad02c4
+authentication: {}
+metaSortKey: -1612396830098.75
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

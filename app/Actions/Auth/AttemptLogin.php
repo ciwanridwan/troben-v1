@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
-use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
@@ -15,8 +14,6 @@ use Illuminate\Validation\ValidationException;
 
 class AttemptLogin
 {
-    use RestfulResponse;
-
     const CREDENTIAL_EMAIL = 'email';
     const CREDENTIAL_PHONE = 'phone';
     const CREDENTIAL_USERNAME = 'username';
@@ -43,7 +40,6 @@ class AttemptLogin
      *
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
-     * @throws \libphonenumber\NumberParseException
      * @throws \Throwable
      */
     public function attempt(): JsonResponse
@@ -80,9 +76,9 @@ class AttemptLogin
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable)
-            : $this->success([
-                'token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
-            ]);
+            : (new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            ]))->json();
     }
 
     /**
@@ -96,9 +92,9 @@ class AttemptLogin
     {
         $otp = $authenticatable->createOtp();
 
-        return $this->success([
+        return (new Response(Response::RC_SUCCESS, [
             'otp_id' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
-        ]);
+        ]))->json();
     }
 }

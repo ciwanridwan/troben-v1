@@ -53,6 +53,7 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "NotificationChannels\\Qontak\\": "packages/qontak/src",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -24,8 +24,9 @@ return [
         /** @inject web **/
     ],
     'api' => [
+        App\Http\Routes\Api\Auth\AuthRoute::class,
+        App\Http\Routes\Api\Auth\OtpRoute::class,
         App\Http\Routes\Api\GeoRoute::class,
-        App\Http\Routes\Api\AuthRoute::class,
         App\Http\Routes\Api\AccountRoute::class,
         /** @inject api **/
     ],
