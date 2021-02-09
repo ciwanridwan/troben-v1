@@ -60,11 +60,7 @@ class AccountController extends Controller
      */
     public function getCustomerInfo(Customer $account): JsonResponse
     {
-        return $this->jsonSuccess(new CustomerResource([
-            'name' => $account->name,
-            'email' => $account->email,
-            'phone' => $account->phone,
-        ]));
+        return $this->jsonSuccess(new CustomerResource($account));
     }
     /**
      * @param User $account
@@ -73,11 +69,7 @@ class AccountController extends Controller
      */
     public function getUserInfo(User $account): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource([
-            'name' => $account->name,
-            'email' => $account->email,
-            'phone' => $account->phone,
-        ]));
+        return $this->jsonSuccess(new UserResource($account));
     }
 
     /**

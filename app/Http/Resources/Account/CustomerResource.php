@@ -16,9 +16,9 @@ class CustomerResource extends JsonResource
     {
         /** @var \App\Models\Customers\Customer $this */
         $data = [
-            'name' => $this['name'],
-            'email' => $this['email'],
-            'phone' => $this['phone'],
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
         ];
 
         return $data;

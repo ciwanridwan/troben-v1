@@ -16,9 +16,9 @@ class UserResource extends JsonResource
     {
         /** @var \App\Models\User $this */
         $data = [
-            'name' => $this['name'],
-            'email' => $this['email'],
-            'phone' => $this['phone'],
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
         ];
 
         return $data;
