@@ -2,11 +2,9 @@
 
 namespace Tests\Http\Api\Auth;
 
-use Carbon\Carbon;
 use Tests\TestCase;
 use App\Http\Response;
 use App\Models\Customers\Customer;
-use App\Models\OneTimePassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class OtpResendTest extends TestCase
@@ -43,7 +41,7 @@ class OtpResendTest extends TestCase
 
         // get otp id
         $response = $this->json('POST', route('api.auth.otp.resend'), [
-            'otp' => $otp->getKey() . '1',
+            'otp' => $otp->getKey().'1',
             'retry' => false,
         ]);
         $expected = new Response(Response::RC_INVALID_DATA);

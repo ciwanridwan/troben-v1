@@ -2,21 +2,20 @@
 
 namespace app\Actions\Auth;
 
-use App\Exceptions\Error;
-use App\Http\Response;
-use App\Models\OneTimePassword;
 use Carbon\Carbon;
+use App\Http\Response;
+use App\Exceptions\Error;
+use App\Models\OneTimePassword;
 use Illuminate\Http\JsonResponse;
 
 class OtpResend
 {
-
     /**
      * @var array
      */
     public array $attributes;
 
-    function __construct($inputs = [])
+    public function __construct($inputs = [])
     {
         $this->attributes = $inputs;
     }
@@ -28,12 +27,12 @@ class OtpResend
     {
         $otp = OneTimePassword::find($this->attributes['otp']);
 
-        throw_if(!($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
+        throw_if(! ($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
         $otp = $this->attributes['retry'] ? $this->extendExpired($otp) : $otp->verifiable->createOtp();
 
         return (new Response(Response::RC_SUCCESS, [
-            'otp' => $otp->getKey()
+            'otp' => $otp->getKey(),
         ]))->json();
     }
 
@@ -42,12 +41,13 @@ class OtpResend
      *
      * @return OneTimePassword
      */
-    function extendExpired(OneTimePassword $otp): OneTimePassword
+    public function extendExpired(OneTimePassword $otp): OneTimePassword
     {
         if (Carbon::now()->gt($otp->expired_at)) {
             $otp->expired_at = Carbon::now()->addMinutes(15);
             $otp->save();
         }
+
         return $otp;
     }
 }

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Http\Request;
-use App\Actions\Auth\{OtpVerify, OtpResend};
+use App\Actions\Auth\OtpResend;
+use App\Actions\Auth\OtpVerify;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
@@ -33,7 +34,7 @@ class OtpController extends Controller
     {
         $inputs = $request->validate([
             'otp' => ['required', 'exists:one_time_passwords,id'],
-            'retry' => ['required', 'boolean']
+            'retry' => ['required', 'boolean'],
         ]);
 
         return (new OtpResend($inputs))->resend();
