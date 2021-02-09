@@ -39,7 +39,7 @@ class OneTimePassword extends Notification implements QontakNotification
      */
     public function via($notifiable)
     {
-        return ['mail', BusinessChannel::class];
+        return ['mail', BusinessChannel::class]; // NusaSMS::class
     }
 
     /**

@@ -35,4 +35,17 @@ class Error extends Exception implements Responsable
     {
         return $this->response->toResponse($request);
     }
+
+    /**
+     * make new exception instance.
+     *
+     * @param string $code
+     * @param array  $data
+     *
+     * @return static
+     */
+    public static function make(string $code, $data = []): self
+    {
+        return new static($code, $data);
+    }
 }

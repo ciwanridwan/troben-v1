@@ -37,11 +37,10 @@ class Partner extends Model
         HasPhoneNumber,
         HasFactory;
 
-    const TYPE_BUSINESS = 'business';
+    const TYPE_BUSINESS = 'business'; // bisa order dari application.
     const TYPE_POOL = 'pool';
     const TYPE_SPACE = 'space';
     const TYPE_TRANSPORTER = 'transporter';
-
 
     /**
      * The table associated with the model.

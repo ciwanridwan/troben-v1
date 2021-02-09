@@ -16,8 +16,12 @@ class CountryTest extends TestCase
         $this->assertDatabaseCount('geo_countries', 0);
 
         $response = $this->json('GET', route('api.geo'), [], $this->getCustomersHeader());
+
         $expected = new Response(Response::RC_INVALID_DATA);
         $response->assertStatus($expected->resolveHttpCode());
+
+        $this->assertEquals($response->json('message'), $expected->resolveMessage());
+
         $response->assertJsonStructure(array_keys($expected->getResponseData(request())));
     }
 

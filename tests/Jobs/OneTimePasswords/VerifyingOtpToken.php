@@ -41,19 +41,16 @@ class VerifyingOtpToken extends TestCase
      *
      * @return void
      */
-    public function test_on_token_ownership_missmatch()
+    public function test_on_token_ownership_mismatch()
     {
-        try {
-            // Event::fake();
-            $account = Customer::factory(1)->create()->first();
-            $account2 = Customer::factory(1)->create()->first();
-            $otp = $account->createOtp();
-            $job = new VerifyOtpToken($account2, $otp, $otp->token);
-            $response = $this->dispatch($job);
-            // Event::assertDispatched(TokenVerified::class);
-        } catch (Exception  $e) {
-            $this->assertEquals(new Error(Response::RC_MISSMATCH_TOKEN_OWNERSHIP), $e);
-        }
+        $this->expectException(Error::class);
+
+        $account = Customer::factory(1)->create()->first();
+        $account2 = Customer::factory(1)->create()->first();
+        $otp = $account->createOtp();
+
+        $job = new VerifyOtpToken($account2, $otp, $otp->token);
+        $this->dispatch($job);
     }
 
     /**
@@ -61,7 +58,7 @@ class VerifyingOtpToken extends TestCase
      *
      * @return void
      */
-    public function test_on_token_missmatch()
+    public function test_on_token_mismatch()
     {
         try {
             // Event::fake();
@@ -71,7 +68,7 @@ class VerifyingOtpToken extends TestCase
             $response = $this->dispatch($job);
             // Event::assertDispatched(TokenVerified::class);
         } catch (Exception  $e) {
-            $this->assertEquals(new Error(Response::RC_TOKEN_MISSMATCH), $e);
+            $this->assertEquals(new Error(Response::RC_TOKEN_MISMATCH), $e);
         }
     }
 
