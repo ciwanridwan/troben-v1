@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use App\Http\Resources\Account\CustomerResource;
+use App\Jobs\Users\UpdateExistingUser;
 use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
-use App\Jobs\Users\UpdateExistingUser;
+use App\Http\Resources\Account\CustomerResource;
+use App\Http\Requests\Api\Account\UpdateAccountRequest;
 
 class AccountController extends Controller
 {
@@ -97,7 +97,7 @@ class AccountController extends Controller
      */
     protected function updateUser(User $user, UpdateAccountRequest $inputs): User
     {
-        $job = new UpdateExistingUser($user,$inputs->all());
+        $job = new UpdateExistingUser($user, $inputs->all());
 
         $this->dispatch($job);
 

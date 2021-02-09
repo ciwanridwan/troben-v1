@@ -2,11 +2,11 @@
 
 namespace Tests\Http\Api\Me;
 
-use App\Models\Customers\Customer;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Customers\Customer;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UpdateAccountTest extends TestCase
 {
@@ -29,7 +29,7 @@ class UpdateAccountTest extends TestCase
     //     $this->assertSuccessResponse($response);
 
     //     $token = $response->original['data']['token'];
-        
+
     //     $response = $this->post(route('api.me.update'),[
     //         'name' => $this->faker->name,
     //     ],[
@@ -47,7 +47,7 @@ class UpdateAccountTest extends TestCase
 
         $valid = Customer::first();
 
-        $response = $this->json('POST', route('api.auth.login'),[
+        $response = $this->json('POST', route('api.auth.login'), [
             'username' => $valid->phone,
             'password' => 'password',
             'device_name' => 'phpunit_test',
@@ -59,9 +59,9 @@ class UpdateAccountTest extends TestCase
 
         $token = $response->original['data']['access_token'];
 
-        $response = $this->post(route('api.me.update'),[
+        $response = $this->post(route('api.me.update'), [
             'name' => $this->faker->name,
-        ],[
+        ], [
             'Accept' => 'application/json',
             'Content-Type' => 'multipart/form-data',
             'Authorization' => "Bearer $token",

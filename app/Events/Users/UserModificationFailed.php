@@ -3,9 +3,9 @@
 namespace App\Events\Users;
 
 use App\Models\User;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class UserModificationFailed
 {
@@ -19,7 +19,7 @@ class UserModificationFailed
     public User $user;
 
     /**
-     * Event User Modification Failed
+     * Event User Modification Failed.
      * 
      * @param User $user
      */

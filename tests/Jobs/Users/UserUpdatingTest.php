@@ -2,14 +2,14 @@
 
 namespace Tests\Jobs\Users;
 
-use App\Jobs\Users\UpdateExistingUser;
-use App\Models\User;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Support\Arr;
+use App\Jobs\Users\UpdateExistingUser;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserUpdatingTest extends TestCase
 {
@@ -35,7 +35,7 @@ class UserUpdatingTest extends TestCase
         $this->withoutExceptionHandling();
 
         try {
-            $response = $this->dispatch(new UpdateExistingUser($this->user,$this->data));
+            $response = $this->dispatch(new UpdateExistingUser($this->user, $this->data));
             $this->assertTrue($response);
             $this->assertDatabaseHas('users', $this->data);
         } catch (\Exception $e) {

@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Users;
 
-use App\Events\Users\UserModificationFailed;
-use App\Events\Users\UserModified;
 use App\Models\User;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Users\UserModified;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Users\UserModificationFailed;
 
 class UpdateExistingUser
 {
@@ -37,7 +37,7 @@ class UpdateExistingUser
     public function __construct(User $user, $inputs = [])
     {
         $this->user = $user;
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
             'username' => ['filled',"unique:users,username,$user->id,id,deleted_at,NULL"],
             'email' => ['filled',"unique:users,username,$user->id,id,deleted_at,NULL"],
@@ -45,7 +45,7 @@ class UpdateExistingUser
             'password' => ['filled'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
-            'verified_at' => ['nullable']
+            'verified_at' => ['nullable'],
         ])->validate();
     }
 
