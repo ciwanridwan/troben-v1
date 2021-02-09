@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use App\Http\Resources\Account\CustomerResource;
+use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
 
@@ -58,11 +60,11 @@ class AccountController extends Controller
      */
     public function getCustomerInfo(Customer $account): JsonResponse
     {
-        return $this->jsonSuccess([
+        return $this->jsonSuccess(new CustomerResource([
             'name' => $account->name,
             'email' => $account->email,
             'phone' => $account->phone,
-        ]);
+        ]));
     }
     /**
      * @param User $account
@@ -71,11 +73,11 @@ class AccountController extends Controller
      */
     public function getUserInfo(User $account): JsonResponse
     {
-        return $this->jsonSuccess([
+        return $this->jsonSuccess(new UserResource([
             'name' => $account->name,
             'email' => $account->email,
             'phone' => $account->phone,
-        ]);
+        ]));
     }
 
     /**

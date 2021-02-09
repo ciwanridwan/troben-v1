@@ -57,8 +57,8 @@ class UpdateAccountTest extends TestCase
 
         $this->assertSuccessResponse($response);
 
-        $token = $response->original['data']['token'];
-        
+        $token = $response->original['data']['access_token'];
+
         $response = $this->post(route('api.me.update'),[
             'name' => $this->faker->name,
         ],[
