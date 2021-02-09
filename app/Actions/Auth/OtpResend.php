@@ -45,7 +45,7 @@ class OtpResend
     function extendExpired(OneTimePassword $otp): OneTimePassword
     {
         if (Carbon::now()->gt($otp->expired_at)) {
-            $otp->expired_at = Carbon::now()->addMinutes(3);
+            $otp->expired_at = Carbon::now()->addMinutes(15);
             $otp->save();
         }
         return $otp;
