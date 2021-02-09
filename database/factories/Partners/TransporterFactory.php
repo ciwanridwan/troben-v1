@@ -29,13 +29,14 @@ class TransporterFactory extends Factory
             Transporter::TYPE_PICKUP,
             Transporter::TYPE_PICKUP_BOX,
             Transporter::TYPE_CDE_ENGKEL,
-            Transporter::TYPE_ENGKEL_BOX,
-            Transporter::TYPE_ENGKEL_DOUBLE,
-            Transporter::TYPE_ENGKEL_DOUBLE_BOX,
+            Transporter::TYPE_CDE_ENGKEL_BOX,
+            Transporter::TYPE_CDE_ENGKEL_DOUBLE,
+            Transporter::TYPE_CDE_ENGKEL_DOUBLE_BOX,
             Transporter::TYPE_FUSO_6M,
             Transporter::TYPE_FUSO_9M,
             Transporter::TYPE_TRONTON,
             Transporter::TYPE_WINGBOX,
+            Transporter::TYPE_VAN,
         ];
 
         return [

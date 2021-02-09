@@ -33,7 +33,7 @@ class AccountRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->put($this->prefix(), [
+        $this->router->post($this->prefix(), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ]);

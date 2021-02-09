@@ -44,7 +44,7 @@ class TransporterUpdatingTest extends TestCase
         $this->data = [
             'name' => $this->faker->userName,
             'registration_number' => 'B 2988 WSJ',
-            'type' => Transporter::TYPE_ENGKEL_DOUBLE_BOX,
+            'type' => Transporter::TYPE_CDE_ENGKEL_DOUBLE_BOX,
         ];
     }
 

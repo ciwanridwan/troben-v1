@@ -8,8 +8,9 @@ use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Api\Account\UpdateAccountRequest;
 use App\Jobs\Customers\UpdateExistingCustomer;
+use App\Jobs\Users\UpdateExistingUser;
 
 class AccountController extends Controller
 {
@@ -32,12 +33,16 @@ class AccountController extends Controller
     }
 
     /**
+     * Update Account Information
+     * Route Path       : {API_DOMAIN}/me
+     * Route Name       : api.me.update
+     * Route Method     : POST/PUT.
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(Request $request)
+    public function update(UpdateAccountRequest $request)
     {
         $account = ($request->user() instanceof Customer)
             ? $this->updateCustomer($request->user(), $request)
@@ -76,28 +81,34 @@ class AccountController extends Controller
     }
 
     /**
-     * @param \App\Models\Customers\Customer $customer
-     * @param \Illuminate\Http\Request       $request
-     *
+     * @param \App\Models\Customers\Customer                        $customer
+     * @param \App\Http\Requests\Api\Account\UpdateAccountRequest   $inputs
+     * 
      * @return \App\Models\Customers\Customer
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function updateCustomer(Customer $customer, Request $request): Customer
+    protected function updateCustomer(Customer $customer, UpdateAccountRequest $inputs): Customer
     {
-        $inputs = Validator::make($request->all(), [
-            'avatar' => ['nullable','file'],
-            'name' => ['nullable'],
-        ])->validate();
-
-        $job = new UpdateExistingCustomer($request->user(), $inputs);
+        $job = new UpdateExistingCustomer($customer, $inputs->all());
 
         $this->dispatch($job);
 
         return $job->customer;
     }
 
-    protected function updateUser(User $user, Request $request): User
+    /**
+     * @param \App\Models\User                                      $user
+     * @param \App\Http\Requests\Api\Account\UpdateAccountRequest   $inputs
+     * 
+     * @return \App\Models\User
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function updateUser(User $user, UpdateAccountRequest $inputs): User
     {
-        // TODO: update user.
+        $job = new UpdateExistingUser($user,$inputs->all());
+
+        $this->dispatch($job);
+
+        return $job->user;
     }
 }

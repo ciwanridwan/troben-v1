@@ -92,7 +92,7 @@ class WarehouseUpdatingTest extends TestCase
         try {
             $response = $this->dispatch(new UpdateExistingWarehouse($this->warehouse, $data));
             $this->assertTrue($response);
-            $this->assertDatabaseHas('customers', $this->data);
+            $this->assertDatabaseHas('warehouses', $this->data);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ValidationException::class, $e);
             $this->assertArrayHasKey($invalid_field_name, $e->errors());
