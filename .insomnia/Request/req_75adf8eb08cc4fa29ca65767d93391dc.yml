@@ -1,7 +1,7 @@
 _id: req_75adf8eb08cc4fa29ca65767d93391dc
 type: Request
 parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
-modified: 1612810639496
+modified: 1612882970179
 created: 1612810263586
 url: "{{ _.base_url }}/auth/otp/verify"
 name: Verify
@@ -11,8 +11,8 @@ body:
   mimeType: multipart/form-data
   params:
     - name: otp
-      value: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
-        'b64::JC5kYXRhLm90cF9pZA==::46b', 'never', 60 %}"
+      value: "{% response 'body', 'req_d9b4c80652294a619ad2617d0b08856c',
+        'b64::JC5kYXRhLm90cA==::46b', 'never', 60 %}"
       description: ""
       id: pair_1514377da4724ea8b9fe194455356972
     - name: otp_token

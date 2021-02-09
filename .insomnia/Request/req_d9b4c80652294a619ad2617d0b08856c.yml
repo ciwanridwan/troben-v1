@@ -1,11 +1,20 @@
 _id: req_d9b4c80652294a619ad2617d0b08856c
 type: Request
 parentId: fld_6f6156d826694b62b2aa426135a6d093
-modified: 1612810319713
+modified: 1612884764608
 created: 1612514779446
 url: "{{ _.base_url }}/auth/register"
 name: Register Request
-description: ""
+description: |-
+  Authenticate user or customer.
+
+  Parameters
+  --
+  - `guard` => possible values: `customer`, `user` => default `customer`
+  - `username` => customer/user can be `username`, `email`, or, `phone_number`
+  - `password` => given password
+  - `name` => Customer/User Name.
+  - `email` => Customer/user Email.
 method: POST
 body:
   mimeType: multipart/form-data
@@ -15,18 +24,24 @@ body:
       description: ""
       id: pair_d54f524f8c154349a851278dd8262252
       disabled: true
+    - name: name
+      value: "{{ _.credentials.customer.name }}"
+      description: ""
+      id: pair_9101231f196445ca805bd26d1f455a3e
+      type: text
+      multiline: false
     - name: password
-      value: ""
+      value: "{{ _.credentials.customer.password }}"
       description: ""
       id: pair_88be9e4a15444fd393cbfb5cea5e2345
       disabled: false
     - name: email
-      value: ""
+      value: "{{ _.credentials.customer.email }}"
       description: ""
       id: pair_44855922107b4094a4106c4997fe5689
       disabled: false
     - name: phone
-      value: ""
+      value: "{{ _.credentials.customer.phone }}"
       description: ""
       id: pair_6e0c9039598848da803bf1b669bf55b4
 parameters: []

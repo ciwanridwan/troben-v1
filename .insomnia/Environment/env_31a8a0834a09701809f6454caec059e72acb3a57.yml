@@ -1,13 +1,14 @@
 _id: env_31a8a0834a09701809f6454caec059e72acb3a57
 type: Environment
 parentId: wrk_1e397ee573584606a034d6ff98a9acdf
-modified: 1612602484307
+modified: 1612882998087
 created: 1612369108997
 name: Base Environment
 data:
-  base_url: http://localhost:8000
+  base_url: http://localhost:8000/api
   credentials:
     customer:
+      name: customer
       phone: "+625555555555"
       email: customer@trawlbens.co.id
       password: password
@@ -28,6 +29,7 @@ dataPropertyOrder:
   "&~|credentials":
     - customer
   "&~|credentials~|customer":
+    - name
     - phone
     - email
     - password
