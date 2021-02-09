@@ -1,12 +1,12 @@
 _id: req_d9b4c80652294a619ad2617d0b08856c
 type: Request
 parentId: fld_6f6156d826694b62b2aa426135a6d093
-modified: 1612884764608
+modified: 1612884943220
 created: 1612514779446
 url: "{{ _.base_url }}/auth/register"
 name: Register Request
 description: |-
-  Authenticate user or customer.
+  user or customer Registration.
 
   Parameters
   --

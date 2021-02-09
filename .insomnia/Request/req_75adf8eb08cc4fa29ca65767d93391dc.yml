@@ -1,11 +1,18 @@
 _id: req_75adf8eb08cc4fa29ca65767d93391dc
 type: Request
 parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
-modified: 1612882970179
+modified: 1612885183845
 created: 1612810263586
 url: "{{ _.base_url }}/auth/otp/verify"
 name: Verify
-description: ""
+description: |-
+  verify account
+
+  Parameters
+  --
+  - `otp` => One Time Password Id
+  - `otp_token` => Plain Text of One Time Password Token
+  - `device_name` => Device name when request One Time Password
 method: POST
 body:
   mimeType: multipart/form-data

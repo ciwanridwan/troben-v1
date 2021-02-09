@@ -1,11 +1,17 @@
 _id: req_d8e44461acf94028be6a782d80e085c6
 type: Request
 parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
-modified: 1612883187036
+modified: 1612885380611
 created: 1612866735523
 url: "{{ _.base_url }}/auth/otp/resend"
 name: Resend
-description: ""
+description: |-
+  Resend OTP
+
+  Parameters
+  --
+  - `otp` => One Time Password Id
+  - `retry` => if set `false` will return new OTP; else extend 15 Minutes
 method: POST
 body:
   mimeType: multipart/form-data
