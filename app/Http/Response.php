@@ -5,6 +5,7 @@ namespace App\Http;
 use ReflectionClass;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Support\Responsable;
@@ -163,16 +164,26 @@ class Response implements Responsable
         return $responseData;
     }
 
+    /**
+     * Get JSON representative.
+     *
+     * @param \Illuminate\Http\Request|null $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function json(?Request $request = null): JsonResponse
+    {
+        return response()->json($this->getResponseData($request ?? request()), $this->resolveHttpCode());
+    }
+
     /** {@inheritdoc} */
     public function toResponse($request)
     {
-        $responseData = $this->getResponseData($request);
-
         if ($request->expectsJson()) {
-            return response()->json($responseData, $this->resolveHttpCode());
+            return $this->json();
         }
 
-        return new LaravelResponse(json_encode($responseData), $this->resolveHttpCode());
+        return new LaravelResponse(json_encode($this->getResponseData($request)), $this->resolveHttpCode());
     }
 
     /**

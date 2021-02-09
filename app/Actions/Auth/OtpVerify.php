@@ -2,15 +2,15 @@
 
 namespace App\Actions\Auth;
 
+use App\Http\Response;
 use App\Models\OneTimePassword;
-use App\Concerns\RestfulResponse;
 use Illuminate\Http\JsonResponse;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class OtpVerify
 {
-    use DispatchesJobs, RestfulResponse;
+    use DispatchesJobs;
 
     /**
      * @var array
@@ -35,8 +35,8 @@ class OtpVerify
         $job = new VerifyOtpToken($account, $otp, $this->attributes['otp_token']);
         $this->dispatch($job);
 
-        return $this->success([
+        return (new Response(Response::RC_SUCCESS, [
             'access_token' => $account->createToken($this->attributes['device_name'])->plainTextToken,
-        ]);
+        ]))->json();
     }
 }

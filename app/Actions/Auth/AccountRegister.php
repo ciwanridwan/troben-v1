@@ -3,7 +3,7 @@
 namespace App\Actions\Auth;
 
 use App\Models\User;
-use App\Concerns\RestfulResponse;
+use App\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Jobs\Customers\CreateNewCustomer;
@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class AccountRegister
 {
-    use RestfulResponse, DispatchesJobs;
+    use DispatchesJobs;
 
     /**
      * Accepted attributes.
@@ -45,9 +45,9 @@ class AccountRegister
 
         $otp = $account->createOtp();
 
-        return $this->success([
+        return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->getKey(),
-        ]);
+        ]))->json();
     }
 
     /**

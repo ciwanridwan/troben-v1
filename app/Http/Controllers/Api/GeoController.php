@@ -13,6 +13,11 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Geo\CountryResource;
+use App\Http\Resources\Geo\RegencyResource;
+use App\Http\Resources\Geo\DistrictResource;
+use App\Http\Resources\Geo\ProvinceResource;
+use App\Http\Resources\Geo\SubDistrictResource;
 
 class GeoController extends Controller
 {
@@ -45,6 +50,7 @@ class GeoController extends Controller
             'province_id' => 'nullable',
             'regency_id' => 'nullable',
             'district_id' => 'nullable',
+            'zip_code' => 'nullable',
             'id' => 'nullable',
         ])->validate();
 
@@ -71,7 +77,7 @@ class GeoController extends Controller
     {
         $query = $this->getBasicBuilder(Country::query());
 
-        return response()->json($query->paginate(request('per_page', 15)));
+        return $this->jsonSuccess(CountryResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
@@ -81,10 +87,10 @@ class GeoController extends Controller
      */
     protected function getProvinces(): JsonResponse
     {
-        $query = $this->getBasicBuilder(Province::query());
+        $query = $this->getBasicBuilder(Province::query()->with('country'));
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
 
-        return response()->json($query->paginate(request('per_page', 15)));
+        return $this->jsonSuccess(ProvinceResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
@@ -94,11 +100,11 @@ class GeoController extends Controller
      */
     protected function getRegencies(): JsonResponse
     {
-        $query = $this->getBasicBuilder(Regency::query());
+        $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
 
-        return response()->json($query->paginate(request('per_page', 15)));
+        return $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
@@ -108,13 +114,13 @@ class GeoController extends Controller
      */
     protected function getDistricts(): JsonResponse
     {
-        $query = $this->getBasicBuilder(District::query());
+        $query = $this->getBasicBuilder(District::query()->with(['country', 'province', 'regency']));
 
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
         $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
 
-        return response()->json($query->paginate(request('per_page', 15)));
+        return $this->jsonSuccess(DistrictResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
@@ -124,14 +130,16 @@ class GeoController extends Controller
      */
     protected function getSubDistricts(): JsonResponse
     {
-        $query = $this->getBasicBuilder(SubDistrict::query());
+        $query = $this->getBasicBuilder(SubDistrict::query()->with(['country', 'province', 'regency', 'district']));
 
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
         $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
         $query->when(request()->has('district_id'), fn ($q) => $q->where('district_id', $this->attributes['district_id']));
 
-        return response()->json($query->paginate(request('per_page', 15)));
+        $query->when(request()->has('zip_code'), fn ($q) => $q->where('zip_code', 'like', '%'.$this->attributes['zip_code'].'%'));
+
+        return $this->jsonSuccess(SubDistrictResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
