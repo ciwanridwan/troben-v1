@@ -1,10 +1,10 @@
-_id: req_87a4cb5556de4987bd86b44c6c369fac
+_id: req_31cd1e868a144b728b7257074fa2a6a0
 type: Request
 parentId: fld_0c4f64831d4244ff89da8931295c6ece
-modified: 1612839846520
-created: 1612515057248
+modified: 1612839913046
+created: 1612839908995
 url: "{{ _.base_url }}/geo"
-name: Get Country
+name: Get District
 description: ""
 method: GET
 body:
@@ -12,7 +12,7 @@ body:
   params: []
 parameters:
   - name: type
-    value: country
+    value: district
     description: ""
     id: pair_0eeec42c2fd84e2db23279edac93c95a
 headers:
@@ -26,7 +26,7 @@ headers:
     description: ""
     id: pair_5c8e15b7e2fb4c428d9c8644c5ad02c4
 authentication: {}
-metaSortKey: -1612515057248
+metaSortKey: -1612396830098.75
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
