@@ -1,0 +1,43 @@
+_id: req_d8e44461acf94028be6a782d80e085c6
+type: Request
+parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
+modified: 1612883187036
+created: 1612866735523
+url: "{{ _.base_url }}/auth/otp/resend"
+name: Resend
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: otp
+      value: "{% response 'body', 'req_d9b4c80652294a619ad2617d0b08856c',
+        'b64::JC5kYXRhLm90cA==::46b', 'never', 60 %}"
+      description: ""
+      id: pair_1514377da4724ea8b9fe194455356972
+    - name: retry
+      value: "1"
+      description: ""
+      id: pair_dad06bdade38423aad9fcab15741efd3
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_39000aaad2fd4b5f8b6cc0169d7d151c
+  - name: ""
+    value: ""
+    description: ""
+    id: pair_6a5baefd027f45aaadf5c3047b8ce8ff
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_5b80befc5db3489a89e15b41aa5de403
+authentication: {}
+metaSortKey: -1612706333205.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
