@@ -26,8 +26,6 @@ class OtpResendTest extends TestCase
         $response = $this->json('POST', route('api.auth.otp.resend'), [
             'otp' => $otp->getKey(),
             'retry' => false,
-        ], [
-            'Accept' => 'application/json',
         ]);
 
         $this->assertSuccessResponse($response);
@@ -47,8 +45,6 @@ class OtpResendTest extends TestCase
         $response = $this->json('POST', route('api.auth.otp.resend'), [
             'otp' => $otp->getKey() . '1',
             'retry' => false,
-        ], [
-            'Accept' => 'application/json',
         ]);
         $expected = new Response(Response::RC_INVALID_DATA);
         $this->assertEquals($expected->code, $response->json('code'));
@@ -68,8 +64,6 @@ class OtpResendTest extends TestCase
         $response = $this->json('POST', route('api.auth.otp.resend'), [
             'otp' => $otp->getKey(),
             'retry' => false,
-        ], [
-            'Accept' => 'application/json',
         ]);
         $expected = new Response(Response::RC_MISMATCH_TOKEN_OWNERSHIP);
         $this->assertEquals($expected->code, $response->json('code'));
@@ -85,9 +79,7 @@ class OtpResendTest extends TestCase
         $otp = $customer->createOtp();
 
         // get otp id
-        $response = $this->json('POST', route('api.auth.otp.resend'), [], [
-            'Accept' => 'application/json',
-        ]);
+        $response = $this->json('POST', route('api.auth.otp.resend'), []);
         $expected = new Response(Response::RC_INVALID_DATA);
         $this->assertEquals($expected->code, $response->json('code'));
     }
