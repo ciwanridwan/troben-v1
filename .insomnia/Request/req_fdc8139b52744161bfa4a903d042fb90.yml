@@ -1,7 +1,7 @@
 _id: req_fdc8139b52744161bfa4a903d042fb90
 type: Request
 parentId: fld_0c4f64831d4244ff89da8931295c6ece
-modified: 1612839930770
+modified: 1612852718683
 created: 1612839926151
 url: "{{ _.base_url }}/geo"
 name: Get Sub District
@@ -9,12 +9,46 @@ description: ""
 method: GET
 body:
   mimeType: multipart/form-data
-  params: []
+  params:
+    - name: ""
+      value: ""
+      description: ""
+      id: pair_7337767f94a747fc9f48e73ae122d7bd
 parameters:
   - name: type
     value: sub_district
     description: ""
     id: pair_0eeec42c2fd84e2db23279edac93c95a
+  - name: country_id
+    value: ""
+    description: ""
+    id: pair_e078bcd731924f4bb1f444ce22985296
+    disabled: true
+  - name: province_id
+    value: ""
+    description: ""
+    id: pair_fae2c45cf00644e197ebd2bf1827abbe
+    disabled: true
+  - name: regency_id
+    value: ""
+    description: ""
+    id: pair_23128e83473541d399b69324fc32bfa9
+    disabled: true
+  - name: district_id
+    value: ""
+    description: ""
+    id: pair_5b182e925cff4fa3962aefb552133a00
+    disabled: true
+  - name: q
+    value: ""
+    description: ""
+    id: pair_1238de1bb63d4989b784437527c3c50f
+    disabled: true
+  - name: zip_code
+    value: "60213"
+    description: ""
+    id: pair_6e942e5900064e55bbb0a3dcfb0fc407
+    disabled: true
 headers:
   - name: Accept
     value: application/json
