@@ -1,7 +1,7 @@
 _id: env_31a8a0834a09701809f6454caec059e72acb3a57
 type: Environment
 parentId: wrk_1e397ee573584606a034d6ff98a9acdf
-modified: 1612882998087
+modified: 1612887117607
 created: 1612369108997
 name: Base Environment
 data:
@@ -9,7 +9,7 @@ data:
   credentials:
     customer:
       name: customer
-      phone: "+625555555555"
+      phone: "+6285555555555"
       email: customer@trawlbens.co.id
       password: password
   device_name: Insomnia-Test-Client

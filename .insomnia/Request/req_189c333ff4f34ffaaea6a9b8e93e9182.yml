@@ -1,12 +1,12 @@
-_id: req_d9b4c80652294a619ad2617d0b08856c
+_id: req_189c333ff4f34ffaaea6a9b8e93e9182
 type: Request
-parentId: fld_6f6156d826694b62b2aa426135a6d093
-modified: 1612886325280
-created: 1612514779446
-url: "{{ _.base_url }}/auth/register"
-name: Register Request
+parentId: fld_4af7e0a96c0e4c45b8581a3698572e24
+modified: 1612887151875
+created: 1612885733788
+url: "{{ _.base_url }}/me"
+name: Update Account Profile
 description: |-
-  user or customer Registration.
+  user or customer update profile.
 
   Parameters
   --
@@ -22,11 +22,6 @@ method: POST
 body:
   mimeType: multipart/form-data
   params:
-    - name: guard
-      value: customer
-      description: ""
-      id: pair_d54f524f8c154349a851278dd8262252
-      disabled: true
     - name: name
       value: "{{ _.credentials.customer.name }}"
       description: ""
@@ -59,6 +54,10 @@ body:
       value: ""
       description: ""
       id: pair_86fb070bfc284e71b10d09df731fbfc6
+    - name: ""
+      value: ""
+      description: ""
+      id: pair_f04acc4e61af4b148c5d9aaea567e613
 parameters: []
 headers:
   - name: Accept
@@ -68,8 +67,11 @@ headers:
   - name: Content-Type
     value: multipart/form-data
     id: pair_a12e225614614007aa139375c5a9e8b6
-authentication: {}
-metaSortKey: -1611917828772.5
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1612875054851
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
