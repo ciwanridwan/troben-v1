@@ -5,6 +5,7 @@ namespace Tests\Jobs\Services;
 use App\Events\Services\NewServiceCreated;
 use App\Jobs\Services\CreateNewService;
 use App\Models\Service;
+use Database\Seeders\ServiceTableSeeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -68,6 +69,22 @@ class ServiceCreationTest extends TestCase
 
         $data = $this->data;
         $data['code'] = 'abcd';
+
+        $job = new CreateNewService($data);
+        $this->assertTrue($this->dispatch($job));
+
+        Event::assertNotDispatched(NewServiceCreated::class);
+    }
+
+    public function test_on_unique_code()
+    {
+        $this->seed(ServiceTableSeeder::class);
+
+        $this->expectException(ValidationException::class);
+        Event::fake();
+
+        $data = $this->data;
+        $data['code'] = Service::first()->code;
 
         $job = new CreateNewService($data);
         $this->assertTrue($this->dispatch($job));

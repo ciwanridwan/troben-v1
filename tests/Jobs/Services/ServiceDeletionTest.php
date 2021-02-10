@@ -25,7 +25,7 @@ class ServiceDeletionTest extends TestCase
         $subject = $this->getTestSubject();
         $response = $this->dispatch(new DeleteExistingService($subject, true));
         $this->assertTrue($response);
-        $this->assertDatabaseMissing('warehouses', Arr::only($subject->toArray(), 'code'));
+        $this->assertDatabaseMissing('services', Arr::only($subject->toArray(), 'code'));
 
         Event::assertDispatched(ServiceDeleted::class);
     }

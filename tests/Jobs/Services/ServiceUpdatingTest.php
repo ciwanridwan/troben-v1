@@ -28,6 +28,7 @@ class ServiceUpdatingTest extends TestCase
             'name' => $this->faker->name,
             'description' => $this->faker->text(),
         ];
+        $this->seed(ServiceTableSeeder::class);
     }
 
     /**
@@ -37,8 +38,6 @@ class ServiceUpdatingTest extends TestCase
      */
     public function getTestSubject($latest = false)
     {
-        $this->seed(ServiceTableSeeder::class);
-
         $service = Service::query();
         return $latest 
             ? $service->latest()->first()
@@ -66,6 +65,21 @@ class ServiceUpdatingTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->dispatch(new UpdateExistingService($subject,[
             'code' => 'aaaaa',    
+        ]));
+
+        Event::assertNotDispatched(ServiceModified::class);
+    }
+
+    public function test_on_unique_code()
+    {
+        $subject = $this->getTestSubject();
+        $secondSubject = $this->getTestSubject(true);
+
+        Event::fake();
+
+        $this->expectException(ValidationException::class);
+        $this->dispatch(new UpdateExistingService($subject,[
+            'code' => $secondSubject->code,    
         ]));
 
         Event::assertNotDispatched(ServiceModified::class);
