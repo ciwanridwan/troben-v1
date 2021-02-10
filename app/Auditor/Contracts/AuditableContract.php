@@ -11,14 +11,14 @@ interface AuditableContract
      *
      * @return array
      */
-    public function getChanges(): array;
+    public function getChanges();
 
     /**
      * Get the hidden attributes for the model.
      *
      * @return array
      */
-    public function getHidden(): array;
+    public function getHidden();
 
     /**
      * Get the model's raw original attribute values.
@@ -27,7 +27,7 @@ interface AuditableContract
      * @param  mixed  $default
      * @return mixed|array
      */
-    public function getRawOriginal($key = null, $default = null): array;
+    public function getRawOriginal($key = null, $default = null);
 
     /**
      * Get a subset of the model's attributes.
@@ -35,7 +35,7 @@ interface AuditableContract
      * @param  array|mixed  $attributes
      * @return array
      */
-    public function only($attributes): array;
+    public function only($attributes);
 
     /**
      * Get the value of the model's primary key.

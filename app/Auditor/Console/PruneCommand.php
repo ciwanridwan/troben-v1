@@ -39,14 +39,14 @@ class PruneCommand extends Command
         $now = Carbon::now();
 
         if ($this->hasOption('force') === false) {
-            $count = app('jps.auditor')->query()->whereDate('created_at', '<=', $now->subDays($retains))->count();
+            $count = app('trawlbens.auditor')->query()->whereDate('created_at', '<=', $now->subDays($retains))->count();
             $this->info("A total number of audits that will be prune is: $count. Dating back as far as ".$now->format('F j, Y'));
         }
 
         $confirmed = $this->confirm('Are you sure?');
 
         if ($confirmed or $this->hasOption('force')) {
-            app('jps.auditor')->query()->whereDate('created_at', '<=', $now->subDays($retains))->delete();
+            app('trawlbens.auditor')->query()->whereDate('created_at', '<=', $now->subDays($retains))->delete();
             $this->info('Audit logs has been pruned!');
         }
     }

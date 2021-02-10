@@ -4,11 +4,13 @@ namespace App\Models\Customers;
 
 use App\Contracts\HasOtpToken;
 use Laravel\Sanctum\HasApiTokens;
+use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use App\Auditor\Contracts\AuditableContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -35,7 +37,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken
+class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
 {
     use SoftDeletes,
         HashableId,
@@ -45,7 +47,8 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         HasPhoneNumber,
         VerifiableByOtp,
         HasApiTokens,
-        HasFactory;
+        HasFactory,
+        Auditable;
 
     /**
      * The table associated with the model.
