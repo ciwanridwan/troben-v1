@@ -12,6 +12,13 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
 
     /**
+     * Verified Customer.
+     *
+     * @var \App\Models\Customers\Customer|null
+     */
+    protected ?Customer $verifiedCustomer;
+
+    /**
      * Assert successful response.
      *
      * @param \Illuminate\Testing\TestResponse $response
@@ -34,17 +41,40 @@ abstract class TestCase extends BaseTestCase
     /**
      * Acting as authenticated customer.
      *
+     * @param \App\Models\Customers\Customer|null $customer
+     * @param bool                                $withFactory
+     *
      * @return array
      */
-    public function getCustomersHeader(): array
+    public function getCustomersHeader(?Customer $customer = null, $withFactory = true): array
     {
-        $customer = Customer::factory(1)->create([
-            'verified_at' => Carbon::now(),
-        ])->first();
+        if (is_a($customer, Customer::class)) {
+            $this->verifiedCustomer = $customer;
+        }
+
+        if (is_null($customer)) {
+            $customer = $this->makeVerifiedCustomer($withFactory);
+        }
 
         return [
             'Accept' => 'application/json',
             'Authorization' => 'Bearer '.$customer->createToken('phpunit-test')->plainTextToken,
         ];
+    }
+
+    /**
+     * Get Verified Customer.
+     *
+     * @param bool $withFactory
+     *
+     * @return \App\Models\Customers\Customer
+     */
+    protected function makeVerifiedCustomer($withFactory = true): Customer
+    {
+        $this->verifiedCustomer = ($withFactory)
+            ? Customer::factory(1)->create(['verified_at' => Carbon::now(), 'phone' => '+625555555555'])->first()
+            : Customer::query()->whereNotNull('verified_at')->first();
+
+        return $this->verifiedCustomer;
     }
 }

@@ -3,7 +3,6 @@
 namespace Tests\Http\Api\Auth;
 
 use Tests\TestCase;
-use App\Models\Customers\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LoginTest extends TestCase
@@ -12,23 +11,22 @@ class LoginTest extends TestCase
 
     public function test_successful_attempt()
     {
-        $this->seed();
+        $this->makeVerifiedCustomer();
+        $this->assertDatabaseCount('customers', 1);
 
-        $valid = Customer::find(1);
         // test using phone number
         $response = $this->json('POST', route('api.auth.login'), [
-            'username' => $valid->phone,
+            'username' => $this->verifiedCustomer->phone,
             'password' => 'password',
             'device_name' => 'phpunit_test',
         ], [
             'Accept' => 'application/json',
         ]);
-
         $this->assertSuccessResponse($response);
 
         // test using email
         $response = $this->json('POST', route('api.auth.login'), [
-            'username' => $valid->email,
+            'username' => $this->verifiedCustomer->email,
             'password' => 'password',
             'device_name' => 'phpunit_test',
         ], [

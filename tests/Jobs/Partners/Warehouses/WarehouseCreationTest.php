@@ -7,6 +7,7 @@ use Tests\TestCase;
 use Illuminate\Support\Arr;
 use App\Models\Partners\Partner;
 use App\Jobs\Partners\CreateNewPartner;
+use Database\Seeders\GeoTableSimpleSeeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,7 +59,7 @@ class WarehouseCreationTest extends TestCase
     {
         $this->withoutExceptionHandling();
         // seed geo
-        $this->seed();
+        $this->seed(GeoTableSimpleSeeder::class);
 
         try {
             $job = new CreateNewWarehouse($this->partner, $this->data);
@@ -103,7 +104,7 @@ class WarehouseCreationTest extends TestCase
         $this->withoutExceptionHandling();
 
         // seed geo
-        $this->seed();
+        $this->seed(GeoTableSimpleSeeder::class);
 
         try {
             $job = new CreateNewWarehouse($this->partner, Arr::except($this->data, ['name']));
