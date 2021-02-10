@@ -5,11 +5,6 @@ namespace App\Auditor;
 use App\Auditor\Contracts\AuditableContract;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * Auditor Factory.
- *
- * @author      veelasky <veelasky@gmail.com>
- */
 class Factory
 {
     /**
@@ -23,7 +18,7 @@ class Factory
      * @return \App\Auditor\Auditor
      * @throws \Throwable
      */
-    public function make($type = Auditor::AUDIT_TYPE_ACTION, $message = null, ?AuditableContract $auditable = null, ?Authenticatable $performer = null)
+    public function make($type = Auditor::AUDIT_TYPE_ACTION, $message = null, ?AuditableContract $auditable = null, ?Authenticatable $performer = null): Auditor
     {
         $auditor = new Auditor($type, $message, $auditable, $performer);
 

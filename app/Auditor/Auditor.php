@@ -91,7 +91,7 @@ class Auditor
      *
      * @return array
      */
-    public static function getAuditType()
+    public static function getAuditType(): array
     {
         return array_merge([
             self::AUDIT_TYPE_CREATE,
