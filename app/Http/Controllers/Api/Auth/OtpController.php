@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Http\Request;
-use App\Actions\Auth\OtpResend;
-use App\Actions\Auth\OtpVerify;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Actions\Auth\OtpVerification;
 
 class OtpController extends Controller
 {
@@ -23,12 +22,14 @@ class OtpController extends Controller
             'device_name' => ['required'],
         ]);
 
-        return (new OtpVerify($inputs))->verify();
+        return (new OtpVerification($inputs))->verify();
     }
+
     /**
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws \Throwable
      */
     public function resendToken(Request $request): JsonResponse
     {
@@ -37,6 +38,6 @@ class OtpController extends Controller
             'retry' => ['required', 'boolean'],
         ]);
 
-        return (new OtpResend($inputs))->resend();
+        return (new OtpVerification($inputs))->resend();
     }
 }

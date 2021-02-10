@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Api\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
-use App\Actions\Auth\AttemptLogin;
 use App\Http\Controllers\Controller;
-use App\Actions\Auth\AccountRegister;
+use App\Actions\Auth\AccountAuthentication;
 
 class AuthController extends Controller
 {
@@ -36,7 +35,7 @@ class AuthController extends Controller
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
         $inputs['otp'] = $inputs['otp'] ?? false;
 
-        return (new AttemptLogin($inputs))->attempt();
+        return (new AccountAuthentication($inputs))->attempt();
     }
 
     /**
@@ -56,6 +55,6 @@ class AuthController extends Controller
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
         ]);
 
-        return (new AccountRegister($request->all()))->register();
+        return (new AccountAuthentication($request->all()))->register();
     }
 }
