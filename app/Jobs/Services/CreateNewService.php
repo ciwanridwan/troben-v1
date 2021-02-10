@@ -39,7 +39,7 @@ class CreateNewService
     {
         $this->service = new Service();
         $this->attributes = Validator::make($inputs,[
-            'code' => ['required','unique:services,code'],
+            'code' => ['required','unique:services,code','string','max:3'],
             'name' => ['required','string','max:255'],
             'description' => ['nullable','string','max:255'],
         ])->validate();

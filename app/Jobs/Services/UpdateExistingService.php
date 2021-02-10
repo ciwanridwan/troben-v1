@@ -38,7 +38,7 @@ class UpdateExistingService
     {
         $this->service = $service;
         $this->attributes = Validator::make($inputs, [
-            'code' => ['filled','unique:services,code'],
+            'code' => ['filled','unique:services,code','string','max:3'],
             'name' => ['filled','string','max:255'],
             'description' => ['nullable','string','max:255'],
         ])->validate();
