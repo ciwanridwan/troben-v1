@@ -2,17 +2,17 @@
 
 namespace Tests\Jobs\Services;
 
-use App\Events\Services\NewServiceCreated;
-use App\Jobs\Services\CreateNewService;
+use Tests\TestCase;
 use App\Models\Service;
-use Database\Seeders\ServiceTableSeeder;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use App\Jobs\Services\CreateNewService;
+use Database\Seeders\ServiceTableSeeder;
+use App\Events\Services\NewServiceCreated;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ServiceCreationTest extends TestCase
 {
@@ -26,7 +26,7 @@ class ServiceCreationTest extends TestCase
         parent::setUp();
 
         $this->data = [
-            'code' => substr($this->faker->lexify(),0,2),
+            'code' => substr($this->faker->lexify(), 0, 2),
             'name' => $this->faker->name,
             'description' => $this->faker->text(),
         ];
@@ -44,7 +44,7 @@ class ServiceCreationTest extends TestCase
 
         $this->assertTrue($job->service->exists);
 
-        $this->assertDatabaseHas('services', Arr::only($this->data,['code']));
+        $this->assertDatabaseHas('services', Arr::only($this->data, ['code']));
 
         Event::assertDispatched(NewServiceCreated::class);
     }

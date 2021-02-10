@@ -2,17 +2,17 @@
 
 namespace Tests\Feature\Services;
 
-use App\Events\Services\ServiceModified;
-use App\Jobs\Services\UpdateExistingService;
+use Tests\TestCase;
 use App\Models\Service;
-use Database\Seeders\ServiceTableSeeder;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use App\Events\Services\ServiceModified;
+use Database\Seeders\ServiceTableSeeder;
+use App\Jobs\Services\UpdateExistingService;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ServiceUpdatingTest extends TestCase
 {
@@ -39,7 +39,8 @@ class ServiceUpdatingTest extends TestCase
     public function getTestSubject($latest = false)
     {
         $service = Service::query();
-        return $latest 
+
+        return $latest
             ? $service->latest()->first()
             : $service->first();
     }
@@ -52,7 +53,7 @@ class ServiceUpdatingTest extends TestCase
         $job = new UpdateExistingService($subject, $this->updateData);
         $this->assertTrue($this->dispatch($job));
 
-        $this->assertDatabaseHas('services', Arr::only($this->updateData,['name']));
+        $this->assertDatabaseHas('services', Arr::only($this->updateData, ['name']));
         Event::assertDispatched(ServiceModified::class);
     }
 
@@ -63,8 +64,8 @@ class ServiceUpdatingTest extends TestCase
         Event::fake();
 
         $this->expectException(ValidationException::class);
-        $this->dispatch(new UpdateExistingService($subject,[
-            'code' => 'aaaaa',    
+        $this->dispatch(new UpdateExistingService($subject, [
+            'code' => 'aaaaa',
         ]));
 
         Event::assertNotDispatched(ServiceModified::class);
@@ -78,8 +79,8 @@ class ServiceUpdatingTest extends TestCase
         Event::fake();
 
         $this->expectException(ValidationException::class);
-        $this->dispatch(new UpdateExistingService($subject,[
-            'code' => $secondSubject->code,    
+        $this->dispatch(new UpdateExistingService($subject, [
+            'code' => $secondSubject->code,
         ]));
 
         Event::assertNotDispatched(ServiceModified::class);

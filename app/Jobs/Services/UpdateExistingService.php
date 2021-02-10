@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Services;
 
-use App\Events\Services\ServiceModificationFailed;
-use App\Events\Services\ServiceModified;
 use App\Models\Service;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Services\ServiceModified;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Services\ServiceModificationFailed;
 
 class UpdateExistingService
 {
@@ -51,7 +51,7 @@ class UpdateExistingService
      */
     public function handle(): bool
     {
-        collect($this->attributes)->each(fn ($v,$k) => $this->service->{$k} = $v);
+        collect($this->attributes)->each(fn ($v, $k) => $this->service->{$k} = $v);
 
         if ($this->service->isDirty() && $this->service->save()) {
             event(new ServiceModified($this->service));

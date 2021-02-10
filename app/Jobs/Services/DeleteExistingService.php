@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Services;
 
-use App\Events\Services\ServiceDeleted;
 use App\Models\Service;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Services\ServiceDeleted;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class DeleteExistingService
 {

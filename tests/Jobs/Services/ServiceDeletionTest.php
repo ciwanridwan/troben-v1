@@ -2,16 +2,16 @@
 
 namespace Tests\Feature\Services;
 
-use App\Events\Services\ServiceDeleted;
-use App\Jobs\Services\DeleteExistingService;
+use Tests\TestCase;
 use App\Models\Service;
-use Database\Seeders\ServiceTableSeeder;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
+use App\Events\Services\ServiceDeleted;
+use Database\Seeders\ServiceTableSeeder;
+use App\Jobs\Services\DeleteExistingService;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ServiceDeletionTest extends TestCase
 {

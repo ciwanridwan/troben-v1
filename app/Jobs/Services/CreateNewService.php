@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Services;
 
-use App\Events\Services\NewServiceCreated;
 use App\Models\Service;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Services\NewServiceCreated;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewService
 {
@@ -38,7 +38,7 @@ class CreateNewService
     public function __construct($inputs = [])
     {
         $this->service = new Service();
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'code' => ['required','unique:services,code','string','max:3'],
             'name' => ['required','string','max:255'],
             'description' => ['nullable','string','max:255'],
