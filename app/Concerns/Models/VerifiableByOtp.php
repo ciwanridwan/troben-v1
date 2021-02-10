@@ -35,7 +35,7 @@ trait VerifiableByOtp
     public function createOtp(): OneTimePassword
     {
         $otp = $this->one_time_passwords()->create([
-            'token' => substr(str_shuffle(str_repeat('0123456789', 5)), 0, 6),
+            'token' => $this->generateRandomOtpToken(),
         ]);
 
         /** @var \App\Models\OneTimePassword $otp */
@@ -84,5 +84,17 @@ trait VerifiableByOtp
         return property_exists($this, 'verifiedColumn')
             ? $this->verifiedColumn
             : 'verified_at';
+    }
+
+    /**
+     * Generate random otp token.
+     *
+     * @return false|string
+     */
+    protected function generateRandomOtpToken()
+    {
+        return in_array(env('APP_ENV'), ['local', 'staging'])
+            ? '123456'
+            : substr(str_shuffle(str_repeat('0123456789', 5)), 0, 6);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\UuidAsPrimaryKey;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Class OneTimePassword.
@@ -84,11 +85,15 @@ class OneTimePassword extends Model
         self::creating(fn (self $self) => $self->expired_at = Carbon::now()->addSeconds(self::TOKEN_TTL));
     }
 
-    public function verifiable()
+    /**
+     * Define `morphTo` relationship with owner model.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function verifiable(): MorphTo
     {
         return $this->morphTo();
     }
-
 
     /**
      * Set `token` attribute mutator.
