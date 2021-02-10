@@ -10,10 +10,14 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
+use App\Jobs\Customers\CreateNewCustomer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 
-class AttemptLogin
+class AccountAuthentication
 {
+    use DispatchesJobs;
+
     const CREDENTIAL_EMAIL = 'email';
     const CREDENTIAL_PHONE = 'phone';
     const CREDENTIAL_USERNAME = 'username';
@@ -33,6 +37,26 @@ class AttemptLogin
     public function __construct(array $inputs)
     {
         $this->attributes = $inputs;
+    }
+
+    /**
+     * Account Register.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function register(): JsonResponse
+    {
+        $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
+        $account = ($this->attributes['guard'] === 'customer')
+            ? $this->customerRegistration()
+            : $this->userRegistration();
+
+        $otp = $account->createOtp();
+
+        return (new Response(Response::RC_SUCCESS, [
+            'otp' => $otp->getKey(),
+        ]))->json();
     }
 
     /**
@@ -79,6 +103,25 @@ class AttemptLogin
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
+    }
+
+    /**
+     * Customer registration.
+     *
+     * @return \App\Models\Customers\Customer
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function customerRegistration(): Customer
+    {
+        $job = new CreateNewCustomer($this->attributes);
+        $this->dispatch($job);
+
+        return $job->customer;
+    }
+
+    protected function userRegistration(): User
+    {
+        // TODO: add user registration
     }
 
     /**
