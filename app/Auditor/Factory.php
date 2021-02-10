@@ -2,6 +2,7 @@
 
 namespace App\Auditor;
 
+use Illuminate\Database\Eloquent\Builder;
 use App\Auditor\Contracts\AuditableContract;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -30,7 +31,7 @@ class Factory
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function query()
+    public function query(): Builder
     {
         return config('auditor.model')::query();
     }
@@ -40,7 +41,7 @@ class Factory
      *
      * @return \App\Auditor\AuditModel
      */
-    public function newAuditModel()
+    public function newAuditModel(): AuditModel
     {
         $model = config('auditor.model');
 

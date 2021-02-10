@@ -53,9 +53,9 @@ class Auditor
     /**
      * Auditor factory.
      *
-     * @var \App\Auditor\Factory
+     * @var \App\Auditor\Factory|null
      */
-    protected Factory $factory;
+    protected ?Factory $factory;
 
     /**
      * Auditor constructor.
@@ -84,6 +84,16 @@ class Auditor
         $this->factory = $factory;
 
         return $this;
+    }
+
+    /**
+     * Get auditor factory.
+     *
+     * @return \App\Auditor\Factory
+     */
+    public function factory(): Factory
+    {
+        return $this->factory ?? app(Factory::class);
     }
 
     /**
