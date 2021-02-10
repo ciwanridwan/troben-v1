@@ -15,7 +15,7 @@ class PruneCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'auditor:prune {--days=} {--force?}';
+    protected $signature = 'auditor:prune {--days=}';
 
     /**
      * The console command description.
