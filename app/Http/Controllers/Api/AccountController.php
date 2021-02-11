@@ -37,12 +37,13 @@ class AccountController extends Controller
      * Route Path       : {API_DOMAIN}/me
      * Route Name       : api.me.update
      * Route Method     : POST/PUT.
-     * @param \Illuminate\Http\Request $request
+     *
+     * @param \App\Http\Requests\Api\Account\UpdateAccountRequest $request
      *
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(UpdateAccountRequest $request)
+    public function update(UpdateAccountRequest $request): JsonResponse
     {
         $account = ($request->user() instanceof Customer)
             ? $this->updateCustomer($request->user(), $request)
@@ -75,32 +76,29 @@ class AccountController extends Controller
     /**
      * @param \App\Models\Customers\Customer                        $customer
      * @param \App\Http\Requests\Api\Account\UpdateAccountRequest   $inputs
-     * 
+     *
      * @return \App\Models\Customers\Customer
      * @throws \Illuminate\Validation\ValidationException
      */
     protected function updateCustomer(Customer $customer, UpdateAccountRequest $inputs): Customer
     {
         $job = new UpdateExistingCustomer($customer, $inputs->all());
-
         $this->dispatch($job);
 
-        return $job->customer;
+        return $job->customer->fresh();
     }
 
     /**
      * @param \App\Models\User                                      $user
      * @param \App\Http\Requests\Api\Account\UpdateAccountRequest   $inputs
-     * 
+     *
      * @return \App\Models\User
-     * @throws \Illuminate\Validation\ValidationException
      */
     protected function updateUser(User $user, UpdateAccountRequest $inputs): User
     {
         $job = new UpdateExistingUser($user, $inputs->all());
-
         $this->dispatch($job);
 
-        return $job->user;
+        return $job->user->fresh();
     }
 }

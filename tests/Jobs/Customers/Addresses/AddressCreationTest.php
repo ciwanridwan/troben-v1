@@ -4,8 +4,8 @@ namespace Tests\Jobs\Customers\Addresses;
 
 use Tests\TestCase;
 use Illuminate\Support\Arr;
-use App\Models\Customers\Customer;
 use App\Jobs\Customers\CreateNewCustomer;
+use Database\Seeders\GeoTableSimpleSeeder;
 use App\Jobs\Customers\CreateCustomerAddress;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
@@ -55,7 +55,7 @@ class AddressCreationTest extends TestCase
     public function test_on_valid_data()
     {
         // seed geo
-        $this->seed();
+        $this->seed(GeoTableSimpleSeeder::class);
 
         $this->withoutExceptionHandling();
 
@@ -76,7 +76,7 @@ class AddressCreationTest extends TestCase
     public function test_on_missing_data()
     {
         // seed geo
-        $this->seed();
+        $this->seed(GeoTableSimpleSeeder::class);
 
         $this->withoutExceptionHandling();
 

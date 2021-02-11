@@ -25,7 +25,7 @@ class VerifyingOtpToken extends TestCase
      */
     public function test_on_valid_data()
     {
-        // Event::fake();
+        Event::fake();
         $account = Customer::factory(1)->create()->first();
         $otp = $account->createOtp();
         $job = new VerifyOtpToken($account, $otp, $otp->token);
@@ -33,7 +33,7 @@ class VerifyingOtpToken extends TestCase
         $this->assertTrue($response);
         $this->assertTrue($job->account->is_verified);
         $this->assertNotNull($job->otp->claimed_at);
-        // Event::assertDispatched(TokenVerified::class);
+        Event::assertDispatched(TokenVerified::class);
     }
 
     /**
@@ -60,16 +60,18 @@ class VerifyingOtpToken extends TestCase
      */
     public function test_on_token_mismatch()
     {
+        Event::fake();
+
         try {
-            // Event::fake();
             $account = Customer::factory(1)->create()->first();
             $otp = $account->createOtp();
             $job = new VerifyOtpToken($account, $otp, '1234');
-            $response = $this->dispatch($job);
-            // Event::assertDispatched(TokenVerified::class);
+            $this->dispatch($job);
         } catch (Exception  $e) {
             $this->assertEquals(new Error(Response::RC_TOKEN_MISMATCH), $e);
         }
+
+        Event::assertNotDispatched(TokenVerified::class);
     }
 
     /**
@@ -79,9 +81,9 @@ class VerifyingOtpToken extends TestCase
      */
     public function test_on_token_expired()
     {
-        try {
+        Event::fake();
 
-            // Event::fake();
+        try {
             $account = Customer::factory(1)->create()->first();
             $otp = $account->createOtp();
 
@@ -93,9 +95,10 @@ class VerifyingOtpToken extends TestCase
             $this->dispatch($job);
 
             Carbon::setTestNow();
-            // Event::assertDispatched(TokenVerified::class);
         } catch (Exception  $e) {
             $this->assertEquals(new Error(Response::RC_TOKEN_HAS_EXPIRED), $e);
         }
+
+        Event::assertNotDispatched(TokenVerified::class);
     }
 }

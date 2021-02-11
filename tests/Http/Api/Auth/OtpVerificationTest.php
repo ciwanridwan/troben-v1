@@ -58,7 +58,7 @@ class OtpVerificationTest extends TestCase
         ]);
 
         // get otp id
-        $otp = OneTimePassword::find($response->original['data']['otp']);
+        $otp = OneTimePassword::query()->find($response->original['data']['otp']);
         $response = $this->json('POST', route('api.auth.otp.verify'), [
             'otp' => $otp->getKey(),
             'otp_token' => '1234',
@@ -67,7 +67,7 @@ class OtpVerificationTest extends TestCase
             'Accept' => 'application/json',
         ]);
         $response->assertStatus(422);
-        $this->assertEquals($response->original['code'], Response::RC_TOKEN_MISMATCH);
+        $this->assertEquals(Response::RC_TOKEN_MISMATCH, $response->original['code']);
     }
 
     /**
@@ -90,7 +90,8 @@ class OtpVerificationTest extends TestCase
         Carbon::setTestNow($testNow);
 
         // get otp id
-        $otp = OneTimePassword::find($response->original['data']['otp']);
+        /** @var \App\Models\OneTimePassword $otp */
+        $otp = OneTimePassword::query()->find($response->original['data']['otp']);
         $response = $this->json('POST', route('api.auth.otp.verify'), [
             'otp' => $otp->getKey(),
             'otp_token' => $otp->token,
@@ -99,7 +100,7 @@ class OtpVerificationTest extends TestCase
             'Accept' => 'application/json',
         ]);
         $response->assertStatus(422);
-        $this->assertEquals($response->original['code'], Response::RC_TOKEN_HAS_EXPIRED);
+        $this->assertEquals(Response::RC_TOKEN_HAS_EXPIRED, $response->original['code']);
         Carbon::setTestNow();
     }
 }
