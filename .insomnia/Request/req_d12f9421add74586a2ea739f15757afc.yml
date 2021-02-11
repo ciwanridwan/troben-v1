@@ -1,0 +1,52 @@
+_id: req_d12f9421add74586a2ea739f15757afc
+type: Request
+parentId: fld_639f81271ab94c24bcd1ed88b3c8a617
+modified: 1613016435337
+created: 1613013367624
+url: "{{ _.base_url }}/pricing"
+name: Get Pricing
+description: |-
+  price lists
+
+  parameters
+  --
+  - `origin_id` => sub district id
+  - `destination_id` => sub district id
+  - `service_code` => service code.
+method: GET
+body: {}
+parameters:
+  - name: origin_id
+    value: "1"
+    description: ""
+    id: pair_c5fe2f35834d492a9c1b76dd891051e4
+    disabled: true
+  - name: destination_id
+    value: "77"
+    description: ""
+    id: pair_77c4065fc02f4fa2a77c2e5b5a9f7ba3
+    disabled: true
+  - name: service_code
+    value: tps
+    description: ""
+    id: pair_302a71a691b24faeb72ffae139a343cf
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_359701f30f5e48a098e11149a1c6f5d1
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_4f066567e7bb49ff9fd9e6a790dbad7e
+authentication: {}
+metaSortKey: -1613013367624
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
