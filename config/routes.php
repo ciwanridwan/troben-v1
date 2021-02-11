@@ -28,6 +28,7 @@ return [
         App\Http\Routes\Api\Auth\OtpRoute::class,
         App\Http\Routes\Api\GeoRoute::class,
         App\Http\Routes\Api\AccountRoute::class,
+        App\Http\Routes\Api\PricingRoute::class,
         /** @inject api **/
     ],
 ];
