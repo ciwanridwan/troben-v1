@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Price;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
-use App\Models\Price;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class PricingController extends Controller
 {
@@ -25,9 +25,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -41,11 +41,13 @@ class PricingController extends Controller
     public function filterDestination(Builder $query): Builder
     {
         $query = $query->where('destination_id', $this->attributes['destination_id']);
+
         return $query;
     }
     public function filterService(Builder $query): Builder
     {
         $query = $query->where('service_code', $this->attributes['service_code']);
+
         return $query;
     }
 }

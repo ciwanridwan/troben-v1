@@ -2,12 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\ProvinceResource;
-use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\SubDistrictResource;
-use App\Models\Geo\Province;
-use App\Models\Geo\SubDistrict;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PriceResource extends JsonResource

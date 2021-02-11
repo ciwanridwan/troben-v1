@@ -2,13 +2,12 @@
 
 namespace Tests\Http\Api;
 
-use App\Http\Response;
-use App\Models\Customers\Customer;
-use App\Models\Geo\SubDistrict;
-use App\Models\Service;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Http\Response;
+use App\Models\Service;
+use App\Models\Geo\SubDistrict;
+use App\Models\Customers\Customer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PricingTest extends TestCase
 {
@@ -27,7 +26,7 @@ class PricingTest extends TestCase
         $access_token = $customer->createToken('test')->plainTextToken;
         $path_name = 'api.pricing';
         $header = [
-            'Authorization' => "Bearer " . $access_token
+            'Authorization' => 'Bearer '.$access_token,
         ];
 
         // get all data
@@ -39,7 +38,7 @@ class PricingTest extends TestCase
         // destination is sub_district_id
         $destination_id = SubDistrict::all()->random()->getKey();
         $response = $this->json('GET', route($path_name), [
-            'destination_id' => $destination_id
+            'destination_id' => $destination_id,
         ], $header);
         $this->assertSuccessResponse($response);
 
@@ -47,7 +46,7 @@ class PricingTest extends TestCase
         // origin is sub_district_id
         $origin_id = SubDistrict::all()->random()->getKey();
         $response = $this->json('GET', route($path_name), [
-            'origin_id' => $origin_id
+            'origin_id' => $origin_id,
         ], $header);
         $this->assertSuccessResponse($response);
 
@@ -56,7 +55,7 @@ class PricingTest extends TestCase
         // $service_code = Service::all()->random()->getKey();
         $service_code = 'tps';
         $response = $this->json('GET', route($path_name), [
-            'service_code' => $service_code
+            'service_code' => $service_code,
         ], $header);
         $this->assertSuccessResponse($response);
 
@@ -65,7 +64,7 @@ class PricingTest extends TestCase
         $response = $this->json('GET', route($path_name), [
             'service_code' => $service_code,
             'origin_id' => $origin_id,
-            'destination_id' => $destination_id
+            'destination_id' => $destination_id,
         ], $header);
         $this->assertSuccessResponse($response);
 
@@ -73,7 +72,7 @@ class PricingTest extends TestCase
         $params_null = [
             'service_code' => null,
             'origin_id' => null,
-            'destination_id' => null
+            'destination_id' => null,
         ];
         $response = $this->json('GET', route($path_name), $params_null, $header);
 

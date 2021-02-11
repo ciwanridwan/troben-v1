@@ -2,17 +2,17 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\PricingController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\PricingController;
 
 class PricingRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $prefix = "/pricing";
+    protected $prefix = '/pricing';
 
-    protected $name = "api.pricing";
+    protected $name = 'api.pricing';
 
     /**
      * Register routes handled by this class.
@@ -23,7 +23,7 @@ class PricingRoute extends BaseRoute
     {
         $this->router->get($this->prefix(), [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 
