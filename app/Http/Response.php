@@ -18,8 +18,9 @@ class Response implements Responsable
     // success group 0000-0099
     const RC_SUCCESS = '0000';
     const RC_CREATED = '0001';
-    const RC_ACCEPTED = '0002';
-    const RC_ACCEPTED_NO_CONTENT = '0003';
+    const RC_UPDATED = '0002';
+    const RC_ACCEPTED = '0003';
+    const RC_ACCEPTED_NO_CONTENT = '0004';
 
     // client side fault. 0100 - 0199
     const RC_INVALID_DATA = '0100';
@@ -79,6 +80,7 @@ class Response implements Responsable
         $mapper = [
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
+                self::RC_UPDATED
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,

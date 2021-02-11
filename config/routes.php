@@ -29,6 +29,7 @@ return [
         App\Http\Routes\Api\GeoRoute::class,
         App\Http\Routes\Api\AccountRoute::class,
         App\Http\Routes\Api\PricingRoute::class,
+        App\Http\Routes\Api\ServiceRoute::class,
         /** @inject api **/
     ],
 ];

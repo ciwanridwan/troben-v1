@@ -17,14 +17,14 @@ class UpdateExistingService
 
     /**
      * Service instance.
-     * 
+     *
      * @var \App\Models\Service
      */
     public Service $service;
 
     /**
      * Filtered attributes.
-     * 
+     *
      * @var array
      */
     public array $attributes;
@@ -38,9 +38,9 @@ class UpdateExistingService
     {
         $this->service = $service;
         $this->attributes = Validator::make($inputs, [
-            'code' => ['filled','unique:services,code','string','max:3'],
-            'name' => ['filled','string','max:255'],
-            'description' => ['nullable','string','max:255'],
+            'code' => ['filled', 'unique:services,code,' . $service->getKey() . ',code', 'string', 'max:3'],
+            'name' => ['filled', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
         ])->validate();
     }
 
