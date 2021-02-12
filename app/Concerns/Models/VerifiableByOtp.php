@@ -93,7 +93,7 @@ trait VerifiableByOtp
      */
     protected function generateRandomOtpToken()
     {
-        return in_array(env('APP_ENV'), ['local', 'staging'])
+        return in_array(config('app.env'), ['local', 'staging'])
             ? '123456'
             : substr(str_shuffle(str_repeat('0123456789', 5)), 0, 6);
     }
