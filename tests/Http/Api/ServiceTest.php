@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Http\Api;
+namespace Tests\Http\Api;
 
 use App\Http\Response;
 use App\Models\Customers\Customer;
