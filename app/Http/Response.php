@@ -80,7 +80,7 @@ class Response implements Responsable
         $mapper = [
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
-                self::RC_UPDATED
+                self::RC_UPDATED,
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,

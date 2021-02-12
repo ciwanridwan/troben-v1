@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use App\Http\Response;
 use Carbon\Carbon;
+use App\Http\Response;
 use App\Models\Customers\Customer;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -59,8 +59,14 @@ abstract class TestCase extends BaseTestCase
 
         return [
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $customer->createToken('phpunit-test')->plainTextToken,
+            'Authorization' => 'Bearer '.$customer->createToken('phpunit-test')->plainTextToken,
         ];
+    }
+
+    public function assertResponseWithCode(TestResponse $response, string $code)
+    {
+        $expected = new Response($code);
+        $this->assertEquals($expected->code, $response->json('code'));
     }
 
     /**
@@ -77,11 +83,5 @@ abstract class TestCase extends BaseTestCase
             : Customer::query()->whereNotNull('verified_at')->first();
 
         return $this->verifiedCustomer;
-    }
-
-    public function assertResponseWithCode(TestResponse $response, string $code)
-    {
-        $expected = new Response($code);
-        $this->assertEquals($expected->code, $response->json('code'));
     }
 }

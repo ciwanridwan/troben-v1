@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Response;
+use App\Models\Service;
 use App\Exceptions\Error;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ServiceResource;
-use App\Http\Response;
 use App\Jobs\Services\CreateNewService;
 use App\Jobs\Services\UpdateExistingService;
-use App\Models\Service;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -62,7 +62,7 @@ class ServiceController extends Controller
         $job = new CreateNewService($request->all());
         $response = $this->dispatch($job);
 
-        throw_if(!$response, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $response, Error::make(Response::RC_DATABASE_ERROR));
 
         return (new Response(Response::RC_CREATED, ServiceResource::make($job->service)))->json();
     }
@@ -88,7 +88,7 @@ class ServiceController extends Controller
         $job = new UpdateExistingService($service, $request->all());
         $response = $this->dispatch($job);
 
-        throw_if(!$response, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $response, Error::make(Response::RC_DATABASE_ERROR));
 
         return (new Response(Response::RC_UPDATED, ServiceResource::make($job->service)))->json();
     }
