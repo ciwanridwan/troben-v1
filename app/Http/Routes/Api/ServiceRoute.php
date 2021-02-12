@@ -2,20 +2,20 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\ServiceController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\ServiceController;
 
 class ServiceRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $prefix = "/service";
+    protected $prefix = '/service';
 
     /**
      * @var string
      */
-    protected $name = "api.service";
+    protected $name = 'api.service';
 
     /**
      * Register routes handled by this class.
@@ -29,7 +29,7 @@ class ServiceRoute extends BaseRoute
             $this->prefix(),
             [
                 'as' => $this->name,
-                'uses' => $this->uses('list')
+                'uses' => $this->uses('list'),
             ]
         );
 
@@ -38,7 +38,7 @@ class ServiceRoute extends BaseRoute
             $this->prefix('{code:code}'),
             [
                 'as' => $this->name('update'),
-                'uses' => $this->uses('update')
+                'uses' => $this->uses('update'),
             ]
         );
 
@@ -47,7 +47,7 @@ class ServiceRoute extends BaseRoute
             $this->prefix(),
             [
                 'as' => $this->name('create'),
-                'uses' => $this->uses('creation')
+                'uses' => $this->uses('creation'),
             ]
         );
 
@@ -57,7 +57,7 @@ class ServiceRoute extends BaseRoute
             $this->prefix('{code:code}'),
             [
                 'as' => $this->name('show'),
-                'uses' => $this->uses('show')
+                'uses' => $this->uses('show'),
             ]
         );
     }
