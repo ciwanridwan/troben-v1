@@ -101,4 +101,26 @@ class VerifyingOtpToken extends TestCase
 
         Event::assertNotDispatched(TokenVerified::class);
     }
+
+    /**
+     * A basic feature test example.
+     *
+     * @return void
+     */
+    public function test_on_token_was_claimed()
+    {
+        Event::fake();
+
+        try {
+            $account = Customer::factory(1)->create()->first();
+            $otp = $account->createOtp();
+
+            $job = new VerifyOtpToken($account, $otp, $otp->token);
+            $this->dispatch($job);
+        } catch (Exception  $e) {
+            $this->assertEquals(new Error(Response::RC_TOKEN_HAS_EXPIRED), $e);
+        }
+
+        Event::assertNotDispatched(TokenVerified::class);
+    }
 }
