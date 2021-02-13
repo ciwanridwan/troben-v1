@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Orders;
 
-use App\Events\Orders\OrderCreated;
-use App\Models\Customers\Customer;
 use App\Models\Order;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\Customers\Customer;
+use App\Events\Orders\OrderCreated;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewOrder
 {
@@ -44,7 +44,7 @@ class CreateNewOrder
             'est_height' => ['required', 'numeric'],
             'est_length' => ['required', 'numeric'],
             'est_width' => ['required', 'numeric'],
-            'status' => ['required', Rule::in(Order::STATUS)]
+            'status' => ['required', Rule::in(Order::STATUS)],
         ])->validate();
     }
 

@@ -2,18 +2,13 @@
 
 namespace Tests\Jobs\Orders;
 
-use App\Events\Orders\OrderCreated;
-use App\Jobs\Orders\CreateNewOrder;
-use App\Models\Customers\Customer;
-use App\Models\Order;
-use Error;
-use Exception;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use App\Models\Order;
+use App\Models\Customers\Customer;
+use App\Jobs\Orders\CreateNewOrder;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class OrderCreatingTest extends TestCase
 {
@@ -48,7 +43,7 @@ class OrderCreatingTest extends TestCase
             'est_height' => 1,
             'est_length' => 1,
             'est_width' => 1,
-            'status' => Order::STATUS_DOOR
+            'status' => Order::STATUS_DOOR,
         ];
         $job = new CreateNewOrder($this->customer, $data);
         $response = $this->dispatch($job);
@@ -76,7 +71,7 @@ class OrderCreatingTest extends TestCase
             'est_height' => null,
             'est_length' => null,
             'est_width' => null,
-            'status' => 'ORDERGAN'
+            'status' => 'ORDERGAN',
         ];
         $job = new CreateNewOrder($customer, $data);
         $response = $this->dispatch($job);

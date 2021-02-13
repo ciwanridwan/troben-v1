@@ -3,7 +3,6 @@
 namespace App\Concerns\Models;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 
 trait HasBarcode
 {
@@ -29,6 +28,6 @@ trait HasBarcode
     public function generateBarcode()
     {
         // kode asal - kode tujuan - GENERATE - INCREMENT
-        return $this->getBarcodeType() . Carbon::now()->format('dmy') . random_int(0, 10000);
+        return $this->getBarcodeType().Carbon::now()->format('dmy').random_int(0, 10000);
     }
 }
