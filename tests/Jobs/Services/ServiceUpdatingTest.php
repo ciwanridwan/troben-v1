@@ -33,7 +33,7 @@ class ServiceUpdatingTest extends TestCase
 
     /**
      * Get Service Test Subject.
-     * 
+     *
      * @return \App\Models\Service|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object
      */
     public function getTestSubject($latest = false)
@@ -41,8 +41,8 @@ class ServiceUpdatingTest extends TestCase
         $service = Service::query();
 
         return $latest
-            ? $service->latest()->first()
-            : $service->first();
+            ? $service->orderBy('code', 'desc')->first()
+            : $service->orderBy('code')->first();
     }
 
     public function test_on_valid_data()

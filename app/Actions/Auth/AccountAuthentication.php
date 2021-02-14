@@ -136,7 +136,7 @@ class AccountAuthentication
         $otp = $authenticatable->createOtp();
 
         return (new Response(Response::RC_SUCCESS, [
-            'otp_id' => $otp->id,
+            'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
     }

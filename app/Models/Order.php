@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
+use App\Concerns\Models\HasBarcode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,7 +38,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Order extends Model
 {
-    use HasPhoneNumber, SoftDeletes;
+    use HasPhoneNumber, SoftDeletes, HasBarcode;
+
+    const STATUS_DOOR = 'door';
+    const STATUS_TRANSIT = 'transit';
+
+    const STATUS = [
+        self::STATUS_DOOR,
+        self::STATUS_TRANSIT,
+    ];
+
+    protected $barcodeType = 'ORD';
 
     /**
      * Phone number column.

@@ -18,8 +18,9 @@ class Response implements Responsable
     // success group 0000-0099
     const RC_SUCCESS = '0000';
     const RC_CREATED = '0001';
-    const RC_ACCEPTED = '0002';
-    const RC_ACCEPTED_NO_CONTENT = '0003';
+    const RC_UPDATED = '0002';
+    const RC_ACCEPTED = '0003';
+    const RC_ACCEPTED_NO_CONTENT = '0004';
 
     // client side fault. 0100 - 0199
     const RC_INVALID_DATA = '0100';
@@ -37,6 +38,7 @@ class Response implements Responsable
     const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
     const RC_TOKEN_HAS_EXPIRED = '0302';
     const RC_TOKEN_MISMATCH = '0303';
+    const RC_TOKEN_WAS_CLAIMED = '0304';
 
     // server side faults. 0900 - 0999
     const RC_SERVER_IN_MAINTENANCE = '0901';
@@ -79,6 +81,7 @@ class Response implements Responsable
         $mapper = [
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
+                self::RC_UPDATED,
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,
@@ -98,6 +101,7 @@ class Response implements Responsable
                 self::RC_INVALID_PHONE_NUMBER,
                 self::RC_TOKEN_HAS_EXPIRED,
                 self::RC_TOKEN_MISMATCH,
+                self::RC_TOKEN_WAS_CLAIMED,
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,

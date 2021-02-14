@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Carbon\Carbon;
+use App\Http\Response;
 use App\Models\Customers\Customer;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -60,6 +61,12 @@ abstract class TestCase extends BaseTestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer '.$customer->createToken('phpunit-test')->plainTextToken,
         ];
+    }
+
+    public function assertResponseWithCode(TestResponse $response, string $code)
+    {
+        $expected = new Response($code);
+        $this->assertEquals($expected->code, $response->json('code'));
     }
 
     /**
