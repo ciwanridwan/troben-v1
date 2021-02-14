@@ -18,9 +18,9 @@ class AccountAuthentication
 {
     use DispatchesJobs;
 
-    const CREDENTIAL_EMAIL = 'email';
-    const CREDENTIAL_PHONE = 'phone';
-    const CREDENTIAL_USERNAME = 'username';
+    public const CREDENTIAL_EMAIL = 'email';
+    public const CREDENTIAL_PHONE = 'phone';
+    public const CREDENTIAL_USERNAME = 'username';
 
     /**
      * Accepted attributes.
