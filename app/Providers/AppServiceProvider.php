@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\View\View;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
 use Jalameta\Attachments\JPSAttachment;
 use App\Database\Schema\Grammars\PostgresGrammar;
 
