@@ -31,6 +31,9 @@ trait HasBarcode
         if ($this instanceof Order) {
             return $this->generateBarcodeOrder();
         }
+
+        // default
+        return $this->getBarcodeType() . Carbon::now()->format('dmy') . random_int(0, 10000);
     }
 
     private function generateBarcodeOrder()
