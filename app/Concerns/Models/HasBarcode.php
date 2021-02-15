@@ -40,7 +40,7 @@ trait HasBarcode
     {
         $pre = $this->getBarcodeType() . Carbon::now()->format('dmy');
         $last_order = $this->query()->where('barcode', 'LIKE', $pre . '%')->orderBy('barcode', 'desc')->first();
-        $inc_number = $last_order ? substr($last_order->barcode, strlen($last_order->barcode)) : 0;
+        $inc_number = $last_order ? substr($last_order->barcode, strlen($pre)) : 0;
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
 
