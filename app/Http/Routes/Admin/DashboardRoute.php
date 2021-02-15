@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Admin;
 
-use App\Http\Controllers\Admin\DashboardController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\DashboardController;
 
 class DashboardRoute extends BaseRoute
 {
