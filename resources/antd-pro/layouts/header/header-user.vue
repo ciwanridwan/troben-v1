@@ -11,7 +11,7 @@ export default {
   <a-dropdown>
     <div class="header-user" style="cursor: pointer;">
       <a-avatar class="avatar" size="small" shape="circle">{{ initial(user().name) }}</a-avatar>
-      <span class="name">{{ user().name }}</span>
+      <span class="name">{{ user() ? user().name : '' }}</span>
     </div>
     <a-menu :class="['avatar-menu']" slot="overlay">
       <a-menu-item v-for="item in userDropdown" :key="item.route">

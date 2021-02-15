@@ -4,10 +4,6 @@
       <a-icon v-if="layout !== 'head'" class="trigger" :type="collapsed ? 'menu-unfold' : 'menu-fold'"
               @click="toggleCollapse"/>
 
-      <a-button type="primary" icon="plus" :href="routeUri('app.patient.create')">
-        Add New Patient Registry
-      </a-button>
-
       <div :class="['admin-header-right', headerTheme]">
         <header-notification :src="routeUri('app.notification.unread')"/>
         <header-user class="header-item"/>

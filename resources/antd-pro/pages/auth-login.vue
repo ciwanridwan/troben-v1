@@ -53,7 +53,6 @@ export default {
     <div class="top">
       <div class="header">
         <img alt="logo" class="logo" src="/assets/logo.png"/>
-        <span class="title">{{ config.app.name }} </span>
       </div>
       <div class="desc">{{ config.app.description }}</div>
     </div>
