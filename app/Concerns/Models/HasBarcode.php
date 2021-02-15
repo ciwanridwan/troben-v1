@@ -44,7 +44,7 @@ trait HasBarcode
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
 
-        // assume 10.000/day
+        // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
         return  $pre . $inc_number;
     }
