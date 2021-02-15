@@ -32,6 +32,8 @@ class DefaultRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->view('debug', 'antd::auth.login');
     }
 
     /**
