@@ -49,6 +49,7 @@ class OrderCreatingTest extends TestCase
         $job = new CreateNewOrder($this->customer, $data);
         $response = $this->dispatch($job);
         $order = $job->order;
+        dd($order->toArray(), (new Order())->generateBarcode());
         $this->assertTrue($response);
         $this->assertDatabaseHas('orders', $order->only(['id', 'barcode']));
     }

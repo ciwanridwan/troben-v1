@@ -42,7 +42,7 @@ trait HasBarcode
         $last_order = $this->query()->where('barcode', 'LIKE', $pre . '%')->orderBy('barcode', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->barcode, strlen($last_order->barcode)) : 0;
         $inc_number = (int) $inc_number;
-        $inc_number = $inc_number === 0 ? $inc_number + 1 : $inc_number;
+        $inc_number = $last_order ? $inc_number + 1 : $inc_number;
 
         // assume 10.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
