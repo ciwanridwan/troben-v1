@@ -46,6 +46,7 @@ trait HasBarcode
 
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
+
         return  $pre . $inc_number;
     }
 }
