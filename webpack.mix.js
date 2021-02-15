@@ -40,6 +40,8 @@ mix.webpackConfig({
   },
 })
 
-mix.inProduction()
-  ? mix.version()
-  : mix.sourceMaps()
+mix.version()
+
+if (mix.inProduction()) {
+  mix.sourceMaps()
+}
