@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Orders;
 
-use App\Models\Order;
+use App\Models\Orders\Order;
 use Illuminate\Validation\Rule;
 use App\Models\Customers\Customer;
 use App\Events\Orders\OrderCreated;

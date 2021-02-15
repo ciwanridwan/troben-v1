@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Orders;
 
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;

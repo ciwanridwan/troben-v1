@@ -2,7 +2,7 @@
 
 namespace App\Concerns\Models;
 
-use App\Models\Order;
+use App\Models\Orders\Order;
 use Carbon\Carbon;
 
 trait HasBarcode

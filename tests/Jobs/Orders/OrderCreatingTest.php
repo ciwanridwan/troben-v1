@@ -3,7 +3,7 @@
 namespace Tests\Jobs\Orders;
 
 use Tests\TestCase;
-use App\Models\Order;
+use App\Models\Orders\Order;
 use App\Models\Customers\Customer;
 use App\Jobs\Orders\CreateNewOrder;
 use Carbon\Carbon;
