@@ -14,10 +14,7 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
   .vue()
 
-mix.less('resources/antd-pro/theme/index.less', 'public/build/app.css')
-//   .postCss('resources/css/app.css', 'public/css', [
-
-  // ]);
+mix.less('resources/antd-pro/theme/index.less', 'public/css/antd.css')
 
 mix.webpackConfig({
   stats: "minimal",

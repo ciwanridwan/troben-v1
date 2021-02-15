@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   @yield('css_before')
-  <link rel="stylesheet" href="{{ mix('/build/app.bundled.css') }}">
+  <link rel="stylesheet" href="{{ mix('/css/antd.css') }}">
   @yield('css_after')
 </head>
 <body>
@@ -22,7 +22,7 @@
 
 @yield('js_before')
 <script type="text/javascript">window.Laravel = @json($laravelJs);</script>
-<script type="text/javascript" src="{{ mix('/build/app.bundled.js') }}"></script>
+<script type="text/javascript" src="{{ mix('/js/app.js') }}"></script>
 @yield('js_after')
 </body>
 </html>

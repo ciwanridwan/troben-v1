@@ -14,7 +14,7 @@ const footer = {
       text: 'Facebook'
     }
   ],
-  copyright: '2020 - PT. Digital Entropy Venture'
+  copyright: '2021 - PT TrawlBens Teknologi Anak Indonesia'
 }
 
 export default footer
