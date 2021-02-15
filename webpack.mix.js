@@ -12,6 +12,37 @@ const mix = require('laravel-mix');
  */
 
 mix.js('resources/js/app.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        //
-    ]);
+  .vue()
+
+mix.less('resources/antd-pro/theme/index.less', 'public/build/app.css')
+//   .postCss('resources/css/app.css', 'public/css', [
+
+  // ]);
+
+mix.webpackConfig({
+  stats: "minimal",
+  module: {
+    rules: [{
+      test: /\.less$/,
+      use: [
+        {
+          loader: "less-loader",
+          options: {
+            lessOptions: {
+              modifyVars: {
+                'primary-color': '#1DA57A',
+                'link-color': '#1DA57A',
+                'border-radius-base': '2px',
+              },
+              javascriptEnabled: true,
+            }
+          }
+        }
+      ]
+    }]
+  },
+})
+
+mix.inProduction()
+  ? mix.version()
+  : mix.sourceMaps()
