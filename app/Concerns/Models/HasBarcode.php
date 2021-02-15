@@ -2,6 +2,7 @@
 
 namespace App\Concerns\Models;
 
+use App\Models\Order;
 use Carbon\Carbon;
 
 trait HasBarcode
@@ -27,7 +28,21 @@ trait HasBarcode
 
     public function generateBarcode()
     {
-        // kode asal - kode tujuan - GENERATE - INCREMENT
-        return $this->getBarcodeType().Carbon::now()->format('dmy').random_int(0, 10000);
+        if ($this instanceof Order) {
+            return $this->generateBarcodeOrder();
+        }
+    }
+
+    private function generateBarcodeOrder()
+    {
+        $pre = $this->getBarcodeType() . Carbon::now()->format('dmy');
+        $last_order = $this->query()->where('barcode', 'LIKE', $pre . '%')->orderBy('barcode', 'desc')->first();
+        $inc_number = $last_order ? substr($last_order->barcode, strlen($last_order->barcode)) : 0;
+        $inc_number = (int) $inc_number;
+        $inc_number = $inc_number === 0 ? $inc_number + 1 : $inc_number;
+
+        // assume 10.000/day
+        $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
+        return  $pre . $inc_number;
     }
 }
