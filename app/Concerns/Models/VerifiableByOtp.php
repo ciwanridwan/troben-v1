@@ -28,14 +28,15 @@ trait VerifiableByOtp
     }
 
     /**
-     * Create new OTP token.
+     * @param string $otp_channel
      *
-     * @return \App\Models\OneTimePassword
+     * @return OneTimePassword
      */
-    public function createOtp(): OneTimePassword
+    public function createOtp(string $otp_channel = "phone"): OneTimePassword
     {
         $otp = $this->one_time_passwords()->create([
             'token' => $this->generateRandomOtpToken(),
+            'sent_with' => $otp_channel
         ]);
 
         /** @var \App\Models\OneTimePassword $otp */
@@ -71,7 +72,7 @@ trait VerifiableByOtp
      */
     public function getIsVerifiedAttribute(): bool
     {
-        return ! empty($this->{$this->getVerifiedColumn()});
+        return !empty($this->{$this->getVerifiedColumn()});
     }
 
     /**

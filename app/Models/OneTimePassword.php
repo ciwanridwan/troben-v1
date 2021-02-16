@@ -25,6 +25,14 @@ class OneTimePassword extends Model
 {
     use UuidAsPrimaryKey;
 
+    const CHANNEL_EMAIL = "email";
+    const CHANNEL_PHONE = "phone";
+
+    const OTP_CHANNEL = [
+        self::CHANNEL_EMAIL,
+        self::CHANNEL_PHONE
+    ];
+
     const TOKEN_TTL = 1800;
 
     /**
@@ -87,7 +95,7 @@ class OneTimePassword extends Model
 
     /**
      * Define `morphTo` relationship with owner model.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function verifiable(): MorphTo
