@@ -21,15 +21,16 @@ class CustomersTableSeeder extends Seeder
             ->makeOne([
                 'phone' => '+625555555555',
                 'email' => 'customer@trawlbens.co.id',
-                'verified_at' => Carbon::now(),
+                'email_verified_at' => Carbon::now(),
+                'phone_verified_at' => Carbon::now(),
             ])->save();
 
         // make the rest of the data.
         Customer::factory()
             ->count(9)
             ->state(new Sequence(
-                ['verified_at' => null],
-                ['verified_at' => Carbon::now()]
+                ['email_verified_at' => null],
+                ['email_verified_at' => Carbon::now()]
             ))
             ->create();
     }

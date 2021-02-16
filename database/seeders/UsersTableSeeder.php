@@ -19,6 +19,7 @@ class UsersTableSeeder extends Seeder
         // make sure at least one record contain this data.
         User::factory()
             ->makeOne([
+                'username' => 'admin',
                 'phone' => '+625555555555',
                 'email' => 'user@trawlbens.co.id',
                 'verified_at' => Carbon::now(),

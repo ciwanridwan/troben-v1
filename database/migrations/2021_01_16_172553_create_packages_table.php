@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Order;
+use App\Models\Orders\Order;
 use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;

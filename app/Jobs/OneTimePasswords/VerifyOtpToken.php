@@ -65,7 +65,7 @@ class VerifyOtpToken
         $this->otp->claimed_at = Carbon::now();
         $this->otp->save();
         // set account verified
-        $this->account->verified_at = Carbon::now();
+        $this->account->{$this->account->getVerifiedColumn()} = Carbon::now();
         $this->account->save();
         event(new TokenVerified($this->account, $this->otp));
 

@@ -2,7 +2,7 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Order;
+use App\Models\Orders\Order;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

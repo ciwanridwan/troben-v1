@@ -17,10 +17,16 @@ return [
             'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
             'domain' => env('API_DOMAIN')
         ],
+
+        'admin' => [
+            'middleware' => ['web', 'auth'],
+            'prefix' => 'admin',
+        ],
     ],
 
     'web' => [
         App\Http\Routes\DefaultRoute::class,
+        App\Http\Routes\FortifyRoute::class,
         /** @inject web **/
     ],
     'api' => [
@@ -31,5 +37,9 @@ return [
         App\Http\Routes\Api\PricingRoute::class,
         App\Http\Routes\Api\ServiceRoute::class,
         /** @inject api **/
+    ],
+    'admin' => [
+        App\Http\Routes\Admin\DashboardRoute::class,
+        /** @inject admin **/
     ],
 ];

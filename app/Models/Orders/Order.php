@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Orders;
 
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
@@ -118,5 +118,15 @@ class Order extends Model
     public function packages(): HasMany
     {
         return $this->hasMany(Package::class, 'order_id', 'id');
+    }
+
+    /**
+     * Get all of the items for the Order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'order_id', 'id');
     }
 }

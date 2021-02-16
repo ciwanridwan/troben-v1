@@ -7,7 +7,7 @@ echo "Deploying application ..."
 (php artisan down) || true
     # Update codebase
     git fetch origin master
-    git reset --hard origin/master
+    git pull origin master
 
     sudo chmod -R 777 storage
     sudo chmod -R 777 bootstrap/cache
@@ -23,6 +23,10 @@ echo "Deploying application ..."
 
     # Note: If you're using queue workers, this is the place to restart them.
     php artisan horizon:terminate
+
+    # NPM
+    npm install
+    npm run production
 
     # Clear cache
     php artisan optimize

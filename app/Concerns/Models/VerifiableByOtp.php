@@ -79,7 +79,7 @@ trait VerifiableByOtp
      *
      * @return string
      */
-    protected function getVerifiedColumn(): string
+    public function getVerifiedColumn(): string
     {
         return property_exists($this, 'verifiedColumn')
             ? $this->verifiedColumn
