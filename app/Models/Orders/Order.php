@@ -119,4 +119,14 @@ class Order extends Model
     {
         return $this->hasMany(Package::class, 'order_id', 'id');
     }
+
+    /**
+     * Get all of the items for the Order
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'order_id', 'id');
+    }
 }
