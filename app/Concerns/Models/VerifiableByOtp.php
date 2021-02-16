@@ -71,7 +71,7 @@ trait VerifiableByOtp
      */
     public function getIsVerifiedAttribute(): bool
     {
-        return !empty($this->{$this->getVerifiedColumn()});
+        return ! empty($this->{$this->getVerifiedColumn()});
     }
 
     /**

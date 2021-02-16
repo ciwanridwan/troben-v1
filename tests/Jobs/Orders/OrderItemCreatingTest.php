@@ -2,25 +2,23 @@
 
 namespace Tests\Jobs\Orders;
 
-use App\Events\Orders\OrderCreated;
-use App\Http\Response;
-use App\Jobs\Orders\CreateNewOrder;
-use App\Jobs\Orders\CreateNewOrderItem;
-use App\Models\Customers\Customer;
-use App\Models\Orders\Order;
-use Exception;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use App\Http\Response;
+use App\Models\Orders\Order;
+use App\Models\Customers\Customer;
+use App\Events\Orders\OrderCreated;
+use App\Jobs\Orders\CreateNewOrder;
+use Illuminate\Support\Facades\Event;
+use App\Jobs\Orders\CreateNewOrderItem;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class OrderItemCreatingTest extends TestCase
 {
     use DispatchesJobs, RefreshDatabase;
     protected $order;
-    function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
         $customer = Customer::factory(1)->create()->first();
@@ -52,7 +50,7 @@ class OrderItemCreatingTest extends TestCase
         $data = [
             'name' => 'test',
             'qty' => 1,
-            'desc' =>  'test',
+            'desc' => 'test',
         ];
         $job = new CreateNewOrderItem($this->order, $data);
         $response = $this->dispatch($job);
@@ -66,12 +64,12 @@ class OrderItemCreatingTest extends TestCase
                 [
                     'name' => 'test',
                     'qty' => 1,
-                    'desc' =>  'test',
-                ]
+                    'desc' => 'test',
+                ],
             ],
             'name' => 'test',
             'qty' => 1,
-            'desc' =>  'test',
+            'desc' => 'test',
         ];
         $job = new CreateNewOrderItem($this->order, $data);
         $response = $this->dispatch($job);
@@ -86,7 +84,7 @@ class OrderItemCreatingTest extends TestCase
         $data = [
             'name' => '',
             'qty' => 'av',
-            'desc' =>  'test',
+            'desc' => 'test',
         ];
         $job = new CreateNewOrderItem($this->order, $data);
         $response = $this->dispatch($job);

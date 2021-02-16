@@ -72,7 +72,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         'fcm_token',
     ];
 
-    protected $verifiedColumn = "phone_verified_at";
+    protected $verifiedColumn = 'phone_verified_at';
 
     /**
      * The attributes that should be cast.

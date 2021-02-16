@@ -2,15 +2,14 @@
 
 namespace App\Jobs\Orders;
 
-use App\Events\Orders\OrderItemCreated;
 use App\Models\Orders\Item;
-use App\Models\Orders\Order;
-use Illuminate\Console\Scheduling\Event;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Arr;
+use App\Models\Orders\Order;
+use App\Events\Orders\OrderItemCreated;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Database\Eloquent\Collection;
 
 class CreateNewOrderItem
 {
@@ -59,7 +58,6 @@ class CreateNewOrderItem
      */
     public function handle()
     {
-
         if (array_key_first($this->attributes) === 0) {
             $this->order_item = $this->order->items()->createMany($this->attributes);
         } else {
@@ -72,10 +70,11 @@ class CreateNewOrderItem
 
         if ($this->order_item instanceof Collection) {
             foreach ($this->order_item as $item) {
-                if (!$item->exists) {
+                if (! $item->exists) {
                     return $item->exists;
                 }
             }
+
             return true;
         } else {
             return $this->order_item->exists;

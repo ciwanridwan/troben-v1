@@ -121,7 +121,7 @@ class Order extends Model
     }
 
     /**
-     * Get all of the items for the Order
+     * Get all of the items for the Order.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
