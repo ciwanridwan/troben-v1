@@ -25,12 +25,12 @@ class OneTimePassword extends Model
 {
     use UuidAsPrimaryKey;
 
-    const CHANNEL_EMAIL = "email";
-    const CHANNEL_PHONE = "phone";
+    const CHANNEL_EMAIL = 'email';
+    const CHANNEL_PHONE = 'phone';
 
     const OTP_CHANNEL = [
         self::CHANNEL_EMAIL,
-        self::CHANNEL_PHONE
+        self::CHANNEL_PHONE,
     ];
 
     const TOKEN_TTL = 1800;
