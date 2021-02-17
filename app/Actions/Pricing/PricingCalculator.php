@@ -2,13 +2,12 @@
 
 namespace App\Actions\Pricing;
 
-use App\Exceptions\Error;
-use App\Http\Resources\PriceCalculatorResource;
-use App\Http\Response;
 use App\Models\Price;
-use Dotenv\Exception\ValidationException;
-use Illuminate\Http\JsonResponse;
+use App\Http\Response;
+use App\Exceptions\Error;
 use Illuminate\Support\Arr;
+use Illuminate\Http\JsonResponse;
+use App\Http\Resources\PriceCalculatorResource;
 
 class PricingCalculator
 {
@@ -37,7 +36,7 @@ class PricingCalculator
      */
     public float $act_volume = 0;
 
-    function __construct($inputs = [])
+    public function __construct($inputs = [])
     {
         $this->attributes = $inputs;
         $this->price = $this->getPrice($this->attributes['origin_province_id'], $this->attributes['origin_regency_id'], $this->attributes['destination_id']);
@@ -49,7 +48,6 @@ class PricingCalculator
 
     public function calculate(): JsonResponse
     {
-
         $weight = $this->act_weight > $this->act_volume ? $this->act_weight : $this->act_volume;
 
         // check if lt min weight
@@ -66,7 +64,7 @@ class PricingCalculator
             'actual_property' => $goods_property,
             'dimension' => $dimension_charge,
             'weight' => $weight,
-            'tier' => $this->tier
+            'tier' => $this->tier,
         ];
 
         return (new Response(Response::RC_SUCCESS, PriceCalculatorResource::make($response)))->json();
@@ -75,6 +73,7 @@ class PricingCalculator
     public function getDimensionCharge($weight, $tier = 0)
     {
         $price = $weight * $tier;
+
         return $price;
     }
 
@@ -90,6 +89,7 @@ class PricingCalculator
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+
         return $price;
     }
 
@@ -146,6 +146,7 @@ class PricingCalculator
 
         // volume < 1?1:volume
         $volume = $volume > 1 ?: 1;
+
         return $volume;
     }
 }

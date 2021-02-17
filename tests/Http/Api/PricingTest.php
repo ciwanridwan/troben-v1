@@ -3,11 +3,11 @@
 namespace Tests\Http\Api;
 
 use Tests\TestCase;
+use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
 use App\Models\Geo\SubDistrict;
 use App\Models\Customers\Customer;
-use App\Models\Price;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PricingTest extends TestCase
@@ -19,7 +19,7 @@ class PricingTest extends TestCase
      */
     protected array $header;
 
-    function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
         // seed all
@@ -27,7 +27,7 @@ class PricingTest extends TestCase
         $customer = Customer::find(1);
         $access_token = $customer->createToken('test')->plainTextToken;
         $this->header = [
-            'Authorization' => 'Bearer ' . $access_token,
+            'Authorization' => 'Bearer '.$access_token,
         ];
     }
     /**
@@ -37,7 +37,6 @@ class PricingTest extends TestCase
      */
     public function test_get_price_list()
     {
-
         $path_name = 'api.pricing';
 
         // get all data
@@ -102,13 +101,13 @@ class PricingTest extends TestCase
         $price = Price::all()->random();
         // valid q string
         $params = [
-            'origin_province_id' =>  $price->origin_province_id,
-            'origin_regency_id' =>  $price->origin_regency_id,
-            'destination_id' =>  $price->destination_id,
-            'height' =>  5,
-            'width' =>  5,
-            'length' =>  5,
-            'weight' =>  5,
+            'origin_province_id' => $price->origin_province_id,
+            'origin_regency_id' => $price->origin_regency_id,
+            'destination_id' => $price->destination_id,
+            'height' => 5,
+            'width' => 5,
+            'length' => 5,
+            'weight' => 5,
         ];
 
         $path_name = 'api.pricing.calculator';
@@ -117,13 +116,13 @@ class PricingTest extends TestCase
 
         // valid q string out of range
         $params = [
-            'origin_province_id' =>  $price->origin_province_id,
-            'origin_regency_id' =>  $price->origin_regency_id,
-            'destination_id' =>  1,
-            'height' =>  5,
-            'width' =>  5,
-            'length' =>  5,
-            'weight' =>  5,
+            'origin_province_id' => $price->origin_province_id,
+            'origin_regency_id' => $price->origin_regency_id,
+            'destination_id' => 1,
+            'height' => 5,
+            'width' => 5,
+            'length' => 5,
+            'weight' => 5,
         ];
 
         $path_name = 'api.pricing.calculator';
@@ -137,13 +136,13 @@ class PricingTest extends TestCase
 
         // invalid data
         $params = [
-            'origin_province_id' =>  'a',
-            'origin_regency_id' =>  'a',
-            'destination_id' =>  'v',
-            'height' =>  'c',
-            'width' =>  'c',
-            'length' =>  'c',
-            'weight' =>  'c',
+            'origin_province_id' => 'a',
+            'origin_regency_id' => 'a',
+            'destination_id' => 'v',
+            'height' => 'c',
+            'width' => 'c',
+            'length' => 'c',
+            'weight' => 'c',
         ];
         $path_name = 'api.pricing.calculator';
         $response = $this->json('GET', route($path_name), []);
