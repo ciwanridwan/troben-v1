@@ -41,6 +41,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
+
+    const TIER_1 = 10;
+    const TIER_2 = 30;
+    const TIER_3 = 50;
+    const TIER_4 = 100;
+    const TIER_5 = 1000;
+    const TIER_6 = 3000;
+
+    const DIVIDER_DARAT = 4000;
+    const DIVIDER_UDARA = 6000;
+
+    const MIN_WEIGHT = 10;
+
     /**
      * The table associated with the model.
      *

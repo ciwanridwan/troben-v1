@@ -27,6 +27,7 @@ class Response implements Responsable
     const RC_RESOURCE_NOT_FOUND = '0101';
     const RC_ROUTE_NOT_FOUND = '0102';
     const RC_INVALID_PHONE_NUMBER = '0103';
+    const RC_OUT_OF_RANGE = '0104';
 
     // authentication / authorization related. 0200 - 0299
     const RC_UNAUTHENTICATED = '0200';
@@ -95,6 +96,7 @@ class Response implements Responsable
             LaravelResponse::HTTP_NOT_FOUND => [
                 self::RC_RESOURCE_NOT_FOUND,
                 self::RC_ROUTE_NOT_FOUND,
+
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
@@ -102,6 +104,8 @@ class Response implements Responsable
                 self::RC_TOKEN_HAS_EXPIRED,
                 self::RC_TOKEN_MISMATCH,
                 self::RC_TOKEN_WAS_CLAIMED,
+                self::RC_OUT_OF_RANGE,
+
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
