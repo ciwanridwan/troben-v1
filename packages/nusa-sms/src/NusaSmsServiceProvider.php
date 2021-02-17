@@ -11,6 +11,15 @@ class NusaSmsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config' => $this->app->basePath('config'),
+            ], 'notification-channels-nusasms');
+        }
+
+        $this->app->when(NusaSmsChannel::class)
+            ->needs(NusaSmsClient::class)
+            ->give(fn () => new NusaSmsClient(config('nusa-sms')));
     }
 
     /**
@@ -18,5 +27,9 @@ class NusaSmsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/nusa-sms.php.php',
+            'nusa-sms'
+        );
     }
 }
