@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use Illuminate\Http\Request;
+use App\Models\OneTimePassword;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -25,10 +26,11 @@ class AuthController extends Controller
     {
         $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
-            'username' => 'required',
-            'password' => 'required',
-            'otp' => 'nullable|boolean',
-            'device_name' => 'required',
+            'username' => ['required'],
+            'password' => ['required'],
+            'otp' => ['nullable', 'boolean'],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'device_name' => ['required'],
         ]);
 
         // override value
@@ -53,6 +55,7 @@ class AuthController extends Controller
     {
         $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
         ]);
 
         return (new AccountAuthentication($request->all()))->register();
