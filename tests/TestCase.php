@@ -59,7 +59,7 @@ abstract class TestCase extends BaseTestCase
 
         return [
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $customer->createToken('phpunit-test')->plainTextToken,
+            'Authorization' => 'Bearer '.$customer->createToken('phpunit-test')->plainTextToken,
         ];
     }
 
