@@ -48,10 +48,10 @@ class AccountAuthentication
     public function register(): JsonResponse
     {
         $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
         $account = ($this->attributes['guard'] === 'customer')
             ? $this->customerRegistration()
             : $this->userRegistration();
-
 
         return $this->askingOtpResponse($account, $this->attributes['otp_channel']);
     }
@@ -81,19 +81,22 @@ class AccountAuthentication
                 break;
         }
 
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
+
+
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         // if not asking for otp, make sure that the user is verified before.
-        throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
+        throw_if(!$this->attributes['otp'] && !$authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])

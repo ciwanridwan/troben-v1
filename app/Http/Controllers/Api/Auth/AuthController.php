@@ -29,7 +29,7 @@ class AuthController extends Controller
             'username' => ['required'],
             'password' => ['required'],
             'otp' => ['nullable', 'boolean'],
-            'otp_channel' => [Rule::requiredIf(fn () => $request->otp), Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
             'device_name' => ['required'],
         ]);
 
@@ -55,7 +55,7 @@ class AuthController extends Controller
     {
         $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
-            'otp_channel' => ['required', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
         ]);
 
         return (new AccountAuthentication($request->all()))->register();
