@@ -17,7 +17,7 @@ class PriceCalculatorResource extends JsonResource
     public function toArray($request)
     {
         $data = [
-            'price' => PriceResource::make($this->resource['price']),
+            'geo' => PriceResource::make($this->resource['price']),
             'actual_property' => $this->resource['actual_property'],
             'charge' => [
                 'tier' => $this->resource['tier'],

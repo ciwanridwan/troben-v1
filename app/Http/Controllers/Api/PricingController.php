@@ -69,6 +69,7 @@ class PricingController extends Controller
             'width'     => ['required_with:height,length', 'numeric'],
             'length'    => ['required_with:width,height', 'numeric'],
             'weight'    => ['required', 'numeric'],
+            'insurance' => ['filled', 'boolean']
         ]);
         return (new PricingCalculator($this->attributes))->calculate();
     }
