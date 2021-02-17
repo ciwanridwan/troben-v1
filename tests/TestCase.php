@@ -79,8 +79,8 @@ abstract class TestCase extends BaseTestCase
     protected function makeVerifiedCustomer($withFactory = true): Customer
     {
         $this->verifiedCustomer = ($withFactory)
-            ? Customer::factory(1)->create(['verified_at' => Carbon::now(), 'phone' => '+625555555555'])->first()
-            : Customer::query()->whereNotNull('verified_at')->first();
+            ? Customer::factory(1)->create(['phone_verified_at' => Carbon::now(), 'phone' => '+625555555555'])->first()
+            : Customer::query()->whereNotNull('phone_verified_at')->first();
 
         return $this->verifiedCustomer;
     }

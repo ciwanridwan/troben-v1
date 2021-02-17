@@ -48,15 +48,12 @@ class AccountAuthentication
     public function register(): JsonResponse
     {
         $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
         $account = ($this->attributes['guard'] === 'customer')
             ? $this->customerRegistration()
             : $this->userRegistration();
 
-        $otp = $account->createOtp();
-
-        return (new Response(Response::RC_SUCCESS, [
-            'otp' => $otp->getKey(),
-        ]))->json();
+        return $this->askingOtpResponse($account, $this->attributes['otp_channel']);
     }
 
     /**
@@ -84,6 +81,9 @@ class AccountAuthentication
                 break;
         }
 
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
+
+
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
@@ -99,7 +99,7 @@ class AccountAuthentication
         throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable)
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
@@ -131,9 +131,9 @@ class AccountAuthentication
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function askingOtpResponse(HasOtpToken $authenticatable): JsonResponse
+    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
     {
-        $otp = $authenticatable->createOtp();
+        $otp = $authenticatable->createOtp($otp_channel);
 
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
