@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
+use App\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rule;
+use App\Actions\Pricing\PricingCalculator;
 
 class PricingController extends Controller
 {
@@ -37,11 +40,37 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
+    }
+
+
+    /**
+     *
+     * Get Pricing List
+     * Route Path       : {API_DOMAIN}/pricing/calculator
+     * Route Name       : api.pricing.calculator
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function calculate(Request $request): JsonResponse
+    {
+        $this->attributes = $request->validate([
+            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'height'    => ['required_with:width,length', 'numeric'],
+            'width'     => ['required_with:height,length', 'numeric'],
+            'length'    => ['required_with:width,height', 'numeric'],
+            'weight'    => ['required', 'numeric'],
+        ]);
+        return (new PricingCalculator($this->attributes))->calculate();
     }
 
     /**
