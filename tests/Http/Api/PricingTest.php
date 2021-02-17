@@ -7,11 +7,29 @@ use App\Http\Response;
 use App\Models\Service;
 use App\Models\Geo\SubDistrict;
 use App\Models\Customers\Customer;
+use App\Models\Price;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PricingTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * @var array
+     */
+    protected array $header;
+
+    function setUp(): void
+    {
+        parent::setUp();
+        // seed all
+        $this->seed();
+        $customer = Customer::find(1);
+        $access_token = $customer->createToken('test')->plainTextToken;
+        $this->header = [
+            'Authorization' => 'Bearer ' . $access_token,
+        ];
+    }
     /**
      * A basic feature test example.
      *
@@ -19,18 +37,11 @@ class PricingTest extends TestCase
      */
     public function test_get_price_list()
     {
-        // seed all
-        $this->seed();
 
-        $customer = Customer::find(1);
-        $access_token = $customer->createToken('test')->plainTextToken;
         $path_name = 'api.pricing';
-        $header = [
-            'Authorization' => 'Bearer '.$access_token,
-        ];
 
         // get all data
-        $response = $this->json('GET', route($path_name), [], $header);
+        $response = $this->json('GET', route($path_name), [], $this->header);
         $this->assertSuccessResponse($response);
 
 
@@ -39,7 +50,7 @@ class PricingTest extends TestCase
         $destination_id = SubDistrict::all()->random()->getKey();
         $response = $this->json('GET', route($path_name), [
             'destination_id' => $destination_id,
-        ], $header);
+        ], $this->header);
         $this->assertSuccessResponse($response);
 
         // get all data with origin filter
@@ -47,7 +58,7 @@ class PricingTest extends TestCase
         $origin_id = SubDistrict::all()->random()->getKey();
         $response = $this->json('GET', route($path_name), [
             'origin_id' => $origin_id,
-        ], $header);
+        ], $this->header);
         $this->assertSuccessResponse($response);
 
         // get all data with service filter
@@ -56,7 +67,7 @@ class PricingTest extends TestCase
         $service_code = 'tps';
         $response = $this->json('GET', route($path_name), [
             'service_code' => $service_code,
-        ], $header);
+        ], $this->header);
         $this->assertSuccessResponse($response);
 
 
@@ -65,7 +76,7 @@ class PricingTest extends TestCase
             'service_code' => $service_code,
             'origin_id' => $origin_id,
             'destination_id' => $destination_id,
-        ], $header);
+        ], $this->header);
         $this->assertSuccessResponse($response);
 
         // get all data with combine filter
@@ -74,7 +85,7 @@ class PricingTest extends TestCase
             'origin_id' => null,
             'destination_id' => null,
         ];
-        $response = $this->json('GET', route($path_name), $params_null, $header);
+        $response = $this->json('GET', route($path_name), $params_null, $this->header);
 
         // assert is invalid input
         $expected = new Response(Response::RC_INVALID_DATA);
@@ -84,5 +95,58 @@ class PricingTest extends TestCase
         foreach ($params_null as $key => $value) {
             $this->assertArrayHasKey($key, $errors);
         }
+    }
+
+    public function test_pricing_calculator()
+    {
+        $price = Price::all()->random();
+        // valid q string
+        $params = [
+            'origin_province_id' =>  $price->origin_province_id,
+            'origin_regency_id' =>  $price->origin_regency_id,
+            'destination_id' =>  $price->destination_id,
+            'height' =>  5,
+            'width' =>  5,
+            'length' =>  5,
+            'weight' =>  5,
+        ];
+
+        $path_name = 'api.pricing.calculator';
+        $response = $this->json('GET', route($path_name), $params);
+        $this->assertSuccessResponse($response);
+
+        // valid q string out of range
+        $params = [
+            'origin_province_id' =>  $price->origin_province_id,
+            'origin_regency_id' =>  $price->origin_regency_id,
+            'destination_id' =>  1,
+            'height' =>  5,
+            'width' =>  5,
+            'length' =>  5,
+            'weight' =>  5,
+        ];
+
+        $path_name = 'api.pricing.calculator';
+        $response = $this->json('GET', route($path_name), $params);
+        $this->assertResponseWithCode($response, Response::RC_OUT_OF_RANGE);
+
+        // missing data
+        $path_name = 'api.pricing.calculator';
+        $response = $this->json('GET', route($path_name), []);
+        $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
+
+        // invalid data
+        $params = [
+            'origin_province_id' =>  'a',
+            'origin_regency_id' =>  'a',
+            'destination_id' =>  'v',
+            'height' =>  'c',
+            'width' =>  'c',
+            'length' =>  'c',
+            'weight' =>  'c',
+        ];
+        $path_name = 'api.pricing.calculator';
+        $response = $this->json('GET', route($path_name), []);
+        $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
     }
 }
