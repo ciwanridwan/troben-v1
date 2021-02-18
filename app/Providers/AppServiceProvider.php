@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 });
 
-                if (! array_key_exists('laravelJs', $view->getData())) {
+                if (!array_key_exists('laravelJs', $view->getData())) {
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
                         'user' => auth()->user(),
@@ -68,6 +68,11 @@ class AppServiceProvider extends ServiceProvider
     {
         return collect($this->getRouteCollection())->filter(function ($route, $name) {
             if (Str::startsWith($name, 'auth')) {
+                return true;
+            }
+
+            // add verify for admin later
+            if (Str::startsWith($name, 'admin')) {
                 return true;
             }
 
