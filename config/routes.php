@@ -40,6 +40,7 @@ return [
     ],
     'admin' => [
         App\Http\Routes\Admin\HomeRoute::class,
+        App\Http\Routes\Admin\PaymentRoute::class,
         /** @inject admin **/
     ],
 ];
