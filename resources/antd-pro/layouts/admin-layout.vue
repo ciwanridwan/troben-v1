@@ -34,9 +34,12 @@
         :style="`min-height: ${minHeight}px;`"
       >
         <a-layout style="position: relative">
-          <div class="block">
-            <h3>{{ title }}</h3>
-          </div>
+          <a-row>
+            <a-col :md="12">
+              <h3>{{ title }}</h3>
+            </a-col>
+            <slot name="head-tools"></slot>
+          </a-row>
           <slot name="content"></slot>
         </a-layout>
       </a-layout-content>

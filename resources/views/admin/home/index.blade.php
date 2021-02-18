@@ -4,6 +4,10 @@
     Home
 @endsection
 
+@push('head-tools')
+    <a-col :md="12">ABC</a-col>
+@endpush
+
 @section('content')
-    Dashboard
+    <all-order></all-order>
 @endsection

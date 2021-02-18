@@ -11,6 +11,30 @@ const orders = {
       sender_address: "Jl. Ambarawa",
       order_by: "Walk In",
       created_at: "21 Januari 2021"
+    },
+    {
+      id: "1",
+      barcode: "ORD1234567",
+      receiver_name: "Aminah",
+      sender_address: "Jl. Ambarawa",
+      order_by: "Walk In",
+      created_at: "21 Januari 2021"
+    },
+    {
+      id: "1",
+      barcode: "ORD1234567",
+      receiver_name: "Aminah",
+      sender_address: "Jl. Ambarawa",
+      order_by: "Walk In",
+      created_at: "21 Januari 2021"
+    },
+    {
+      id: "1",
+      barcode: "ORD1234567",
+      receiver_name: "Aminah",
+      sender_address: "Jl. Ambarawa",
+      order_by: "aWalk In",
+      created_at: "21 Januari 2021"
     }
   ],
   first_page_url: "http://localhost:8000/api/orders?page=1",
