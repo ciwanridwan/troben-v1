@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Products;
 
-use App\Events\Products\NewProductCreated;
-use App\Models\Products\Product;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Products\Product;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Products\NewProductCreated;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewProduct
 {

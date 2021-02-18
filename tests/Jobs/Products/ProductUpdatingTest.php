@@ -2,16 +2,16 @@
 
 namespace Tests\Jobs\Products;
 
+use Tests\TestCase;
+use Illuminate\Support\Arr;
+use App\Models\Products\Product;
+use Illuminate\Support\Facades\Event;
 use App\Events\Products\ProductModified;
 use App\Jobs\Products\UpdateExistingProduct;
-use App\Models\Products\Product;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProductUpdatingTest extends TestCase
 {
@@ -78,7 +78,7 @@ class ProductUpdatingTest extends TestCase
         $subject = $this->getTestSubject();
         Event::fake();
 
-        $job = new UpdateExistingProduct($subject, Arr::only($this->updateData,['is_enabled']));
+        $job = new UpdateExistingProduct($subject, Arr::only($this->updateData, ['is_enabled']));
         $this->assertTrue($this->dispatch($job));
 
         $this->assertDatabaseHas('products', Arr::only($subject->toArray(), ['name']));

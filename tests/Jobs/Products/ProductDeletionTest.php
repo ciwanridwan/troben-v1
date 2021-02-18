@@ -2,15 +2,15 @@
 
 namespace Tests\Jobs\Products;
 
+use Tests\TestCase;
+use Illuminate\Support\Arr;
+use App\Models\Products\Product;
+use Illuminate\Support\Facades\Event;
 use App\Events\Products\ProductDeleted;
 use App\Jobs\Products\DeleteExistingProduct;
-use App\Models\Products\Product;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
 
 class ProductDeletionTest extends TestCase
 {

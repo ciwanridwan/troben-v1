@@ -2,14 +2,14 @@
 
 namespace App\Jobs\Products;
 
-use App\Events\Products\ProductModificationFailed;
-use App\Events\Products\ProductModified;
-use App\Models\Products\Product;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Products\Product;
 use Illuminate\Queue\SerializesModels;
+use App\Events\Products\ProductModified;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Products\ProductModificationFailed;
 
 class UpdateExistingProduct
 {
@@ -40,7 +40,7 @@ class UpdateExistingProduct
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled', "unique:products,name,$product->id,id", 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
-            'is_enabled' => ['filled']
+            'is_enabled' => ['filled'],
         ])->validate();
     }
 

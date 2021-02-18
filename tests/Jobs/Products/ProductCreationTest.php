@@ -2,16 +2,16 @@
 
 namespace Tests\Jobs\Products;
 
-use App\Events\Products\NewProductCreated;
-use App\Jobs\Products\CreateNewProduct;
-use App\Models\Products\Product;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use Illuminate\Support\Arr;
+use App\Models\Products\Product;
+use Illuminate\Support\Facades\Event;
+use App\Jobs\Products\CreateNewProduct;
+use App\Events\Products\NewProductCreated;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProductCreationTest extends TestCase
 {
