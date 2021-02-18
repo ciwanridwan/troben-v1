@@ -41,7 +41,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
-
     const TIER_1 = 10;
     const TIER_2 = 30;
     const TIER_3 = 50;

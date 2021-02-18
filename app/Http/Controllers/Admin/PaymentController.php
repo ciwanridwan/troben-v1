@@ -9,6 +9,6 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        return view('admin.home.index');
+        return view('admin.payment.index');
     }
 }

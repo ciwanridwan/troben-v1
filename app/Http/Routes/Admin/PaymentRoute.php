@@ -18,7 +18,6 @@ class PaymentRoute extends BaseRoute
      */
     protected $name = "admin.payment";
 
-
     /**
      * Register routes handled by this class.
      *
