@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Services;
+namespace Tests\Jobs\Services;
 
 use Tests\TestCase;
 use App\Models\Service;
@@ -32,7 +32,7 @@ class ServiceDeletionTest extends TestCase
 
     /**
      * Get Service Test Subject.
-     * 
+     *
      * @return \App\Models\Service|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object
      */
     public function getTestSubject()
