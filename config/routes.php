@@ -18,7 +18,7 @@ return [
             'prefix' => '',
         ],
         'admin' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth:sanctum'],
             'prefix' => 'admin',
         ],
     ],
