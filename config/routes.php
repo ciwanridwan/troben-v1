@@ -19,7 +19,7 @@ return [
         ],
 
         'admin' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth:sanctum'],
             'prefix' => 'admin',
         ],
     ],
@@ -40,6 +40,7 @@ return [
     ],
     'admin' => [
         App\Http\Routes\Admin\HomeRoute::class,
+        App\Http\Routes\Admin\PaymentRoute::class,
         /** @inject admin **/
     ],
 ];

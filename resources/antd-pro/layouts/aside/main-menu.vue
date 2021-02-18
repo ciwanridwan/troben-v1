@@ -1,5 +1,5 @@
 <script>
-import { main as navigation } from "../../navigation";
+import { main as navigation, getNavigation } from "../../navigation";
 
 export default {
   props: {
@@ -21,20 +21,8 @@ export default {
     activeKeys() {
       let opened = [];
       let route = this.getRoute();
-      _.forIn(this.navigation, function(value, key) {
-        if (value.route === route) {
-          opened.push(value.route);
-        }
 
-        if (_.isObject(value.children)) {
-          _.forIn(value.children, function(v, k) {
-            if (v.route === route) {
-              opened.push(value.route);
-              opened.push(v.route);
-            }
-          });
-        }
-      });
+      opened.push(this.getNavigation(route).route);
 
       return opened;
     }
@@ -48,7 +36,8 @@ export default {
       window.location.href = router
         ? "/" + router.uri
         : window.location.pathname;
-    }
+    },
+    getNavigation
   }
 };
 </script>
@@ -74,7 +63,7 @@ export default {
         </a-menu-item>
       </template>
       <template v-else>
-        <a-sub-menu :key="item.route">
+        <a-sub-menu :key="item.route" @titleClick="navigate(item.route)">
           <span slot="title">
             <a-icon :type="item.icon" />
             <span>{{ item.text }}</span>
