@@ -1,11 +1,11 @@
 const main = {
-  dashboard: {
-    icon: 'dashboard',
-    text: 'Dashboard',
-    route: 'app.dashboard',
+  home: {
+    icon: "home",
+    text: "Dashboard",
+    route: "admin.home",
     children: null,
-    shortKey: ['ctrl', 'alt', 'd'],
-  },
-}
+    shortKey: ["ctrl", "alt", "d"]
+  }
+};
 
-export default main
+export default main;

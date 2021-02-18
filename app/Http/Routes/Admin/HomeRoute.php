@@ -3,13 +3,13 @@
 namespace App\Http\Routes\Admin;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\HomeController;
 
-class DashboardRoute extends BaseRoute
+class HomeRoute extends BaseRoute
 {
-    protected $name = 'admin.dashboard';
+    protected $name = 'admin.home';
 
-    protected $prefix = 'dashboard';
+    protected $prefix = 'home';
 
     /**
      * Register routes handled by this class.
@@ -31,6 +31,6 @@ class DashboardRoute extends BaseRoute
      */
     public function controller()
     {
-        return DashboardController::class;
+        return HomeController::class;
     }
 }
