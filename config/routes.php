@@ -8,18 +8,17 @@
 
 return [
     'groups' => [
-        'web' => [
-            'middleware' => 'web',
-            'prefix' => '',
-        ],
         'api' => [
             'middleware' => 'api',
             'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
             'domain' => env('API_DOMAIN')
         ],
-
+        'web' => [
+            'middleware' => 'web',
+            'prefix' => '',
+        ],
         'admin' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth:sanctum'],
             'prefix' => 'admin',
         ],
     ],

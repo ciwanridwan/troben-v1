@@ -12,6 +12,12 @@ class QontakServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config' => $this->app->basePath('config'),
+            ], 'notification-channels-qontak');
+        }
+
         $this->app->when(BusinessChannel::class)
             ->needs(QontakClient::class)
             ->give(function () {
@@ -26,5 +32,9 @@ class QontakServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/qontak.php',
+            'qontak'
+        );
     }
 }

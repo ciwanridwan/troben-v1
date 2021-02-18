@@ -27,7 +27,7 @@ class PricingRoute extends BaseRoute
         ]);
         $this->router->get($this->prefix('calculator'), [
             'as' => $this->name('calculator'),
-            'uses' => $this->uses('calculate')
+            'uses' => $this->uses('calculate'),
         ])->withoutMiddleware('api');
     }
 
