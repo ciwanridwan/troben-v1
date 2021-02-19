@@ -7,6 +7,8 @@ use Laravel\Fortify\Fortify;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use App\Responses\Auth\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,8 @@ class FortifyServiceProvider extends ServiceProvider
     public function register()
     {
         Fortify::ignoreRoutes();
+
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
     }
 
     /**

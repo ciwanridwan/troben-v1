@@ -75,6 +75,10 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
+            if (auth()->user() instanceof User and Str::startsWith($name, 'admin')) {
+                return true;
+            }
+
             return false;
         });
     }

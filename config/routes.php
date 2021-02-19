@@ -39,6 +39,7 @@ return [
     ],
     'admin' => [
         App\Http\Routes\Admin\DashboardRoute::class,
+        App\Http\Routes\Admin\Customers\CustomerRoute::class,
         /** @inject admin **/
     ],
 ];
