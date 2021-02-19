@@ -76,6 +76,15 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     protected $verifiedColumn = 'phone_verified_at';
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash'
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array
@@ -83,6 +92,16 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     protected $casts = [
         'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'id',
+        'password'
     ];
 
     /**

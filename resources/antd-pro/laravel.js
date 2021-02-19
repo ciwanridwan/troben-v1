@@ -11,6 +11,18 @@ const laravel = {
         );
 
       return config;
+    },
+    trawlbensPagination() {
+      if (this.items) {
+        return {
+          showSizeChanger: true,
+          current: this.items.current_page,
+          pageSize: parseInt(this.items.per_page),
+          total: this.items.total
+        }
+      }
+
+      return null
     }
   },
   methods: {

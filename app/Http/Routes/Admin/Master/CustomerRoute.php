@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Routes\Api\WebAdminResource\Master;
+namespace App\Http\Routes\Admin\Master;
 
+use App\Http\Controllers\Admin\Master\CustomerController;
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Api\WebAdminResource\Master\CustomerController;
 
 class CustomerRoute extends BaseRoute
 {
-    protected $prefix = '/admin/master/customer';
-    protected $name = 'api.admin.master.customer';
+    protected $prefix = 'master/customer';
 
+    protected $name = 'admin.master.customer';
 
     /**
      * Register routes handled by this class.
@@ -24,11 +24,6 @@ class CustomerRoute extends BaseRoute
         ]);
     }
 
-    /**
-     * Controller used by this route.
-     *
-     * @return string
-     */
     public function controller()
     {
         return CustomerController::class;

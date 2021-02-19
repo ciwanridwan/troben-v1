@@ -2,11 +2,11 @@ const layout = {
   mode: 'side',
   is_mobile: false,
   width: 'fixed',                 // value: fixed, fluid
-  theme: 'dark',                  // value: dark, light
+  theme: 'light',                  // value: dark, light
   aside: {
     collapse: true,
     fixed: true,
-    theme: 'dark'               // value: dark, light
+    theme: 'light'               // value: dark, light
   },
   header: {
     fixed: true,

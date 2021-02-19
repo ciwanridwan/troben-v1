@@ -9,7 +9,7 @@
 return [
     'groups' => [
         'api' => [
-            'middleware' => 'api',
+            'middleware' => ['api', 'auth'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
             'domain' => env('API_DOMAIN')
         ],
@@ -18,7 +18,7 @@ return [
             'prefix' => '',
         ],
         'admin' => [
-            'middleware' => ['web', 'auth:sanctum'],
+            'middleware' => ['web', 'auth'],
             'prefix' => 'admin',
         ],
     ],
@@ -36,13 +36,12 @@ return [
         App\Http\Routes\Api\PricingRoute::class,
         App\Http\Routes\Api\ServiceRoute::class,
         App\Http\Routes\Api\ProductRoute::class,
-        App\Http\Routes\Api\WebAdminResource\Master\CustomerRoute::class,
         /** @inject api **/
     ],
     'admin' => [
         App\Http\Routes\Admin\HomeRoute::class,
         App\Http\Routes\Admin\PaymentRoute::class,
-        App\Http\Routes\Admin\MasterRoute::class,
+        \App\Http\Routes\Admin\Master\CustomerRoute::class
         /** @inject admin **/
     ],
 ];
