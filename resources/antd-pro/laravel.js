@@ -54,8 +54,9 @@ const laravel = {
     routeUri(name, replacer = {}, isPath = false) {
       let path = isPath
         ? name
-        : "/" +
-          (this.route(name) ? this.route(name).uri : window.location.pathname);
+        : this.route(name)
+        ? "/" + this.route(name).uri
+        : window.location.origin + window.location.pathname;
       return path.replace(/{([a-z0-9_]+)}/gi, (match, key) => replacer[key]);
     },
     copy(value, message = null) {

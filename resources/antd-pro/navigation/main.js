@@ -6,8 +6,27 @@ const main = {
     children: null,
     shortKey: ["ctrl", "alt", "d"]
   },
+  history: {
+    icon: "history",
+    text: "Riwayat",
+    route: "admin.history",
+    children: {
+      cancel: {
+        text: "Data Cancel Order",
+        route: "admin.history.cancel",
+        children: null
+      },
+      paid: {
+        text: "Data Lunas Customer",
+        route: "admin.history.paid",
+        children: null
+      }
+    },
+    shortKey: ["ctrl", "alt", "h"]
+  },
+
   payment: {
-    icon: "setting",
+    icon: "wallet",
     text: "Pembayaran",
     route: "admin.payment",
     children: {
@@ -36,6 +55,52 @@ const main = {
       }
     },
     shortKey: ["ctrl", "alt", "p"]
+  },
+  master: {
+    icon: "setting",
+    text: "Master",
+    route: "admin.master",
+    children: {
+      district: {
+        text: "Master Ongkir Kecamatan",
+        route: "admin.master.charge.district",
+        children: null
+      },
+      customer: {
+        text: "Master Customer",
+        route: "admin.master.customer",
+        children: null
+      },
+      partner: {
+        text: "Master Mitra",
+        route: "admin.master.partner",
+        children: {
+          all: {
+            text: "Master All Mitra",
+            route: "admin.master.partner",
+            children: null
+          },
+          employee: {
+            text: "Master Karyawan",
+            route: "admin.master.employee",
+            children: null
+          },
+          vehicle: {
+            text: "Master Kendaraan",
+            route: "admin.master.vehicle",
+            children: null
+          }
+        }
+      }
+    },
+    shortKey: ["ctrl", "alt", "m"]
+  },
+  message: {
+    icon: "mail",
+    text: "Pesan",
+    route: "admin.message",
+    children: null,
+    shortKey: ["ctrl", "alt", "c"]
   }
 };
 

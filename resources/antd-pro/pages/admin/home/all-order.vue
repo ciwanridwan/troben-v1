@@ -66,14 +66,6 @@ export default {
     };
   },
   created() {
-    this.$http
-      .get("geo")
-      .then(resp => {
-        console.log(resp);
-      })
-      .catch(e => {
-        console.log(e.response);
-      });
     // console.log(this.orders);
     // console.log(this.orders);
   }
