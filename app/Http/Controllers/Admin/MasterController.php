@@ -15,4 +15,9 @@ class MasterController extends Controller
     {
         return view('admin.master.charge.district.index');
     }
+
+    public function customer(Request $request)
+    {
+        return view('admin.master.customer.index');
+    }
 }

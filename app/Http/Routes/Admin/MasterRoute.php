@@ -29,9 +29,13 @@ class MasterRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index')
         ]);
-        $this->router->get($this->prefix('/ongkir/kecamatan'), [
+        $this->router->get($this->prefix('/ongkir-kecamatan'), [
             'as' => $this->name('charge.district'),
             'uses' => $this->uses('charge_district')
+        ]);
+        $this->router->get($this->prefix('/customer'), [
+            'as' => $this->name('customer'),
+            'uses' => $this->uses('customer')
         ]);
     }
 

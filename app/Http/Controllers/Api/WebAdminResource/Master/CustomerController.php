@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\Accounts;
+namespace App\Http\Controllers\Api\WebAdminResource\Master;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Account\CustomerResource;
+use App\Http\Resources\WebAdminResource\Master\CustomerResource;
 use App\Models\Customers\Customer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;

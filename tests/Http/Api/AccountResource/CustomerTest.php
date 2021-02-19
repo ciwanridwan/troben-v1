@@ -30,8 +30,9 @@ class CustomerTest extends TestCase
         $headers = [
             'Authorization' => 'Bearer ' . $token
         ];
+        $route_name = 'api.admin.master.customer';
 
-        $response = $this->json('GET', route('api.account.customer'), $params, $headers);
+        $response = $this->json('GET', route($route_name), $params, $headers);
         $this->assertResponseWithCode($response, Response::RC_SUCCESS);
 
         // test on invalid data
@@ -41,11 +42,11 @@ class CustomerTest extends TestCase
             'phone' => '',
             'q' => ''
         ];
-        $response = $this->json('GET', route('api.account.customer'), $params, $headers);
+        $response = $this->json('GET', route($route_name), $params, $headers);
         $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
 
         // test on missing data or get all data
-        $response = $this->json('GET', route('api.account.customer'), [], $headers);
+        $response = $this->json('GET', route($route_name), [], $headers);
         $this->assertResponseWithCode($response, Response::RC_SUCCESS);
     }
 }

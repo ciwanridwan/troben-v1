@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Routes\Api\Accounts;
+namespace App\Http\Routes\Api\WebAdminResource\Master;
 
-use App\Http\Controllers\Api\Accounts\CustomerController;
+use App\Http\Controllers\Api\WebAdminResource\Master\CustomerController;
 use Jalameta\Router\BaseRoute;
 
 class CustomerRoute extends BaseRoute
 {
-    protected $prefix = "/account/customer";
-    protected $name = "api.account.customer";
+    protected $prefix = "/admin/master/customer";
+    protected $name = "api.admin.master.customer";
 
 
     /**
