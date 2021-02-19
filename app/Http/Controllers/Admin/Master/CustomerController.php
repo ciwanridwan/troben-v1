@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\WebAdminResource\Master;
+namespace App\Http\Controllers\Admin\Master;
 
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
-use App\Http\Resources\WebAdminResource\Master\CustomerResource;
 
 class CustomerController extends Controller
 {
@@ -44,20 +43,24 @@ class CustomerController extends Controller
      *
      * @param Request $request
      *
-     * @return JsonResponse
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $this->attributes = $request->validate($this->rules);
+        if ($request->expectsJson()) {
+            $this->attributes = $request->validate($this->rules);
 
-        foreach (Arr::except($this->attributes, 'q') as $key => $value) {
-            $this->getByColumn($key);
-        }
-        if (Arr::has($this->attributes, 'q')) {
-            $this->getSearch($this->attributes['q']);
+            foreach (Arr::except($this->attributes, 'q') as $key => $value) {
+                $this->getByColumn($key);
+            }
+            if (Arr::has($this->attributes, 'q')) {
+                $this->getSearch($this->attributes['q']);
+            }
+
+            return $this->jsonSuccess($this->query->paginate($request->input('per_page', 15)));
         }
 
-        return $this->jsonSuccess(CustomerResource::collection($this->query->paginate(request('per_page', 15))));
+        return view('admin.master.customer.index');
     }
 
     public function getByColumn($column = ''): Builder
