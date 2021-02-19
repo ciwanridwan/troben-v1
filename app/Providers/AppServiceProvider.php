@@ -71,15 +71,11 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            // add verify for admin later
-            if (Str::startsWith($name, 'admin')) {
-                return true;
-            }
-
             if (auth()->user() instanceof User and Str::startsWith($name, 'api')) {
                 return true;
             }
 
+            // add verify for admin later
             if (auth()->user() instanceof User and Str::startsWith($name, 'admin')) {
                 return true;
             }
