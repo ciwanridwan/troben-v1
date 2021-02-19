@@ -11,7 +11,7 @@ Vue.use(Clipboard);
 
 // register proto object
 const defaultOptions = {
-  baseURL: window.location.origin + "/api/",
+  baseURL: window.location.origin,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json"
