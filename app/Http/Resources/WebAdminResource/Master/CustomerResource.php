@@ -21,8 +21,8 @@ class CustomerResource extends JsonResource
             'email' => $this->email,
             'orders' => [
                 'count' => $this->orders->count(),
-                'data' => OrderResource::collection($this->orders)
-            ]
+                'data' => OrderResource::collection($this->orders),
+            ],
         ];
     }
 }

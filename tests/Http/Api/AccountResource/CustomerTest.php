@@ -2,9 +2,9 @@
 
 namespace Tests\Http\Api\AccountResource;
 
-use App\Http\Response;
-use App\Models\User;
 use Tests\TestCase;
+use App\Models\User;
+use App\Http\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CustomerTest extends TestCase
@@ -23,12 +23,12 @@ class CustomerTest extends TestCase
             'name' => 'di',
             'email' => 'com',
             'phone' => '1',
-            'q' => 'com'
+            'q' => 'com',
         ];
         $admin = User::where('username', 'admin')->first();
         $token = $admin->createToken('TEST')->plainTextToken;
         $headers = [
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer '.$token,
         ];
         $route_name = 'api.admin.master.customer';
 
@@ -40,7 +40,7 @@ class CustomerTest extends TestCase
             'name' => '',
             'email' => '',
             'phone' => '',
-            'q' => ''
+            'q' => '',
         ];
         $response = $this->json('GET', route($route_name), $params, $headers);
         $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);

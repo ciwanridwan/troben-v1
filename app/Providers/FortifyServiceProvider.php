@@ -32,7 +32,7 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->singleton(LoginResponse::class, fn () => redirect()->intended(RouteServiceProvider::HOME));
 
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->email . $request->ip());
+            return Limit::perMinute(5)->by($request->email.$request->ip());
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

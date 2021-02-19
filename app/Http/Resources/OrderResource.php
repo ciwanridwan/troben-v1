@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\Account\CustomerResource;
-use App\Models\Customers\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
