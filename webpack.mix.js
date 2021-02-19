@@ -27,8 +27,8 @@ mix.webpackConfig({
           options: {
             lessOptions: {
               modifyVars: {
-                'primary-color': '#1DA57A',
-                'link-color': '#1DA57A',
+                'primary-color': '#E50013',
+                'link-color': '#E50013',
                 'border-radius-base': '2px',
               },
               javascriptEnabled: true,
@@ -40,7 +40,9 @@ mix.webpackConfig({
   },
 })
 
-mix.version()
+mix
+  .disableSuccessNotifications()
+  .version()
 
 if (mix.inProduction()) {
   mix.sourceMaps()
