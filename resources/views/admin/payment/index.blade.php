@@ -1,6 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-  Dashboard
+    Pembayaran
 @endsection
-
