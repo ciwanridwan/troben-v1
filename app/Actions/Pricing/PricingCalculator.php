@@ -41,9 +41,9 @@ class PricingCalculator
         $this->attributes = $inputs;
         $this->price = $this->getPrice($this->attributes['origin_province_id'], $this->attributes['origin_regency_id'], $this->attributes['destination_id']);
         if (Arr::has($this->attributes, ['height', 'length', 'width'])) {
-            $this->act_volume = $this->getVolume();
+            $this->act_volume = $this->getWeight($this->getVolume());
         }
-        $this->act_weight = $this->attributes['weight'];
+        $this->act_weight = $this->getWeight($this->attributes['weight']);
     }
 
     public function calculate(): JsonResponse
@@ -95,19 +95,6 @@ class PricingCalculator
 
     public function getTier(Price $price, float $weight = 0)
     {
-        // decimal tolerance .3
-        $tol = .3;
-        $whole = $weight;
-        $maj = (int) $whole; //get major
-        $min = $whole - $maj; //get after point
-
-        // check with tolerance
-        if ($min >= $tol) {
-            $min = 1;
-        }
-
-        $weight = $maj + $min;
-
         if ($weight <= Price::TIER_1) {
             return $price->tier_1;
         } elseif ($weight <= Price::TIER_2) {
@@ -123,6 +110,23 @@ class PricingCalculator
         } else {
             return $price->tier_7;
         }
+    }
+
+    public function getWeight(float $weight = 0)
+    {
+        // decimal tolerance .3
+        $tol = .3;
+        $whole = $weight;
+        $maj = (int) $whole; //get major
+        $min = $whole - $maj; //get after point
+
+        // check with tolerance
+        if ($min >= $tol) {
+            $min = 1;
+        }
+
+        $weight = $maj + $min;
+        return $weight;
     }
 
     public function getVolume($service = 'darat')
@@ -145,7 +149,7 @@ class PricingCalculator
         $volume /= $divider;
 
         // volume < 1?1:volume
-        $volume = $volume > 1 ?: 1;
+        $volume = $volume > 1 ? $volume : 1;
 
         return $volume;
     }
