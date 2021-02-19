@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
+use App\Responses\Auth\LoginResponse;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -18,6 +20,8 @@ class FortifyServiceProvider extends ServiceProvider
     public function register()
     {
         Fortify::ignoreRoutes();
+
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
     }
 
     /**
@@ -29,10 +33,8 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::loginView(fn () => view('antd::auth.login'));
 
-        $this->app->singleton(LoginResponse::class, fn () => redirect()->intended(RouteServiceProvider::HOME));
-
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->email . $request->ip());
+            return Limit::perMinute(5)->by($request->email.$request->ip());
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

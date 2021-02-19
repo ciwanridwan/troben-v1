@@ -1,0 +1,54 @@
+_id: req_3ee243e8681b40468f6c7285a7fce598
+type: Request
+parentId: fld_3600f0a50817481fbf034f567a8dc35a
+modified: 1613042169759
+created: 1613041914708
+url: "{{ _.base_url }}/service"
+name: Create Service
+description: |-
+  service parameter
+
+  parameter
+  --
+  - `code` => initial of service name
+  - `name` => service name
+  - `description` => describe about it
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: code
+      value: tst
+      description: ""
+      id: pair_e5199179ec5642b38cb9dde9e14cdd62
+    - name: name
+      value: test
+      description: ""
+      id: pair_f9fb573b51de43f5bf6a36cc46a43347
+    - name: description
+      value: test
+      description: ""
+      id: pair_37790cab1a0f49a1afe7d5bd8c7425bf
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_2cd40858402e4191b0cbaaa9374a2ebd
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_dfaeda1da2f8443c8fdedb8803b7fb68
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_70274903d8fc4ffaaa5b9b5506acded8
+authentication: {}
+metaSortKey: -1613020035133.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,0 +1,39 @@
+_id: req_b23a54c206b540779dd70547960faf9d
+type: Request
+parentId: fld_e25d5ee71505426f9268b98cda449dfa
+modified: 1613462696404
+created: 1613462471058
+url: "{{ _.base_url }}/order"
+name: Create Order
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: ""
+      value: ""
+      description: ""
+      id: pair_f2ac0ef334a14f4f91d172de20ac34cf
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_2c7ae334b0c64c108ed5ed9ab2362437
+authentication: {}
+metaSortKey: -1613462471058
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 });
 
-                if (!array_key_exists('laravelJs', $view->getData())) {
+                if (! array_key_exists('laravelJs', $view->getData())) {
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
                         'user' => auth()->user(),
@@ -71,12 +71,12 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            // add verify for admin later
-            if (Str::startsWith($name, 'admin')) {
+            if (auth()->user() instanceof User and Str::startsWith($name, 'api')) {
                 return true;
             }
 
-            if (auth()->user() instanceof User and Str::startsWith($name, 'api')) {
+            // add verify for admin later
+            if (auth()->user() instanceof User and Str::startsWith($name, 'admin')) {
                 return true;
             }
 

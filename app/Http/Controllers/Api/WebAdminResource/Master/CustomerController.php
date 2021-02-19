@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Api\WebAdminResource\Master;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\WebAdminResource\Master\CustomerResource;
-use App\Models\Customers\Customer;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Models\Customers\Customer;
+use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
+use App\Http\Resources\WebAdminResource\Master\CustomerResource;
 
 class CustomerController extends Controller
 {
-
     /**
      * @var array
      */
@@ -25,13 +24,13 @@ class CustomerController extends Controller
 
     protected array $rules;
 
-    function __construct()
+    public function __construct()
     {
         $this->rules = [
             'name' => ['filled'],
             'email' => ['filled'],
             'phone' => ['filled'],
-            'q' => ['filled']
+            'q' => ['filled'],
         ];
         $this->baseBuilder();
     }
@@ -49,7 +48,6 @@ class CustomerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-
         $this->attributes = $request->validate($this->rules);
 
         foreach (Arr::except($this->attributes, 'q') as $key => $value) {
@@ -64,7 +62,8 @@ class CustomerController extends Controller
 
     public function getByColumn($column = ''): Builder
     {
-        $this->query = $this->query->where($column, 'LIKE', "%" . $this->attributes[$column] . "%");
+        $this->query = $this->query->where($column, 'LIKE', '%'.$this->attributes[$column].'%');
+
         return $this->query;
     }
 
@@ -74,10 +73,10 @@ class CustomerController extends Controller
 
         // first
         $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', "%" . $q . "%");
+        $this->query = $this->query->where($key_first, 'LIKE', '%'.$q.'%');
 
         foreach (Arr::except($columns, $key_first) as $key => $value) {
-            $this->query = $this->query->orWhere($key, 'LIKE', "%" . $q . "%");
+            $this->query = $this->query->orWhere($key, 'LIKE', '%'.$q.'%');
         }
 
         return $this->query;

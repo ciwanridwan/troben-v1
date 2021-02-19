@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
             PriceTableSimpleSeeder::class,
+            ProductsTableSeeder::class,
         ]);
     }
 }

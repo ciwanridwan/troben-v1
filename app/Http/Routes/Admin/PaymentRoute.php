@@ -2,21 +2,20 @@
 
 namespace App\Http\Routes\Admin;
 
-use App\Http\Controllers\Admin\PaymentController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\PaymentController;
 
 class PaymentRoute extends BaseRoute
 {
+    /**
+     * @var string
+     */
+    protected $prefix = '/payment';
 
     /**
      * @var string
      */
-    protected $prefix = "/payment";
-
-    /**
-     * @var string
-     */
-    protected $name = "admin.payment";
+    protected $name = 'admin.payment';
 
     /**
      * Register routes handled by this class.
@@ -27,7 +26,7 @@ class PaymentRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

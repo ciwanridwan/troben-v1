@@ -2,13 +2,13 @@
 
 namespace App\Http\Routes\Api\WebAdminResource\Master;
 
-use App\Http\Controllers\Api\WebAdminResource\Master\CustomerController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\WebAdminResource\Master\CustomerController;
 
 class CustomerRoute extends BaseRoute
 {
-    protected $prefix = "/admin/master/customer";
-    protected $name = "api.admin.master.customer";
+    protected $prefix = '/admin/master/customer';
+    protected $name = 'api.admin.master.customer';
 
 
     /**
@@ -20,7 +20,7 @@ class CustomerRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\Customers;
 
+use App\Models\Orders\Order;
 use App\Contracts\HasOtpToken;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
@@ -11,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use App\Auditor\Contracts\AuditableContract;
-use App\Models\Orders\Order;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -106,7 +106,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     }
 
     /**
-     * Get all of the orders for the Customer
+     * Get all of the orders for the Customer.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
