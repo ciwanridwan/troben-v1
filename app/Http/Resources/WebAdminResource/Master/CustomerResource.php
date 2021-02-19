@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\WebAdminResource\Master;
 
+use App\Http\Resources\Account\CustomerResource as AccountCustomerResource;
 use App\Http\Resources\OrderResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,14 +16,11 @@ class CustomerResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'phone' => $this->phone,
-            'name' => $this->name,
-            'email' => $this->email,
-            'orders' => [
-                'count' => $this->orders->count(),
-                'data' => OrderResource::collection($this->orders)
-            ]
+        $data = AccountCustomerResource::make($this->resource)->toArray($request);
+        $data['orders'] = [
+            'count' => $this->orders()->paid()->count(),
+            'total_payment' => $this->orders()->paid()->sum('total_payment')
         ];
+        return $data;
     }
 }

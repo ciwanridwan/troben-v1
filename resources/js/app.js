@@ -10,7 +10,14 @@ Vue.use(require("vue-shortkey"), { prevent: ["input", "textarea"] });
 Vue.use(Clipboard);
 
 // register proto object
-Vue.prototype.$http = window.axios.create();
+const defaultOptions = {
+  baseURL: window.location.origin + "/api/",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json"
+  }
+};
+Vue.prototype.$http = window.axios.create(defaultOptions);
 Vue.prototype.$laravel = window.Laravel;
 Vue.prototype.$qs = qs;
 

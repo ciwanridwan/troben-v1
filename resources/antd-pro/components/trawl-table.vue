@@ -1,22 +1,17 @@
 <template>
-  <a-table :rowKey="rowKey" :columns="columns" :data-source="dataSource">
-  </a-table>
+  <a-table {...tableProps}> </a-table>
 </template>
 
 <script>
+import { Table } from "ant-design-vue";
+
 export default {
   props: {
-    rowKey: {
-      type: String,
-      default: ""
-    },
-    columns: {
-      type: Array,
-      default: []
-    },
-    dataSource: {
-      type: Array,
-      default: []
+    ...Table.props
+  },
+  computed: {
+    tableProps() {
+      return this.$props;
     }
   }
 };
