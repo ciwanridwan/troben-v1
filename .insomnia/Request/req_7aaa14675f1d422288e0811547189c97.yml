@@ -1,0 +1,30 @@
+_id: req_7aaa14675f1d422288e0811547189c97
+type: Request
+parentId: fld_3600f0a50817481fbf034f567a8dc35a
+modified: 1613041502744
+created: 1613040526952
+url: "{{ _.base_url }}/service/tps"
+name: Get Service by Code
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_2cd40858402e4191b0cbaaa9374a2ebd
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_dfaeda1da2f8443c8fdedb8803b7fb68
+authentication: {}
+metaSortKey: -1613026702643
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
