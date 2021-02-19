@@ -29,7 +29,7 @@ class DefaultRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->bind('attachment_uuid', fn($id) => Attachment::query()->findOrFail($id));
+        $this->router->bind('attachment_uuid', fn ($id) => Attachment::query()->findOrFail($id));
 
         $this->router->get($this->prefix(), [
             'as' => $this->name,

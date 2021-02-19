@@ -24,16 +24,16 @@ class CreateNewProduct
     public Product $product;
 
     /**
+     * @var ?UploadedFile
+     */
+    public ?UploadedFile $file;
+
+    /**
      * Filtered attributes.
      *
      * @var array
      */
     protected array $attributes;
-
-    /**
-     * @var ?UploadedFile
-     */
-    public ?UploadedFile $file;
 
     /**
      * CreateNewProduct constructor.
@@ -63,7 +63,7 @@ class CreateNewProduct
     {
         if (! is_null($this->file)) {
             $attachment = $this->create($this->file, [
-                'title' => 'Logo ' . $this->attributes['name']
+                'title' => 'Logo '.$this->attributes['name'],
             ]);
 
             $this->attributes['logo'] = $attachment->getAttribute('uri');

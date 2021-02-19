@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Jobs\Products\CreateNewProduct;
+use Illuminate\Http\Request;
 use App\Models\Products\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
-use Illuminate\Http\Request;
+use App\Jobs\Products\CreateNewProduct;
 
 class ProductController extends Controller
 {
@@ -33,5 +33,4 @@ class ProductController extends Controller
 
         // do when success
     }
-
 }
