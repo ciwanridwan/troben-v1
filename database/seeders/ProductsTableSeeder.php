@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Products\Product;
 use Illuminate\Database\Seeder;
+use App\Models\Products\Product;
 
 class ProductsTableSeeder extends Seeder
 {
