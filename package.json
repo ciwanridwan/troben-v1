@@ -27,5 +27,9 @@
         "vue-loader": "^15.9.6",
         "vue-shortkey": "^3.1.7",
         "vue-template-compiler": "^2.6.12"
+    },
+    "dependencies": {
+        "node-sass": "^5.0.0",
+        "sass-loader": "^11.0.1"
     }
 }
