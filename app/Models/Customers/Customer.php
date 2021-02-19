@@ -81,7 +81,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      * @var array
      */
     protected $appends = [
-        'hash'
+        'hash',
     ];
 
     /**
@@ -101,7 +101,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      */
     protected $hidden = [
         'id',
-        'password'
+        'password',
     ];
 
     /**
