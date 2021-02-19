@@ -27,5 +27,5 @@ return [
     |
     */
 
-    'model' => \Jalameta\Attachments\Entities\Attachment::class,
+    'model' => \App\Models\Attachment::class,
 ];
