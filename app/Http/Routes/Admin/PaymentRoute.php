@@ -1,25 +1,21 @@
 <?php
 
-namespace App\Http\Routes\Admin\Customers;
+namespace App\Http\Routes\Admin;
 
-use App\Http\Controllers\Admin\Customers\CustomerController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\PaymentController;
 
-class CustomerRoute extends BaseRoute
+class PaymentRoute extends BaseRoute
 {
     /**
-     * Define route name
-     *
      * @var string
      */
-    protected $name = 'admin.customer';
+    protected $prefix = '/payment';
 
     /**
-     * Define route prefix
-     *
      * @var string
      */
-    protected $prefix = 'customer';
+    protected $name = 'admin.payment';
 
     /**
      * Register routes handled by this class.
@@ -30,17 +26,17 @@ class CustomerRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 
     /**
-     * Define used controller
+     * Controller used by this route.
      *
      * @return string
      */
     public function controller()
     {
-        return CustomerController::class;
+        return PaymentController::class;
     }
 }

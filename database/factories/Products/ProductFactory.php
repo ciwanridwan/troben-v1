@@ -23,6 +23,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->name,
+            'logo' => null,
             'description' => $this->faker->text(),
             'is_enabled' => $this->faker->boolean(),
         ];

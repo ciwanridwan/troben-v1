@@ -2,6 +2,7 @@
 
 namespace App\Models\Customers;
 
+use App\Models\Orders\Order;
 use App\Contracts\HasOtpToken;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
@@ -102,5 +103,15 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function addresses(): HasMany
     {
         return $this->hasMany(Address::class, 'customer_id', 'id');
+    }
+
+    /**
+     * Get all of the orders for the Customer.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'customer_id', 'id');
     }
 }

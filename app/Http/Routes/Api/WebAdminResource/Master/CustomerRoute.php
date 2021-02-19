@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Routes\Admin;
+namespace App\Http\Routes\Api\WebAdminResource\Master;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Api\WebAdminResource\Master\CustomerController;
 
-class DashboardRoute extends BaseRoute
+class CustomerRoute extends BaseRoute
 {
-    protected $name = 'admin.dashboard';
+    protected $prefix = '/admin/master/customer';
+    protected $name = 'api.admin.master.customer';
 
-    protected $prefix = 'dashboard';
 
     /**
      * Register routes handled by this class.
@@ -31,6 +31,6 @@ class DashboardRoute extends BaseRoute
      */
     public function controller()
     {
-        return DashboardController::class;
+        return CustomerController::class;
     }
 }
