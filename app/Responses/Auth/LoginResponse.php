@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Responses\Auth;
-
 
 class LoginResponse extends \Laravel\Fortify\Http\Responses\LoginResponse
 {
@@ -10,7 +8,7 @@ class LoginResponse extends \Laravel\Fortify\Http\Responses\LoginResponse
     {
         if ($request->wantsJson()) {
             return response()->json([
-                'redirect' => url(config('fortify.home'))
+                'redirect' => url(config('fortify.home')),
             ]);
         }
 

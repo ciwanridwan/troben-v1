@@ -4,11 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
+use App\Responses\Auth\LoginResponse;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
-use App\Responses\Auth\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
