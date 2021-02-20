@@ -6,7 +6,7 @@
     @change="handleTableChanged"
     :loading="loading"
   >
-    <span slot="number" slot-scope="record">1</span>
+    <span slot="number" slot-scope="number">{{ number }}</span>
     <span slot="name" slot-scope="name">{{ name }}</span>
     <span slot="phone" slot-scope="record">{{ record.phone }}</span>
     <span slot="email" slot-scope="record">{{ record.email }}</span>
@@ -34,6 +34,7 @@ export default {
     this.getItems();
   },
   data: () => ({
+    recordNumber: 0,
     items: {},
     filter: {
       q: null,
@@ -54,6 +55,10 @@ export default {
     },
     onSuccessResponse(response) {
       this.items = response;
+      let numbering = this.items.from;
+      this.items.data.forEach((o, k) => {
+        o.number = numbering++;
+      });
     },
     onErrorResponse(error) {
       this.$notification.error({

@@ -1,7 +1,8 @@
 export default [
   {
     title: "No",
-    key: "id",
+    key: "number",
+    dataIndex: "number",
     scopedSlots: { customRender: "number" }
   },
   {
@@ -23,11 +24,13 @@ export default [
   {
     title: "Jumlah Order",
     key: "order.count",
+    align: "center",
     scopedSlots: { customRender: "count" }
   },
   {
     title: "Invoice",
     key: "order.total_payment",
+    align: "center",
     scopedSlots: { customRender: "payment" }
   },
   {
