@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
+use App\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Account\CustomerResource;
-use App\Http\Resources\Admin\MasterCustomerResource;
-use App\Http\Response;
-use App\Jobs\Customers\DeleteExistingCustomer;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Facades\DB;
+use App\Jobs\Customers\DeleteExistingCustomer;
+use App\Http\Resources\Admin\MasterCustomerResource;
 
 class CustomerController extends Controller
 {
@@ -69,6 +68,7 @@ class CustomerController extends Controller
             if (Arr::has($this->attributes, 'q')) {
                 $this->getSearch($this->attributes['q']);
             }
+
             return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
         }
 
@@ -91,6 +91,7 @@ class CustomerController extends Controller
         $customer = (new Customer)->byHashOrFail($request->hash);
         $job = new DeleteExistingCustomer($customer);
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->customer))->json();
     }
 
@@ -102,8 +103,9 @@ class CustomerController extends Controller
             },
             'orders as orderTotalPayment' => function ($query) {
                 $query->select(DB::raw('SUM(total_payment)'));
-            }
+            },
         ]);
+
         return $this->query;
     }
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Admin;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MasterCustomerResource extends JsonResource
@@ -21,6 +20,7 @@ class MasterCustomerResource extends JsonResource
             'payment' => $data['orderTotalPayment'],
         ];
         unset($data['orderCount'], $data['orderTotalPayment']);
+
         return $data;
     }
 }

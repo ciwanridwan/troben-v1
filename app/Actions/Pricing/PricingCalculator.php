@@ -126,6 +126,7 @@ class PricingCalculator
         }
 
         $weight = $maj + $min;
+
         return $weight;
     }
 
