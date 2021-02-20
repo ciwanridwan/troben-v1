@@ -1,11 +1,11 @@
 _id: env_308da0400dbf446bad244fa9177371a4
 type: Environment
 parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
-modified: 1612385977463
+modified: 1613755258362
 created: 1612370393603
 name: Staging
 data:
-  base_url: https://api.staging.trawlbens.co.id
+  base_url: https://api.staging.trawlbens.co.id/
   credentials:
     customer:
       phone: "+625555555555"
