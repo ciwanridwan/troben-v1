@@ -18,9 +18,9 @@ class MasterCustomerResource extends JsonResource
         $data = $this->resource->toArray();
         $data['order'] = [
             'count' => $data['orderCount'],
-            'payment' => $this->orders()->paid()->sum('total_payment'),
+            'payment' => $data['orderTotalPayment'],
         ];
-        unset($data['orderCount']);
+        unset($data['orderCount'], $data['orderTotalPayment']);
         return $data;
     }
 }

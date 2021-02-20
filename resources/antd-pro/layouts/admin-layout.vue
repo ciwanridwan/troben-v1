@@ -34,12 +34,6 @@
         :style="`min-height: ${minHeight}px;`"
       >
         <a-layout style="position: relative">
-          <a-row>
-            <a-col :md="12">
-              <h3>{{ title }}</h3>
-            </a-col>
-            <slot name="head-tools"></slot>
-          </a-row>
           <slot name="content"></slot>
         </a-layout>
       </a-layout-content>
@@ -52,7 +46,6 @@
 </template>
 
 <script>
-import getNavigation from "../navigation/navigation";
 export default {
   props: {
     sidebar: {
@@ -61,9 +54,6 @@ export default {
     }
   },
   computed: {
-    title() {
-      return this.getNavigation(this.getRoute()).text;
-    },
     fixedHeader() {
       return this.config.layout.header.fixed;
     },
@@ -105,8 +95,7 @@ export default {
   methods: {
     toggleCollapse() {
       this.config.layout.toggleCollapse();
-    },
-    getNavigation
+    }
   }
 };
 </script>

@@ -9,6 +9,7 @@ use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\MasterCustomerResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -90,8 +91,13 @@ class CustomerController extends Controller
 
     public function baseBuilder(): Builder
     {
-        return $this->query = Customer::query()->withCount(['orders as orderCount' => function ($query) {
-            $query->paid();
-        }]);
+        return $this->query = Customer::query()->withCount([
+            'orders as orderCount' => function ($query) {
+                $query->paid();
+            },
+            'orders as orderTotalPayment' => function ($query) {
+                $query->select(DB::raw('SUM(total_payment)'));
+            }
+        ]);
     }
 }

@@ -1,33 +1,54 @@
 <template>
-  <a-table
-    :columns="customerColumns"
-    :data-source="items.data"
-    :pagination="trawlbensPagination"
-    @change="handleTableChanged"
-    :loading="loading"
-  >
-    <span slot="number" slot-scope="number">{{ number }}</span>
-    <span slot="name" slot-scope="name">{{ name }}</span>
-    <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-    <span slot="email" slot-scope="record">{{ record.email }}</span>
-    <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-    <span slot="payment" slot-scope="record">{{ record.order.payment }}</span>
-    <span slot="action" slot-scope="record">
-      <a-space>
-        <delete-button></delete-button>
-      </a-space>
-    </span>
-  </a-table>
+  <div>
+    <content-layout title="Data Customer">
+      <template slot="head-tools">
+        <a-row type="flex" justify="end">
+          <a-col>
+            <a-input-search
+              v-model="filter.q"
+              @search="getItems"
+            ></a-input-search>
+          </a-col>
+        </a-row>
+      </template>
+      <template slot="content">
+        <!-- table -->
+        <a-table
+          :columns="customerColumns"
+          :data-source="items.data"
+          :pagination="trawlbensPagination"
+          @change="handleTableChanged"
+          :loading="loading"
+        >
+          <span slot="number" slot-scope="number">{{ number }}</span>
+          <span slot="name" slot-scope="name">{{ name }}</span>
+          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
+          <span slot="email" slot-scope="record">{{ record.email }}</span>
+          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
+          <span slot="payment" slot-scope="record">{{
+            record.order.payment
+          }}</span>
+          <span slot="action" slot-scope="record">
+            <a-space>
+              <delete-button></delete-button>
+            </a-space>
+          </span>
+        </a-table>
+      </template>
+    </content-layout>
+  </div>
 </template>
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
 import customerColumns from "../../../../config/table/customer";
+import ContentLayout from "../../../../layouts/content-layout.vue";
 
 export default {
   name: "customer-list",
   components: {
-    DeleteButton
+    DeleteButton,
+    ContentLayout
   },
   created() {
     this.items = this.getDefaultPagination();
@@ -55,7 +76,6 @@ export default {
     },
     onSuccessResponse(response) {
       this.items = response;
-      console.log(this.items);
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
