@@ -43,6 +43,9 @@ class Order extends Model
     const STATUS_DOOR = 'door';
     const STATUS_TRANSIT = 'transit';
 
+    const PAYMENT_PAID = 'paid';
+    const PAYMENT_UNPAID = 'unpaid';
+
     const STATUS = [
         self::STATUS_DOOR,
         self::STATUS_TRANSIT,
@@ -128,5 +131,10 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'order_id', 'id');
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('payment_status', self::PAYMENT_PAID);
     }
 }

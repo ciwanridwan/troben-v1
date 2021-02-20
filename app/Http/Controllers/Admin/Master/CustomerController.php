@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Customers\DeleteExistingCustomer;
+use App\Http\Resources\Admin\MasterCustomerResource;
 
 class CustomerController extends Controller
 {
+    use HasResource, DispatchesJobs;
     /**
      * @var array
      */
@@ -21,6 +28,9 @@ class CustomerController extends Controller
      */
     protected Builder $query;
 
+    /**
+     * @var array
+     */
     protected array $rules;
 
     public function __construct()
@@ -50,6 +60,8 @@ class CustomerController extends Controller
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
+            $this->withSumAndCount();
+
             foreach (Arr::except($this->attributes, 'q') as $key => $value) {
                 $this->getByColumn($key);
             }
@@ -57,30 +69,42 @@ class CustomerController extends Controller
                 $this->getSearch($this->attributes['q']);
             }
 
-            return $this->jsonSuccess($this->query->paginate($request->input('per_page', 15)));
+            return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
         }
 
         return view('admin.master.customer.index');
     }
 
-    public function getByColumn($column = ''): Builder
+    /**
+     *
+     *  Delete Customer
+     * Route Path       : admin/master/customer
+     * Route Name       : admin.master.customer
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
     {
-        $this->query = $this->query->where($column, 'LIKE', '%'.$this->attributes[$column].'%');
+        $customer = (new Customer)->byHashOrFail($request->hash);
+        $job = new DeleteExistingCustomer($customer);
+        $this->dispatch($job);
 
-        return $this->query;
+        return (new Response(Response::RC_SUCCESS, $job->customer))->json();
     }
 
-    public function getSearch($q = '')
+    public function withSumAndCount(): Builder
     {
-        $columns = Arr::except($this->rules, 'q');
-
-        // first
-        $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', '%'.$q.'%');
-
-        foreach (Arr::except($columns, $key_first) as $key => $value) {
-            $this->query = $this->query->orWhere($key, 'LIKE', '%'.$q.'%');
-        }
+        $this->query = $this->query->withCount([
+            'orders as orderCount' => function ($query) {
+                $query->paid();
+            },
+            'orders as orderTotalPayment' => function ($query) {
+                $query->select(DB::raw('SUM(total_payment)'));
+            },
+        ]);
 
         return $this->query;
     }

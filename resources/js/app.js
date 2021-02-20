@@ -10,6 +10,7 @@ Vue.use(require("vue-shortkey"), { prevent: ["input", "textarea"] });
 Vue.use(Clipboard);
 
 // register proto object
+
 Vue.prototype.$http = window.axios.create();
 Vue.prototype.$laravel = window.Laravel;
 Vue.prototype.$qs = qs;

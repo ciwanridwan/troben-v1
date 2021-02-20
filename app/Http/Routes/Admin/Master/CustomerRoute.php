@@ -22,6 +22,11 @@ class CustomerRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->delete($this->prefix('{hash}'), [
+            'as' => $this->name('delete'),
+            'uses' => $this->uses('destroy'),
+        ]);
     }
 
     public function controller()

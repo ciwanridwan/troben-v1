@@ -2,28 +2,26 @@
   <a-layout-content>
     <a-row type="flex" :gutter="20">
       <a-col :span="18" class="order-table">
-        <trawl-table :dataSource="orders.data" :columns="columns"></trawl-table>
+        <a-table :dataSource="orders.data" :columns="columns"></a-table>
       </a-col>
       <a-col :span="6" class="order-notification">
-        <trawl-card class="order-notification-title">
+        <a-card class="order-notification-title">
           <slot name="title">
             <h3>Notifikasi</h3>
           </slot>
-        </trawl-card>
-        <trawl-card
+        </a-card>
+        <a-card
           class="order-notification-item"
           v-for="index in 10"
           :key="index"
         >
           test
-        </trawl-card>
+        </a-card>
       </a-col>
     </a-row>
   </a-layout-content>
 </template>
 <script>
-import TrawlCard from "../../../components/trawl-card.vue";
-import TrawlTable from "../../../components/trawl-table.vue";
 import { orders } from "../../../mock";
 
 const columns = [
@@ -55,10 +53,6 @@ const columns = [
 ];
 
 export default {
-  components: {
-    TrawlTable,
-    TrawlCard
-  },
   data: () => {
     return {
       orders,
