@@ -10,18 +10,19 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
-     * @param Arrayable $resource
+     * @param JsonResource $resource
      * @param \Illuminate\Http\Request|null $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function jsonSuccess(Arrayable $resource, ?Request $request = null): JsonResponse
+    public function jsonSuccess(JsonResource $resource, ?Request $request = null): JsonResponse
     {
         return (new Response(Response::RC_SUCCESS, $resource))->json($request);
     }

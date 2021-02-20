@@ -1,5 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-    <customer-list></customer-list>
+    <master-customer></master-customer>
 @endsection
