@@ -10,10 +10,10 @@
     <span slot="name" slot-scope="name">{{ name }}</span>
     <span slot="phone" slot-scope="record">{{ record.phone }}</span>
     <span slot="email" slot-scope="record">{{ record.email }}</span>
+    <span slot="count" slot-scope="record">{{ record.order.count }}</span>
+    <span slot="payment" slot-scope="record">{{ record.order.payment }}</span>
     <span slot="action" slot-scope="record">
       <a-space>
-        <detail-button></detail-button>
-        <edit-button></edit-button>
         <delete-button></delete-button>
       </a-space>
     </span>
@@ -22,16 +22,12 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
-import DetailButton from "../../../../components/button/detail-button.vue";
-import EditButton from "../../../../components/button/edit-button.vue";
 import customerColumns from "../../../../config/table/customer";
 
 export default {
   name: "customer-list",
   components: {
-    DetailButton,
-    DeleteButton,
-    EditButton
+    DeleteButton
   },
   created() {
     this.items = this.getDefaultPagination();

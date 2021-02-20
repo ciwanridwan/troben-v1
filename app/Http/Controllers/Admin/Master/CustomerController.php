@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\MasterCustomerResource;
 use Illuminate\Database\Eloquent\Builder;
 
 class CustomerController extends Controller
@@ -56,8 +57,7 @@ class CustomerController extends Controller
             if (Arr::has($this->attributes, 'q')) {
                 $this->getSearch($this->attributes['q']);
             }
-
-            return $this->jsonSuccess($this->query->paginate($request->input('per_page', 15)));
+            return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
         }
 
         return view('admin.master.customer.index');
@@ -65,7 +65,7 @@ class CustomerController extends Controller
 
     public function getByColumn($column = ''): Builder
     {
-        $this->query = $this->query->where($column, 'LIKE', '%'.$this->attributes[$column].'%');
+        $this->query = $this->query->where($column, 'LIKE', '%' . $this->attributes[$column] . '%');
 
         return $this->query;
     }
@@ -76,10 +76,10 @@ class CustomerController extends Controller
 
         // first
         $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', '%'.$q.'%');
+        $this->query = $this->query->where($key_first, 'LIKE', '%' . $q . '%');
 
         foreach (Arr::except($columns, $key_first) as $key => $value) {
-            $this->query = $this->query->orWhere($key, 'LIKE', '%'.$q.'%');
+            $this->query = $this->query->orWhere($key, 'LIKE', '%' . $q . '%');
         }
 
         return $this->query;
