@@ -22,6 +22,9 @@ class CustomerController extends Controller
      */
     protected Builder $query;
 
+    /**
+     * @var array
+     */
     protected array $rules;
 
     public function __construct()
@@ -87,6 +90,8 @@ class CustomerController extends Controller
 
     public function baseBuilder(): Builder
     {
-        return $this->query = Customer::query();
+        return $this->query = Customer::query()->withCount(['orders as orderCount' => function ($query) {
+            $query->paid();
+        }]);
     }
 }

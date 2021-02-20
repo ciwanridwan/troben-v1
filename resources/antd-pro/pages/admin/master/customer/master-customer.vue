@@ -55,6 +55,7 @@ export default {
     },
     onSuccessResponse(response) {
       this.items = response;
+      console.log(this.items);
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
