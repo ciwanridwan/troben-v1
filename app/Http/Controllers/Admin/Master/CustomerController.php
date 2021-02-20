@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Account\CustomerResource;
 use App\Http\Resources\Admin\MasterCustomerResource;
+use App\Http\Response;
+use App\Jobs\Customers\DeleteExistingCustomer;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
+    use HasResource, DispatchesJobs;
     /**
      * @var array
      */
@@ -55,6 +61,8 @@ class CustomerController extends Controller
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
+            $this->withSumAndCount();
+
             foreach (Arr::except($this->attributes, 'q') as $key => $value) {
                 $this->getByColumn($key);
             }
@@ -67,31 +75,28 @@ class CustomerController extends Controller
         return view('admin.master.customer.index');
     }
 
-    public function getByColumn($column = ''): Builder
+    /**
+     *
+     *  Delete Customer
+     * Route Path       : admin/master/customer
+     * Route Name       : admin.master.customer
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
     {
-        $this->query = $this->query->where($column, 'LIKE', '%' . $this->attributes[$column] . '%');
-
-        return $this->query;
+        $customer = (new Customer)->byHashOrFail($request->hash);
+        $job = new DeleteExistingCustomer($customer);
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->customer))->json();
     }
 
-    public function getSearch($q = '')
+    public function withSumAndCount(): Builder
     {
-        $columns = Arr::except($this->rules, 'q');
-
-        // first
-        $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', '%' . $q . '%');
-
-        foreach (Arr::except($columns, $key_first) as $key => $value) {
-            $this->query = $this->query->orWhere($key, 'LIKE', '%' . $q . '%');
-        }
-
-        return $this->query;
-    }
-
-    public function baseBuilder(): Builder
-    {
-        return $this->query = Customer::query()->withCount([
+        $this->query = $this->query->withCount([
             'orders as orderCount' => function ($query) {
                 $query->paid();
             },
@@ -99,5 +104,11 @@ class CustomerController extends Controller
                 $query->select(DB::raw('SUM(total_payment)'));
             }
         ]);
+        return $this->query;
+    }
+
+    public function baseBuilder(): Builder
+    {
+        return $this->query = Customer::query();
     }
 }
