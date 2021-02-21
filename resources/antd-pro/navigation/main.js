@@ -69,11 +69,13 @@ const main = {
       customer: {
         text: "Master Customer",
         route: "admin.master.customer",
-        children: null
+        children: null,
+        title: "Data Customer"
       },
       partner: {
         text: "Master Mitra",
         route: "admin.master.partner",
+        title: "All Mitra",
         children: {
           all: {
             text: "Master All Mitra",

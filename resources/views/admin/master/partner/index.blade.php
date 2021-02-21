@@ -1,5 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-    <partner-list></partner-list>
+    <master-partner></master-partner>
 @endsection

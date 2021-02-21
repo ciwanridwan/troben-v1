@@ -1,8 +1,11 @@
 <template>
   <div>
-    <content-layout title="Data Customer" :pagination="trawlbensPagination">
+    <content-layout :pagination="trawlbensPagination">
       <template slot="head-tools">
         <a-row type="flex" justify="end">
+          <a-col>
+            <a-button>Tambah Mitra</a-button>
+          </a-col>
           <a-col>
             <a-input-search
               v-model="filter.q"
@@ -14,7 +17,7 @@
       <template slot="content">
         <!-- table -->
         <a-table
-          :columns="customerColumns"
+          :columns="partnerColumns"
           :data-source="items.data"
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
@@ -41,7 +44,7 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
-import customerColumns from "../../../../config/table/customer";
+import partnerColumns from "../../../../config/table/partner";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 
 export default {
@@ -63,7 +66,7 @@ export default {
       per_page: 15
     },
     loading: false,
-    customerColumns
+    partnerColumns
   }),
   methods: {
     deleteItem(record) {

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Customers\DeleteExistingCustomer;
 use App\Http\Resources\Admin\MasterCustomerResource;
+use Illuminate\Database\Eloquent\Model;
 
 class CustomerController extends Controller
 {
@@ -27,6 +28,11 @@ class CustomerController extends Controller
      * @var Builder
      */
     protected Builder $query;
+
+    /**
+     * @var string
+     */
+    protected string $model = Customer::class;
 
     /**
      * @var array
@@ -107,10 +113,5 @@ class CustomerController extends Controller
         ]);
 
         return $this->query;
-    }
-
-    public function baseBuilder(): Builder
-    {
-        return $this->query = Customer::query();
     }
 }

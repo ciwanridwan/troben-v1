@@ -17,6 +17,9 @@
     <a-layout-sider v-if="sider && siderPosition == 'right'">
       <slot name="sider"></slot>
     </a-layout-sider>
+    <a-layout-footer>
+      <a-pagination></a-pagination>
+    </a-layout-footer>
   </a-layout>
 </template>
 <script>
@@ -32,11 +35,16 @@ export default {
     siderPosition: {
       type: String,
       default: "left"
+    },
+    pagination: {
+      type: Object,
+      default: () => {}
     }
   },
   computed: {
     defaultTitle() {
-      return this.getNavigation(this.getRoute()).text;
+      let route = this.getNavigation(this.getRoute());
+      return route.title ? route.title : route.text;
     }
   },
   methods: {
