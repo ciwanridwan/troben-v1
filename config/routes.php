@@ -41,7 +41,8 @@ return [
     'admin' => [
         App\Http\Routes\Admin\HomeRoute::class,
         App\Http\Routes\Admin\PaymentRoute::class,
-        \App\Http\Routes\Admin\Master\CustomerRoute::class
+        App\Http\Routes\Admin\Master\CustomerRoute::class,
+        App\Http\Routes\Admin\Master\PartnerRoute::class,
         /** @inject admin **/
     ],
 ];
