@@ -47,7 +47,7 @@ class CustomerController extends Controller
             'phone' => ['filled'],
             'q' => ['filled'],
         ];
-        $this->baseBuilder();
+        $this->baseBuilder(Customer::query());
     }
 
     /**
@@ -111,7 +111,6 @@ class CustomerController extends Controller
                 $query->select(DB::raw('SUM(total_payment)'));
             },
         ]);
-
         return $this->query;
     }
 }

@@ -24,12 +24,14 @@
           :loading="loading"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
-          <span slot="name" slot-scope="name">{{ name }}</span>
-          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-          <span slot="email" slot-scope="record">{{ record.email }}</span>
-          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-          <span slot="payment" slot-scope="record">{{
-            record.order.payment
+          <span slot="type" slot-scope="type">{{ type }}</span>
+          <span slot="code" slot-scope="record">{{ record.code }}</span>
+          <span slot="name" slot-scope="record">{{ record.name }}</span>
+          <span slot="contact_phone" slot-scope="record">{{
+            record.contact_phone
+          }}</span>
+          <span slot="contact_email" slot-scope="record">{{
+            record.contact_email
           }}</span>
           <span slot="action" slot-scope="record">
             <a-space>
@@ -109,5 +111,3 @@ export default {
   }
 };
 </script>
-
-<style scoped></style>

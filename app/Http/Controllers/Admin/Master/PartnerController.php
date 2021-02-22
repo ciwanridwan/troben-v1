@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin\Master;
 
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
+use App\Jobs\Partners\DeleteExistingPartner;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -44,7 +47,7 @@ class PartnerController extends Controller
             'type'          => ['filled'],
             'q'             => ['filled'],
         ];
-        $this->baseBuilder();
+        $this->baseBuilder(Partner::query());
     }
 
     /**
@@ -69,9 +72,28 @@ class PartnerController extends Controller
                 $this->getSearch($this->attributes['q']);
             }
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate($request->input('per_page', 15))));
+            return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
         }
 
         return view('admin.master.partner.index');
+    }
+
+    /**
+     *
+     * Delete Partner.
+     * Route Path       : admin/master/partner
+     * Route Name       : admin.master.partner
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        $partner = (new Partner())->byHashOrFail($request->hash);
+        $job = new DeleteExistingPartner($partner);
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->partner))->json();
     }
 }
