@@ -2,13 +2,28 @@
 
 namespace App\Concerns\Controllers;
 
-use App\Http\Response;
-use GuzzleHttp\Psr7\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
 trait HasResource
 {
+    /**
+     * Filtered attributes.
+     * @var array
+     */
+    protected array $attributes;
+
+    /**
+     * Partner base query builder.
+     * @var Builder
+     */
+    protected Builder $query;
+
+    /**
+     * Request rule definitions.
+     * @var array
+     */
+    protected array $rules;
 
     public function getByColumn($column = ''): Builder
     {
@@ -30,5 +45,10 @@ trait HasResource
         }
 
         return $this->query;
+    }
+
+    public function baseBuilder(Builder $query): Builder
+    {
+        return $this->query = $query;
     }
 }

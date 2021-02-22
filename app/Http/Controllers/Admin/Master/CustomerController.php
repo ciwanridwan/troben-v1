@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Account\CustomerResource;
 use App\Http\Resources\Admin\MasterCustomerResource;
 use App\Http\Response;
 use App\Jobs\Customers\DeleteExistingCustomer;
@@ -19,20 +18,6 @@ use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     use HasResource, DispatchesJobs;
-    /**
-     * @var array
-     */
-    protected array $attributes;
-
-    /**
-     * @var Builder
-     */
-    protected Builder $query;
-
-    /**
-     * @var array
-     */
-    protected array $rules;
 
     public function __construct()
     {
@@ -42,7 +27,7 @@ class CustomerController extends Controller
             'phone' => ['filled'],
             'q' => ['filled'],
         ];
-        $this->baseBuilder();
+        $this->baseBuilder(Customer::query());
     }
 
     /**
@@ -105,10 +90,5 @@ class CustomerController extends Controller
             }
         ]);
         return $this->query;
-    }
-
-    public function baseBuilder(): Builder
-    {
-        return $this->query = Customer::query();
     }
 }

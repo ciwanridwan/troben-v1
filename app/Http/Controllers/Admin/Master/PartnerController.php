@@ -2,31 +2,19 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Http\Response;
+use App\Jobs\Partners\DeleteExistingPartner;
 use App\Models\Partners\Partner;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class PartnerController extends Controller
 {
-    /**
-     * Filtered attributes.
-     * @var array
-     */
-    protected array $attributes;
-
-    /**
-     * Partner base query builder.
-     * @var Builder
-     */
-    protected Builder $query;
-
-    /**
-     * Request rule definitions.
-     * @var array
-     */
-    protected array $rules;
+    use HasResource;
 
     public function __construct() {
         $this->rules = [
@@ -37,7 +25,7 @@ class PartnerController extends Controller
             'type'          => ['filled'],
             'q'             => ['filled'],
         ];
-        $this->baseBuilder();
+        $this->baseBuilder(Partner::query());
     }
 
     /**
@@ -62,36 +50,28 @@ class PartnerController extends Controller
                 $this->getSearch($this->attributes['q']);
             }
 
-            return $this->jsonSuccess($this->query->paginate($request->input('per_page', 15)));
+            return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
         }
 
         return view('admin.master.partner.index');
     }
 
-    public function getByColumn($column = ''): Builder
+    /**
+     *
+     * Delete Partner.
+     * Route Path       : admin/master/partner
+     * Route Name       : admin.master.partner
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
     {
-        $this->query = $this->query->where($column, 'LIKE', '%'.$this->attributes[$column].'%');
-
-        return $this->query;
-    }
-
-    public function getSearch($q = '')
-    {
-        $columns = Arr::except($this->rules, ['q','owner']);
-
-        // first
-        $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', '%'.$q.'%');
-
-        foreach (Arr::except($columns, $key_first) as $key => $value) {
-            $this->query = $this->query->orWhere($key, 'LIKE', '%'.$q.'%');
-        }
-
-        return $this->query;
-    }
-
-    public function baseBuilder()
-    {
-        return $this->query = Partner::query();
+        $partner = (new Partner())->byHashOrFail($request->hash);
+        $job = new DeleteExistingPartner($partner);
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->partner))->json();
     }
 }
