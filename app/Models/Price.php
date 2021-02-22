@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Models\AttributeColumns;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
@@ -41,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
+    use AttributeColumns;
     const TIER_1 = 10;
     const TIER_2 = 30;
     const TIER_3 = 50;

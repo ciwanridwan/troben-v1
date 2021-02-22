@@ -63,7 +63,7 @@ const main = {
     children: {
       district: {
         text: "Master Ongkir Kecamatan",
-        route: "admin.master.charge.district",
+        route: "admin.master.pricing.district",
         children: null
       },
       customer: {
