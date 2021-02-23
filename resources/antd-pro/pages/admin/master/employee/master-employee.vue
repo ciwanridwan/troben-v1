@@ -1,0 +1,106 @@
+<template>
+  <div>
+    <content-layout title="Data Customer" :pagination="trawlbensPagination">
+      <template slot="head-tools">
+        <a-row type="flex" justify="end">
+          <a-col>
+            <a-input-search
+              v-model="filter.q"
+              @search="getItems"
+            ></a-input-search>
+          </a-col>
+        </a-row>
+      </template>
+      <template slot="content">
+        <!-- table -->
+        <a-table
+          :columns="employeeColumns"
+          :data-source="items.data"
+          :pagination="trawlbensPagination"
+          @change="handleTableChanged"
+          :loading="loading"
+        >
+          <span slot="partner_type">{{ partner_type }}</span>
+          <span slot="partner_code">{{ partner_code }}</span>
+          <span slot="name">{{ name }}</span>
+          <span slot="phone_email">{{ phone_email }}</span>
+          <span slot="role">{{ role }}</span>
+          <span slot="action" slot-scope="record">
+            <a-space>
+              <delete-button @click="deleteItem(record)"></delete-button>
+            </a-space>
+          </span>
+        </a-table>
+      </template>
+    </content-layout>
+  </div>
+</template>
+
+<script>
+import DeleteButton from "../../../../components/button/delete-button.vue";
+import employeeColumns from "../../../../config/table/employee";
+import ContentLayout from "../../../../layouts/content-layout.vue";
+
+export default {
+  components: {
+    DeleteButton,
+    ContentLayout
+  },
+  created() {
+    this.items = this.getDefaultPagination();
+    this.getItems();
+  },
+  data: () => ({
+    recordNumber: 0,
+    items: {},
+    filter: {
+      q: null,
+      page: 1,
+      per_page: 15
+    },
+    loading: false,
+    employeeColumns
+  }),
+  methods: {
+    deleteItem(record) {
+      this.loading = true;
+      let uri = this.routeUri(this.getRoute());
+      let { hash } = record;
+      uri = uri + "/" + hash;
+      this.$http
+        .delete(uri)
+        .then(this.getItems())
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getItems() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(this.getRoute()), { params: this.filter })
+        .then(res => this.onSuccessResponse(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    onSuccessResponse(response) {
+      this.items = response;
+      let numbering = this.items.from;
+      this.items.data.forEach((o, k) => {
+        o.number = numbering++;
+      });
+    },
+    onErrorResponse(error) {
+      this.$notification.error({
+        message: error.response.data.message
+      });
+    },
+    handleTableChanged(pagination) {
+      this.filter.page = pagination.current;
+      this.filter.per_page = pagination.pageSize;
+
+      this.getItems();
+    }
+  }
+};
+</script>
+
+<style scoped></style>

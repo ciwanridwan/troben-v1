@@ -2,9 +2,10 @@
 
 namespace App\Models\Partners\Pivot;
 
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class UserablePivot extends Pivot
+class UserablePivot extends MorphPivot
 {
     /**
      * The table associated with the model.

@@ -45,6 +45,7 @@ return [
         App\Http\Routes\Admin\Master\CustomerRoute::class,
         App\Http\Routes\Admin\Master\PartnerRoute::class,
         App\Http\Routes\Admin\Master\PricingRoute::class,
+        App\Http\Routes\Admin\Master\EmployeeRoute::class,
         /** @inject admin **/
     ],
 ];
