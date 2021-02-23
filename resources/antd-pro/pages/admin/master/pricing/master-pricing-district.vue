@@ -4,7 +4,7 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
           <a-col>
-            <a-button>Tambah Data Ongkir</a-button>
+            <pricing-form></pricing-form>
           </a-col>
           <a-col>
             <input-file></input-file>
@@ -70,12 +70,14 @@ import DeleteButton from "../../../../components/button/delete-button.vue";
 import pricingColumns from "../../../../config/table/pricing";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import InputFile from "./input-file";
+import PricingForm from "./pricing-form.vue";
 
 export default {
   components: {
     DeleteButton,
     ContentLayout,
-    InputFile
+    InputFile,
+    PricingForm
   },
   InputFilereated() {
     this.items = this.getDefaultPagination();
@@ -133,6 +135,9 @@ export default {
     popupModal() {
       this.uploadModal = !this.uploadModal;
     }
+  },
+  created() {
+    this.getItems();
   }
 };
 </script>
