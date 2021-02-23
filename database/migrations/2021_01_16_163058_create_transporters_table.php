@@ -19,6 +19,7 @@ class CreateTransportersTable extends Migration
             $table->string('name');
             $table->string('registration_number'); // STNK, Plat Nomor
             $table->string('type'); // BIKE, CAR, PICKUP, BOX, TRUCK
+            $table->timestamp('is_verified')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
