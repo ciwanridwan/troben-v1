@@ -7,7 +7,7 @@
             <a-button>Tambah Data Ongkir</a-button>
           </a-col>
           <a-col>
-            <a-button>Upload File</a-button>
+            <input-file></input-file>
           </a-col>
           <a-col>
             <a-input-search
@@ -28,20 +28,31 @@
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
           <span slot="from_to" slot-scope="record">
-            <span v-if="record.origin_district">{{
-              record.origin_district.name
-            }}</span>
-            <span v-if="record.origin_regency">{{
-              record.origin_regency.name
-            }}</span>
-            <span v-if="record.origin_province">{{
-              record.origin_province.name
-            }}</span>
-            -
-            <span v-if="record.destination">{{ record.destination.name }}</span>
-            <span v-if="record.destination.zip_code"
-              >, {{ record.destination.zip_code }}</span
-            >
+            <a-row type="flex" align="middle" id="pricing-timeline">
+              <a-col>
+                <a-timeline>
+                  <a-timeline-item color="green">
+                    <span v-if="record.origin_district">{{
+                      record.origin_district.name
+                    }}</span>
+                    <span v-if="record.origin_regency">{{
+                      record.origin_regency.name
+                    }}</span>
+                    <span v-if="record.origin_province">{{
+                      record.origin_province.name
+                    }}</span>
+                  </a-timeline-item>
+                  <a-timeline-item color="green">
+                    <span v-if="record.destination">{{
+                      record.destination.name
+                    }}</span>
+                    <span v-if="record.destination.zip_code"
+                      >, {{ record.destination.zip_code }}</span
+                    >
+                  </a-timeline-item>
+                </a-timeline>
+              </a-col>
+            </a-row>
           </span>
           <span slot="action" slot-scope="record">
             <a-space>
@@ -58,14 +69,15 @@
 import DeleteButton from "../../../../components/button/delete-button.vue";
 import pricingColumns from "../../../../config/table/pricing";
 import ContentLayout from "../../../../layouts/content-layout.vue";
+import InputFile from "./input-file";
 
 export default {
-  name: "customer-list",
   components: {
     DeleteButton,
-    ContentLayout
+    ContentLayout,
+    InputFile
   },
-  created() {
+  InputFilereated() {
     this.items = this.getDefaultPagination();
     this.getItems();
   },
@@ -117,6 +129,9 @@ export default {
       this.filter.per_page = pagination.pageSize;
 
       this.getItems();
+    },
+    popupModal() {
+      this.uploadModal = !this.uploadModal;
     }
   }
 };
