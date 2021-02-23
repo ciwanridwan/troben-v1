@@ -72,7 +72,7 @@ class Transporter extends Model
     ];
 
     /**
-     * Get partner types.
+     * Get transporter types.
      *
      * @return string[]
      */
@@ -92,6 +92,49 @@ class Transporter extends Model
             self::TYPE_TRONTON,
             self::TYPE_WINGBOX,
             self::TYPE_VAN,
+        ];
+    }
+
+    /**
+     * Get detail for transporter types.
+     *
+     * @return array
+     */
+    public static function getDetailAvailableTypes()
+    {
+        return [
+            [
+                'name' => self::TYPE_BIKE,
+                'lenght' => 40,
+                'width' => 35,
+                'height' => 55,
+                'weight' => 40,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_MPV,
+                'lenght' => 175,
+                'width' => 100,
+                'height' => 85,
+                'weight' => 300,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_PICKUP,
+                'lenght' => 210,
+                'width' => 150,
+                'height' => 120,
+                'weight' => 700,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_PICKUP_BOX,
+                'lenght' => 200,
+                'width' => 130,
+                'height' => 120,
+                'weight' => 1000,
+                'path_icons' => '',
+            ],
         ];
     }
 
