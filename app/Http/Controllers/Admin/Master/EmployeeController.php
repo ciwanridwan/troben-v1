@@ -16,6 +16,9 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Employees\DeleteExistingEmployee;
 use App\Http\Resources\Admin\MasterEmployeeResource;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -51,6 +54,7 @@ class EmployeeController extends Controller
             'q' => ['filled'],
         ];
         $this->baseBuilder();
+        $this->query = $this->query->with('users');
     }
 
     /**
@@ -108,11 +112,21 @@ class EmployeeController extends Controller
 
     public function resourceHandle(Request $request)
     {
-        $res =  EmployeeResource::collection($this->query->get())->toArray($request);
-        $data = [];
-        foreach ($res as $key => $value) {
-            dd($value);
+        $users_partner = $this->query->get()->map(function ($item) {
+            foreach ($item->users as $user) {
+                $user->partner_type = $item->type;
+                $user->partner_code = $item->code;
+            }
+            return $item;
+        })->pluck('users');
+
+        $employee = new Collection();
+        foreach ($users_partner as $item) {
+            $employee = $employee->merge($item);
         }
-        return $res;
+        dd((new User()->newCollection()));
+
+
+        return EmployeeResource::collection($employee);
     }
 }
