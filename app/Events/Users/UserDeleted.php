@@ -19,7 +19,7 @@ class UserDeleted
     public User $user;
 
     /**
-     * Event User Modification Failed.
+     * Event delete User.
      *
      * @param User $user
      */
