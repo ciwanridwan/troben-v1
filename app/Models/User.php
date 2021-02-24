@@ -8,6 +8,7 @@ use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -28,7 +29,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements HasOtpToken
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp;
+    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +42,7 @@ class User extends Authenticatable implements HasOtpToken
         'email',
         'password',
         'phone',
+        'remember_token'
     ];
 
     /**

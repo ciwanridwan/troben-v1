@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
 use App\Models\Partners\Transporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,7 +28,7 @@ class TransporterController extends Controller
      *
      * @return JsonResponse
      */
-    public function list(Request $request)
+    public function list(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(),[
             'details' => ['nullable','boolean'],

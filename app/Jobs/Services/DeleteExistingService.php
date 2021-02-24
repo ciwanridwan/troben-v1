@@ -15,14 +15,14 @@ class DeleteExistingService
 
     /**
      * Service instance.
-     * 
+     *
      * @var \App\Models\Service
      */
     public Service $service;
 
     /**
      * Soft delete flag.
-     * 
+     *
      * @var bool
      */
     public bool $softDelete;
@@ -30,11 +30,10 @@ class DeleteExistingService
     /**
      * DeleteExistingService constructor.
      *
-     * @return void
-     */
-    /**
      * @param \App\Models\Service $service
      * @param bool $force
+     *
+     * @return void
      */
     public function __construct(Service $service, $force = false)
     {

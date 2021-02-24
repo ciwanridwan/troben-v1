@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Customers\DeleteExistingCustomer;
 use App\Http\Resources\Admin\MasterCustomerResource;
-use Illuminate\Database\Eloquent\Model;
 
 class CustomerController extends Controller
 {
