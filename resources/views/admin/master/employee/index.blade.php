@@ -1,5 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-    Master Charge District
+    <master-employee></master-employee>
 @endsection

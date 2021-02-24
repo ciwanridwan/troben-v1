@@ -6,17 +6,20 @@ use App\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Models\Customers\Customer;
+use App\Models\Employees\Employee;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
+use App\Http\Resources\Admin\Master\EmployeeResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\Customers\DeleteExistingCustomer;
-use App\Http\Resources\Admin\MasterCustomerResource;
+use App\Jobs\Employees\DeleteExistingEmployee;
+use App\Http\Resources\Admin\MasterEmployeeResource;
+use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class CustomerController extends Controller
+class EmployeeController extends Controller
 {
     use HasResource, DispatchesJobs;
     /**
@@ -32,7 +35,7 @@ class CustomerController extends Controller
     /**
      * @var string
      */
-    protected string $model = Customer::class;
+    protected string $model = Partner::class;
 
     /**
      * @var array
@@ -47,14 +50,14 @@ class CustomerController extends Controller
             'phone' => ['filled'],
             'q' => ['filled'],
         ];
-        $this->baseBuilder(Customer::query());
+        $this->baseBuilder();
     }
 
     /**
      *
-     * Get All Customer Account
-     * Route Path       : {API_DOMAIN}/account/customer
-     * Route Name       : api.account.customer
+     * Get All Employee Account
+     * Route Path       : {API_DOMAIN}/account/Employee
+     * Route Name       : api.account.Employee
      * Route Method     : GET.
      *
      * @param Request $request
@@ -63,10 +66,9 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
+        $this->resourceHandle($request);
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
-
-            $this->withSumAndCount();
 
             foreach (Arr::except($this->attributes, 'q') as $key => $value) {
                 $this->getByColumn($key);
@@ -75,17 +77,20 @@ class CustomerController extends Controller
                 $this->getSearch($this->attributes['q']);
             }
 
-            return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
+
+
+
+            return $this->jsonSuccess(EmployeeResource::collection($this->query->paginate(request('per_page', 15))));
         }
 
-        return view('admin.master.customer.index');
+        return view('admin.master.employee.index');
     }
 
     /**
      *
-     *  Delete Customer
-     * Route Path       : admin/master/customer
-     * Route Name       : admin.master.customer
+     *  Delete Employee
+     * Route Path       : admin/master/Employee
+     * Route Name       : admin.master.Employee
      * Route Method     : DELETE.
      *
      * @param Request $request
@@ -94,23 +99,20 @@ class CustomerController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $customer = (new Customer)->byHashOrFail($request->hash);
-        $job = new DeleteExistingCustomer($customer);
+        $Employee = (new Employee)->byHashOrFail($request->hash);
+        $job = new DeleteExistingEmployee($Employee);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS, $job->customer))->json();
+        return (new Response(Response::RC_SUCCESS, $job->Employee))->json();
     }
 
-    public function withSumAndCount(): Builder
+    public function resourceHandle(Request $request)
     {
-        $this->query = $this->query->withCount([
-            'orders as orderCount' => function ($query) {
-                $query->paid();
-            },
-            'orders as orderTotalPayment' => function ($query) {
-                $query->select(DB::raw('SUM(total_payment)'));
-            },
-        ]);
-        return $this->query;
+        $res =  EmployeeResource::collection($this->query->get())->toArray($request);
+        $data = [];
+        foreach ($res as $key => $value) {
+            dd($value);
+        }
+        return $res;
     }
 }

@@ -1,8 +1,14 @@
 <template>
   <div>
-    <content-layout title="Data Customer" :pagination="trawlbensPagination">
+    <content-layout :pagination="trawlbensPagination">
       <template slot="head-tools">
-        <a-row type="flex" justify="end">
+        <a-row type="flex" justify="end" :gutter="10">
+          <a-col>
+            <pricing-form></pricing-form>
+          </a-col>
+          <a-col>
+            <input-file></input-file>
+          </a-col>
           <a-col>
             <a-input-search
               v-model="filter.q"
@@ -14,20 +20,40 @@
       <template slot="content">
         <!-- table -->
         <a-table
-          :columns="customerColumns"
+          :columns="pricingColumns"
           :data-source="items.data"
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
-          <span slot="name" slot-scope="name">{{ name }}</span>
-          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-          <span slot="email" slot-scope="record">{{ record.email }}</span>
-          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-          <span slot="payment" slot-scope="record">{{
-            record.order.payment
-          }}</span>
+          <span slot="from_to" slot-scope="record">
+            <a-row type="flex" align="middle" id="pricing-timeline">
+              <a-col>
+                <a-timeline>
+                  <a-timeline-item color="green">
+                    <span v-if="record.origin_district">{{
+                      record.origin_district.name
+                    }}</span>
+                    <span v-if="record.origin_regency">{{
+                      record.origin_regency.name
+                    }}</span>
+                    <span v-if="record.origin_province">{{
+                      record.origin_province.name
+                    }}</span>
+                  </a-timeline-item>
+                  <a-timeline-item color="green">
+                    <span v-if="record.destination">{{
+                      record.destination.name
+                    }}</span>
+                    <span v-if="record.destination.zip_code"
+                      >, {{ record.destination.zip_code }}</span
+                    >
+                  </a-timeline-item>
+                </a-timeline>
+              </a-col>
+            </a-row>
+          </span>
           <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteItem(record)"></delete-button>
@@ -41,16 +67,19 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
-import customerColumns from "../../../../config/table/customer";
+import pricingColumns from "../../../../config/table/pricing";
 import ContentLayout from "../../../../layouts/content-layout.vue";
+import InputFile from "./input-file";
+import PricingForm from "./pricing-form.vue";
 
 export default {
-  name: "customer-list",
   components: {
     DeleteButton,
-    ContentLayout
+    ContentLayout,
+    InputFile,
+    PricingForm
   },
-  created() {
+  InputFilereated() {
     this.items = this.getDefaultPagination();
     this.getItems();
   },
@@ -63,7 +92,7 @@ export default {
       per_page: 15
     },
     loading: false,
-    customerColumns
+    pricingColumns
   }),
   methods: {
     deleteItem(record) {
@@ -102,9 +131,13 @@ export default {
       this.filter.per_page = pagination.pageSize;
 
       this.getItems();
+    },
+    popupModal() {
+      this.uploadModal = !this.uploadModal;
     }
+  },
+  created() {
+    this.getItems();
   }
 };
 </script>
-
-<style scoped></style>

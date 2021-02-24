@@ -14,20 +14,17 @@
       <template slot="content">
         <!-- table -->
         <a-table
-          :columns="customerColumns"
+          :columns="employeeColumns"
           :data-source="items.data"
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
         >
-          <span slot="number" slot-scope="number">{{ number }}</span>
-          <span slot="name" slot-scope="name">{{ name }}</span>
-          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-          <span slot="email" slot-scope="record">{{ record.email }}</span>
-          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-          <span slot="payment" slot-scope="record">{{
-            record.order.payment
-          }}</span>
+          <span slot="partner_type">{{ partner_type }}</span>
+          <span slot="partner_code">{{ partner_code }}</span>
+          <span slot="name">{{ name }}</span>
+          <span slot="phone_email">{{ phone_email }}</span>
+          <span slot="role">{{ role }}</span>
           <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteItem(record)"></delete-button>
@@ -41,11 +38,10 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
-import customerColumns from "../../../../config/table/customer";
+import employeeColumns from "../../../../config/table/employee";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 
 export default {
-  name: "customer-list",
   components: {
     DeleteButton,
     ContentLayout
@@ -63,7 +59,7 @@ export default {
       per_page: 15
     },
     loading: false,
-    customerColumns
+    employeeColumns
   }),
   methods: {
     deleteItem(record) {
