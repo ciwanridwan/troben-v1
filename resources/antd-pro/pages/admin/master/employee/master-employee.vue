@@ -84,27 +84,6 @@ export default {
         }
       });
     },
-    deleteItem(record) {
-      this.loading = true;
-      let uri = this.routeUri(this.getRoute());
-      let { hash } = record;
-      uri = uri + "/" + hash;
-      this.$http
-        .delete(uri)
-        .then(() => {
-          this.getItems();
-        })
-        .catch(err => this.onErrorResponse(err))
-        .finally(() => (this.loading = false));
-    },
-    getItems() {
-      this.loading = true;
-      this.$http
-        .get(this.routeUri(this.getRoute()), { params: this.filter })
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(err => this.onErrorResponse(err))
-        .finally(() => (this.loading = false));
-    },
     onSuccessResponse(response) {
       this.items = response;
       this.roles = this.items.data_extra.roles;

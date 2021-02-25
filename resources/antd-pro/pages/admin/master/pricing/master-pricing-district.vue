@@ -56,7 +56,7 @@
           </span>
           <span slot="action" slot-scope="record">
             <a-space>
-              <delete-button @click="deleteItem(record)"></delete-button>
+              <delete-button @click="deleteConfirm(record)"></delete-button>
             </a-space>
           </span>
         </a-table>
@@ -95,24 +95,20 @@ export default {
     pricingColumns
   }),
   methods: {
-    deleteItem(record) {
-      this.loading = true;
-      let uri = this.routeUri(this.getRoute());
-      let { hash } = record;
-      uri = uri + "/" + hash;
-      this.$http
-        .delete(uri)
-        .then(this.getItems())
-        .catch(err => this.onErrorResponse(err))
-        .finally(() => (this.loading = false));
-    },
-    getItems() {
-      this.loading = true;
-      this.$http
-        .get(this.routeUri(this.getRoute()), { params: this.filter })
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(err => this.onErrorResponse(err))
-        .finally(() => (this.loading = false));
+    deleteConfirm(record) {
+      this.$confirm({
+        content:
+          "Apakah kamu yaking ingin menghapus data Ongkir " +
+          record.origin_province.name +
+          " - " +
+          record.destination.name +
+          "?",
+        okText: "Ya",
+        cancelText: "Batal",
+        onOk: () => {
+          this.deleteItem(record);
+        }
+      });
     },
     onSuccessResponse(response) {
       this.items = response;
