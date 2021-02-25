@@ -35,7 +35,8 @@ class Partner extends Model
     use SoftDeletes,
         HashableId,
         HasPhoneNumber,
-        HasFactory;
+        HasFactory,
+        HashableId;
 
     const TYPE_BUSINESS = 'business'; // bisa order dari application.
     const TYPE_POOL = 'pool';
@@ -65,12 +66,30 @@ class Partner extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array
      */
     protected $casts = [
         'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'id',
     ];
 
     /**
@@ -122,7 +141,7 @@ class Partner extends Model
      */
     public function users(): MorphToMany
     {
-        return $this->morphToMany(User::class, 'userable', 'userables')
+        return $this->morphToMany(User::class, 'userable', 'userables')->withPivot('role')
             ->using(UserablePivot::class);
     }
 }

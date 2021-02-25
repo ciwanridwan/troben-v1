@@ -24,7 +24,7 @@ class UpdateExistingTransporter
 
     /**
      * Attributes.
-     * 
+     *
      * @var array
      */
     public array $attributes;
@@ -33,7 +33,7 @@ class UpdateExistingTransporter
      * UpdateExistingTransporter construct.
      * @param \App\Models\Partners\Transporter $transporter
      * @param array                            $inputs
-     * 
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Transporter $transporter, $inputs = [])
@@ -43,16 +43,21 @@ class UpdateExistingTransporter
             'name' => ['filled'],
             'registration_number' => ['filled'],
             'type' => ['filled', Rule::in(Transporter::getAvailableTypes())],
+            'is_verified' => ['nullable','boolean'],
         ])->validate();
     }
 
     /**
      * Updating Existing Transporter Jobs.
-     * 
+     *
      * @return bool
      */
     public function handle(): bool
     {
+        if (! empty($this->attributes['is_verified'])) {
+            $this->attributes['is_verified'] = $this->attributes['is_verified'] ? now() : null;
+        }
+
         collect($this->attributes)->each(fn ($v, $k) => $this->transporter->{$k} = $v);
 
         if ($this->transporter->isDirty()) {

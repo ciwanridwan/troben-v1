@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Master;
 
 use App\Http\Response;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -29,6 +28,11 @@ class CustomerController extends Controller
     protected Builder $query;
 
     /**
+     * @var string
+     */
+    protected string $model = Customer::class;
+
+    /**
      * @var array
      */
     protected array $rules;
@@ -39,9 +43,9 @@ class CustomerController extends Controller
             'name' => ['filled'],
             'email' => ['filled'],
             'phone' => ['filled'],
-            'q' => ['filled'],
+            'q' => ['nullable'],
         ];
-        $this->baseBuilder();
+        $this->baseBuilder(Customer::query());
     }
 
     /**
@@ -62,12 +66,7 @@ class CustomerController extends Controller
 
             $this->withSumAndCount();
 
-            foreach (Arr::except($this->attributes, 'q') as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
+            $this->getResource();
 
             return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
         }
@@ -75,6 +74,25 @@ class CustomerController extends Controller
         return view('admin.master.customer.index');
     }
 
+    /**
+     *
+     *  Add Customer
+     * Route Path       : admin/master/customer
+     * Route Name       : admin.master.customer
+     * Route Method     : POST.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $customer = (new Customer)->byHashOrFail($request->hash);
+        $job = new DeleteExistingCustomer($customer);
+        $this->dispatch($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->customer))->json();
+    }
     /**
      *
      *  Delete Customer
@@ -107,10 +125,5 @@ class CustomerController extends Controller
         ]);
 
         return $this->query;
-    }
-
-    public function baseBuilder(): Builder
-    {
-        return $this->query = Customer::query();
     }
 }

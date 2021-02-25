@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Handling model.
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Handling extends Model
 {
+    use HasFactory;
+
     const TYPE_WEIGHT = 'weight';
     const TYPE_VOLUME = 'volume';
 
@@ -42,6 +45,6 @@ class Handling extends Model
      * @var array
      */
     protected $casts = [
-        'price' => 'decimal',
+        'price' => 'decimal:2',
     ];
 }

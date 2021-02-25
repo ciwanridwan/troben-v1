@@ -19,14 +19,35 @@ const laravel = {
           current: this.items.current_page,
           pageSize: parseInt(this.items.per_page),
           total: this.items.total
-        }
+        };
       }
 
-      return null
+      return null;
     }
   },
   methods: {
     moment,
+    getItems() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(this.getRoute()), { params: this.filter })
+        .then(res => this.onSuccessResponse(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    deleteItem(record) {
+      this.loading = true;
+      let uri = this.routeUri(this.getRoute());
+      let { hash } = record;
+      uri = uri + "/" + hash;
+      this.$http
+        .delete(uri)
+        .then(() => {
+          this.getItems();
+        })
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
     numbering(index, pagination) {
       return pagination.per_page * (pagination.current_page - 1) + index + 1;
     },

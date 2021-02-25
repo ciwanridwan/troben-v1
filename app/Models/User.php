@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Contracts\HasOtpToken;
+use App\Models\Partners\Partner;
 use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -28,7 +31,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements HasOtpToken
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp;
+    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +44,7 @@ class User extends Authenticatable implements HasOtpToken
         'email',
         'password',
         'phone',
+        'remember_token',
     ];
 
     /**
@@ -72,5 +76,10 @@ class User extends Authenticatable implements HasOtpToken
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function partners()
+    {
+        return $this->morphedByMany(Partner::class, 'userable', 'userables')->using(UserablePivot::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use ReflectionClass;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -165,6 +166,13 @@ class Response implements Responsable
             }
 
             $responseData['data'] = $this->data->toArray($request);
+        } elseif (array_key_exists('resource', $this->data)) {
+            if ($this->data['resource']->resource instanceof LengthAwarePaginator) {
+                $responseData = array_merge($responseData, $this->data['resource']->resource->toArray());
+            }
+            $responseData['data'] = [];
+            $responseData['data'] = $this->data['resource']->toArray($request);
+            $responseData['data_extra'] = Arr::except($this->data, 'resource');
         } else {
             $responseData['data'] = $this->data;
         }

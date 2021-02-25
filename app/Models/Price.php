@@ -7,7 +7,9 @@ use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Eloquent\Model;
+use App\Concerns\Models\AttributeColumns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Price model.
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
+    use AttributeColumns, HasFactory;
     const TIER_1 = 10;
     const TIER_2 = 30;
     const TIER_3 = 50;
@@ -66,9 +69,11 @@ class Price extends Model
      * @var string[]
      */
     protected $fillable = [
-        // 'origin_province_id',
+        'origin_province_id',
         'origin_regency_id',
-        // 'origin_district_id',
+        'origin_district_id',
+        'origin_sub_district_id',
+        'destination_id',
         'zip_code',
         'service_code',
         'tier_1',
