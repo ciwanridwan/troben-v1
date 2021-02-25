@@ -30,7 +30,7 @@
                 :employeeData="record"
                 :roles="roles"
               ></employee-form>
-              <delete-button @click="deleteItem(record)"></delete-button>
+              <delete-button @click="deleteConfirm(record)"></delete-button>
             </a-space>
           </span>
         </a-table>
@@ -68,6 +68,22 @@ export default {
     employeeColumns
   }),
   methods: {
+    deleteConfirm(record) {
+      this.$confirm({
+        content:
+          "Apakah kamu yaking ingin menghapus data karyawan " +
+          record.name +
+          " (" +
+          record.partner.code +
+          ")" +
+          "?",
+        okText: "Ya",
+        cancelText: "Batal",
+        onOk: () => {
+          this.deleteItem(record);
+        }
+      });
+    },
     deleteItem(record) {
       this.loading = true;
       let uri = this.routeUri(this.getRoute());
@@ -75,7 +91,9 @@ export default {
       uri = uri + "/" + hash;
       this.$http
         .delete(uri)
-        .then(this.getItems())
+        .then(() => {
+          this.getItems();
+        })
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },

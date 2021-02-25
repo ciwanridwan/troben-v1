@@ -67,6 +67,8 @@ trait HasResource
                 foreach ($columns as $key => $item) {
                     $form_field = array_shift($item);
                     $column = array_shift($item);
+
+
                     if ($key == 0) {
 
                         $query->where($column !== null ? $column : $form_field, 'LIKE', '%' . $q . '%');

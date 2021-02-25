@@ -2,7 +2,7 @@
   <div>
     <content-layout :pagination="trawlbensPagination">
       <template slot="head-tools">
-        <a-row type="flex" justify="end">
+        <a-row type="flex" justify="end" :gutter="10">
           <a-col>
             <a-button>Tambah Mitra</a-button>
           </a-col>

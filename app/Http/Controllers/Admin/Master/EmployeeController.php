@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Employees\DeleteExistingEmployee;
 use App\Http\Resources\Admin\MasterEmployeeResource;
+use App\Jobs\Users\DeleteExistingUser;
+use App\Jobs\Users\UpdateExistingUser;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
@@ -47,14 +49,15 @@ class EmployeeController extends Controller
      * @var array
      */
     protected array $rules = [
-        'user_name' => ['filled'],
         'role' => ['filled'],
         'q' => ['nullable'],
     ];
 
     protected array $byRelation = [
         'user' => [
-            ['user_name', 'name'],
+            ['name'],
+            ['email'],
+            ['phone'],
         ],
         'userable' => [
             ['code'],
@@ -98,6 +101,14 @@ class EmployeeController extends Controller
         return view('admin.master.employee.index');
     }
 
+    public function update(Request $request)
+    {
+        $userable = (new $this->model)->byHashOrFail($request->hash);
+        $job = new UpdateExistingUser($userable->user, $request->all());
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->user))->json();
+    }
+
 
     /**
      *
@@ -112,11 +123,11 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $Employee = (new User)->byHashOrFail($request->hash);
-        $job = new DeleteExistingEmployee($Employee);
+        $userable = (new UserablePivot())->byHashOrFail($request->hash);
+        $job = new DeleteExistingUser($userable->user);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS, $job->Employee))->json();
+        return (new Response(Response::RC_SUCCESS, $job->user))->json();
     }
 
     public function extraData()

@@ -17,14 +17,14 @@ class UpdateExistingUser
 
     /**
      * User instance.
-     * 
+     *
      * @var \App\Models\User
      */
     public User $user;
 
     /**
      * Filtered Attributes.
-     * 
+     *
      * @var array
      */
     public array $attributes;
@@ -39,9 +39,9 @@ class UpdateExistingUser
         $this->user = $user;
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
-            'username' => ['filled',"unique:users,username,$user->id,id,deleted_at,NULL"],
-            'email' => ['filled',"unique:users,username,$user->id,id,deleted_at,NULL"],
-            'phone' => ['filled','unique:users,phone','numeric','phone:AUTO_ID'],
+            'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL"],
+            'email' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL"],
+            'phone' => ['filled', "unique:users,phone,$user->id,id,deleted_at,NULL", 'numeric', 'phone:AUTO,ID'],
             'password' => ['filled'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],

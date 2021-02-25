@@ -65,12 +65,7 @@ class PartnerController extends Controller
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
-            foreach (Arr::except($this->attributes, ['q', 'owner']) as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
+            $this->getResource();
 
             return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
         }
