@@ -1,6 +1,6 @@
 <template>
   <div>
-    <content-layout title="Data Customer" :pagination="trawlbensPagination">
+    <content-layout :pagination="trawlbensPagination">
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
@@ -14,15 +14,14 @@
       <template slot="content">
         <!-- table -->
         <a-table
-          :columns="employeeColumns"
+          :columns="transporterColumns"
           :data-source="items.data"
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
         >
-          <span slot="phone_email" slot-scope="record"
-            >{{ record.phone }} / {{ record.email }}</span
-          >
+          <span slot="number" slot-scope="number">{{ number }}</span>
+
           <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteItem(record)"></delete-button>
@@ -36,7 +35,7 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
-import employeeColumns from "../../../../config/table/employee";
+import transporterColumns from "../../../../config/table/transporter";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 
 export default {
@@ -57,7 +56,7 @@ export default {
       per_page: 15
     },
     loading: false,
-    employeeColumns
+    transporterColumns
   }),
   methods: {
     deleteItem(record) {

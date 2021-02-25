@@ -7,13 +7,21 @@ export default [
   },
   {
     title: "Jenis Mitra",
-    key: "partner_type",
-    scopedSlots: { customRender: "partner_type" }
+    dataIndex: "partner.type",
+    key: "type",
+    scopedSlots: { customRender: "type" }
   },
   {
     title: "Kode Mitra",
-    key: "partner_code",
-    scopedSlots: { customRender: "partner_code" }
+    dataIndex: "partner.code",
+    key: "code",
+    scopedSlots: { customRender: "code" }
+  },
+  {
+    title: "Nama Pegawai",
+    dataIndex: "name",
+    key: "name",
+    scopedSlots: { customRender: "name" }
   },
   {
     title: "No HP / Email",

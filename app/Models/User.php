@@ -7,6 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -77,5 +78,10 @@ class User extends Authenticatable implements HasOtpToken
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function partners()
+    {
+        return $this->morphedByMany(Partner::class, 'userable', 'userables')->using(UserablePivot::class);
     }
 }
