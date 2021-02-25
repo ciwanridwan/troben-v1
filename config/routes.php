@@ -37,6 +37,7 @@ return [
         App\Http\Routes\Api\ServiceRoute::class,
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
+        App\Http\Routes\Api\Partner\AssetRoute::class,
         /** @inject api **/
     ],
     'admin' => [
