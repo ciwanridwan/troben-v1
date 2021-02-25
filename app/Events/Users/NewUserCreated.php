@@ -19,7 +19,7 @@ class NewUserCreated
     public User $user;
 
     /**
-     * Event User Modification Failed.
+     * Event Create new User.
      *
      * @param User $user
      */
