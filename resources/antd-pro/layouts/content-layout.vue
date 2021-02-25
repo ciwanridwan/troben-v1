@@ -27,7 +27,9 @@ import getNavigation from "../navigation/navigation";
 
 export default {
   props: {
-    title: "",
+    title: {
+      type: String
+    },
     sider: {
       type: Boolean,
       default: false

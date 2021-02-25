@@ -16,12 +16,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Employees\DeleteExistingEmployee;
 use App\Http\Resources\Admin\MasterEmployeeResource;
+use App\Jobs\Users\DeleteExistingUser;
+use App\Jobs\Users\UpdateExistingUser;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
+
+use function PHPSTORM_META\type;
 
 class EmployeeController extends Controller
 {
@@ -45,14 +49,19 @@ class EmployeeController extends Controller
      * @var array
      */
     protected array $rules = [
-        'user_name' => ['filled'],
         'role' => ['filled'],
         'q' => ['nullable'],
     ];
 
     protected array $byRelation = [
         'user' => [
-            ['user_name', 'name'],
+            ['name'],
+            ['email'],
+            ['phone'],
+        ],
+        'userable' => [
+            ['code'],
+            ['type']
         ]
     ];
 
@@ -81,11 +90,25 @@ class EmployeeController extends Controller
 
             $this->getResource();
 
-            return $this->jsonSuccess(EmployeeResource::collection($this->query->paginate(request('per_page', 15))));
+            $data = [
+                'resource' => EmployeeResource::collection($this->query->paginate(request('per_page', 15)))
+            ];
+            $data = array_merge($data, $this->extraData());
+
+            return (new Response(Response::RC_SUCCESS, $data));
         }
 
         return view('admin.master.employee.index');
     }
+
+    public function update(Request $request)
+    {
+        $userable = (new $this->model)->byHashOrFail($request->hash);
+        $job = new UpdateExistingUser($userable->user, $request->all());
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->user))->json();
+    }
+
 
     /**
      *
@@ -100,29 +123,18 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $Employee = (new User)->byHashOrFail($request->hash);
-        $job = new DeleteExistingEmployee($Employee);
+        $userable = (new UserablePivot())->byHashOrFail($request->hash);
+        $job = new DeleteExistingUser($userable->user);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS, $job->Employee))->json();
+        return (new Response(Response::RC_SUCCESS, $job->user))->json();
     }
 
-    public function resourceHandle(Request $request)
+    public function extraData()
     {
-        $users_partner = $this->query->get()->map(function ($item) {
-            foreach ($item->users as $user) {
-                $user->partner_type = $item->type;
-                $user->partner_code = $item->code;
-            }
-            return $item;
-        })->pluck('users');
-
-        $employee = new Collection();
-        foreach ($users_partner as $item) {
-            $employee = $employee->merge($item);
-        }
-
-
-        return EmployeeResource::collection($employee);
+        $data = [
+            'roles' => UserablePivot::ROLES
+        ];
+        return $data;
     }
 }
