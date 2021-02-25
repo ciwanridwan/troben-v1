@@ -33,14 +33,33 @@ class PricingController extends Controller
      * Request rule definitions.
      * @var array
      */
-    protected array $rules;
+    protected array $rules = [
+        'zip_code' => ['filled'],
+        'q' => ['nullable'],
+    ];
+
+    protected $byRelation = [
+        'service' => [
+            ['name'],
+        ],
+        'district' => [
+            ['name'],
+        ],
+        'province' => [
+            ['name'],
+        ],
+        'regency' => [
+            ['name'],
+        ],
+        'destination' => [
+            ['name'],
+            ['zip_code'],
+        ],
+    ];
 
     public function __construct()
     {
         $attributes = (new Price())->getTableColumns();
-        $this->rules = [
-            'q'             => ['filled'],
-        ];
         foreach ($attributes as $value) {
             $this->rules[$value] = ['filled'];
         }

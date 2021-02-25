@@ -67,12 +67,7 @@ class CustomerController extends Controller
 
             $this->withSumAndCount();
 
-            foreach (Arr::except($this->attributes, 'q') as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
+            $this->getResource();
 
             return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
         }
@@ -80,6 +75,25 @@ class CustomerController extends Controller
         return view('admin.master.customer.index');
     }
 
+    /**
+     *
+     *  Add Customer
+     * Route Path       : admin/master/customer
+     * Route Name       : admin.master.customer
+     * Route Method     : POST.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $customer = (new Customer)->byHashOrFail($request->hash);
+        $job = new DeleteExistingCustomer($customer);
+        $this->dispatch($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->customer))->json();
+    }
     /**
      *
      *  Delete Customer
