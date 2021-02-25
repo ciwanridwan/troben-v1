@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Users;
 
-use App\Events\Users\UserDeleted;
 use App\Models\User;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Users\UserDeleted;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class DeleteExistingUser
 {

@@ -2,14 +2,14 @@
 
 namespace Tests\Jobs\Handlings;
 
-use App\Events\Handlings\HandlingDeleted;
-use App\Jobs\Handlings\DeleteExistingHandling;
+use Tests\TestCase;
 use App\Models\Handling;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
+use App\Events\Handlings\HandlingDeleted;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Handlings\DeleteExistingHandling;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class HandlingDeletionTest extends TestCase
 {
@@ -22,7 +22,7 @@ class HandlingDeletionTest extends TestCase
 
         /** @var \App\Models\Handling $subject */
         $subject = Handling::query()->first();
-        $response = $this->dispatch(new DeleteExistingHandling($subject,true));
+        $response = $this->dispatch(new DeleteExistingHandling($subject, true));
         $this->assertTrue($response);
         $this->assertDatabaseMissing('products', Arr::only($subject->toArray(), 'name'));
 

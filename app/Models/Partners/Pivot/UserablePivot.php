@@ -2,11 +2,9 @@
 
 namespace App\Models\Partners\Pivot;
 
-use App\Models\Partners\Partner;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Relations\MorphPivot;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
 class UserablePivot extends MorphPivot
 {
@@ -21,7 +19,7 @@ class UserablePivot extends MorphPivot
     const ROLES = [
         self::ROLE_OWNER,
         self::ROLE_DRIVER,
-        self::ROLE_CASHIER
+        self::ROLE_CASHIER,
     ];
 
     /**

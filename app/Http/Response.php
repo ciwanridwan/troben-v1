@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use ReflectionClass;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,6 @@ use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response as LaravelResponse;
-use Illuminate\Support\Arr;
 
 class Response implements Responsable
 {

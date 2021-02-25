@@ -2,20 +2,20 @@
 
 namespace Tests\Jobs\Price;
 
-use App\Events\Price\NewPriceCreated;
-use App\Jobs\Price\CreateNewPrice;
-use App\Models\Geo\SubDistrict;
+use Tests\TestCase;
 use App\Models\Price;
 use App\Models\Service;
-use Database\Seeders\GeoTableSimpleSeeder;
-use Database\Seeders\ServiceTableSeeder;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
+use App\Models\Geo\SubDistrict;
+use App\Jobs\Price\CreateNewPrice;
+use App\Events\Price\NewPriceCreated;
 use Illuminate\Support\Facades\Event;
+use Database\Seeders\ServiceTableSeeder;
+use Database\Seeders\GeoTableSimpleSeeder;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PriceCreationTest extends TestCase
 {

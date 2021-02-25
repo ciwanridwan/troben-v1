@@ -2,14 +2,14 @@
 
 namespace App\Http\Routes\Admin\Master;
 
-use App\Http\Controllers\Admin\Master\PricingController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\PricingController;
 
 class PricingRoute extends BaseRoute
 {
-    protected $name = "admin.master.pricing.district";
+    protected $name = 'admin.master.pricing.district';
 
-    protected $prefix = "/master/pricing/district";
+    protected $prefix = '/master/pricing/district';
 
 
     /**
@@ -21,7 +21,7 @@ class PricingRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

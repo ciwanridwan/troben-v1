@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Concerns\Models\AttributeColumns;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Concerns\Models\AttributeColumns;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Price model.

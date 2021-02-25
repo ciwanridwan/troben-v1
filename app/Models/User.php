@@ -3,16 +3,14 @@
 namespace App\Models;
 
 use App\Contracts\HasOtpToken;
+use App\Models\Partners\Partner;
 use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -46,7 +44,7 @@ class User extends Authenticatable implements HasOtpToken
         'email',
         'password',
         'phone',
-        'remember_token'
+        'remember_token',
     ];
 
     /**

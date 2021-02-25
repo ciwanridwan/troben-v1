@@ -2,21 +2,20 @@
 
 namespace App\Http\Routes\Admin\Master;
 
-use App\Http\Controllers\Admin\Master\TransporterController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\TransporterController;
 
 class TransporterRoute extends BaseRoute
 {
+    /**
+     * @var string
+     */
+    protected $name = 'admin.master.transporter';
 
     /**
      * @var string
      */
-    protected $name = "admin.master.transporter";
-
-    /**
-     * @var string
-     */
-    protected $prefix = "/master/transporter";
+    protected $prefix = '/master/transporter';
 
     /**
      * Register routes handled by this class.
@@ -27,7 +26,7 @@ class TransporterRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

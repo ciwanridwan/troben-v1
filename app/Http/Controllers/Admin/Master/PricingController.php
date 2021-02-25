@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
+use App\Models\Price;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
-use App\Models\Price;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class PricingController extends Controller
 {

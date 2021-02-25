@@ -2,15 +2,15 @@
 
 namespace Tests\Jobs\Users;
 
-use App\Events\Users\UserDeleted;
-use App\Jobs\Users\DeleteExistingUser;
+use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Support\Arr;
+use App\Events\Users\UserDeleted;
+use Illuminate\Support\Facades\Event;
+use App\Jobs\Users\DeleteExistingUser;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
 
 class UserDeletionTest extends TestCase
 {
