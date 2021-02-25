@@ -87,9 +87,9 @@ const main = {
             route: "admin.master.employee",
             children: null
           },
-          vehicle: {
+          transporter: {
             text: "Master Kendaraan",
-            route: "admin.master.vehicle",
+            route: "admin.master.transporter",
             children: null
           }
         }

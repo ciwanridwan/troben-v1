@@ -10,12 +10,15 @@ use App\Models\Customers\Customer;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
+use App\Http\Resources\Admin\Master\TransporterResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Customers\DeleteExistingCustomer;
 use App\Http\Resources\Admin\MasterCustomerResource;
+use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
+use App\Models\Partners\Transporter;
 
-class CustomerController extends Controller
+class TransporterController extends Controller
 {
     use HasResource, DispatchesJobs;
     /**
@@ -31,7 +34,7 @@ class CustomerController extends Controller
     /**
      * @var string
      */
-    protected string $model = Customer::class;
+    protected string $model = Transporter::class;
 
     /**
      * @var array
@@ -46,7 +49,7 @@ class CustomerController extends Controller
             'phone' => ['filled'],
             'q' => ['nullable'],
         ];
-        $this->baseBuilder(Customer::query());
+        $this->baseBuilder();
     }
 
     /**
@@ -65,8 +68,6 @@ class CustomerController extends Controller
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
-            $this->withSumAndCount();
-
             foreach (Arr::except($this->attributes, 'q') as $key => $value) {
                 $this->getByColumn($key);
             }
@@ -74,15 +75,15 @@ class CustomerController extends Controller
                 $this->getSearch($this->attributes['q']);
             }
 
-            return $this->jsonSuccess(MasterCustomerResource::collection($this->query->paginate(request('per_page', 15))));
+            return $this->jsonSuccess(TransporterResource::collection($this->query->paginate(request('per_page', 15))));
         }
 
-        return view('admin.master.customer.index');
+        return view('admin.master.transporter.index');
     }
 
     /**
      *
-     *  Delete Customer
+     *  Delete Transporter
      * Route Path       : admin/master/customer
      * Route Name       : admin.master.customer
      * Route Method     : DELETE.
@@ -93,23 +94,10 @@ class CustomerController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $customer = (new Customer)->byHashOrFail($request->hash);
-        $job = new DeleteExistingCustomer($customer);
+        $transporter = (new Transporter)->byHashOrFail($request->hash);
+        $job = new DeleteExistingTransporter($transporter);
         $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, $job->customer))->json();
-    }
-
-    public function withSumAndCount(): Builder
-    {
-        $this->query = $this->query->withCount([
-            'orders as orderCount' => function ($query) {
-                $query->paid();
-            },
-            'orders as orderTotalPayment' => function ($query) {
-                $query->select(DB::raw('SUM(total_payment)'));
-            },
-        ]);
-        return $this->query;
     }
 }

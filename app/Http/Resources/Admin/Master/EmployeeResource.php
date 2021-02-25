@@ -15,14 +15,16 @@ class EmployeeResource extends JsonResource
      */
     public function toArray($request)
     {
-        $data = [];
-        foreach ($this->users as $key => $user) {
-            $data[] = array_merge([
-                'partner_type' => $this->type,
-                'partner_code' => $this->code,
-            ], $user->toArray());
-        }
-
-        return $data;
+        return [
+            'hash' => $this->hash,
+            'name'  => $this->user->name,
+            'phone' => $this->user->phone,
+            'email' => $this->user->email,
+            'role' => $this->role,
+            'partner' => [
+                'type' => $this->userable->type,
+                'code' => $this->userable->code
+            ]
+        ];
     }
 }

@@ -11,11 +11,15 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Resources\Admin\Master\EmployeeResource;
+use App\Http\Resources\Admin\Master\PartnerResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Employees\DeleteExistingEmployee;
 use App\Http\Resources\Admin\MasterEmployeeResource;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,22 +39,27 @@ class EmployeeController extends Controller
     /**
      * @var string
      */
-    protected string $model = Partner::class;
+    protected string $model = UserablePivot::class;
 
     /**
      * @var array
      */
-    protected array $rules;
+    protected array $rules = [
+        'user_name' => ['filled'],
+        'role' => ['filled'],
+        'q' => ['nullable'],
+    ];
+
+    protected array $byRelation = [
+        'user' => [
+            ['user_name', 'name'],
+        ]
+    ];
 
     public function __construct()
     {
-        $this->rules = [
-            'name' => ['filled'],
-            'email' => ['filled'],
-            'phone' => ['filled'],
-            'q' => ['filled'],
-        ];
         $this->baseBuilder();
+        $this->query = $this->query->with(['user', 'userable']);
     }
 
     /**
@@ -66,19 +75,11 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        $this->resourceHandle($request);
+
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
-            foreach (Arr::except($this->attributes, 'q') as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
-
-
-
+            $this->getResource();
 
             return $this->jsonSuccess(EmployeeResource::collection($this->query->paginate(request('per_page', 15))));
         }
@@ -99,7 +100,7 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $Employee = (new Employee)->byHashOrFail($request->hash);
+        $Employee = (new User)->byHashOrFail($request->hash);
         $job = new DeleteExistingEmployee($Employee);
         $this->dispatch($job);
 
@@ -108,11 +109,20 @@ class EmployeeController extends Controller
 
     public function resourceHandle(Request $request)
     {
-        $res =  EmployeeResource::collection($this->query->get())->toArray($request);
-        $data = [];
-        foreach ($res as $key => $value) {
-            dd($value);
+        $users_partner = $this->query->get()->map(function ($item) {
+            foreach ($item->users as $user) {
+                $user->partner_type = $item->type;
+                $user->partner_code = $item->code;
+            }
+            return $item;
+        })->pluck('users');
+
+        $employee = new Collection();
+        foreach ($users_partner as $item) {
+            $employee = $employee->merge($item);
         }
-        return $res;
+
+
+        return EmployeeResource::collection($employee);
     }
 }
