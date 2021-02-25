@@ -84,6 +84,7 @@ const main = {
           },
           employee: {
             text: "Master Karyawan",
+            title: "All Karyawan",
             route: "admin.master.employee",
             children: null
           },

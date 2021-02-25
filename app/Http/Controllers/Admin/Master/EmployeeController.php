@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use function PHPSTORM_META\type;
+
 class EmployeeController extends Controller
 {
     use HasResource, DispatchesJobs;
@@ -53,6 +55,10 @@ class EmployeeController extends Controller
     protected array $byRelation = [
         'user' => [
             ['user_name', 'name'],
+        ],
+        'userable' => [
+            ['code'],
+            ['type']
         ]
     ];
 
@@ -81,11 +87,17 @@ class EmployeeController extends Controller
 
             $this->getResource();
 
-            return $this->jsonSuccess(EmployeeResource::collection($this->query->paginate(request('per_page', 15))));
+            $data = [
+                'resource' => EmployeeResource::collection($this->query->paginate(request('per_page', 15)))
+            ];
+            $data = array_merge($data, $this->extraData());
+
+            return (new Response(Response::RC_SUCCESS, $data));
         }
 
         return view('admin.master.employee.index');
     }
+
 
     /**
      *
@@ -107,22 +119,11 @@ class EmployeeController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->Employee))->json();
     }
 
-    public function resourceHandle(Request $request)
+    public function extraData()
     {
-        $users_partner = $this->query->get()->map(function ($item) {
-            foreach ($item->users as $user) {
-                $user->partner_type = $item->type;
-                $user->partner_code = $item->code;
-            }
-            return $item;
-        })->pluck('users');
-
-        $employee = new Collection();
-        foreach ($users_partner as $item) {
-            $employee = $employee->merge($item);
-        }
-
-
-        return EmployeeResource::collection($employee);
+        $data = [
+            'roles' => UserablePivot::ROLES
+        ];
+        return $data;
     }
 }

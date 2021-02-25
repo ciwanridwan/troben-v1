@@ -11,6 +11,19 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 class UserablePivot extends MorphPivot
 {
     use HashableId;
+
+    const ROLE_OWNER = 'owner';
+    const ROLE_DRIVER = 'driver';
+    const ROLE_CASHIER = 'cashier';
+    const ROLE_CS = 'customer service';
+    const ROLE_WAREHOUSE = 'warehouse';
+
+    const ROLES = [
+        self::ROLE_OWNER,
+        self::ROLE_DRIVER,
+        self::ROLE_CASHIER
+    ];
+
     /**
      * The table associated with the model.
      *
