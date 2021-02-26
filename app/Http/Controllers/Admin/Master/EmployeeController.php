@@ -18,6 +18,7 @@ use App\Jobs\Employees\DeleteExistingEmployee;
 use App\Http\Resources\Admin\MasterEmployeeResource;
 use App\Jobs\Users\DeleteExistingUser;
 use App\Jobs\Users\UpdateExistingUser;
+use App\Jobs\Users\UpdateExistingUserRole;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
@@ -104,9 +105,11 @@ class EmployeeController extends Controller
     public function update(Request $request)
     {
         $userable = (new $this->model)->byHashOrFail($request->hash);
-        $job = new UpdateExistingUser($userable->user, $request->all());
-        $this->dispatch($job);
-        return (new Response(Response::RC_SUCCESS, $job->user))->json();
+        $job_update_user_data = new UpdateExistingUser($userable->user, $request->all());
+        $job_update_user_role = new UpdateExistingUserRole($userable, $request->all());
+        $this->dispatch($job_update_user_data);
+        $this->dispatch($job_update_user_role);
+        return (new Response(Response::RC_SUCCESS, EmployeeResource::make($job_update_user_role->userable)))->json();
     }
 
 
