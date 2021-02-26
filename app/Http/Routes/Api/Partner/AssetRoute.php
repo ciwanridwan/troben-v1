@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api\Partner;
 
-use App\Http\Controllers\Api\Partner\AssetController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Partner\AssetController;
 
 class AssetRoute extends BaseRoute
 {

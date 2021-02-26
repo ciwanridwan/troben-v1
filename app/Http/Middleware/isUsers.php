@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\Error;
-use App\Http\Response;
-use App\Models\Customers\Customer;
 use Closure;
+use App\Http\Response;
+use App\Exceptions\Error;
 use Illuminate\Http\Request;
+use App\Models\Customers\Customer;
 
 class isUsers
 {

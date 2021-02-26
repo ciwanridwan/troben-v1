@@ -24,6 +24,7 @@ class UserResource extends JsonResource
         foreach ($this->resource as $users) {
             $this->data[] = $this->formattingRole($users);
         }
+
         return $this->data;
     }
 

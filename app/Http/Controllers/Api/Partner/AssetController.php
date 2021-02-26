@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Http\Resources\Api\Partner\asset\UserResource;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use App\Http\Resources\Api\Partner\asset\UserResource;
+use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
 {
@@ -46,6 +46,7 @@ class AssetController extends Controller
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
+
         return $request->type == 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
@@ -53,7 +54,7 @@ class AssetController extends Controller
 
     public function getEmployee(): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role',['owner'])->get()->groupBy('id'))));
+        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->get()->groupBy('id'))));
     }
 
     public function getTransporter(): JsonResponse
