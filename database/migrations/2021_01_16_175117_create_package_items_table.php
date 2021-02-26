@@ -20,6 +20,16 @@ class CreatePackageItemsTable extends Migration
             $table->unsignedInteger('qty')->default(1);
             $table->string('name');
             $table->text('desc')->nullable();
+
+            $table->unsignedInteger('weight')->default(0);
+            $table->unsignedInteger('height')->default(0);
+            $table->unsignedInteger('length')->default(0);
+            $table->unsignedInteger('width')->default(0);
+
+            $table->boolean('in_estimation')->default(1);
+            $table->boolean('is_insured')->default(0);
+            $table->json('handling')->nullable();
+
             $table->timestamps();
 
             $table

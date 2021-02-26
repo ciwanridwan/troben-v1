@@ -2,7 +2,7 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Orders\Order;
+use App\Models\Customers\Customer;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,17 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Package model.
  *
  * @property int $int
- * @property int $order_id
+ * @property int $customer_id
  * @property string $barcode
  * @property string $service_code
  * @property string $receiver_phone
  * @property string $receiver_name
  * @property string $receiver_address
  * @property string $received_by
- * @property int $weight
- * @property int $height
- * @property int $length
- * @property int $width
  * @property float $total_amount
  * @property string $status
  * @property bool $is_separate_item
@@ -31,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
- * @property-read \App\Models\Order $order
+ * @property-read \App\Models\Customers\Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  */
@@ -39,14 +35,14 @@ class Package extends Model
 {
     use HasPhoneNumber, SoftDeletes;
 
-    const STATUS_CREATED = 'created';
-    const STATUS_PENDING = 'pending';
-    const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
-    const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_WITH_COURIER = 'with_courier';
-    const STATUS_DELIVERED = 'delivered';
+    public const STATUS_CREATED = 'created';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
+    public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_IN_TRANSIT = 'in_transit';
+    public const STATUS_WITH_COURIER = 'with_courier';
+    public const STATUS_DELIVERED = 'delivered';
 
     /**
      * Phone number column.
@@ -68,7 +64,7 @@ class Package extends Model
      * @var string[]
      */
     protected $fillable = [
-        'order_id',
+        'customer_id',
         'service_code',
         'receiver_name',
         'receiver_phone',
@@ -89,10 +85,6 @@ class Package extends Model
      * @var array
      */
     protected $casts = [
-        'weight' => 'int',
-        'height' => 'int',
-        'length' => 'int',
-        'width' => 'int',
         'total_amount' => 'float',
         'is_separate_item' => 'bool',
     ];
@@ -117,13 +109,13 @@ class Package extends Model
     }
 
     /**
-     * Define `belongsTo` relationship with Order model.
+     * Define `belongsTo` relationship with Customer model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function order(): BelongsTo
+    public function customer(): BelongsTo
     {
-        return $this->belongsTo(Order::class, 'order_id', 'id');
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
     /**
