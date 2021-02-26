@@ -6,6 +6,7 @@ use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use App\Http\Response;
+use App\Jobs\Price\CreateNewPrice;
 use App\Models\Geo\District;
 use App\Models\Geo\Regency;
 use App\Models\Price;
@@ -67,9 +68,9 @@ class PricingController extends Controller
 
 
     /**
-     * Showing page and get all partner data.
-     * Route Path       : {APP_URL}/admin/master/partner
-     * Route Name       : admin.master.partner
+     * Showing page and get all pricing data.
+     * Route Path       : {APP_URL}/admin/master/pricing
+     * Route Name       : admin.master.pricing
      * Route Method     : GET.
      *
      * @param Request $request
@@ -95,6 +96,28 @@ class PricingController extends Controller
 
         return view('admin.master.pricing.district');
     }
+
+
+    /**
+     * Showing page and get all pricing data.
+     * Route Path       : {APP_URL}/admin/master/pricing/district
+     * Route Name       : admin.master.pricing/district
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $job = new CreateNewPrice($request->all());
+        $this->dispatch($job);
+        return $this->jsonSuccess(PriceResource::make($job->price));
+    }
+
+
+
+
     public function extraData()
     {
         return [

@@ -28,11 +28,14 @@ class EmployeeRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index')
         ]);
+        $this->router->get($this->prefix('add'), [
+            'as' => $this->name('create'),
+            'uses' => $this->uses('create')
+        ]);
         $this->router->patch($this->prefix, [
             'as' => $this->name('update'),
             'uses' => $this->uses('update')
         ]);
-
         $this->router->delete($this->prefix("/{hash}"), [
             'as' => $this->name('delete'),
             'uses' => $this->uses('destroy')

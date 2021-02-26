@@ -85,6 +85,10 @@
 export default {
   data() {
     return {
+      geo: {
+        origin: [],
+        destination: []
+      },
       form: {
         origin_regency: null,
         origin_province: null,
@@ -145,8 +149,9 @@ export default {
       console.log(value);
     }
   },
-  created() {
-    console.log(this.pricingParent);
+  mounted() {
+    let parentData = { ...this.pricingParent.$data };
+    console.log(parentData);
   }
 };
 </script>
