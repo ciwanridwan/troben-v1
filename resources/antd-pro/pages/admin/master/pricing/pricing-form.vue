@@ -109,6 +109,12 @@ export default {
     }
   },
 
+  computed: {
+    pricingParent() {
+      return this.getParent("master-pricing-district");
+    }
+  },
+
   methods: {
     handleChange(info) {
       const status = info.file.status;
@@ -138,6 +144,9 @@ export default {
     handleRegencyChange(value) {
       console.log(value);
     }
+  },
+  created() {
+    console.log(this.pricingParent);
   }
 };
 </script>

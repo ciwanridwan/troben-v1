@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin\Master;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
+use App\Http\Response;
+use App\Models\Geo\District;
+use App\Models\Geo\Regency;
 use App\Models\Price;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -34,11 +38,10 @@ class PricingController extends Controller
      * @var array
      */
     protected array $rules = [
-        'zip_code' => ['filled'],
         'q' => ['nullable'],
     ];
 
-    protected $byRelation = [
+    protected array $byRelation = [
         'service' => [
             ['name'],
         ],
@@ -59,11 +62,7 @@ class PricingController extends Controller
 
     public function __construct()
     {
-        $attributes = (new Price())->getTableColumns();
-        foreach ($attributes as $value) {
-            $this->rules[$value] = ['filled'];
-        }
-        $this->baseBuilder(Price::query());
+        $this->baseBuilder();
     }
 
 
@@ -79,19 +78,29 @@ class PricingController extends Controller
      */
     public function index(Request $request)
     {
+
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
-            foreach (Arr::except($this->attributes, ['q']) as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
+            $this->getResource();
+            // dd(PriceResource::collection($this->query->paginate(request('per_page', 15)))->toArray($request));
+            $data = [
+                'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15)))
+            ];
+            $data = array_merge($data, $this->extraData());
 
-            return $this->jsonSuccess(PriceResource::collection($this->query->paginate($request->input('per_page', 15))));
+
+            return (new Response(Response::RC_SUCCESS, $data))->json();
         }
 
         return view('admin.master.pricing.district');
+    }
+    public function extraData()
+    {
+        return [
+            'regencies' => Regency::all(),
+            'districts' => District::all(),
+            'services' => Service::all()
+        ];
     }
 }

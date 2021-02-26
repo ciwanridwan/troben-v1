@@ -22,7 +22,6 @@ trait HasResource
 
     public function getResource()
     {
-
         foreach (Arr::except($this->attributes,  $this->columnExcept()) as $key => $value) {
             $this->getByColumn($key);
         }
@@ -30,7 +29,7 @@ trait HasResource
             $this->getSearch($this->attributes['q']);
         }
 
-        $this->getByRelation();
+        // $this->getByRelation();
     }
 
     public function getByRelation()
@@ -41,7 +40,7 @@ trait HasResource
 
         foreach ($this->byRelation as $relation => $columns) {
             $keys = array_keys($this->attributes);
-            $this->query = $this->query->whereHas($relation, function ($query) use ($columns, $keys) {
+            $this->query = $this->query->orWhereHas($relation, function ($query) use ($columns, $keys) {
 
                 foreach ($columns as $key => $item) {
                     $form_field = array_shift($item);
@@ -61,7 +60,6 @@ trait HasResource
         };
 
         foreach ($this->byRelation as $relation => $columns) {
-
             $this->query = $this->query->orWhereHas($relation, function ($query) use ($columns, $q) {
 
                 foreach ($columns as $key => $item) {
@@ -80,7 +78,7 @@ trait HasResource
         }
     }
 
-    public function getByColumn($column = ''): Builder
+    public function getByColumn($column): Builder
     {
         $this->query = $this->query->where($column, 'LIKE', '%' . $this->attributes[$column] . '%');
 
@@ -91,10 +89,13 @@ trait HasResource
     {
         $columns = Arr::except($this->rules, $this->columnExcept());
 
+
         // first
         $key_first = array_key_first($columns);
-        $this->query = $this->query->where($key_first, 'LIKE', '%' . $q . '%');
 
+        if ($key_first) {
+            $this->query = $this->query->where($key_first, 'LIKE', '%' . $q . '%');
+        }
         foreach (Arr::except($columns, $key_first) as $key => $value) {
             $this->query = $this->query->orWhere($key, 'LIKE', '%' . $q . '%');
         }
