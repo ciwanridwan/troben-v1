@@ -4,6 +4,7 @@ namespace App\Models\Partners\Pivot;
 
 use App\Models\Partners\Partner;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -52,12 +53,25 @@ class UserablePivot extends MorphPivot
         'userlable_id',
         'role',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('active', function (Builder $builder) {
+            $builder->whereHas('user')->whereHas('userable');
+        });
+    }
+
     public function userable()
     {
         return $this->morphTo();
     }
     public function user()
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->hasOne(User::class, 'id', 'user_id')->where('deleted_at', NULL);
+    }
+    public function get()
+    {
     }
 }
