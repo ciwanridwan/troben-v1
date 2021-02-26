@@ -5,8 +5,16 @@ namespace App\Http\Controllers\Admin\Master;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Http\Resources\Geo\DistrictResource;
+use App\Http\Resources\Geo\ProvinceResource;
+use App\Http\Resources\Geo\RegencyResource;
+use App\Http\Resources\Geo\SubDistrictResource;
 use App\Http\Response;
 use App\Jobs\Partners\DeleteExistingPartner;
+use App\Models\Geo\District;
+use App\Models\Geo\Province;
+use App\Models\Geo\Regency;
+use App\Models\Geo\SubDistrict;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -50,6 +58,9 @@ class PartnerController extends Controller
         $this->baseBuilder(Partner::query());
     }
 
+
+
+
     /**
      * Showing page and get all partner data.
      * Route Path       : {APP_URL}/admin/master/partner
@@ -71,6 +82,35 @@ class PartnerController extends Controller
         }
 
         return view('admin.master.partner.index');
+    }
+
+    /**
+     * Show Page create partner
+     * Route Path       : {APP_URL}/admin/master/partner/add
+     * Route Name       : admin.master.partner
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|JsonResponse
+     */
+    public function create(Request $request)
+    {
+        if ($request->expectsJson()) {
+
+            $data = [
+                'partner_types' => Partner::TYPES,
+                'geo' => [
+                    'provinces' => Province::all(),
+                    'regencies' => Regency::all(),
+                    'districts' => District::all(),
+                    'sub_districts' => SubDistrict::all()
+                ]
+            ];
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        }
+
+        return view('admin.master.partner.create_partner');
     }
 
     /**

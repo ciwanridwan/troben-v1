@@ -43,6 +43,13 @@ class Partner extends Model
     const TYPE_SPACE = 'space';
     const TYPE_TRANSPORTER = 'transporter';
 
+    const TYPES = [
+        self::TYPE_BUSINESS,
+        self::TYPE_POOL,
+        self::TYPE_SPACE,
+        self::TYPE_TRANSPORTER,
+    ];
+
     /**
      * The table associated with the model.
      *

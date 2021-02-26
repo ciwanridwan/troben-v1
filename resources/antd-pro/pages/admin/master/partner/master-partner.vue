@@ -4,7 +4,9 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
           <a-col>
-            <a-button>Tambah Mitra</a-button>
+            <a :href="routeUri(getRoute() + '.create')">
+              <a-button>Tambah Mitra</a-button>
+            </a>
           </a-col>
           <a-col>
             <a-input-search
@@ -94,11 +96,7 @@ export default {
         o.number = numbering++;
       });
     },
-    onErrorResponse(error) {
-      this.$notification.error({
-        message: error.response.data.message
-      });
-    },
+
     handleTableChanged(pagination) {
       this.filter.page = pagination.current;
       this.filter.per_page = pagination.pageSize;

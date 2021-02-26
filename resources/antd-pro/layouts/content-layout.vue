@@ -6,7 +6,8 @@
     <a-layout-content>
       <a-row>
         <a-col :span="12">
-          <h3>{{ title ? title : defaultTitle }}</h3>
+          <slot name="title" v-if="hasTitleSlot"></slot>
+          <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
         <a-col :span="12">
           <slot name="head-tools"></slot>
@@ -47,10 +48,16 @@ export default {
     defaultTitle() {
       let route = this.getNavigation(this.getRoute());
       return route.title ? route.title : route.text;
+    },
+    hasTitleSlot() {
+      return !!this.$slots["title"];
     }
   },
   methods: {
     getNavigation
+  },
+  created() {
+    console.log(this.hasTitleSlot);
   }
 };
 </script>

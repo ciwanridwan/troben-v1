@@ -28,12 +28,17 @@ class PartnerRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix,[
+        $this->router->get($this->prefix, [
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->delete($this->prefix('{hash}'),[
+        $this->router->get($this->prefix('add'), [
+            'as' => $this->name('create'),
+            'uses' => $this->uses('create')
+        ]);
+
+        $this->router->delete($this->prefix('{hash}'), [
             'as' => $this->name('delete'),
             'uses' => $this->uses('destroy'),
         ]);

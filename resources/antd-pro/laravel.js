@@ -35,6 +35,11 @@ const laravel = {
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
+    onErrorResponse(error) {
+      this.$notification.error({
+        message: error.response.data.message
+      });
+    },
     deleteItem(record) {
       this.loading = true;
       let uri = this.routeUri(this.getRoute());
