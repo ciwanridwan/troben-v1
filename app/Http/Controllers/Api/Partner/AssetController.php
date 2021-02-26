@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Models\Partners\Partner;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -26,7 +27,16 @@ class AssetController extends Controller
      */
     protected array $attributes;
 
-    public function index(Request $request)
+    /**
+     * Get partner assets
+     * Route Path       : {API_DOMAIN}/partner/asset
+     * Route Name       : api.partner.asset
+     * Route Method     : GET.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
+    public function index(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required',Rule::in([
@@ -41,12 +51,12 @@ class AssetController extends Controller
                 : $this->getEmployee();
     }
 
-    public function getEmployee()
+    public function getEmployee(): JsonResponse
     {
         return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role',['owner'])->get()->groupBy('id'))));
     }
 
-    public function getTransporter()
+    public function getTransporter(): JsonResponse
     {
         return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
     }

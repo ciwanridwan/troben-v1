@@ -22,6 +22,13 @@ class AssetRoute extends BaseRoute
     protected $name = 'api.partner.asset';
 
     /**
+     * Middleware used for this route.
+     *
+     * @var array
+     */
+    protected $middleware = ['isUsers'];
+
+    /**
      * Register routes handled by this class.
      *
      * @return void
