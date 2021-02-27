@@ -1,6 +1,6 @@
 <template>
   <content-layout>
-    <template slot="title">
+    <template slot="title" :gutter="[10, 10]">
       <a-row type="flex" :gutter="48">
         <a-col :span="2">
           <a :href="routeUri('admin.master.partner')">
@@ -12,10 +12,12 @@
         </a-col>
       </a-row>
     </template>
+
     <template slot="content">
-      <a-card>
-        <a-row>
+      <a-card id="partner-form">
+        <a-row type="flex">
           <a-col :span="8">
+            <h3>Jenis Mitra</h3>
             <a-select
               :default-value="form.partner_type"
               v-model="form.partner_type"
@@ -30,48 +32,34 @@
             </a-select>
           </a-col>
         </a-row>
-        <a-row type="flex">
-          <a-col :span="8">
-            <a-select
-              :default-value="form.geo.province"
-              v-model="form.geo.province"
-            >
-              <a-select-option
-                v-for="province in geo.provinces"
-                :key="province.id"
-                :value="province.id"
-              >
-                {{ province.name }}
-              </a-select-option>
-            </a-select>
+        <partner-form-location
+          ref="location"
+          :geo="geo"
+        ></partner-form-location>
+
+        <div v-if="form.partner_type !== null">
+          <partner-transporter-form
+            v-if="form.partner_type == 'transporter'"
+            :geo="geo"
+          ></partner-transporter-form>
+        </div>
+
+        <hr />
+
+        <partner-owner-form ref="owner"></partner-owner-form>
+
+        <hr />
+
+        <a-row type="flex" justify="end" :gutter="[10, 10]">
+          <a-col>
+            <a-button>
+              Batal
+            </a-button>
           </a-col>
-          <a-col :span="8">
-            <a-select
-              :default-value="form.geo.regency"
-              v-model="form.geo.regency"
-            >
-              <a-select-option
-                v-for="regency in regencies"
-                :key="regency.id"
-                :value="regency.id"
-              >
-                {{ regency.name }}
-              </a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="8">
-            <a-select
-              :default-value="form.geo.district"
-              v-model="form.geo.district"
-            >
-              <a-select-option
-                v-for="district in districts"
-                :key="district.id"
-                :value="district.id"
-              >
-                {{ district.name }}
-              </a-select-option>
-            </a-select>
+          <a-col>
+            <a-button type="primary" @click="onPost">
+              Simpan
+            </a-button>
           </a-col>
         </a-row>
       </a-card>
@@ -80,42 +68,39 @@
 </template>
 <script>
 import contentLayout from "../../../../layouts/content-layout.vue";
+import PartnerFormLocation from "./partner-form-location.vue";
+import PartnerOwnerForm from "./partner-owner-form.vue";
+import PartnerTransporterForm from "./transporter/partner-transporter-form.vue";
 export default {
-  components: { contentLayout },
+  components: {
+    contentLayout,
+    PartnerFormLocation,
+    PartnerTransporterForm,
+    PartnerOwnerForm
+  },
   data() {
     return {
       geo: {},
       partner_types: [],
       form: {
-        partner_type: null,
-        geo: {
-          regency: null,
-          province: null,
-          district: null,
-          sub_district: null,
-          zip_code: null
-        },
-        address: null
+        partner_type: null
       }
     };
-  },
-  computed: {
-    regencies() {
-      return _.filter(this.geo.regencies, {
-        province_id: this.form.geo.province
-      });
-    },
-    districts() {
-      return _.filter(this.geo.districts, {
-        regency_id: this.form.geo.regency
-      });
-    }
   },
   methods: {
     onSuccessResponse(resp) {
       let { data } = resp;
       this.geo = data.geo;
       this.partner_types = data.partner_types;
+    },
+    onPost() {
+      let location = { ...this.$refs.location.$data.form };
+      let owner = { ...this.$refs.owner.$data.form };
+      let form = {
+        partner: { ...location, partner_type: this.form.partner_type },
+        owner: { ...owner }
+      };
+      console.log(form);
     }
   },
   created() {
@@ -123,3 +108,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+#partner-form {
+  .ant-card-body > * {
+    margin-bottom: 24px;
+  }
+}
+</style>

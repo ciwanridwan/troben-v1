@@ -1,10 +1,10 @@
 <template>
-  <a-layout>
+  <a-layout id="content-layout">
     <a-layout-sider v-if="sider && siderPosition == 'left'">
       <slot name="sider"></slot>
     </a-layout-sider>
     <a-layout-content>
-      <a-row>
+      <a-row class="content-layout-head">
         <a-col :span="12">
           <slot name="title" v-if="hasTitleSlot"></slot>
           <h3 v-else>{{ title ? title : defaultTitle }}</h3>
@@ -18,9 +18,7 @@
     <a-layout-sider v-if="sider && siderPosition == 'right'">
       <slot name="sider"></slot>
     </a-layout-sider>
-    <a-layout-footer>
-      <a-pagination></a-pagination>
-    </a-layout-footer>
+    <a-layout-footer> </a-layout-footer>
   </a-layout>
 </template>
 <script>
@@ -61,3 +59,14 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+#content-layout {
+  .ant-layout-content {
+    .content-layout {
+      &-head {
+        margin-bottom: 24px;
+      }
+    }
+  }
+}
+</style>
