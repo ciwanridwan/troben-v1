@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Customers\Customer;
 use App\Models\Packages\Package;
+use App\Models\Customers\Customer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -18,8 +18,15 @@ class CreatePackagesTable extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
 
+            $table->foreignIdFor(\App\Models\Orders\Order::class, 'order_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             $table->foreignIdFor(Customer::class, 'customer_id')
-                ->nullable()->constrained()->nullOnDelete();
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
             $table->string('barcode');
             $table->char('service_code', 3);

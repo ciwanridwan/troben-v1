@@ -110,13 +110,13 @@ class Order extends Model
     }
 
     /**
-     * Get all of the items for the Order.
+     * Define `hasMany` relationship with Package model.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function items(): HasMany
+    public function packages(): HasMany
     {
-        return $this->hasMany(Item::class, 'order_id', 'id');
+        return $this->hasMany(Package::class, 'order_id', 'id');
     }
 
     public function scopePaid($query)

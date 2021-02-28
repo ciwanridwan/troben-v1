@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Orders\Order;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Package model.
  *
  * @property int $int
+ * @property int $order_id
  * @property int $customer_id
  * @property string $barcode
  * @property string $service_code
@@ -28,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $deleted_at
  *
  * @property-read \App\Models\Customers\Customer|null $customer
+ * @property-read \App\Models\Orders\Order|null $order
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  */
@@ -64,6 +67,7 @@ class Package extends Model
      * @var string[]
      */
     protected $fillable = [
+        'order_id',
         'customer_id',
         'service_code',
         'receiver_name',
@@ -106,6 +110,16 @@ class Package extends Model
             self::STATUS_WITH_COURIER,
             self::STATUS_DELIVERED,
         ];
+    }
+
+    /**
+     * Define `belongsTo` relationship with Order model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'order_id', 'id');
     }
 
     /**

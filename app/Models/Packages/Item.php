@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $height
  * @property int $length
  * @property int $width
- * @property boolean $is_insured
+ * @property bool $is_insured
  * @property array $handling
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -50,7 +50,7 @@ class Item extends Model
         'length',
         'width',
         'is_insured',
-        'handling'
+        'handling',
     ];
 
     /**
@@ -65,7 +65,7 @@ class Item extends Model
         'length' => 'int',
         'width' => 'int',
         'is_insured' => 'boolean',
-        'handling' => 'array'
+        'handling' => 'array',
     ];
 
     /**
