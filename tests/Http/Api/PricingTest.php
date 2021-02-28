@@ -99,6 +99,7 @@ class PricingTest extends TestCase
     public function test_pricing_calculator()
     {
         $price = Price::all()->random();
+
         // valid q string
         $params = [
             'origin_province_id' => $price->origin_province_id,

@@ -44,12 +44,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Price extends Model
 {
     use AttributeColumns, HasFactory;
-    const TIER_1 = 10;
-    const TIER_2 = 30;
-    const TIER_3 = 50;
-    const TIER_4 = 100;
-    const TIER_5 = 1000;
-    const TIER_6 = 3000;
+
+    public const TIER_1 = 10;
+    public const TIER_2 = 30;
+    public const TIER_3 = 50;
+    public const TIER_4 = 100;
+    public const TIER_5 = 1000;
+    public const TIER_6 = 3000;
 
     const DIVIDER_DARAT = 4000;
     const DIVIDER_UDARA = 6000;
