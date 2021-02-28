@@ -2,18 +2,18 @@
 
 namespace Tests\Jobs\Price;
 
-use App\Events\Price\PriceDeleted;
-use App\Jobs\Price\DeleteExistingPrice;
-use App\Models\Geo\SubDistrict;
+use Tests\TestCase;
 use App\Models\Price;
 use App\Models\Service;
-use Database\Seeders\GeoTableSimpleSeeder;
+use Illuminate\Support\Arr;
+use App\Models\Geo\SubDistrict;
+use App\Events\Price\PriceDeleted;
+use Illuminate\Support\Facades\Event;
+use App\Jobs\Price\DeleteExistingPrice;
 use Database\Seeders\ServiceTableSeeder;
+use Database\Seeders\GeoTableSimpleSeeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
 
 class PriceDeletionTest extends TestCase
 {

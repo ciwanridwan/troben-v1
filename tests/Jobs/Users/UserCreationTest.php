@@ -2,17 +2,17 @@
 
 namespace Tests\Jobs\Users;
 
-use App\Events\Users\NewUserCreated;
-use App\Jobs\Users\CreateNewUser;
-use App\Models\User;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Str;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use App\Jobs\Users\CreateNewUser;
+use App\Events\Users\NewUserCreated;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserCreationTest extends TestCase
 {

@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Price;
 
-use App\Events\Price\PriceDeleted;
 use App\Models\Price;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Price\PriceDeleted;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class DeleteExistingPrice
 {

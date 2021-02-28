@@ -25,17 +25,11 @@ class CreateOrdersTable extends Migration
             $table->string('sender_name');
             $table->string('sender_phone');
 
-            $table->decimal('est_payment', 14, 2)->default(0);
             $table->decimal('total_payment', 14, 2)->default(0);
 
             $table->string('payment_channel')->nullable();
             $table->string('payment_ref_id')->nullable();
             $table->string('payment_status')->default('unpaid');
-
-            $table->unsignedInteger('est_weight')->nullable(0);
-            $table->unsignedInteger('est_height')->nullable(0);
-            $table->unsignedInteger('est_length')->nullable(0);
-            $table->unsignedInteger('est_width')->nullable(0);
 
             $table->string('status');
             $table->timestamps();

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Master;
 
 use App\Http\Response;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -124,6 +123,7 @@ class CustomerController extends Controller
                 $query->select(DB::raw('SUM(total_payment)'));
             },
         ]);
+
         return $this->query;
     }
 }

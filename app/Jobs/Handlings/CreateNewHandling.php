@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Handlings;
 
-use App\Events\Handlings\NewHandlingCreated;
 use App\Models\Handling;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Handlings\NewHandlingCreated;
 
 class CreateNewHandling
 {
@@ -29,14 +29,14 @@ class CreateNewHandling
     public array $attributes;
 
     /**
-     * CreateNewHandling constructor
+     * CreateNewHandling constructor.
      *
      * @param array $inputs
      */
     public function __construct($inputs = [])
     {
         $this->handling = new Handling();
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'name' => ['required','string','max:255'],
             'price' => ['required','numeric'],
             'type' => ['required','string'],

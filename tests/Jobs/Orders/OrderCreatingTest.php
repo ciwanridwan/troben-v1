@@ -35,15 +35,10 @@ class OrderCreatingTest extends TestCase
     {
         // on valid data
         $data = [
-            'est_payment' => '1',
             'total_payment' => '1',
             'payment_status' => '1',
             'payment_ref_id' => '1',
-            'est_weight' => 1,
-            'est_height' => 1,
-            'est_length' => 1,
-            'est_width' => 1,
-            'status' => Order::STATUS_DOOR,
+            'status' => Order::STATUS_DOORING,
         ];
         $job = new CreateNewOrder($this->customer, $data);
         $response = $this->dispatch($job);

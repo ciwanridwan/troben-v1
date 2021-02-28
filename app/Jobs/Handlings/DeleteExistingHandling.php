@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Handlings;
 
-use App\Events\Handlings\HandlingDeleted;
 use App\Models\Handling;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Handlings\HandlingDeleted;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class DeleteExistingHandling
 {
@@ -28,7 +28,7 @@ class DeleteExistingHandling
     public bool $softDelete;
 
     /**
-     * DeleteExistingHandling constructor
+     * DeleteExistingHandling constructor.
      *
      * @param \App\Models\Handling  $handling
      * @param bool                  $force

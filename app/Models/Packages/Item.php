@@ -12,7 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $package_id
  * @property string $barcode
  * @property int $qty
+ * @property string $name
  * @property string $desc
+ * @property int $weight
+ * @property int $height
+ * @property int $length
+ * @property int $width
+ * @property bool $is_insured
+ * @property array $handling
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *
@@ -38,6 +45,12 @@ class Item extends Model
         'qty',
         'name',
         'desc',
+        'weight',
+        'height',
+        'length',
+        'width',
+        'is_insured',
+        'handling',
     ];
 
     /**
@@ -47,6 +60,12 @@ class Item extends Model
      */
     protected $casts = [
         'qty' => 'int',
+        'weight' => 'int',
+        'height' => 'int',
+        'length' => 'int',
+        'width' => 'int',
+        'is_insured' => 'boolean',
+        'handling' => 'array',
     ];
 
     /**

@@ -2,12 +2,10 @@
 
 namespace App\Models\Partners\Pivot;
 
-use App\Models\Partners\Partner;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\MorphPivot;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
 class UserablePivot extends MorphPivot
 {
@@ -22,7 +20,7 @@ class UserablePivot extends MorphPivot
     const ROLES = [
         self::ROLE_OWNER,
         self::ROLE_DRIVER,
-        self::ROLE_CASHIER
+        self::ROLE_CASHIER,
     ];
 
     /**
@@ -54,6 +52,18 @@ class UserablePivot extends MorphPivot
         'role',
     ];
 
+    public function userable()
+    {
+        return $this->morphTo();
+    }
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id')->where('deleted_at', null);
+    }
+    public function get()
+    {
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -61,17 +71,5 @@ class UserablePivot extends MorphPivot
         static::addGlobalScope('active', function (Builder $builder) {
             $builder->whereHas('user')->whereHas('userable');
         });
-    }
-
-    public function userable()
-    {
-        return $this->morphTo();
-    }
-    public function user()
-    {
-        return $this->hasOne(User::class, 'id', 'user_id')->where('deleted_at', NULL);
-    }
-    public function get()
-    {
     }
 }

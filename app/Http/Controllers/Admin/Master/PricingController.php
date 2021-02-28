@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
+use App\Models\Price;
+use App\Http\Response;
+use App\Models\Service;
+use App\Models\Geo\Regency;
+use App\Models\Geo\District;
+use Illuminate\Http\Request;
+use App\Jobs\Price\CreateNewPrice;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
-use App\Http\Response;
-use App\Jobs\Price\CreateNewPrice;
-use App\Models\Geo\District;
-use App\Models\Geo\Regency;
-use App\Models\Price;
-use App\Models\Service;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class PricingController extends Controller
 {
@@ -79,14 +78,13 @@ class PricingController extends Controller
      */
     public function index(Request $request)
     {
-
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
             $this->getResource();
             // dd(PriceResource::collection($this->query->paginate(request('per_page', 15)))->toArray($request));
             $data = [
-                'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15)))
+                'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15))),
             ];
             $data = array_merge($data, $this->extraData());
 
@@ -112,6 +110,7 @@ class PricingController extends Controller
     {
         $job = new CreateNewPrice($request->all());
         $this->dispatch($job);
+
         return $this->jsonSuccess(PriceResource::make($job->price));
     }
 
@@ -123,7 +122,7 @@ class PricingController extends Controller
         return [
             'regencies' => Regency::all(),
             'districts' => District::all(),
-            'services' => Service::all()
+            'services' => Service::all(),
         ];
     }
 }

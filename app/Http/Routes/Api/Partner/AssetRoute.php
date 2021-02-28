@@ -1,25 +1,32 @@
 <?php
 
-namespace App\Http\Routes\Admin\Master;
+namespace App\Http\Routes\Api\Partner;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Admin\Master\PartnerController;
+use App\Http\Controllers\Api\Partner\AssetController;
 
-class PartnerRoute extends BaseRoute
+class AssetRoute extends BaseRoute
 {
     /**
      * route prefix.
      *
      * @var string
      */
-    protected $prefix = '/master/partner';
+    protected $prefix = '/partner/asset';
 
     /**
      * route name.
      *
      * @var string
      */
-    protected $name = 'admin.master.partner';
+    protected $name = 'api.partner.asset';
+
+    /**
+     * Middleware used for this route.
+     *
+     * @var array
+     */
+    protected $middleware = ['isUsers'];
 
     /**
      * Register routes handled by this class.
@@ -28,14 +35,9 @@ class PartnerRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix, [
+        $this->router->get($this->prefix(), [
             'as' => $this->name,
             'uses' => $this->uses('index'),
-        ]);
-
-        $this->router->delete($this->prefix('{hash}'), [
-            'as' => $this->name('delete'),
-            'uses' => $this->uses('destroy'),
         ]);
     }
 
@@ -46,6 +48,6 @@ class PartnerRoute extends BaseRoute
      */
     public function controller()
     {
-        return PartnerController::class;
+        return AssetController::class;
     }
 }

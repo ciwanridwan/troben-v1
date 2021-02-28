@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
-use App\Jobs\Partners\DeleteExistingPartner;
-use App\Models\Partners\Partner;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+use App\Models\Partners\Partner;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
+use Illuminate\Database\Eloquent\Builder;
+use App\Jobs\Partners\DeleteExistingPartner;
+use App\Http\Resources\Admin\Master\PartnerResource;
 
 class PartnerController extends Controller
 {
@@ -40,12 +39,12 @@ class PartnerController extends Controller
     public function __construct()
     {
         $this->rules = [
-            'name'          => ['filled'],
-            'code'          => ['filled'],
+            'name' => ['filled'],
+            'code' => ['filled'],
             'contact_email' => ['filled'],
             'contact_phone' => ['filled'],
-            'type'          => ['filled'],
-            'q'             => ['filled'],
+            'type' => ['filled'],
+            'q' => ['filled'],
         ];
         $this->baseBuilder(Partner::query());
     }
@@ -89,6 +88,7 @@ class PartnerController extends Controller
         $partner = (new Partner())->byHashOrFail($request->hash);
         $job = new DeleteExistingPartner($partner);
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->partner))->json();
     }
 }

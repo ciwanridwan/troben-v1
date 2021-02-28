@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Admin\Master;
 
-use App\Http\Resources\Account\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmployeeResource extends JsonResource
@@ -17,14 +16,14 @@ class EmployeeResource extends JsonResource
     {
         return [
             'hash' => $this->hash,
-            'name'  => $this->user->name,
+            'name' => $this->user->name,
             'phone' => $this->user->phone,
             'email' => $this->user->email,
             'role' => $this->role,
             'partner' => [
                 'type' => $this->userable->type,
-                'code' => $this->userable->code
-            ]
+                'code' => $this->userable->code,
+            ],
         ];
     }
 }
