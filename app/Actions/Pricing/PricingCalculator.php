@@ -70,11 +70,15 @@ class PricingCalculator
         return (new Response(Response::RC_SUCCESS, PriceCalculatorResource::make($response)))->json();
     }
 
-    public function getDimensionCharge($weight, $tier = 0)
+    /**
+     * @param int $weight
+     * @param int $tier
+     *
+     * @return float|int
+     */
+    public function getDimensionCharge(int $weight,int $tier = 0)
     {
-        $price = $weight * $tier;
-
-        return $price;
+        return $weight * $tier;
     }
 
     /**
@@ -83,6 +87,7 @@ class PricingCalculator
      * @param int $destination_id
      *
      * @return Price
+     * @throws \Throwable
      */
     public function getPrice(int $origin_province_id, int  $origin_regency_id, int $destination_id): Price
     {
@@ -134,12 +139,12 @@ class PricingCalculator
     {
         $divider = 0;
         switch ($divider) {
-            case 'darat':
-                $divider = Price::DIVIDER_DARAT;
-                break;
-
             case 'udara':
                 $divider = Price::DIVIDER_UDARA;
+                break;
+            case 'darat':
+            default:
+                $divider = Price::DIVIDER_DARAT;
                 break;
         }
 
