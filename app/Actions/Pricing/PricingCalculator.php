@@ -76,7 +76,7 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public function getDimensionCharge(int $weight,int $tier = 0)
+    public function getDimensionCharge(int $weight, int $tier = 0)
     {
         return $weight * $tier;
     }
