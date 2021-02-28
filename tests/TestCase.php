@@ -35,8 +35,8 @@ abstract class TestCase extends BaseTestCase
             'data',
         ]);
 
-        $this->assertEquals(0, $response->json('code'));
-        $this->assertNull($response->json('error'));
+        self::assertEquals(0, $response->json('code'));
+        self::assertNull($response->json('error'));
     }
 
     /**
@@ -66,7 +66,8 @@ abstract class TestCase extends BaseTestCase
     public function assertResponseWithCode(TestResponse $response, string $code)
     {
         $expected = new Response($code);
-        $this->assertEquals($expected->code, $response->json('code'));
+
+        self::assertEquals($expected->code, $response->json('code'));
     }
 
     /**
