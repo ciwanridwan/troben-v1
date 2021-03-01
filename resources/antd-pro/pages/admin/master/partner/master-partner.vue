@@ -24,6 +24,7 @@
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
+          :class="['trawl']"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
           <span slot="type" slot-scope="type">{{ type }}</span>

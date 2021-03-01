@@ -19,6 +19,7 @@
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
+          :class="['trawl']"
         >
           <span slot="phone_email" slot-scope="record"
             >{{ record.phone }} / {{ record.email }}</span

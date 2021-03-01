@@ -48,7 +48,22 @@
 
         <partner-owner-form ref="owner"></partner-owner-form>
 
-        <hr />
+        <div v-if="form.partner_type !== null" class="addon">
+          <hr />
+          <partner-space-form
+            ref="addon"
+            v-if="addon_space >= 0"
+          ></partner-space-form>
+
+          <inventory ref="addon" v-if="addon_inventory >= 0"></inventory>
+
+          <transporters
+            ref="addon"
+            v-if="addon_transporter >= 0"
+          ></transporters>
+        </div>
+
+        <hr v-else />
 
         <a-row type="flex" justify="end" :gutter="[10, 10]">
           <a-col>
@@ -68,15 +83,21 @@
 </template>
 <script>
 import contentLayout from "../../../../layouts/content-layout.vue";
+import Inventory from "./inventory/inventory";
 import PartnerFormLocation from "./partner-form-location.vue";
 import PartnerOwnerForm from "./partner-owner-form.vue";
+import PartnerSpaceForm from "./space/partner-space-form.vue";
 import PartnerTransporterForm from "./transporter/partner-transporter-form.vue";
+import Transporters from "./transporter/transporters.vue";
 export default {
   components: {
     contentLayout,
     PartnerFormLocation,
     PartnerTransporterForm,
-    PartnerOwnerForm
+    PartnerOwnerForm,
+    Transporters,
+    Inventory,
+    PartnerSpaceForm
   },
   data() {
     return {
@@ -93,6 +114,9 @@ export default {
       this.geo = data.geo;
       this.partner_types = data.partner_types;
     },
+    storePartnerTransporter() {
+      return "test";
+    },
     onPost() {
       let location = { ...this.$refs.location.$data.form };
       let owner = { ...this.$refs.owner.$data.form };
@@ -100,11 +124,32 @@ export default {
         partner: { ...location, partner_type: this.form.partner_type },
         owner: { ...owner }
       };
+      this.storePartnerTransporter();
       console.log(form);
     }
   },
   created() {
     this.getItems();
+  },
+  computed: {
+    addon_inventory() {
+      console.log(
+        _.indexOf(["business", "pool", "warehouse"], this.form.partner_type)
+      );
+      return _.indexOf(
+        ["business", "pool", "warehouse"],
+        this.form.partner_type
+      );
+    },
+    addon_space() {
+      return _.indexOf(
+        ["business", "space", "warehouse"],
+        this.form.partner_type
+      );
+    },
+    addon_transporter() {
+      return _.indexOf(["business", "transporter"], this.form.partner_type);
+    }
   }
 };
 </script>
@@ -112,6 +157,9 @@ export default {
 <style lang="scss">
 #partner-form {
   .ant-card-body > * {
+    margin-bottom: 24px;
+  }
+  .addon > * {
     margin-bottom: 24px;
   }
 }
