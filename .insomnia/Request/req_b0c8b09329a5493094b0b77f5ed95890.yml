@@ -1,10 +1,10 @@
 _id: req_b0c8b09329a5493094b0b77f5ed95890
 type: Request
 parentId: fld_b05a80fb85cd4c2cbe35e1aa011ad519
-modified: 1614315514875
+modified: 1614570188101
 created: 1614240539992
 url: "{{ _.base_url }}/partner/asset"
-name: Get Employee Data
+name: Get Asset Data
 description: |-
   Get employee data from partner.
 
@@ -20,7 +20,7 @@ method: GET
 body: {}
 parameters:
   - name: type
-    value: employee
+    value: transporter
     description: ""
     id: pair_334da786658b469da4c7e3e9cfae1248
     disabled: false
