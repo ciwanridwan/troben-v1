@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Admin\Master;
 
-use App\Http\Controllers\Admin\Master\PartnerController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\PartnerController;
 
 class PartnerRoute extends BaseRoute
 {

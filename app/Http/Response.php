@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use ReflectionClass;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,6 @@ use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response as LaravelResponse;
-use Illuminate\Support\Arr;
 
 class Response implements Responsable
 {
@@ -35,6 +35,7 @@ class Response implements Responsable
     const RC_INVALID_AUTHENTICATION_HEADER = '0201';
     const RC_MISSING_AUTHENTICATION_HEADER = '0202';
     const RC_ACCOUNT_NOT_VERIFIED = '0203';
+    const RC_UNAUTHORIZED = '0204';
 
     // one time password 0300 - 0399
     const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
@@ -116,6 +117,7 @@ class Response implements Responsable
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
                 self::RC_ACCOUNT_NOT_VERIFIED,
+                self::RC_UNAUTHORIZED,
             ],
             LaravelResponse::HTTP_SERVICE_UNAVAILABLE => [
                 self::RC_SERVER_IN_MAINTENANCE,

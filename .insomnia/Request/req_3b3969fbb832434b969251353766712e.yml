@@ -1,11 +1,16 @@
 _id: req_3b3969fbb832434b969251353766712e
 type: Request
 parentId: fld_4a4fb5354fe44412bbfa37dc8c5d00bf
-modified: 1613724245284
+modified: 1614315953652
 created: 1613723877421
 url: "{{ _.base_url }}/product"
 name: Get Product List
-description: ""
+description: |-
+  Get product list (TrawlPack, TrawlHeavy, etc).
+  Header
+  --
+  - `Authorization` => Bearer token
+  - `Accept` => application/json
 method: GET
 body: {}
 parameters: []

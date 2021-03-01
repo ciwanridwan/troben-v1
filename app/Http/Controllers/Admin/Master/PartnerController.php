@@ -45,12 +45,12 @@ class PartnerController extends Controller
     public function __construct()
     {
         $this->rules = [
-            'name'          => ['filled'],
-            'code'          => ['filled'],
+            'name' => ['filled'],
+            'code' => ['filled'],
             'contact_email' => ['filled'],
             'contact_phone' => ['filled'],
-            'type'          => ['filled'],
-            'q'             => ['filled'],
+            'type' => ['filled'],
+            'q' => ['filled'],
         ];
         $this->baseBuilder(Partner::query());
     }
@@ -131,6 +131,7 @@ class PartnerController extends Controller
         $partner = (new Partner())->byHashOrFail($request->hash);
         $job = new DeleteExistingPartner($partner);
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->partner))->json();
     }
 }

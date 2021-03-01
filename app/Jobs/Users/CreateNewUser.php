@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Users;
 
-use App\Events\Users\NewUserCreated;
 use App\Models\User;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Events\Users\NewUserCreated;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewUser
 {

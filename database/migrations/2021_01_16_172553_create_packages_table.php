@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Orders\Order;
 use App\Models\Packages\Package;
+use App\Models\Customers\Customer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -18,7 +18,12 @@ class CreatePackagesTable extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignIdFor(Order::class, 'order_id')
+            $table->foreignIdFor(\App\Models\Orders\Order::class, 'order_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->foreignIdFor(Customer::class, 'customer_id')
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();
@@ -31,11 +36,6 @@ class CreatePackagesTable extends Migration
             $table->string('receiver_address');
 
             $table->string('received_by')->nullable();
-
-            $table->unsignedInteger('weight')->default(0);
-            $table->unsignedInteger('height')->default(0);
-            $table->unsignedInteger('length')->default(0);
-            $table->unsignedInteger('width')->default(0);
 
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);

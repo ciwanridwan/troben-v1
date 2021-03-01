@@ -24,10 +24,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $payment_channel
  * @property string $payment_ref_id
  * @property string $payment_status
- * @property int $est_weight
- * @property int $est_height
- * @property int $est_length
- * @property int $est_width
  * @property string $status
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -40,14 +36,14 @@ class Order extends Model
 {
     use HasPhoneNumber, SoftDeletes, HasBarcode;
 
-    const STATUS_DOOR = 'door';
-    const STATUS_TRANSIT = 'transit';
+    public const STATUS_DOORING = 'dooring';
+    public const STATUS_TRANSIT = 'transit';
 
-    const PAYMENT_PAID = 'paid';
-    const PAYMENT_UNPAID = 'unpaid';
+    public const PAYMENT_PAID = 'paid';
+    public const PAYMENT_UNPAID = 'unpaid';
 
-    const STATUS = [
-        self::STATUS_DOOR,
+    public const STATUS = [
+        self::STATUS_DOORING,
         self::STATUS_TRANSIT,
     ];
 
@@ -121,16 +117,6 @@ class Order extends Model
     public function packages(): HasMany
     {
         return $this->hasMany(Package::class, 'order_id', 'id');
-    }
-
-    /**
-     * Get all of the items for the Order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function items(): HasMany
-    {
-        return $this->hasMany(Item::class, 'order_id', 'id');
     }
 
     public function scopePaid($query)

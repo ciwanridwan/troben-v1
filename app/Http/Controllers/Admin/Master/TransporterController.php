@@ -7,16 +7,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
 use App\Concerns\Controllers\HasResource;
-use App\Http\Resources\Admin\Master\TransporterResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\Customers\DeleteExistingCustomer;
-use App\Http\Resources\Admin\MasterCustomerResource;
+use App\Http\Resources\Admin\Master\TransporterResource;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
-use App\Models\Partners\Transporter;
 
 class TransporterController extends Controller
 {

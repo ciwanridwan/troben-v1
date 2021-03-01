@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\TransporterController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\TransporterController;
 
 class TransporterRoute extends BaseRoute
 {
@@ -28,7 +28,7 @@ class TransporterRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix(),[
+        $this->router->get($this->prefix(), [
             'as' => $this->name('list'),
             'uses' => $this->uses('list'),
         ]);

@@ -1,0 +1,43 @@
+_id: req_b0c8b09329a5493094b0b77f5ed95890
+type: Request
+parentId: fld_b05a80fb85cd4c2cbe35e1aa011ad519
+modified: 1614570188101
+created: 1614240539992
+url: "{{ _.base_url }}/partner/asset"
+name: Get Asset Data
+description: |-
+  Get employee data from partner.
+
+  Header
+  --
+  - `Authorization` => Bearer token
+  - `Accept` => application/json
+
+  Parameter
+  --
+  - `type` => possible value: `employee`,`transporter`, **required*
+method: GET
+body: {}
+parameters:
+  - name: type
+    value: transporter
+    description: ""
+    id: pair_334da786658b469da4c7e3e9cfae1248
+    disabled: false
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_479cd8eaea354a3a9637e83fd4649c74
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1614240540040
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

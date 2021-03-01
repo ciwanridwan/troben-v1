@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
-use App\Models\Partners\Transporter;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
 
 class TransporterController extends Controller
 {
@@ -30,7 +30,7 @@ class TransporterController extends Controller
      */
     public function list(Request $request): JsonResponse
     {
-        $this->attributes = Validator::make($request->all(),[
+        $this->attributes = Validator::make($request->all(), [
             'details' => ['nullable','boolean'],
         ])->validate();
 

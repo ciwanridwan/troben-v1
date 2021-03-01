@@ -2,16 +2,16 @@
 
 namespace Tests\Jobs\Handlings;
 
-use App\Events\Handlings\HandlingModified;
-use App\Jobs\Handlings\UpdateExistingHandling;
+use Tests\TestCase;
 use App\Models\Handling;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
+use App\Events\Handlings\HandlingModified;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Handlings\UpdateExistingHandling;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class HandlingUpdatingTest extends TestCase
 {
@@ -27,7 +27,7 @@ class HandlingUpdatingTest extends TestCase
 
         $this->updateData = [
             'name' => $this->faker->name,
-            'price' => $this->faker->randomFloat(2,3000,10000),
+            'price' => $this->faker->randomFloat(2, 3000, 10000),
             'type' => $typeMapper[$this->faker->randomKey([0,1])],
         ];
 
