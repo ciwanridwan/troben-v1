@@ -21,6 +21,8 @@ class UserablePivot extends MorphPivot
         self::ROLE_OWNER,
         self::ROLE_DRIVER,
         self::ROLE_CASHIER,
+        self::ROLE_CS,
+        self::ROLE_WAREHOUSE
     ];
 
     /**
@@ -48,7 +50,7 @@ class UserablePivot extends MorphPivot
     protected $fillable = [
         'user_id',
         'userable_type',
-        'userlable_id',
+        'userable_id',
         'role',
     ];
 
