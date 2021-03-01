@@ -50,7 +50,7 @@ class PartnerController extends Controller
             'contact_email' => ['filled'],
             'contact_phone' => ['filled'],
             'type' => ['filled'],
-            'q' => ['filled'],
+            'q' => ['nullable'],
         ];
         $this->baseBuilder(Partner::query());
     }
