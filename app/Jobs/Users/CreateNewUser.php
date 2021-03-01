@@ -43,7 +43,7 @@ class CreateNewUser
             'phone' => ['required','unique:users,phone','numeric','phone:AUTO,ID'],
             'password' => ['required'],
             'email_verified_at' => ['nullable'],
-            'remember_token' => ['required'],
+            'remember_token' => ['nullable'],
             'verified_at' => ['nullable'],
         ])->validate();
     }

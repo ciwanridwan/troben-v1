@@ -39,6 +39,11 @@ class AssetRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->post($this->prefix('/{type}'), [
+            'as' => $this->name('store'),
+            'uses' => $this->uses('store'),
+        ]);
     }
 
     /**
