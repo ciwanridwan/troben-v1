@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Actions\Admin\Partner\CreatePartner;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\Master\PartnerResource;
-use App\Http\Resources\Geo\DistrictResource;
-use App\Http\Resources\Geo\ProvinceResource;
-use App\Http\Resources\Geo\RegencyResource;
-use App\Http\Resources\Geo\SubDistrictResource;
 use App\Http\Response;
 use App\Jobs\Partners\DeleteExistingPartner;
 use App\Models\Geo\District;
@@ -19,7 +16,7 @@ use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+
 
 class PartnerController extends Controller
 {
@@ -111,6 +108,11 @@ class PartnerController extends Controller
         }
 
         return view('admin.master.partner.create_partner');
+    }
+
+    public function store(Request $request)
+    {
+        return (new CreatePartner($request->all()))->create();
     }
 
     /**

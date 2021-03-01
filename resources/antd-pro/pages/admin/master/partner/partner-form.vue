@@ -18,10 +18,7 @@
         <a-row type="flex">
           <a-col :span="8">
             <h3>Jenis Mitra</h3>
-            <a-select
-              :default-value="form.partner_type"
-              v-model="form.partner_type"
-            >
+            <a-select :default-value="form.type" v-model="form.type">
               <a-select-option
                 v-for="type in partner_types"
                 :key="type"
@@ -37,9 +34,9 @@
           :geo="geo"
         ></partner-form-location>
 
-        <div v-if="form.partner_type !== null">
+        <div v-if="form.type !== null">
           <partner-transporter-form
-            v-if="form.partner_type == 'transporter'"
+            v-if="form.type == 'transporter'"
             :geo="geo"
           ></partner-transporter-form>
         </div>
@@ -48,7 +45,7 @@
 
         <partner-owner-form ref="owner"></partner-owner-form>
 
-        <div v-if="form.partner_type !== null" class="addon">
+        <div v-if="form.type !== null" class="addon">
           <hr />
           <partner-space-form
             ref="addon"
@@ -104,7 +101,8 @@ export default {
       geo: {},
       partner_types: [],
       form: {
-        partner_type: null
+        type: null,
+        name: "test"
       }
     };
   },
@@ -114,6 +112,12 @@ export default {
       this.geo = data.geo;
       this.partner_types = data.partner_types;
     },
+    onSuccessStore(resp) {
+      console.log(resp);
+    },
+    onErrorStore(err) {
+      console.log(err.response);
+    },
     storePartnerTransporter() {
       return "test";
     },
@@ -121,11 +125,13 @@ export default {
       let location = { ...this.$refs.location.$data.form };
       let owner = { ...this.$refs.owner.$data.form };
       let form = {
-        partner: { ...location, partner_type: this.form.partner_type },
+        partner: { ...location, ...this.form },
         owner: { ...owner }
       };
-      this.storePartnerTransporter();
-      console.log(form);
+      this.$http
+        .post(this.routeUri(this.getRoute()), form)
+        .then(this.onSuccessStore)
+        .catch(this.onErrorStore);
     }
   },
   created() {
@@ -133,22 +139,13 @@ export default {
   },
   computed: {
     addon_inventory() {
-      console.log(
-        _.indexOf(["business", "pool", "warehouse"], this.form.partner_type)
-      );
-      return _.indexOf(
-        ["business", "pool", "warehouse"],
-        this.form.partner_type
-      );
+      return _.indexOf(["business", "pool"], this.form.type);
     },
     addon_space() {
-      return _.indexOf(
-        ["business", "space", "warehouse"],
-        this.form.partner_type
-      );
+      return _.indexOf(["business", "space", "pool"], this.form.type);
     },
     addon_transporter() {
-      return _.indexOf(["business", "transporter"], this.form.partner_type);
+      return _.indexOf(["business", "transporter"], this.form.type);
     }
   }
 };
