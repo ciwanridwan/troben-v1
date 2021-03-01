@@ -13,5 +13,4 @@ class Payment extends Model
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
 
     protected $table = 'payments';
-
 }

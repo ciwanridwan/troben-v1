@@ -2,14 +2,14 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasPhoneNumber;
-use App\Models\Payments\Payment;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Package model.

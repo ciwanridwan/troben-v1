@@ -34,7 +34,7 @@ class CreatePackagesTable extends Migration
 
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);
-            $table->enum('payment_status',Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
+            $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
             $table->boolean('is_separate_item')->default(0);
 
             $table->timestamps();

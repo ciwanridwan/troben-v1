@@ -34,7 +34,6 @@ class CreatePaymentsTable extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('set null');
-
         });
     }
 
