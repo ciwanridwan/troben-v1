@@ -22,7 +22,7 @@ class UserablePivot extends MorphPivot
         self::ROLE_DRIVER,
         self::ROLE_CASHIER,
         self::ROLE_CS,
-        self::ROLE_WAREHOUSE
+        self::ROLE_WAREHOUSE,
     ];
 
     /**

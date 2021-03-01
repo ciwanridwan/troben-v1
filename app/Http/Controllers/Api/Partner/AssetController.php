@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Http\Response;
 use App\Exceptions\Error;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
+use App\Jobs\Users\CreateNewUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Http\Response;
-use App\Jobs\Users\CreateNewUser;
-use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class AssetController extends Controller
 {
@@ -97,7 +97,7 @@ class AssetController extends Controller
      */
     protected function createEmployee(Request $request): void
     {
-        $this->attributes = Validator::make($request->all(),[
+        $this->attributes = Validator::make($request->all(), [
             'name' => ['required'],
             'username' => ['required','unique:users,username'],
             'email' => ['required','unique:users,email'],
@@ -109,7 +109,7 @@ class AssetController extends Controller
         $job = new CreateNewUser($this->attributes);
         $this->dispatch($job);
 
-        throw_if(!$job,Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
         foreach ($this->attributes['role'] as $role) {
             $pivot = new UserablePivot();
