@@ -2,19 +2,19 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Orders\Order;
+use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Package model.
  *
  * @property int $int
- * @property int $order_id
  * @property int $customer_id
  * @property string $barcode
  * @property string $service_code
@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $deleted_at
  *
  * @property-read \App\Models\Customers\Customer|null $customer
- * @property-read \App\Models\Orders\Order|null $order
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payments\Payment[] $payments
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  */
@@ -46,6 +46,11 @@ class Package extends Model
     public const STATUS_IN_TRANSIT = 'in_transit';
     public const STATUS_WITH_COURIER = 'with_courier';
     public const STATUS_DELIVERED = 'delivered';
+
+    public const PAYMENT_STATUS_DRAFT = 'draft';
+    public const PAYMENT_STATUS_PENDING = 'pending';
+    public const PAYMENT_STATUS_PAID = 'paid';
+    public const PAYMENT_STATUS_FAILED = 'failed';
 
     /**
      * Phone number column.
@@ -80,6 +85,7 @@ class Package extends Model
         'width',
         'total_amount',
         'status',
+        'payment_status',
         'is_separate_item',
     ];
 
@@ -113,13 +119,26 @@ class Package extends Model
     }
 
     /**
-     * Define `belongsTo` relationship with Order model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return string[]
      */
-    public function order(): BelongsTo
+    public static function getAvailablePaymentStatuses(): array
     {
-        return $this->belongsTo(Order::class, 'order_id', 'id');
+        return [
+            self::PAYMENT_STATUS_DRAFT, // payment not yet created
+            self::PAYMENT_STATUS_PENDING, // payment is created, waiting for payment
+            self::PAYMENT_STATUS_PAID, // payment is done.
+            self::PAYMENT_STATUS_FAILED, // payment is failed
+        ];
+    }
+
+    /**
+     * Define `morphMany` relationship with Payment model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function payments(): MorphMany
+    {
+        return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
     /**

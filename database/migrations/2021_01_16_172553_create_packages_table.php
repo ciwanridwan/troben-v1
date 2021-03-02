@@ -18,11 +18,6 @@ class CreatePackagesTable extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignIdFor(\App\Models\Orders\Order::class, 'order_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
-
             $table->foreignIdFor(Customer::class, 'customer_id')
                 ->nullable()
                 ->constrained()
@@ -39,6 +34,7 @@ class CreatePackagesTable extends Migration
 
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);
+            $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
             $table->boolean('is_separate_item')->default(0);
 
             $table->timestamps();
