@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use App\Auditor\Contracts\AuditableContract;
+use App\Models\Packages\Package;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -129,8 +130,8 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function orders(): HasMany
+    public function packages(): HasMany
     {
-        return $this->hasMany(Order::class, 'customer_id', 'id');
+        return $this->hasMany(Package::class, 'customer_id', 'id');
     }
 }

@@ -22,13 +22,6 @@
           :class="['trawl']"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
-          <span slot="name" slot-scope="name">{{ name }}</span>
-          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-          <span slot="email" slot-scope="record">{{ record.email }}</span>
-          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-          <span slot="payment" slot-scope="record">{{
-            record.order.payment
-          }}</span>
           <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteConfirm(record)"></delete-button>

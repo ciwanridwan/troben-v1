@@ -8,28 +8,33 @@ export default [
   {
     title: "No HP",
     key: "phone",
+    dataIndex: "phone",
     scopedSlots: { customRender: "phone" }
   },
   {
     title: "Name",
     dataIndex: "name",
     key: "name",
+
     scopedSlots: { customRender: "name" }
   },
   {
     title: "Email",
     key: "email",
+    dataIndex: "email",
     scopedSlots: { customRender: "email" }
   },
   {
     title: "Jumlah Order",
-    key: "order.count",
+    dataIndex: "package.count",
+    key: "package.count",
     align: "center",
     scopedSlots: { customRender: "count" }
   },
   {
     title: "Invoice",
-    key: "order.total_payment",
+    key: "package.payment",
+    dataIndex: "package.payment",
     align: "center",
     scopedSlots: { customRender: "payment" }
   },

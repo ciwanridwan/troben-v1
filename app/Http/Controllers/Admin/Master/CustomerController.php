@@ -116,11 +116,11 @@ class CustomerController extends Controller
     public function withSumAndCount(): Builder
     {
         $this->query = $this->query->withCount([
-            'orders as orderCount' => function ($query) {
+            'packages as packageCount' => function ($query) {
                 $query->paid();
             },
-            'orders as orderTotalPayment' => function ($query) {
-                $query->select(DB::raw('SUM(total_payment)'));
+            'packages as packageTotalPayment' => function ($query) {
+                $query->select(DB::raw('SUM(total_amount)'));
             },
         ]);
 

@@ -170,4 +170,9 @@ class Package extends Model
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
+
+    public function scopePaid($query)
+    {
+        return $query->where('payment_status', self::PAYMENT_STATUS_PAID);
+    }
 }
