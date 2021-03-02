@@ -56,7 +56,7 @@ class CreateManyNewInventory
             '*.name' => ['required','string','max:255'],
             '*.capacity' => ['required','numeric'],
             '*.height' => ['required','numeric'],
-            '*.count' => ['required','numeric']
+            '*.qty' => ['required','numeric']
         ])->validate();
     }
 

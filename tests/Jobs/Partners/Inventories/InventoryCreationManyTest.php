@@ -35,19 +35,19 @@ class InventoryCreationManyTest extends TestCase
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
-                'count' => $this->faker->randomNumber(),
+                'qty' => $this->faker->randomNumber(),
             ],
             [
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
-                'count' => $this->faker->randomNumber(),
+                'qty' => $this->faker->randomNumber(),
             ],
             [
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
-                'count' => $this->faker->randomNumber(),
+                'qty' => $this->faker->randomNumber(),
             ],
         ];
     }
