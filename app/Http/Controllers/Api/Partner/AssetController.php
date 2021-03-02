@@ -16,6 +16,8 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
+use App\Jobs\Partners\Transporter\CreateNewTransporter;
+use App\Models\Partners\Transporter;
 
 class AssetController extends Controller
 {
@@ -131,6 +133,15 @@ class AssetController extends Controller
      */
     protected function createTransporter(Request $request): void
     {
-        // DO CREATE TRANSPORTER
+        $this->attributes = Validator::make($request->all(), [
+            'name' => ['required','string','max:255'],
+            'registration_number' => ['required','string','max:255'],
+            'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+        ])->validate();
+
+        $job = new CreateNewTransporter($this->partner, $this->attributes);
+        $this->dispatch($job);
+
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
     }
 }
