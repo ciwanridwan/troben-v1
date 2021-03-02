@@ -40,6 +40,14 @@ const laravel = {
         message: error.response.data.message
       });
     },
+    onErrorValidation(err) {
+      let messages = err.response.data.data;
+      _.map(messages, message => {
+        this.$notification.error({
+          message: _.head(message)
+        });
+      });
+    },
     deleteItem(record) {
       this.loading = true;
       let uri = this.routeUri(this.getRoute());

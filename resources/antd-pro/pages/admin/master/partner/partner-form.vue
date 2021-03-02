@@ -15,20 +15,28 @@
 
     <template slot="content">
       <a-card id="partner-form">
-        <a-row type="flex">
-          <a-col :span="8">
-            <h3>Jenis Mitra</h3>
-            <a-select :default-value="form.type" v-model="form.type">
-              <a-select-option
-                v-for="type in partner_types"
-                :key="type"
-                :value="type"
-              >
-                {{ type }}
-              </a-select-option>
-            </a-select>
-          </a-col>
-        </a-row>
+        <a-form-model ref="ruleForm" :rules="rules" :model="form">
+          <a-row type="flex">
+            <a-col :span="8">
+              <trawl-input label="Jenis Mitra">
+                <template slot="input">
+                  <a-form-model-item ref="type" prop="type">
+                    <a-select :default-value="form.type" v-model="form.type">
+                      <a-select-option
+                        v-for="type in partner_types"
+                        :key="type"
+                        :value="type"
+                      >
+                        {{ type }}
+                      </a-select-option>
+                    </a-select>
+                  </a-form-model-item>
+                </template>
+              </trawl-input>
+            </a-col>
+          </a-row>
+        </a-form-model>
+
         <partner-form-location
           ref="location"
           :geo="geo"
@@ -48,14 +56,14 @@
         <div v-if="form.type !== null" class="addon">
           <hr />
           <partner-space-form
-            ref="addon"
+            ref="space"
             v-if="addon_space >= 0"
           ></partner-space-form>
 
-          <inventory ref="addon" v-if="addon_inventory >= 0"></inventory>
+          <inventory ref="inventory" v-if="addon_inventory >= 0"></inventory>
 
           <transporters
-            ref="addon"
+            ref="transporter"
             v-if="addon_transporter >= 0"
           ></transporters>
         </div>
@@ -79,6 +87,8 @@
   </content-layout>
 </template>
 <script>
+import { message } from "ant-design-vue";
+import TrawlInput from "../../../../components/trawl-input.vue";
 import contentLayout from "../../../../layouts/content-layout.vue";
 import Inventory from "./inventory/inventory";
 import PartnerFormLocation from "./partner-form-location.vue";
@@ -94,15 +104,21 @@ export default {
     PartnerOwnerForm,
     Transporters,
     Inventory,
-    PartnerSpaceForm
+    PartnerSpaceForm,
+    TrawlInput
   },
   data() {
     return {
       geo: {},
       partner_types: [],
+      valid: false,
       form: {
         type: null,
         name: "test"
+      },
+      rules: {
+        type: [{ required: true }],
+        name: [{ required: true }]
       }
     };
   },
@@ -113,31 +129,104 @@ export default {
       this.partner_types = data.partner_types;
     },
     onSuccessStore(resp) {
-      console.log(resp);
+      this.$notification.success({
+        message: "Partner Has Been Created"
+      });
+      window.location.href = this.routeUri("admin.master.partner");
     },
-    onErrorStore(err) {
-      console.log(err.response);
-    },
-    storePartnerTransporter() {
-      return "test";
-    },
+
     onPost() {
-      let location = { ...this.$refs.location.$data.form };
-      let owner = { ...this.$refs.owner.$data.form };
       let form = {
-        partner: { ...location, ...this.form },
-        owner: { ...owner }
+        ...this.partnerForm,
+        ...this.ownerForm
       };
-      this.$http
-        .post(this.routeUri(this.getRoute()), form)
-        .then(this.onSuccessStore)
-        .catch(this.onErrorStore);
+
+      switch (this.form.type) {
+        case "pool":
+          form = { ...form, ...this.poolData };
+          break;
+        case "business":
+          form = { ...form, ...this.businessData };
+          break;
+        case "space":
+          form = { ...form, ...this.spaceData };
+          break;
+        case "transporter":
+          form = { ...form, ...this.transporterData };
+          break;
+      }
+
+      if (this.valid) {
+        console.log("kirim");
+        this.$http
+          .post(this.routeUri(this.getRoute()), form)
+          .then(this.onSuccessStore)
+          .catch(this.onErrorValidation);
+      }
     }
   },
   created() {
     this.getItems();
   },
   computed: {
+    partnerForm() {
+      let location = this.$refs.location;
+      location.$refs.ruleForm.validate(valid => {
+        this.valid = valid;
+      });
+
+      this.$refs.ruleForm.validate(valid => {
+        this.valid = valid;
+      });
+
+      return { partner: { ...location.$data.form, ...this.form } };
+    },
+
+    ownerForm() {
+      let owner = this.$refs.owner;
+      owner.$refs.ruleForm.validate(valid => {
+        this.valid = valid;
+      });
+
+      return { owner: owner.$data.form };
+    },
+    transporterForm() {
+      return { transporter: this.$refs.transporter.$data.form };
+    },
+    inventoryForm() {
+      return { inventory: this.$refs.inventory.$data.form };
+    },
+    spaceForm() {
+      let space = this.$refs.space;
+      space.$refs.ruleForm.validate(valid => {
+        this.valid = valid;
+      });
+
+      return { space: space.$data.form };
+    },
+    poolData() {
+      return {
+        ...this.spaceForm,
+        ...this.inventoryForm
+      };
+    },
+    spaceData() {
+      return {
+        ...this.spaceForm
+      };
+    },
+    transporterData() {
+      return {
+        ...this.transporterForm
+      };
+    },
+    businessData() {
+      return {
+        ...this.spaceForm,
+        ...this.inventoryForm,
+        ...this.transporterForm
+      };
+    },
     addon_inventory() {
       return _.indexOf(["business", "pool"], this.form.type);
     },

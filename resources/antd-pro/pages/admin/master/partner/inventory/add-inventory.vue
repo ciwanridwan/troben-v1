@@ -9,36 +9,53 @@
       title="Tambah Inventaris"
       @ok="onOk"
     >
-      <a-row type="flex" :gutter="[10, 10]">
-        <a-col :span="6">
-          <trawl-input label="Nama Alat">
-            <template slot="input">
-              <a-input v-model="form.name"></a-input>
-            </template>
-          </trawl-input>
-        </a-col>
-        <a-col :span="6">
-          <trawl-input label="Berat (Kg)">
-            <template slot="input">
-              <a-input-number v-model="form.weight"></a-input-number>
-            </template>
-          </trawl-input>
-        </a-col>
-        <a-col :span="6">
-          <trawl-input label="Tinggi (cm)">
-            <template slot="input">
-              <a-input-number v-model="form.height"></a-input-number>
-            </template>
-          </trawl-input>
-        </a-col>
-        <a-col :span="6">
-          <trawl-input label="Jumlah">
-            <template slot="input">
-              <a-input-number v-model="form.count"></a-input-number>
-            </template>
-          </trawl-input>
-        </a-col>
-      </a-row>
+      <a-form-model ref="ruleForm" :rules="rules" :model="form">
+        <a-row type="flex" :gutter="[10, 10]">
+          <a-col :span="6">
+            <trawl-input label="Nama Alat">
+              <template slot="input">
+                <a-form-model-item ref="name" prop="name">
+                  <a-input
+                    v-model="form.name"
+                    @blur="
+                      () => {
+                        $refs.name.onFieldBlur();
+                      }
+                    "
+                  ></a-input>
+                </a-form-model-item>
+              </template>
+            </trawl-input>
+          </a-col>
+          <a-col :span="6">
+            <trawl-input label="Berat (Kg)">
+              <template slot="input">
+                <a-form-model-item ref="capacity" prop="capacity">
+                  <a-input-number v-model="form.capacity"></a-input-number>
+                </a-form-model-item>
+              </template>
+            </trawl-input>
+          </a-col>
+          <a-col :span="6">
+            <trawl-input label="Tinggi (cm)">
+              <template slot="input">
+                <a-form-model-item ref="height" prop="height">
+                  <a-input-number v-model="form.height"></a-input-number>
+                </a-form-model-item>
+              </template>
+            </trawl-input>
+          </a-col>
+          <a-col :span="6">
+            <trawl-input label="Jumlah">
+              <template slot="input">
+                <a-form-model-item ref="qty" prop="qty">
+                  <a-input-number v-model="form.qty"></a-input-number>
+                </a-form-model-item>
+              </template>
+            </trawl-input>
+          </a-col>
+        </a-row>
+      </a-form-model>
     </a-modal>
   </div>
 </template>
@@ -52,9 +69,15 @@ export default {
       visible: false,
       form: {
         name: null,
-        weight: null,
+        capacity: null,
         height: null,
-        count: null
+        qty: null
+      },
+      rules: {
+        name: [{ required: true }],
+        capacity: [{ required: true }],
+        height: [{ required: true }],
+        qty: [{ required: true }]
       }
     };
   },
@@ -62,18 +85,22 @@ export default {
     clearForm() {
       this.form = {
         name: null,
-        weight: null,
+        capacity: null,
         height: null,
-        count: null
+        qty: null
       };
     },
     closeForm() {
       this.visible = false;
     },
     onOk() {
-      this.inventories.push(this.form);
-      this.clearForm();
-      this.closeForm();
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          this.inventories.push({ ...this.form });
+          this.$refs.ruleForm.resetFields();
+          this.closeForm();
+        }
+      });
     }
   }
 };

@@ -4,14 +4,14 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
-            <add-inventory :inventories="inventories"></add-inventory>
+            <add-inventory :inventories="form"></add-inventory>
           </a-col>
         </a-row>
       </template>
       <template slot="content">
         <a-table
           :columns="partnerInventoryColumns"
-          :data-source="inventories"
+          :data-source="form"
           style="margin-top:24px"
         >
           <span slot="number" slot-scope="item, record, index">
@@ -34,13 +34,13 @@ export default {
   data() {
     return {
       partnerInventoryColumns,
-      inventories: []
+      form: []
     };
   },
   components: { ContentLayout, AddInventory },
   methods: {
     deleteItem(index) {
-      this.inventories.splice(index, 1);
+      this.form.splice(index, 1);
     }
   }
 };

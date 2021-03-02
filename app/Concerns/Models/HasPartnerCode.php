@@ -30,12 +30,12 @@ trait HasPartnerCode
 
         $code = $partner_code . '-';
 
-        $last_code = Partner::where('code', 'LIKE', $code . '%')->latest()->first();
+        $last_code = Partner::where('code', 'LIKE', $code . '%')->latest()->first()->code;
         if ($last_code === null) {
             $code = $code . str_pad('0', 5, '0');
-            $code_number = (int) substr($code, strlen($code));
+            $code_number = (int) substr($last_code, strlen($code));
         } else {
-            $code_number = (int) substr($code, strlen($code));
+            $code_number = (int) substr($last_code, strlen($code));
             $code_number += 1;
             $code_number =  str_pad($code_number, 5, '0');
         }

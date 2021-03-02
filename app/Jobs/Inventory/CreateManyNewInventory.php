@@ -53,10 +53,10 @@ class CreateManyNewInventory
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            '*.name' => ['required','string','max:255'],
-            '*.capacity' => ['required','numeric'],
-            '*.height' => ['required','numeric'],
-            '*.count' => ['required','numeric']
+            '*.name' => ['required', 'string', 'max:255'],
+            '*.capacity' => ['required', 'numeric'],
+            '*.height' => ['required', 'numeric'],
+            '*.qty' => ['required', 'numeric']
         ])->validate();
     }
 
@@ -72,7 +72,7 @@ class CreateManyNewInventory
             event(new ManyInventoryCreated($this->partner->inventories));
         }
 
-        if(Inventory::whereIn('id',collect($this->inventories)->pluck('id')->all())->get()->count() == $this->inventories->count()) {
+        if (Inventory::whereIn('id', collect($this->inventories)->pluck('id')->all())->get()->count() == $this->inventories->count()) {
             $this->finish = true;
         }
 

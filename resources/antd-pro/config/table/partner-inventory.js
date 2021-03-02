@@ -25,9 +25,9 @@ export default [
   },
   {
     title: "Jumlah",
-    dataIndex: "count",
-    key: "count",
-    scopedSlots: { customRender: "count" }
+    dataIndex: "qty",
+    key: "qty",
+    scopedSlots: { customRender: "qty" }
   },
 
   {
