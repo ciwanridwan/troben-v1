@@ -22,7 +22,7 @@
           </trawl-input>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Tinggi">
+          <trawl-input label="Tinggi (m)">
             <template slot="input">
               <a-form-model-item ref="height" prop="height">
                 <a-input-number v-model="form.height"></a-input-number>
