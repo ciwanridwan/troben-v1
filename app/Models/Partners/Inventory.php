@@ -15,6 +15,6 @@ class Inventory extends Model
         'name',
         'capacity',
         'height',
-        'count',
+        'qty',
     ];
 }

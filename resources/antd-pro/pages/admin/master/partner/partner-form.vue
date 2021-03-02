@@ -157,11 +157,14 @@ export default {
       }
 
       if (this.valid) {
-        console.log("kirim");
         this.$http
           .post(this.routeUri(this.getRoute()), form)
           .then(this.onSuccessStore)
           .catch(this.onErrorValidation);
+      } else {
+        this.$notification.error({
+          message: "Silahkan isi form tersebut"
+        });
       }
     }
   },
@@ -179,7 +182,12 @@ export default {
         this.valid = valid;
       });
 
-      return { partner: { ...location.$data.form, ...this.form } };
+      return {
+        partner: {
+          ...location.$data.form,
+          ...this.form
+        }
+      };
     },
 
     ownerForm() {

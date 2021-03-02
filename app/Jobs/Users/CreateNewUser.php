@@ -39,9 +39,9 @@ class CreateNewUser
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
             'username' => ['required', 'unique:users,username'],
-            'email' => ['required', 'unique:users,email'],
+            'email' => ['required', 'unique:users,email', 'email'],
             'phone' => ['required', 'unique:users,phone', 'numeric', 'phone:AUTO,ID'],
-            'password' => ['required'],
+            'password' => ['required', 'confirmed'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'verified_at' => ['nullable'],

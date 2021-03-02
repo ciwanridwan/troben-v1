@@ -28,7 +28,7 @@ trait HasPartnerCode
         $partner_code = Partner::CODE_TYPE[$this->type];
         // $partner_regency = Regency::find($this->origin_regency);
 
-        $code = $partner_code . '-';
+        $code = $partner_code . '-' . 'JKT' . '-';
 
         $last_code = Partner::where('code', 'LIKE', $code . '%')->latest()->first()->code;
         if ($last_code === null) {
