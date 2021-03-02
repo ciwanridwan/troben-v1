@@ -19,7 +19,8 @@ class CreateInventoriesTable extends Migration
             $table->string('name');
             $table->float('capacity');
             $table->float('height');
-            $table->integer('count');
+            $table->integer('qty');
+            $table->unsignedBigInteger('warehouse_id')->nullable();
             $table->timestamps();
 
             $table
@@ -27,6 +28,12 @@ class CreateInventoriesTable extends Migration
                 ->references('id')
                 ->on('partners')
                 ->cascadeOnDelete();
+
+            $table
+                ->foreign('warehouse_id')
+                ->references('id')
+                ->on('warehouses')
+                ->cascadeOnDelete('set null');
         });
     }
 
