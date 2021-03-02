@@ -144,4 +144,9 @@ class Partner extends Model
         return $this->morphToMany(User::class, 'userable', 'userables')->withPivot('role')
             ->using(UserablePivot::class);
     }
+
+    public function inventories(): HasMany
+    {
+        return $this->hasMany(Inventory::class, 'partner_id', 'id');
+    }
 }

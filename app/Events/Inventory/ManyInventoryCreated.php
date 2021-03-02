@@ -2,10 +2,10 @@
 
 namespace App\Events\Inventory;
 
-use App\Models\Partners\Inventory;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class ManyInventoryCreated
 {
@@ -14,16 +14,16 @@ class ManyInventoryCreated
     /**
      * Invevntory instance.
      *
-     * @var \App\Models\Partners\Inventory
+     * @var Illuminate\Support\Collection|\App\Models\Partners\Inventory
      */
-    public Inventory $inventory;
+    public Collection $inventory;
 
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\Partners\Inventory $inventory
+     * @param Illuminate\Support\Collection|\App\Models\Partners\Inventory $inventory
      */
-    public function __construct(Inventory $inventory)
+    public function __construct(Collection $inventory)
     {
         $this->inventory = $inventory;
     }
