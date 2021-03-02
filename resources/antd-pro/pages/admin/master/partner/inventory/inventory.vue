@@ -4,12 +4,22 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
-            <add-inventory></add-inventory>
+            <add-inventory :inventories="inventories"></add-inventory>
           </a-col>
         </a-row>
       </template>
       <template slot="content">
-        <a-table :columns="partnerInventoryColumns" style="margin-top:24px">
+        <a-table
+          :columns="partnerInventoryColumns"
+          :data-source="inventories"
+          style="margin-top:24px"
+        >
+          <span slot="number" slot-scope="item, record, index">
+            {{ index + 1 }}
+          </span>
+          <span slot="action" slot-scope="item, record, index">
+            <delete-button @click="deleteItem(index)"></delete-button>
+          </span>
         </a-table>
       </template>
     </content-layout>
@@ -23,9 +33,16 @@ import AddInventory from "./add-inventory.vue";
 export default {
   data() {
     return {
-      partnerInventoryColumns
+      partnerInventoryColumns,
+      inventories: []
     };
   },
-  components: { ContentLayout, AddInventory }
+  components: { ContentLayout, AddInventory },
+  methods: {
+    deleteItem(index) {
+      this.inventories.splice(index, 1);
+    }
+  }
 };
 </script>
+, DeleteButton

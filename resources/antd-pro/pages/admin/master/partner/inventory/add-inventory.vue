@@ -3,7 +3,12 @@
     <a-button @click="visible = true" icon="plus">
       Tambah Alat
     </a-button>
-    <a-modal v-model="visible" :width="720" title="Tambah Inventaris">
+    <a-modal
+      v-model="visible"
+      :width="720"
+      title="Tambah Inventaris"
+      @ok="onOk"
+    >
       <a-row type="flex" :gutter="[10, 10]">
         <a-col :span="6">
           <trawl-input label="Nama Alat">
@@ -40,6 +45,7 @@
 <script>
 import trawlInput from "../../../../../components/trawl-input.vue";
 export default {
+  props: ["inventories"],
   components: { trawlInput },
   data() {
     return {
@@ -51,6 +57,24 @@ export default {
         count: null
       }
     };
+  },
+  methods: {
+    clearForm() {
+      this.form = {
+        name: null,
+        weight: null,
+        height: null,
+        count: null
+      };
+    },
+    closeForm() {
+      this.visible = false;
+    },
+    onOk() {
+      this.inventories.push(this.form);
+      this.clearForm();
+      this.closeForm();
+    }
   }
 };
 </script>
