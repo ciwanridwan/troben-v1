@@ -49,6 +49,7 @@ return [
         App\Http\Routes\Admin\Master\EmployeeRoute::class,
         App\Http\Routes\Admin\Master\TransporterRoute::class,
         App\Http\Routes\Admin\Master\PaymentRoute::class,
+        App\Http\Routes\Admin\Master\HistoryRoute::class,
         /** @inject admin **/
     ],
 ];

@@ -61,6 +61,12 @@ const laravel = {
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
+    handleTableChanged(pagination) {
+      this.filter.page = pagination.current;
+      this.filter.per_page = pagination.pageSize;
+
+      this.getItems();
+    },
     numbering(index, pagination) {
       return pagination.per_page * (pagination.current_page - 1) + index + 1;
     },

@@ -2,7 +2,7 @@
 
 namespace App\Http\Routes\Admin\Master;
 
-use App\Http\Controllers\Admin/Master/PaymentController;
+use App\Http\Controllers\Admin\Master\PaymentController;
 use Jalameta\Router\BaseRoute;
 
 class PaymentRoute extends BaseRoute
@@ -24,6 +24,6 @@ class PaymentRoute extends BaseRoute
      */
     public function controller()
     {
-        return Admin/Master/PaymentController::class;
+        return PaymentController::class;
     }
 }
