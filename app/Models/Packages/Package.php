@@ -175,4 +175,8 @@ class Package extends Model
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_PAID);
     }
+    public function scopeFailed($query)
+    {
+        return $query->where('payment_status', self::PAYMENT_STATUS_FAILED);
+    }
 }

@@ -84,12 +84,6 @@ export default {
       this.$notification.error({
         message: error.response.data.message
       });
-    },
-    handleTableChanged(pagination) {
-      this.filter.page = pagination.current;
-      this.filter.per_page = pagination.pageSize;
-
-      this.getItems();
     }
   }
 };

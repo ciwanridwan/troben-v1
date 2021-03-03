@@ -12,11 +12,13 @@ const main = {
     route: "admin.history",
     children: {
       cancel: {
+        title: "All Cancel Order",
         text: "Data Cancel Order",
         route: "admin.history.cancel",
         children: null
       },
       paid: {
+        title: "All Lunas Order",
         text: "Data Lunas Customer",
         route: "admin.history.paid",
         children: null
