@@ -35,11 +35,11 @@ class PartnerRoute extends BaseRoute
 
         $this->router->get($this->prefix('add'), [
             'as' => $this->name('create'),
-            'uses' => $this->uses('create')
+            'uses' => $this->uses('create'),
         ]);
         $this->router->post($this->prefix('add'), [
             'as' => $this->name('create'),
-            'uses' => $this->uses('store')
+            'uses' => $this->uses('store'),
         ]);
 
         $this->router->delete($this->prefix('{hash}'), [

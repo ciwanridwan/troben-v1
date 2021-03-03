@@ -5,17 +5,17 @@ namespace App\Http\Controllers\Admin\Master;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
+use App\Exceptions\Error;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use Illuminate\Http\Request;
+use App\Models\Geo\SubDistrict;
 use App\Jobs\Price\CreateNewPrice;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
-use App\Concerns\Controllers\HasResource;
-use App\Exceptions\Error;
 use App\Jobs\Price\DeleteExistingPrice;
 use App\Jobs\Price\UpdateExistingPrice;
-use App\Models\Geo\SubDistrict;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 
 class PricingController extends Controller
@@ -47,19 +47,19 @@ class PricingController extends Controller
 
     protected array $byRelation = [
         'service' => [
-            ['name']
+            ['name'],
         ],
         'district' => [
-            ['name']
+            ['name'],
         ],
         'province' => [
-            ['name']
+            ['name'],
         ],
         'regency' => [
-            ['name']
+            ['name'],
         ],
         'destination' => [
-            ['name'], ['zip_code']
+            ['name'], ['zip_code'],
         ],
     ];
 
@@ -131,6 +131,7 @@ class PricingController extends Controller
             $price_inputs[$key] = $price_input;
             $price_inputs[$key]['destination_id'] = $sub_district->id;
         }
+
         return $price_inputs;
     }
 

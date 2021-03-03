@@ -2,15 +2,15 @@
 
 namespace App\Jobs\Inventory;
 
-use App\Events\Inventory\ManyInventoryCreated;
-use App\Models\Partners\Inventory;
-use App\Models\Partners\Partner;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Inventory;
 use Illuminate\Support\Collection;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Inventory\ManyInventoryCreated;
 
 class CreateManyNewInventory
 {
@@ -56,7 +56,7 @@ class CreateManyNewInventory
             '*.name' => ['required', 'string', 'max:255'],
             '*.capacity' => ['required', 'numeric'],
             '*.height' => ['required', 'numeric'],
-            '*.qty' => ['required', 'numeric']
+            '*.qty' => ['required', 'numeric'],
         ])->validate();
     }
 

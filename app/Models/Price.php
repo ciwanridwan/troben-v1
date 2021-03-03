@@ -8,9 +8,9 @@ use App\Models\Geo\Province;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\AttributeColumns;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Price model.

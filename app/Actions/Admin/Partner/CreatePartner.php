@@ -2,16 +2,15 @@
 
 namespace App\Actions\Admin\Partner;
 
+use Exception;
+use App\Models\User;
 use App\Http\Response;
-use App\Jobs\Inventory\CreateManyNewInventory;
-use App\Jobs\Partners\CreateNewPartner;
+use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use App\Jobs\Users\DeleteExistingUser;
-use App\Models\Partners\Partner;
-use App\Models\User;
-use Exception;
+use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Arr;
+use App\Jobs\Inventory\CreateManyNewInventory;
 
 class CreatePartner
 {
@@ -51,7 +50,7 @@ class CreatePartner
      */
     protected CreateNewPartner $jobPartner;
 
-    function __construct($inputs = [])
+    public function __construct($inputs = [])
     {
         $this->attributes = $inputs;
         $this->partner = new Partner();
@@ -73,6 +72,7 @@ class CreatePartner
         } catch (Exception $e) {
             $this->jobDeleteUser = new DeleteExistingUser($this->user, true);
             $this->dispatch($this->jobDeleteUser);
+
             return (new Response(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]))->json();
         }
 
@@ -99,7 +99,6 @@ class CreatePartner
 
     public function validate_input()
     {
-
         $this->jobUser = new CreateNewUser($this->attributes['owner']);
         $this->jobPartner = new CreateNewPartner($this->attributes['partner']);
 

@@ -2,8 +2,8 @@
 
 namespace App\Models\Partners;
 
-use App\Concerns\Models\HasPartnerCode;
 use App\Models\User;
+use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;

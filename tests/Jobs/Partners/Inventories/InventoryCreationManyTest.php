@@ -2,17 +2,17 @@
 
 namespace Tests\Jobs\Partners\Inventories;
 
+use Tests\TestCase;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Inventory;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Inventory\ManyInventoryCreated;
 use App\Jobs\Inventory\CreateManyNewInventory;
-use App\Models\Partners\Inventory;
-use App\Models\Partners\Partner;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class InventoryCreationManyTest extends TestCase
 {
@@ -56,7 +56,7 @@ class InventoryCreationManyTest extends TestCase
     {
         Event::fake();
 
-        $job = new CreateManyNewInventory($this->partner,$this->data);
+        $job = new CreateManyNewInventory($this->partner, $this->data);
 
         $this->assertTrue($this->dispatch($job));
 
@@ -64,7 +64,7 @@ class InventoryCreationManyTest extends TestCase
 
         $this->assertTrue($job->finish);
 
-        $this->assertDatabaseCount('inventories',$job->inventories->count());
+        $this->assertDatabaseCount('inventories', $job->inventories->count());
 
         Event::assertDispatched(ManyInventoryCreated::class);
     }
@@ -76,7 +76,7 @@ class InventoryCreationManyTest extends TestCase
 
         $data = collect($this->data)->map(fn ($item) => ['name' => $item['name'], 'capacity' => $item['capacity']])->toArray();
 
-        $job = new CreateManyNewInventory($this->partner,$data);
+        $job = new CreateManyNewInventory($this->partner, $data);
         $this->assertTrue($this->dispatch($job));
 
         Event::assertNotDispatched(ManyInventoryCreated::class);

@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Actions\Admin\Partner\CreatePartner;
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
-use App\Jobs\Partners\DeleteExistingPartner;
+use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
-use App\Models\Geo\Regency;
+use Illuminate\Http\Request;
 use App\Models\Geo\SubDistrict;
 use App\Models\Partners\Partner;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
+use Illuminate\Database\Eloquent\Builder;
+use App\Actions\Admin\Partner\CreatePartner;
+use App\Jobs\Partners\DeleteExistingPartner;
+use App\Http\Resources\Admin\Master\PartnerResource;
 
 class PartnerController extends Controller
 {
@@ -94,16 +93,16 @@ class PartnerController extends Controller
     public function create(Request $request)
     {
         if ($request->expectsJson()) {
-
             $data = [
                 'partner_types' => Partner::TYPES,
                 'geo' => [
                     'provinces' => Province::all(),
                     'regencies' => Regency::all(),
                     'districts' => District::all(),
-                    'sub_districts' => SubDistrict::all()
-                ]
+                    'sub_districts' => SubDistrict::all(),
+                ],
             ];
+
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
 

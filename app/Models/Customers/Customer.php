@@ -2,8 +2,8 @@
 
 namespace App\Models\Customers;
 
-use App\Models\Orders\Order;
 use App\Contracts\HasOtpToken;
+use App\Models\Packages\Package;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use App\Auditor\Contracts\AuditableContract;
-use App\Models\Packages\Package;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
