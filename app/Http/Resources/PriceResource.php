@@ -19,6 +19,7 @@ class PriceResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'hash' => $this->hash,
             'origin_province' => ProvinceResource::make($this->province),
             'origin_regency' => RegencyResource::make($this->regency),
             'origin_district' => $this->origin_district_id ? DistrictResource::make($this->district) : null,

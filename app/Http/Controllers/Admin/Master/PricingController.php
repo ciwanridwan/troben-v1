@@ -12,6 +12,10 @@ use App\Jobs\Price\CreateNewPrice;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use App\Concerns\Controllers\HasResource;
+use App\Exceptions\Error;
+use App\Jobs\Price\DeleteExistingPrice;
+use App\Jobs\Price\UpdateExistingPrice;
+use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Eloquent\Builder;
 
 class PricingController extends Controller
@@ -43,20 +47,19 @@ class PricingController extends Controller
 
     protected array $byRelation = [
         'service' => [
-            ['name'],
+            ['name']
         ],
         'district' => [
-            ['name'],
+            ['name']
         ],
         'province' => [
-            ['name'],
+            ['name']
         ],
         'regency' => [
-            ['name'],
+            ['name']
         ],
         'destination' => [
-            ['name'],
-            ['zip_code'],
+            ['name'], ['zip_code']
         ],
     ];
 
@@ -82,7 +85,7 @@ class PricingController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             $this->getResource();
-            // dd(PriceResource::collection($this->query->paginate(request('per_page', 15)))->toArray($request));
+
             $data = [
                 'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15))),
             ];
@@ -108,7 +111,62 @@ class PricingController extends Controller
      */
     public function store(Request $request)
     {
-        $job = new CreateNewPrice($request->all());
+        $inputs = $this->prepareAllSubDistrict($request);
+        foreach ($inputs as $key => $value) {
+            $job = new CreateNewPrice($inputs);
+            $this->dispatch($job);
+        }
+
+        return $this->jsonSuccess(PriceResource::make($job->price));
+    }
+
+    public function prepareAllSubDistrict(Request $request)
+    {
+        // insert all of sub district
+        $district = District::find($request->destination_district_id);
+        throw_if($district === null, Error::make(Response::RC_INVALID_DATA));
+        $price_input = $request->all();
+        $price_inputs = [];
+        foreach ($district->sub_districts as $key => $sub_district) {
+            $price_inputs[$key] = $price_input;
+            $price_inputs[$key]['destination_id'] = $sub_district->id;
+        }
+        return $price_inputs;
+    }
+
+    /**
+     * Delete Pricing.
+     * Route Path       : {APP_URL}/admin/master/pricing/district
+     * Route Name       : admin.master.pricing/district
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|JsonResponse
+     */
+    public function destroy(Request $request)
+    {
+        $price = (new Price())->byHashOrFail($request->hash);
+        $job = new DeleteExistingPrice($price);
+        $this->dispatch($job);
+
+        return $this->jsonSuccess(PriceResource::make($job->price));
+    }
+
+    /**
+     * Delete Pricing.
+     * Route Path       : {APP_URL}/admin/master/pricing/district
+     * Route Name       : admin.master.pricing/district
+     * Route Method     : DELETE.
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|JsonResponse
+     */
+    public function update(Request $request)
+    {
+        $price = (new Price())->byHashOrFail($request->hash);
+        $job = new UpdateExistingPrice($price, $request->all());
         $this->dispatch($job);
 
         return $this->jsonSuccess(PriceResource::make($job->price));
@@ -122,6 +180,7 @@ class PricingController extends Controller
         return [
             'regencies' => Regency::all(),
             'districts' => District::all(),
+            'sub_districts' => SubDistrict::all(),
             'services' => Service::all(),
         ];
     }

@@ -23,6 +23,18 @@ class PricingRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+        $this->router->post($this->prefix, [
+            'as' => $this->name('create'),
+            'uses' => $this->uses('store'),
+        ]);
+        $this->router->delete($this->prefix("{hash}"), [
+            'as' => $this->name('destroy'),
+            'uses' => $this->uses('destroy'),
+        ]);
+        $this->router->patch($this->prefix("{hash}"), [
+            'as' => $this->name('update'),
+            'uses' => $this->uses('update'),
+        ]);
     }
 
     /**

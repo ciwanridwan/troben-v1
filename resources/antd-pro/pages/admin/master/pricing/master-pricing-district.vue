@@ -4,7 +4,7 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
           <a-col>
-            <pricing-form></pricing-form>
+            <pricing-form :data_extra="data_extra"></pricing-form>
           </a-col>
           <a-col>
             <input-file></input-file>
@@ -57,6 +57,15 @@
           </span>
           <span slot="action" slot-scope="record">
             <a-space>
+              <pricing-form
+                :data="record"
+                :data_extra="data_extra"
+                method="PATCH"
+              >
+                <template slot="trigger">
+                  <edit-button></edit-button>
+                </template>
+              </pricing-form>
               <delete-button @click="deleteConfirm(record)"></delete-button>
             </a-space>
           </span>
@@ -68,6 +77,7 @@
 
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
+import EditButton from "../../../../components/button/edit-button.vue";
 import pricingColumns from "../../../../config/table/pricing";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import InputFile from "./input-file";
@@ -78,13 +88,15 @@ export default {
     DeleteButton,
     ContentLayout,
     InputFile,
-    PricingForm
+    PricingForm,
+    EditButton
   },
   InputFilereated() {
     this.items = this.getDefaultPagination();
     this.getItems();
   },
   data: () => ({
+    data_extra: {},
     recordNumber: 0,
     items: {},
     filter: {
@@ -113,6 +125,8 @@ export default {
     },
     onSuccessResponse(response) {
       this.items = response;
+      this.data_extra = { ...response.data_extra };
+
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
