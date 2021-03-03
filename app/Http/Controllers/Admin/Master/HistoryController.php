@@ -46,6 +46,7 @@ class HistoryController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             $this->getResource();
+            $this->query = $this->query->paid();
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
         }
@@ -58,6 +59,7 @@ class HistoryController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             $this->getResource();
+            $this->query = $this->query->failed();
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
         }

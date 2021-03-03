@@ -1,6 +1,6 @@
 <template>
   <a-layout id="content-layout">
-    <a-layout-sider v-if="sider && siderPosition == 'left'">
+    <a-layout-sider v-if="hasSiderSlot && siderPosition == 'left'">
       <slot name="sider"></slot>
     </a-layout-sider>
     <a-layout-content>
@@ -15,10 +15,10 @@
       </a-row>
       <slot name="content"></slot>
     </a-layout-content>
-    <a-layout-sider v-if="sider && siderPosition == 'right'">
+    <a-layout-sider v-if="hasSiderSlot && siderPosition == 'right'">
       <slot name="sider"></slot>
     </a-layout-sider>
-    <a-layout-footer> </a-layout-footer>
+    <!-- <a-layout-footer> </a-layout-footer> -->
   </a-layout>
 </template>
 <script>
@@ -49,13 +49,16 @@ export default {
     },
     hasTitleSlot() {
       return !!this.$slots["title"];
+    },
+    hasSiderSlot() {
+      return !!this.$slots["sider"];
     }
   },
   methods: {
     getNavigation
   },
   created() {
-    console.log(this.hasTitleSlot);
+    console.log(this.$slots);
   }
 };
 </script>
