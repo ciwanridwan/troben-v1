@@ -2,14 +2,14 @@
 
 namespace App\Http\Routes\Admin\Master;
 
-use App\Http\Controllers\Admin\Master\HistoryController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\HistoryController;
 
 class HistoryRoute extends BaseRoute
 {
-    protected $name = "admin.history";
+    protected $name = 'admin.history';
 
-    protected $path = "history";
+    protected $path = 'history';
 
     /**
      * Register routes handled by this class.
@@ -20,11 +20,11 @@ class HistoryRoute extends BaseRoute
     {
         $this->router->get($this->prefix('paid'), [
             'as' => $this->name('paid'),
-            'uses' => $this->uses('paid')
+            'uses' => $this->uses('paid'),
         ]);
         $this->router->get($this->prefix('cancel'), [
             'as' => $this->name('cancel'),
-            'uses' => $this->uses('cancel')
+            'uses' => $this->uses('cancel'),
         ]);
     }
 

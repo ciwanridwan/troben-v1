@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
+use Illuminate\Http\Request;
 use App\Models\Packages\Package;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 
 class HistoryController extends Controller
 {
@@ -35,7 +35,7 @@ class HistoryController extends Controller
         'q' => ['nullable'],
     ];
 
-    function __construct()
+    public function __construct()
     {
         $this->baseBuilder();
     }
@@ -50,6 +50,7 @@ class HistoryController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
         }
+
         return view('admin.master.history.paid.index');
     }
 
@@ -63,6 +64,7 @@ class HistoryController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
         }
+
         return view('admin.master.history.cancel.index');
     }
 }
