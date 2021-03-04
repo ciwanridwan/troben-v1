@@ -17,7 +17,9 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
+use App\Jobs\Users\DeleteExistingUser;
 use App\Models\Partners\Transporter;
+use App\Models\User;
 
 class AssetController extends Controller
 {
@@ -62,7 +64,7 @@ class AssetController extends Controller
     /**
      * Storing new partner's asset.
      *
-     * Route Path       : {API_DOMAIN}/partner/asset
+     * Route Path       : {API_DOMAIN}/partner/asset/{type}
      * Route Name       : api.partner.asset.store
      * Route Method     : POST.
      *
@@ -78,6 +80,25 @@ class AssetController extends Controller
         return $type == 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
+    }
+
+    /**
+     * Deleting partner's asset.
+     *
+     * Route Path       : {API_DOMAIN}/partner/asset/{type}/{hash}
+     * Route Name       : api.partner.asset.destroy
+     * Route Method     : DELETE.
+     *
+     * @param \Illuminate\Http\Request          $request
+     * @param \App\Models\Partners\Transporter  $transporter
+     *
+     * @return [type]
+     */
+    public function destroy(Request $request, $type, $hash)
+    {
+        $this->partner = $request->user()->partners->first();
+
+        return $type == 'transporter' ? $this->deleteTransporter($hash) : $this->deleteEmployee($hash);
     }
 
     public function getEmployee(): JsonResponse
@@ -143,5 +164,19 @@ class AssetController extends Controller
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+    }
+
+    public function deleteEmployee($hash)
+    {
+        $user = (new User())->byHashOrFail($hash);
+        $job = new DeleteExistingUser($user);
+        $this->dispatch($job);
+
+        return $this->getEmployee();
+    }
+
+    public function deleteTransporter($hash)
+    {
+        // TODO
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Partner\Asset;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransporterResource extends JsonResource
@@ -17,7 +16,13 @@ class TransporterResource extends JsonResource
     public function toArray($request)
     {
         foreach ($this->resource as $transporter) {
-            $this->data[] = Arr::only($transporter->toArray(), ['name','registration_number','is_verified','type']);
+            $this->data[] = [
+                'hash' => $transporter->hash,
+                'name' => $transporter->name,
+                'registration_number' => $transporter->registration_number,
+                'verified_at' => $transporter->verified_at,
+                'type' => $transporter->type,
+            ];
         }
 
         return $this->data;
