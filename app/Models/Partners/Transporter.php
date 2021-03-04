@@ -58,8 +58,16 @@ class Transporter extends Model
     protected $fillable = [
         'partner_id',
         'name',
+        'production_year',
+        'registration_name',
         'registration_number',
+        'registration_year',
         'type',
+        'length',
+        'width',
+        'height',
+        'weight',
+        'verified_at'
     ];
 
     /**

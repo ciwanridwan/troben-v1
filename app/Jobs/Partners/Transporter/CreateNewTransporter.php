@@ -49,6 +49,14 @@ class CreateNewTransporter
             'name' => ['required'],
             'registration_number' => ['required'],
             'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+            'production_year' => ['required'],
+            'registration_name' => ['required'],
+            'registration_year' => ['required'],
+            'length' => ['required', 'numeric'],
+            'width' => ['required', 'numeric'],
+            'height' => ['required', 'numeric'],
+            'weight' => ['required', 'numeric'],
+            'verified_at' => ['filled'],
         ])->validate();
     }
 
