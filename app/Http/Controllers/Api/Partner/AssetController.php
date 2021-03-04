@@ -11,6 +11,7 @@ use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
 use App\Jobs\Users\DeleteExistingUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
@@ -18,9 +19,8 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
-use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
-use App\Models\Partners\Transporter;
+use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
 {
