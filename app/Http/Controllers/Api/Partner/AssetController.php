@@ -19,6 +19,8 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
+use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
+use App\Models\Partners\Transporter;
 
 class AssetController extends Controller
 {
@@ -121,7 +123,11 @@ class AssetController extends Controller
 
     public function deleteTransporter($hash)
     {
-        // TODO
+        $transporter = (new Transporter())->byHashOrFail($hash);
+        $job = new  DeleteExistingTransporter($transporter);
+        $this->dispatch($job);
+
+        return $this->getTransporter();
     }
 
     /**
