@@ -2,17 +2,17 @@
 
 namespace Tests\Jobs\Partners\Transporters;
 
-use App\Events\Partners\Transporter\TransporterBulked;
-use App\Jobs\Partners\Transporter\BulkTransporter;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use App\Models\Partners\Partner;
+use Illuminate\Support\Collection;
+use App\Models\Partners\Transporter;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Validation\ValidationException;
+use App\Jobs\Partners\Transporter\BulkTransporter;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Events\Partners\Transporter\TransporterBulked;
 
 class TransporterBulkTest extends TestCase
 {
@@ -56,7 +56,7 @@ class TransporterBulkTest extends TestCase
     {
         Event::fake();
 
-        $job = new BulkTransporter($this->partner,$this->data);
+        $job = new BulkTransporter($this->partner, $this->data);
 
         $this->assertTrue($this->dispatch($job));
 
@@ -64,7 +64,7 @@ class TransporterBulkTest extends TestCase
 
         $this->assertTrue($job->finish);
 
-        $this->assertDatabaseCount('transporters',$job->transporters->count());
+        $this->assertDatabaseCount('transporters', $job->transporters->count());
 
         Event::assertDispatched(TransporterBulked::class);
     }
@@ -76,7 +76,7 @@ class TransporterBulkTest extends TestCase
 
         $data = collect($this->data)->map(fn ($item) => ['name' => $item['name'], 'registration_number' => $item['registration_number']])->toArray();
 
-        $job = new BulkTransporter($this->partner,$data);
+        $job = new BulkTransporter($this->partner, $data);
         $this->assertTrue($this->dispatch($job));
 
         Event::assertNotDispatched(TransporterBulked::class);
@@ -89,7 +89,7 @@ class TransporterBulkTest extends TestCase
 
         $data = collect($this->data)->map(fn ($item) => ['name' => $item['name'], 'registration_number' => $item['registration_number'], 'type' => 'aaddcc'])->toArray();
 
-        $job = new BulkTransporter($this->partner,$data);
+        $job = new BulkTransporter($this->partner, $data);
         $this->assertTrue($this->dispatch($job));
 
         Event::assertNotDispatched(TransporterBulked::class);
