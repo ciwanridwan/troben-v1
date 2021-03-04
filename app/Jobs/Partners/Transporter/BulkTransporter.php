@@ -1,49 +1,49 @@
 <?php
 
-namespace App\Jobs\Inventory;
+namespace App\Jobs\Partners\Transporter;
 
 use Illuminate\Bus\Batchable;
+use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Inventory;
 use Illuminate\Support\Collection;
+use App\Models\Partners\Transporter;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Events\Inventory\ManyInventoryCreated;
+use App\Events\Partners\Transporter\TransporterBulked;
 
-class CreateManyNewInventory
+class BulkTransporter
 {
     use Dispatchable, InteractsWithQueue, SerializesModels, Batchable;
 
     /**
-     * Partner instance.
+     * Partner instances.
      *
      * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
 
     /**
-     * Collection inventories.
+     * Collection of transporter.
      *
-     * @var Illuminate\Support\Collection|App\Models\Partners\Inventory $inventories
+     * @var \Illuminate\Support\Collection|\App\Models\Partners\Transporter[] $transporters
      */
-    public Collection $inventories;
+    public Collection $transporters;
 
     /**
-     * Filtered Attributes.
+     * Filtered attributes.
      *
-     * @var array
+     * @var array $attributes
      */
     public array $attributes;
 
     /**
      * Flag jobs done.
      *
-     * @var bool
+     * @var bool $finish
      */
-    public bool $finish = false;
-
+    public bool $finish;
     /**
      * Create a new job instance.
      *
@@ -53,10 +53,9 @@ class CreateManyNewInventory
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            '*.name' => ['required', 'string', 'max:255'],
-            '*.capacity' => ['required', 'numeric'],
-            '*.height' => ['required', 'numeric'],
-            '*.qty' => ['required', 'numeric'],
+            '*.name' => ['required','string','max:255'],
+            '*.registration_number' => ['required','string','max:255'],
+            '*.type' => ['required', Rule::in(Transporter::getAvailableTypes())],
         ])->validate();
     }
 
@@ -67,12 +66,13 @@ class CreateManyNewInventory
      */
     public function handle()
     {
-        $this->inventories = $this->partner->inventories()->createMany($this->attributes);
-        if ($this->inventories) {
-            event(new ManyInventoryCreated($this->partner->inventories));
+        $this->transporters = $this->partner->transporters()->createMany($this->attributes);
+
+        if ($this->transporters) {
+            event(new TransporterBulked($this->transporters));
         }
 
-        if (Inventory::whereIn('id', collect($this->inventories)->pluck('id'))->count() == $this->inventories->count()) {
+        if (Transporter::whereIn('id', $this->transporters->pluck('id')->all())->get()->count() == $this->transporters->count()) {
             $this->finish = true;
         }
 
