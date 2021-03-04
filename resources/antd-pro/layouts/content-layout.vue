@@ -1,12 +1,13 @@
 <template>
-  <a-layout>
-    <a-layout-sider v-if="sider && siderPosition == 'left'">
+  <a-layout id="content-layout">
+    <a-layout-sider v-if="hasSiderSlot && siderPosition == 'left'">
       <slot name="sider"></slot>
     </a-layout-sider>
     <a-layout-content>
-      <a-row>
+      <a-row class="content-layout-head">
         <a-col :span="12">
-          <h3>{{ title ? title : defaultTitle }}</h3>
+          <slot name="title" v-if="hasTitleSlot"></slot>
+          <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
         <a-col :span="12">
           <slot name="head-tools"></slot>
@@ -14,12 +15,10 @@
       </a-row>
       <slot name="content"></slot>
     </a-layout-content>
-    <a-layout-sider v-if="sider && siderPosition == 'right'">
+    <a-layout-sider v-if="hasSiderSlot && siderPosition == 'right'">
       <slot name="sider"></slot>
     </a-layout-sider>
-    <a-layout-footer>
-      <a-pagination></a-pagination>
-    </a-layout-footer>
+    <!-- <a-layout-footer> </a-layout-footer> -->
   </a-layout>
 </template>
 <script>
@@ -47,10 +46,30 @@ export default {
     defaultTitle() {
       let route = this.getNavigation(this.getRoute());
       return route.title ? route.title : route.text;
+    },
+    hasTitleSlot() {
+      return !!this.$slots["title"];
+    },
+    hasSiderSlot() {
+      return !!this.$slots["sider"];
     }
   },
   methods: {
     getNavigation
+  },
+  created() {
+    console.log(this.$slots);
   }
 };
 </script>
+<style lang="scss">
+#content-layout {
+  .ant-layout-content {
+    .content-layout {
+      &-head {
+        margin-bottom: 24px;
+      }
+    }
+  }
+}
+</style>

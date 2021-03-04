@@ -1,27 +1,26 @@
 <template>
-  <a-layout-content>
-    <a-row type="flex" :gutter="20">
-      <a-col :span="18" class="order-table">
-        <a-table :dataSource="orders.data" :columns="columns"></a-table>
-      </a-col>
-      <a-col :span="6" class="order-notification">
-        <a-card class="order-notification-title">
-          <slot name="title">
-            <h3>Notifikasi</h3>
-          </slot>
-        </a-card>
-        <a-card
-          class="order-notification-item"
-          v-for="index in 10"
-          :key="index"
-        >
-          test
-        </a-card>
-      </a-col>
-    </a-row>
-  </a-layout-content>
+  <content-layout siderPosition="right">
+    <template slot="content">
+      <a-table
+        :dataSource="orders.data"
+        :columns="columns"
+        :class="['trawl']"
+      ></a-table>
+    </template>
+    <template slot="sider">
+      <a-card class="order-notification-title">
+        <slot name="title">
+          <h3>Notifikasi</h3>
+        </slot>
+      </a-card>
+      <a-card class="order-notification-item" v-for="index in 10" :key="index">
+        test
+      </a-card>
+    </template>
+  </content-layout>
 </template>
 <script>
+import ContentLayout from "../../../layouts/content-layout.vue";
 import { orders } from "../../../mock";
 
 const columns = [
@@ -55,6 +54,7 @@ const columns = [
 export default {
   data: () => {
     return {
+      ContentLayout,
       orders,
       columns
     };

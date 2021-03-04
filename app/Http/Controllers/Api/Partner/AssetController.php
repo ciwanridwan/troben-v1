@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
-use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Users\DeleteExistingUser;
 use App\Models\Partners\Transporter;
 use App\Models\User;
+use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
 {

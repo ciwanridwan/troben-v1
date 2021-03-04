@@ -1,5 +1,9 @@
 <template>
-  <a-table {...tableProps}> </a-table>
+  <div>
+    <a-table ref="antTable">
+      <slot v-for="(_, name) in $slots" :name="name" :slot="name" />
+    </a-table>
+  </div>
 </template>
 
 <script>
@@ -9,14 +13,33 @@ export default {
   props: {
     ...Table.props
   },
-  computed: {
-    tableProps() {
-      return this.$props;
+  methods: {
+    assignProp() {
+      _.forEach(this.$props, (v, k) => {
+        this.$refs.antTable.$props[k] = v;
+      });
     }
+  },
+  computed: {
+    customProps() {
+      return { ...this.$props };
+    }
+  },
+  mounted() {
+    console.log(this.$slots);
+    this.assignProp();
+    _.forEach(this.$props, (v, k) => {
+      this.$watch(
+        () => {
+          return this.$props[k];
+        },
+        val => {
+          this.$refs.antTable.$props[k] = val;
+        }
+      );
+    });
   }
 };
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

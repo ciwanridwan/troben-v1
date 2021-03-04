@@ -2,8 +2,8 @@
 
 namespace App\Models\Customers;
 
-use App\Models\Orders\Order;
 use App\Contracts\HasOtpToken;
+use App\Models\Packages\Package;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
@@ -129,8 +129,8 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function orders(): HasMany
+    public function packages(): HasMany
     {
-        return $this->hasMany(Order::class, 'customer_id', 'id');
+        return $this->hasMany(Package::class, 'customer_id', 'id');
     }
 }

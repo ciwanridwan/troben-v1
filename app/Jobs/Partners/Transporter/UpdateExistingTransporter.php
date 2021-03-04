@@ -43,7 +43,14 @@ class UpdateExistingTransporter
             'name' => ['filled'],
             'registration_number' => ['filled'],
             'type' => ['filled', Rule::in(Transporter::getAvailableTypes())],
-            'is_verified' => ['nullable','boolean'],
+            'production_year' => ['required'],
+            'registration_name' => ['required'],
+            'registration_year' => ['required'],
+            'length' => ['required', 'numeric'],
+            'width' => ['required', 'numeric'],
+            'height' => ['required', 'numeric'],
+            'weight' => ['required', 'numeric'],
+            'verified_at' => ['filled'],
         ])->validate();
     }
 
@@ -54,7 +61,7 @@ class UpdateExistingTransporter
      */
     public function handle(): bool
     {
-        if (! empty($this->attributes['is_verified'])) {
+        if (!empty($this->attributes['is_verified'])) {
             $this->attributes['is_verified'] = $this->attributes['is_verified'] ? now() : null;
         }
 

@@ -17,14 +17,14 @@ class CreateNewPartner
 
     /**
      * Partner Instance.
-     * 
+     *
      * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
 
     /**
      * filtered attributes.
-     * 
+     *
      * @var array
      */
     protected array $attributes;
@@ -40,13 +40,13 @@ class CreateNewPartner
     {
         $this->partner = new Partner();
         $this->attributes = Validator::make($inputs, [
-            'name' => ['required','string','max:255'],
-            'code' => ['required','string','max:255'],
-            'contact_email' => ['nullable','email'],
-            'contact_phone' => ['nullable','numeric','phone:AUTO,ID'],
-            'address' => ['nullable','string','max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email'],
+            'contact_phone' => ['nullable', 'numeric', 'phone:AUTO,ID'],
+            'address' => ['nullable', 'string', 'max:255'],
             'geo_location' => ['nullable'],
-            'type' => ['required',Rule::in(Partner::getAvailableTypes())],
+            'type' => ['required', Rule::in(Partner::getAvailableTypes())],
         ])->validate();
     }
 

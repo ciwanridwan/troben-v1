@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -17,9 +18,16 @@ class CreateTransportersTable extends Migration
             $table->id();
             $table->unsignedBigInteger('partner_id');
             $table->string('name');
+            $table->string('production_year')->default(Carbon::now()->year()); // STNK, Nama Pemilik
+            $table->string('registration_name')->nullable(); // STNK, Nama Pemilik
             $table->string('registration_number'); // STNK, Plat Nomor
+            $table->string('registration_year')->nullable(); // STNK, Tahun Berlaku
             $table->string('type'); // BIKE, CAR, PICKUP, BOX, TRUCK
-            $table->timestamp('is_verified')->nullable();
+            $table->float('length')->nullable()->default(0); // capacity
+            $table->float('width')->nullable()->default(0); // capacity
+            $table->float('height')->nullable()->default(0); // capacity
+            $table->string('weight')->default(0);; // capacity
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

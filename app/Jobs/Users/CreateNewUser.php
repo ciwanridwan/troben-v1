@@ -38,12 +38,12 @@ class CreateNewUser
         $this->user = new User();
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
-            'username' => ['required','unique:users,username'],
-            'email' => ['required','unique:users,email'],
-            'phone' => ['required','unique:users,phone','numeric','phone:AUTO,ID'],
-            'password' => ['required'],
+            'username' => ['required', 'unique:users,username'],
+            'email' => ['required', 'unique:users,email', 'email'],
+            'phone' => ['required', 'unique:users,phone', 'numeric', 'phone:AUTO,ID'],
+            'password' => ['required', 'confirmed'],
             'email_verified_at' => ['nullable'],
-            'remember_token' => ['nullable'],
+            'remember_token' => ['filled'],
             'verified_at' => ['nullable'],
         ])->validate();
     }

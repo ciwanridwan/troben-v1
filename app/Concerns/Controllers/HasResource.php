@@ -28,9 +28,9 @@ trait HasResource
         }
         if (Arr::has($this->attributes, 'q')) {
             $this->getSearch($this->attributes['q']);
+        } else {
+            $this->getByRelation();
         }
-
-        $this->getByRelation();
     }
 
     public function getByRelation()

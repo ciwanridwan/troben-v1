@@ -15,11 +15,11 @@ class MasterCustomerResource extends JsonResource
     public function toArray($request)
     {
         $data = $this->resource->toArray();
-        $data['order'] = [
-            'count' => $data['orderCount'],
-            'payment' => $data['orderTotalPayment'],
+        $data['package'] = [
+            'count' => $data['packageCount'],
+            'payment' => $data['packageTotalPayment'],
         ];
-        unset($data['orderCount'], $data['orderTotalPayment']);
+        unset($data['packageCount'], $data['packageTotalPayment']);
 
         return $data;
     }

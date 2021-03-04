@@ -1,3 +1,17 @@
-input.ant-input {
+input.ant-input,
+textarea.ant-input {
   border-radius: 7px;
+}
+textarea.ant-input {
+  resize: none;
+}
+.ant-input {
+  &-number {
+    width: 100%;
+    &-handler-wrap {
+      border-top-right-radius: 7px;
+      border-bottom-right-radius: 7px;
+    }
+    border-radius: 7px;
+  }
 }
