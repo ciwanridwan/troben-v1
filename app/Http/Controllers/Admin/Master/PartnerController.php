@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Admin\Partner\CreatePartner;
 use App\Jobs\Partners\DeleteExistingPartner;
 use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Models\Partners\Transporter;
 
 class PartnerController extends Controller
 {
@@ -94,7 +95,8 @@ class PartnerController extends Controller
     {
         if ($request->expectsJson()) {
             $data = [
-                'partner_types' => Partner::TYPES,
+                'transporter_types' => Transporter::getAvailableTypes(),
+                'partner_types' => Partner::getAvailableTypes(),
                 'geo' => [
                     'provinces' => Province::all(),
                     'regencies' => Regency::all(),
@@ -111,8 +113,12 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'owner.password' => ['confirmed']
+        ]);
         return (new CreatePartner($request->all()))->create();
     }
+
 
     /**
      *

@@ -1,81 +1,99 @@
 <template>
   <div>
     <h2>Info Owner</h2>
-    <a-form-model ref="ruleForm" :model="form" :rules="rules">
+    <a-form-model
+      ref="ruleForm"
+      :model="form"
+      :rules="rules"
+      layout="vertical"
+      hideRequiredMark
+    >
       <a-row type="flex" :gutter="[10, 10]">
         <a-col :span="8">
-          <trawl-input label="Nama Lengkap">
-            <template slot="input">
-              <a-form-model-item ref="name" prop="name">
-                <a-input v-model="form.name"></a-input>
-              </a-form-model-item>
+          <a-form-model-item ref="name" prop="name">
+            <template slot="label">
+              <h3>Nama Lengkap</h3>
             </template>
-          </trawl-input>
+            <a-input v-model="form.name"></a-input>
+          </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Nomor Hp">
-            <template slot="input">
-              <a-form-model-item ref="phone" prop="phone">
-                <a-input v-model="form.phone"></a-input>
-              </a-form-model-item>
+          <a-form-model-item ref="phone" prop="phone">
+            <template slot="label">
+              <h3>Nomor Hp</h3>
             </template>
-          </trawl-input>
+            <a-input v-model="form.phone"></a-input>
+          </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Email">
-            <template slot="input">
-              <a-form-model-item ref="email" prop="email">
-                <a-input v-model="form.email"></a-input>
-              </a-form-model-item>
+          <a-form-model-item ref="email" prop="email">
+            <template slot="label">
+              <h3>Email</h3>
             </template>
-          </trawl-input>
+            <a-input v-model="form.email"></a-input>
+          </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Username">
-            <template slot="input">
-              <a-form-model-item ref="username" prop="username">
-                <a-input v-model="form.username"></a-input>
-              </a-form-model-item>
+          <a-form-model-item ref="username" prop="username">
+            <template slot="label">
+              <h3>Username</h3>
             </template>
-          </trawl-input>
+            <a-input v-model="form.username"></a-input>
+          </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Kata Sandi">
-            <template slot="input">
-              <a-form-model-item ref="password" prop="password">
-                <a-input-password v-model="form.password"></a-input-password>
-              </a-form-model-item>
+          <a-form-model-item ref="password" prop="password">
+            <template slot="label">
+              <h3>Kata Sandi</h3>
             </template>
-          </trawl-input>
+            <a-input-password v-model="form.password"></a-input-password>
+          </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <trawl-input label="Ulangi Kata Sandi">
-            <template slot="input">
-              <a-form-model-item
-                ref="password_confirmation"
-                prop="password_confirmation"
-              >
-                <a-input-password
-                  v-model="form.password_confirmation"
-                ></a-input-password>
-              </a-form-model-item>
+          <a-form-model-item
+            ref="password_confirmation"
+            prop="password_confirmation"
+          >
+            <template slot="label">
+              <h3>Ulangi Kata Sandi</h3>
             </template>
-          </trawl-input>
+            <a-input-password
+              v-model="form.password_confirmation"
+            ></a-input-password>
+          </a-form-model-item>
         </a-col>
         <a-col :span="16">
-          <trawl-input label="Alamat Lengkap">
-            <template slot="input">
-              <a-form-model-item ref="address" prop="address">
-                <a-textarea v-model="form.address" :rows="5"></a-textarea>
-              </a-form-model-item>
+          <a-form-model-item ref="address" prop="address">
+            <template slot="label">
+              <h3>Alamat Lengkap</h3>
             </template>
-          </trawl-input>
+            <a-textarea v-model="form.address" :rows="5"></a-textarea>
+          </a-form-model-item>
         </a-col>
       </a-row>
       <a-row type="flex" :gutter="[10, 10]">
         <a-col :span="8">
-          <h3>Foto Owner</h3>
-          <a-button icon="plus" size="large" type="primary"></a-button>
+          <a-form-model-item ref="photo" prop="photo">
+            <template slot="label">
+              <h3>Foto Owner</h3>
+            </template>
+            <a-upload
+              :before-upload="handleBeforeUpload"
+              :show-upload-list="false"
+            >
+              <img
+                id="owner-photo-preview"
+                v-if="photoPreview"
+                :src="photoPreview"
+              />
+              <a-button
+                v-else
+                icon="plus"
+                size="large"
+                type="primary"
+              ></a-button>
+            </a-upload>
+          </a-form-model-item>
         </a-col>
       </a-row>
     </a-form-model>
@@ -89,6 +107,10 @@ export default {
 
   data() {
     return {
+      headers: {
+        Accept: "Application/json"
+      },
+      photoPreview: null,
       form: {
         name: null,
         phone: null,
@@ -108,6 +130,23 @@ export default {
         password_confirmation: [{ required: true }]
       }
     };
+  },
+  methods: {
+    handleBeforeUpload(file) {
+      this.getBase64(file, imageUrl => {
+        this.photoPreview = imageUrl;
+      });
+      this.form.photo = file;
+      return false;
+    }
   }
 };
 </script>
+
+<style lang="scss">
+#owner-photo-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 7px;
+}
+</style>

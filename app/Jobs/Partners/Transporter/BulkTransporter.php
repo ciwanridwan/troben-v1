@@ -53,9 +53,16 @@ class BulkTransporter
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            '*.name' => ['required','string','max:255'],
-            '*.registration_number' => ['required','string','max:255'],
+            '*.registration_number' => ['required', 'string', 'max:255'],
             '*.type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+            '*.production_year' => ['required'],
+            '*.registration_name' => ['required'],
+            '*.registration_year' => ['required'],
+            '*.length' => ['required', 'numeric'],
+            '*.width' => ['required', 'numeric'],
+            '*.height' => ['required', 'numeric'],
+            '*.weight' => ['required', 'numeric'],
+            '*.verified_at' => ['filled'],
         ])->validate();
     }
 

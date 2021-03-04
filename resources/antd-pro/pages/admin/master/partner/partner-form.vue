@@ -65,6 +65,7 @@
           <transporters
             ref="transporter"
             v-if="addon_transporter >= 0"
+            :transporter-types="transporter_types"
           ></transporters>
         </div>
 
@@ -87,7 +88,6 @@
   </content-layout>
 </template>
 <script>
-import { message } from "ant-design-vue";
 import TrawlInput from "../../../../components/trawl-input.vue";
 import contentLayout from "../../../../layouts/content-layout.vue";
 import Inventory from "./inventory/inventory";
@@ -111,6 +111,7 @@ export default {
     return {
       geo: {},
       partner_types: [],
+      transporter_types: [],
       valid: false,
       form: {
         type: null,
@@ -125,8 +126,10 @@ export default {
   methods: {
     onSuccessResponse(resp) {
       let { data } = resp;
+
       this.geo = data.geo;
       this.partner_types = data.partner_types;
+      this.transporter_types = data.transporter_types;
     },
     onSuccessStore(resp) {
       this.$notification.success({
@@ -137,6 +140,9 @@ export default {
 
     onPost() {
       let form = {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
         ...this.partnerForm,
         ...this.ownerForm
       };

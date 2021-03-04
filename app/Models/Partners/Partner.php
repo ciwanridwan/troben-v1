@@ -49,19 +49,6 @@ class Partner extends Model
     const CODE_TYPE_SPACE = 'MS';
     const CODE_TYPE_TRANSPORTER = 'MTM';
 
-    const TYPES = [
-        self::TYPE_BUSINESS,
-        self::TYPE_POOL,
-        self::TYPE_SPACE,
-        self::TYPE_TRANSPORTER,
-    ];
-    const CODE_TYPE = [
-        self::TYPE_BUSINESS => self::CODE_TYPE_BUSINESS,
-        self::TYPE_POOL => self::CODE_TYPE_POOL,
-        self::TYPE_SPACE => self::CODE_TYPE_SPACE,
-        self::TYPE_TRANSPORTER => self::CODE_TYPE_TRANSPORTER,
-    ];
-
     /**
      * The table associated with the model.
      *
@@ -130,6 +117,15 @@ class Partner extends Model
             self::TYPE_POOL,
             self::TYPE_SPACE,
             self::TYPE_TRANSPORTER,
+        ];
+    }
+    public static function getAvailableCodeTypes(): array
+    {
+        return [
+            self::TYPE_BUSINESS => self::CODE_TYPE_BUSINESS,
+            self::TYPE_POOL => self::CODE_TYPE_POOL,
+            self::TYPE_SPACE => self::CODE_TYPE_SPACE,
+            self::TYPE_TRANSPORTER => self::CODE_TYPE_TRANSPORTER,
         ];
     }
 

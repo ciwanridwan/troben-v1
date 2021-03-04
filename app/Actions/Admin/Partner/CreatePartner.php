@@ -11,6 +11,7 @@ use App\Jobs\Users\DeleteExistingUser;
 use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
+use App\Jobs\Partners\Transporter\BulkTransporter;
 
 class CreatePartner
 {
@@ -34,6 +35,12 @@ class CreatePartner
      * @var CreateManyNewInventory
      */
     protected CreateManyNewInventory $jobInventory;
+
+    /**
+     * @var BulkTransporter
+     */
+    protected BulkTransporter $jobTransporter;
+
 
     /**
      * @var CreateNewUser
@@ -130,7 +137,13 @@ class CreatePartner
 
     public function create_transporter()
     {
-        # code...
+        $this->jobTransporter = new BulkTransporter($this->partner, $this->attributes['transporter']);
+        $this->dispatch($this->jobTransporter);
+    }
+
+    public function validate_transporter()
+    {
+        $this->jobTransporter = new BulkTransporter($this->partner, $this->attributes['transporter']);
     }
 
     public function create_business()
@@ -143,10 +156,6 @@ class CreatePartner
         # code...
     }
 
-    public function validate_transporter()
-    {
-        # code...
-    }
 
     public function validate_business()
     {

@@ -46,7 +46,6 @@ class CreateNewTransporter
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            'name' => ['required'],
             'registration_number' => ['required'],
             'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
             'production_year' => ['required'],

@@ -56,9 +56,6 @@ export default {
   },
   methods: {
     getNavigation
-  },
-  created() {
-    console.log(this.$slots);
   }
 };
 </script>

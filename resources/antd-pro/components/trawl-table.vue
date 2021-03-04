@@ -26,7 +26,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$slots);
     this.assignProp();
     _.forEach(this.$props, (v, k) => {
       this.$watch(

@@ -17,11 +17,16 @@ export default [
     key: "registration_number",
     scopedSlots: { customRender: "registration_number" }
   },
-
   {
-    title: "Capacity",
-    key: "capacity",
-    scopedSlots: { customRender: "capacity" }
+    title: "Kapasitas (Kg)",
+    dataIndex: "weight",
+    key: "weight",
+    scopedSlots: { customRender: "weight" }
+  },
+  {
+    title: "Detail Kendaraan",
+    key: "detail",
+    scopedSlots: { customRender: "detail" }
   },
   {
     title: "Action",
