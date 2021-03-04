@@ -17,7 +17,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Users\DeleteExistingUser;
-use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
@@ -56,7 +55,7 @@ class AssetController extends Controller
 
         $this->partner = $request->user()->partners->first()->fresh();
 
-        return $request->type == 'transporter'
+        return $this->attributes['type'] == 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
     }
@@ -120,21 +119,12 @@ class AssetController extends Controller
      */
     protected function createEmployee(Request $request): void
     {
-        $this->attributes = Validator::make($request->all(), [
-            'name' => ['required'],
-            'username' => ['required','unique:users,username'],
-            'email' => ['required','unique:users,email'],
-            'phone' => ['required','unique:users,phone','numeric','phone:AUTO,ID'],
-            'password' => ['required'],
-            'role' => ['required'],
-        ])->validate();
-
-        $job = new CreateNewUser($this->attributes);
+        $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
-        foreach ($this->attributes['role'] as $role) {
+        foreach ($request->role as $role) {
             $pivot = new UserablePivot();
             $pivot->fill([
                 'user_id' => $job->user->id,
@@ -154,13 +144,7 @@ class AssetController extends Controller
      */
     protected function createTransporter(Request $request): void
     {
-        $this->attributes = Validator::make($request->all(), [
-            'name' => ['required','string','max:255'],
-            'registration_number' => ['required','string','max:255'],
-            'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
-        ])->validate();
-
-        $job = new CreateNewTransporter($this->partner, $this->attributes);
+        $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
