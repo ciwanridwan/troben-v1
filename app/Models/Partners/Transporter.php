@@ -67,7 +67,7 @@ class Transporter extends Model
         'width',
         'height',
         'weight',
-        'verified_at'
+        'verified_at',
     ];
 
     /**
