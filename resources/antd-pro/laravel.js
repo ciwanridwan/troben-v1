@@ -35,6 +35,19 @@ const laravel = {
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
+    onErrorResponse(error) {
+      this.$notification.error({
+        message: error.response.data.message
+      });
+    },
+    onErrorValidation(err) {
+      let messages = err.response.data.data;
+      _.map(messages, message => {
+        this.$notification.error({
+          message: _.head(message)
+        });
+      });
+    },
     deleteItem(record) {
       this.loading = true;
       let uri = this.routeUri(this.getRoute());
@@ -47,6 +60,12 @@ const laravel = {
         })
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
+    },
+    handleTableChanged(pagination) {
+      this.filter.page = pagination.current;
+      this.filter.per_page = pagination.pageSize;
+
+      this.getItems();
     },
     numbering(index, pagination) {
       return pagination.per_page * (pagination.current_page - 1) + index + 1;

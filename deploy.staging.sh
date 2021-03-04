@@ -25,7 +25,7 @@ echo "Deploying application ..."
     php artisan horizon:terminate
 
     # NPM
-    npm install
+    npm ci
     npm run production
 
     # Clear cache

@@ -19,15 +19,9 @@
           :pagination="trawlbensPagination"
           @change="handleTableChanged"
           :loading="loading"
+          :class="['trawl']"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
-          <span slot="name" slot-scope="name">{{ name }}</span>
-          <span slot="phone" slot-scope="record">{{ record.phone }}</span>
-          <span slot="email" slot-scope="record">{{ record.email }}</span>
-          <span slot="count" slot-scope="record">{{ record.order.count }}</span>
-          <span slot="payment" slot-scope="record">{{
-            record.order.payment
-          }}</span>
           <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteConfirm(record)"></delete-button>
@@ -90,12 +84,6 @@ export default {
       this.$notification.error({
         message: error.response.data.message
       });
-    },
-    handleTableChanged(pagination) {
-      this.filter.page = pagination.current;
-      this.filter.per_page = pagination.pageSize;
-
-      this.getItems();
     }
   }
 };

@@ -3,6 +3,7 @@
 namespace App\Models\Partners;
 
 use App\Models\User;
+use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -36,12 +37,30 @@ class Partner extends Model
         HashableId,
         HasPhoneNumber,
         HasFactory,
-        HashableId;
+        HashableId,
+        HasPartnerCode;
 
     const TYPE_BUSINESS = 'business'; // bisa order dari application.
     const TYPE_POOL = 'pool';
     const TYPE_SPACE = 'space';
     const TYPE_TRANSPORTER = 'transporter';
+    const CODE_TYPE_BUSINESS = 'MB'; // bisa order dari application.
+    const CODE_TYPE_POOL = 'MPW';
+    const CODE_TYPE_SPACE = 'MS';
+    const CODE_TYPE_TRANSPORTER = 'MTM';
+
+    const TYPES = [
+        self::TYPE_BUSINESS,
+        self::TYPE_POOL,
+        self::TYPE_SPACE,
+        self::TYPE_TRANSPORTER,
+    ];
+    const CODE_TYPE = [
+        self::TYPE_BUSINESS => self::CODE_TYPE_BUSINESS,
+        self::TYPE_POOL => self::CODE_TYPE_POOL,
+        self::TYPE_SPACE => self::CODE_TYPE_SPACE,
+        self::TYPE_TRANSPORTER => self::CODE_TYPE_TRANSPORTER,
+    ];
 
     /**
      * The table associated with the model.

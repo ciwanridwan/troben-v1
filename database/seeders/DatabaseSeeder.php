@@ -16,10 +16,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UsersTableSeeder::class,
             GeoTableSimpleSeeder::class,
-            //PartnerTableSeeder::class,
+            // GeoTableImport::class,
+            PartnerTableImport::class,
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
             PriceTableSimpleSeeder::class,
+            // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
         ]);
     }

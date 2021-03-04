@@ -10,11 +10,13 @@ use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
+use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
@@ -131,6 +133,15 @@ class AssetController extends Controller
      */
     protected function createTransporter(Request $request): void
     {
-        // DO CREATE TRANSPORTER
+        $this->attributes = Validator::make($request->all(), [
+            'name' => ['required','string','max:255'],
+            'registration_number' => ['required','string','max:255'],
+            'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+        ])->validate();
+
+        $job = new CreateNewTransporter($this->partner, $this->attributes);
+        $this->dispatch($job);
+
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
     }
 }

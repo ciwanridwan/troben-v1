@@ -872,16 +872,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "8.12.18",
+            "version": "8.12.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "2d50e0aea1f70508b39a3d22c62d24d66d532ed2"
+                "reference": "f3c196dcb3e76e456783a38bab87d99b4d727918"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/2d50e0aea1f70508b39a3d22c62d24d66d532ed2",
-                "reference": "2d50e0aea1f70508b39a3d22c62d24d66d532ed2",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/f3c196dcb3e76e456783a38bab87d99b4d727918",
+                "reference": "f3c196dcb3e76e456783a38bab87d99b4d727918",
                 "shasum": ""
             },
             "require": {
@@ -941,7 +941,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2021-02-08T10:31:32+00:00"
+            "time": "2021-03-01T16:07:56+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -1915,16 +1915,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "5.14.1",
+            "version": "5.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "5504ea4d0fb33565180634c56a41dd48c9f95ca5"
+                "reference": "2732040f6a28b9964d3629743d694afd84d3030c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/5504ea4d0fb33565180634c56a41dd48c9f95ca5",
-                "reference": "5504ea4d0fb33565180634c56a41dd48c9f95ca5",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/2732040f6a28b9964d3629743d694afd84d3030c",
+                "reference": "2732040f6a28b9964d3629743d694afd84d3030c",
                 "shasum": ""
             },
             "require": {
@@ -1954,7 +1954,7 @@
                 "phpstan/extension-installer": "^1.0",
                 "phpstan/phpstan": "^0.12.53",
                 "phpstan/phpstan-phpunit": "^0.12.6",
-                "phpunit/phpunit": "^8.5|^9.4.3",
+                "phpunit/phpunit": "^8.5",
                 "symfony/var-dumper": "^5.0"
             },
             "suggest": {
@@ -2002,7 +2002,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-12-31T14:31:05+00:00"
+            "time": "2021-03-01T01:02:14+00:00"
         },
         {
             "name": "kreait/firebase-tokens",
