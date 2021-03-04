@@ -11,7 +11,7 @@ class UserResource extends JsonResource
      *
      * @var array
      */
-    protected array $data;
+    protected array $data = [];
 
     /**
      * Transform the resource into an array.
@@ -36,12 +36,16 @@ class UserResource extends JsonResource
     protected function formattingRole($users = []): array
     {
         $data = [
+            'hash' => null,
             'name' => null,
             'role' => [],
         ];
         foreach ($users as $v) {
             if (is_null($data['name'])) {
                 $data['name'] = $v->name;
+            }
+            if (is_null($data['hash'])) {
+                $data['hash'] = $v->hash;
             }
             $data['role'][] = $v->getOriginal('pivot_role');
         }

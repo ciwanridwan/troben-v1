@@ -12,6 +12,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * User instance.
@@ -31,7 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements HasOtpToken
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes;
+    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes, HashableId;
 
     /**
      * The attributes that are mass assignable.
@@ -67,6 +68,11 @@ class User extends Authenticatable implements HasOtpToken
         'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * @var array
+     */
+    protected $appends = ['hash'];
 
     /**
      * Set `password` attribute mutator.

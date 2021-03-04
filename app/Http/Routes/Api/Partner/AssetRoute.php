@@ -44,6 +44,11 @@ class AssetRoute extends BaseRoute
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
         ]);
+
+        $this->router->delete($this->prefix('/{type}/{hash}'), [
+            'as' => $this->name('delete'),
+            'uses' => $this->uses('destroy'),
+        ]);
     }
 
     /**

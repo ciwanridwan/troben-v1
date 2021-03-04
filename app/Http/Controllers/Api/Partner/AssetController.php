@@ -10,13 +10,14 @@ use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
+use App\Jobs\Users\DeleteExistingUser;
+use App\Models\User;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
@@ -54,7 +55,7 @@ class AssetController extends Controller
 
         $this->partner = $request->user()->partners->first()->fresh();
 
-        return $request->type == 'transporter'
+        return $this->attributes['type'] == 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
     }
@@ -62,7 +63,7 @@ class AssetController extends Controller
     /**
      * Storing new partner's asset.
      *
-     * Route Path       : {API_DOMAIN}/partner/asset
+     * Route Path       : {API_DOMAIN}/partner/asset/{type}
      * Route Name       : api.partner.asset.store
      * Route Method     : POST.
      *
@@ -78,6 +79,25 @@ class AssetController extends Controller
         return $type == 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
+    }
+
+    /**
+     * Deleting partner's asset.
+     *
+     * Route Path       : {API_DOMAIN}/partner/asset/{type}/{hash}
+     * Route Name       : api.partner.asset.destroy
+     * Route Method     : DELETE.
+     *
+     * @param \Illuminate\Http\Request          $request
+     * @param \App\Models\Partners\Transporter  $transporter
+     *
+     * @return [type]
+     */
+    public function destroy(Request $request, $type, $hash)
+    {
+        $this->partner = $request->user()->partners->first();
+
+        return $type == 'transporter' ? $this->deleteTransporter($hash) : $this->deleteEmployee($hash);
     }
 
     public function getEmployee(): JsonResponse
@@ -99,21 +119,12 @@ class AssetController extends Controller
      */
     protected function createEmployee(Request $request): void
     {
-        $this->attributes = Validator::make($request->all(), [
-            'name' => ['required'],
-            'username' => ['required','unique:users,username'],
-            'email' => ['required','unique:users,email'],
-            'phone' => ['required','unique:users,phone','numeric','phone:AUTO,ID'],
-            'password' => ['required'],
-            'role' => ['required'],
-        ])->validate();
-
-        $job = new CreateNewUser($this->attributes);
+        $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
-        foreach ($this->attributes['role'] as $role) {
+        foreach ($request->role as $role) {
             $pivot = new UserablePivot();
             $pivot->fill([
                 'user_id' => $job->user->id,
@@ -133,15 +144,23 @@ class AssetController extends Controller
      */
     protected function createTransporter(Request $request): void
     {
-        $this->attributes = Validator::make($request->all(), [
-            'name' => ['required','string','max:255'],
-            'registration_number' => ['required','string','max:255'],
-            'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
-        ])->validate();
-
-        $job = new CreateNewTransporter($this->partner, $this->attributes);
+        $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+    }
+
+    public function deleteEmployee($hash)
+    {
+        $user = (new User())->byHashOrFail($hash);
+        $job = new DeleteExistingUser($user);
+        $this->dispatch($job);
+
+        return $this->getEmployee();
+    }
+
+    public function deleteTransporter($hash)
+    {
+        // TODO
     }
 }

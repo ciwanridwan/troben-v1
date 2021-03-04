@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             UsersTableSeeder::class,
             GeoTableSimpleSeeder::class,
             // GeoTableImport::class,
-            PartnerTableImport::class,
+            // PartnerTableImport::class,
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
             PriceTableSimpleSeeder::class,
