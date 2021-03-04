@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
 use Illuminate\Http\Request;
@@ -10,14 +11,13 @@ use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Jobs\Users\DeleteExistingUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
-use App\Jobs\Users\DeleteExistingUser;
-use App\Models\User;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
 class AssetController extends Controller
@@ -110,6 +110,20 @@ class AssetController extends Controller
         return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
     }
 
+    public function deleteEmployee($hash)
+    {
+        $user = (new User())->byHashOrFail($hash);
+        $job = new DeleteExistingUser($user);
+        $this->dispatch($job);
+
+        return $this->getEmployee();
+    }
+
+    public function deleteTransporter($hash)
+    {
+        // TODO
+    }
+
     /**
      * Creating new employee from partner.
      *
@@ -148,19 +162,5 @@ class AssetController extends Controller
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
-    }
-
-    public function deleteEmployee($hash)
-    {
-        $user = (new User())->byHashOrFail($hash);
-        $job = new DeleteExistingUser($user);
-        $this->dispatch($job);
-
-        return $this->getEmployee();
-    }
-
-    public function deleteTransporter($hash)
-    {
-        // TODO
     }
 }

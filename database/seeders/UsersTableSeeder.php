@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Eloquent\Factories\Sequence;
+use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class UsersTableSeeder extends Seeder
 {
