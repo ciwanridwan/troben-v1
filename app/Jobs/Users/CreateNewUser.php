@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Validation\ValidationException;
 
 class CreateNewUser
 {
@@ -41,7 +42,7 @@ class CreateNewUser
             'username' => ['required', 'unique:users,username'],
             'email' => ['required', 'unique:users,email', 'email'],
             'phone' => ['required', 'unique:users,phone', 'numeric', 'phone:AUTO,ID'],
-            'password' => ['required', 'confirmed'],
+            'password' => ['required'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'verified_at' => ['nullable'],
