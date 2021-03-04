@@ -72,7 +72,7 @@ class CreateManyNewInventory
             event(new ManyInventoryCreated($this->partner->inventories));
         }
 
-        if(Inventory::whereIn('id',collect($this->inventories)->pluck('id')->all())->get()->count() == $this->inventories->count()) {
+        if(Inventory::whereIn('id',collect($this->inventories)->pluck('id'))->count() == $this->inventories->count()) {
             $this->finish = true;
         }
 
