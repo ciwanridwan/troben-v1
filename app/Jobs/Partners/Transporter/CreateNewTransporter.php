@@ -51,10 +51,7 @@ class CreateNewTransporter
             'production_year' => ['required'],
             'registration_name' => ['required'],
             'registration_year' => ['required'],
-            'length' => ['required', 'numeric'],
-            'width' => ['required', 'numeric'],
-            'height' => ['required', 'numeric'],
-            'weight' => ['required', 'numeric'],
+            'is_verified' => ['nullable'],
             'verified_at' => ['filled'],
         ])->validate();
     }

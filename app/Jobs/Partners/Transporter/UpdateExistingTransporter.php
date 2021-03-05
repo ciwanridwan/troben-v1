@@ -42,13 +42,10 @@ class UpdateExistingTransporter
         $this->attributes = Validator::make($inputs, [
             'registration_number' => ['filled'],
             'type' => ['filled', Rule::in(Transporter::getAvailableTypes())],
-            'production_year' => ['required'],
-            'registration_name' => ['required'],
-            'registration_year' => ['required'],
-            'length' => ['required', 'numeric'],
-            'width' => ['required', 'numeric'],
-            'height' => ['required', 'numeric'],
-            'weight' => ['required', 'numeric'],
+            'production_year' => ['filled'],
+            'registration_name' => ['filled'],
+            'registration_year' => ['filled'],
+            'is_verified' => ['nullable'],
             'verified_at' => ['filled'],
         ])->validate();
     }

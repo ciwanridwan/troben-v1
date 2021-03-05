@@ -62,10 +62,7 @@ class Transporter extends Model
         'registration_number',
         'registration_year',
         'type',
-        'length',
-        'width',
-        'height',
-        'weight',
+        'is_verified',
         'verified_at',
     ];
 
