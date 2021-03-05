@@ -57,11 +57,13 @@ class Warehouse extends Model
      */
     protected $fillable = [
         'partner_id',
+        'length',
+        'width',
+        'height',
+        'geo_regency_id',
         'geo_province_id',
         'geo_city_id',
         'geo_district_id',
-        'code',
-        'name',
         'address',
         'geo_area',
         'is_pool',

@@ -29,10 +29,11 @@ class UpdateExistingWarehouse
             'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'geo_district_id' => ['nullable', 'exists:geo_districts,id'],
-            'code' => ['filled'],
-            'name' => ['filled'],
             'address' => ['nullable'],
             'geo_area' => ['nullable'],
+            'height' => ['filled', 'numeric'],
+            'length' => ['filled', 'numeric'],
+            'width' => ['filled', 'numeric'],
             'is_pool' => ['nullable', 'boolean'],
             'is_counter' => ['nullable', 'boolean'],
         ])->validate();

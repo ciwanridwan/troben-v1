@@ -17,6 +17,7 @@ use App\Actions\Admin\Partner\CreatePartner;
 use App\Jobs\Partners\DeleteExistingPartner;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Models\Partners\Transporter;
+use Illuminate\Support\Facades\Validator;
 
 class PartnerController extends Controller
 {
@@ -113,9 +114,6 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'owner.password' => ['confirmed']
-        ]);
         return (new CreatePartner($request->all()))->create();
     }
 

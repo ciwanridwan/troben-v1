@@ -30,6 +30,7 @@
     },
     "dependencies": {
         "node-sass": "^5.0.0",
+        "object-to-formdata": "^4.1.0",
         "sass-loader": "^11.0.1"
     }
 }

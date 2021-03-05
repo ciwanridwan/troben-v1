@@ -12,6 +12,8 @@ use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
+use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
+use Illuminate\Support\Facades\Validator;
 
 class CreatePartner
 {
@@ -41,6 +43,10 @@ class CreatePartner
      */
     protected BulkTransporter $jobTransporter;
 
+    /**
+     * @var CreateNewWarehouse
+     */
+    protected CreateNewWarehouse $jobWarehouse;
 
     /**
      * @var CreateNewUser
@@ -59,6 +65,9 @@ class CreatePartner
 
     public function __construct($inputs = [])
     {
+        Validator::make($inputs, [
+            'owner.password' => ['confirmed']
+        ]);
         $this->attributes = $inputs;
         $this->partner = new Partner();
     }
@@ -127,7 +136,7 @@ class CreatePartner
 
     public function create_pool()
     {
-        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->attributes['inventory']);
+        $this->validate_pool();
         $this->dispatch($this->jobInventory);
     }
     public function validate_pool()
@@ -137,7 +146,7 @@ class CreatePartner
 
     public function create_transporter()
     {
-        $this->jobTransporter = new BulkTransporter($this->partner, $this->attributes['transporter']);
+        $this->validate_transporter();
         $this->dispatch($this->jobTransporter);
     }
 
@@ -146,24 +155,31 @@ class CreatePartner
         $this->jobTransporter = new BulkTransporter($this->partner, $this->attributes['transporter']);
     }
 
-    public function create_business()
-    {
-        # code...
-    }
-
     public function create_space()
     {
-        # code...
-    }
-
-
-    public function validate_business()
-    {
-        # code...
+        $this->validate_space();
+        $this->dispatch($this->jobWarehouse);
     }
 
     public function validate_space()
     {
-        # code...
+        // temp warehouse info same as partner
+        $this->attributes['warehouse'] += $this->attributes['partner'];
+
+        $this->jobWarehouse = new CreateNewWarehouse($this->partner, $this->attributes['warehouse']);
+    }
+
+    public function create_business()
+    {
+        $this->dispatch($this->jobInventory);
+        $this->dispatch($this->jobWarehouse);
+        $this->dispatch($this->jobTransporter);
+    }
+
+    public function validate_business()
+    {
+        $this->validate_pool();
+        $this->validate_space();
+        $this->validate_transporter();
     }
 }

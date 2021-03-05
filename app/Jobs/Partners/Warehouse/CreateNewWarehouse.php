@@ -45,10 +45,11 @@ class CreateNewWarehouse
             'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'geo_district_id' => ['nullable', 'exists:geo_districts,id'],
-            'code' => ['required'],
-            'name' => ['required'],
             'address' => ['nullable'],
             'geo_area' => ['nullable'],
+            'height' => ['required', 'numeric'],
+            'length' => ['required', 'numeric'],
+            'width' => ['required', 'numeric'],
             'is_pool' => ['nullable', 'boolean'],
             'is_counter' => ['nullable', 'boolean'],
         ])->validate();

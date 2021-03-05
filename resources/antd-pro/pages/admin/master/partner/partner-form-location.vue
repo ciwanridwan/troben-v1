@@ -11,14 +11,14 @@
     >
       <a-row type="flex" :gutter="[10, 10]">
         <a-col :span="8">
-          <a-form-model-item ref="province" prop="province">
+          <a-form-model-item ref="province" prop="geo_province_id">
             <template slot="label">
               <h3>Provinsi</h3>
             </template>
             <a-select
               show-search
               :filter-option="filterOption"
-              v-model="form.province"
+              v-model="form.geo_province_id"
               placeholder="- pilih provinsi -"
             >
               <a-select-option
@@ -32,14 +32,14 @@
           </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <a-form-model-item ref="regency" prop="regency">
+          <a-form-model-item ref="regency" prop="geo_regency_id">
             <template slot="label">
               <h3>Kota / Kabupaten</h3>
             </template>
             <a-select
               show-search
               :filter-option="filterOption"
-              v-model="form.regency"
+              v-model="form.geo_regency_id"
               placeholder="- pilih kota/kabupaten -"
             >
               <a-select-option
@@ -53,14 +53,14 @@
           </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <a-form-model-item ref="district" prop="district">
+          <a-form-model-item ref="district" prop="geo_district_id">
             <template slot="label">
               <h3>Kecamatan</h3>
             </template>
             <a-select
               show-search
               :filter-option="filterOption"
-              v-model="form.district"
+              v-model="form.geo_district_id"
               placeholder="- pilih kecamatan -"
             >
               <a-select-option
@@ -74,14 +74,14 @@
           </a-form-model-item>
         </a-col>
         <a-col :span="8">
-          <a-form-model-item ref="sub_district" prop="sub_district">
+          <a-form-model-item ref="sub_district" prop="geo_sub_district_id">
             <template slot="label">
               <h3>Kelurahan</h3>
             </template>
             <a-select
               show-search
               :filter-option="filterOption"
-              v-model="form.sub_district"
+              v-model="form.geo_sub_district_id"
               placeholder="- pilih kelurahan -"
             >
               <a-select-option
@@ -127,10 +127,10 @@ export default {
   data() {
     return {
       form: {
-        regency: null,
-        province: null,
-        district: null,
-        sub_district: null,
+        geo_regency_id: null,
+        geo_province_id: null,
+        geo_district_id: null,
+        geo_sub_district_id: null,
         zip_code: null,
         address: null
       },
@@ -147,28 +147,28 @@ export default {
   computed: {
     regencies() {
       return _.filter(this.geo.regencies, {
-        province_id: this.form.province
+        province_id: this.form.geo_province_id
       });
     },
     districts() {
       return _.filter(this.geo.districts, {
-        regency_id: this.form.regency
+        regency_id: this.form.geo_regency_id
       });
     },
     sub_districts() {
       return _.filter(this.geo.sub_districts, {
-        district_id: this.form.district
+        district_id: this.form.geo_district_id
       });
     },
     zip_code() {
       let sub_district = _.find(this.geo.sub_districts, {
-        id: this.form.sub_district
+        id: this.form.geo_sub_district_id
       });
       return sub_district ? sub_district.zip_code : "";
     }
   },
   watch: {
-    "form.sub_district": function(value) {
+    "form.geo_sub_district_id": function(value) {
       this.form.zip_code = this.zip_code;
     }
   },

@@ -18,14 +18,14 @@ class UpdateExistingPartner
 
     /**
      * Partner instance.
-     * 
+     *
      * @var App\Models\Partners\Partner
      */
     public Partner $partner;
 
     /**
      * Filtered Attributes.
-     * 
+     *
      * @var array
      */
     protected array $attributes;
@@ -33,26 +33,30 @@ class UpdateExistingPartner
     /**
      * @param App\Models\Partners\Partner $partner
      * @param array                       $inputs
-     * 
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Partner $partner, $inputs = [])
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            'name' => ['filled','string','max:255'],
-            'code' => ['filled','string','max:255'],
-            'contact_email' => ['nullable','email'],
-            'contact_phone' => ['nullable','numeric','phone:AUTO,ID'],
-            'address' => ['nullable','string','max:255'],
+            'name' => ['filled', 'string', 'max:255'],
+            'code' => ['filled', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email'],
+            'contact_phone' => ['nullable', 'numeric', 'phone:AUTO,ID'],
+            'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
+            'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
+            'geo_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'geo_sub_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'address' => ['nullable', 'string', 'max:255'],
             'geo_location' => ['nullable'],
-            'type' => ['filled',Rule::in(Partner::getAvailableTypes())],
+            'type' => ['filled', Rule::in(Partner::getAvailableTypes())],
         ])->validate();
     }
 
     /**
      * Handle the job.
-     * 
+     *
      * @return bool
      */
     public function handle(): bool

@@ -96,6 +96,8 @@ import PartnerOwnerForm from "./partner-owner-form.vue";
 import PartnerSpaceForm from "./space/partner-space-form.vue";
 import PartnerTransporterForm from "./transporter/partner-transporter-form.vue";
 import Transporters from "./transporter/transporters.vue";
+import { serialize } from "object-to-formdata";
+
 export default {
   components: {
     contentLayout,
@@ -164,7 +166,7 @@ export default {
 
       if (this.valid) {
         this.$http
-          .post(this.routeUri(this.getRoute()), form)
+          .post(this.routeUri(this.getRoute()), serialize(form))
           .then(this.onSuccessStore)
           .catch(this.onErrorValidation);
       } else {
@@ -201,8 +203,7 @@ export default {
       owner.$refs.ruleForm.validate(valid => {
         this.valid = valid;
       });
-
-      return { owner: owner.$data.form };
+      return { owner: owner.$data.form, photo: owner.$data.form.photo };
     },
     transporterForm() {
       return { transporter: this.$refs.transporter.$data.form };
@@ -215,8 +216,7 @@ export default {
       space.$refs.ruleForm.validate(valid => {
         this.valid = valid;
       });
-
-      return { space: space.$data.form };
+      return { warehouse: space.$data.form };
     },
     poolData() {
       return {
