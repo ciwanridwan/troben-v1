@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Partners\Transporter;
 use App\Jobs\Users\DeleteExistingUser;
+use App\Jobs\Users\UpdateExistingUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -21,7 +22,6 @@ use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Jobs\Users\UpdateExistingUser;
 
 class AssetController extends Controller
 {
@@ -194,10 +194,10 @@ class AssetController extends Controller
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
-    protected function updateEmployee(Request $request,$hash): JsonResponse
+    protected function updateEmployee(Request $request, $hash): JsonResponse
     {
         $user = (new User())->byHashOrFail($hash);
-        $job = new UpdateExistingUser($user,$request->all());
+        $job = new UpdateExistingUser($user, $request->all());
         $this->dispatch($job);
 
         if ($request->role) {
@@ -210,7 +210,7 @@ class AssetController extends Controller
                 ]);
             }
             UserablePivot::whereNotIn('role', $request->role)
-                ->where('user_id',$job->user->id)
+                ->where('user_id', $job->user->id)
                 ->delete();
         }
 

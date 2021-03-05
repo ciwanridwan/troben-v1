@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources\Api\Partner\Asset;
 
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
@@ -47,7 +47,7 @@ class UserResource extends JsonResource
 
         foreach ($users as $user) {
             if (is_null($data['hash'])) {
-                foreach (Arr::except($data,'role') as $key => $value) {
+                foreach (Arr::except($data, 'role') as $key => $value) {
                     $data[$key] = $user->{$key};
                 }
             }
