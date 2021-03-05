@@ -21,6 +21,7 @@ use App\Http\Resources\Api\Partner\asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
+use App\Jobs\Users\UpdateExistingUser;
 
 class AssetController extends Controller
 {
@@ -69,10 +70,12 @@ class AssetController extends Controller
      * Route Name       : api.partner.asset.store
      * Route Method     : POST.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return void
+     * @param \Illuminate\Http\Request  $request
+     * @param mixed                     $type
+     *
+     * @return JsonResponse
      */
-    public function store(Request $request, $type)
+    public function store(Request $request, $type): JsonResponse
     {
         $this->partner = $request->user()->partners->first();
 
@@ -90,16 +93,37 @@ class AssetController extends Controller
      * Route Name       : api.partner.asset.destroy
      * Route Method     : DELETE.
      *
-     * @param \Illuminate\Http\Request          $request
-     * @param \App\Models\Partners\Transporter  $transporter
+     * @param \Illuminate\Http\Request  $request
+     * @param mixed                     $type
+     * @param mixed                     $hash
      *
-     * @return [type]
+     * @return JsonResponse
      */
-    public function destroy(Request $request, $type, $hash)
+    public function destroy(Request $request, $type, $hash): JsonResponse
     {
         $this->partner = $request->user()->partners->first();
 
         return $type == 'transporter' ? $this->deleteTransporter($hash) : $this->deleteEmployee($hash);
+    }
+
+    /**
+     * Deleting partner's asset.
+     *
+     * Route Path       : {API_DOMAIN}/partner/asset/{type}/{hash}
+     * Route Name       : api.partner.asset.update
+     * Route Method     : PATCH.
+     *
+     * @param \Illuminate\Http\Request  $request
+     * @param mixed                     $type
+     * @param mixed                     $hash
+     *
+     * @return JsonResponse
+     */
+    public function update(Request $request, $type, $hash): JsonResponse
+    {
+        $this->partner = $request->user()->partners->first();
+
+        return $type == 'transporter' ? $this->updateTransporter($request, $hash) : $this->updateEmployee($request, $hash);
     }
 
     public function getEmployee(): JsonResponse
@@ -168,5 +192,33 @@ class AssetController extends Controller
         $this->dispatch($job);
 
         throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+    }
+
+    protected function updateEmployee(Request $request,$hash): JsonResponse
+    {
+        $user = (new User())->byHashOrFail($hash);
+        $job = new UpdateExistingUser($user,$request->all());
+        $this->dispatch($job);
+
+        if ($request->role) {
+            foreach ($request->role as $role) {
+                UserablePivot::firstOrCreate([
+                    'user_id' => $job->user->id,
+                    'userable_type' => Model::getActualClassNameForMorph(get_class($this->partner)),
+                    'userable_id' => $this->partner->getKey(),
+                    'role' => $role,
+                ]);
+            }
+            UserablePivot::whereNotIn('role', $request->role)
+                ->where('user_id',$job->user->id)
+                ->delete();
+        }
+
+        return $this->getEmployee();
+    }
+
+    protected function updateTransporter(Request $request, $hash)
+    {
+        # CODE UPDATE
     }
 }
