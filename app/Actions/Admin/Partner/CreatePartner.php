@@ -12,6 +12,8 @@ use App\Jobs\Partners\CreateNewPartner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
+use Carbon\Carbon;
+
 
 class CreatePartner
 {
@@ -143,6 +145,12 @@ class CreatePartner
 
     public function validate_transporter()
     {
+        // auto verified if added by admin
+        foreach ($this->attributes['transporter'] as $index => $value) {
+            $this->attributes['transporter'][$index]['is_verified'] = true;
+            $this->attributes['transporter'][$index]['verified_at'] = Carbon::now();
+        }
+
         $this->jobTransporter = new BulkTransporter($this->partner, $this->attributes['transporter']);
     }
 

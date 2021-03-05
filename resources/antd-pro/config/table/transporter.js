@@ -13,19 +13,21 @@ export default [
   },
   {
     title: "Jenis",
-    dataIndex: "type",
+    dataIndex: "type.name",
     key: "type",
     scopedSlots: { customRender: "type" }
   },
   {
     title: "Kode Mitra",
+    dataIndex: "partner.code",
     key: "code",
     scopedSlots: { customRender: "code" }
   },
   {
     title: "Tahun",
-    key: "year",
-    scopedSlots: { customRender: "year" }
+    dataIndex: "production_year",
+    key: "production_year",
+    scopedSlots: { customRender: "production_year" }
   },
   {
     title: "Dimensi",
@@ -34,13 +36,15 @@ export default [
   },
   {
     title: "Nama STNK",
+    dataIndex: "registration_name",
     key: "registration_name",
     scopedSlots: { customRender: "registration_name" }
   },
   {
     title: "Pajak STNK",
-    key: "registration_tax_year",
-    scopedSlots: { customRender: "registration_tax_year" }
+    dataIndex: "registration_year",
+    key: "registration_year",
+    scopedSlots: { customRender: "registration_year" }
   },
   {
     title: "Foto",

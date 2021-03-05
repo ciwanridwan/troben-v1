@@ -23,9 +23,28 @@
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
 
+          <span slot="dimension" slot-scope="record">
+            {{ record.type.length }} x {{ record.type.width }} x
+            {{ record.type.height }}
+          </span>
+
           <span slot="action" slot-scope="record">
             <a-space>
-              <delete-button @click="deleteConfirm(record)"></delete-button>
+              <a-button
+                type="link"
+                :class="['text-success']"
+                icon="check"
+                @click="onApprove(record, true)"
+              >
+                Approve
+              </a-button>
+              <a-button
+                type="link"
+                :class="['text-danger']"
+                icon="close"
+                @click="onApprove(record, false)"
+                >Reject</a-button
+              >
             </a-space>
           </span>
         </a-table>
@@ -60,18 +79,16 @@ export default {
     transporterColumns
   }),
   methods: {
-    deleteConfirm(record) {
-      this.$confirm({
-        content:
-          "Apakah kamu yaking ingin menghapus data Transporter " +
-          record.name +
-          "?",
-        okText: "Ya",
-        cancelText: "Batal",
-        onOk: () => {
-          this.deleteItem(record);
-        }
-      });
+    onApprove(record, value) {
+      let url = this.routeUri(this.getRoute()) + "/" + record.hash;
+      console.log(url);
+      this.$http
+        .patch(url, { is_verified: value })
+        .then(resp => this.onSuccessApproved(resp))
+        .catch(err => this.onErrorResponse(err));
+    },
+    onSuccessApproved(response) {
+      this.getItems();
     },
     onSuccessResponse(response) {
       this.items = response;

@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -43,6 +44,8 @@ class Transporter extends Model
     const TYPE_VAN = 'van';
 
 
+
+
     /**
      * The table associated with the model.
      *
@@ -77,6 +80,25 @@ class Transporter extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'id',
+    ];
+
 
     /**
      * Get transporter types.

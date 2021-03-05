@@ -87,6 +87,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+
         $customer = (new Customer)->byHashOrFail($request->hash);
         $job = new DeleteExistingCustomer($customer);
         $this->dispatch($job);
