@@ -26,6 +26,7 @@ class CreateTransportersTable extends Migration
             $table->float('width')->nullable()->default(0); // capacity
             $table->float('height')->nullable()->default(0); // capacity
             $table->string('weight')->default(0); // capacity
+            $table->boolean('is_verified')->nullable()->default(false);
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
