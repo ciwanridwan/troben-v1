@@ -22,10 +22,6 @@ class CreateTransportersTable extends Migration
             $table->string('registration_number'); // STNK, Plat Nomor
             $table->string('registration_year')->nullable(); // STNK, Tahun Berlaku
             $table->string('type'); // BIKE, CAR, PICKUP, BOX, TRUCK
-            $table->float('length')->nullable()->default(0); // capacity
-            $table->float('width')->nullable()->default(0); // capacity
-            $table->float('height')->nullable()->default(0); // capacity
-            $table->string('weight')->default(0); // capacity
             $table->boolean('is_verified')->nullable()->default(false);
             $table->timestamp('verified_at')->nullable();
             $table->timestamps();
