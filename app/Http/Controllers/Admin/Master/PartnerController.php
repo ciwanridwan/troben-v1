@@ -96,7 +96,7 @@ class PartnerController extends Controller
     {
         if ($request->expectsJson()) {
             $data = [
-                'transporter_types' => Transporter::getAvailableTypes(),
+                'transporter_types' => Transporter::getDetailAvailableTypes(),
                 'partner_types' => Partner::getAvailableTypes(),
                 'geo' => [
                     'provinces' => Province::all(),

@@ -112,7 +112,7 @@ class Transporter extends Model
         return [
             [
                 'name' => self::TYPE_BIKE,
-                'lenght' => 40,
+                'length' => 40,
                 'width' => 35,
                 'height' => 55,
                 'weight' => 40,
@@ -120,7 +120,7 @@ class Transporter extends Model
             ],
             [
                 'name' => self::TYPE_MPV,
-                'lenght' => 175,
+                'length' => 175,
                 'width' => 100,
                 'height' => 85,
                 'weight' => 300,
@@ -128,7 +128,7 @@ class Transporter extends Model
             ],
             [
                 'name' => self::TYPE_PICKUP,
-                'lenght' => 210,
+                'length' => 210,
                 'width' => 150,
                 'height' => 120,
                 'weight' => 700,
@@ -136,7 +136,7 @@ class Transporter extends Model
             ],
             [
                 'name' => self::TYPE_PICKUP_BOX,
-                'lenght' => 200,
+                'length' => 200,
                 'width' => 130,
                 'height' => 120,
                 'weight' => 1000,

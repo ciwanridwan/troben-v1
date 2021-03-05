@@ -26,13 +26,14 @@
                 :filter-option="filterOption"
                 v-model="form.type"
                 placeholder="- Jenis Kendaraan -"
+                @change="typeSelected"
               >
                 <a-select-option
                   v-for="type in types"
-                  :key="type"
-                  :value="type"
+                  :key="type.name"
+                  :value="type.name"
                 >
-                  {{ type }}
+                  {{ type.name }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -49,35 +50,30 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="6">
-            <a-form-model-item ref="weight" prop="weight">
-              <template slot="label">
-                <h3>Kapasitas (Kg)</h3>
-              </template>
-              <a-input-number v-model="form.weight"></a-input-number>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="6">
             <a-form-model-item ref="productionYear" prop="production_year">
               <template slot="label">
                 <h3>Tahun Pembuatan</h3>
               </template>
-              <a-input v-model="form.production_year"></a-input>
+              <a-input-number v-model="form.production_year"></a-input-number>
             </a-form-model-item>
           </a-col>
+        </a-row>
+
+        <a-row type="flex" :gutter="[10, 10]">
           <a-col :span="6">
             <a-form-model-item ref="length" prop="length">
               <template slot="label">
                 <h3>Panjang (cm)</h3>
               </template>
-              <a-input-number v-model="form.length"></a-input-number>
+              <a-input-number disabled v-model="form.length"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="6">
             <a-form-model-item ref="width" prop="width">
               <template slot="label">
-                <h3>Width (cm)</h3>
+                <h3>Lebar (cm)</h3>
               </template>
-              <a-input-number v-model="form.width"></a-input-number>
+              <a-input-number disabled v-model="form.width"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="6">
@@ -85,10 +81,19 @@
               <template slot="label">
                 <h3>Tinggi (cm)</h3>
               </template>
-              <a-input-number v-model="form.height"></a-input-number>
+              <a-input-number disabled v-model="form.height"></a-input-number>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-model-item ref="weight" prop="weight">
+              <template slot="label">
+                <h3>Kapasitas (Kg)</h3>
+              </template>
+              <a-input-number disabled v-model="form.weight"></a-input-number>
             </a-form-model-item>
           </a-col>
         </a-row>
+
         <a-row type="flex" :gutter="[10, 10]">
           <a-col :span="6">
             <a-form-model-item ref="registration_name" prop="registration_name">
@@ -103,7 +108,7 @@
               <template slot="label">
                 <h3>Tahun Berlaku STNK</h3>
               </template>
-              <a-input v-model="form.registration_year"></a-input>
+              <a-input-number v-model="form.registration_year"></a-input-number>
             </a-form-model-item>
           </a-col>
         </a-row>
@@ -154,6 +159,13 @@ export default {
     }
   },
   methods: {
+    typeSelected(type) {
+      let type_detail = _.find(this.types, { name: type });
+      this.form.height = type_detail.height;
+      this.form.width = type_detail.width;
+      this.form.weight = type_detail.weight;
+      this.form.length = type_detail.length;
+    },
     closeForm() {
       this.visible = false;
     },
