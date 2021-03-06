@@ -1,14 +1,14 @@
 <template functional>
   <a-menu-item v-if="!props.menuInfo.children" :key="props.menuInfo.route">
     <a :href="props.menuInfo.uri">
-      <a-icon :type="props.menuInfo.icon" />
+      <a-icon v-if="props.menuInfo.icon" :type="props.menuInfo.icon" />
       <span>{{ props.menuInfo.text }}</span>
     </a>
   </a-menu-item>
   <a-sub-menu v-else :key="props.menuInfo.route">
     <span slot="title">
       <a :href="props.menuInfo.uri">
-        <a-icon :type="props.menuInfo.icon" />
+        <a-icon v-if="props.menuInfo.icon" :type="props.menuInfo.icon" />
         <span>{{ props.menuInfo.text }}</span>
       </a>
     </span>
@@ -25,6 +25,6 @@
 </template>
 <script>
 export default {
-  props: ["menuInfo"]
+  props: ["menuInfo"],
 };
 </script>

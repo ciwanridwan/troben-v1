@@ -1,6 +1,6 @@
 <template>
   <div>
-    <content-layout :pagination="trawlbensPagination">
+    <content-layout>
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>

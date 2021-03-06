@@ -1,4 +1,5 @@
 @import '~ant-design-vue/lib/style/themes/default';
+@import '../custom/variables.less';
 
 @theme-list: light, dark;
 @shadow-down: @shadow-1-down;
@@ -16,6 +17,21 @@
 
 // <admin-layout>
 .admin-layout {
+
+  .admin-header{
+    padding-left: 10px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+
+  &::before{
+        position: fixed;
+        top: 0;
+        left: 0;
+        content: '';
+        width: 100%;
+        height: @top-to-content;
+        background-color: white;
+      }
   .side-menu {
     &.fixed-side {
       position: fixed;
@@ -40,10 +56,14 @@
 
   .admin-layout-main {
     .admin-header {
+
+
       top: 0;
-      right: 0;
       overflow: hidden;
       transition: all 0.2s;
+      position: fixed;
+      width: 100%;
+      height: @top-to-content;
 
       &.fixed-tabs.multi-page:not(.fixed-header) {
         height: 0;
@@ -52,7 +72,8 @@
   }
 
   .admin-layout-content {
-    padding: 24px 24px 0;
+
+    padding-top: @top-to-content;
     /*overflow-x: hidden;*/
     /*min-height: calc(100vh - 64px - 122px);*/
   }
@@ -212,7 +233,7 @@
 .admin-header {
   padding: 0;
   z-index: 2;
-  box-shadow: @shadow-down;
+  // box-shadow: @shadow-down;
   position: relative;
   background: @body-background;
 

@@ -61,12 +61,13 @@ const main = {
   master: {
     icon: "setting",
     text: "Master",
-    route: "admin.master",
+    route: "admin.master.pricing.district",
     children: {
       district: {
         text: "Master Ongkir Kecamatan",
         route: "admin.master.pricing.district",
-        children: null
+        children: null,
+        default: true
       },
       customer: {
         text: "Master Customer",

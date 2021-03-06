@@ -94,6 +94,15 @@ const laravel = {
         .join("")
         .toUpperCase();
     },
+    transUri(navigation) {
+      _.forIn(navigation, (o, k) => {
+        o.uri = this.routeUri(o.route);
+        if (o.children) {
+          o.children = this.transUri(o.children);
+        }
+      });
+      return navigation;
+    },
     routes() {
       return this.$laravel.routes;
     },

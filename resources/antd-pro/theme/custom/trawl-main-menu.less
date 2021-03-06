@@ -1,0 +1,35 @@
+@import "./variables.less";
+#trawl-main-menu {
+  position: fixed;
+  left: 0px;
+  height: 100%;
+  border-top-right-radius: 30px;
+  background-color: @primary;
+  .ant-menu-item {
+    &-selected {
+      a::before {
+        content: "";
+        z-index: -1;
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        top: 0;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: @primary-light;
+        border-radius: 7px;
+      }
+    }
+  }
+  li {
+    & a {
+      .anticon {
+        color: white;
+      }
+    }
+  }
+
+  & > * {
+    background-color: transparent;
+  }
+}

@@ -11,19 +11,19 @@ import { Table } from "ant-design-vue";
 
 export default {
   props: {
-    ...Table.props
+    ...Table.props,
   },
   methods: {
-    assignProp() {
+    assignProp(ref) {
       _.forEach(this.$props, (v, k) => {
-        this.$refs.antTable.$props[k] = v;
+        this.$refs[ref].$props[k] = v;
       });
-    }
+    },
   },
   computed: {
     customProps() {
       return { ...this.$props };
-    }
+    },
   },
   mounted() {
     this.assignProp();
@@ -32,12 +32,12 @@ export default {
         () => {
           return this.$props[k];
         },
-        val => {
+        (val) => {
           this.$refs.antTable.$props[k] = val;
         }
       );
     });
-  }
+  },
 };
 </script>
 
