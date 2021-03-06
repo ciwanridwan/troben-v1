@@ -5,7 +5,6 @@
   >
     <div class="trawl-main-menu-detail-content">
       <h3>
-        <a-icon></a-icon>
         {{ navigation.title ? navigation.title : navigation.text }}
       </h3>
       <a-menu
@@ -30,7 +29,7 @@ import subMenu from "./sub-menu.vue";
 export default {
   components: { subMenu },
   methods: {
-    getNavigation,
+    getNavigation
   },
   computed: {
     openedKeys() {
@@ -45,15 +44,16 @@ export default {
       // opened.push(this.getNavigation(route, this.navigation).route);
 
       return opened;
-    },
+    }
   },
   data() {
     return {
-      navigation: {},
+      navigation: {}
     };
   },
   created() {
     this.navigation = this.getNavigation(this.getRoute());
-  },
+    console.log(this.navigation);
+  }
 };
 </script>

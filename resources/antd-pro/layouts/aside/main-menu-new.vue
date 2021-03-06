@@ -6,6 +6,7 @@
     :defaultOpenKeys="openedKeys"
     :inline-collapsed="true"
     id="trawl-main-menu"
+    ref="trawlMainMenu"
   >
     <a-menu-item v-for="item in mainNavigation" :key="item.route">
       <a :href="routeUri(item.route)">
@@ -45,16 +46,16 @@ export default {
         }
       });
       return main;
-    },
+    }
   },
   data: () => ({
-    navigation,
+    navigation
   }),
   methods: {
     navigate(route) {
       window.location.href = this.routeUri(route);
     },
-    getNavigation,
-  },
+    getNavigation
+  }
 };
 </script>

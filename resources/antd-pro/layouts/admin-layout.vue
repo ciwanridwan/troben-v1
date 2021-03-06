@@ -8,8 +8,13 @@
         :style="`min-height: ${minHeight}px;`"
       >
         <a-layout style="position: relative">
-          <main-menu-detail ref="sideMenu"></main-menu-detail>
-          <slot name="content"></slot>
+          <main-menu-detail
+            ref="mainMenuDetail"
+            :style="{ width: sideMenuWidth }"
+          ></main-menu-detail>
+          <a-layout-content :style="{ 'padding-left': sideMenuWidth }">
+            <slot name="content"></slot>
+          </a-layout-content>
         </a-layout>
       </a-layout-content>
 
@@ -29,8 +34,8 @@ export default {
   props: {
     sidebar: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   computed: {
     fixedHeader() {
@@ -40,7 +45,7 @@ export default {
       return this.config.layout.aside.fixed;
     },
     sideMenuWidth() {
-      return this.collapsed ? "80px" : "256px";
+      return "200px";
     },
     theme() {
       return this.config.layout.theme;
@@ -63,19 +68,18 @@ export default {
       return this.config.layout.aside.collapse;
     },
     minHeight() {
-      return this.sidebar ? window.innerHeight - 64 : window.innerHeight - 64 - 122;
-    },
+      return this.sidebar
+        ? window.innerHeight - 64
+        : window.innerHeight - 64 - 122;
+    }
   },
   data: () => ({
-    drawerOpen: false,
+    drawerOpen: false
   }),
   methods: {
     toggleCollapse() {
       this.config.layout.toggleCollapse();
-    },
-  },
-  mounted() {
-    console.log(this.$refs.sideMenu.clientHeight);
-  },
+    }
+  }
 };
 </script>
