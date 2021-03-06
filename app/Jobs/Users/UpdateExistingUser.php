@@ -39,10 +39,10 @@ class UpdateExistingUser
         $this->user = $user;
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
-            'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL"],
-            'email' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL"],
+            'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL", 'regex:/^\S*$/u'],
+            'email' => ['filled', "unique:users,email,$user->id,id,deleted_at,NULL"],
             'phone' => ['filled', "unique:users,phone,$user->id,id,deleted_at,NULL", 'numeric', 'phone:AUTO,ID'],
-            'password' => ['filled'],
+            'password' => ['filled','confirmed'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'verified_at' => ['nullable'],
