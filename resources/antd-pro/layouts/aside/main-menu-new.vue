@@ -40,7 +40,12 @@ export default {
       let opened = [];
       let route = this.getRoute();
 
-      opened.push(this.getNavigation(route).route);
+      _.forEach(this.navigation, (o, k) => {
+        if (route.indexOf(o.route) >= 0) {
+          opened.push(o.route);
+          return opened;
+        }
+      });
 
       return opened;
     }

@@ -4,7 +4,7 @@
     :style="{ overflow: 'auto', height: '100vh', position: 'fixed', top: 0 }"
   >
     <div class="trawl-main-menu-detail-content">
-      <h3>
+      <h3 class="trawl-main-menu-detail-title">
         {{ menu.title ? menu.title : menu.text }}
       </h3>
       <a-menu
@@ -41,7 +41,7 @@ export default {
       let opened = [];
       let route = this.getRoute();
 
-      opened.push(this.getNavigation(route, subMenu).route);
+      opened.push(this.getNavigation(route, this.subMenu).route);
 
       return opened;
     },
