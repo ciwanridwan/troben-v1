@@ -8,8 +8,15 @@
     id="trawl-main-menu"
     ref="trawlMainMenu"
   >
-    <a-menu-item v-for="item in mainNavigation" :key="item.route">
-      <a :href="routeUri(item.route)">
+    <a-menu-item v-for="item in navigation" :key="item.route">
+      <a v-if="item.children === null" :href="routeUri(item.route)">
+        <a-icon :type="item.icon" />
+        <span>{{ item.text }}</span>
+      </a>
+      <a
+        v-else
+        :href="routeUri(item.children[getFirstChild(item.children)].route)"
+      >
         <a-icon :type="item.icon" />
         <span>{{ item.text }}</span>
       </a>
@@ -36,16 +43,6 @@ export default {
       opened.push(this.getNavigation(route).route);
 
       return opened;
-    },
-    mainNavigation() {
-      let main = { ...this.navigation };
-      _.forEach(main, (o, k) => {
-        if (_.isObject(o.children)) {
-          main[k].route = o.children[_.head(Object.keys(o.children))].route;
-          main[k].uri = o.children[_.head(Object.keys(o.children))].uri;
-        }
-      });
-      return main;
     }
   },
   data: () => ({
@@ -55,7 +52,10 @@ export default {
     navigate(route) {
       window.location.href = this.routeUri(route);
     },
-    getNavigation
+    getNavigation,
+    getFirstChild(children) {
+      return _.head(Object.keys(children));
+    }
   }
 };
 </script>

@@ -15,7 +15,7 @@
     <template v-for="item in props.menuInfo.children">
       <a-menu-item v-if="!item.children" :key="item.route">
         <a :href="item.uri">
-          <a-icon :type="item.icon" />
+          <a-icon v-if="item.icon" :type="item.icon" />
           <span>{{ item.text }}</span>
         </a>
       </a-menu-item>
@@ -25,6 +25,6 @@
 </template>
 <script>
 export default {
-  props: ["menuInfo"],
+  props: ["menuInfo"]
 };
 </script>

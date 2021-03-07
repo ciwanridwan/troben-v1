@@ -61,7 +61,7 @@ const main = {
   master: {
     icon: "setting",
     text: "Master",
-    route: "admin.master.pricing.district",
+    route: "admin.master",
     children: {
       district: {
         text: "Master Ongkir Kecamatan",

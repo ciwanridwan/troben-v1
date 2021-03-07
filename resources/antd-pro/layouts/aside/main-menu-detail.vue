@@ -5,7 +5,7 @@
   >
     <div class="trawl-main-menu-detail-content">
       <h3>
-        {{ navigation.title ? navigation.title : navigation.text }}
+        {{ menu.title ? menu.title : menu.text }}
       </h3>
       <a-menu
         mode="inline"
@@ -14,7 +14,7 @@
         :defaultOpenKeys="openedKeys"
       >
         <sub-menu
-          v-for="item in navigation.children"
+          v-for="item in subMenu"
           :key="item.route"
           :menuInfo="item"
         ></sub-menu>
@@ -23,7 +23,7 @@
   </a-layout-sider>
 </template>
 <script>
-import { getNavigation } from "../../navigation";
+import { main as navigation, getNavigation } from "../../navigation";
 import subMenu from "./sub-menu.vue";
 
 export default {
@@ -41,19 +41,28 @@ export default {
       let opened = [];
       let route = this.getRoute();
 
-      // opened.push(this.getNavigation(route, this.navigation).route);
+      opened.push(this.getNavigation(route, subMenu).route);
 
       return opened;
+    },
+    menu() {
+      let menu = null;
+      _.forEach(this.navigation, (o, k) => {
+        if (this.getRoute().indexOf(o.route) >= 0) {
+          menu = o;
+        }
+      });
+      return menu;
+    },
+    subMenu() {
+      return this.transUri(this.menu.children);
     }
   },
   data() {
     return {
-      navigation: {}
+      navigation
     };
   },
-  created() {
-    this.navigation = this.getNavigation(this.getRoute());
-    console.log(this.navigation);
-  }
+  created() {}
 };
 </script>
