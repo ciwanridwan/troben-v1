@@ -29,7 +29,7 @@
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
           <span slot="from_to" slot-scope="record">
-            <a-row type="flex" align="middle" id="pricing-timeline">
+            <a-row type="flex" align="middle" :class="['trawl-timeline']">
               <a-col>
                 <a-timeline>
                   <a-timeline-item color="green">

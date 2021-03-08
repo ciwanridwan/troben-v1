@@ -22,11 +22,13 @@ export default [
   },
   {
     title: "Lokasi Pengiriman",
-    dataIndex: "sender_address"
+    key: "address",
+    scopedSlots: { customRender: "address" }
   },
   {
     title: "Order By",
-    dataIndex: "order_by",
+    key: "order_by",
+    scopedSlots: { customRender: "order_by" },
     sorter: true
   },
   {
