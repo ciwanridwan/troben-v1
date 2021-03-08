@@ -1,0 +1,31 @@
+_id: req_0f1e6423ca8e48d3bb9fa0a899befbf7
+type: Request
+parentId: fld_d08d8b5488104d3aaf0e08d1c3d26055
+modified: 1615177512083
+created: 1614682447641
+url: "{{ _.base_url }}/partner/asset/transporter/{% response 'body',
+  'req_b0c8b09329a5493094b0b77f5ed95890', 'b64::JC5kYXRhWzBdLmhhc2g=::46b',
+  'never', 60 %}"
+name: Delete Existing Transporter
+description: |-
+  Delete an existing transporter.
+
+  Header
+  --
+  - `Authorization` => Bearer token
+method: DELETE
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1615177061788
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,12 +1,14 @@
-_id: req_87593ab3340441e2849cca4b3fcc11f9
+_id: req_685ad4f7beb7407ea043f2ecf8bfaafb
 type: Request
 parentId: fld_a6cf63dfaba546cbb53c4573085d9b17
-modified: 1615177121090
-created: 1614570177617
-url: "{{ _.base_url }}/partner/asset/employee"
-name: Create new employee
+modified: 1615177214427
+created: 1614919535525
+url: "{{ _.base_url }}/partner/asset/employee/{% response 'body',
+  'req_3cd2442bed5f4950b417e1a44763f15f', 'b64::JC5kYXRhWzBdLmhhc2g=::46b',
+  'never', 60 %}"
+name: Update Existing Employee
 description: >-
-  Create new employee from partner.
+  Update existing employee from partner.
 
 
   Header
@@ -39,38 +41,55 @@ method: POST
 body:
   mimeType: multipart/form-data
   params:
+    - name: _method
+      value: patch
+      description: ""
+      id: pair_b111168b3fae409499de0e52e45601e4
+      disabled: false
     - name: name
-      value: sule
+      value: suless
       description: ""
       id: pair_e9e8afa3ef5f4e1a87279cece70c935b
+      disabled: false
     - name: username
-      value: sule132
+      value: sule132a
       description: ""
       id: pair_88d35deea33f42a39531954ffac44f92
+      disabled: false
     - name: email
-      value: sule@email.com
+      value: sulea@email.com
       description: ""
       id: pair_847971435f9e4d09afff6f6eaaf66c0a
+      disabled: false
     - name: phone
-      value: "+6287877711111"
+      value: "+628787771123"
       description: ""
       id: pair_d79b4ce56f3549c1b48571623dea25ef
     - name: password
       value: "{{ _.credentials.customer.password }}"
       description: ""
       id: pair_a0e4380ff6c24fe9a96707f79be61aef
+      disabled: true
+    - name: password_confirmation
+      value: "{{ _.credentials.customer.password }}"
+      description: ""
+      id: pair_6c36da6b3bb548d0873da4c8b0fef9da
+      disabled: true
     - name: role[]
       value: cashier
       description: ""
       id: pair_05f0db7424b743abad6547f13902267e
+      disabled: false
     - name: role[]
       value: warehouse
       description: ""
       id: pair_8423b54859e94994932f7a72be312e18
+      disabled: false
     - name: role[]
       value: driver
       description: ""
       id: pair_0d83f89e73694e2a905d504fd9ccda8f
+      disabled: false
 parameters: []
 headers:
   - name: Accept
@@ -84,7 +103,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1614901687158.5
+metaSortKey: -1614901687146
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
