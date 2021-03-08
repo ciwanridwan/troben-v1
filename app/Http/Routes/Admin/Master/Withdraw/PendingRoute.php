@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Http\Routes\Admin\Master;
+namespace App\Http\Routes\Admin\Master\Withdraw;
 
+use App\Http\Controllers\Admin\Master\Withdraw\PendingController;
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Admin\Master\PaymentController;
 
-class PaymentRoute extends BaseRoute
+class PendingRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $name = "admin.payment";
+    protected $prefix = "/payment/withdraw/pending";
 
     /**
      * @var string
      */
-    protected $prefix = "/payment";
+    protected $name = "admin.payment.withdraw.pending";
 
     /**
      * Register routes handled by this class.
@@ -24,8 +24,8 @@ class PaymentRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('/income'), [
-            'as' => $this->name('income'),
+        $this->router->get($this->prefix, [
+            'as' => $this->name,
             'uses' => $this->uses('index')
         ]);
     }
@@ -37,6 +37,6 @@ class PaymentRoute extends BaseRoute
      */
     public function controller()
     {
-        return PaymentController::class;
+        return PendingController::class;
     }
 }

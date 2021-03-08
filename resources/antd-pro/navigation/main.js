@@ -3,7 +3,32 @@ const main = {
     icon: "home",
     text: "Home",
     route: "admin.home",
-    children: null,
+    children: {
+      all: {
+        title: "All Order",
+        text: "Data Order",
+        route: "admin.home",
+        children: null
+      },
+      resi: {
+        title: "All Resi",
+        text: "Data Resi",
+        route: "admin.home.resi",
+        children: null
+      },
+      manifest: {
+        title: "All Manifest",
+        text: "Data Manifest",
+        route: "admin.home.manifest",
+        children: null
+      },
+      delivery: {
+        title: "All Delivery Order",
+        text: "Data Delivery Order",
+        route: "admin.home.delivery",
+        children: null
+      }
+    },
     shortKey: ["ctrl", "alt", "d"]
   },
   history: {
@@ -32,16 +57,21 @@ const main = {
     text: "Pembayaran",
     route: "admin.payment",
     children: {
-      partner_income: {
+      income: {
         text: "Pendapatan Mitra",
-        route: "admin.payment.partner_income",
+        route: "admin.payment.income",
         children: null,
         shortKey: ["ctrl", "alt", "i"]
       },
       withdraw: {
-        text: "Request Pencairan",
+        text: "Pencairan Mitra",
         route: "admin.payment.withdraw",
         children: {
+          request: {
+            text: "Request Pencairan",
+            route: "admin.payment.withdraw.request",
+            children: null
+          },
           pending: {
             text: "Pencairan Pending",
             route: "admin.payment.withdraw.pending",

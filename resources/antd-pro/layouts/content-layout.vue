@@ -5,11 +5,11 @@
     </a-layout-sider>
     <a-layout-content class="content">
       <a-row class="content-layout-head">
-        <a-col :span="12">
+        <a-col :span="10">
           <slot name="title" v-if="hasTitleSlot"></slot>
           <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
-        <a-col :span="12">
+        <a-col :span="14">
           <slot name="head-tools"></slot>
         </a-col>
       </a-row>
@@ -17,6 +17,7 @@
         <a-layout-content>
           <slot name="content"></slot>
         </a-layout-content>
+        <slot name="footer" v-if="hasFooterSlot"></slot>
       </a-layout>
     </a-layout-content>
     <a-layout-sider v-if="hasSiderSlot && siderPosition == 'right'">
@@ -30,16 +31,16 @@ import getNavigation from "../navigation/navigation";
 export default {
   props: {
     title: {
-      type: String,
+      type: String
     },
     sider: {
       type: Boolean,
-      default: false,
+      default: false
     },
     siderPosition: {
       type: String,
-      default: "left",
-    },
+      default: "left"
+    }
   },
   computed: {
     defaultTitle() {
@@ -52,14 +53,18 @@ export default {
     hasSiderSlot() {
       return !!this.$slots["sider"];
     },
+    hasFooterSlot() {
+      return !!this.$slots["footer"];
+    }
   },
   methods: {
-    getNavigation,
-  },
+    getNavigation
+  }
 };
 </script>
 <style lang="scss">
 #content-layout {
+  height: 100vh;
   .content {
     padding: 24px;
   }

@@ -2,10 +2,14 @@
   <content-layout siderPosition="right">
     <template slot="content">
       <a-table
-        :dataSource="orders.data"
-        :columns="columns"
-        :class="['trawl']"
-      ></a-table>
+        :columns="orderColumns"
+        :data-source="orders.data"
+        :defaultExpandAllRows="true"
+        :class="['trawl-table-expanded']"
+      >
+        <span slot="expandedRowRender" slot-scope="record">{{ record }}</span>
+        <span slot="expandIcon">test</span>
+      </a-table>
     </template>
     <template slot="sider">
       <a-card class="order-notification-title">
@@ -20,43 +24,18 @@
   </content-layout>
 </template>
 <script>
+import trawlTable from "../../../components/trawl-table.vue";
 import ContentLayout from "../../../layouts/content-layout.vue";
 import { orders } from "../../../mock";
-
-const columns = [
-  {
-    title: "No",
-    dataIndex: "id"
-  },
-  {
-    title: "ID Order",
-    dataIndex: "barcode"
-  },
-  {
-    title: "Mitra Penerima",
-    dataIndex: "receiver_name"
-  },
-  {
-    title: "Lokasi Pengiriman",
-    dataIndex: "sender_address"
-  },
-  {
-    title: "Order By",
-    dataIndex: "order_by",
-    sorter: true
-  },
-  {
-    title: "Tanggal Order",
-    dataIndex: "created_at"
-  }
-];
+import orderColumns from "../../../config/table/home/order";
 
 export default {
+  components: { trawlTable },
   data: () => {
     return {
       ContentLayout,
       orders,
-      columns
+      orderColumns
     };
   },
   created() {

@@ -1,0 +1,51 @@
+@import "./variables.less";
+.trawl-table {
+  &-expanded {
+    table {
+      border-collapse: collapse;
+    }
+
+    tr {
+      & > th:first-child,
+      & > td:first-child {
+        display: none;
+      }
+
+      & > th {
+        background-color: white;
+      }
+
+      & > th:nth-child(2) {
+        border-top-left-radius: 14px;
+        border-bottom-left-radius: 14px;
+      }
+      & > th:last-child {
+        border-top-right-radius: 14px !important;
+        border-bottom-right-radius: 14px !important;
+      }
+
+      &.ant-table {
+        &-row {
+          &-level-0 {
+            td {
+              background-color: white;
+            }
+            & > td:nth-child(2) {
+              border-top-left-radius: 14px;
+              border-bottom-left-radius: 14px;
+            }
+            & > td:last-child {
+              border-top-right-radius: 14px;
+            }
+          }
+        }
+        &-expanded-row-level-1 {
+          td {
+            background-color: white;
+            border-bottom-right-radius: 14px;
+          }
+        }
+      }
+    }
+  }
+}
