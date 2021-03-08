@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
