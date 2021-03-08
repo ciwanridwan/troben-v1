@@ -18,7 +18,7 @@ class CreatePaymentsTable extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
 
-            // $table->foreignIdFor(Gateway::class, 'gateway_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('gateway_id')->nullable();
             $table->string('payable_type');
             $table->unsignedBigInteger('payable_id');
 
@@ -44,6 +44,11 @@ class CreatePaymentsTable extends Migration
             $table->foreign('confirmed_by')
                 ->references('id')
                 ->on('users')
+                ->onDelete('set null');
+
+            $table->foreign('gateway_id')
+                ->references('id')
+                ->on('payment_gateways')
                 ->onDelete('set null');
         });
     }
