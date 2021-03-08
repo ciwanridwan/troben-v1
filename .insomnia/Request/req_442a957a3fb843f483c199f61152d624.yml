@@ -1,0 +1,97 @@
+_id: req_442a957a3fb843f483c199f61152d624
+type: Request
+parentId: fld_d08d8b5488104d3aaf0e08d1c3d26055
+modified: 1615177339957
+created: 1614672381262
+url: "{{ _.base_url }}/partner/asset/transporter"
+name: Create new transporter
+description: >-
+  Create new employee from partner.
+
+
+  Header
+
+  --
+
+  - `Authorization` => Bearer token
+
+  - `Accept` => {% request 'header', 'Accept', 0 %}
+
+  - `Content-Type` => {% request 'header', 'Content-Type', 0 %}
+
+
+  Parameter
+
+  --
+
+  - `name` => name of asset, **required*
+
+  - `registration_number` => number of asset that registered, **required*
+
+  - `type` => type of transporter, possible value: {% response 'body', 'req_d955158848bd495d9d20e66296080be8', 'b64::JC5kYXRh::46b', 'never', 60 %}
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: name
+      value: dolar2
+      description: ""
+      id: pair_9c286b65e6634ff5ba0f99a3c10d64ef
+    - name: registration_number
+      value: B 2938 KSW
+      description: ""
+      id: pair_19f65758b4e7434fa7d3f0b4f1fe96b5
+    - name: type
+      value: "{% response 'body', 'req_d955158848bd495d9d20e66296080be8',
+        'b64::JC5kYXRhWzFd::46b', 'never', 60 %}"
+      description: ""
+      id: pair_31a04a9b896c46c19e6a081e856bdc63
+    - name: production_year
+      value: "2010"
+      description: ""
+      id: pair_49b69dd4afc0420d949d876e1bff7881
+    - name: registration_name
+      value: Sule
+      description: ""
+      id: pair_c969e0e5efd4448b90f56f16b5265130
+    - name: length
+      value: "150"
+      description: ""
+      id: pair_cdd22abba3c3460fb8a01b473d441e96
+    - name: width
+      value: "300"
+      description: ""
+      id: pair_88b8fb6e575643b5ac3ebf0c0f4edd3b
+    - name: height
+      value: "250"
+      description: ""
+      id: pair_f87caa040a904af1a29a86c4f0a0d8eb
+    - name: weight
+      value: "1000"
+      description: ""
+      id: pair_2536fea10a6644a8b627ac39e798d3a1
+    - name: registration_year
+      value: "2010"
+      description: ""
+      id: pair_e0e507a501f04200b6de59f0da0e3f09
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_db28ff9a5ad844c282781c4a72ac4dbb
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_e51be3351ceb4791bfcb283416b9ffc9
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1615177061838
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
