@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 /**
  * Package model.
  *
- * @property int $int
+ * @property int $id
  * @property int $customer_id
  * @property string $barcode
  * @property string $service_code

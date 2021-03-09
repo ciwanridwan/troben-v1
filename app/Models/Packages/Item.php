@@ -18,12 +18,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $height
  * @property int $length
  * @property int $width
+ * @property bool $in_estimation
  * @property bool $is_insured
  * @property array $handling
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *
- * @property \App\Models\Packages\Package $package
+ * @property-read \App\Models\Packages\Package $package
  */
 class Item extends Model
 {
@@ -49,6 +50,7 @@ class Item extends Model
         'height',
         'length',
         'width',
+        'in_estimation',
         'is_insured',
         'handling',
     ];
@@ -64,6 +66,7 @@ class Item extends Model
         'height' => 'int',
         'length' => 'int',
         'width' => 'int',
+        'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => 'array',
     ];
