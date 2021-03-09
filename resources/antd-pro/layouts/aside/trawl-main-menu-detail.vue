@@ -13,11 +13,11 @@
         :defaultSelectedKeys="activeKeys"
         :defaultOpenKeys="openedKeys"
       >
-        <sub-menu
+        <trawl-sub-menu
           v-for="item in subMenu"
           :key="item.route"
           :menuInfo="item"
-        ></sub-menu>
+        ></trawl-sub-menu>
       </a-menu>
     </div>
   </a-layout-sider>
