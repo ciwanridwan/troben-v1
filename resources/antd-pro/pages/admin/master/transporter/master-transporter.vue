@@ -81,7 +81,7 @@ export default {
   methods: {
     onApprove(record, value) {
       let url = this.routeUri(this.getRoute()) + "/" + record.hash;
-      console.log(url);
+      console.log(url, { is_verified: value });
       this.$http
         .patch(url, { is_verified: value })
         .then(resp => this.onSuccessApproved(resp))

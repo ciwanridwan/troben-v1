@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Partners\Transporter\TransporterModified;
 use App\Events\Partners\Transporter\TransporterModificationFailed;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Arr;
 
 class UpdateExistingTransporter
@@ -59,11 +60,10 @@ class UpdateExistingTransporter
      */
     public function handle(): bool
     {
-        if (Arr::has($this->attributes, 'is_verified')) {
-            $this->attributes['verified_at'] = Carbon::now();
-        }
-
         collect($this->attributes)->each(fn ($v, $k) => $this->transporter->{$k} = $v);
+        if (Arr::has($this->attributes, 'is_verified')) {
+            $this->transporter->verified_at = Carbon::now();
+        }
 
         if ($this->transporter->isDirty()) {
             if ($this->transporter->save()) {

@@ -162,7 +162,7 @@ export default {
 
       if (this.valid) {
         this.$http
-          .post(this.routeUri(this.getRoute()), serialize(form))
+          .post(this.routeUri(this.getRoute()), form)
           .then(this.onSuccessStore)
           .catch(this.onErrorValidation);
       } else {

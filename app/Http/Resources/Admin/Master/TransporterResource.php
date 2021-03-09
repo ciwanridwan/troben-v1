@@ -30,6 +30,8 @@ class TransporterResource extends JsonResource
             'registration_name' => $this->registration_name,
             'type' => $detailType,
             'partner' => PartnerResource::make($this->partner),
+            'is_verified' => $this->is_verified,
+            'verified_at' => $this->verified_at,
         ];
     }
 }
