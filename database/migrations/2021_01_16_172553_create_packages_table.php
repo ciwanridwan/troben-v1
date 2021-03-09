@@ -30,37 +30,58 @@ class CreatePackagesTable extends Migration
             $table->string('receiver_phone');
             $table->string('receiver_address');
 
-            $table->string('received_by')->nullable();
-
-            $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);
-            $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
             $table->boolean('is_separate_item')->default(0);
 
-            $table->unsignedBigInteger('geo_regency_id')->nullable();
-            $table->unsignedBigInteger('geo_district_id')->nullable();
-            $table->unsignedBigInteger('geo_sub_district_id')->nullable();
+            # payment related field
+            $table->decimal('total_amount', 14, 2)->default(0);
+            $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
+
+            # geo related field
+            $table->unsignedBigInteger('origin_regency_id')->nullable();
+            $table->unsignedBigInteger('origin_district_id')->nullable();
+            $table->unsignedBigInteger('origin_sub_district_id')->nullable();
+            $table->unsignedBigInteger('destination_regency_id')->nullable();
+            $table->unsignedBigInteger('destination_district_id')->nullable();
+            $table->unsignedBigInteger('destination_sub_district_id')->nullable();
+
+            $table->string('received_by')->nullable();
+            $table->timestamp('received_at')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
             $table
-                ->foreign('geo_regency_id')
+                ->foreign('origin_regency_id')
                 ->references('id')
                 ->on('geo_regencies')
-                ->cascadeOnDelete();
-
+                ->onDelete('set null');
             $table
-                ->foreign('geo_district_id')
+                ->foreign('origin_district_id')
                 ->references('id')
                 ->on('geo_districts')
-                ->cascadeOnDelete();
-
+                ->onDelete('set null');
             $table
-                ->foreign('geo_sub_district_id')
+                ->foreign('origin_sub_district_id')
                 ->references('id')
                 ->on('geo_sub_districts')
-                ->cascadeOnDelete();
+                ->onDelete('set null');
+
+            $table
+                ->foreign('destination_regency_id')
+                ->references('id')
+                ->on('geo_regencies')
+                ->onDelete('set null');
+            $table
+                ->foreign('destination_district_id')
+                ->references('id')
+                ->on('geo_districts')
+                ->onDelete('set null');
+            $table
+                ->foreign('destination_sub_district_id')
+                ->references('id')
+                ->on('geo_sub_districts')
+                ->onDelete('set null');
         });
     }
 
