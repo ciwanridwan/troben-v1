@@ -4,8 +4,8 @@ namespace App\Events\Packages;
 
 use App\Models\Packages\Package;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class PackageCreated
 {

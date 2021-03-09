@@ -52,8 +52,8 @@ class CreateNewPackage
     public function __construct(array $inputs, array $items, bool $isSeparate = false)
     {
         $this->attributes = Validator::make($inputs, [
-            'customer_id' => [ 'required', 'exists:customers,id' ],
-            'service_code' => ['required', 'exists:services,code' ],
+            'customer_id' => ['required', 'exists:customers,id'],
+            'service_code' => ['required', 'exists:services,code'],
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
@@ -62,7 +62,7 @@ class CreateNewPackage
             'origin_sub_district_id' => ['required'],
             'destination_regency_id' => ['required'],
             'destination_district_id' => ['required'],
-            'destination_sub_district_id' => ['required']
+            'destination_sub_district_id' => ['required'],
         ])->validate();
 
         $this->items = Validator::make($items, [
@@ -73,7 +73,7 @@ class CreateNewPackage
             '*.height' => ['required', 'number'],
             '*.length' => ['required', 'number'],
             '*.width' => ['required', 'number'],
-            '*.handling' => [ 'required', 'array']
+            '*.handling' => ['required', 'array'],
         ])->validate();
 
         $this->is_separate = $isSeparate;

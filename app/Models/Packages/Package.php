@@ -2,8 +2,8 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Geo\District;
 use App\Models\Geo\Regency;
+use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
@@ -111,7 +111,7 @@ class Package extends Model
     protected $casts = [
         'total_amount' => 'float',
         'is_separate_item' => 'bool',
-        'received_at' => 'datetime'
+        'received_at' => 'datetime',
     ];
 
     /**
