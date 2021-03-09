@@ -57,7 +57,7 @@ class UpdateExistingTransporter
      */
     public function handle(): bool
     {
-        if (!empty($this->attributes['is_verified'])) {
+        if (! empty($this->attributes['is_verified'])) {
             $this->attributes['is_verified'] = $this->attributes['is_verified'] ? now() : null;
         }
 

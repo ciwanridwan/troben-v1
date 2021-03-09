@@ -11,12 +11,12 @@ use App\Models\Geo\SubDistrict;
 use App\Models\Partners\Partner;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Admin\Partner\CreatePartner;
 use App\Jobs\Partners\DeleteExistingPartner;
 use App\Http\Resources\Admin\Master\PartnerResource;
-use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
 
 class PartnerController extends Controller
@@ -114,6 +114,10 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'owner.password' => ['confirmed'],
+        ]);
+
         return (new CreatePartner($request->all()))->create();
     }
 

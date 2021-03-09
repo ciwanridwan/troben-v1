@@ -37,8 +37,30 @@ class CreatePackagesTable extends Migration
             $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
             $table->boolean('is_separate_item')->default(0);
 
+            $table->unsignedBigInteger('geo_regency_id')->nullable();
+            $table->unsignedBigInteger('geo_district_id')->nullable();
+            $table->unsignedBigInteger('geo_sub_district_id')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
+
+            $table
+                ->foreign('geo_regency_id')
+                ->references('id')
+                ->on('geo_regencies')
+                ->cascadeOnDelete();
+
+            $table
+                ->foreign('geo_district_id')
+                ->references('id')
+                ->on('geo_districts')
+                ->cascadeOnDelete();
+
+            $table
+                ->foreign('geo_sub_district_id')
+                ->references('id')
+                ->on('geo_sub_districts')
+                ->cascadeOnDelete();
         });
     }
 

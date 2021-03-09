@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Partner\Asset;
 
+use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -38,16 +39,19 @@ class UserResource extends JsonResource
         $data = [
             'hash' => null,
             'name' => null,
+            'username' => null,
+            'email' => null,
+            'phone' => null,
             'role' => [],
         ];
-        foreach ($users as $v) {
-            if (is_null($data['name'])) {
-                $data['name'] = $v->name;
-            }
+
+        foreach ($users as $user) {
             if (is_null($data['hash'])) {
-                $data['hash'] = $v->hash;
+                foreach (Arr::except($data, 'role') as $key => $value) {
+                    $data[$key] = $user->{$key};
+                }
             }
-            $data['role'][] = $v->getOriginal('pivot_role');
+            $data['role'][] = $user->getOriginal('pivot_role');
         }
 
         return $data;
