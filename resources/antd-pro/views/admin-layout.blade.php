@@ -1,15 +1,15 @@
 @extends('antd::skeleton')
 
 @section('container')
-    <admin-layout title="@yield('title')">
-        <template v-slot:head-tools>
+    <trawl-admin-layout title="@yield('title')">
+        <template slot="head-tools">
             @stack('head-tools')
         </template>
-        <template v-slot:content>
+        <template slot="content">
             @yield('content')
         </template>
-        <template v-slot:footer>
+        <template slot="footer">
             @yield('footer', View::make('antd::components.page-footer'))
         </template>
-    </admin-layout>
+    </trawl-admin-layout>
 @endsection
