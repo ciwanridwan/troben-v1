@@ -6,6 +6,8 @@
  * @author      veelasky <veelasky@gmail.com>
  */
 
+use App\Models\Partners\Pivot\UserablePivot;
+
 return [
     'groups' => [
         'api' => [
@@ -18,11 +20,11 @@ return [
             'prefix' => '',
         ],
         'admin' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth','isRole:admin'],
             'prefix' => 'admin',
         ],
         'cashier' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth','isRole:'.UserablePivot::ROLE_CASHIER],
             'prefix' => 'partner/cashier',
         ],
         'customer_service' => [

@@ -86,6 +86,6 @@ class User extends Authenticatable implements HasOtpToken
 
     public function partners()
     {
-        return $this->morphedByMany(Partner::class, 'userable', 'userables')->using(UserablePivot::class);
+        return $this->morphedByMany(Partner::class, 'userable', 'userables')->withPivot('role')->using(UserablePivot::class)->using(UserablePivot::class);
     }
 }
