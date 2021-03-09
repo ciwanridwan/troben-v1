@@ -4,7 +4,7 @@
       <trawl-main-menu :navigation="navigation"></trawl-main-menu>
     </a-layout-sider>
     <a-layout class="admin-layout-main beauty-scroll">
-      <admin-header-new></admin-header-new>
+      <trawl-header></trawl-header>
       <a-layout-content
         class="admin-layout-content"
         :style="`min-height: ${minHeight}px;`"
@@ -34,13 +34,15 @@ import MainMenuDetail from "./aside/main-menu-detail.vue";
 import MainMenuNew from "./aside/main-menu-new.vue";
 import TrawlMainMenu from "./aside/trawl-main-menu.vue";
 import AdminHeaderNew from "./header/admin-header-new.vue";
+import TrawlHeader from "./header/trawl-header.vue";
 export default {
   components: {
     asideMenuNew,
     AdminHeaderNew,
     MainMenuDetail,
     MainMenuNew,
-    TrawlMainMenu
+    TrawlMainMenu,
+    TrawlHeader
   },
   props: {
     sidebar: {
