@@ -128,7 +128,7 @@ class AssetController extends Controller
 
     public function getEmployee(): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->get()->groupBy('id'))));
+        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
     }
 
     public function getTransporter(): JsonResponse
