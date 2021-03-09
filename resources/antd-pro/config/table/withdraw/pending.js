@@ -44,12 +44,5 @@ export default [
     align: "center",
     width: "100px",
     scopedSlots: { customRender: "action" }
-  },
-  {
-    title: "All",
-    key: "selectAction",
-    align: "center",
-    width: "50px",
-    scopedSlots: { customRender: "selectAction" }
   }
 ];
