@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Admin\Master\TransporterResource;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
 
 class TransporterController extends Controller
 {
@@ -36,17 +37,17 @@ class TransporterController extends Controller
     /**
      * @var array
      */
-    protected array $rules;
+    protected array $rules = [
+        'registration_name' => ['filled'],
+        'registration_number' => ['filled'],
+        'type' => ['filled'],
+        'q' => ['nullable'],
+    ];
 
     public function __construct()
     {
-        $this->rules = [
-            'name' => ['filled'],
-            'email' => ['filled'],
-            'phone' => ['filled'],
-            'q' => ['nullable'],
-        ];
         $this->baseBuilder();
+        $this->query =  $this->query->whereHas('partner')->where('verified_at', NULL);
     }
 
     /**
@@ -65,17 +66,23 @@ class TransporterController extends Controller
         if ($request->expectsJson()) {
             $this->attributes = $request->validate($this->rules);
 
-            foreach (Arr::except($this->attributes, 'q') as $key => $value) {
-                $this->getByColumn($key);
-            }
-            if (Arr::has($this->attributes, 'q')) {
-                $this->getSearch($this->attributes['q']);
-            }
+            $this->getResource();
 
-            return $this->jsonSuccess(TransporterResource::collection($this->query->paginate(request('per_page', 15))));
+            return (new Response(Response::RC_SUCCESS, TransporterResource::collection($this->query->paginate(request('per_page', 15)))))->json();
         }
 
         return view('admin.master.transporter.index');
+    }
+
+    public function update(Request $request)
+    {
+        $transporter = (new Transporter())->byHash($request->hash);
+        $request->validate([
+            'is_verified' => ['required', 'boolean']
+        ]);
+        $job = new UpdateExistingTransporter($transporter, $request->all());
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS, $job->transporter))->json();
     }
 
     /**

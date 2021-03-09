@@ -1,0 +1,26 @@
+@import "../custom/variables.less";
+
+.ant-checkbox {
+  &-indeterminate {
+    .ant-checkbox {
+      &-inner {
+        background-color: @primary;
+        border-color: @primary;
+        &::after {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+
+  &-checked {
+    .ant-checkbox {
+      &-inner {
+        &::after {
+          top: 10%;
+          left: 10%;
+        }
+      }
+    }
+  }
+}

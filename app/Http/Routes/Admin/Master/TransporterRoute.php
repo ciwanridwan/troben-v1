@@ -28,6 +28,11 @@ class TransporterRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->patch($this->prefix('{hash}'), [
+            'as' => $this->name('update'),
+            'uses' => $this->uses('update'),
+        ]);
     }
 
     /**

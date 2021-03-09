@@ -73,14 +73,10 @@
 
         <a-row type="flex" justify="end" :gutter="[10, 10]">
           <a-col>
-            <a-button>
-              Batal
-            </a-button>
+            <a-button> Batal </a-button>
           </a-col>
           <a-col>
-            <a-button type="primary" @click="onPost">
-              Simpan
-            </a-button>
+            <a-button type="primary" @click="onPost"> Simpan </a-button>
           </a-col>
         </a-row>
       </a-card>

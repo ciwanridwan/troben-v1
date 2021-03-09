@@ -1,10 +1,16 @@
+import _ from "lodash";
 import main from "./main";
 
-const getNavigation = (route = "") => {
+const getNavigation = (route = "", routeList = undefined) => {
+  if (!_.isObject(routeList)) {
+    routeList = main;
+  }
+
   let nav = {};
-  _.forIn(main, function(value, key) {
+  _.forIn(routeList, function(value, key) {
     if (value.route === route) {
       nav = value;
+      return nav;
     }
 
     if (_.isObject(value.children)) {

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Partners\Transporter\TransporterModified;
 use App\Events\Partners\Transporter\TransporterModificationFailed;
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class UpdateExistingTransporter
 {
@@ -57,8 +59,8 @@ class UpdateExistingTransporter
      */
     public function handle(): bool
     {
-        if (! empty($this->attributes['is_verified'])) {
-            $this->attributes['is_verified'] = $this->attributes['is_verified'] ? now() : null;
+        if (Arr::has($this->attributes, 'is_verified')) {
+            $this->attributes['verified_at'] = Carbon::now();
         }
 
         collect($this->attributes)->each(fn ($v, $k) => $this->transporter->{$k} = $v);

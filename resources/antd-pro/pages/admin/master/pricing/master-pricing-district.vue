@@ -1,6 +1,6 @@
 <template>
   <div>
-    <content-layout :pagination="trawlbensPagination">
+    <content-layout>
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
           <a-col>
@@ -29,7 +29,7 @@
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
           <span slot="from_to" slot-scope="record">
-            <a-row type="flex" align="middle" id="pricing-timeline">
+            <a-row type="flex" align="middle" :class="['trawl-timeline']">
               <a-col>
                 <a-timeline>
                   <a-timeline-item color="green">

@@ -3,22 +3,26 @@
     <a-layout-sider v-if="hasSiderSlot && siderPosition == 'left'">
       <slot name="sider"></slot>
     </a-layout-sider>
-    <a-layout-content>
+    <a-layout-content class="content">
       <a-row class="content-layout-head">
-        <a-col :span="12">
+        <a-col :span="10">
           <slot name="title" v-if="hasTitleSlot"></slot>
           <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
-        <a-col :span="12">
+        <a-col :span="14">
           <slot name="head-tools"></slot>
         </a-col>
       </a-row>
-      <slot name="content"></slot>
+      <a-layout>
+        <a-layout-content>
+          <slot name="content"></slot>
+        </a-layout-content>
+        <slot name="footer" v-if="hasFooterSlot"></slot>
+      </a-layout>
     </a-layout-content>
     <a-layout-sider v-if="hasSiderSlot && siderPosition == 'right'">
       <slot name="sider"></slot>
     </a-layout-sider>
-    <!-- <a-layout-footer> </a-layout-footer> -->
   </a-layout>
 </template>
 <script>
@@ -36,10 +40,6 @@ export default {
     siderPosition: {
       type: String,
       default: "left"
-    },
-    pagination: {
-      type: Object,
-      default: () => {}
     }
   },
   computed: {
@@ -52,6 +52,9 @@ export default {
     },
     hasSiderSlot() {
       return !!this.$slots["sider"];
+    },
+    hasFooterSlot() {
+      return !!this.$slots["footer"];
     }
   },
   methods: {
@@ -61,6 +64,10 @@ export default {
 </script>
 <style lang="scss">
 #content-layout {
+  height: 100vh;
+  .content {
+    padding: 24px;
+  }
   .ant-layout-content {
     .content-layout {
       &-head {

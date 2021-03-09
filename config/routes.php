@@ -42,7 +42,6 @@ return [
     ],
     'admin' => [
         App\Http\Routes\Admin\HomeRoute::class,
-        App\Http\Routes\Admin\PaymentRoute::class,
         App\Http\Routes\Admin\Master\CustomerRoute::class,
         App\Http\Routes\Admin\Master\PartnerRoute::class,
         App\Http\Routes\Admin\Master\PricingRoute::class,
@@ -50,6 +49,9 @@ return [
         App\Http\Routes\Admin\Master\TransporterRoute::class,
         App\Http\Routes\Admin\Master\PaymentRoute::class,
         App\Http\Routes\Admin\Master\HistoryRoute::class,
+        App\Http\Routes\Admin\Master\Withdraw\RequestRoute::class,
+        App\Http\Routes\Admin\Master\Withdraw\PendingRoute::class,
+        App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         /** @inject admin **/
     ],
 ];

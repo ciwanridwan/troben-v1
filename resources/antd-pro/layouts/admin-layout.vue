@@ -1,52 +1,36 @@
 <template>
   <a-layout :class="['admin-layout', 'beauty-scroll']">
-    <pro-drawer v-if="isMobile" v-model="drawerOpen">
-      <aside-menu :theme="theme" :collapsed="false" :collapsible="false" />
-    </pro-drawer>
-    <aside-menu
-      :class="[fixedSideBar ? 'fixed-side' : '']"
-      :theme="theme"
-      v-else-if="layout === 'side' || layout === 'mix'"
-      :collapsed="collapsed"
-      :collapsible="true"
-    />
-    <div
-      v-if="fixedSideBar && !isMobile"
-      :style="
-        `width: ${sideMenuWidth}; min-width: ${sideMenuWidth};max-width: ${sideMenuWidth};`
-      "
-      class="virtual-side"
-    ></div>
-
+    <aside-menu-new></aside-menu-new>
     <a-layout class="admin-layout-main beauty-scroll">
-      <admin-header
-        :class="[{ 'fixed-header': fixedHeader }]"
-        :style="headerStyle"
-        :collapsed="collapsed"
-        @toggleCollapse="toggleCollapse"
-      />
-      <a-layout-header
-        :class="['virtual-header', { 'fixed-header': fixedHeader }]"
-        v-show="fixedHeader"
-      ></a-layout-header>
+      <admin-header-new></admin-header-new>
       <a-layout-content
         class="admin-layout-content"
         :style="`min-height: ${minHeight}px;`"
       >
         <a-layout style="position: relative">
-          <slot name="content"></slot>
+          <main-menu-detail
+            ref="mainMenuDetail"
+            :style="{ width: sideMenuWidth }"
+          ></main-menu-detail>
+          <a-layout-content :style="{ 'padding-left': sideMenuWidth }">
+            <slot name="content"></slot>
+          </a-layout-content>
         </a-layout>
       </a-layout-content>
 
-      <a-layout-footer v-show="!sidebar" style="padding: 0px">
+      <!-- <a-layout-footer v-show="!sidebar" style="padding: 0px">
         <slot name="footer"></slot>
-      </a-layout-footer>
+      </a-layout-footer> -->
     </a-layout>
   </a-layout>
 </template>
 
 <script>
+import asideMenuNew from "./aside/aside-menu-new.vue";
+import MainMenuDetail from "./aside/main-menu-detail.vue";
+import AdminHeaderNew from "./header/admin-header-new.vue";
 export default {
+  components: { asideMenuNew, AdminHeaderNew, MainMenuDetail },
   props: {
     sidebar: {
       type: Boolean,
@@ -61,7 +45,7 @@ export default {
       return this.config.layout.aside.fixed;
     },
     sideMenuWidth() {
-      return this.collapsed ? "80px" : "256px";
+      return "200px";
     },
     theme() {
       return this.config.layout.theme;

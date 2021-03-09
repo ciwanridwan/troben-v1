@@ -1,5 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-    Pembayaran
+    <master-withdraw-request></master-withdraw-request>
 @endsection

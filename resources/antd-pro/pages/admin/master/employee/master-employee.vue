@@ -1,13 +1,10 @@
 <template>
   <div>
-    <content-layout :pagination="trawlbensPagination">
+    <content-layout>
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
-            <a-input-search
-              v-model="filter.q"
-              @search="getItems"
-            ></a-input-search>
+            <a-input-search v-model="filter.q" @search="getItems"></a-input-search>
           </a-col>
         </a-row>
       </template>
@@ -50,7 +47,7 @@ export default {
   components: {
     DeleteButton,
     ContentLayout,
-    EmployeeForm
+    EmployeeForm,
   },
   created() {
     this.items = this.getDefaultPagination();
@@ -63,10 +60,10 @@ export default {
     filter: {
       q: null,
       page: 1,
-      per_page: 15
+      per_page: 15,
     },
     loading: false,
-    employeeColumns
+    employeeColumns,
   }),
   methods: {
     deleteConfirm(record) {
@@ -82,7 +79,7 @@ export default {
         cancelText: "Batal",
         onOk: () => {
           this.deleteItem(record);
-        }
+        },
       });
     },
     onSuccessResponse(response) {
@@ -96,7 +93,7 @@ export default {
     },
     onErrorResponse(error) {
       this.$notification.error({
-        message: error.response.data.message
+        message: error.response.data.message,
       });
     },
     handleTableChanged(pagination) {
@@ -104,8 +101,8 @@ export default {
       this.filter.per_page = pagination.pageSize;
 
       this.getItems();
-    }
-  }
+    },
+  },
 };
 </script>
 
