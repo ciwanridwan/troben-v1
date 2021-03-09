@@ -21,6 +21,17 @@ return [
             'middleware' => ['web', 'auth'],
             'prefix' => 'admin',
         ],
+        'cashier' => [
+            'middleware' => ['web', 'auth'],
+            'prefix' => 'partner\cashier',
+        ],
+        'customer_service' => [
+            'middleware' => ['web', 'auth'],
+            'prefix' => 'partner\customer-service',
+        ],
+        'driver' => [
+            ''
+        ]
     ],
 
     'web' => [
@@ -54,4 +65,14 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         /** @inject admin **/
     ],
+    'cashier' => [
+
+        App\Http\Routes\Partner\Cashier\HomeRoute::class,
+        /** @inject cashier **/
+    ],
+    'customer_service' => [
+
+        /** @inject customer_service **/
+    ],
+
 ];
