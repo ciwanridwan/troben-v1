@@ -7,6 +7,10 @@ use Jalameta\Router\BaseRoute;
 
 class HomeRoute extends BaseRoute
 {
+    protected $prefix = "home";
+
+    protected $name = "partner.cashier.home";
+
     /**
      * Register routes handled by this class.
      *
@@ -14,7 +18,10 @@ class HomeRoute extends BaseRoute
      */
     public function register()
     {
-        // make an awesome route
+        $this->router->get($this->prefix, [
+            'as' => $this->name,
+            'uses' => $this->uses('index')
+        ]);
     }
 
     /**

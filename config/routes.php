@@ -23,15 +23,13 @@ return [
         ],
         'cashier' => [
             'middleware' => ['web', 'auth'],
-            'prefix' => 'partner\cashier',
+            'prefix' => 'partner/cashier',
         ],
         'customer_service' => [
             'middleware' => ['web', 'auth'],
-            'prefix' => 'partner\customer-service',
-        ],
-        'driver' => [
-            ''
+            'prefix' => 'partner/customer-service',
         ]
+
     ],
 
     'web' => [
