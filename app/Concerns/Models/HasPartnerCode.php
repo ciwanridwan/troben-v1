@@ -28,11 +28,11 @@ trait HasPartnerCode
         $partner_code = Partner::getAvailableCodeTypes()[$this->type];
         // $partner_regency = Regency::find($this->origin_regency);
 
-        $code = $partner_code . '-' . 'JKT' . '-';
+        $code = $partner_code.'-'.'JKT'.'-';
 
-        $last_code = Partner::where('code', 'LIKE', $code . '%')->latest()->first();
+        $last_code = Partner::where('code', 'LIKE', $code.'%')->latest()->first();
         if ($last_code === null) {
-            $code = $code . str_pad(0, 5, '0', STR_PAD_LEFT);
+            $code = $code.str_pad(0, 5, '0', STR_PAD_LEFT);
             $code_number = (int) substr($last_code, strlen($code));
         } else {
             $last_code = $last_code->code;

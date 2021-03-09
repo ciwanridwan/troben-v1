@@ -35,7 +35,7 @@ trait HasResource
 
     public function getByRelation()
     {
-        if (!property_exists($this, 'byRelation')) {
+        if (! property_exists($this, 'byRelation')) {
             return false;
         }
 
@@ -47,7 +47,7 @@ trait HasResource
                     $column = array_shift($item);
 
                     if (in_array($form_field, $keys)) {
-                        $query->where($column !== null ? $column : $form_field, 'LIKE', '%' . $this->attributes[$form_field] . '%');
+                        $query->where($column !== null ? $column : $form_field, 'LIKE', '%'.$this->attributes[$form_field].'%');
                     }
                 }
             });
@@ -55,7 +55,7 @@ trait HasResource
     }
     public function searchByRelation($q = '')
     {
-        if (!property_exists($this, 'byRelation')) {
+        if (! property_exists($this, 'byRelation')) {
             return false;
         }
         $this->query = $this->query->where(function ($query) use ($q) {
@@ -66,9 +66,9 @@ trait HasResource
                         $column = array_shift($item);
 
                         if ($key == 0) {
-                            $query->where($column !== null ? $column : $form_field, 'LIKE', '%' . $q . '%');
+                            $query->where($column !== null ? $column : $form_field, 'LIKE', '%'.$q.'%');
                         } else {
-                            $query->orWhere($column !== null ? $column : $form_field, 'LIKE', '%' . $q . '%');
+                            $query->orWhere($column !== null ? $column : $form_field, 'LIKE', '%'.$q.'%');
                         }
                     }
                 });
@@ -79,24 +79,23 @@ trait HasResource
 
     public function getByColumn($column): Builder
     {
-        $this->query = $this->query->where($column, 'LIKE', '%' . $this->attributes[$column] . '%');
+        $this->query = $this->query->where($column, 'LIKE', '%'.$this->attributes[$column].'%');
 
         return $this->query;
     }
 
     public function getSearch($q = '')
     {
-
         $this->query = $this->query->where(function ($query) use ($q) {
             $columns = Arr::except($this->rules, $this->columnExcept());
             // first
             $key_first = array_key_first($columns);
 
             if ($key_first) {
-                $query = $query->where($key_first, 'LIKE', '%' . $q . '%');
+                $query = $query->where($key_first, 'LIKE', '%'.$q.'%');
             }
             foreach (Arr::except($columns, $key_first) as $key => $value) {
-                $query = $query->orWhere($key, 'LIKE', '%' . $q . '%');
+                $query = $query->orWhere($key, 'LIKE', '%'.$q.'%');
             }
         });
 
@@ -108,7 +107,7 @@ trait HasResource
 
     public function baseBuilder()
     {
-        throw_if(!property_exists($this, 'model'), Error::make(Response::RC_OTHER));
+        throw_if(! property_exists($this, 'model'), Error::make(Response::RC_OTHER));
 
         return $this->query = $this->model::query();
     }

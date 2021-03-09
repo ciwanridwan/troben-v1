@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin\Master;
 
 use App\Http\Response;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -47,7 +46,7 @@ class TransporterController extends Controller
     public function __construct()
     {
         $this->baseBuilder();
-        $this->query =  $this->query->whereHas('partner')->where('verified_at', NULL);
+        $this->query = $this->query->whereHas('partner')->where('verified_at', null);
     }
 
     /**
@@ -78,10 +77,11 @@ class TransporterController extends Controller
     {
         $transporter = (new Transporter())->byHash($request->hash);
         $request->validate([
-            'is_verified' => ['required', 'boolean']
+            'is_verified' => ['required', 'boolean'],
         ]);
         $job = new UpdateExistingTransporter($transporter, $request->all());
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->transporter))->json();
     }
 

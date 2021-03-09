@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Models\Packages\Package;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use App\Models\Packages\Package;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
+use Illuminate\Database\Eloquent\Builder;
 
 class PaymentController extends Controller
 {
@@ -31,7 +31,7 @@ class PaymentController extends Controller
      * @var array
      */
     protected array $rules = [
-        'q' => ['nullable']
+        'q' => ['nullable'],
     ];
 
     public function __construct()

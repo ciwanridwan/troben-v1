@@ -10,12 +10,12 @@ class PaymentRoute extends BaseRoute
     /**
      * @var string
      */
-    protected $name = "admin.payment";
+    protected $name = 'admin.payment';
 
     /**
      * @var string
      */
-    protected $prefix = "/payment";
+    protected $prefix = '/payment';
 
     /**
      * Register routes handled by this class.
@@ -26,7 +26,7 @@ class PaymentRoute extends BaseRoute
     {
         $this->router->get($this->prefix('/income'), [
             'as' => $this->name('income'),
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

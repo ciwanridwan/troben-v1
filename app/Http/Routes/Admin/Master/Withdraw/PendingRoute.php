@@ -2,20 +2,20 @@
 
 namespace App\Http\Routes\Admin\Master\Withdraw;
 
-use App\Http\Controllers\Admin\Master\Withdraw\PendingController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\Withdraw\PendingController;
 
 class PendingRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $prefix = "/payment/withdraw/pending";
+    protected $prefix = '/payment/withdraw/pending';
 
     /**
      * @var string
      */
-    protected $name = "admin.payment.withdraw.pending";
+    protected $name = 'admin.payment.withdraw.pending';
 
     /**
      * Register routes handled by this class.
@@ -26,7 +26,7 @@ class PendingRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

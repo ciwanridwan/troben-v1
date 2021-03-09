@@ -2,14 +2,14 @@
 
 namespace App\Http\Routes\Admin\Master\Withdraw;
 
-use App\Http\Controllers\Admin\Master\Withdraw\RequestController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\Withdraw\RequestController;
 
 class RequestRoute extends BaseRoute
 {
-    protected $prefix = "/payment/withdraw/request";
+    protected $prefix = '/payment/withdraw/request';
 
-    protected $name = "admin.payment.withdraw.request";
+    protected $name = 'admin.payment.withdraw.request';
 
     /**
      * Register routes handled by this class.
@@ -20,7 +20,7 @@ class RequestRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

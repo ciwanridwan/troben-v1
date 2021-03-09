@@ -2,21 +2,20 @@
 
 namespace App\Http\Routes\Admin\Master\Withdraw;
 
-use App\Http\Controllers\Admin\Master\Withdraw\SuccessController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Admin\Master\Withdraw\SuccessController;
 
 class SuccessRoute extends BaseRoute
 {
+    /**
+     * @var string
+     */
+    protected $prefix = '/payment/withdraw/success';
 
     /**
      * @var string
      */
-    protected $prefix = "/payment/withdraw/success";
-
-    /**
-     * @var string
-     */
-    protected $name = "admin.payment.withdraw.success";
+    protected $name = 'admin.payment.withdraw.success';
 
 
     /**
@@ -28,7 +27,7 @@ class SuccessRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

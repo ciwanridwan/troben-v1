@@ -3,19 +3,18 @@
 namespace App\Actions\Admin\Partner;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use App\Jobs\Users\DeleteExistingUser;
 use App\Jobs\Partners\CreateNewPartner;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
 use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
-use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
-
 
 class CreatePartner
 {
@@ -68,7 +67,7 @@ class CreatePartner
     public function __construct($inputs = [])
     {
         Validator::make($inputs, [
-            'owner.password' => ['confirmed']
+            'owner.password' => ['confirmed'],
         ]);
         $this->attributes = $inputs;
         $this->partner = new Partner();

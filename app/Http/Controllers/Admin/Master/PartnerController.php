@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Admin\Partner\CreatePartner;
 use App\Jobs\Partners\DeleteExistingPartner;
 use App\Http\Resources\Admin\Master\PartnerResource;
-use Illuminate\Support\Facades\Validator;
 
 class PartnerController extends Controller
 {
