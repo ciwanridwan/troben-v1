@@ -92,7 +92,6 @@ import PartnerOwnerForm from "./partner-owner-form.vue";
 import PartnerSpaceForm from "./space/partner-space-form.vue";
 import PartnerTransporterForm from "./transporter/partner-transporter-form.vue";
 import Transporters from "./transporter/transporters.vue";
-import { serialize } from "object-to-formdata";
 
 export default {
   components: {
