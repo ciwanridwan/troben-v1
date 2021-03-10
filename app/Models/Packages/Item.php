@@ -2,8 +2,10 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Models\HasBarcode;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Package Item model.
@@ -28,6 +30,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Item extends Model
 {
+    use HashableId, HasBarcode;
+
     /**
      * The table associated with the model.
      *
@@ -69,6 +73,14 @@ class Item extends Model
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => 'array',
+    ];
+
+    protected $hidden = [
+        'id',
+    ];
+
+    protected $appends = [
+        'hash',
     ];
 
     /**

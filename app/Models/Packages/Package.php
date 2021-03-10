@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Models\HasBarcode;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Package model.
@@ -53,7 +55,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class Package extends Model
 {
-    use HasPhoneNumber, SoftDeletes;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode;
 
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -101,6 +103,31 @@ class Package extends Model
         'destination_regency_id',
         'destination_district_id',
         'destination_sub_district_id',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'id',
+        'customer_id',
+        'origin_regency_id',
+        'origin_district_id',
+        'origin_sub_district_id',
+        'destination_regency_id',
+        'destination_district_id',
+        'destination_sub_district_id',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash',
     ];
 
     /**
@@ -213,7 +240,7 @@ class Package extends Model
      */
     public function origin_sub_district(): BelongsTo
     {
-        return $this->belongsTo(SubDistrict::class, 'origin_sub_district', 'id');
+        return $this->belongsTo(SubDistrict::class, 'origin_sub_district_id', 'id');
     }
 
     /**
@@ -243,7 +270,7 @@ class Package extends Model
      */
     public function destination_sub_district(): BelongsTo
     {
-        return $this->belongsTo(SubDistrict::class, 'destination_sub_district', 'id');
+        return $this->belongsTo(SubDistrict::class, 'destination_sub_district_id', 'id');
     }
 
     public function scopePaid($query)

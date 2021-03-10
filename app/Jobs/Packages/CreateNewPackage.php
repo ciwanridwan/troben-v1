@@ -66,13 +66,13 @@ class CreateNewPackage
         ])->validate();
 
         $this->items = Validator::make($items, [
-            '*.qty' => ['required', 'number'],
+            '*.qty' => ['required', 'numeric'],
             '*.name' => 'required',
             '*.desc' => 'nullable',
-            '*.weight' => ['required', 'number'],
-            '*.height' => ['required', 'number'],
-            '*.length' => ['required', 'number'],
-            '*.width' => ['required', 'number'],
+            '*.weight' => ['required', 'numeric'],
+            '*.height' => ['required', 'numeric'],
+            '*.length' => ['required', 'numeric'],
+            '*.width' => ['required', 'numeric'],
             '*.handling' => ['required', 'array'],
         ])->validate();
 
