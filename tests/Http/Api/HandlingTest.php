@@ -2,9 +2,9 @@
 
 namespace Tests\Http\Api;
 
+use Tests\TestCase;
 use Database\Seeders\HandlingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 class HandlingTest extends TestCase
 {

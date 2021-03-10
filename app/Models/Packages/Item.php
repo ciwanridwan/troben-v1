@@ -4,8 +4,8 @@ namespace App\Models\Packages;
 
 use App\Concerns\Models\HasBarcode;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Package Item model.

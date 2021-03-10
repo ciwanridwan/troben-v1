@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\HandlingController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\HandlingController;
 
 class HandlingRoute extends BaseRoute
 {

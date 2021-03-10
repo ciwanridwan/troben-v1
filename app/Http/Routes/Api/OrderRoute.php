@@ -2,9 +2,9 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\OrderController;
-use App\Models\Packages\Package;
 use Jalameta\Router\BaseRoute;
+use App\Models\Packages\Package;
+use App\Http\Controllers\Api\OrderController;
 
 class OrderRoute extends BaseRoute
 {
@@ -19,7 +19,7 @@ class OrderRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->bind('package_hash', fn($hash) => Package::byHashOrFail($hash));
+        $this->router->bind('package_hash', fn ($hash) => Package::byHashOrFail($hash));
 
         $this->router->get($this->prefix(), [
             'as' => $this->name,

@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\Error;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
-use App\Jobs\Packages\CreateNewPackage;
-use App\Models\Customers\Customer;
-use Illuminate\Http\JsonResponse;
+use App\Exceptions\Error;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Models\Customers\Customer;
+use App\Http\Controllers\Controller;
+use App\Jobs\Packages\CreateNewPackage;
+use App\Http\Resources\Api\Package\PackageResource;
 
 class OrderController extends Controller
 {
     public function index()
     {
-
     }
 
     /**

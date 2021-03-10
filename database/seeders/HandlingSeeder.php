@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Handling;
 use Faker\Factory;
+use App\Models\Handling;
 use Illuminate\Database\Seeder;
 
 class HandlingSeeder extends Seeder

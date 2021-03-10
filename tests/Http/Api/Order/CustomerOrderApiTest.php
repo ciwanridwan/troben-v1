@@ -2,11 +2,11 @@
 
 namespace Tests\Http\Api\Order;
 
+use Tests\TestCase;
 use App\Models\Handling;
 use Database\Seeders\HandlingSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CustomerOrderApiTest extends TestCase
 {
@@ -42,7 +42,7 @@ class CustomerOrderApiTest extends TestCase
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
             'destination_sub_district_id' => $destinationSubDistrict['id'],
-            'items' => collect(range(0, 3))->map(fn() => [
+            'items' => collect(range(0, 3))->map(fn () => [
                 'qty' => $this->faker->numberBetween(1, 3),
                 'name' => $this->faker->text(9),
                 'weight' => $this->faker->numberBetween(1, 10),
