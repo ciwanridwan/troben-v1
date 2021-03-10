@@ -20,11 +20,11 @@ return [
             'prefix' => '',
         ],
         'admin' => [
-            'middleware' => ['web', 'auth','isRole:admin'],
+            'middleware' => ['web', 'auth'],
             'prefix' => 'admin',
         ],
         'cashier' => [
-            'middleware' => ['web', 'auth','isRole:'.UserablePivot::ROLE_CASHIER],
+            'middleware' => ['web', 'auth'],
             'prefix' => 'partner/cashier',
         ],
         'customer_service' => [
