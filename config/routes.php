@@ -49,6 +49,8 @@ return [
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
+        App\Http\Routes\Api\OrderRoute::class,
+        App\Http\Routes\Api\HandlingRoute::class,
         /** @inject api **/
     ],
     'admin' => [

@@ -2,11 +2,16 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Geo\Regency;
+use App\Models\Geo\District;
+use App\Models\Geo\SubDistrict;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
+use App\Concerns\Models\HasBarcode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -14,29 +19,43 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 /**
  * Package model.
  *
- * @property int $int
+ * @property int $id
  * @property int $customer_id
  * @property string $barcode
  * @property string $service_code
  * @property string $receiver_phone
  * @property string $receiver_name
  * @property string $receiver_address
- * @property string $received_by
- * @property float $total_amount
  * @property string $status
  * @property bool $is_separate_item
+ * @property float $total_amount
+ * @property string $payment_status
+ * @property int $origin_regency_id
+ * @property int $origin_district_id
+ * @property int $origin_sub_district_id
+ * @property int $destination_regency_id
+ * @property int $destination_district_id
+ * @property int $destination_sub_district_id
+ * @property string|null $received_by
+ * @property \Carbon\Carbon|null $received_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
  * @property-read \App\Models\Customers\Customer|null $customer
+ * @property-read \App\Models\Geo\Regency|null $origin_regency
+ * @property-read \App\Models\Geo\District|null $origin_district
+ * @property-read \App\Models\Geo\SubDistrict|null $origin_sub_district
+ * @property-read \App\Models\Geo\Regency|null $destination_regency
+ * @property-read \App\Models\Geo\District|null $destination_district
+ * @property-read \App\Models\Geo\SubDistrict|null $destination_sub_district
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payments\Payment[] $payments
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  */
 class Package extends Model
 {
-    use HasPhoneNumber, SoftDeletes;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode;
 
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -72,21 +91,43 @@ class Package extends Model
      * @var string[]
      */
     protected $fillable = [
-        'order_id',
         'customer_id',
         'service_code',
         'receiver_name',
         'receiver_phone',
         'receiver_address',
-        'received_by',
-        'weight',
-        'height',
-        'length',
-        'width',
-        'total_amount',
-        'status',
-        'payment_status',
         'is_separate_item',
+        'origin_regency_id',
+        'origin_district_id',
+        'origin_sub_district_id',
+        'destination_regency_id',
+        'destination_district_id',
+        'destination_sub_district_id',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'id',
+        'customer_id',
+        'origin_regency_id',
+        'origin_district_id',
+        'origin_sub_district_id',
+        'destination_regency_id',
+        'destination_district_id',
+        'destination_sub_district_id',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash',
     ];
 
     /**
@@ -97,6 +138,7 @@ class Package extends Model
     protected $casts = [
         'total_amount' => 'float',
         'is_separate_item' => 'bool',
+        'received_at' => 'datetime',
     ];
 
     /**
@@ -169,6 +211,66 @@ class Package extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Regency model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function origin_regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class, 'origin_regency_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with District model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function origin_district(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'origin_district_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Sub District model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function origin_sub_district(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class, 'origin_sub_district_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Regency model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function destination_regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class, 'destination_regency_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with District model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function destination_district(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'destination_district_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Sub District model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function destination_sub_district(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class, 'destination_sub_district_id', 'id');
     }
 
     public function scopePaid($query)
