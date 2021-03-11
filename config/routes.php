@@ -70,6 +70,7 @@ return [
     'cashier' => [
 
         App\Http\Routes\Partner\Cashier\HomeRoute::class,
+        App\Http\Routes\Partner\Cashier\WaitingRoute::class,
         /** @inject cashier **/
     ],
     'customer_service' => [

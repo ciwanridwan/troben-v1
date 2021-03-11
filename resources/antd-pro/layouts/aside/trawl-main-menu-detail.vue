@@ -7,6 +7,7 @@
       <h3 class="trawl-main-menu-detail-title">
         {{ menu.title ? menu.title : menu.text }}
       </h3>
+
       <a-menu
         mode="inline"
         class="menu"
