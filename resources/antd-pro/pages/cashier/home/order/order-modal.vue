@@ -11,7 +11,7 @@
       <!-- Kode -->
       <a-row>
         <a-col :span="iconSize">
-          ICON
+          <trawl-red-icon :class="['trawl-img-icon']"></trawl-red-icon>
         </a-col>
         <a-col :span="20">
           <h5>
@@ -26,7 +26,7 @@
       <!-- Pengirim -->
       <a-row>
         <a-col :span="iconSize">
-          ICON
+          <send-icon></send-icon>
         </a-col>
         <a-col :span="20">
           <h5>Pengirim</h5>
@@ -44,7 +44,7 @@
       <!-- Penerima -->
       <a-row>
         <a-col :span="iconSize">
-          ICON
+          <receive-icon></receive-icon>
         </a-col>
         <a-col :span="20">
           <a-row>
@@ -144,7 +144,13 @@
 <script>
 import DeleteButton from "../../../../components/button/delete-button.vue";
 import editButton from "../../../../components/button/edit-button.vue";
-import { InformationIcon, CarIcon } from "../../../../components/icons";
+import {
+  InformationIcon,
+  CarIcon,
+  TrawlRedIcon,
+  SendIcon,
+  ReceiveIcon
+} from "../../../../components/icons";
 import OrderDeliveryEstimation from "../../../../components/order-delivery-estimation.vue";
 import OrderDivider from "./order-divider.vue";
 import OrderItemCard from "./order-item-card.vue";
@@ -157,7 +163,10 @@ export default {
     OrderDivider,
     InformationIcon,
     OrderDeliveryEstimation,
-    CarIcon
+    CarIcon,
+    TrawlRedIcon,
+    SendIcon,
+    ReceiveIcon
   },
   props: {
     triggerText: {
@@ -172,7 +181,7 @@ export default {
   data() {
     return {
       visible: false,
-      iconSize: 4
+      iconSize: 2
     };
   },
   computed: {

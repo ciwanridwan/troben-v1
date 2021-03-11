@@ -12,6 +12,7 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      status: "counted",
       created_at: "21 Januari 2021"
     },
 
@@ -23,6 +24,7 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      status: "waiting",
       created_at: "21 Januari 2021"
     },
 
@@ -34,6 +36,19 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      status: "revision",
+      created_at: "21 Januari 2021"
+    },
+
+    {
+      id: "1",
+      barcode: "ORD1234567",
+      sender_name: "NURMA",
+      sender_address: "Jl. Ambarawa",
+      receiver_name: "Aminah",
+      receiver_address: "Jl. Ambarawa",
+      order_by: "Walk In",
+      status: "paid",
       created_at: "21 Januari 2021"
     }
   ],
