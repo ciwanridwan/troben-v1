@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-button @click="visible = true">
+    <a-button @click="visible = true" class="trawl-button-success">
       {{ triggerText }}
     </a-button>
     <a-modal v-model="visible" centered :width="840">
@@ -138,6 +138,15 @@
           </a-row>
         </a-col>
       </a-row>
+      <template v-if="sendButton" slot="footer">
+        <a-row type="flex" justify="end">
+          <a-col :span="8">
+            <a-button block class="trawl-button-success">
+              Kirim ke Pelanggan
+            </a-button>
+          </a-col>
+        </a-row>
+      </template>
     </a-modal>
   </div>
 </template>
@@ -176,6 +185,10 @@ export default {
     record: {
       type: Object,
       default: () => {}
+    },
+    sendButton: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -183,12 +196,6 @@ export default {
       visible: false,
       iconSize: 2
     };
-  },
-  computed: {
-    currentDate() {
-      let d = new Date();
-      return d.toDateString();
-    }
   }
 };
 </script>

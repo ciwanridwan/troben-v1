@@ -39,6 +39,12 @@ components.keys().map(key =>
 );
 
 Vue.mixin({
+  computed: {
+    currentDate() {
+      let d = new Date();
+      return d.toDateString();
+    }
+  },
   methods: {
     getBase64(img, callback) {
       const reader = new FileReader();

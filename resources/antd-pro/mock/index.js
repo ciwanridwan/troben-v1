@@ -12,7 +12,8 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
-      status: "counted",
+      package_status: "counted",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
 
@@ -24,7 +25,8 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
-      status: "waiting",
+      package_status: "waiting_for_approval",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
 
@@ -36,7 +38,8 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
-      status: "revision",
+      package_status: "pending",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
 
@@ -48,7 +51,8 @@ const orders = {
       receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
-      status: "paid",
+      package_status: "accepted",
+      payment_status: "paid",
       created_at: "21 Januari 2021"
     }
   ],

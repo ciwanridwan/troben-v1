@@ -1,0 +1,21 @@
+@import "./variables.less";
+
+.trawl-card {
+  &-normal {
+    border-radius: unset;
+  }
+  &-white-label {
+    position: absolute;
+    top: 0%;
+    right: 24px;
+    width: 160px;
+    height: 149px;
+    padding: 24px;
+    background-color: @primary;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    & > svg > * {
+      fill: white;
+    }
+  }
+}

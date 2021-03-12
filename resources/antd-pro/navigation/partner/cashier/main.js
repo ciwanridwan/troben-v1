@@ -7,30 +7,30 @@ const main = {
       order: {
         title: "All Order",
         text: "Data Order",
-        route: "partner.cashier.order",
+        route: "partner.cashier.home.all",
         children: null
       },
       waiting: {
         title: "Menunggu",
         text: "Menunggu",
-        route: "partner.cashier.waiting",
+        route: "partner.cashier.home.waiting",
         children: {
-          confirmation: {
+          customer: {
             title: "Menunggu Konfirmasi Pelanggan",
             text: "Menunggu Konfirmasi Pelanggan",
-            route: "partner.cashier.waiting.confirmation",
+            route: "partner.cashier.home.waiting.confirmation.customer",
             children: null
           },
           payment: {
             title: "Menunggu Konfirmasi Pembayaran",
             text: "Menunggu Konfirmasi Pembayaran",
-            route: "partner.cashier.waiting.payment",
+            route: "partner.cashier.home.waiting.confirmation.payment",
             children: null
           },
           revision: {
             title: "Menunggu Konfirmasi Revisi",
             text: "Menunggu Konfirmasi Revisi",
-            route: "partner.cashier.waiting.revision",
+            route: "partner.cashier.home.waiting.confirmation.revision",
             children: null
           }
         }

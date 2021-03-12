@@ -57,6 +57,7 @@ class Package extends Model
 {
     use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode;
 
+    public const STATUS_CANCEL = 'cancel';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
     public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';

@@ -1,0 +1,29 @@
+@import "./variables.less";
+
+.trawl-text {
+  &-center {
+    text-align: center;
+  }
+  &-normal {
+    font-weight: normal;
+    margin: 0;
+  }
+  &-success {
+    &:hover {
+      color: @success;
+    }
+    color: @success;
+  }
+  &-danger {
+    &:hover {
+      color: @primary;
+    }
+    color: @primary;
+  }
+  &-mute {
+    &:hover {
+      color: @gray-darken;
+    }
+    color: @gray-darken;
+  }
+}

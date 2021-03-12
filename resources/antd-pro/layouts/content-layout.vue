@@ -20,7 +20,10 @@
         <slot name="footer" v-if="hasFooterSlot"></slot>
       </a-layout>
     </a-layout-content>
-    <a-layout-sider v-if="hasSiderSlot && siderPosition == 'right'">
+    <a-layout-sider
+      v-if="hasSiderSlot && siderPosition == 'right'"
+      class="content-layout-sider"
+    >
       <slot name="sider"></slot>
     </a-layout-sider>
   </a-layout>
@@ -64,7 +67,7 @@ export default {
 </script>
 <style lang="scss">
 #content-layout {
-  height: 100vh;
+  height: 90vh;
   .content {
     padding: 24px;
   }
