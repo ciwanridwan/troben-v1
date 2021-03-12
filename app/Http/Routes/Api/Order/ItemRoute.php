@@ -2,9 +2,9 @@
 
 namespace App\Http\Routes\Api\Order;
 
-use App\Http\Controllers\Api\Order\ItemController;
 use App\Models\Packages\Item;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Order\ItemController;
 
 class ItemRoute extends BaseRoute
 {
@@ -19,7 +19,7 @@ class ItemRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->bind('item_hash', fn($hash) => Item::byHashOrFail($hash));
+        $this->router->bind('item_hash', fn ($hash) => Item::byHashOrFail($hash));
 
         $this->router->put($this->prefix, [
             'as' => $this->name('update'),

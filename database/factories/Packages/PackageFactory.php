@@ -2,9 +2,9 @@
 
 namespace Database\Factories\Packages;
 
+use App\Models\Service;
 use App\Models\Geo\SubDistrict;
 use App\Models\Packages\Package;
-use App\Models\Service;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PackageFactory extends Factory

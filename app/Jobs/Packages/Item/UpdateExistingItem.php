@@ -2,11 +2,10 @@
 
 namespace App\Jobs\Packages\Item;
 
-
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Validation\ValidationException;
 
 class UpdateExistingItem
@@ -32,7 +31,7 @@ class UpdateExistingItem
         throw_if($item->package_id != $package->id, ValidationException::withMessages([
             'item' => __(':item is not part of the given package', [
                 'item' => $item->name,
-            ])
+            ]),
         ]));
 
         $this->item = $item;

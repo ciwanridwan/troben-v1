@@ -3,10 +3,10 @@
 namespace App\Models\Packages;
 
 use App\Concerns\Models\HasBarcode;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Package Item model.

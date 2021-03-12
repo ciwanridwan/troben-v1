@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Jobs\Packages\Item;
 
 use App\Models\Packages\Item;
@@ -30,7 +29,7 @@ class DeleteItemFromExistingPackage
         throw_if($item->package_id != $package->id, ValidationException::withMessages([
             'item' => __(':item is not part of the given package', [
                 'item' => $item->name,
-            ])
+            ]),
         ]));
 
         $this->item = $item;

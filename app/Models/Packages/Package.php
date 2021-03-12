@@ -9,13 +9,13 @@ use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
 use App\Concerns\Models\HasPhoneNumber;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Package model.
