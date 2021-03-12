@@ -9,6 +9,7 @@ use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
 use App\Concerns\Models\HasPhoneNumber;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -55,7 +56,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class Package extends Model
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory;
 
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
