@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * SubDistrict model.
  *
- * @property int $id
- * @property int $country_id
+ * @property int                                $id
+ * @property int                                $country_id
+ * @property int                                $regency_id
  * @property int                                $province_id
  * @property int                                $city_id
  * @property int                                $district_id

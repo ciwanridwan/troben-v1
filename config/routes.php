@@ -51,6 +51,7 @@ return [
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
+        App\Http\Routes\Api\Order\ItemRoute::class,
         /** @inject api **/
     ],
     'admin' => [

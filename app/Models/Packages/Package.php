@@ -15,6 +15,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Package model.
@@ -55,7 +56,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class Package extends Model
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_CREATED = 'created';

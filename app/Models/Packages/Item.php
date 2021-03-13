@@ -6,6 +6,7 @@ use App\Concerns\Models\HasBarcode;
 use Illuminate\Database\Eloquent\Model;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Package Item model.
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Item extends Model
 {
-    use HashableId, HasBarcode;
+    use HashableId, HasBarcode, HasFactory;
 
     /**
      * The table associated with the model.
@@ -77,6 +78,7 @@ class Item extends Model
 
     protected $hidden = [
         'id',
+        'package_id',
     ];
 
     protected $appends = [
