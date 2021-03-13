@@ -1,0 +1,33 @@
+_id: req_7dea69d7834c42bea84c5b2c5ee2b675
+type: Request
+parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
+modified: 1615631666102
+created: 1615631659749
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}/item/{% response 'body', 'req_dc137ed07b9e42c48481a95752c77b2f',
+  'b64::JC5kYXRhLml0ZW1zLjAuaGFzaA==::46b', 'never', 60 %}"
+name: Delete Order Item
+description: ""
+method: DELETE
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+authentication: {}
+metaSortKey: -1613304058534.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

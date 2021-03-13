@@ -1,0 +1,47 @@
+_id: req_063b5d1a73d145c6b06dc736d1b534f7
+type: Request
+parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
+modified: 1615631617770
+created: 1615631468717
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}/item/{% response 'body', 'req_dc137ed07b9e42c48481a95752c77b2f',
+  'b64::JC5kYXRhLml0ZW1zLjAuaGFzaA==::46b', 'never', 60 %}"
+name: Update Order Item
+description: ""
+method: PUT
+body:
+  mimeType: application/json
+  text: >
+    {
+    	"name": "iBasso DC03",
+    	"qty": 1,
+    	"weight": 4,
+    	"width": 100,
+    	"length": 100,
+    	"height": 100,
+    	"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjIuaWQ=::46b', 'never', 60 %}"]
+    }
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: application/json
+    id: pair_2c7ae334b0c64c108ed5ed9ab2362437
+authentication: {}
+metaSortKey: -1613356862709
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
