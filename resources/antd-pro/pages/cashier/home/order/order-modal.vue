@@ -3,7 +3,7 @@
     <a-button @click="visible = true" class="trawl-button-success">
       {{ triggerText }}
     </a-button>
-    <a-modal v-model="visible" centered :width="840">
+    <a-modal v-model="visible" centered :width="840" @cancel="handleCancel">
       <span slot="title">
         <h3><b>Detail ID Order</b></h3>
       </span>
@@ -29,13 +29,7 @@
           <send-icon></send-icon>
         </a-col>
         <a-col :span="20">
-          <h5>Pengirim</h5>
-          <h5>
-            <b>{{ record.sender_name }}</b>
-          </h5>
-          <p>
-            jalan jalan jalan jalan jalan
-          </p>
+          <address-component></address-component>
         </a-col>
       </a-row>
 
@@ -49,17 +43,11 @@
         <a-col :span="20">
           <a-row>
             <a-col :span="16">
-              <h5>Pengirim</h5>
-              <h5>
-                <b>{{ record.sender_name }}</b>
-              </h5>
-              <p>
-                jalan jalan jalan jalan jalan
-              </p>
-              <p>
-                <a-icon type="shopping-cart" />
-                <span>Darat ( Estimasi pengiriman 1-3 hari)</span>
-              </p>
+              <address-component
+                :record="record"
+                :receiver="true"
+              ></address-component>
+              <order-estimation></order-estimation>
             </a-col>
             <a-col :span="8">
               <a-empty description="" :class="['full-width']"></a-empty>
@@ -141,7 +129,7 @@
       <template v-if="sendButton" slot="footer">
         <a-row type="flex" justify="end">
           <a-col :span="8">
-            <a-button block class="trawl-button-success">
+            <a-button block class="trawl-button-success" @click="handleOk">
               Kirim ke Pelanggan
             </a-button>
           </a-col>
@@ -160,7 +148,10 @@ import {
   SendIcon,
   ReceiveIcon
 } from "../../../../components/icons";
+import DeliveryIcon from "../../../../components/icons/deliveryIcon.vue";
 import OrderDeliveryEstimation from "../../../../components/order-delivery-estimation.vue";
+import AddressComponent from "../../../../components/orders/address-component.vue";
+import OrderEstimation from "../../../../components/orders/order-estimation.vue";
 import OrderDivider from "./order-divider.vue";
 import OrderItemCard from "./order-item-card.vue";
 
@@ -175,7 +166,10 @@ export default {
     CarIcon,
     TrawlRedIcon,
     SendIcon,
-    ReceiveIcon
+    ReceiveIcon,
+    AddressComponent,
+    DeliveryIcon,
+    OrderEstimation
   },
   props: {
     triggerText: {
@@ -196,6 +190,14 @@ export default {
       visible: false,
       iconSize: 2
     };
+  },
+  methods: {
+    handleCancel() {
+      this.visible = false;
+    },
+    handleOk() {
+      this.visible = false;
+    }
   }
 };
 </script>

@@ -2,7 +2,7 @@
   <a-card :class="['borderless-header', 'normal-title']">
     <template slot="extra">
       <a-space>
-        <edit-button></edit-button>
+        <order-modal-edit></order-modal-edit>
         <delete-button></delete-button>
       </a-space>
     </template>
@@ -75,7 +75,9 @@
   </a-card>
 </template>
 <script>
+import orderModalEdit from "./order-modal-edit.vue";
 export default {
+  components: { orderModalEdit },
   props: ["item"]
 };
 </script>

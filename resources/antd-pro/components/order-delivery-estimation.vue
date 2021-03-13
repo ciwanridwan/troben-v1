@@ -24,15 +24,7 @@
 
       <a-row :style="'padding:24px 0px'">
         <a-col>
-          <span>
-            <delivery-icon :style="{ 'margin-right': '10px' }"></delivery-icon>
-            <b>
-              Darat
-            </b>
-            <span>
-              (Estimasi pengirima 1-3 hari)
-            </span>
-          </span>
+          <order-estimation></order-estimation>
         </a-col>
       </a-row>
 
@@ -94,6 +86,7 @@
 <script>
 import informationIcon from "./icons/informationIcon.vue";
 import deliveryIcon from "./icons/deliveryIcon";
+import OrderEstimation from "./orders/order-estimation.vue";
 export default {
   props: {
     items: {
@@ -109,6 +102,6 @@ export default {
       default: 8
     }
   },
-  components: { informationIcon, deliveryIcon }
+  components: { informationIcon, deliveryIcon, OrderEstimation }
 };
 </script>

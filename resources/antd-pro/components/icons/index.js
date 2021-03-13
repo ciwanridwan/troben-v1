@@ -11,6 +11,7 @@ import PackageIcon from "./packageIcon";
 import PrintIcon from "./printIcon";
 import WeightMachineIcon from "./weightMachineIcon";
 import CalendarIcon from "./calendarIcon";
+import DeliveryIcon from "./deliveryIcon";
 
 export {
   CarIcon,
@@ -25,5 +26,6 @@ export {
   PackageIcon,
   WeightMachineIcon,
   PrintIcon,
-  CalendarIcon
+  CalendarIcon,
+  DeliveryIcon
 };
