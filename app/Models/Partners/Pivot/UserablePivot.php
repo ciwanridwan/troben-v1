@@ -3,11 +3,11 @@
 namespace App\Models\Partners\Pivot;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
-use Illuminate\Support\Arr;
 
 class UserablePivot extends MorphPivot
 {
@@ -62,15 +62,13 @@ class UserablePivot extends MorphPivot
 
     public static function getHomeRouteRole($role_name)
     {
-
-
         $route = [
             'admin' => RouteServiceProvider::HOME,
             self::ROLE_CASHIER => '/partner/cashier/home',
-            self::ROLE_CS => '/partner/customer-service/home'
+            self::ROLE_CS => '/partner/customer-service/home',
         ];
 
-        if (!Arr::has($route, $role_name)) {
+        if (! Arr::has($route, $role_name)) {
             return abort(404);
         }
 

@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 });
 
-                if (!array_key_exists('laravelJs', $view->getData())) {
+                if (! array_key_exists('laravelJs', $view->getData())) {
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
                         'user' => auth()->user(),
