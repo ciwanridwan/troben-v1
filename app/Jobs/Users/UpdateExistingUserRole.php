@@ -28,7 +28,7 @@ class UpdateExistingUserRole
     {
         $this->userable = $userable;
         $this->attributes = Validator::make($inputs, [
-            'role' => ['required', Rule::in(UserablePivot::ROLES)],
+            'role' => ['required', Rule::in(UserablePivot::getAvailableRoles())],
         ])->validate();
     }
 

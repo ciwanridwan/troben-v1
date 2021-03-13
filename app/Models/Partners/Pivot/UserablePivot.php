@@ -3,9 +3,11 @@
 namespace App\Models\Partners\Pivot;
 
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
+use Illuminate\Support\Arr;
 
 class UserablePivot extends MorphPivot
 {
@@ -17,13 +19,6 @@ class UserablePivot extends MorphPivot
     const ROLE_CS = 'customer service';
     const ROLE_WAREHOUSE = 'warehouse';
 
-    const ROLES = [
-        self::ROLE_OWNER,
-        self::ROLE_DRIVER,
-        self::ROLE_CASHIER,
-        self::ROLE_CS,
-        self::ROLE_WAREHOUSE,
-    ];
 
     /**
      * The table associated with the model.
@@ -53,6 +48,34 @@ class UserablePivot extends MorphPivot
         'userable_id',
         'role',
     ];
+
+    public static function getAvailableRoles()
+    {
+        return [
+            self::ROLE_OWNER,
+            self::ROLE_DRIVER,
+            self::ROLE_CASHIER,
+            self::ROLE_CS,
+            self::ROLE_WAREHOUSE,
+        ];
+    }
+
+    public static function getHomeRouteRole($role_name)
+    {
+
+
+        $route = [
+            'admin' => RouteServiceProvider::HOME,
+            self::ROLE_CASHIER => '/partner/cashier/home',
+            self::ROLE_CS => '/partner/customer-service/home'
+        ];
+
+        if (!Arr::has($route, $role_name)) {
+            return abort(404);
+        }
+
+        return $route[$role_name];
+    }
 
     public function userable()
     {

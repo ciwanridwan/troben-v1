@@ -1,0 +1,30 @@
+@import "./variables.less";
+
+@notification-header-height: 50px;
+@notification-height: 100px;
+@notification-width: 195px;
+
+.trawl-card {
+  &-notification {
+    &-header {
+      .ant-card-body {
+        padding: 0px 10px;
+        height: 100%;
+        width: 100%;
+      }
+      position: fixed;
+      top: @top-to-content;
+      width: @notification-width;
+      height: @notification-header-height;
+      z-index: 1;
+    }
+    &-item {
+      &-first {
+        margin-top: @notification-header-height;
+      }
+    }
+    .ant-card-body {
+      padding: 5%;
+    }
+  }
+}

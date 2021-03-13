@@ -6,6 +6,8 @@
  * @author      veelasky <veelasky@gmail.com>
  */
 
+use App\Models\Partners\Pivot\UserablePivot;
+
 return [
     'groups' => [
         'api' => [
@@ -21,6 +23,15 @@ return [
             'middleware' => ['web', 'auth'],
             'prefix' => 'admin',
         ],
+        'cashier' => [
+            'middleware' => ['web', 'auth'],
+            'prefix' => 'partner/cashier',
+        ],
+        'customer_service' => [
+            'middleware' => ['web', 'auth'],
+            'prefix' => 'partner/customer-service',
+        ]
+
     ],
 
     'web' => [
@@ -57,4 +68,15 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         /** @inject admin **/
     ],
+    'cashier' => [
+
+        App\Http\Routes\Partner\Cashier\HomeRoute::class,
+        App\Http\Routes\Partner\Cashier\Home\WaitingRoute::class,
+        /** @inject cashier **/
+    ],
+    'customer_service' => [
+
+        /** @inject customer_service **/
+    ],
+
 ];

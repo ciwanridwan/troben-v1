@@ -7,37 +7,52 @@ const orders = {
     {
       id: "1",
       barcode: "ORD1234567",
-      receiver_name: "Aminah",
+      sender_name: "NURMA",
       sender_address: "Jl. Ambarawa",
+      receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      package_status: "counted",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
+
     {
       id: "1",
       barcode: "ORD1234567",
-      receiver_name: "Aminah",
+      sender_name: "NURMA",
       sender_address: "Jl. Ambarawa",
+      receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      package_status: "waiting_for_approval",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
+
     {
       id: "1",
       barcode: "ORD1234567",
-      receiver_name: "Aminah",
+      sender_name: "NURMA",
       sender_address: "Jl. Ambarawa",
+      receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
       order_by: "Walk In",
+      package_status: "pending",
+      payment_status: "draft",
       created_at: "21 Januari 2021"
     },
+
     {
       id: "1",
       barcode: "ORD1234567",
-      receiver_name: "Aminah",
+      sender_name: "NURMA",
       sender_address: "Jl. Ambarawa",
+      receiver_name: "Aminah",
       receiver_address: "Jl. Ambarawa",
-      order_by: "aWalk In",
+      order_by: "Walk In",
+      package_status: "accepted",
+      payment_status: "paid",
       created_at: "21 Januari 2021"
     }
   ],

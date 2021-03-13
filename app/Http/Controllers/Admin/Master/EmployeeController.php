@@ -124,7 +124,7 @@ class EmployeeController extends Controller
     public function extraData()
     {
         $data = [
-            'roles' => UserablePivot::ROLES,
+            'roles' => UserablePivot::getAvailableRoles(),
         ];
 
         return $data;

@@ -3,4 +3,20 @@
   &-inline-collapsed-tooltip a {
     color: @text-color-inverse;
   }
+  &-item {
+    overflow: auto !important;
+    height: fit-content !important;
+    & > a > p {
+      white-space: normal;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+  &-submenu {
+    p {
+      margin: 0;
+    }
+  }
 }
