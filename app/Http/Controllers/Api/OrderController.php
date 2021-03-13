@@ -36,7 +36,7 @@ class OrderController extends Controller
 
         $inputs['customer_id'] = $user->id;
 
-        $items = $request->input('items');
+        $items = $request->input('items') ?? [];
 
         $job = new CreateNewPackage($inputs, $items);
 
