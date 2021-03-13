@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Validator;
@@ -50,6 +51,13 @@ class UpdateExistingItem
 
     public function handle()
     {
+        if (array_key_exists('handling', $this->attributes)) {
+            $this->attributes['handling'] = collect($this->attributes['handling'])
+                ->map(fn($id) => Handling::query()->find($id))
+                ->filter(fn(?Handling $handling) => $handling !== null)
+                ->toArray();
+        }
+
         $this->item->fill($this->attributes);
 
         $this->item->save();

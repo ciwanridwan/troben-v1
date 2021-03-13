@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             // PartnerTableImport::class,
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
+            HandlingSeeder::class,
             PriceTableSimpleSeeder::class,
             // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,

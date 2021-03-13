@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageCreated;
@@ -74,6 +75,7 @@ class CreateNewPackage
             '*.length' => ['required', 'numeric'],
             '*.width' => ['required', 'numeric'],
             '*.handling' => ['required', 'array'],
+            '*.handling.*' => ['numeric', 'exists:handling,id'],
         ])->validate();
 
         $this->is_separate = $isSeparate;
@@ -92,9 +94,16 @@ class CreateNewPackage
         $this->package->save();
 
         if ($this->package->exists) {
-            foreach ($this->items as $attribute) {
+            foreach ($this->items as $attributes) {
                 $item = new Item();
-                $item->fill(array_merge(['package_id' => $this->package->id], $attribute));
+
+                $attributes['package_id'] = $this->package->id;
+                $attributes['handling'] = collect($attributes['handling'])
+                    ->map(fn($id) => Handling::query()->find($id))
+                    ->filter(fn(?Handling $handling) => $handling !== null)
+                    ->toArray();
+
+                $item->fill($attributes);
                 $item->save();
             }
 

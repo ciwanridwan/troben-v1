@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Faker\Factory;
 use App\Models\Handling;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class HandlingSeeder extends Seeder
 {
@@ -45,7 +46,7 @@ class HandlingSeeder extends Seeder
         $faker = Factory::create();
 
         foreach ($this->handling as $value) {
-            Handling::query()->create(array_merge($value, [
+            Handling::query()->firstOrCreate(Arr::only($value, 'name'), array_merge($value, [
                 'price' => $faker->numberBetween(1000, 100000),
             ]));
         }

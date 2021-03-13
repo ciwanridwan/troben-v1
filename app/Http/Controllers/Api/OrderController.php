@@ -4,17 +4,33 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Models\Packages\Package;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Http\Resources\Api\Package\PackageResource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request): LengthAwarePaginator
     {
+        $query = Package::query();
+
+        $query->when($request->input('order'),
+            fn(Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
+            fn(Builder $query) => $query->orderByDesc('created_at'));
+
+        return $query->paginate();
+    }
+
+    public function show(Package $package): JsonResponse
+    {
+        return $this->jsonSuccess(new JsonResource($package->load(['items'])));
     }
 
     /**

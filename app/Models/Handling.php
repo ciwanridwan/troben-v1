@@ -47,4 +47,9 @@ class Handling extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 }
