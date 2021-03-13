@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Response;
 use App\Exceptions\Error;
-use App\Models\Packages\Package;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Jobs\Packages\CreateNewPackage;
-use App\Http\Resources\Api\Package\PackageResource;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Api\Package\PackageResource;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class OrderController extends Controller
 {
@@ -22,8 +22,8 @@ class OrderController extends Controller
         $query = Package::query();
 
         $query->when($request->input('order'),
-            fn(Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
-            fn(Builder $query) => $query->orderByDesc('created_at'));
+            fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
+            fn (Builder $query) => $query->orderByDesc('created_at'));
 
         return $query->paginate();
     }

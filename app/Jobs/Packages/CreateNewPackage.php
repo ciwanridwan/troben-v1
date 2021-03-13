@@ -99,8 +99,8 @@ class CreateNewPackage
 
                 $attributes['package_id'] = $this->package->id;
                 $attributes['handling'] = collect($attributes['handling'])
-                    ->map(fn($id) => Handling::query()->find($id))
-                    ->filter(fn(?Handling $handling) => $handling !== null)
+                    ->map(fn ($id) => Handling::query()->find($id))
+                    ->filter(fn (?Handling $handling) => $handling !== null)
                     ->toArray();
 
                 $item->fill($attributes);

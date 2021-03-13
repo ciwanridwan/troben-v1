@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use Faker\Factory;
 use App\Models\Handling;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
+use Illuminate\Database\Seeder;
 
 class HandlingSeeder extends Seeder
 {

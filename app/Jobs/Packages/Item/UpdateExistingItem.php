@@ -53,8 +53,8 @@ class UpdateExistingItem
     {
         if (array_key_exists('handling', $this->attributes)) {
             $this->attributes['handling'] = collect($this->attributes['handling'])
-                ->map(fn($id) => Handling::query()->find($id))
-                ->filter(fn(?Handling $handling) => $handling !== null)
+                ->map(fn ($id) => Handling::query()->find($id))
+                ->filter(fn (?Handling $handling) => $handling !== null)
                 ->toArray();
         }
 
