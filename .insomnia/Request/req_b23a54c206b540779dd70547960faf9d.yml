@@ -1,19 +1,38 @@
 _id: req_b23a54c206b540779dd70547960faf9d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1613462696404
+modified: 1615631352607
 created: 1613462471058
 url: "{{ _.base_url }}/order"
 name: Create Order
 description: ""
 method: POST
 body:
-  mimeType: multipart/form-data
-  params:
-    - name: ""
-      value: ""
-      description: ""
-      id: pair_f2ac0ef334a14f4f91d172de20ac34cf
+  mimeType: application/json
+  text: >
+    {
+    	"service_code": "{% response 'body', 'req_242cca6fc3b4492cb693f3480e807d10', 'b64::JC5kYXRhLjAuY29kZQ==::46b', 'never', 60 %}",
+    	"receiver_name": "Adit",
+    	"receiver_phone": "+62 6666",
+    	"receiver_address": "PR 19",
+    	"origin_regency_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}",
+    	"origin_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}",
+    	"origin_sub_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAuaWQ=::46b', 'no-history', 60 %}",
+    	"destination_regency_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}",
+    	"destination_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}",
+    	"destination_sub_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUuaWQ=::46b', 'no-history', 60 %}",
+    	"items": [
+    		{
+    			"name": "iBasso DC03",
+    			"qty": 1,
+    			"weight": 1,
+    			"width": 100,
+    			"length": 100,
+    			"height": 100,
+    			"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjAuaWQ=::46b', 'never', 60 %}"]
+    		}
+    	]
+    }
 parameters: []
 headers:
   - name: Accept
@@ -26,7 +45,7 @@ headers:
     description: ""
     id: pair_c20cd03e13e54cd9aa04e9432c2460b6
   - name: Content-Type
-    value: multipart/form-data
+    value: application/json
     id: pair_2c7ae334b0c64c108ed5ed9ab2362437
 authentication: {}
 metaSortKey: -1613462471058

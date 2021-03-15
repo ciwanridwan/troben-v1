@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\Error;
-use App\Http\Response;
-use App\Models\Partners\Pivot\UserablePivot;
 use Closure;
+use App\Http\Response;
+use App\Exceptions\Error;
 use Illuminate\Http\Request;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class isRole
 {
@@ -28,8 +28,10 @@ class isRole
                     throw_if(true, Error::make(Response::RC_UNAUTHORIZED));
                 }
                 $role = $partners->pluck('pivot.role')->first();
+
                 return redirect(UserablePivot::getHomeRouteRole($role));
             }
+
             return $next($request);
         }
 

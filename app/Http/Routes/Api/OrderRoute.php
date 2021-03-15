@@ -26,6 +26,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
+        $this->router->get($this->prefix('{package_hash}'), [
+            'as' => $this->name('show'),
+            'uses' => $this->uses('show'),
+        ]);
+
         $this->router->post($this->prefix(), [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),

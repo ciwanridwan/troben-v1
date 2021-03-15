@@ -2,20 +2,20 @@
 
 namespace App\Http\Routes\Partner\Cashier\Home;
 
-use App\Http\Controllers\Partner\Cashier\Home\WaitingController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Partner\Cashier\Home\WaitingController;
 
 class WaitingRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $prefix = "home/waiting";
+    protected $prefix = 'home/waiting';
 
     /**
      * @var string
      */
-    protected $name = "partner.cashier.home.waiting.confirmation";
+    protected $name = 'partner.cashier.home.waiting.confirmation';
 
     /**
      * Register routes handled by this class.
@@ -26,17 +26,17 @@ class WaitingRoute extends BaseRoute
     {
         $this->router->get($this->prefix('customer'), [
             'as' => $this->name('customer'),
-            'uses' => $this->uses('customer_view')
+            'uses' => $this->uses('customer_view'),
         ]);
 
         $this->router->get($this->prefix('payment'), [
             'as' => $this->name('payment'),
-            'uses' => $this->uses('payment_view')
+            'uses' => $this->uses('payment_view'),
         ]);
 
         $this->router->get($this->prefix('revision'), [
             'as' => $this->name('revision'),
-            'uses' => $this->uses('revision_view')
+            'uses' => $this->uses('revision_view'),
         ]);
     }
 

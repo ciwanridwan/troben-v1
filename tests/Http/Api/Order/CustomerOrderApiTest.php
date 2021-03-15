@@ -4,7 +4,9 @@ namespace Tests\Http\Api\Order;
 
 use Tests\TestCase;
 use App\Models\Handling;
+use App\Models\Packages\Package;
 use Database\Seeders\HandlingSeeder;
+use Database\Seeders\PackagesSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -31,7 +33,7 @@ class CustomerOrderApiTest extends TestCase
         $originSubDistrict = $subDistricts->random();
         $destinationSubDistrict = $subDistricts->where('id', '!=', $originSubDistrict['id'])->random();
 
-        $response = $this->postJson(route('api.order.store'), [
+        $data = [
             'service_code' => $services->random()['code'],
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
@@ -49,10 +51,43 @@ class CustomerOrderApiTest extends TestCase
                 'width' => $this->faker->numberBetween(1, 40),
                 'length' => $this->faker->numberBetween(1, 40),
                 'height' => $this->faker->numberBetween(1, 40),
-                'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get(),
+                'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
             ])->toArray(),
-        ], $headers);
+        ];
+
+        $response = $this->postJson(route('api.order.store'), $data, $headers);
 
         $response->assertSuccessful();
+    }
+
+    public function test_can_get_all_list_order()
+    {
+        $this->seed(PackagesSeeder::class);
+
+        $headers = $this->getCustomersHeader();
+
+        $url = route('api.order');
+
+        $response = $this->getJson($url, $headers);
+
+        $response->assertSuccessful();
+    }
+
+    public function test_can_get_order_detail()
+    {
+        $this->seed(PackagesSeeder::class);
+
+        $headers = $this->getCustomersHeader();
+
+        /** @var Package $package */
+        $package = Package::query()->inRandomOrder()->first();
+
+        $url = route('api.order.show', ['package_hash' => $package->hash]);
+
+        $response = $this->getJson($url, $headers);
+
+        $response->assertSuccessful();
+
+        $this->assertEquals($package->barcode, $response->json('data.barcode'));
     }
 }

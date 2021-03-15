@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Partner\Cashier\Home;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Models\Packages\Package;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use App\Models\Packages\Package;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
+use Illuminate\Database\Eloquent\Builder;
 
 class WaitingController extends Controller
 {
@@ -49,6 +49,7 @@ class WaitingController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
+
         return view('partner.cashier.home.index');
     }
 
@@ -61,6 +62,7 @@ class WaitingController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
+
         return view('partner.cashier.home.index');
     }
 
@@ -73,6 +75,7 @@ class WaitingController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
+
         return view('partner.cashier.home.index');
     }
 }

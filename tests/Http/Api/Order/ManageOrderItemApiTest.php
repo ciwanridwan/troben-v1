@@ -36,7 +36,7 @@ class ManageOrderItemApiTest extends TestCase
             'width' => $this->faker->numberBetween(1, 40),
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
-            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get(),
+            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
         ];
 
         $url = route('api.order.item.update', [$package->hash, $item->hash]);
