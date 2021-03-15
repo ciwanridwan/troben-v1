@@ -39,8 +39,6 @@ class CustomerOrderApiTest extends TestCase
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
             'origin_regency_id' => $originSubDistrict['regency']['id'],
-            'origin_district_id' => $originSubDistrict['district']['id'],
-            'origin_sub_district_id' => $originSubDistrict['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
             'destination_sub_district_id' => $destinationSubDistrict['id'],

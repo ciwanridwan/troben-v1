@@ -59,8 +59,6 @@ class CreateNewPackage
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
             'origin_regency_id' => ['required'],
-            'origin_district_id' => ['required'],
-            'origin_sub_district_id' => ['required'],
             'destination_regency_id' => ['required'],
             'destination_district_id' => ['required'],
             'destination_sub_district_id' => ['required'],

@@ -16,7 +16,7 @@ class PackageResource extends JsonResource
     public function toArray($request)
     {
         return array_merge(parent::toArray($request), [
-            'origin_sub_district' => SubDistrictResource::make($this->origin_sub_district),
+            'origin_regency' => $this->origin_regency ? SubDistrictResource::make($this->origin_regency) : null,
             'destination_sub_district' => SubDistrictResource::make($this->destination_sub_district),
         ]);
     }
