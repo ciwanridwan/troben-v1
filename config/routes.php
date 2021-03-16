@@ -76,6 +76,7 @@ return [
     ],
     'customer_service' => [
 
+        App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         /** @inject customer_service **/
     ],
 

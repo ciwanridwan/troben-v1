@@ -1,13 +1,5 @@
-@extends('antd::admin-layout')
-
-@section('title')
-    Home
-@endsection
-
-@push('head-tools')
-    <a-col :md="12">ABC</a-col>
-@endpush
+@extends('antd::trawl-admin-layout')
 
 @section('content')
-    <all-order></all-order>
+    <master-order></master-order>
 @endsection

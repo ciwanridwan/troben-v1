@@ -10,7 +10,8 @@ export default [
   },
   {
     title: "Mitra Penerima",
-    dataIndex: "receiver_name"
+    dataIndex: "receiver_name",
+    customSlot: "receiver"
   },
   {
     title: "Lokasi Pengiriman",
