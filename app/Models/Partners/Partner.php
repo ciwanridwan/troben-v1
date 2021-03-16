@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * @property-read \App\Models\Partners\Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
  * @property-read \App\Models\Partners\Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
+ * @property-read  \App\Models\User[]|\Illuminate\Database\Eloquent\Collection $users
  */
 class Partner extends Model
 {
@@ -162,6 +163,7 @@ class Partner extends Model
     {
         return $this->morphToMany(User::class, 'userable', 'userables')
             ->withPivot('id', 'role')
+            ->withTimestamps()
             ->using(UserablePivot::class);
     }
 

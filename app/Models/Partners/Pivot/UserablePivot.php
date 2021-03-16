@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
+/**
+ * Class UserablePivot
+ * @package App\Models\Partners\Pivot
+ *
+ * @property  int $id
+ * @property  string $role
+ */
 class UserablePivot extends MorphPivot
 {
     use HashableId;
@@ -18,7 +25,6 @@ class UserablePivot extends MorphPivot
     const ROLE_CASHIER = 'cashier';
     const ROLE_CS = 'customer service';
     const ROLE_WAREHOUSE = 'warehouse';
-
 
     /**
      * The table associated with the model.
@@ -54,7 +60,11 @@ class UserablePivot extends MorphPivot
         'role',
     ];
 
-    public static function getAvailableRoles()
+    public $incrementing = true;
+
+    public $timestamps = true;
+
+    public static function getAvailableRoles(): array
     {
         return [
             self::ROLE_OWNER,
@@ -84,12 +94,10 @@ class UserablePivot extends MorphPivot
     {
         return $this->morphTo();
     }
+
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'user_id')->where('deleted_at', null);
-    }
-    public function get()
-    {
     }
 
     protected static function boot()

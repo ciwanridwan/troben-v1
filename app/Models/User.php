@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property-read UserablePivot|null pivot
  */
 class User extends Authenticatable implements HasOtpToken
 {
@@ -91,6 +92,7 @@ class User extends Authenticatable implements HasOtpToken
     {
         return $this->morphedByMany(Partner::class, 'userable', 'userables')
             ->withPivot('id', 'role')
+            ->withTimestamps()
             ->using(UserablePivot::class);
     }
 }
