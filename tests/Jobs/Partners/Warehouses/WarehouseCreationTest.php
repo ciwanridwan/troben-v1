@@ -110,15 +110,18 @@ class WarehouseCreationTest extends TestCase
         $this->seed(GeoTableSimpleSeeder::class);
 
         try {
-            $job = new CreateNewWarehouse($this->partner, Arr::except($this->data, ['name']));
+            $job = new CreateNewWarehouse($this->partner, Arr::except($this->data, ['height']));
             $response = $this->dispatch($job);
-            $this->assertFalse($response);
         } catch (Exception $e) {
             $this->assertInstanceOf(ValidationException::class, $e);
-            $this->assertArrayHasKey('name', $e->errors());
-            foreach (Arr::except($this->data, ['name']) as $key => $value) {
+            $this->assertArrayHasKey('height', $e->errors());
+            foreach (Arr::except($this->data, ['height']) as $key => $value) {
                 $this->assertArrayNotHasKey($key, $e->errors());
             }
+        }
+
+        if (isset($response)) {
+            $this->assertFalse($response);
         }
     }
 }

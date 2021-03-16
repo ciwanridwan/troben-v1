@@ -31,6 +31,7 @@ class UserCreationTest extends TestCase
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '089292929222',
             'password' => 'passwordsuper',
+            'password_confirmation' => 'passwordsuper',
             'remember_token' => Str::random(10),
         ];
     }

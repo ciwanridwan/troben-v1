@@ -3,7 +3,6 @@
 namespace Database\Factories\Partners;
 
 use App\Models\Partners\Transporter;
-use Faker\Provider\ms_MY\Miscellaneous;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TransporterFactory extends Factory
@@ -41,9 +40,10 @@ class TransporterFactory extends Factory
 
         return [
             'partner_id' => null,
-            'name' => $this->faker->userName,
-            // 'registration_number' => $this->faker->jpjNumberPlate(),
-            'registration_number' => $this->faker->lastName,
+            'registration_number' => $this->faker->text(5),
+            'production_year' => $this->faker->year,
+            'registration_name' => $this->faker->userName,
+            'registration_year' => $this->faker->year,
             'type' => $typeMapper[$this->faker->randomKey([0,1,2,3,4,5,6,7,8,9,10,11])],
         ];
     }

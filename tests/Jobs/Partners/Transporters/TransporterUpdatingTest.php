@@ -16,16 +16,16 @@ class TransporterUpdatingTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs, WithFaker;
 
-    /** 
+    /**
      * Transporter instance.
-     * 
+     *
      * @var \App\Models\Partners\Transporter
      */
     private Transporter $transporter;
 
     /**
      * Dummy data.
-     * 
+     *
      * @var array
      */
     private array $data;
@@ -42,7 +42,7 @@ class TransporterUpdatingTest extends TestCase
         $this->transporter = Transporter::latest()->first();
 
         $this->data = [
-            'name' => $this->faker->userName,
+            'registration_name' => $this->faker->userName,
             'registration_number' => 'B 2988 WSJ',
             'type' => Transporter::TYPE_CDE_ENGKEL_DOUBLE_BOX,
         ];
@@ -84,14 +84,17 @@ class TransporterUpdatingTest extends TestCase
 
         try {
             $response = $this->dispatch(new UpdateExistingTransporter($this->transporter, $data));
-            $this->assertTrue($response);
-            $this->assertDatabaseHas('transporters', $this->data);
         } catch (\Exception $e) {
             $this->assertInstanceOf(ValidationException::class, $e);
             $this->assertArrayHasKey($invalid_field_name, $e->errors());
             foreach (Arr::except($data, $invalid_field_name) as $key => $value) {
                 $this->assertArrayNotHasKey($key, $e->errors());
             }
+        }
+
+        if (isset($response)) {
+            $this->assertTrue($response);
+            $this->assertDatabaseHas('transporters', $this->data);
         }
     }
 }

@@ -44,10 +44,13 @@ class BulkTransporter
      * @var bool $finish
      */
     public bool $finish;
+
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param \App\Models\Partners\Partner $partner
+     * @param array $inputs
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Partner $partner, $inputs = [])
     {

@@ -35,17 +35,23 @@ class TransporterBulkTest extends TestCase
         $typeMapper = Transporter::getAvailableTypes();
         $this->data = [
             [
-                'name' => $this->faker->userName,
+                'production_year' => $this->faker->year,
+                'registration_name' => $this->faker->userName,
+                'registration_year' => $this->faker->year,
                 'registration_number' => $this->faker->lastName,
                 'type' => $typeMapper[$this->faker->randomKey([0,1,2,3,4,5,6,7,8,9,10,11])],
             ],
             [
-                'name' => $this->faker->userName,
+                'production_year' => $this->faker->year,
+                'registration_name' => $this->faker->userName,
+                'registration_year' => $this->faker->year,
                 'registration_number' => $this->faker->lastName,
                 'type' => $typeMapper[$this->faker->randomKey([0,1,2,3,4,5,6,7,8,9,10,11])],
             ],
             [
-                'name' => $this->faker->userName,
+                'production_year' => $this->faker->year,
+                'registration_name' => $this->faker->userName,
+                'registration_year' => $this->faker->year,
                 'registration_number' => $this->faker->lastName,
                 'type' => $typeMapper[$this->faker->randomKey([0,1,2,3,4,5,6,7,8,9,10,11])],
             ],
@@ -74,7 +80,7 @@ class TransporterBulkTest extends TestCase
         $this->expectException(ValidationException::class);
         Event::fake();
 
-        $data = collect($this->data)->map(fn ($item) => ['name' => $item['name'], 'registration_number' => $item['registration_number']])->toArray();
+        $data = collect($this->data)->map(fn ($item) => ['registration_name' => $item['registration_name'], 'registration_number' => $item['registration_number']])->toArray();
 
         $job = new BulkTransporter($this->partner, $data);
         $this->assertTrue($this->dispatch($job));
@@ -87,7 +93,7 @@ class TransporterBulkTest extends TestCase
         $this->expectException(ValidationException::class);
         Event::fake();
 
-        $data = collect($this->data)->map(fn ($item) => ['name' => $item['name'], 'registration_number' => $item['registration_number'], 'type' => 'aaddcc'])->toArray();
+        $data = collect($this->data)->map(fn ($item) => ['registration_name' => $item['registration_name'], 'registration_number' => $item['registration_number'], 'type' => 'aaddcc'])->toArray();
 
         $job = new BulkTransporter($this->partner, $data);
         $this->assertTrue($this->dispatch($job));

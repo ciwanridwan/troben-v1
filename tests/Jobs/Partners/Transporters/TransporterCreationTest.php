@@ -36,8 +36,10 @@ class TransporterCreationTest extends TestCase
             'type' => Partner::TYPE_TRANSPORTER,
         ];
         $this->data = [
-            'name' => 'transporter',
+            'registration_name' => 'transporter',
             'registration_number' => 'B 1234 TKJ',
+            'production_year' => 2018,
+            'registration_year' => 2019,
             'type' => Transporter::TYPE_BIKE,
         ];
         $job = new CreateNewPartner($partner_data);
