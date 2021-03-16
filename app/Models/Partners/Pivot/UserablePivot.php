@@ -10,8 +10,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
 /**
- * Class UserablePivot
- * @package App\Models\Partners\Pivot
+ * Class UserablePivot.
  *
  * @property  int $id
  * @property  string $role
@@ -25,6 +24,10 @@ class UserablePivot extends MorphPivot
     const ROLE_CASHIER = 'cashier';
     const ROLE_CS = 'customer service';
     const ROLE_WAREHOUSE = 'warehouse';
+
+    public $incrementing = true;
+
+    public $timestamps = true;
 
     /**
      * The table associated with the model.
@@ -59,10 +62,6 @@ class UserablePivot extends MorphPivot
         'userable_id',
         'role',
     ];
-
-    public $incrementing = true;
-
-    public $timestamps = true;
 
     public static function getAvailableRoles(): array
     {
