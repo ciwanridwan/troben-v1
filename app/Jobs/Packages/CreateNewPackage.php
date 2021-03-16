@@ -75,6 +75,7 @@ class CreateNewPackage
             '*.height' => ['required', 'numeric'],
             '*.length' => ['required', 'numeric'],
             '*.width' => ['required', 'numeric'],
+            '*.is_insured' => ['nullable', 'boolean'],
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['numeric', 'exists:handling,id'],
         ])->validate();

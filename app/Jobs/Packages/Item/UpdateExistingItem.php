@@ -46,6 +46,8 @@ class UpdateExistingItem
             'length' => ['nullable', 'numeric'],
             'width' => ['nullable', 'numeric'],
             'handling' => ['nullable', 'array'],
+            'handling.*' => ['numeric', 'exists:handling,id'],
+            'is_insured' => ['nullable', 'boolean'],
         ])->validated();
     }
 

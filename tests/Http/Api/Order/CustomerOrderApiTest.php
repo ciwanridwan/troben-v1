@@ -52,6 +52,7 @@ class CustomerOrderApiTest extends TestCase
                 'width' => $this->faker->numberBetween(1, 40),
                 'length' => $this->faker->numberBetween(1, 40),
                 'height' => $this->faker->numberBetween(1, 40),
+                'is_insured' => true,
                 'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
             ])->toArray(),
         ];
