@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Handling;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class HandlingController extends Controller
 {
