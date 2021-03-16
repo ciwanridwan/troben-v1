@@ -14,6 +14,8 @@ class PartnerFactory extends Factory
      */
     protected $model = Partner::class;
 
+    private static int $chosenType = 0;
+
     /**
      * Define the model's default state.
      *
@@ -27,7 +29,12 @@ class PartnerFactory extends Factory
             ['type' => Partner::TYPE_SPACE, 'code' => 'MS'],
             ['type' => Partner::TYPE_TRANSPORTER, 'code' => 'MTM'],
         ];
-        $no = $this->faker->randomKey([0,1,2,3]);
+
+        $no = self::$chosenType++;
+
+        if (self::$chosenType === 4) {
+            self::$chosenType = 0;
+        }
 
         return [
             'name' => $this->faker->name,

@@ -35,7 +35,12 @@ class UserablePivot extends MorphPivot
     /**
      * @var array
      */
-    protected $hidden = ['id'];
+    protected $hidden = [
+        'id',
+        'userable_id',
+        'userable_type',
+        'user_id',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -69,7 +74,7 @@ class UserablePivot extends MorphPivot
         ];
 
         if (! Arr::has($route, $role_name)) {
-            return abort(404);
+            abort(404);
         }
 
         return $route[$role_name];

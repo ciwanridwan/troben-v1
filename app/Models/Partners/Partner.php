@@ -160,7 +160,8 @@ class Partner extends Model
      */
     public function users(): MorphToMany
     {
-        return $this->morphToMany(User::class, 'userable', 'userables')->withPivot('role')
+        return $this->morphToMany(User::class, 'userable', 'userables')
+            ->withPivot('id', 'role')
             ->using(UserablePivot::class);
     }
 

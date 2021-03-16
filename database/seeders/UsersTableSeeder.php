@@ -6,12 +6,32 @@ use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Support\Str;
 
 class UsersTableSeeder extends Seeder
 {
+    const COMPOSES = [
+        Partner::TYPE_BUSINESS => [
+            UserablePivot::ROLE_OWNER,
+            UserablePivot::ROLE_WAREHOUSE,
+            UserablePivot::ROLE_DRIVER,
+            UserablePivot::ROLE_CS,
+            UserablePivot::ROLE_CASHIER,
+        ],
+        Partner::TYPE_SPACE => [
+            UserablePivot::ROLE_OWNER,
+            UserablePivot::ROLE_WAREHOUSE,
+            UserablePivot::ROLE_CS,
+            UserablePivot::ROLE_CASHIER,
+        ],
+        Partner::TYPE_POOL => [
+            UserablePivot::ROLE_OWNER,
+            UserablePivot::ROLE_WAREHOUSE,
+        ],
+        Partner::TYPE_TRANSPORTER => [],
+    ];
+
     /**
      * Run the database seeds.
      *
@@ -19,34 +39,30 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        Partner::factory(1)->create();
-        $p = Partner::first();
+        Partner::factory(3)->create()->each(function (Partner $partner, int $index) {
+            if ($index === 0) {
+                // make sure at least one record contain this data.
 
-        // make sure at least one record contain this data.
-        User::factory(1)->create([
-            'username' => 'admin',
-            'phone' => '+625555555555',
-            'email' => 'user@trawlbens.co.id',
-            'verified_at' => Carbon::now(),
-        ]);
-        $u = User::first();
+                /** @var User $user */
+                $user = User::factory()->create([
+                    'username' => 'admin',
+                    'phone' => '+625555555555',
+                    'email' => 'user@trawlbens.co.id',
+                    'verified_at' => Carbon::now(),
+                ]);
 
-        $pivot = new UserablePivot();
-        $pivot->fill([
-            'user_id' => $u->id,
-            'userable_type' => Model::getActualClassNameForMorph(get_class($p)),
-            'userable_id' => $p->getKey(),
-            'role' => 'owner',
-        ]);
-        $pivot->save();
+                $user->partners()->attach($partner, [
+                    'role' => UserablePivot::ROLE_OWNER,
+                ]);
+            }
 
-        // make the rest of the data.
-        // User::factory()
-        //     ->count(9)
-        //     ->state(new Sequence(
-        //         ['verified_at' => null],
-        //         ['verified_at' => Carbon::now()]
-        //     ))
-        //     ->create();
+            collect(self::COMPOSES[$partner->type])
+                ->each(fn($role) => $partner
+                    ->users()
+                    ->attach(User::factory()
+                        ->create([
+                            'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role))
+                        ]), ['role' => $role]));
+        });
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations;
 
 /**
  * User instance.
@@ -54,8 +55,10 @@ class User extends Authenticatable implements HasOtpToken
      * @var array
      */
     protected $hidden = [
+        'id',
         'password',
         'remember_token',
+        'deleted_at',
     ];
 
     /**
@@ -84,8 +87,10 @@ class User extends Authenticatable implements HasOtpToken
         $this->attributes['password'] = bcrypt($value);
     }
 
-    public function partners()
+    public function partners(): Relations\MorphToMany
     {
-        return $this->morphedByMany(Partner::class, 'userable', 'userables')->withPivot('role')->using(UserablePivot::class)->using(UserablePivot::class);
+        return $this->morphedByMany(Partner::class, 'userable', 'userables')
+            ->withPivot('id', 'role')
+            ->using(UserablePivot::class);
     }
 }
