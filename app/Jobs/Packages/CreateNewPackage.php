@@ -55,6 +55,9 @@ class CreateNewPackage
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
+            'sender_name' => ['required'],
+            'sender_phone' => ['required'],
+            'sender_address' => ['required'],
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],

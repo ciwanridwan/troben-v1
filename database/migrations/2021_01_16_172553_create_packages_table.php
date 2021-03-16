@@ -26,6 +26,10 @@ class CreatePackagesTable extends Migration
             $table->string('barcode');
             $table->char('service_code', 3);
 
+            $table->string('sender_name');
+            $table->string('sender_phone');
+            $table->string('sender_address');
+
             $table->string('receiver_name');
             $table->string('receiver_phone');
             $table->string('receiver_address');

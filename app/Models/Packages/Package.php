@@ -95,6 +95,9 @@ class Package extends Model
     protected $fillable = [
         'customer_id',
         'service_code',
+        'sender_name',
+        'sender_phone',
+        'sender_address',
         'receiver_name',
         'receiver_phone',
         'receiver_address',

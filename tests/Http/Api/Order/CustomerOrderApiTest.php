@@ -35,6 +35,9 @@ class CustomerOrderApiTest extends TestCase
 
         $data = [
             'service_code' => $services->random()['code'],
+            'sender_name' => $this->faker->name,
+            'sender_phone' => $this->faker->phoneNumber,
+            'sender_address' => $this->faker->address,
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,

@@ -33,6 +33,9 @@ class PackageFactory extends Factory
 
         return [
             'service_code' => $service->code,
+            'sender_name' => $this->faker->name,
+            'sender_phone' => $this->faker->phoneNumber,
+            'sender_address' => $this->faker->address,
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
