@@ -8,12 +8,12 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations;
 
 /**
  * User instance.
