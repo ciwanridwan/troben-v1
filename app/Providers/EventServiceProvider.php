@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
 use App\Listeners\Packages\GeneratePackagePrices;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 

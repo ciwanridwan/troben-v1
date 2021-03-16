@@ -6,7 +6,6 @@ use App\Models\Packages\Package;
 
 class GeneratePackagePrices
 {
-
     /**
      * Handle the event.
      *
