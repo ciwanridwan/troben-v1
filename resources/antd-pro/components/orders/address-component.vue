@@ -2,13 +2,16 @@
   <div>
     <slot name="title" v-if="hasTitleSlot"></slot>
     <h5 v-else>{{ receiver ? "Penerima" : "Pengirim" }}</h5>
-    <h5>
+    <slot v-if="hasSlot('people')" slot="people"> </slot>
+    <h5 v-else>
       <b>Faris Ferdian Akbar</b>
     </h5>
-    <h5 class="trawl-text-normal">
+    <slot name="phone" v-if="hasSlot('phone')"> </slot>
+    <h5 class="trawl-text-normal" v-else>
       085694455935
     </h5>
-    <p>
+    <slot name="address" v-if="hasSlot('address')"> </slot>
+    <p v-else>
       Jl. Soekarno No.1, Kel. Indarung, Kec. Lubuk Kilangan, Padang, Sumatera
       Barat.
     </p>
@@ -20,6 +23,11 @@ export default {
   computed: {
     hasTitleSlot() {
       return !!this.$slots.title;
+    }
+  },
+  methods: {
+    hasSlot(slotName) {
+      return !!this.$slots[slotName];
     }
   }
 };
