@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Events\Packages\PackageUpdated;
 use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -63,5 +64,7 @@ class UpdateExistingItem
         $this->item->fill($this->attributes);
 
         $this->item->save();
+
+        event(new PackageUpdated($this->item->package));
     }
 }

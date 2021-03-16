@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,5 +42,7 @@ class DeleteItemFromExistingPackage
     public function handle()
     {
         $this->item->delete();
+
+        event(new PackageUpdated($this->item->package));
     }
 }
