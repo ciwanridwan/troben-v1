@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Handling;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class HandlingController extends Controller
 {
-    public function index(): LengthAwarePaginator
+    public function index(): AnonymousResourceCollection
     {
         $query = Handling::query();
 
-        return $query->paginate();
+        return JsonResource::collection($query->paginate());
     }
 }

@@ -11,13 +11,12 @@ use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Jobs\Packages\CreateNewPackage;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\Package\PackageResource;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrderController extends Controller
 {
-    public function index(Request $request): LengthAwarePaginator
+    public function index(Request $request): AnonymousResourceCollection
     {
         $query = Package::query();
 
@@ -25,12 +24,22 @@ class OrderController extends Controller
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
             fn (Builder $query) => $query->orderByDesc('created_at'));
 
-        return $query->paginate();
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
+
+        $paginate = $query->paginate();
+
+        return PackageResource::collection($paginate);
     }
 
     public function show(Package $package): JsonResponse
     {
-        return $this->jsonSuccess(new JsonResource($package->load(['items'])));
+        return $this->jsonSuccess(new PackageResource($package->load(
+            'items',
+            'prices',
+            'origin_regency',
+            'destination_regency',
+            'destination_district',
+            'destination_sub_district')));
     }
 
     /**
@@ -61,7 +70,9 @@ class OrderController extends Controller
         return $this->jsonSuccess(new PackageResource($job->package->load(
             'items',
             'prices',
-            'origin_sub_district',
+            'origin_regency',
+            'destination_regency',
+            'destination_district',
             'destination_sub_district')));
     }
 }
