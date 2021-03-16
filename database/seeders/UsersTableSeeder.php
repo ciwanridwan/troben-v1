@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Support\Str;
 
 class UsersTableSeeder extends Seeder
 {
@@ -57,11 +57,11 @@ class UsersTableSeeder extends Seeder
             }
 
             collect(self::COMPOSES[$partner->type])
-                ->each(fn($role) => $partner
+                ->each(fn ($role) => $partner
                     ->users()
                     ->attach(User::factory()
                         ->create([
-                            'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role))
+                            'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
                         ]), ['role' => $role]));
         });
     }
