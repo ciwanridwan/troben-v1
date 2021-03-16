@@ -30,8 +30,11 @@
             <a-col :span="8">
               <order-status :record="record"></order-status>
             </a-col>
-            <a-col :span="3">
-              <a-button type="danger" ghost>Cancel</a-button>
+            <a-col :span="12" class="trawl-text-right">
+              <a-space>
+                <a-button type="danger" ghost>Cancel</a-button>
+                <order-assign-transporter></order-assign-transporter>
+              </a-space>
             </a-col>
           </a-row>
         </span>
@@ -48,11 +51,13 @@ import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
+import OrderAssignTransporter from "./order-assign-transporter.vue";
 export default {
   components: {
     ContentLayout,
     OrderStatus,
-    TrawlNotification
+    TrawlNotification,
+    OrderAssignTransporter
   },
   data: () => {
     return {
