@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Partner\CustomerService;
 
-use App\Http\Controllers\Partner\CustomerService\HomeController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Partner\CustomerService\HomeController;
 
 class HomeRoute extends BaseRoute
 {
@@ -26,7 +26,7 @@ class HomeRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

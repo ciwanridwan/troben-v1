@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
+use Illuminate\Http\Request;
 use App\Models\Packages\Package;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -45,9 +45,7 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->expectsJson()) {
-
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
 
