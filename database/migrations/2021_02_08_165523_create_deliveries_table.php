@@ -1,11 +1,11 @@
 <?php
 
+use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
 
 class CreateDeliveriesTable extends Migration
 {

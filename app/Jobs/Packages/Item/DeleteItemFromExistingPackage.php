@@ -2,9 +2,9 @@
 
 namespace App\Jobs\Packages\Item;
 
-use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
+use App\Events\Packages\PackageUpdated;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Validation\ValidationException;
 
