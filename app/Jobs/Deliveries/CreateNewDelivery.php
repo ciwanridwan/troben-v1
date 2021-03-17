@@ -2,24 +2,23 @@
 
 namespace App\Jobs\Deliveries;
 
-
-use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\Partners\Partner;
+use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewDelivery
 {
     use Dispatchable;
 
-    private array $inputs;
-
     /**
      * @var \App\Models\Deliveries\Delivery
      */
     public Delivery $delivery;
+
+    private array $inputs;
 
     /**
      * @var \App\Models\Partners\Partner|null

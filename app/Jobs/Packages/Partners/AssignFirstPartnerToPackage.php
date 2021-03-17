@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Packages\Partners;
 
-use App\Jobs\Deliveries\CreateNewDelivery;
-use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Deliveries\Delivery;
+use App\Jobs\Deliveries\CreateNewDelivery;
 
 class AssignFirstPartnerToPackage
 {

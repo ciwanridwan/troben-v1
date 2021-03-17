@@ -2,9 +2,9 @@
 
 namespace App\Models\Deliveries;
 
-use App\Concerns\Models\HasBarcode;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Concerns\Models\HasBarcode;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;

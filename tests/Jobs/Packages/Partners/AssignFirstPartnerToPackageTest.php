@@ -2,13 +2,13 @@
 
 namespace Tests\Jobs\Packages\Partners;
 
-use App\Jobs\Packages\Partners\AssignFirstPartnerToPackage;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\User;
 use Database\Seeders\PackagesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Jobs\Packages\Partners\AssignFirstPartnerToPackage;
 
 class AssignFirstPartnerToPackageTest extends TestCase
 {

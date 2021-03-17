@@ -2,23 +2,23 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Deliveries\Delivery;
-use App\Models\Deliveries\DeliveryPackagePivot;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
+use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Deliveries\DeliveryPackagePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Package model.
