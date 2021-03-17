@@ -2,6 +2,8 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Deliveries\Delivery;
+use App\Models\Deliveries\DeliveryPackagePivot;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
@@ -10,6 +12,7 @@ use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -218,6 +221,15 @@ class Package extends Model
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function deliveries(): BelongsToMany
+    {
+        return $this->belongsToMany(Delivery::class)
+            ->withPivot(['is_onboard', 'created_at', 'updated_at'])
+            ->withTimestamps()
+            ->orderByPivot('created_at')
+            ->using(DeliveryPackagePivot::class);
+    }
+
     /**
      * Define `belongsTo` relationship with Regency model.
      *
@@ -282,6 +294,7 @@ class Package extends Model
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_PAID);
     }
+
     public function scopeFailed($query)
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_FAILED);
