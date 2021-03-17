@@ -2,8 +2,8 @@
 
 namespace Tests\Http\Api\Me;
 
-use App\Models\User;
 use Tests\TestCase;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AccountInfoTest extends TestCase
