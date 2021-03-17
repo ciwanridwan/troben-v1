@@ -62,8 +62,8 @@ class UsersTableSeeder extends Seeder
                     ->attach(User::factory()
                         ->create([
                             'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
-                            'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)) . '@trawlbens.co.id',
-                            'phone' => '+625555555' . str_pad($index . $key, 3, '0', STR_PAD_LEFT)
+                            'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
+                            'phone' => '+625555555'.str_pad($index.$key, 3, '0', STR_PAD_LEFT),
                         ]), ['role' => $role]));
         });
     }
