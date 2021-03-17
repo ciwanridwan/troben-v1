@@ -64,6 +64,7 @@ class UsersTableSeeder extends Seeder
                             'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
                             'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
                             'phone' => '+625555555'.str_pad($index.$key, 3, '0', STR_PAD_LEFT),
+                            'verified_at' => Carbon::now(),
                         ]), ['role' => $role]));
         });
     }
