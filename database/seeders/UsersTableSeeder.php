@@ -29,7 +29,10 @@ class UsersTableSeeder extends Seeder
             UserablePivot::ROLE_OWNER,
             UserablePivot::ROLE_WAREHOUSE,
         ],
-        Partner::TYPE_TRANSPORTER => [],
+        Partner::TYPE_TRANSPORTER => [
+            UserablePivot::ROLE_OWNER,
+            UserablePivot::ROLE_DRIVER,
+        ],
     ];
 
     /**
@@ -39,7 +42,7 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        Partner::factory(3)->create()->each(function (Partner $partner, int $index) {
+        Partner::factory(4)->create()->each(function (Partner $partner, int $index) {
             if ($index === 0) {
                 // make sure at least one record contain this data.
 
