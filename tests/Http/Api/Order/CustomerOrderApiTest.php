@@ -6,7 +6,6 @@ use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
 use Database\Seeders\HandlingSeeder;
-use Database\Seeders\PackagesSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -64,8 +63,6 @@ class CustomerOrderApiTest extends TestCase
 
     public function test_can_get_all_list_order()
     {
-        $this->seed(PackagesSeeder::class);
-
         $headers = $this->getCustomersHeader();
 
         $url = route('api.order');
@@ -77,8 +74,6 @@ class CustomerOrderApiTest extends TestCase
 
     public function test_can_get_order_detail()
     {
-        $this->seed(PackagesSeeder::class);
-
         $headers = $this->getCustomersHeader();
 
         /** @var Package $package */

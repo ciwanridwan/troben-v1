@@ -8,7 +8,7 @@ use App\Exceptions\Error;
 use Illuminate\Http\Request;
 use App\Models\Customers\Customer;
 
-class isUsers
+class IsUsers
 {
     /**
      * Filtering request for users.
@@ -20,7 +20,8 @@ class isUsers
      */
     public function handle(Request $request, Closure $next)
     {
-        throw_if($request->user() instanceof Customer, Error::make(Response::RC_UNAUTHORIZED));
+        /** @noinspection PhpParamsInspection */
+        throw_if($request->user() instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         return $next($request);
     }

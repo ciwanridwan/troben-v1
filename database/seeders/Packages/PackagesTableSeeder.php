@@ -1,15 +1,18 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Packages;
 
 use App\Models\Service;
 use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Geo\SubDistrict;
+use Database\Seeders\GeoTableSimpleSeeder;
+use Database\Seeders\HandlingSeeder;
+use Database\Seeders\ServiceTableSeeder;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 
-class PackagesSeeder extends Seeder
+class PackagesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

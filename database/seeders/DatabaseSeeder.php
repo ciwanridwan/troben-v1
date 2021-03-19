@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PriceTableSimpleSeeder::class,
             // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
+            AssignedPackagesSeeder::class,
         ]);
     }
 }

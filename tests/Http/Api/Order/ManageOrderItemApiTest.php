@@ -5,7 +5,6 @@ namespace Tests\Http\Api\Order;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
-use Database\Seeders\PackagesSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -14,13 +13,6 @@ class ManageOrderItemApiTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     public bool $seed = true;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->seed(PackagesSeeder::class);
-    }
 
     public function test_can_update_items()
     {

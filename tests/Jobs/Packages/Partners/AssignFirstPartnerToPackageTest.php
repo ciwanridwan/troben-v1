@@ -6,7 +6,6 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Database\Seeders\PackagesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Jobs\Packages\Partners\AssignFirstPartnerToPackage;
 
@@ -18,8 +17,6 @@ class AssignFirstPartnerToPackageTest extends TestCase
 
     public function test_on_valid_data()
     {
-        $this->seed(PackagesSeeder::class);
-
         /** @var User $user */
         $user = User::query()->first();
 

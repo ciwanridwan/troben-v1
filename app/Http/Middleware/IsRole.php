@@ -8,25 +8,27 @@ use App\Exceptions\Error;
 use Illuminate\Http\Request;
 use App\Models\Partners\Pivot\UserablePivot;
 
-class isRole
+class IsRole
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
+     * @param $roleName
      * @return mixed
+     * @throws \Throwable
      */
-    public function handle(Request $request, Closure $next, $role_name)
+    public function handle(Request $request, Closure $next, $roleName)
     {
         $partners = $request->user()->partners;
 
-
-        if ($role_name === 'admin') {
+        if ($roleName === 'admin') {
             if ($partners) {
                 if ($request->expectsJson()) {
-                    throw_if(true, Error::make(Response::RC_UNAUTHORIZED));
+                    throw Error::make(Response::RC_UNAUTHORIZED);
                 }
+
                 $role = $partners->pluck('pivot.role')->first();
 
                 return redirect(UserablePivot::getHomeRouteRole($role));

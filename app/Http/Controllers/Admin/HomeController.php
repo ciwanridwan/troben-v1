@@ -38,17 +38,15 @@ class HomeController extends Controller
         $this->rules = [
             'q' => ['nullable'],
         ];
+
         $this->baseBuilder();
     }
-
-
 
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
-
 
         return view('admin.home.index');
     }
