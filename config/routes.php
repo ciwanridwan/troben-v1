@@ -6,8 +6,6 @@
  * @author      veelasky <veelasky@gmail.com>
  */
 
-use App\Models\Partners\Pivot\UserablePivot;
-
 return [
     'groups' => [
         'api' => [
@@ -52,6 +50,7 @@ return [
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Order\ItemRoute::class,
+        App\Http\Routes\Api\Partner\OrderRoute::class,
         /** @inject api **/
     ],
     'admin' => [

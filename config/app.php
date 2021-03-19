@@ -168,6 +168,7 @@ return [
         NotificationChannels\Qontak\QontakServiceProvider::class,
         App\Auditor\AuditorServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
+        \App\Providers\PartnerMatterServiceProvider::class,
 
         /*
          * Application Service Providers...

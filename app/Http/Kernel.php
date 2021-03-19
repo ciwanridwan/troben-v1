@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\EnsureUserHasPartnerWithRole;
+use App\Http\Middleware\EnsureUserHasPartnerWithType;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -64,7 +66,9 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'isUsers' => \App\Http\Middleware\IsUsers::class,
+        'isUser' => \App\Http\Middleware\IsUser::class,
         'isRole' => \App\Http\Middleware\IsRole::class,
+        'partner.role' => EnsureUserHasPartnerWithRole::class,
+        'partner.type' => EnsureUserHasPartnerWithType::class,
     ];
 }

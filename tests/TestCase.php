@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\User;
 use Carbon\Carbon;
 use App\Http\Response;
 use App\Models\Customers\Customer;
@@ -84,5 +85,11 @@ abstract class TestCase extends BaseTestCase
             : Customer::query()->whereNotNull('phone_verified_at')->first();
 
         return $this->verifiedCustomer;
+    }
+
+    public function getUser($types, string $roles): ?User
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return User::partnerRole($types, $roles)->first();
     }
 }

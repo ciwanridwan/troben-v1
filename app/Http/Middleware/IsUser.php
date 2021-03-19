@@ -8,7 +8,7 @@ use App\Exceptions\Error;
 use Illuminate\Http\Request;
 use App\Models\Customers\Customer;
 
-class IsUsers
+class IsUser
 {
     /**
      * Filtering request for users.

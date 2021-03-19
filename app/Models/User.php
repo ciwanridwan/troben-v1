@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
@@ -31,6 +33,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  * @property-read UserablePivot|null pivot
+ * @property-read  \Illuminate\Database\Eloquent\Collection partners
+ * @method static  Builder partnerRole($types, $roles)
  */
 class User extends Authenticatable implements HasOtpToken
 {
@@ -94,5 +98,17 @@ class User extends Authenticatable implements HasOtpToken
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);
+    }
+
+    public function scopePartnerRole(Builder $builder, $types, $roles)
+    {
+        $types = Arr::wrap($types);
+        $roles = Arr::wrap($roles);
+
+        $builder->whereHas(
+            'partners',
+            fn(Builder $builder) => $builder
+                ->whereIn('userables.role', $roles)
+                ->whereIn('type', $types));
     }
 }

@@ -26,7 +26,7 @@ class AssetRoute extends BaseRoute
      *
      * @var array
      */
-    protected $middleware = ['isUsers'];
+    protected $middleware = ['isUser'];
 
     /**
      * Register routes handled by this class.
