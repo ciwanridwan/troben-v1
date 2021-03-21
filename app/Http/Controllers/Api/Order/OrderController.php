@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Response;
 use App\Exceptions\Error;
-use App\Jobs\Packages\UpdateExistingPackage;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +11,7 @@ use App\Models\Customers\Customer;
 use App\Http\Controllers\Controller;
 use App\Jobs\Packages\CreateNewPackage;
 use Illuminate\Database\Eloquent\Builder;
+use App\Jobs\Packages\UpdateExistingPackage;
 use App\Http\Resources\Api\Package\PackageResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 

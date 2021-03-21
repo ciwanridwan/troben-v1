@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Packages;
 
-use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Package;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class UpdateExistingPackage
 {

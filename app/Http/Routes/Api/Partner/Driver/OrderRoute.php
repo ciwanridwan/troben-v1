@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api\Partner\Driver;
 
-use App\Http\Controllers\Api\Partner\Driver\OrderController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Partner\Driver\OrderController;
 
 class OrderRoute extends BaseRoute
 {

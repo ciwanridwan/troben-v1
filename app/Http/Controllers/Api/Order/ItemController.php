@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Order;
 
-use App\Jobs\Packages\Item\CreateNewItemFromExistingPackage;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -11,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use App\Jobs\Packages\Item\CreateNewItemFromExistingPackage;
 
 class ItemController extends Controller
 {
