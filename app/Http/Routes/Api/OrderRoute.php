@@ -24,6 +24,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
+        $this->router->post($this->prefix(), [
+            'as' => $this->name('store'),
+            'uses' => $this->uses('store'),
+        ]);
+
         $this->router->get($this->prefix('{package_hash}'), [
             'as' => $this->name('show'),
             'uses' => $this->uses('show'),
@@ -34,22 +39,17 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('update'),
         ]);
 
-        $this->router->post($this->prefix(), [
-            'as' => $this->name('store'),
-            'uses' => $this->uses('store'),
-        ]);
-
-        $this->router->post($this->prefix('item'), [
+        $this->router->post($this->prefix('{package_hash}/item'), [
             'as' => $this->name('item.store'),
             'uses' => $this->uses('store', ItemController::class),
         ]);
 
-        $this->router->put($this->prefix('item/{item_hash}'), [
+        $this->router->put($this->prefix('{package_hash}/item/{item_hash}'), [
             'as' => $this->name('item.update'),
             'uses' => $this->uses('update', ItemController::class),
         ]);
 
-        $this->router->delete($this->prefix('item/{item_hash}'), [
+        $this->router->delete($this->prefix('{package_hash}/item/{item_hash}'), [
             'as' => $this->name('item.destroy'),
             'uses' => $this->uses('destroy', ItemController::class),
         ]);
