@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Order;
 
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
@@ -57,6 +58,40 @@ class CustomerOrderApiTest extends TestCase
         ];
 
         $response = $this->postJson(route('api.order.store'), $data, $headers);
+
+        $response->assertSuccessful();
+    }
+
+    public function test_can_update_existing_order()
+    {
+        $this->seed(PackagesTableSeeder::class);
+
+        $headers = $this->getCustomersHeader();
+
+        /** @var Package $package */
+        $package = Package::query()->first();
+
+        $services = collect($this->getJson(route('api.service'), $headers)->json('data'));
+        $subDistricts = collect($this->getJson(route('api.geo', ['type' => 'sub_district']))->json('data'));
+
+        $originSubDistrict = $subDistricts->random();
+        $destinationSubDistrict = $subDistricts->where('id', '!=', $originSubDistrict['id'])->random();
+
+        $data = [
+            'service_code' => $services->random()['code'],
+            'sender_name' => $this->faker->name,
+            'sender_phone' => $this->faker->phoneNumber,
+            'sender_address' => $this->faker->address,
+            'receiver_name' => $this->faker->name,
+            'receiver_phone' => $this->faker->phoneNumber,
+            'receiver_address' => $this->faker->address,
+            'origin_regency_id' => $originSubDistrict['regency']['id'],
+            'destination_regency_id' => $destinationSubDistrict['regency']['id'],
+            'destination_district_id' => $destinationSubDistrict['district']['id'],
+            'destination_sub_district_id' => $destinationSubDistrict['id'],
+        ];
+
+        $response = $this->putJson(route('api.order.update', ['package_hash' => $package->hash]), $data);
 
         $response->assertSuccessful();
     }

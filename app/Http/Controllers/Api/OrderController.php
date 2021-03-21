@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\UpdateExistingPackage;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -69,6 +70,36 @@ class OrderController extends Controller
 
         return $this->jsonSuccess(new PackageResource($job->package->load(
             'items',
+            'prices',
+            'origin_regency',
+            'destination_regency',
+            'destination_district',
+            'destination_sub_district')));
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
+     */
+    public function update(Request $request, Package $package): JsonResponse
+    {
+        $inputs = $request->all();
+
+        /** @var Customer $user */
+        $user = $request->user();
+
+        /** @noinspection PhpParamsInspection */
+        /** @noinspection PhpUnhandledExceptionInspection */
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+
+        $job = new UpdateExistingPackage($package, $inputs);
+
+        $this->dispatchNow($job);
+
+        return $this->jsonSuccess(new PackageResource($job->package->load(
             'prices',
             'origin_regency',
             'destination_regency',
