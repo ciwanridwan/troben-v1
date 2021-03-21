@@ -2,8 +2,10 @@
 
 namespace App\Jobs\Packages;
 
+use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Validator;
 
 class UpdateExistingPackage
 {
@@ -16,22 +18,48 @@ class UpdateExistingPackage
      */
     public Package $package;
 
-    /**
-     * Package attributes.
-     *
-     * @var array
-     */
-    protected array $attributes;
+    private array $attributes;
+    private ?bool $isSeparated;
 
     /**
-     * Package item attributes.
-     *
-     * @var array
+     * UpdateExistingPackage constructor.
+     * @param \App\Models\Packages\Package $package
+     * @param array $inputs
+     * @param bool $isSeparated
+     * @throws \Illuminate\Validation\ValidationException
      */
-    protected array $items;
-
-    public function __construct(Package $package, array $attributes, array $items)
+    public function __construct(Package $package, array $inputs, bool $isSeparated = null)
     {
         $this->package = $package;
+
+        $this->attributes = Validator::make($inputs, [
+            'customer_id' => ['nullable', 'exists:customers,id'],
+            'service_code' => ['nullable', 'exists:services,code'],
+            'sender_name' => ['nullable'],
+            'sender_phone' => ['nullable'],
+            'sender_address' => ['nullable'],
+            'receiver_name' => ['nullable'],
+            'receiver_phone' => ['nullable'],
+            'receiver_address' => ['nullable'],
+            'origin_regency_id' => ['nullable'],
+            'destination_regency_id' => ['nullable'],
+            'destination_district_id' => ['nullable'],
+            'destination_sub_district_id' => ['nullable'],
+        ])->validated();
+
+        $this->isSeparated = $isSeparated;
+    }
+
+    public function handle()
+    {
+        if ($this->isSeparated !== null) {
+            $this->package->is_separate_item = $this->isSeparated;
+        }
+
+        $this->package->fill($this->attributes);
+
+        $this->package->save();
+
+        event(new PackageUpdated($this->package));
     }
 }

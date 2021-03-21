@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\Order\ItemController;
 
 class ItemRoute extends BaseRoute
 {
-    protected $prefix = 'order/{package_hash}/item/{item_hash}';
+    protected $prefix = 'order/{package_hash}/item';
 
     protected $name = 'api.order.item';
 
@@ -21,12 +21,17 @@ class ItemRoute extends BaseRoute
     {
         $this->router->bind('item_hash', fn ($hash) => Item::byHashOrFail($hash));
 
-        $this->router->put($this->prefix, [
+        $this->router->post($this->prefix(), [
+            'as' => $this->name('store'),
+            'uses' => $this->uses('store'),
+        ]);
+
+        $this->router->put($this->prefix('{item_hash}'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ]);
 
-        $this->router->delete($this->prefix, [
+        $this->router->delete($this->prefix('{item_hash}'), [
             'as' => $this->name('destroy'),
             'uses' => $this->uses('destroy'),
         ]);
