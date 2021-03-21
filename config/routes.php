@@ -6,8 +6,6 @@
  * @author      veelasky <veelasky@gmail.com>
  */
 
-use App\Models\Partners\Pivot\UserablePivot;
-
 return [
     'groups' => [
         'api' => [
@@ -38,6 +36,8 @@ return [
         App\Http\Routes\DefaultRoute::class,
         App\Http\Routes\FortifyRoute::class,
         /** @inject web **/
+
+        App\Http\Routes\VariableBindingRoute::class,
     ],
     'api' => [
         App\Http\Routes\Api\Auth\AuthRoute::class,
@@ -51,7 +51,8 @@ return [
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
-        App\Http\Routes\Api\Order\ItemRoute::class,
+        App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,
+        \App\Http\Routes\Api\Partner\Driver\OrderRoute::class,
         /** @inject api **/
     ],
     'admin' => [

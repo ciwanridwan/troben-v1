@@ -25,4 +25,11 @@ class Controller extends BaseController
     {
         return (new Response(Response::RC_SUCCESS, $resource))->json($request);
     }
+
+    public function coming(): JsonResponse
+    {
+        return $this->jsonSuccess(new JsonResource([
+            'message' => 'Humming is fun, we\'re still working on it 😘',
+        ]));
+    }
 }

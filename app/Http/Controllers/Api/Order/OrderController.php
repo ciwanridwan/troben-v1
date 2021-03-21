@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Response;
 use App\Exceptions\Error;
