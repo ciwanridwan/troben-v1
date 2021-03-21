@@ -8,6 +8,7 @@ use App\Models\Handling;
 use App\Models\Packages\Package;
 use Database\Seeders\HandlingSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CustomerOrderApiTest extends TestCase

@@ -1,14 +1,12 @@
 <?php
 
-
 namespace App\Jobs\Packages\Item;
 
-
-use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewItemFromExistingPackage
 {

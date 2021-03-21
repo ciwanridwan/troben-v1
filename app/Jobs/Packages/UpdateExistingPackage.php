@@ -4,6 +4,8 @@ namespace App\Jobs\Packages;
 
 use App\Events\Packages\PackageUpdated;
 use App\Models\Packages\Package;
+use App\Events\Packages\PackageUpdated;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 

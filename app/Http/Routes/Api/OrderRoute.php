@@ -3,8 +3,8 @@
 namespace App\Http\Routes\Api;
 
 use Jalameta\Router\BaseRoute;
-use App\Models\Packages\Package;
-use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\Order\ItemController;
+use App\Http\Controllers\Api\Order\OrderController;
 
 class OrderRoute extends BaseRoute
 {
@@ -19,8 +19,6 @@ class OrderRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->bind('package_hash', fn ($hash) => Package::byHashOrFail($hash));
-
         $this->router->get($this->prefix(), [
             'as' => $this->name,
             'uses' => $this->uses('index'),
@@ -39,6 +37,21 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix(), [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
+        ]);
+
+        $this->router->post($this->prefix('item'), [
+            'as' => $this->name('item.store'),
+            'uses' => $this->uses('store', ItemController::class),
+        ]);
+
+        $this->router->put($this->prefix('item/{item_hash}'), [
+            'as' => $this->name('item.update'),
+            'uses' => $this->uses('update', ItemController::class),
+        ]);
+
+        $this->router->delete($this->prefix('item/{item_hash}'), [
+            'as' => $this->name('item.destroy'),
+            'uses' => $this->uses('destroy', ItemController::class),
         ]);
     }
 
