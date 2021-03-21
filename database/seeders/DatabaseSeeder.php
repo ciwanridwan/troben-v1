@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Illuminate\Database\Seeder;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
 
 class DatabaseSeeder extends Seeder
 {

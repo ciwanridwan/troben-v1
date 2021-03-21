@@ -6,11 +6,11 @@ use App\Models\Service;
 use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Geo\SubDistrict;
-use Database\Seeders\GeoTableSimpleSeeder;
-use Database\Seeders\HandlingSeeder;
-use Database\Seeders\ServiceTableSeeder;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
+use Database\Seeders\HandlingSeeder;
+use Database\Seeders\ServiceTableSeeder;
+use Database\Seeders\GeoTableSimpleSeeder;
 
 class PackagesTableSeeder extends Seeder
 {
