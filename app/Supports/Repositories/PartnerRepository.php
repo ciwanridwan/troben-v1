@@ -2,40 +2,44 @@
 
 namespace App\Supports\Repositories;
 
+use App\Exceptions\Error;
+use App\Http\Response;
 use App\Models\User;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use App\Models\Partners\Partner;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Arr;
 
 class PartnerRepository
 {
     private Application $application;
+
+    protected ?string $role = null;
 
     public function __construct(Application $application)
     {
         $this->application = $application;
     }
 
-    /**
-     * get request from container
-     *
-     * @return \Illuminate\Http\Request
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
+    public function scopeRole(string $role)
+    {
+        $this->role = $role;
+    }
+
     private function getRequest(): Request
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         return $this->application->make(Request::class);
     }
 
-    /**
-     * get user from given auth
-     *
-     * @return \App\Models\User|null
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    private function getUser(): ?User
+    protected function getUser(): ?User
     {
         /** @var User $user */
         $user = $this->getRequest()->user();
+
+        /** @noinspection PhpParamsInspection */
+        /** @noinspection PhpUnhandledExceptionInspection */
+        throw_if(! $user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
 
         if (! $user->relationLoaded('partners')) {
             $user->load('partners');
@@ -44,35 +48,49 @@ class PartnerRepository
         return $user;
     }
 
-    /**
-     * @param string $role
-     * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function isAuthorizeByRole(string $role): bool
+    protected function getPartner(): Partner
+    {
+        $partners = $this->getUser()->partners;
+
+        return $partners->first();
+    }
+
+    protected function getRoles(): array
+    {
+        $partners = $this->getUser()->partners;
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        return $partners->pluck('pivot')->map->role->toArray();
+    }
+
+    public function isAuthorizeByRoles($roles): bool
     {
         $user = $this->getUser();
 
         if ($user) {
-            return $user->partners->some('pivot.role', $role);
+            $roles = Arr::wrap($roles);
+
+            return $user->partners->some(fn(Partner $partner) => in_array($partner->pivot->role, $roles));
         }
 
         return false;
     }
 
-    /**
-     * @param string $type
-     * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function isAuthorizeByType(string $type): bool
+    public function isAuthorizeByTypes($types): bool
     {
         $user = $this->getUser();
 
         if ($user) {
-            return $user->partners->some('type', $type);
+            $types = Arr::wrap($types);
+
+            return $user->partners->some(fn(Partner $partner) => in_array($partner->type, $types));
         }
 
         return false;
+    }
+
+    public function queries(): PartnerRepository\Queries
+    {
+        return new PartnerRepository\Queries($this->getPartner(), $this->role);
     }
 }

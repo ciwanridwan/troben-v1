@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \App\Models\Partners\Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
  * @property-read \App\Models\Partners\Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
  * @property-read  \App\Models\User[]|\Illuminate\Database\Eloquent\Collection $users
+ * @property  UserablePivot pivot
  */
 class Partner extends Model
 {
@@ -170,5 +172,10 @@ class Partner extends Model
     public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class, 'partner_id', 'id');
+    }
+
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(Delivery::class, 'partner_id', 'id');
     }
 }

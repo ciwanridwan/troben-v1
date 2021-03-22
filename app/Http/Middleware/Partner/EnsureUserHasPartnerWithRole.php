@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\Partner;
 
+use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,13 @@ class EnsureUserHasPartnerWithRole
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
+        $this->getPartnerRepository()->isAuthorizeByRoles($roles);
+
         return $next($request);
+    }
+
+    private function getPartnerRepository(): PartnerRepository
+    {
+        return app(PartnerRepository::class);
     }
 }

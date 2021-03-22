@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Http\Api\Partner;
+namespace Tests\Http\Api\Partner\Warehouse;
 
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -13,13 +13,15 @@ class OrderApiTest extends TestCase
 
     public bool $seed = true;
 
-    public function test_can_get_order_for_business()
+    public function test_can_get_list_order()
     {
-        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_OWNER);
+        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE);
 
         $this->actingAs($user);
 
-        $response = $this->getJson(route('api.partner.order.index'));
+        $uri = route('api.partner.warehouse.order');
+
+        $response = $this->getJson($uri);
 
         $response->assertOk();
     }

@@ -11,6 +11,12 @@ class OrderRoute extends BaseRoute
 
     protected $name = 'api.partner.warehouse.order';
 
+    protected $middleware = [
+        'partner.type:business,space,pool',
+        'partner.role:warehouse',
+        'partner.scope.role:warehouse',
+    ];
+
     /**
      * Register routes handled by this class.
      *
@@ -20,7 +26,7 @@ class OrderRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('coming'),
+            'uses' => $this->uses('index'),
         ]);
 
         $this->router->post($this->prefix('{package_hash}/item'), [

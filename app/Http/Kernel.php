@@ -2,8 +2,6 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\EnsureUserHasPartnerWithRole;
-use App\Http\Middleware\EnsureUserHasPartnerWithType;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -68,7 +66,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'isUser' => \App\Http\Middleware\IsUser::class,
         'isRole' => \App\Http\Middleware\IsRole::class,
-        'partner.role' => EnsureUserHasPartnerWithRole::class,
-        'partner.type' => EnsureUserHasPartnerWithType::class,
+        'partner.role' => \App\Http\Middleware\Partner\EnsureUserHasPartnerWithRole::class,
+        'partner.type' => \App\Http\Middleware\Partner\EnsureUserHasPartnerWithType::class,
+        'partner.scope.role' => \App\Http\Middleware\Partner\ScopeRole::class,
     ];
 }

@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Support\ServiceProvider;
 
-class PartnerMatterServiceProvider extends ServiceProvider
+class RepositoryRegistrarServiceProvider extends ServiceProvider
 {
     /**
      * Register services.

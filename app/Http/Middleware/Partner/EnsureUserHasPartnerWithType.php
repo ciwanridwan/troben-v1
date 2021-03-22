@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\Partner;
 
+use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,13 @@ class EnsureUserHasPartnerWithType
      */
     public function handle(Request $request, Closure $next, ...$types)
     {
+        $this->getPartnerRepository()->isAuthorizeByTypes($types);
+
         return $next($request);
+    }
+
+    private function getPartnerRepository(): PartnerRepository
+    {
+        return app(PartnerRepository::class);
     }
 }
