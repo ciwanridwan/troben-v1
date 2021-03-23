@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EnsureUserHasPartnerWithRole
 {
@@ -18,7 +19,7 @@ class EnsureUserHasPartnerWithRole
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        $this->getPartnerRepository()->isAuthorizeByRoles($roles);
+        abort_if(! $this->getPartnerRepository()->isAuthorizeByRoles($roles), Response::HTTP_FORBIDDEN);
 
         return $next($request);
     }

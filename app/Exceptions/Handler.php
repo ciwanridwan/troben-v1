@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Http\Response as LaravelResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use App\Http\Response;
 use libphonenumber\NumberParseException;
@@ -57,6 +59,14 @@ class Handler extends ExceptionHandler
             $e = new Error(Response::RC_UNAUTHENTICATED);
         } elseif ($e instanceof NumberParseException) {
             $e = new Error(Response::RC_INVALID_PHONE_NUMBER);
+        } elseif ($e instanceof HttpException) {
+            switch ($e->getStatusCode()) {
+                case LaravelResponse::HTTP_FORBIDDEN:
+                    $e = new Error(Response::RC_UNAUTHORIZED, [], $e);
+                    break;
+                case LaravelResponse::HTTP_UNAUTHORIZED:
+                    $e = new Error(Response::RC_UNAUTHENTICATED, [], $e);
+            }
         }
 
         return parent::render($request, $e);
