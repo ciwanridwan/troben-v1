@@ -2,6 +2,7 @@
 
 namespace Tests\Jobs\Packages\Partners;
 
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Packages\Package;
@@ -17,6 +18,8 @@ class AssignFirstPartnerToPackageTest extends TestCase
 
     public function test_on_valid_data()
     {
+        $this->seed(PackagesTableSeeder::class);
+
         /** @var User $user */
         $user = User::query()->first();
 

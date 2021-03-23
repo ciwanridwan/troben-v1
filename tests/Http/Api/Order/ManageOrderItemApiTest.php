@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Order;
 
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
@@ -13,6 +14,13 @@ class ManageOrderItemApiTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     public bool $seed = true;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(PackagesTableSeeder::class);
+    }
 
     public function test_can_create_item()
     {
