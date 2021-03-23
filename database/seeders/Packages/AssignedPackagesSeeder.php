@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
-use App\Jobs\Packages\Partners\AssignFirstPartnerToPackage;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 
 class AssignedPackagesSeeder extends Seeder
 {

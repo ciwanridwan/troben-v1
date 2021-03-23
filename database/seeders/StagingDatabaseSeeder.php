@@ -3,11 +3,13 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Database\Seeders\Packages\PackagesTableSeeder;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
 
-class DatabaseSeeder extends Seeder
+class StagingDatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      *
      * @return void
      */
@@ -24,6 +26,8 @@ class DatabaseSeeder extends Seeder
             PriceTableSimpleSeeder::class,
             // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
+            PackagesTableSeeder::class,
+            AssignedPackagesSeeder::class,
         ]);
     }
 }

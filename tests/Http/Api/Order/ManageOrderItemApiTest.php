@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Testing\WithFaker;
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ManageOrderItemApiTest extends TestCase
@@ -13,6 +14,13 @@ class ManageOrderItemApiTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     public bool $seed = true;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(PackagesTableSeeder::class);
+    }
 
     public function test_can_create_item()
     {

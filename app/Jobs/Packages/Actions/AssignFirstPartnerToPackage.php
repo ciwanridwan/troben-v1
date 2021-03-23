@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Jobs\Packages\Partners;
+namespace App\Jobs\Packages\Actions;
 
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use App\Jobs\Deliveries\CreateNewDelivery;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class AssignFirstPartnerToPackage
 {
+    use Dispatchable;
+
     /**
      * @var \App\Models\Packages\Package
      */
@@ -46,9 +49,10 @@ class AssignFirstPartnerToPackage
 
         /** @var Delivery $firstDelivery */
         $firstDelivery = $this->package->deliveries()->first();
-
         $firstDelivery->partner()->associate($this->partner);
-
         $firstDelivery->save();
+
+        $this->package->status = Package::STATUS_PENDING;
+        $this->package->save();
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Http\Response;
 use App\Models\Customers\Customer;
 use Illuminate\Testing\TestResponse;
@@ -68,6 +69,12 @@ abstract class TestCase extends BaseTestCase
         $expected = new Response($code);
 
         self::assertEquals($expected->code, $response->json('code'));
+    }
+
+    public function getUser($types, string $roles): ?User
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return User::partnerRole($types, $roles)->first();
     }
 
     /**

@@ -42,19 +42,21 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        Partner::factory(4)->create()->each(function (Partner $partner, int $index) {
+        /** @var User $admin */
+        $admin = User::factory()->create([
+            'username' => 'admin',
+            'phone' => '+625555555555',
+            'email' => 'user@trawlbens.co.id',
+            'verified_at' => Carbon::now(),
+        ]);
+
+        $admin->setAttribute('is_admin', true);
+        $admin->save();
+
+        Partner::factory(4)->create()->each(function (Partner $partner, int $index) use ($admin) {
             if ($index === 0) {
-                // make sure at least one record contain this data.
-
-                /** @var User $user */
-                $user = User::factory()->create([
-                    'username' => 'admin',
-                    'phone' => '+625555555555',
-                    'email' => 'user@trawlbens.co.id',
-                    'verified_at' => Carbon::now(),
-                ]);
-
-                $user->partners()->attach($partner, [
+                // make sure at least one record contain admin.
+                $admin->partners()->attach($partner, [
                     'role' => UserablePivot::ROLE_OWNER,
                 ]);
             }

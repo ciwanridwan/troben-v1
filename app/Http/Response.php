@@ -98,7 +98,6 @@ class Response implements Responsable
             LaravelResponse::HTTP_NOT_FOUND => [
                 self::RC_RESOURCE_NOT_FOUND,
                 self::RC_ROUTE_NOT_FOUND,
-
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
@@ -107,7 +106,6 @@ class Response implements Responsable
                 self::RC_TOKEN_MISMATCH,
                 self::RC_TOKEN_WAS_CLAIMED,
                 self::RC_OUT_OF_RANGE,
-
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
@@ -198,7 +196,7 @@ class Response implements Responsable
     public function toResponse($request)
     {
         if ($request->expectsJson()) {
-            return $this->json();
+            return $this->json($request);
         }
 
         return new LaravelResponse(json_encode($this->getResponseData($request)), $this->resolveHttpCode());

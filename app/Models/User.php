@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Partners\Transporter;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,6 +34,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  * @property-read UserablePivot|null pivot
+ * @property-read  \Illuminate\Database\Eloquent\Collection partners
+ * @property-read  bool $is_admin
+ * @method static  Builder partnerRole($types, $roles)
  */
 class User extends Authenticatable implements HasOtpToken
 {
@@ -94,5 +100,25 @@ class User extends Authenticatable implements HasOtpToken
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);
+    }
+
+    public function transporters(): Relations\MorphToMany
+    {
+        return $this->morphedByMany(Transporter::class, 'userable', 'userables')
+            ->withPivot('id', 'role')
+            ->withTimestamps()
+            ->using(UserablePivot::class);
+    }
+
+    public function scopePartnerRole(Builder $builder, $types, $roles)
+    {
+        $types = Arr::wrap($types);
+        $roles = Arr::wrap($roles);
+
+        $builder->whereHas(
+            'partners',
+            fn (Builder $builder) => $builder
+                ->whereIn('userables.role', $roles)
+                ->whereIn('type', $types));
     }
 }

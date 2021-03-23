@@ -18,15 +18,15 @@ return [
             'prefix' => '',
         ],
         'admin' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth', 'is.admin'],
             'prefix' => 'admin',
         ],
         'cashier' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth', 'partner.role:cashier'],
             'prefix' => 'partner/cashier',
         ],
         'customer_service' => [
-            'middleware' => ['web', 'auth'],
+            'middleware' => ['web', 'auth', "partner.role:customer-service"],
             'prefix' => 'partner/customer-service',
         ]
 
@@ -70,13 +70,11 @@ return [
         /** @inject admin **/
     ],
     'cashier' => [
-
         App\Http\Routes\Partner\Cashier\HomeRoute::class,
         App\Http\Routes\Partner\Cashier\Home\WaitingRoute::class,
         /** @inject cashier **/
     ],
     'customer_service' => [
-
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         /** @inject customer_service **/
     ],

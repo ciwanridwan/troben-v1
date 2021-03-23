@@ -98,6 +98,8 @@ class CustomerOrderApiTest extends TestCase
 
     public function test_can_get_all_list_order()
     {
+        $this->seed(PackagesTableSeeder::class);
+
         $headers = $this->getCustomersHeader();
 
         $url = route('api.order');
@@ -109,6 +111,8 @@ class CustomerOrderApiTest extends TestCase
 
     public function test_can_get_order_detail()
     {
+        $this->seed(PackagesTableSeeder::class);
+
         $headers = $this->getCustomersHeader();
 
         /** @var Package $package */

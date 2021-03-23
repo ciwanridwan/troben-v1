@@ -3,25 +3,22 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Http\Response;
-use App\Exceptions\Error;
 use Illuminate\Http\Request;
-use App\Models\Customers\Customer;
+use Illuminate\Http\Response;
 
-class IsUsers
+class CheckUserIsAdmin
 {
     /**
-     * Filtering request for users.
+     * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed
-     * @throws \Throwable
      */
     public function handle(Request $request, Closure $next)
     {
-        /** @noinspection PhpParamsInspection */
-        throw_if($request->user() instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        abort_if(! $request->user(), Response::HTTP_UNAUTHORIZED);
+        abort_if(! $request->user()->is_admin, Response::HTTP_FORBIDDEN);
 
         return $next($request);
     }
