@@ -2,7 +2,10 @@
 
 namespace App\Models\Partners;
 
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,9 +44,6 @@ class Transporter extends Model
     const TYPE_TRONTON = 'tronton';
     const TYPE_WINGBOX = 'wingbox';
     const TYPE_VAN = 'van';
-
-
-
 
     /**
      * The table associated with the model.
@@ -171,5 +171,18 @@ class Transporter extends Model
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
+    }
+
+    /**
+     * Define `morphToMany` relationship with User Model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function users(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'userable', 'userables')
+            ->withPivot('id', 'role')
+            ->withTimestamps()
+            ->using(UserablePivot::class);
     }
 }

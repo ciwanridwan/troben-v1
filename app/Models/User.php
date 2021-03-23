@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
@@ -95,6 +96,14 @@ class User extends Authenticatable implements HasOtpToken
     public function partners(): Relations\MorphToMany
     {
         return $this->morphedByMany(Partner::class, 'userable', 'userables')
+            ->withPivot('id', 'role')
+            ->withTimestamps()
+            ->using(UserablePivot::class);
+    }
+
+    public function transporters(): Relations\MorphToMany
+    {
+        return $this->morphedByMany(Transporter::class, 'userable', 'userables')
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);

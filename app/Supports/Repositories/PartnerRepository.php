@@ -91,6 +91,6 @@ class PartnerRepository
 
     public function queries(): PartnerRepository\Queries
     {
-        return new PartnerRepository\Queries($this->getPartner(), $this->role);
+        return new PartnerRepository\Queries($this->getUser(), $this->getPartner(), $this->role);
     }
 }
