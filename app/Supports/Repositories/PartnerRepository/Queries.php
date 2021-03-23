@@ -28,14 +28,17 @@ class Queries
     {
         $query = $this->partner->deliveries();
 
-        $this->resolvePersonalizedQuery($query);
+        $this->resolvePersonalizedQueryByRole($query);
 
         return $query;
     }
 
-    protected function resolvePersonalizedQuery(HasMany $deliveriesQueryBuilder): void
+    protected function resolvePersonalizedQueryByRole(HasMany $deliveriesQueryBuilder): void
     {
         switch (true) {
+            case $this->role === UserablePivot::ROLE_CS:
+                $deliveriesQueryBuilder->whereNull('transporter_id');
+                break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder
                     ->whereHas('transporters', fn(Builder $builder) => $builder

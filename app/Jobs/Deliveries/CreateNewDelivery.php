@@ -13,21 +13,12 @@ class CreateNewDelivery
 {
     use Dispatchable;
 
-    /**
-     * @var \App\Models\Deliveries\Delivery
-     */
     public Delivery $delivery;
 
-    private array $inputs;
+    private array $attributes;
 
-    /**
-     * @var \App\Models\Partners\Partner|null
-     */
     private ?Partner $partner;
 
-    /**
-     * @var \App\Models\Partners\Transporter|null
-     */
     private ?Transporter $transporter;
 
     /**
@@ -40,7 +31,7 @@ class CreateNewDelivery
      */
     public function __construct(array $inputs = [], ?Partner $partner = null, ?Transporter $transporter = null)
     {
-        $this->inputs = Validator::make($inputs, [
+        $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Delivery::getAvailableTypes())],
             'status' => ['nullable', Rule::in(Delivery::getAvailableStatus())],
         ])->validated();
@@ -52,7 +43,7 @@ class CreateNewDelivery
 
     public function handle(): void
     {
-        $this->delivery->fill($this->inputs);
+        $this->delivery->fill($this->attributes);
 
         if ($this->partner) {
             $this->delivery->partner()->associate($this->partner);

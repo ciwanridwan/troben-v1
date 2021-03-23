@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Jobs\Packages\Partners\AssignFirstPartnerToPackage;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 
 class AssignFirstPartnerToPackageTest extends TestCase
 {

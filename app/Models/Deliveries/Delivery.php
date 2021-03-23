@@ -10,6 +10,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
+/**
+ * Class Delivery
+ * @package App\Models\Deliveries
+ *
+ * @property int id
+ * @property int partner_id
+ * @property int transporter_id
+ * @property string barcode
+ * @property string type
+ * @property string status
+ * @property int origin_regency_id
+ * @property int origin_district_id
+ * @property int origin_sub_district_id
+ * @property int destination_regency_id
+ * @property int destination_district_id
+ * @property int destination_sub_district_id
+ */
 class Delivery extends Model
 {
     use HashableId, HasBarcode;
