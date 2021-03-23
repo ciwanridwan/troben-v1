@@ -2,13 +2,13 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Http\Response as LaravelResponse;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use App\Http\Response;
 use libphonenumber\NumberParseException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Response as LaravelResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler

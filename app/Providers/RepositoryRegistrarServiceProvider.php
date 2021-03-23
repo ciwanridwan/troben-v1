@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Supports\Repositories\PartnerRepository;
 
 class RepositoryRegistrarServiceProvider extends ServiceProvider
 {

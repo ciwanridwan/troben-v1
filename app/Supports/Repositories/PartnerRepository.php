@@ -2,19 +2,18 @@
 
 namespace App\Supports\Repositories;
 
-use App\Exceptions\Error;
-use App\Http\Response;
 use App\Models\User;
+use App\Http\Response;
+use App\Exceptions\Error;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Partners\Partner;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\Arr;
 
 class PartnerRepository
 {
-    private Application $application;
-
     protected ?string $scopedRole = null;
+    private Application $application;
 
     public function __construct(Application $application)
     {
@@ -27,7 +26,7 @@ class PartnerRepository
     }
 
     /**
-     * get scoped role or will return first of available roles
+     * get scoped role or will return first of available roles.
      *
      * @return string|null
      */
@@ -38,28 +37,6 @@ class PartnerRepository
         }
 
         return $this->scopedRole;
-    }
-
-    private function getRequest(): Request
-    {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        return $this->application->make(Request::class);
-    }
-
-    protected function getUser(): ?User
-    {
-        /** @var User $user */
-        $user = $this->getRequest()->user();
-
-        /** @noinspection PhpParamsInspection */
-        /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
-
-        if (! $user->relationLoaded('partners')) {
-            $user->load('partners');
-        }
-
-        return $user;
     }
 
     public function getPartner(): Partner
@@ -84,7 +61,7 @@ class PartnerRepository
         if ($user) {
             $roles = Arr::wrap($roles);
 
-            return $user->partners->some(fn(Partner $partner) => in_array($partner->pivot->role, $roles));
+            return $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles));
         }
 
         return false;
@@ -97,7 +74,7 @@ class PartnerRepository
         if ($user) {
             $types = Arr::wrap($types);
 
-            return $user->partners->some(fn(Partner $partner) => in_array($partner->type, $types));
+            return $user->partners->some(fn (Partner $partner) => in_array($partner->type, $types));
         }
 
         return false;
@@ -106,5 +83,27 @@ class PartnerRepository
     public function queries(): PartnerRepository\Queries
     {
         return new PartnerRepository\Queries($this->getUser(), $this->getPartner(), $this->scopedRole);
+    }
+
+    protected function getUser(): ?User
+    {
+        /** @var User $user */
+        $user = $this->getRequest()->user();
+
+        /** @noinspection PhpParamsInspection */
+        /** @noinspection PhpUnhandledExceptionInspection */
+        throw_if(! $user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
+
+        if (! $user->relationLoaded('partners')) {
+            $user->load('partners');
+        }
+
+        return $user;
+    }
+
+    private function getRequest(): Request
+    {
+        /** @noinspection PhpUnhandledExceptionInspection */
+        return $this->application->make(Request::class);
     }
 }

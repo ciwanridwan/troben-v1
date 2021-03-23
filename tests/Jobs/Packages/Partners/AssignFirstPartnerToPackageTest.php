@@ -2,11 +2,11 @@
 
 namespace Tests\Jobs\Packages\Partners;
 
-use Database\Seeders\Packages\PackagesTableSeeder;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 

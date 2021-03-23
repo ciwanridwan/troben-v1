@@ -2,10 +2,9 @@
 
 namespace App\Jobs\Deliveries;
 
-
+use Illuminate\Validation\Rule;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class UpdateExistingDelivery
 {

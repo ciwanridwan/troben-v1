@@ -2,8 +2,8 @@
 
 namespace App\Models\Partners;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\User;
+use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;

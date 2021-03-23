@@ -2,11 +2,11 @@
 
 namespace Tests\Http\Api\Order;
 
-use Database\Seeders\Packages\PackagesTableSeeder;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Testing\WithFaker;
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ManageOrderItemApiTest extends TestCase

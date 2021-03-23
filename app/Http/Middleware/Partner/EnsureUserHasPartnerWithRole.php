@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware\Partner;
 
-use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Supports\Repositories\PartnerRepository;
 
 class EnsureUserHasPartnerWithRole
 {

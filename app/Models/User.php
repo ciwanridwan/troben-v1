@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Partners\Transporter;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -117,7 +117,7 @@ class User extends Authenticatable implements HasOtpToken
 
         $builder->whereHas(
             'partners',
-            fn(Builder $builder) => $builder
+            fn (Builder $builder) => $builder
                 ->whereIn('userables.role', $roles)
                 ->whereIn('type', $types));
     }

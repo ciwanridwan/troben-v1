@@ -2,10 +2,10 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use Tests\TestCase;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 class OrderApiTest extends TestCase
 {

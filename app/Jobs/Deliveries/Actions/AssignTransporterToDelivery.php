@@ -2,11 +2,11 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Events\Deliveries\TransporterAssigned;
-use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Deliveries\TransporterAssigned;
 
 class AssignTransporterToDelivery
 {
@@ -30,8 +30,8 @@ class AssignTransporterToDelivery
 
         if ($this->delivery->type === Delivery::TYPE_PICKUP) {
             $this->delivery->packages()->cursor()
-                ->each(fn(Package $package) => $package->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP))
-                ->each(fn(Package $package) => $package->save());
+                ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP))
+                ->each(fn (Package $package) => $package->save());
         }
 
         event(new TransporterAssigned($this->transporter, $this->delivery));

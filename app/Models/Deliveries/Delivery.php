@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Relations;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class Delivery
- * @package App\Models\Deliveries
+ * Class Delivery.
  *
  * @property int id
  * @property int partner_id

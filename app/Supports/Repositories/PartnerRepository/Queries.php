@@ -2,12 +2,11 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
-
+use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Queries
@@ -34,6 +33,18 @@ class Queries
         return $query;
     }
 
+    public function getPackagesQuery(): Builder
+    {
+        $query = Package::query();
+
+        $query->whereHas('deliveries',
+            fn (Builder $builder) => $builder->where('partner_id', $this->partner->id));
+
+        $this->resolvePackagesQueryByRole($query);
+
+        return $query;
+    }
+
     protected function resolveDeliveriesQueryByRole(HasMany $deliveriesQueryBuilder): void
     {
         switch (true) {
@@ -42,22 +53,10 @@ class Queries
                 break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder
-                    ->whereHas('transporters', fn(Builder $builder) => $builder
+                    ->whereHas('transporters', fn (Builder $builder) => $builder
                         ->where('id', $this->user->id));
                 break;
         }
-    }
-
-    public function getPackagesQuery(): Builder
-    {
-        $query = Package::query();
-
-        $query->whereHas('deliveries',
-            fn(Builder $builder) => $builder->where('partner_id', $this->partner->id));
-
-        $this->resolvePackagesQueryByRole($query);
-
-        return $query;
     }
 
     protected function resolvePackagesQueryByRole(Builder $query): void

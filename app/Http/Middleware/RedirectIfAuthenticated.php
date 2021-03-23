@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Supports\Repositories\PartnerRepository;
 
 class RedirectIfAuthenticated
 {

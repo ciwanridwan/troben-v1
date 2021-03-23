@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Supports\Repositories\PartnerRepository;
+use Illuminate\Contracts\Foundation\Application;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class FortifyServiceProvider extends ServiceProvider

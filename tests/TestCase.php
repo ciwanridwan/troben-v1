@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
 use App\Http\Response;
 use App\Models\Customers\Customer;
 use Illuminate\Testing\TestResponse;
@@ -71,6 +71,12 @@ abstract class TestCase extends BaseTestCase
         self::assertEquals($expected->code, $response->json('code'));
     }
 
+    public function getUser($types, string $roles): ?User
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return User::partnerRole($types, $roles)->first();
+    }
+
     /**
      * Get Verified Customer.
      *
@@ -85,11 +91,5 @@ abstract class TestCase extends BaseTestCase
             : Customer::query()->whereNotNull('phone_verified_at')->first();
 
         return $this->verifiedCustomer;
-    }
-
-    public function getUser($types, string $roles): ?User
-    {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return User::partnerRole($types, $roles)->first();
     }
 }

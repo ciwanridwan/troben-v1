@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware\Partner;
 
-use App\Supports\Repositories\PartnerRepository;
 use Closure;
 use Illuminate\Http\Request;
+use App\Supports\Repositories\PartnerRepository;
 
 class ScopeRole
 {
