@@ -26,6 +26,20 @@ class PartnerRepository
         $this->role = $role;
     }
 
+    /**
+     * get scoped role or will return first of available roles
+     *
+     * @return string|null
+     */
+    public function getScopedRole(): ?string
+    {
+        if (! $this->role) {
+            return Arr::first($this->getRoles());
+        }
+
+        return $this->role;
+    }
+
     private function getRequest(): Request
     {
         /** @noinspection PhpUnhandledExceptionInspection */

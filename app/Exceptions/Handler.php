@@ -53,19 +53,26 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        if ($e instanceof ValidationException) {
-            $e = new Error(Response::RC_INVALID_DATA, $e->errors(), $e);
-        } elseif ($e instanceof AuthenticationException) {
-            $e = new Error(Response::RC_UNAUTHENTICATED);
-        } elseif ($e instanceof NumberParseException) {
-            $e = new Error(Response::RC_INVALID_PHONE_NUMBER);
-        } elseif ($e instanceof HttpException) {
-            switch ($e->getStatusCode()) {
-                case LaravelResponse::HTTP_FORBIDDEN:
-                    $e = new Error(Response::RC_UNAUTHORIZED, [], $e);
-                    break;
-                case LaravelResponse::HTTP_UNAUTHORIZED:
-                    $e = new Error(Response::RC_UNAUTHENTICATED, [], $e);
+        // override default laravel error to our own custom error format
+        if ($request->expectsJson()) {
+            if ($e instanceof ValidationException) {
+                $e = new Error(Response::RC_INVALID_DATA, $e->errors(), $e);
+            } elseif ($e instanceof AuthenticationException) {
+                $e = new Error(Response::RC_UNAUTHENTICATED);
+            } elseif ($e instanceof NumberParseException) {
+                $e = new Error(Response::RC_INVALID_PHONE_NUMBER);
+            } elseif ($e instanceof HttpException) {
+                switch ($e->getStatusCode()) {
+                    case LaravelResponse::HTTP_FORBIDDEN:
+                        $e = new Error(Response::RC_UNAUTHORIZED, [], $e);
+                        break;
+                    case LaravelResponse::HTTP_UNAUTHORIZED:
+                        $e = new Error(Response::RC_UNAUTHENTICATED, [], $e);
+                        break;
+                    case LaravelResponse::HTTP_NOT_FOUND:
+                        $e = new Error(Response::RC_ROUTE_NOT_FOUND, [], $e);
+                        break;
+                }
             }
         }
 

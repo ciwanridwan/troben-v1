@@ -35,6 +35,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property \Carbon\Carbon $deleted_at
  * @property-read UserablePivot|null pivot
  * @property-read  \Illuminate\Database\Eloquent\Collection partners
+ * @property-read  bool $is_admin
  * @method static  Builder partnerRole($types, $roles)
  */
 class User extends Authenticatable implements HasOtpToken
