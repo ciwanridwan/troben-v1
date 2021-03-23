@@ -18,7 +18,7 @@ class ScopeRole
      */
     public function handle(Request $request, Closure $next, string $role)
     {
-        $this->getPartnerRepository()->scopeRole($role);
+        $this->getPartnerRepository()->setScopeRole($role);
 
         return $next($request);
     }

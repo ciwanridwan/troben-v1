@@ -14,16 +14,16 @@ class PartnerRepository
 {
     private Application $application;
 
-    protected ?string $role = null;
+    protected ?string $scopedRole = null;
 
     public function __construct(Application $application)
     {
         $this->application = $application;
     }
 
-    public function scopeRole(string $role)
+    public function setScopeRole(string $role)
     {
-        $this->role = $role;
+        $this->scopedRole = $role;
     }
 
     /**
@@ -33,11 +33,11 @@ class PartnerRepository
      */
     public function getScopedRole(): ?string
     {
-        if (! $this->role) {
+        if (! $this->scopedRole) {
             return Arr::first($this->getRoles());
         }
 
-        return $this->role;
+        return $this->scopedRole;
     }
 
     private function getRequest(): Request
@@ -62,14 +62,14 @@ class PartnerRepository
         return $user;
     }
 
-    protected function getPartner(): Partner
+    public function getPartner(): Partner
     {
         $partners = $this->getUser()->partners;
 
         return $partners->first();
     }
 
-    protected function getRoles(): array
+    public function getRoles(): array
     {
         $partners = $this->getUser()->partners;
 
@@ -105,6 +105,6 @@ class PartnerRepository
 
     public function queries(): PartnerRepository\Queries
     {
-        return new PartnerRepository\Queries($this->getUser(), $this->getPartner(), $this->role);
+        return new PartnerRepository\Queries($this->getUser(), $this->getPartner(), $this->scopedRole);
     }
 }
