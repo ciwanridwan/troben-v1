@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Partners\Transporter;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -53,7 +54,9 @@ class UsersTableSeeder extends Seeder
         $admin->setAttribute('is_admin', true);
         $admin->save();
 
-        Partner::factory(4)->create()->each(function (Partner $partner, int $index) use ($admin) {
+        $this->command->info('=> user admin created!');
+
+        $users = Partner::factory(4)->create()->map(function (Partner $partner, int $index) use ($admin) {
             if ($index === 0) {
                 // make sure at least one record contain admin.
                 $admin->partners()->attach($partner, [
@@ -61,16 +64,44 @@ class UsersTableSeeder extends Seeder
                 ]);
             }
 
-            collect(self::COMPOSES[$partner->type])
-                ->each(fn ($role, $key) => $partner
-                    ->users()
-                    ->attach(User::factory()
-                        ->create([
-                            'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
-                            'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
-                            'phone' => '+625555555'.str_pad($index.$key, 3, '0', STR_PAD_LEFT),
-                            'verified_at' => Carbon::now(),
-                        ]), ['role' => $role]));
-        });
+            /** @var Transporter|null $transporter */
+            $transporter = null;
+
+            if ($partner->type === Partner::TYPE_TRANSPORTER || collect(self::COMPOSES[$partner->type])->contains(UserablePivot::ROLE_DRIVER)) {
+                $transporter = Transporter::factory()->state(['partner_id' => $partner->id])->create();
+            }
+
+            return collect(self::COMPOSES[$partner->type])
+                ->map(function ($role, $key) use ($index, $partner, $transporter) {
+                    $data = [
+                        'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)),
+                        'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)) . '@trawlbens.co.id',
+                        'phone' => '+625555555' . str_pad($index . $key, 3, '0', STR_PAD_LEFT),
+                        'verified_at' => Carbon::now(),
+                    ];
+
+                    $user = User::factory()->create($data);
+
+                    $partner->users()->attach($user, ['role' => $role]);
+
+                    if ($transporter && in_array($role, [UserablePivot::ROLE_DRIVER, UserablePivot::ROLE_OWNER])) {
+                        $transporter->users()->attach($user, ['role' => $role]);
+                    }
+
+                    return $user;
+                });
+        })->flatten(1);
+
+        $this->command->info('=> other user created with info : ');
+        $this->command->table(
+            ['username', 'email', 'phone', 'partner', 'role', 'transporter'],
+            $users->map(fn(User $user) => [
+                $user->username,
+                $user->email,
+                $user->phone,
+                $user->partners->pluck('type')->implode(', '),
+                $user->partners->pluck('pivot.role')->implode(', '),
+                $user->transporters->map(fn(Transporter $transporter) => $transporter->registration_number.':'.$transporter->pivot->role)->implode(', '),
+            ]));
     }
 }

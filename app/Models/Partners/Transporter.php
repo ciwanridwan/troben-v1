@@ -16,8 +16,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * @property int $id
  * @property int $partner_id
- * @property string $name
+ * @property string $registration_name
  * @property string $registration_number
+ * @property int $production_year
+ * @property int $registration_year
  * @property string $type
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at

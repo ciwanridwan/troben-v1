@@ -39,12 +39,11 @@ class TransporterFactory extends Factory
         ];
 
         return [
-            'partner_id' => null,
-            'registration_number' => $this->faker->text(5),
-            'production_year' => $this->faker->year,
-            'registration_name' => $this->faker->userName,
-            'registration_year' => $this->faker->year,
-            'type' => $typeMapper[$this->faker->randomKey([0,1,2,3,4,5,6,7,8,9,10,11])],
+            'production_year' => $productionYear = $this->faker->year,
+            'registration_name' => $this->faker->name,
+            'registration_year' => (int) $productionYear + 2,
+            'registration_number' => strtoupper($this->faker->randomLetter.' '.$this->faker->randomNumber(4).' '.$this->faker->randomLetter.$this->faker->randomLetter),
+            'type' => $typeMapper[$this->faker->randomKey(range(0, 9))],
         ];
     }
 }
