@@ -32,7 +32,7 @@ export default {
   props: {
     navigation: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
   components: { subMenu },

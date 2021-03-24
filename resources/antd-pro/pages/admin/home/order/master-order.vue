@@ -5,6 +5,7 @@
         :columns="orderColumns"
         :data-source="items.data"
         :defaultExpandAllRows="true"
+        rowKey="barcode"
       >
         <span slot="order_by" slot-scope="record">
           <a-badge
@@ -18,7 +19,7 @@
         <span slot="address" slot-scope="record">
           <a-timeline :class="['trawl-timeline']">
             <a-timeline-item color="green">
-              <span>{{ record.receiver_address }}</span>
+              <span>{{ record.sender_address }}</span>
             </a-timeline-item>
             <a-timeline-item color="green">
               <span>{{ record.receiver_address }}</span>
@@ -46,13 +47,13 @@
   </content-layout>
 </template>
 <script>
-import { orders } from "../../../../mock";
 import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
 import OrderAssignTransporter from "./order-assign-transporter.vue";
 export default {
+  name: "MasterOrder",
   components: {
     ContentLayout,
     OrderStatus,
@@ -69,8 +70,6 @@ export default {
         per_page: 15
       },
       loading: false,
-      ContentLayout,
-      orders,
       orderColumns
     };
   },

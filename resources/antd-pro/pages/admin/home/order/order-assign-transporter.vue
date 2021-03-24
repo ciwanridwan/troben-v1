@@ -3,8 +3,7 @@
     <a-button
       type="primary"
       class="trawl-button-success"
-      @click="visible = true"
-    >
+      @click="visible = true">
       Assign Mitra
     </a-button>
     <a-modal v-model="visible" :width="840" centered :footer="null">
@@ -106,9 +105,7 @@
               </a-space>
             </a-layout-content>
             <a-layout-footer class="trawl-bg-white" style="padding:24px">
-              <a-button @click="onOk" class="trawl-button-success" block
-                >Tugaskan</a-button
-              >
+              <a-button @click="onOk" class="trawl-button-success" block>Tugaskan</a-button>
             </a-layout-footer>
           </a-layout>
         </a-col>
@@ -123,6 +120,7 @@ import { SendIcon, ReceiveIcon, HomeIcon } from "../../../../components/icons";
 import AddressComponent from "../../../../components/orders/address-component.vue";
 import OrderEstimation from "../../../../components/orders/order-estimation.vue";
 export default {
+  name: 'OrderAssignTransporter',
   components: {
     editButton,
     SendIcon,

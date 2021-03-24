@@ -31,7 +31,7 @@ export default {
   props: {
     navigation: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
   components: { subMenu },
@@ -64,11 +64,6 @@ export default {
     subMenu() {
       return this.transUri(this.menu.children);
     }
-  },
-  data() {
-    return {
-      navigation
-    };
   },
   created() {}
 };

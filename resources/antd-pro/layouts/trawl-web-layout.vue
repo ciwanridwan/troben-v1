@@ -35,6 +35,7 @@ import MainMenuNew from "./aside/main-menu-new.vue";
 import TrawlMainMenu from "./aside/trawl-main-menu.vue";
 import AdminHeaderNew from "./header/admin-header-new.vue";
 import TrawlHeader from "./header/trawl-header.vue";
+
 export default {
   components: {
     asideMenuNew,
@@ -51,7 +52,7 @@ export default {
     },
     navigation: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
   computed: {
@@ -92,7 +93,6 @@ export default {
   },
   data: () => ({
     drawerOpen: false,
-    navigation
   }),
   methods: {
     toggleCollapse() {
