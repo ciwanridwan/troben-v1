@@ -22,11 +22,11 @@ return [
             'prefix' => 'admin',
         ],
         'cashier' => [
-            'middleware' => ['web', 'auth', 'partner.role:cashier'],
+            'middleware' => ['web', 'auth', 'partner.role:cashier', 'partner.scope.role:cashier'],
             'prefix' => 'partner/cashier',
         ],
         'customer_service' => [
-            'middleware' => ['web', 'auth', "partner.role:customer-service"],
+            'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:cashier'],
             'prefix' => 'partner/customer-service',
         ]
 
