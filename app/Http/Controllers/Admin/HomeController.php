@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Response;
-use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Models\Partners\Partner;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
+use App\Models\Partners\Partner;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 
 class HomeController extends Controller
 {
