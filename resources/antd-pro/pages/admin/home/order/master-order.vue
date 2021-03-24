@@ -34,7 +34,7 @@
             <a-col :span="12" class="trawl-text-right">
               <a-space>
                 <a-button type="danger" ghost>Cancel</a-button>
-                <order-assign-transporter></order-assign-transporter>
+                <a-button type="primary" class="trawl-button-success" @click="assignOrder(record)">Assign Mitra</a-button>
               </a-space>
             </a-col>
           </a-row>
@@ -44,6 +44,7 @@
     <template slot="sider">
       <trawl-notification></trawl-notification>
     </template>
+    <order-assign-transporter :order="orderModalObject" :visible="orderModalVisibility" @ok="() => orderModalVisibility = false" />
   </content-layout>
 </template>
 <script>
@@ -70,7 +71,9 @@ export default {
         per_page: 15
       },
       loading: false,
-      orderColumns
+      orderColumns,
+      orderModalVisibility: false,
+      orderModalObject: {}
     };
   },
   methods: {
@@ -80,6 +83,10 @@ export default {
       _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+    },
+    assignOrder(order) {
+      this.orderModalObject = order
+      this.orderModalVisibility = true
     }
   },
   created() {

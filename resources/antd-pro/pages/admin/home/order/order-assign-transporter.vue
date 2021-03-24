@@ -1,12 +1,6 @@
 <template>
   <div>
-    <a-button
-      type="primary"
-      class="trawl-button-success"
-      @click="visible = true">
-      Assign Mitra
-    </a-button>
-    <a-modal v-model="visible" :width="840" centered :footer="null">
+    <a-modal v-model="visible" @cancel="onCancel" :width="840" centered :footer="null">
       <template slot="title">
         <h3><b>Assign Mitra</b></h3>
       </template>
@@ -129,9 +123,18 @@ export default {
     OrderEstimation,
     HomeIcon
   },
+  prop: {
+    order: {
+      type: Object,
+      default: null
+    },
+    visible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
-      visible: false,
       search: null,
       iconSize: 4,
       form: {}
@@ -144,7 +147,10 @@ export default {
   },
   methods: {
     onOk() {
-      this.visible = false;
+      this.$emit('ok')
+    },
+    onCancel() {
+      this.visible = false
     }
   }
 };
