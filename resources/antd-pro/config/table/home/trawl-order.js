@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export default [
   {
     title: "No",
@@ -26,6 +28,9 @@ export default [
   },
   {
     title: "Tanggal Order",
-    dataIndex: "created_at"
+    dataIndex: "created_at",
+    customRender(text) {
+      return moment(text).format('ddd, DD MMM YYYY HH:mm:ss')
+    }
   }
 ];
