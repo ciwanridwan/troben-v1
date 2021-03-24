@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Partners\Transporter;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use App\Models\Partners\Pivot\UserablePivot;
 
 class UsersTableSeeder extends Seeder
@@ -74,9 +74,9 @@ class UsersTableSeeder extends Seeder
             return collect(self::COMPOSES[$partner->type])
                 ->map(function ($role, $key) use ($index, $partner, $transporter) {
                     $data = [
-                        'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)),
-                        'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)) . '@trawlbens.co.id',
-                        'phone' => '+625555555' . str_pad($index . $key, 3, '0', STR_PAD_LEFT),
+                        'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
+                        'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
+                        'phone' => '+625555555'.str_pad($index.$key, 3, '0', STR_PAD_LEFT),
                         'verified_at' => Carbon::now(),
                     ];
 
@@ -95,13 +95,13 @@ class UsersTableSeeder extends Seeder
         $this->command->info('=> other user created with info : ');
         $this->command->table(
             ['username', 'email', 'phone', 'partner', 'role', 'transporter'],
-            $users->map(fn(User $user) => [
+            $users->map(fn (User $user) => [
                 $user->username,
                 $user->email,
                 $user->phone,
                 $user->partners->pluck('type')->implode(', '),
                 $user->partners->pluck('pivot.role')->implode(', '),
-                $user->transporters->map(fn(Transporter $transporter) => $transporter->registration_number.':'.$transporter->pivot->role)->implode(', '),
+                $user->transporters->map(fn (Transporter $transporter) => $transporter->registration_number.':'.$transporter->pivot->role)->implode(', '),
             ]));
     }
 }
