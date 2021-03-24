@@ -2,7 +2,7 @@
   <div>
     <slot name="title" v-if="hasTitleSlot"></slot>
     <h5 v-else>{{ receiver ? "Penerima" : "Pengirim" }}</h5>
-    <slot v-if="hasSlot('people')" slot="people"> </slot>
+    <slot name="people" v-if="hasSlot('people')"> </slot>
     <h5 v-else>
       <b>Faris Ferdian Akbar</b>
     </h5>

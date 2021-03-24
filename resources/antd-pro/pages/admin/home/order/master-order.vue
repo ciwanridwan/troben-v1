@@ -1,6 +1,9 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
+      <modal-assign-transporter :order="orderModalObject" :visible="orderModalVisibility"
+                                @ok="onOk"
+                                @cancel="() => orderModalVisibility = false"/>
       <a-table
         :columns="orderColumns"
         :data-source="items.data"
@@ -44,7 +47,6 @@
     <template slot="sider">
       <trawl-notification></trawl-notification>
     </template>
-    <order-assign-transporter :order="orderModalObject" :visible="orderModalVisibility" @ok="() => orderModalVisibility = false" />
   </content-layout>
 </template>
 <script>
@@ -52,14 +54,14 @@ import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
-import OrderAssignTransporter from "./order-assign-transporter.vue";
+import ModalAssignTransporter from "./modal-assign-transporter.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
     OrderStatus,
     TrawlNotification,
-    OrderAssignTransporter
+    ModalAssignTransporter
   },
   data: () => {
     return {
@@ -87,6 +89,11 @@ export default {
     assignOrder(order) {
       this.orderModalObject = order
       this.orderModalVisibility = true
+    },
+    onOk() {
+      this.orderModalVisibility = false
+
+      this.getItems()
     }
   },
   created() {

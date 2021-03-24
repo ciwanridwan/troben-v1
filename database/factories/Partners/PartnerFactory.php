@@ -39,9 +39,9 @@ class PartnerFactory extends Factory
         return [
             'name' => $this->faker->company,
             'code' => $typeMapper[$no]['code'].'-'.$this->faker->StateAbbr().'-'.$this->faker->unique()->randomDigit(),
-            'contact_email' => null,
-            'contact_phone' => null,
-            'address' => null,
+            'contact_email' => $this->faker->email,
+            'contact_phone' => $this->faker->phoneNumber,
+            'address' => $this->faker->address,
             'geo_location' => null,
             'type' => $typeMapper[$no]['type'],
         ];

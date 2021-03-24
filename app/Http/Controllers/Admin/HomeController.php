@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Response;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Partners\Partner;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
@@ -45,9 +48,20 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
+            $this->query->with('items');
+            $this->query->whereDoesntHave('deliveries');
+
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.home.index');
+    }
+
+    public function orderAssignation(Package $package, Partner $partner): JsonResponse
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
 }
