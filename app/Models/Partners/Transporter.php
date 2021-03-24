@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property \Carbon\Carbon|null $deleted_at
  *
  * @property-read \App\Models\Partners\Partner $partner
+ * @property-read  null|UserablePivot pivot
  */
 class Transporter extends Model
 {

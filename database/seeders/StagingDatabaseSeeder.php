@@ -18,13 +18,10 @@ class StagingDatabaseSeeder extends Seeder
         $this->call([
             UsersTableSeeder::class,
             GeoTableSimpleSeeder::class,
-            // GeoTableImport::class,
-            // PartnerTableImport::class,
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
             HandlingSeeder::class,
             PriceTableSimpleSeeder::class,
-            // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
             PackagesTableSeeder::class,
             AssignedPackagesSeeder::class,
