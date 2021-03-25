@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
