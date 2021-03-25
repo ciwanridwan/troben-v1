@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Actions;
 
+use App\Events\Packages\PartnerAssigned;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
@@ -54,5 +55,7 @@ class AssignFirstPartnerToPackage
 
         $this->package->status = Package::STATUS_PENDING;
         $this->package->save();
+
+        event(new PartnerAssigned($this->package, $this->partner));
     }
 }
