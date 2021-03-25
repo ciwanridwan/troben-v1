@@ -2,9 +2,11 @@
 
 namespace App\Models\Partners;
 
+use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -188,5 +190,10 @@ class Transporter extends Model
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);
+    }
+
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(Delivery::class, 'transporter_id', 'id');
     }
 }

@@ -11,6 +11,12 @@ class OrderRoute extends BaseRoute
 
     protected $name = 'api.partner.driver.order';
 
+    protected $middleware = [
+        'partner.type:business,transporter',
+        'partner.role:driver',
+        'partner.scope.role:driver',
+    ];
+
     /**
      * Register routes handled by this class.
      *
@@ -20,7 +26,7 @@ class OrderRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('coming'),
+            'uses' => $this->uses('index'),
         ]);
 
         // driver go to customer

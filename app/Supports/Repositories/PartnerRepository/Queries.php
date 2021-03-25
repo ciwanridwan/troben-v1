@@ -53,8 +53,10 @@ class Queries
                 break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder
-                    ->whereHas('transporters', fn (Builder $builder) => $builder
-                        ->where('id', $this->user->id));
+                    ->whereHas('transporter', fn (Builder $builder) => $builder
+                        ->whereHas('users', fn(Builder $builder) => $builder
+                            ->where('users.id', $this->user->id)
+                            ->where('userables.role', UserablePivot::ROLE_DRIVER)));
                 break;
         }
     }

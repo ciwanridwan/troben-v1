@@ -82,6 +82,10 @@ class PartnerRepository
 
     public function queries(): PartnerRepository\Queries
     {
+        if (! $this->scopedRole) {
+            throw new \LogicException('no scoped role provided. please use middleware [partner.scope.role] first or specified scope in the process.');
+        }
+
         return new PartnerRepository\Queries($this->getUser(), $this->getPartner(), $this->scopedRole);
     }
 
