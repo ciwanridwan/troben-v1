@@ -16,7 +16,10 @@ echo "Deploying application ..."
     composer install --no-interaction --prefer-dist --optimize-autoloader
 
     # Migrate database
-    php artisan migrate:fresh --seed --force
+    php artisan migrate:fresh --force
+
+    # Seeder db
+    php artisan db:seed --class=StagingDatabaseSeeder
 
     # Patching update
     php artisan patcher:run --force
