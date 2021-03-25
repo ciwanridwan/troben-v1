@@ -13,11 +13,10 @@ use App\Jobs\Packages\CreateNewPackage;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Http\Resources\Api\Package\PackageResource;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OrderController extends Controller
 {
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
         $query = Package::query();
 
@@ -29,7 +28,7 @@ class OrderController extends Controller
 
         $paginate = $query->paginate();
 
-        return PackageResource::collection($paginate);
+        return $this->jsonSuccess(PackageResource::collection($paginate));
     }
 
     public function show(Package $package): JsonResponse
