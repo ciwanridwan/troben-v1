@@ -2,13 +2,13 @@
 
 namespace App\Models\Partners;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\User;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
