@@ -78,6 +78,7 @@ class Transporter extends Model
      */
     protected $casts = [
         'deleted_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     /**

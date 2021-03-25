@@ -12,9 +12,9 @@ class AssignTransporterToDelivery
 {
     use Dispatchable;
 
-    private Delivery $delivery;
+    public Delivery $delivery;
 
-    private Transporter $transporter;
+    public Transporter $transporter;
 
     public function __construct(Delivery $delivery, Transporter $transporter)
     {

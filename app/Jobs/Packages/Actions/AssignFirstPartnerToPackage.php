@@ -20,7 +20,7 @@ class AssignFirstPartnerToPackage
     /**
      * @var \App\Models\Partners\Partner
      */
-    private Partner $partner;
+    public Partner $partner;
 
     public function __construct(Package $package, Partner $partner)
     {

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Packages;
 
+use App\Models\Customers\Customer;
 use App\Models\Service;
 use App\Models\Handling;
 use App\Models\Packages\Item;
@@ -14,6 +15,7 @@ use Database\Seeders\GeoTableSimpleSeeder;
 
 class PackagesTableSeeder extends Seeder
 {
+
     /**
      * Run the database seeds.
      *
@@ -23,9 +25,17 @@ class PackagesTableSeeder extends Seeder
     public function run()
     {
         $this->checkOrSeedDependenciesData();
+        $this->command->info('=> create order for each customer.');
 
-        Package::factory()->count(2)->create()->each(
-            fn (Package $package) => Item::factory()->count(random_int(1, 5))->state(['package_id' => $package->id])->create());
+        Customer::query()->get()->each(
+            fn(Customer $customer) => Package::factory()->count(2)
+                ->state([
+                    'customer_id' => $customer->id,
+                    'sender_name' => $customer->name,
+                ])->create()->each(
+                fn (Package $package) => Item::factory()->count(random_int(1, 5))
+                    ->state(['package_id' => $package->id])->create()))
+            ->each(fn(Customer $customer) => $this->command->warn('=> 2 order created for customer : ' . $customer->name));
     }
 
     private function checkOrSeedDependenciesData()

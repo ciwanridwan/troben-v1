@@ -44,6 +44,8 @@ class TransporterFactory extends Factory
             'registration_year' => (int) $productionYear + 2,
             'registration_number' => strtoupper($this->faker->randomLetter.' '.$this->faker->randomNumber(4).' '.$this->faker->randomLetter.$this->faker->randomLetter),
             'type' => $typeMapper[$this->faker->randomKey(range(0, 9))],
+            'is_verified' => true,
+            'verified_at' => now(),
         ];
     }
 }
