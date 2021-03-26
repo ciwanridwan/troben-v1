@@ -192,6 +192,11 @@ class Transporter extends Model
             ->using(UserablePivot::class);
     }
 
+    public function drivers(): MorphToMany
+    {
+        return $this->users()->where('userables.role', UserablePivot::ROLE_DRIVER);
+    }
+
     public function deliveries(): HasMany
     {
         return $this->hasMany(Delivery::class, 'transporter_id', 'id');
