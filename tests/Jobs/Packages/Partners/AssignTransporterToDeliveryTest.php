@@ -2,15 +2,15 @@
 
 namespace Tests\Jobs\Packages\Partners;
 
-use App\Jobs\Deliveries\Actions\AssignTransporterToDelivery;
-use App\Models\Deliveries\Delivery;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\User;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
+use App\Jobs\Deliveries\Actions\AssignTransporterToDelivery;
 
 class AssignTransporterToDeliveryTest extends TestCase
 {
@@ -46,6 +46,6 @@ class AssignTransporterToDeliveryTest extends TestCase
             'status' => Delivery::STATUS_ACCEPTED,
         ]);
 
-        $this->assertTrue($transporter->deliveries()->whereHas('packages', fn(Builder $builder) => $builder->where('id', $package->id)) !== null);
+        $this->assertTrue($transporter->deliveries()->whereHas('packages', fn (Builder $builder) => $builder->where('id', $package->id)) !== null);
     }
 }
