@@ -1,15 +1,18 @@
 _id: env_308da0400dbf446bad244fa9177371a4
 type: Environment
 parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
-modified: 1613755258362
+modified: 1616748098934
 created: 1612370393603
 name: Staging
 data:
-  base_url: https://api.staging.trawlbens.co.id/
+  base_url: https://api.staging.trawlbens.co.id
   credentials:
     customer:
       phone: "+625555555555"
       email: customer@trawlbens.co.id
+      password: password
+    driver:
+      email: mb-driver@trawlbens.co.id
       password: password
 dataPropertyOrder:
   "&":
@@ -17,8 +20,12 @@ dataPropertyOrder:
     - credentials
   "&~|credentials":
     - customer
+    - driver
   "&~|credentials~|customer":
     - phone
+    - email
+    - password
+  "&~|credentials~|driver":
     - email
     - password
 color: "#7d69cb"
