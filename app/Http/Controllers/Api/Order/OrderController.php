@@ -18,7 +18,7 @@ class OrderController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Package::query();
+        $query = $request->user()->packages();
 
         $query->when($request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -31,10 +31,18 @@ class OrderController extends Controller
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }
 
+    /**
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function show(Package $package): JsonResponse
     {
+        $this->authorize('view', $package);
+
         return $this->jsonSuccess(new PackageResource($package->load(
             'items',
+            'deliveries.transporter.drivers',
             'prices',
             'origin_regency',
             'destination_regency',
@@ -85,6 +93,8 @@ class OrderController extends Controller
      */
     public function update(Request $request, Package $package): JsonResponse
     {
+        $this->authorize('update', $package);
+
         $inputs = $request->all();
 
         /** @var Customer $user */

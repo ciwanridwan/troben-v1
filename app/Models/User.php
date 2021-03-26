@@ -67,6 +67,12 @@ class User extends Authenticatable implements HasOtpToken
         'password',
         'remember_token',
         'deleted_at',
+        'is_admin',
+        'phone_verified_at',
+        'email_verified_at',
+        'verified_at',
+        'created_at',
+        'updated_at',
     ];
 
     /**

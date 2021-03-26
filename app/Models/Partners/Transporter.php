@@ -99,6 +99,12 @@ class Transporter extends Model
      */
     protected $hidden = [
         'id',
+        'partner_id',
+        'is_verified',
+        'verified_at',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
 

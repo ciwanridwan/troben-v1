@@ -30,8 +30,9 @@ class AssignTransporterToDelivery
 
         if ($this->delivery->type === Delivery::TYPE_PICKUP) {
             $this->delivery->packages()->cursor()
-                ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP))
-                ->each(fn (Package $package) => $package->save());
+                ->each(fn (Package $package) => $package
+                    ->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP)
+                    ->save());
         }
 
         event(new TransporterAssigned($this->transporter, $this->delivery));
