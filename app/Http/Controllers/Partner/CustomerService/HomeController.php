@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Partner\CustomerService;
 
-use App\Concerns\Controllers\HasResource;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Jobs\Deliveries\Actions\AssignTransporterToDelivery;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Packages\Package;
+use Illuminate\Http\JsonResponse;
+use App\Models\Deliveries\Delivery;
+use App\Http\Controllers\Controller;
+use App\Models\Partners\Transporter;
+use App\Concerns\Controllers\HasResource;
+use Illuminate\Database\Eloquent\Builder;
+use App\Supports\Repositories\PartnerRepository;
+use App\Jobs\Deliveries\Actions\AssignTransporterToDelivery;
 
 class HomeController extends Controller
 {
@@ -43,7 +43,6 @@ class HomeController extends Controller
 
     public function index(Request $request, PartnerRepository $partnerRepository)
     {
-
         if ($request->expectsJson()) {
             $this->query = $partnerRepository->queries()->getDeliveriesQuery()->getQuery();
 
@@ -54,8 +53,8 @@ class HomeController extends Controller
                 $this->getResource();
                 $this->query = $this->query->whereHas('drivers', function ($query) use ($request) {
                     $query->where(function ($query) use ($request) {
-                        $query->where('name', 'LIKE', '%' . $request->q . "%");
-                        $query->orWhere('transporters.registration_name', 'LIKE', '%' . $request->q . "%");
+                        $query->where('name', 'LIKE', '%'.$request->q.'%');
+                        $query->orWhere('transporters.registration_name', 'LIKE', '%'.$request->q.'%');
                     });
                 })->with('drivers');
             } else {
@@ -64,6 +63,7 @@ class HomeController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
+
         return view('partner.customer-service.home.index');
     }
 

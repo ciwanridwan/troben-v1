@@ -2,17 +2,17 @@
 
 namespace App\Http\Routes\Partner\CustomerService;
 
-use App\Http\Controllers\Partner\CustomerService\OrderController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Partner\CustomerService\OrderController;
 
 class OrderRoute extends BaseRoute
 {
     /**
      * @var string
      */
-    protected $name = "partner.customer_service.order";
+    protected $name = 'partner.customer_service.order';
 
-    protected $prefix = "/partner/customer-service";
+    protected $prefix = '/partner/customer-service';
 
     /**
      * Register routes handled by this class.
@@ -23,7 +23,7 @@ class OrderRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name('pickup'),
-            'uses' => $this->uses('index')
+            'uses' => $this->uses('index'),
         ]);
     }
 

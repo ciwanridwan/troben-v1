@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Partner\CustomerService;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
