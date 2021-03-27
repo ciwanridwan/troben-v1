@@ -1,9 +1,9 @@
-@extends('antd::partner-cashier-layout')
+@extends('antd::partner-customer-service-layout')
 
 @section('title')
     Home
 @endsection
 
 @section('content')
-    <cashier-master-order></cashier-master-order>
+    <customer-service-master-order></customer-service-master-order>
 @endsection

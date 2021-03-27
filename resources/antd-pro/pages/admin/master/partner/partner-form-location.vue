@@ -172,8 +172,6 @@ export default {
       this.form.zip_code = this.zip_code;
     }
   },
-  created() {
-    console.log(this.geo);
-  }
+  created() {}
 };
 </script>

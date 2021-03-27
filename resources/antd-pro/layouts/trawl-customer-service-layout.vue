@@ -20,6 +20,7 @@ export default {
     slotKeys() {
       return Object.keys(this.$slots);
     }
-  }
+  },
+  mounted() {}
 };
 </script>

@@ -48,7 +48,6 @@ export default {
   },
   methods: {
     hasSlot(key) {
-      console.log(this.$slots);
       return !!this.$slots[key];
     }
   }

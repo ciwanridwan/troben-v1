@@ -122,9 +122,7 @@ export default {
         message: error.response.data.message + " " + message
       });
     },
-    handleInput() {
-      console.log(this.form);
-    }
+    handleInput() {}
   },
   created() {
     this.form = { ...this.employeeData };

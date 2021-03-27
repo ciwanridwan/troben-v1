@@ -26,7 +26,7 @@ return [
             'prefix' => 'partner/cashier',
         ],
         'customer_service' => [
-            'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:cashier'],
+            'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:customer-service'],
             'prefix' => 'partner/customer-service',
         ]
 
@@ -76,6 +76,7 @@ return [
     ],
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
+        App\Http\Routes\Partner\CustomerService\OrderRoute::class,
         /** @inject customer_service **/
     ],
 

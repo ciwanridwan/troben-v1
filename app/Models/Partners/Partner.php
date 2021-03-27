@@ -178,4 +178,9 @@ class Partner extends Model
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
     }
+
+    public function drivers(): MorphToMany
+    {
+        return $this->users()->where('userables.role', UserablePivot::ROLE_DRIVER);
+    }
 }
