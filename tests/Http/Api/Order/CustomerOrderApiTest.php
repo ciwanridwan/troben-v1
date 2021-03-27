@@ -5,6 +5,7 @@ namespace Tests\Http\Api\Order;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
+use App\Models\Customers\Customer;
 use Database\Seeders\HandlingSeeder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
@@ -66,12 +67,15 @@ class CustomerOrderApiTest extends TestCase
     {
         $this->seed(PackagesTableSeeder::class);
 
-        $headers = $this->getCustomersHeader();
+        /** @var Customer $customer */
+        $customer = Customer::query()->first();
+
+        $this->actingAs($customer);
 
         /** @var Package $package */
-        $package = Package::query()->first();
+        $package = $customer->packages()->first();
 
-        $services = collect($this->getJson(route('api.service'), $headers)->json('data'));
+        $services = collect($this->getJson(route('api.service'))->json('data'));
         $subDistricts = collect($this->getJson(route('api.geo', ['type' => 'sub_district']))->json('data'));
 
         $originSubDistrict = $subDistricts->random();
@@ -113,14 +117,17 @@ class CustomerOrderApiTest extends TestCase
     {
         $this->seed(PackagesTableSeeder::class);
 
-        $headers = $this->getCustomersHeader();
+        /** @var Customer $customer */
+        $customer = Customer::query()->first();
+
+        $this->actingAs($customer);
 
         /** @var Package $package */
-        $package = Package::query()->inRandomOrder()->first();
+        $package = $customer->packages()->first();
 
         $url = route('api.order.show', ['package_hash' => $package->hash]);
 
-        $response = $this->getJson($url, $headers);
+        $response = $this->getJson($url);
 
         $response->assertSuccessful();
 

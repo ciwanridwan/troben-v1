@@ -38,5 +38,6 @@ class AssignFirstPartnerToPackageTest extends TestCase
 
         // get first partner
         $this->assertEquals($partner->fresh(), $job->package->deliveries()->first()->partner);
+        $this->assertSame(Package::STATUS_PENDING, $package->fresh()->status);
     }
 }

@@ -45,6 +45,9 @@ class AssignFirstPartnerToPackage
 
             $job->delivery->packages()->attach($this->package);
 
+            $this->package->status = Package::STATUS_PENDING;
+            $this->package->save();
+
             return;
         }
 
@@ -53,9 +56,14 @@ class AssignFirstPartnerToPackage
         $firstDelivery->partner()->associate($this->partner);
         $firstDelivery->save();
 
-        $this->package->status = Package::STATUS_PENDING;
-        $this->package->save();
+        $this->updatePackageStatusToPending();
 
         event(new PartnerAssigned($this->package, $this->partner));
+    }
+
+    public function updatePackageStatusToPending()
+    {
+        $this->package->status = Package::STATUS_PENDING;
+        $this->package->save();
     }
 }
