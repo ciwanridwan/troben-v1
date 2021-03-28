@@ -2,17 +2,17 @@
 
 namespace App\Models\Partners;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\User;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Transporter model.
@@ -207,7 +207,7 @@ class Transporter extends Model
 
     public function deliveries(): HasManyThrough
     {
-        $morphAlias = array_flip(Relation::$morphMap)[Transporter::class] ?? Transporter::class;
+        $morphAlias = array_flip(Relation::$morphMap)[self::class] ?? self::class;
 
         return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'userable_id', 'userable_id', 'id', 'id')
             ->where('userables.userable_type', $morphAlias);

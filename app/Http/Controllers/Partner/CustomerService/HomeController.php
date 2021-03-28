@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Partner\CustomerService;
 
 use App\Http\Response;
-use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +12,7 @@ use App\Models\Partners\Transporter;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
+use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 
 class HomeController extends Controller
 {

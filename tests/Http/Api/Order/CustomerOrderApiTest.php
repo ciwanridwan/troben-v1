@@ -2,17 +2,17 @@
 
 namespace Tests\Http\Api\Order;
 
-use App\Models\Partners\Transporter;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Illuminate\Database\Eloquent\Builder;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
+use App\Models\Partners\Transporter;
 use Database\Seeders\HandlingSeeder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
 
 class CustomerOrderApiTest extends TestCase
 {
@@ -122,7 +122,7 @@ class CustomerOrderApiTest extends TestCase
         $this->seed(AssignedPackagesSeeder::class);
 
         /** @var Customer $customer */
-        $customer = Customer::query()->whereHas('packages', fn(Builder $builder) => $builder->where('status', Package::STATUS_WAITING_FOR_PICKUP))->first();
+        $customer = Customer::query()->whereHas('packages', fn (Builder $builder) => $builder->where('status', Package::STATUS_WAITING_FOR_PICKUP))->first();
 
         $this->actingAs($customer);
 

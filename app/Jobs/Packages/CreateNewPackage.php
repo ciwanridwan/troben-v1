@@ -4,12 +4,12 @@ namespace App\Jobs\Packages;
 
 use App\Models\Handling;
 use App\Models\Packages\Item;
+use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
-use App\Events\Packages\PackageCreated;
 use App\Models\Partners\Transporter;
+use App\Events\Packages\PackageCreated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Validation\Rule;
 
 class CreateNewPackage
 {

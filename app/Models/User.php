@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
