@@ -6,8 +6,10 @@ use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageCreated;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Validation\Rule;
 
 class CreateNewPackage
 {
@@ -55,6 +57,7 @@ class CreateNewPackage
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
+            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['required'],

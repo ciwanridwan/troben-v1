@@ -4,8 +4,6 @@ namespace Tests\Http\Api\Partner\Driver;
 
 use Tests\TestCase;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 
@@ -20,8 +18,7 @@ class OrderApiTest extends TestCase
         $this->seed(AssignedPackagesSeeder::class);
 
         /** @var User $user */
-        $user = User::query()->whereHas('transporters',
-            fn (Builder $builder) => $builder->where('userables.role', UserablePivot::ROLE_DRIVER)->whereHas('deliveries'))->first();
+        $user = User::query()->whereHas('deliveries')->first();
 
         $this->actingAs($user);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Partner\CustomerService;
 
 use App\Http\Response;
+use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -12,11 +13,11 @@ use App\Models\Partners\Transporter;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
-use App\Jobs\Deliveries\Actions\AssignTransporterToDelivery;
 
 class HomeController extends Controller
 {
     use HasResource;
+
     /**
      * @var array
      */
@@ -67,12 +68,12 @@ class HomeController extends Controller
         return view('partner.customer-service.home.index');
     }
 
-    public function orderAssignation($delivery, $transporter): JsonResponse
+    public function orderAssignation(Delivery $delivery, Transporter $transporter): JsonResponse
     {
-        $delivery = (new Delivery())->byHash($delivery);
-        $transporter = (new Transporter())->byHash($transporter);
+        /** @var \App\Models\User $driver */
+        $driver = $transporter->drivers->first();
 
-        $job = new AssignTransporterToDelivery($delivery, $transporter);
+        $job = new AssignDriverToDelivery($delivery, $driver->pivot);
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();

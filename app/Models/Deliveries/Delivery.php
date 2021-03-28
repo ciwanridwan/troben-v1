@@ -5,7 +5,8 @@ namespace App\Models\Deliveries;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Concerns\Models\HasBarcode;
-use App\Models\Partners\Transporter;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -15,7 +16,6 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  *
  * @property int id
  * @property int partner_id
- * @property int transporter_id
  * @property string barcode
  * @property string type
  * @property string status
@@ -25,6 +25,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int destination_regency_id
  * @property int destination_district_id
  * @property int destination_sub_district_id
+ * @property-read Partner partner
  */
 class Delivery extends Model
 {
@@ -55,7 +56,7 @@ class Delivery extends Model
      */
     protected $fillable = [
         'partner_id',
-        'transporter_id',
+        'userable_id',
         'barcode',
         'type',
         'status',
@@ -74,7 +75,7 @@ class Delivery extends Model
     protected $hidden = [
         'id',
         'partner_id',
-        'transporter_id',
+        'userable_id',
         'origin_regency_id',
         'origin_district_id',
         'origin_sub_district_id',
@@ -128,8 +129,13 @@ class Delivery extends Model
         return $this->belongsTo(Partner::class);
     }
 
-    public function transporter(): Relations\BelongsTo
+    public function assigned_to(): Relations\BelongsTo
     {
-        return $this->belongsTo(Transporter::class);
+        return $this->belongsTo(UserablePivot::class, 'userable_id', 'id');
+    }
+
+    public function driver(): Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(User::class, UserablePivot::class, 'id', 'id', 'userable_id', 'user_id');
     }
 }

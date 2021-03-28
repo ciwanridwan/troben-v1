@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Packages;
 
+use App\Models\Partners\Transporter;
 use App\Models\Service;
 use App\Models\Handling;
 use App\Models\Packages\Item;
@@ -31,6 +32,8 @@ class PackagesTableSeeder extends Seeder
                 ->state([
                     'customer_id' => $customer->id,
                     'sender_name' => $customer->name,
+                    'service_code' => Service::TRAWLPACK_STANDARD,
+                    'transporter_type' => Transporter::TYPE_BIKE,
                 ])->create()->each(
                 fn (Package $package) => Item::factory()->count(random_int(1, 5))
                     ->state(['package_id' => $package->id])->create()))

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
@@ -115,6 +116,11 @@ class User extends Authenticatable implements HasOtpToken
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);
+    }
+
+    public function deliveries(): Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'user_id', 'userable_id', 'id', 'id');
     }
 
     public function scopePartnerRole(Builder $builder, $types, $roles)

@@ -24,6 +24,7 @@ class StagingDatabaseSeeder extends Seeder
             PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
             PackagesTableSeeder::class,
+            TransportersTableSeeder::class,
             AssignedPackagesSeeder::class,
         ]);
     }

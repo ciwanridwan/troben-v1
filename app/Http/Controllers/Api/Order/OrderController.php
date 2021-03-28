@@ -42,7 +42,8 @@ class OrderController extends Controller
 
         return $this->jsonSuccess(new PackageResource($package->load(
             'items',
-            'deliveries.transporter.drivers',
+            'deliveries.assigned_to.userable',
+            'deliveries.assigned_to.user',
             'prices',
             'origin_regency',
             'destination_regency',

@@ -42,13 +42,13 @@ import OrderModalResi from "../../cashier/home/order/order-modal-resi.vue";
 import orderModal from "../../cashier/home/order/order-modal.vue";
 
 export default {
+  name: 'CustomerServiceMasterOrder',
   components: {
     orderModal,
     OrderModalResi,
     TrawlNotification,
     ContentLayout,
     ModalAssignTransporter,
-    ModalAssignTransporter
   },
   data() {
     return {

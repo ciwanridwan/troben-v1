@@ -169,6 +169,11 @@ class Partner extends Model
             ->using(UserablePivot::class);
     }
 
+    public function drivers(): MorphToMany
+    {
+        return $this->users()->wherePivot('role', UserablePivot::ROLE_DRIVER);
+    }
+
     public function inventories(): HasMany
     {
         return $this->hasMany(Inventory::class, 'partner_id', 'id');
@@ -177,10 +182,5 @@ class Partner extends Model
     public function deliveries(): HasMany
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
-    }
-
-    public function drivers(): MorphToMany
-    {
-        return $this->users()->where('userables.role', UserablePivot::ROLE_DRIVER);
     }
 }

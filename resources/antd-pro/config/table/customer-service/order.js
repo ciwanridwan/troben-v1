@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default [
   {
     title: "No",
@@ -41,7 +43,7 @@ export default [
         attrs: {
           colSpan: 2
         },
-        children: text
+        children: moment(text).format('ddd, DD MMM YYYY HH:mm:ss')
       };
     }
   }

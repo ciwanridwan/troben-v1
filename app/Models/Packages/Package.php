@@ -27,6 +27,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $customer_id
  * @property string $barcode
  * @property string $service_code
+ * @property string $transporter_type
+ * @property string $sender_name
+ * @property string $sender_phone
+ * @property string $sender_address
  * @property string $receiver_phone
  * @property string $receiver_name
  * @property string $receiver_address
@@ -56,6 +60,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payments\Payment[] $payments
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
+ * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
  */
 class Package extends Model
 {
@@ -99,6 +104,7 @@ class Package extends Model
     protected $fillable = [
         'customer_id',
         'service_code',
+        'transporter_type',
         'sender_name',
         'sender_phone',
         'sender_address',

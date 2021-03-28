@@ -2,7 +2,6 @@
 
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -20,7 +19,7 @@ class CreateDeliveriesTable extends Migration
             $table->id();
 
             $table->foreignIdFor(Partner::class)->nullable()->constrained()->nullOnDelete();
-            $table->foreignIdFor(Transporter::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('userable_id')->nullable()->constrained('userables')->nullOnDelete();
 
             $table->string('barcode');
             $table->enum('type', Delivery::getAvailableTypes());

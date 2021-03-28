@@ -4,11 +4,13 @@ namespace App\Jobs\Deliveries\Actions;
 
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
+use App\Models\User;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Deliveries\TransporterAssigned;
 
-class AssignTransporterToDelivery
+class AssignDriverToDelivery
 {
     use Dispatchable;
 
@@ -16,15 +18,32 @@ class AssignTransporterToDelivery
 
     public Transporter $transporter;
 
-    public function __construct(Delivery $delivery, Transporter $transporter)
+    /**
+     * @var \App\Models\User
+     */
+    public User $driver;
+
+    /**
+     * @var \App\Models\Partners\Pivot\UserablePivot
+     */
+    private UserablePivot $userablePivot;
+
+    public function __construct(Delivery $delivery, UserablePivot $userablePivot)
     {
         $this->delivery = $delivery;
-        $this->transporter = $transporter;
+        $this->userablePivot = $userablePivot;
+
+        if (! $userablePivot->userable instanceof Transporter) {
+            throw new \LogicException('chosen userable must be one that morph '.Transporter::class.' model');
+        }
+
+        $this->transporter = $userablePivot->userable;
+        $this->driver = $userablePivot->user;
     }
 
     public function handle()
     {
-        $this->delivery->transporter()->associate($this->transporter);
+        $this->delivery->assigned_to()->associate($this->userablePivot);
         $this->delivery->status = Delivery::STATUS_ACCEPTED;
         $this->delivery->save();
 

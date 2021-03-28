@@ -4,8 +4,10 @@ namespace App\Jobs\Packages;
 
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageUpdated;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Validation\Rule;
 
 class UpdateExistingPackage
 {
@@ -35,6 +37,7 @@ class UpdateExistingPackage
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['nullable', 'exists:customers,id'],
             'service_code' => ['nullable', 'exists:services,code'],
+            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['nullable'],
             'sender_phone' => ['nullable'],
             'sender_address' => ['nullable'],

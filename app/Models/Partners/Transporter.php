@@ -2,13 +2,14 @@
 
 namespace App\Models\Partners;
 
-use App\Models\User;
 use App\Models\Deliveries\Delivery;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  *
  * @property-read \App\Models\Partners\Partner $partner
  * @property-read  null|UserablePivot pivot
+ * @property-read  \Illuminate\Database\Eloquent\Collection drivers
  */
 class Transporter extends Model
 {
@@ -137,7 +139,7 @@ class Transporter extends Model
      *
      * @return array
      */
-    public static function getDetailAvailableTypes()
+    public static function getDetailAvailableTypes(): array
     {
         return [
             [
@@ -200,11 +202,14 @@ class Transporter extends Model
 
     public function drivers(): MorphToMany
     {
-        return $this->users()->where('userables.role', UserablePivot::ROLE_DRIVER);
+        return $this->users()->wherePivot('role', UserablePivot::ROLE_DRIVER);
     }
 
-    public function deliveries(): HasMany
+    public function deliveries(): HasManyThrough
     {
-        return $this->hasMany(Delivery::class, 'transporter_id', 'id');
+        $morphAlias = array_flip(Relation::$morphMap)[Transporter::class] ?? Transporter::class;
+
+        return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'userable_id', 'userable_id', 'id', 'id')
+            ->where('userables.userable_type', $morphAlias);
     }
 }

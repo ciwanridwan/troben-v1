@@ -2,6 +2,9 @@
 
 namespace Tests\Http\Api\Order;
 
+use App\Models\Partners\Transporter;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
+use Illuminate\Database\Eloquent\Builder;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
@@ -36,6 +39,7 @@ class CustomerOrderApiTest extends TestCase
 
         $data = [
             'service_code' => $services->random()['code'],
+            'transporter_type' => Transporter::TYPE_BIKE,
             'sender_name' => $this->faker->name,
             'sender_phone' => $this->faker->phoneNumber,
             'sender_address' => $this->faker->address,
@@ -115,15 +119,15 @@ class CustomerOrderApiTest extends TestCase
 
     public function test_can_get_order_detail()
     {
-        $this->seed(PackagesTableSeeder::class);
+        $this->seed(AssignedPackagesSeeder::class);
 
         /** @var Customer $customer */
-        $customer = Customer::query()->first();
+        $customer = Customer::query()->whereHas('packages', fn(Builder $builder) => $builder->where('status', Package::STATUS_WAITING_FOR_PICKUP))->first();
 
         $this->actingAs($customer);
 
         /** @var Package $package */
-        $package = $customer->packages()->first();
+        $package = $customer->packages()->where('status', Package::STATUS_WAITING_FOR_PICKUP)->first();
 
         $url = route('api.order.show', ['package_hash' => $package->hash]);
 

@@ -39,7 +39,7 @@ class TransporterFactory extends Factory
         ];
 
         return [
-            'production_year' => $productionYear = $this->faker->year,
+            'production_year' => $productionYear = $this->faker->numberBetween(2010, now()->year),
             'registration_name' => $this->faker->name,
             'registration_year' => (int) $productionYear + 2,
             'registration_number' => strtoupper($this->faker->randomLetter.' '.$this->faker->randomNumber(4).' '.$this->faker->randomLetter.$this->faker->randomLetter),

@@ -2,19 +2,22 @@
 
 namespace App\Models\Partners\Pivot;
 
+use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Builder;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
-use Illuminate\Database\Eloquent\Relations\MorphPivot;
+use Illuminate\Database\Eloquent\Relations;
 
 /**
  * Class UserablePivot.
  *
- * @property  int $id
- * @property  string $role
+ * @property  int id
+ * @property  string role
+ * @property-read  User user
+ * @property-read  \App\Models\Partners\Partner|\App\Models\Partners\Transporter userable
  */
-class UserablePivot extends MorphPivot
+class UserablePivot extends Relations\MorphPivot
 {
     use HashableId;
 
@@ -89,14 +92,19 @@ class UserablePivot extends MorphPivot
         return $route[$roleName];
     }
 
-    public function userable()
+    public function userable(): Relations\MorphTo
     {
         return $this->morphTo();
     }
 
-    public function user()
+    public function user(): Relations\BelongsTo
     {
-        return $this->hasOne(User::class, 'id', 'user_id')->where('deleted_at', null);
+        return $this->belongsTo(User::class, 'user_id', 'id')->where('deleted_at');
+    }
+
+    public function deliveries(): Relations\HasMany
+    {
+        return $this->hasMany(Delivery::class);
     }
 
     protected static function boot()
