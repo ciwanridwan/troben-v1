@@ -2,12 +2,12 @@
 
 namespace App\Models\Partners\Pivot;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Builder;
-use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Class UserablePivot.

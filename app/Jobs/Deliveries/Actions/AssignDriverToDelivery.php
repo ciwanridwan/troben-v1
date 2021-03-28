@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
-use App\Models\User;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Events\Deliveries\TransporterAssigned;
 
 class AssignDriverToDelivery

@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Packages;
 
+use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
-use App\Events\Packages\PackageUpdated;
 use App\Models\Partners\Transporter;
+use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Validation\Rule;
 
 class UpdateExistingPackage
 {

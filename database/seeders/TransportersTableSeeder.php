@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\Partners\Transporter;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Seeder;
 
 class TransportersTableSeeder extends Seeder
 {
@@ -36,10 +36,10 @@ class TransportersTableSeeder extends Seeder
         $this->prepareSeederDependency();
 
         Partner::query()->with([
-            'users' => fn(MorphToMany $query) => $query->wherePivot('role', UserablePivot::ROLE_DRIVER)
+            'users' => fn (MorphToMany $query) => $query->wherePivot('role', UserablePivot::ROLE_DRIVER),
         ])
             ->get()
-            ->each(fn(Partner $partner) => $this->createTransporters($partner, $partner->users));
+            ->each(fn (Partner $partner) => $this->createTransporters($partner, $partner->users));
 
         $this->command->table([
             'number',
@@ -56,9 +56,9 @@ class TransportersTableSeeder extends Seeder
 
     public function createTransporters(Partner $partner, Collection $drivers)
     {
-        $transporters = collect(self::COMPOSES[$partner->type] ?? [])->map(fn($transporterType) => Transporter::factory()->state([
+        $transporters = collect(self::COMPOSES[$partner->type] ?? [])->map(fn ($transporterType) => Transporter::factory()->state([
             'partner_id' => $partner->id,
-            'type' => $transporterType
+            'type' => $transporterType,
         ])->create());
 
         $transporters->each(function (Transporter $transporter, $index) use ($drivers) {
@@ -66,7 +66,7 @@ class TransportersTableSeeder extends Seeder
             $driver = $drivers->get($reasonableKeyForDriver);
 
             $transporter->users()->attach($driver, [
-                'role' => UserablePivot::ROLE_DRIVER
+                'role' => UserablePivot::ROLE_DRIVER,
             ]);
         });
     }

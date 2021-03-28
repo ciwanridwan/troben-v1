@@ -2,15 +2,15 @@
 
 namespace Database\Seeders\Packages;
 
-use App\Models\Partners\Transporter;
-use Database\Seeders\TransportersTableSeeder;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
-use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use Illuminate\Database\Eloquent\Builder;
+use Database\Seeders\TransportersTableSeeder;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 
 class AssignedPackagesSeeder extends Seeder
 {
@@ -26,12 +26,12 @@ class AssignedPackagesSeeder extends Seeder
                 ->tap(fn () => $this->command->getOutput()->info('Begin assign partner'))
                 ->tap(fn () => $this->command->info('=> filtering only packages that has transporter type that available in partners'))
                 ->filter(function (Package $package) use ($partnerQuery) {
-                    return $partnerQuery->whereHas('transporters', fn(Builder $builder) => $builder
+                    return $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
                         ->where('type', $package->transporter_type))
                         ->exists();
                 })
                 ->map(function (Package $package) use ($partnerQuery) {
-                    $partner = $partnerQuery->whereHas('transporters', fn(Builder $builder) => $builder
+                    $partner = $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
                         ->where('type', $package->transporter_type))
                         ->first();
 
