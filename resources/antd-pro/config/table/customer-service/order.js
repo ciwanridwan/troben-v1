@@ -21,15 +21,18 @@ export default [
   },
   {
     title: "Armada",
-    dataIndex: "transporter",
+    dataIndex: "type",
     key: "transporter",
     scopedSlots: { customRender: "transporter" }
   },
   {
     title: "Lokasi Penjemputan",
-    dataIndex: "sender_address",
     key: "sender_address",
-    scopedSlots: { customRender: "sender_address" }
+    customRender: (text, row, index) => {
+      return {
+        children: row.packages[0].sender_address
+      };
+    }
   },
   {
     title: "Tanggal Order",
@@ -43,7 +46,7 @@ export default [
         attrs: {
           colSpan: 2
         },
-        children: moment(text).format('ddd, DD MMM YYYY HH:mm:ss')
+        children: moment(text).format("ddd, DD MMM YYYY HH:mm:ss")
       };
     }
   }
