@@ -6,8 +6,8 @@ use App\Models\Packages\Item;
 use Jalameta\Router\BaseRoute;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class VariableBindingRoute extends BaseRoute
 {

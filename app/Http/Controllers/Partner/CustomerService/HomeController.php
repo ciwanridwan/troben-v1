@@ -8,12 +8,11 @@ use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
-use App\Models\Partners\Transporter;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
-use App\Models\Partners\Pivot\UserablePivot;
 
 class HomeController extends Controller
 {
@@ -51,7 +50,7 @@ class HomeController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             if ($request->has('transporter')) {
-                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->type);
                 })->with('transporters', function ($query) use ($request) {
                     $query->where('type', $request->type);
