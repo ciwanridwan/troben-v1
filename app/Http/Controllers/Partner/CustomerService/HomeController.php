@@ -13,6 +13,7 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class HomeController extends Controller
 {
@@ -50,14 +51,12 @@ class HomeController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             if ($request->has('transporter')) {
-                $this->query = $partnerRepository->getPartner()->transporters()->getQuery();
+                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
+                    $query->where('type', $request->type);
+                })->with('transporters', function ($query) use ($request) {
+                    $query->where('type', $request->type);
+                });
                 $this->getResource();
-                $this->query = $this->query->whereHas('drivers', function ($query) use ($request) {
-                    $query->where(function ($query) use ($request) {
-                        $query->where('name', 'LIKE', '%'.$request->q.'%');
-                        $query->orWhere('transporters.registration_name', 'LIKE', '%'.$request->q.'%');
-                    });
-                })->with('drivers');
             } else {
                 $this->getResource();
             }
@@ -68,12 +67,9 @@ class HomeController extends Controller
         return view('partner.customer-service.home.index');
     }
 
-    public function orderAssignation(Delivery $delivery, Transporter $transporter): JsonResponse
+    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
-        /** @var \App\Models\User $driver */
-        $driver = $transporter->drivers->first();
-
-        $job = new AssignDriverToDelivery($delivery, $driver->pivot);
+        $job = new AssignDriverToDelivery($delivery, $userablePivot);
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();

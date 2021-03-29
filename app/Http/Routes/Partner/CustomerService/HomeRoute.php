@@ -29,7 +29,7 @@ class HomeRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->patch($this->prefix('{delivery_hash}/{transporter_hash}/assign'), [
+        $this->router->patch($this->prefix('{delivery_hash}/{userable_hash}/assign'), [
             'as' => $this->name('assign'),
             'uses' => $this->uses('orderAssignation'),
         ]);

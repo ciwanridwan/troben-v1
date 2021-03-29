@@ -80,9 +80,9 @@
                   v-model="chosenTransporter"
                 >
                   <a-row type="flex" :gutter="[0, 24]">
-                    <template v-for="transporter in items.data">
+                    <template v-for="driver in items.data">
                       <a-col
-                        v-for="(driver, index) in transporter.drivers"
+                        v-for="(transporter, index) in driver.transporters"
                         :span="24"
                         :key="`transporter-` + index"
                       >
@@ -107,7 +107,8 @@
                               </h4>
                             </a-col>
                             <a-col :span="2" class="trawl-text-right">
-                              <a-radio :value="transporter.hash"> </a-radio>
+                              <a-radio :value="transporter.pivot.hash">
+                              </a-radio>
                             </a-col>
                           </a-row>
                         </a-card>
@@ -196,7 +197,7 @@ export default {
     search: {
       immediate: false,
       handler() {
-        this.getTransporters(this.search);
+        this.getTransporters(this.search, this.order.type);
       }
     }
   },
@@ -204,7 +205,7 @@ export default {
     onOk() {
       this.save({
         delivery_hash: this.order.hash,
-        transporter_hash: this.chosenTransporter
+        userable_hash: this.chosenTransporter
       }).then(() => {
         this.$emit("ok");
         this.onCancel();
@@ -217,7 +218,7 @@ export default {
     onVisible() {
       this.visible = true;
       this.search = null;
-      this.getTransporters();
+      this.getTransporters(null, this.order.type);
     }
   }
 };

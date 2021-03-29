@@ -42,13 +42,13 @@ import OrderModalResi from "../../cashier/home/order/order-modal-resi.vue";
 import orderModal from "../../cashier/home/order/order-modal.vue";
 
 export default {
-  name: 'CustomerServiceMasterOrder',
+  name: "CustomerServiceMasterOrder",
   components: {
     orderModal,
     OrderModalResi,
     TrawlNotification,
     ContentLayout,
-    ModalAssignTransporter,
+    ModalAssignTransporter
   },
   data() {
     return {
@@ -59,18 +59,20 @@ export default {
     };
   },
   methods: {
-    getTransporters: _.debounce(function(search = null) {
+    getTransporters: _.debounce(function(search = null, type = null) {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), {
           params: {
             transporter: true,
+            type: type,
             per_page: 2,
             q: search
           }
         })
         .then(({ data: responseData }) => {
           this.transporters = responseData;
+          console.log(this.transporters);
         })
         .finally(() => (this.loading = false));
     }),
@@ -80,7 +82,6 @@ export default {
 
       _.forEach(this.items.data, o => {
         o.number = numbering++;
-        console.log(o);
       });
     },
     async save(data = {}) {
