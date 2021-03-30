@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Deliveries;
 
-use App\Models\Deliveries\Delivery;
 use App\Events\Deliveries\Pickup;
+use App\Models\Deliveries\Delivery;
 
 class UpdateDeliveryStatusByEvent
 {

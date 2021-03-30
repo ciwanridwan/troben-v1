@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api\Partner\Driver\Order;
 
-use App\Http\Controllers\Api\Partner\Driver\Order\PickupController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Partner\Driver\Order\PickupController;
 
 class PickupRoute extends BaseRoute
 {

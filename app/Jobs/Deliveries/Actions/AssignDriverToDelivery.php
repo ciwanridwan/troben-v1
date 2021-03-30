@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
+use App\Events\Deliveries\DriverAssigned;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Partners\Pivot\UserablePivot;
-use App\Events\Deliveries\DriverAssigned;
 
 class AssignDriverToDelivery
 {

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\Partner\Driver\Order;
 
-use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
+use Illuminate\Http\JsonResponse;
+use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
-use App\Models\Deliveries\Delivery;
-use Illuminate\Http\JsonResponse;
+use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
+use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
+use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
 class PickupController extends Controller
 {
