@@ -66,13 +66,5 @@ class PickupApiTest extends TestCase
         Event::assertDispatched(PackageLoadedByDriver::class);
         Event::assertDispatched(DriverArrivedAtWarehouse::class);
         Event::assertDispatched(DriverUnloadedPackageInWarehouse::class);
-        Event::assertListening(PackageLoadedByDriver::class, [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
-        ]);
-        Event::assertListening(DriverUnloadedPackageInWarehouse::class, [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
-        ]);
     }
 }
