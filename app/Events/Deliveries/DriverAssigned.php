@@ -4,10 +4,10 @@ namespace App\Events\Deliveries;
 
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 

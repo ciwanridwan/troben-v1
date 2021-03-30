@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
-use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
+use App\Listeners\Packages\UpdatePackageStatusByEvent;
+use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
