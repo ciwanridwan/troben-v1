@@ -8,7 +8,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Partners\Pivot\UserablePivot;
-use App\Events\Deliveries\TransporterAssigned;
+use App\Events\Deliveries\DriverAssigned;
 
 class AssignDriverToDelivery
 {
@@ -54,6 +54,6 @@ class AssignDriverToDelivery
                     ->save());
         }
 
-        event(new TransporterAssigned($this->transporter, $this->delivery));
+        event(new DriverAssigned($this->delivery, $this->userablePivot));
     }
 }

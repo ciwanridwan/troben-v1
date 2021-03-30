@@ -53,6 +53,7 @@ return [
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,
         \App\Http\Routes\Api\Partner\Driver\OrderRoute::class,
+        App\Http\Routes\Api\Partner\Driver\Order\PickupRoute::class,
         /** @inject api **/
     ],
     'admin' => [

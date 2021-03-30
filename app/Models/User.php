@@ -38,6 +38,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read  \Illuminate\Database\Eloquent\Collection partners
  * @property-read  bool $is_admin
  * @property-read  \Illuminate\Database\Eloquent\Collection transporters
+ * @property-read  \Illuminate\Database\Eloquent\Collection deliveries
  * @method static  Builder partnerRole($types, $roles)
  */
 class User extends Authenticatable implements HasOtpToken

@@ -1,22 +1,16 @@
 <?php
 
-namespace App\Events\Deliveries;
+namespace App\Events\Deliveries\Pickup;
 
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Queue\SerializesModels;
 
-class TransporterAssigned
+class PackageLoadedByDriver
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    /**
-     * @var \App\Models\Partners\Transporter
-     */
-    public Transporter $transporter;
 
     /**
      * @var \App\Models\Deliveries\Delivery
@@ -26,12 +20,10 @@ class TransporterAssigned
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\Partners\Transporter $transporter
      * @param \App\Models\Deliveries\Delivery $delivery
      */
-    public function __construct(Transporter $transporter, Delivery $delivery)
+    public function __construct(Delivery $delivery)
     {
-        $this->transporter = $transporter;
         $this->delivery = $delivery;
     }
 
