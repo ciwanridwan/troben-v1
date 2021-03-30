@@ -1,9 +1,9 @@
 _id: req_aa346c7db2a0427aa1d144ebec28f85d
 type: Request
 parentId: fld_87926dfa6e154807a1d1a57c89e1bc22
-modified: 1617095746463
+modified: 1617130235474
 created: 1617095302848
-url: "{{ _.base_url }}/partner/driver/order/{% response 'body',
+url: "{{ _.base_url }}/partner/driver/order/pickup/{% response 'body',
   'req_b1c953261dd7407ba141519c6296b972', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
   'never', 60 %}/arrived"
 name: Driver Arrived at Pickup Point

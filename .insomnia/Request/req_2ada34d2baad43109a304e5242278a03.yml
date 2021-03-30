@@ -1,9 +1,9 @@
 _id: req_2ada34d2baad43109a304e5242278a03
 type: Request
 parentId: fld_87926dfa6e154807a1d1a57c89e1bc22
-modified: 1617096006571
+modified: 1617130061822
 created: 1617095991404
-url: "{{ _.base_url }}/partner/driver/order/{% response 'body',
+url: "{{ _.base_url }}/partner/driver/order/pickup/{% response 'body',
   'req_da9e99107f2140aeae69bee5055fb663', 'b64::JC5kYXRhLmhhc2g=::46b',
   'no-history', 60 %}/unloaded"
 name: Package Unloaded by Driver
