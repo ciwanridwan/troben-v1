@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Partner\Driver;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 
@@ -15,7 +15,7 @@ class OrderController extends Controller
     {
         $query = $repository->queries()->getDeliveriesQuery();
 
-        $query->when($request->input('delivery_status'), fn(Builder $builder, $input) => $builder->where('status', $input));
+        $query->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
 
         $query->with('packages');
 

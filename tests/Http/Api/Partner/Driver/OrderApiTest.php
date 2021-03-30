@@ -2,9 +2,9 @@
 
 namespace Tests\Http\Api\Partner\Driver;
 
-use App\Models\Deliveries\Delivery;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 

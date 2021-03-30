@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
-use App\Events\Packages\PackageEstimatedByWarehouse;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Models\Packages\Package;
 use Illuminate\Http\Request;
+use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Supports\Repositories\PartnerRepository;
+use App\Http\Resources\Api\Package\PackageResource;
+use App\Events\Packages\PackageEstimatedByWarehouse;
 
 class OrderController extends Controller
 {

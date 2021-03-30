@@ -2,16 +2,16 @@
 
 namespace Tests\Listeners;
 
-use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
-use App\Events\Packages\PackageEstimatedByWarehouse;
-use App\Listeners\Packages\UpdatePackageStatusByEvent;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Packages\Package;
+use App\Models\Deliveries\Delivery;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Events\Packages\PackageEstimatedByWarehouse;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
+use App\Listeners\Packages\UpdatePackageStatusByEvent;
+use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
+use Database\Seeders\Packages\FinishedDeliveriesSeeder;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
 class UpdatePackageStatusByEventTest extends TestCase
 {
@@ -62,12 +62,6 @@ class UpdatePackageStatusByEventTest extends TestCase
             ]));
     }
 
-    /** @noinspection PhpIncompatibleReturnTypeInspection */
-    private function getDelivery(): Delivery
-    {
-        return Delivery::query()->whereNotNull('userable_id')->first();
-    }
-
     public function test_on_event_package_estimated_by_warehouse()
     {
         $this->seed(FinishedDeliveriesSeeder::class);
@@ -84,5 +78,11 @@ class UpdatePackageStatusByEventTest extends TestCase
             'id' => $package->id,
             'status' => Package::STATUS_ESTIMATED,
         ]);
+    }
+
+    /** @noinspection PhpIncompatibleReturnTypeInspection */
+    private function getDelivery(): Delivery
+    {
+        return Delivery::query()->whereNotNull('userable_id')->first();
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api\Partner\Warehouse\Order;
 
-use App\Http\Controllers\Api\Partner\Warehouse\Order\ItemController;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Partner\Warehouse\Order\ItemController;
 
 class ItemRoute extends BaseRoute
 {

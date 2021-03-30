@@ -2,13 +2,13 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use App\Events\Packages\PackageEstimatedByWarehouse;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use App\Models\Partners\Partner;
+use Illuminate\Support\Facades\Event;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Events\Packages\PackageEstimatedByWarehouse;
+use Database\Seeders\Packages\FinishedDeliveriesSeeder;
 
 class OrderApiTest extends TestCase
 {
