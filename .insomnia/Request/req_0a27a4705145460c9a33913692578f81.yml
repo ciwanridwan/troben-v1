@@ -1,10 +1,10 @@
-_id: req_b1c953261dd7407ba141519c6296b972
+_id: req_0a27a4705145460c9a33913692578f81
 type: Request
-parentId: fld_61d187534f4c4bcaa155fb829180202d
-modified: 1616775735164
-created: 1616747958906
-url: "{{ _.base_url }}/partner/driver/order"
-name: List Order
+parentId: fld_698665bd05ce4007bcebb511c9edefe5
+modified: 1617096339769
+created: 1617096271063
+url: "{{ _.base_url }}/me"
+name: Me
 description: ""
 method: GET
 body: {}
@@ -17,9 +17,9 @@ headers:
 authentication:
   type: bearer
   prefix: ""
-  token: "{% response 'body', 'req_a14289d3f9934173a9fe0cab4f5204a9',
+  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450185.5
+metaSortKey: -1613198450160.5
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
