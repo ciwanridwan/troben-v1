@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\Partner\Owner;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Supports\Repositories\PartnerRepository;
+use App\Http\Resources\Api\Package\PackageResource;
 
 class OrderController extends Controller
 {

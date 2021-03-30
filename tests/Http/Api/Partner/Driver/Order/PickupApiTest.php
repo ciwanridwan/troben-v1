@@ -2,17 +2,15 @@
 
 namespace Tests\Http\Api\Partner\Driver\Order;
 
-use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
-use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
-use App\Listeners\Packages\UpdatePackageStatusByEvent;
-use App\Models\User;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
+use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
+use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
+use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
 class PickupApiTest extends TestCase
 {
