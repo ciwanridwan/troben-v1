@@ -29,24 +29,9 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->post($this->prefix('{package_hash}/item'), [
-            'as' => $this->name('item.store'),
-            'uses' => $this->uses('coming'),
-        ]);
-
-        $this->router->put($this->prefix('{package_hash}/item/{item_hash}'), [
-            'as' => $this->name('item.update'),
-            'uses' => $this->uses('coming'),
-        ]);
-
-        $this->router->delete($this->prefix('{package_hash}/item/{item_hash}'), [
-            'as' => $this->name('item.destroy'),
-            'uses' => $this->uses('coming'),
-        ]);
-
         $this->router->patch($this->prefix('{package_hash}/estimated'), [
             'as' => $this->name('estimated'),
-            'uses' => $this->uses('coming'),
+            'uses' => $this->uses('estimated'),
         ]);
     }
 

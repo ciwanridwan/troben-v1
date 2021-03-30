@@ -73,6 +73,7 @@ class Package extends Model
     public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
     public const STATUS_PICKED_UP = 'picked_up';
     public const STATUS_ESTIMATING = 'estimating';
+    public const STATUS_ESTIMATED = 'estimated';
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
     public const STATUS_ACCEPTED = 'accepted';
     public const STATUS_IN_TRANSIT = 'in_transit';
@@ -172,6 +173,7 @@ class Package extends Model
             self::STATUS_WAITING_FOR_PICKUP,
             self::STATUS_PICKED_UP,
             self::STATUS_ESTIMATING,
+            self::STATUS_ESTIMATED,
             self::STATUS_WAITING_FOR_APPROVAL,
             self::STATUS_ACCEPTED,
             self::STATUS_IN_TRANSIT,

@@ -26,6 +26,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int destination_district_id
  * @property int destination_sub_district_id
  * @property-read Partner partner
+ * @property-read \Illuminate\Database\Eloquent\Collection packages
  */
 class Delivery extends Model
 {

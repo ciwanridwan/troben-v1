@@ -65,6 +65,9 @@ class Queries
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
                 $query->where('status', Package::STATUS_ESTIMATING);
                 break;
+            case $this->role === UserablePivot::ROLE_CASHIER:
+                $query->where('status', Package::STATUS_ESTIMATED);
+                break;
         }
     }
 }

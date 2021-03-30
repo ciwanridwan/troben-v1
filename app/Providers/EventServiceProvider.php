@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\Packages\PackageEstimatedByWarehouse;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -43,6 +44,9 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
         ],
+        PackageEstimatedByWarehouse::class => [
+            UpdatePackageStatusByEvent::class,
+        ]
     ];
 
     /**

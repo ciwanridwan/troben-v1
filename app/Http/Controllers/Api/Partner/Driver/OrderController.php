@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Driver;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -13,6 +14,8 @@ class OrderController extends Controller
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
         $query = $repository->queries()->getDeliveriesQuery();
+
+        $query->when($request->input('delivery_status'), fn(Builder $builder, $input) => $builder->where('status', $input));
 
         $query->with('packages');
 

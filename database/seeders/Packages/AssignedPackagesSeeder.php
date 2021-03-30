@@ -23,7 +23,7 @@ class AssignedPackagesSeeder extends Seeder
         self::setModelGuarded(
             fn () => Package::query()->take((int) ceil(Package::query()->count() / 2))->get()
                 // assign to partner
-                ->tap(fn () => $this->command->getOutput()->info('Begin assign partner'))
+                ->tap(fn () => $this->command->getOutput()->info('Begin assigning partner'))
                 ->tap(fn () => $this->command->info('=> filtering only packages that has transporter type that available in partners'))
                 ->filter(function (Package $package) use ($partnerQuery) {
                     return $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
@@ -41,7 +41,7 @@ class AssignedPackagesSeeder extends Seeder
                 ->each(fn (AssignFirstPartnerToPackage $job) => $this->command->warn('=> package from '.$job->package->sender_name.' assigned to partner '.$job->partner->name))
                 ->take(ceil(Package::query()->count() / 4))
                 // assign to transporter
-                ->tap(fn () => $this->command->getOutput()->info('Begin assign driver'))
+                ->tap(fn () => $this->command->getOutput()->info('Begin assigning driver'))
                 ->map(function (AssignFirstPartnerToPackage $job, $index) {
                     $delivery = $job->package->deliveries()->first();
                     $matchedTransporters = $job->partner->transporters()->where('type', $job->package->transporter_type)->get();

@@ -6,8 +6,6 @@ use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
 use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
-use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
-use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Models\User;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,25 +36,25 @@ class PickupApiTest extends TestCase
 
         Event::fake();
 
-        $response = $this->patchJson(route('api.partner.driver.order.arrived', [
+        $response = $this->patchJson(route('api.partner.driver.order.pickup.arrived', [
             'delivery_hash' => $deliveryHash,
         ]));
 
         $response->assertSuccessful();
 
-        $response = $this->patchJson(route('api.partner.driver.order.loaded', [
+        $response = $this->patchJson(route('api.partner.driver.order.pickup.loaded', [
             'delivery_hash' => $deliveryHash,
         ]));
 
         $response->assertSuccessful();
 
-        $response = $this->patchJson(route('api.partner.driver.order.finished', [
+        $response = $this->patchJson(route('api.partner.driver.order.pickup.finished', [
             'delivery_hash' => $deliveryHash,
         ]));
 
         $response->assertSuccessful();
 
-        $response = $this->patchJson(route('api.partner.driver.order.unloaded', [
+        $response = $this->patchJson(route('api.partner.driver.order.pickup.unloaded', [
             'delivery_hash' => $deliveryHash,
         ]));
 
