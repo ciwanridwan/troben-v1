@@ -30,16 +30,14 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
         ],
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
+            //
         ],
         DeliveryPickup\PackageLoadedByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
         ],
         DeliveryPickup\DriverArrivedAtWarehouse::class => [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
+            //
         ],
         DeliveryPickup\DriverUnloadedPackageInWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,

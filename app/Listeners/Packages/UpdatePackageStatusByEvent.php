@@ -19,14 +19,14 @@ class UpdatePackageStatusByEvent
             case $event instanceof Pickup\PackageLoadedByDriver:
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_WITH_COURIER)->save() ||
-                        $event->delivery->packages()->updateExistingPivot($package, ['is_onboard' => true]));
+                    ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_PICKED_UP)->save())
+                    ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', true)->save());
                 break;
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_ESTIMATING)->save() ||
-                        $event->delivery->packages()->updateExistingPivot($package, ['is_onboard' => false]));
+                    ->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_ESTIMATING)->save())
+                    ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', false)->save());
                 break;
         }
     }

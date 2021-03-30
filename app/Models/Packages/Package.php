@@ -61,6 +61,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
+ * @property-read null|DeliveryPackagePivot pivot
  */
 class Package extends Model
 {
@@ -70,6 +71,7 @@ class Package extends Model
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
     public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
+    public const STATUS_PICKED_UP = 'picked_up';
     public const STATUS_ESTIMATING = 'estimating';
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
     public const STATUS_ACCEPTED = 'accepted';
@@ -164,9 +166,11 @@ class Package extends Model
     public static function getAvailableStatuses(): array
     {
         return [
+            self::STATUS_CANCEL,
             self::STATUS_CREATED,
             self::STATUS_PENDING,
             self::STATUS_WAITING_FOR_PICKUP,
+            self::STATUS_PICKED_UP,
             self::STATUS_ESTIMATING,
             self::STATUS_WAITING_FOR_APPROVAL,
             self::STATUS_ACCEPTED,
