@@ -1,10 +1,10 @@
-_id: req_b1c953261dd7407ba141519c6296b972
+_id: req_8993f94fce4b4ff998d23668135804b2
 type: Request
-parentId: fld_61d187534f4c4bcaa155fb829180202d
-modified: 1616775735164
-created: 1616747958906
-url: "{{ _.base_url }}/partner/driver/order"
-name: List Order
+parentId: fld_e5ec1990b49f484aaf7dfde5dce53676
+modified: 1617090461041
+created: 1617090436879
+url: "{{ _.base_url }}/me"
+name: Me
 description: ""
 method: GET
 body: {}

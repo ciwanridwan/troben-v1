@@ -2,11 +2,11 @@
 
 namespace Tests\Http\Api\Partner\Owner;
 
+use Tests\TestCase;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Database\Seeders\Packages\AssignedPackagesSeeder;
 
 class OrderApiTest extends TestCase
 {

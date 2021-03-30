@@ -1,7 +1,7 @@
 _id: req_55ac973776fb412590a8ea0a508a0df7
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1615631397741
+modified: 1616773040642
 created: 1615631386155
 url: "{{ _.base_url }}/order"
 name: List Order
@@ -16,7 +16,7 @@ headers:
     id: pair_5f99e95fdd864182bec8fe456019ac4c
   - name: Authorization
     value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
-      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}
     description: ""
     id: pair_c20cd03e13e54cd9aa04e9432c2460b6
 authentication: {}

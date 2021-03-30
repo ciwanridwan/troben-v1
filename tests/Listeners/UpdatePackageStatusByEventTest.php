@@ -26,12 +26,6 @@ class UpdatePackageStatusByEventTest extends TestCase
         $this->seed(AssignedPackagesSeeder::class);
     }
 
-    /** @noinspection PhpIncompatibleReturnTypeInspection */
-    private function getDelivery(): Delivery
-    {
-        return Delivery::query()->whereNotNull('userable_id')->first();
-    }
-
     public function test_on_event_package_loaded()
     {
         $event = new PackageLoadedByDriver($this->getDelivery());
@@ -40,10 +34,10 @@ class UpdatePackageStatusByEventTest extends TestCase
         $listener->handle($event);
 
         $event->delivery->packages()->cursor()
-            ->each(fn(Package $package) => $this->assertDatabaseHas('packages', [
+            ->each(fn (Package $package) => $this->assertDatabaseHas('packages', [
                 'id' => $package->id,
                 'status' => Package::STATUS_PICKED_UP,
-            ]))->each(fn(Package $package) => $this->assertDatabaseHas('delivery_package', [
+            ]))->each(fn (Package $package) => $this->assertDatabaseHas('delivery_package', [
                 'delivery_id' => $event->delivery->id,
                 'package_id' => $package->id,
                 'is_onboard' => true,
@@ -58,14 +52,20 @@ class UpdatePackageStatusByEventTest extends TestCase
         $listener->handle($event);
 
         $event->delivery->packages()->cursor()
-            ->each(fn(Package $package) => $this->assertDatabaseHas('packages', [
+            ->each(fn (Package $package) => $this->assertDatabaseHas('packages', [
                 'id' => $package->id,
                 'status' => Package::STATUS_ESTIMATING,
-            ]))->each(fn(Package $package) => $this->assertDatabaseHas('delivery_package', [
+            ]))->each(fn (Package $package) => $this->assertDatabaseHas('delivery_package', [
                 'delivery_id' => $event->delivery->id,
                 'package_id' => $package->id,
                 'is_onboard' => false,
             ]));
+    }
+
+    /** @noinspection PhpIncompatibleReturnTypeInspection */
+    private function getDelivery(): Delivery
+    {
+        return Delivery::query()->whereNotNull('userable_id')->first();
     }
 
     public function test_on_event_package_estimated_by_warehouse()
