@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
-use App\Models\User;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Auth\Access\HandlesAuthorization;
 

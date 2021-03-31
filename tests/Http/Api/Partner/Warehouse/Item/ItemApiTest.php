@@ -2,13 +2,13 @@
 
 namespace Tests\Http\Api\Partner\Warehouse\Item;
 
-use App\Models\Customers\Customer;
+use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Customers\Customer;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Seeders\Packages\FinishedDeliveriesSeeder;
 
 class ItemApiTest extends TestCase
 {
