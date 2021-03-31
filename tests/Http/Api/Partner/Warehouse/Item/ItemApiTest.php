@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Http\Api\Order;
+namespace Tests\Http\Api\Partner\Warehouse\Item;
 
 use App\Models\Customers\Customer;
-use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
-use Illuminate\Foundation\Testing\WithFaker;
-use Database\Seeders\Packages\PackagesTableSeeder;
+use Database\Seeders\Packages\FinishedDeliveriesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
-class ManageOrderItemApiTest extends TestCase
+class ItemApiTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -20,7 +20,7 @@ class ManageOrderItemApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(PackagesTableSeeder::class);
+        $this->seed(FinishedDeliveriesSeeder::class);
     }
 
     public function test_can_create_item()

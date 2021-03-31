@@ -22,6 +22,8 @@ class ItemController extends Controller
      */
     public function store(Request $request, Package $package): JsonResponse
     {
+        $this->authorize('update', $package);
+
         $job = new CreateNewItemFromExistingPackage($package, $request->all());
 
         $this->dispatchNow($job);
@@ -38,6 +40,8 @@ class ItemController extends Controller
      */
     public function update(Request $request, Package $package, Item $item): JsonResponse
     {
+        $this->authorize('update', $package);
+
         $job = new UpdateExistingItem($package, $item, $request->all());
 
         $this->dispatchNow($job);
@@ -53,6 +57,8 @@ class ItemController extends Controller
      */
     public function destroy(Package $package, Item $item): JsonResponse
     {
+        $this->authorize('update', $package);
+
         $job = new DeleteItemFromExistingPackage($package, $item);
 
         $this->dispatchNow($job);
