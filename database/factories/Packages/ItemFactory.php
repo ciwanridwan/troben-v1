@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Packages;
 
-use App\Models\Handling;
 use App\Models\Packages\Item;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -29,7 +28,6 @@ class ItemFactory extends Factory
             'width' => $this->faker->numberBetween(1, 40),
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
-            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get(),
         ];
     }
 }

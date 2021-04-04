@@ -2,13 +2,14 @@
 
 namespace Tests\Http\Api\Partner\Warehouse\Item;
 
+use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
-use App\Models\Customers\Customer;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
+use Database\Seeders\Packages\WarehouseInChargeSeeder;
 
 class ItemApiTest extends TestCase
 {
@@ -20,18 +21,15 @@ class ItemApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(FinishedDeliveriesSeeder::class);
+        $this->seed(WarehouseInChargeSeeder::class);
+
+        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE);
+        $this->actingAs($user);
     }
 
     public function test_can_create_item()
     {
-        /** @var Customer $customer */
-        $customer = Customer::query()->first();
-
-        $this->actingAs($customer);
-
-        /** @var Package $package */
-        $package = $customer->packages()->first();
+        $package = $this->getEstimatingPackage();
 
         $newData = [
             'qty' => $this->faker->numberBetween(1, 3),
@@ -56,13 +54,7 @@ class ItemApiTest extends TestCase
 
     public function test_can_update_items()
     {
-        /** @var Customer $customer */
-        $customer = Customer::query()->first();
-
-        $this->actingAs($customer);
-
-        /** @var Package $package */
-        $package = $customer->packages()->first();
+        $package = $this->getEstimatingPackage();
 
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
@@ -87,13 +79,7 @@ class ItemApiTest extends TestCase
 
     public function test_can_delete_item_from_package()
     {
-        /** @var Customer $customer */
-        $customer = Customer::query()->first();
-
-        $this->actingAs($customer);
-
-        /** @var Package $package */
-        $package = $customer->packages()->first();
+        $package = $this->getEstimatingPackage();
 
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
@@ -108,5 +94,12 @@ class ItemApiTest extends TestCase
         $this->assertDatabaseMissing('package_items', [
             'id' => $item->id,
         ]);
+    }
+
+    private function getEstimatingPackage(): Package
+    {
+        $packageHash = $this->getJson(route('api.partner.warehouse.order', ['status' => Package::STATUS_WAITING_FOR_ESTIMATING]))->json('data.0.hash');
+
+        return Package::byHashOrFail($this->patchJson(route('api.partner.warehouse.order.estimating', ['package_hash' => $packageHash]))->json('data.hash'));
     }
 }

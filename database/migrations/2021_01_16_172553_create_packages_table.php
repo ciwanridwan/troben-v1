@@ -42,6 +42,10 @@ class CreatePackagesTable extends Migration
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->enum('payment_status', Package::getAvailablePaymentStatuses())->default(Package::PAYMENT_STATUS_DRAFT);
 
+            $table->foreignId('estimator_id')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->foreignId('packager_id')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->json('handling')->nullable();
+
             # geo related field
             $table->unsignedBigInteger('origin_regency_id')->nullable();
             $table->unsignedBigInteger('origin_district_id')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -27,8 +28,13 @@ class UpdatePackageStatusByEvent
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_ESTIMATING)->save())
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_WAITING_FOR_ESTIMATING)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', false)->save());
+                break;
+            case $event instanceof WarehouseIsEstimatingPackage:
+                $event->package->setAttribute('status', Package::STATUS_ESTIMATING);
+                $event->package->estimator()->associate($event->actor);
+                $event->package->save();
                 break;
             case $event instanceof PackageEstimatedByWarehouse:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATED)->save();

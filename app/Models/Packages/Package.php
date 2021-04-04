@@ -10,6 +10,7 @@ use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Deliveries\DeliveryPackagePivot;
@@ -46,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $destination_sub_district_id
  * @property string|null $received_by
  * @property \Carbon\Carbon|null $received_at
+ * @property array $handling
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -62,6 +64,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
  * @property-read null|DeliveryPackagePivot pivot
+ * @property-read User|null packager
+ * @property-read User|null estimator
  */
 class Package extends Model
 {
@@ -72,10 +76,14 @@ class Package extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
     public const STATUS_PICKED_UP = 'picked_up';
+    public const STATUS_WAITING_FOR_ESTIMATING = 'waiting_for_estimating';
     public const STATUS_ESTIMATING = 'estimating';
     public const STATUS_ESTIMATED = 'estimated';
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
     public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_PACKING = 'packing';
+    public const STATUS_PACKED = 'packed';
+    public const STATUS_MANIFESTED = 'manifested';
     public const STATUS_IN_TRANSIT = 'in_transit';
     public const STATUS_WITH_COURIER = 'with_courier';
     public const STATUS_DELIVERED = 'delivered';
@@ -114,6 +122,9 @@ class Package extends Model
         'receiver_name',
         'receiver_phone',
         'receiver_address',
+        'handling',
+        'estimator_id',
+        'packager_id',
         'is_separate_item',
         'origin_regency_id',
         'origin_district_id',
@@ -131,6 +142,8 @@ class Package extends Model
     protected $hidden = [
         'id',
         'customer_id',
+        'estimator_id',
+        'packager_id',
         'origin_regency_id',
         'origin_district_id',
         'origin_sub_district_id',
@@ -157,6 +170,7 @@ class Package extends Model
         'total_amount' => 'float',
         'is_separate_item' => 'bool',
         'received_at' => 'datetime',
+        'handling' => 'array',
     ];
 
     /**
@@ -172,10 +186,14 @@ class Package extends Model
             self::STATUS_PENDING,
             self::STATUS_WAITING_FOR_PICKUP,
             self::STATUS_PICKED_UP,
+            self::STATUS_WAITING_FOR_ESTIMATING,
             self::STATUS_ESTIMATING,
             self::STATUS_ESTIMATED,
             self::STATUS_WAITING_FOR_APPROVAL,
             self::STATUS_ACCEPTED,
+            self::STATUS_PACKING,
+            self::STATUS_PACKED,
+            self::STATUS_MANIFESTED,
             self::STATUS_IN_TRANSIT,
             self::STATUS_WITH_COURIER,
             self::STATUS_DELIVERED,
@@ -242,6 +260,16 @@ class Package extends Model
             ->withTimestamps()
             ->orderByPivot('created_at')
             ->using(DeliveryPackagePivot::class);
+    }
+
+    public function estimator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'estimator_id', 'id');
+    }
+
+    public function packager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'packager_id', 'id');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Packages;
 
+use App\Models\Handling;
 use App\Models\Service;
 use App\Models\Geo\SubDistrict;
 use App\Models\Packages\Package;
@@ -39,6 +40,7 @@ class PackageFactory extends Factory
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
+            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get(),
             'origin_regency_id' => $originSubDistrict->regency_id,
             'origin_district_id' => $originSubDistrict->district_id,
             'origin_sub_district_id' => $originSubDistrict->id,

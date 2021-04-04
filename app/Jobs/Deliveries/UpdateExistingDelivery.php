@@ -24,7 +24,7 @@ class UpdateExistingDelivery
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Delivery::getAvailableTypes())],
             'status' => ['nullable', Rule::in(Delivery::getAvailableStatus())],
-        ])->validated();
+        ])->validate();
     }
 
     public function handle()

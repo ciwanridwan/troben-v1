@@ -12,6 +12,13 @@ use Database\Seeders\TransportersTableSeeder;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 
+/**
+ * Class AssignedPackagesSeeder
+ *
+ * This seeder will put customer service and driver in charge....
+ *
+ * @package Database\Seeders\Packages
+ */
 class AssignedPackagesSeeder extends Seeder
 {
     public function run()

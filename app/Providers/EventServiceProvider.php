@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -42,6 +43,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         DeliveryPickup\DriverUnloadedPackageInWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+        ],
+        WarehouseIsEstimatingPackage::class => [
             UpdatePackageStatusByEvent::class,
         ],
         PackageEstimatedByWarehouse::class => [

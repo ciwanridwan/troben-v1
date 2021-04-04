@@ -41,7 +41,7 @@ class CreateNewPackage
      *
      * @var bool
      */
-    protected bool $is_separate;
+    protected bool $isSeparate;
 
     /**
      * CreateNewPackage constructor.
@@ -64,6 +64,8 @@ class CreateNewPackage
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
+            'handling' => ['nullable', 'array'],
+            'handling.*' => ['numeric', 'exists:handling,id'],
             'origin_regency_id' => ['required'],
             'destination_regency_id' => ['required'],
             'destination_district_id' => ['required'],
@@ -83,7 +85,7 @@ class CreateNewPackage
             '*.handling.*' => ['numeric', 'exists:handling,id'],
         ])->validate();
 
-        $this->is_separate = $isSeparate;
+        $this->isSeparate = $isSeparate;
         $this->package = new Package();
     }
 
@@ -94,8 +96,13 @@ class CreateNewPackage
      */
     public function handle(): bool
     {
+        $this->attributes['handling'] = collect($this->attributes['handling'] ?? [])
+            ->map(fn ($id) => Handling::query()->find($id))
+            ->filter(fn (?Handling $handling) => $handling !== null)
+            ->toArray();
+
         $this->package->fill($this->attributes);
-        $this->package->is_separate_item = $this->is_separate;
+        $this->package->is_separate_item = $this->isSeparate;
         $this->package->save();
 
         if ($this->package->exists) {
@@ -103,7 +110,7 @@ class CreateNewPackage
                 $item = new Item();
 
                 $attributes['package_id'] = $this->package->id;
-                $attributes['handling'] = collect($attributes['handling'])
+                $attributes['handling'] = collect($attributes['handling'] ?? [])
                     ->map(fn ($id) => Handling::query()->find($id))
                     ->filter(fn (?Handling $handling) => $handling !== null)
                     ->toArray();

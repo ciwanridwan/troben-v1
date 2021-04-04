@@ -2,6 +2,9 @@
 
 namespace Tests\Listeners;
 
+use App\Events\Packages\WarehouseIsEstimatingPackage;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
@@ -10,7 +13,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
+use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
 class UpdatePackageStatusByEventTest extends TestCase
@@ -26,7 +29,7 @@ class UpdatePackageStatusByEventTest extends TestCase
         $this->seed(AssignedPackagesSeeder::class);
     }
 
-    public function test_on_event_package_loaded()
+    public function test_on_event_that_driver_in_charge()
     {
         $event = new PackageLoadedByDriver($this->getDelivery());
         $listener = new UpdatePackageStatusByEvent();
@@ -42,19 +45,15 @@ class UpdatePackageStatusByEventTest extends TestCase
                 'package_id' => $package->id,
                 'is_onboard' => true,
             ]));
-    }
 
-    public function test_on_event_package_unload()
-    {
         $event = new DriverUnloadedPackageInWarehouse($this->getDelivery());
-        $listener = new UpdatePackageStatusByEvent();
 
         $listener->handle($event);
 
         $event->delivery->packages()->cursor()
             ->each(fn (Package $package) => $this->assertDatabaseHas('packages', [
                 'id' => $package->id,
-                'status' => Package::STATUS_ESTIMATING,
+                'status' => Package::STATUS_WAITING_FOR_ESTIMATING,
             ]))->each(fn (Package $package) => $this->assertDatabaseHas('delivery_package', [
                 'delivery_id' => $event->delivery->id,
                 'package_id' => $package->id,
@@ -62,18 +61,26 @@ class UpdatePackageStatusByEventTest extends TestCase
             ]));
     }
 
-    public function test_on_event_package_estimated_by_warehouse()
+    public function test_on_event_that_warehouse_in_charge()
     {
-        $this->seed(FinishedDeliveriesSeeder::class);
+        $this->seed(WarehouseInChargeSeeder::class);
+
+        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE);
+        $this->actingAs($user);
 
         /** @var Package $package */
-        $package = Package::query()->where('status', Package::STATUS_ESTIMATING)->first();
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)->first();
 
-        $event = new PackageEstimatedByWarehouse($package);
         $listener = new UpdatePackageStatusByEvent();
 
-        $listener->handle($event);
+        $listener->handle(new WarehouseIsEstimatingPackage($package));
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_ESTIMATING,
+            'estimator_id' => $user->id,
+        ]);
 
+        $listener->handle(new PackageEstimatedByWarehouse($package));
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_ESTIMATED,

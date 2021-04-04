@@ -49,7 +49,7 @@ class UpdateExistingItem
             'handling' => ['nullable', 'array'],
             'handling.*' => ['numeric', 'exists:handling,id'],
             'is_insured' => ['nullable', 'boolean'],
-        ])->validated();
+        ])->validate();
     }
 
     public function handle()

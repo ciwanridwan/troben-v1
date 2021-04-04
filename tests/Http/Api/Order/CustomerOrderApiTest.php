@@ -46,6 +46,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
+            'handling' => Handling::query()->take(2)->get()->map->id->toArray(),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
@@ -58,7 +59,7 @@ class CustomerOrderApiTest extends TestCase
                 'length' => $this->faker->numberBetween(1, 40),
                 'height' => $this->faker->numberBetween(1, 40),
                 'is_insured' => true,
-                'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
+                // 'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
             ])->toArray(),
         ];
 
@@ -93,6 +94,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
+            'handling' => Handling::query()->take(1)->get()->map->id->toArray(),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],

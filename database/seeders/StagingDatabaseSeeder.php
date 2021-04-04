@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Database\Seeders\Packages\FinishedDeliveriesSeeder;
+use Database\Seeders\Packages\WarehouseInChargeSeeder;
 
 class StagingDatabaseSeeder extends Seeder
 {
@@ -27,7 +27,7 @@ class StagingDatabaseSeeder extends Seeder
             PackagesTableSeeder::class,
             TransportersTableSeeder::class,
             AssignedPackagesSeeder::class,
-            FinishedDeliveriesSeeder::class,
+            WarehouseInChargeSeeder::class,
         ]);
     }
 }

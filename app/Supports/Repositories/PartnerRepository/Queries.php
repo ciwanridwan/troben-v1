@@ -7,6 +7,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Queries
@@ -37,8 +38,12 @@ class Queries
     {
         $query = Package::query();
 
-        $query->whereHas('deliveries',
-            fn (Builder $builder) => $builder->where('partner_id', $this->partner->id));
+        $query->with([
+            'deliveries' => fn (BelongsToMany $builder) => $builder->where('partner_id', $this->partner->id)
+        ]);
+
+        $query->whereHas('deliveries', fn(Builder $builder) => $builder
+            ->where('partner_id', $this->partner->id));
 
         $this->resolvePackagesQueryByRole($query);
 
@@ -63,10 +68,15 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
-                $query->where('status', Package::STATUS_ESTIMATING);
+                $query->whereIn('packages.status', [
+                    Package::STATUS_WAITING_FOR_ESTIMATING,
+                    Package::STATUS_ESTIMATING,
+                    Package::STATUS_PACKING,
+                    Package::STATUS_PACKED,
+                ]);
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
-                $query->where('status', Package::STATUS_ESTIMATED);
+                $query->where('packages.status', Package::STATUS_ESTIMATED);
                 break;
         }
     }

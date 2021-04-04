@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
-class FinishedDeliveriesSeeder extends Seeder
+class WarehouseInChargeSeeder extends Seeder
 {
     /**
      * Run the database seeds.

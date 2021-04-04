@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Models\Handling;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -37,18 +38,20 @@ class UpdateExistingPackage
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['nullable', 'exists:customers,id'],
             'service_code' => ['nullable', 'exists:services,code'],
-            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+            'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['nullable'],
             'sender_phone' => ['nullable'],
             'sender_address' => ['nullable'],
             'receiver_name' => ['nullable'],
             'receiver_phone' => ['nullable'],
             'receiver_address' => ['nullable'],
+            'handling' => ['nullable', 'array'],
+            'handling.*' => ['numeric', 'exists:handling,id'],
             'origin_regency_id' => ['nullable'],
             'destination_regency_id' => ['nullable'],
             'destination_district_id' => ['nullable'],
             'destination_sub_district_id' => ['nullable'],
-        ])->validated();
+        ])->validate();
 
         $this->isSeparated = $isSeparated;
     }
@@ -58,6 +61,11 @@ class UpdateExistingPackage
         if ($this->isSeparated !== null) {
             $this->package->is_separate_item = $this->isSeparated;
         }
+
+        $this->attributes['handling'] = collect($this->attributes['handling'] ?? [])
+            ->map(fn ($id) => Handling::query()->find($id))
+            ->filter(fn (?Handling $handling) => $handling !== null)
+            ->toArray();
 
         $this->package->fill($this->attributes);
 
