@@ -18,6 +18,10 @@ class OrderController extends Controller
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
+        $query->when($request->input('delivery_type'), fn (Builder $builder, $deliveryType) => $builder
+            ->whereHas('deliveries', fn (Builder $builder) => $builder
+                ->whereIn('type', Arr::wrap($deliveryType))));
+
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))));
     }
 }
