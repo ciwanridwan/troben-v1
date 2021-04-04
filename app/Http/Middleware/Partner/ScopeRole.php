@@ -8,6 +8,13 @@ use App\Supports\Repositories\PartnerRepository;
 
 class ScopeRole
 {
+    private PartnerRepository $repository;
+
+    public function __construct(PartnerRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -18,13 +25,8 @@ class ScopeRole
      */
     public function handle(Request $request, Closure $next, string $role)
     {
-        $this->getPartnerRepository()->setScopeRole($role);
+        $this->repository->setScopeRole($role);
 
         return $next($request);
-    }
-
-    private function getPartnerRepository(): PartnerRepository
-    {
-        return app(PartnerRepository::class);
     }
 }

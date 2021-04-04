@@ -14,7 +14,10 @@ class UsersTableSeeder extends Seeder
     const COMPOSES = [
         Partner::TYPE_BUSINESS => [
             UserablePivot::ROLE_OWNER,
-            UserablePivot::ROLE_WAREHOUSE,
+            [
+                UserablePivot::ROLE_WAREHOUSE,
+                UserablePivot::ROLE_WAREHOUSE,
+            ],
             [
                 UserablePivot::ROLE_DRIVER,
                 UserablePivot::ROLE_DRIVER,

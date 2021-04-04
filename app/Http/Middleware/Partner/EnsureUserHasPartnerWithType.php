@@ -9,6 +9,17 @@ use App\Supports\Repositories\PartnerRepository;
 
 class EnsureUserHasPartnerWithType
 {
+
+    /**
+     * @var \App\Supports\Repositories\PartnerRepository
+     */
+    private PartnerRepository $repository;
+
+    public function __construct(PartnerRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -19,13 +30,8 @@ class EnsureUserHasPartnerWithType
      */
     public function handle(Request $request, Closure $next, ...$types)
     {
-        abort_if(! $this->getPartnerRepository()->isAuthorizeByTypes($types), Response::HTTP_FORBIDDEN);
+        abort_if(! $this->repository->isAuthorizeByTypes($types), Response::HTTP_FORBIDDEN);
 
         return $next($request);
-    }
-
-    private function getPartnerRepository(): PartnerRepository
-    {
-        return app(PartnerRepository::class);
     }
 }

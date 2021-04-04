@@ -8,7 +8,6 @@ use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Queries
 {
@@ -38,12 +37,13 @@ class Queries
     {
         $query = Package::query();
 
+        $queryPartnerId = fn($builder) => $builder->where('partner_id', $this->partner->id);
+
         $query->with([
-            'deliveries' => fn (BelongsToMany $builder) => $builder->where('partner_id', $this->partner->id),
+            'deliveries' => $queryPartnerId,
         ]);
 
-        $query->whereHas('deliveries', fn (Builder $builder) => $builder
-            ->where('partner_id', $this->partner->id));
+        $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
 
@@ -68,12 +68,22 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
-                $query->whereIn('packages.status', [
-                    Package::STATUS_WAITING_FOR_ESTIMATING,
-                    Package::STATUS_ESTIMATING,
-                    Package::STATUS_PACKING,
-                    Package::STATUS_PACKED,
-                ]);
+                $query->where(fn(Builder $builder) => $builder
+                    ->where('packages.status', Package::STATUS_WAITING_FOR_ESTIMATING)
+                    // condition that need authorization for estimator
+                    ->orWhere(fn(Builder $builder) => $builder
+                        ->whereIn('packages.status', [
+                            Package::STATUS_ESTIMATING,
+                            Package::STATUS_ESTIMATED,
+                        ])
+                        ->where('estimator_id', $this->user->id))
+                    // condition that need authorization for packager
+                    ->orWhere(fn(Builder $builder) => $builder
+                        ->whereIn('packages.status', [
+                            Package::STATUS_PACKING,
+                            Package::STATUS_PACKED,
+                        ])
+                        ->where('estimator_id', $this->user->id)));
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
                 $query->where('packages.status', Package::STATUS_ESTIMATED);

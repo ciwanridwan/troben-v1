@@ -9,6 +9,17 @@ use App\Supports\Repositories\PartnerRepository;
 
 class EnsureUserHasPartnerWithRole
 {
+
+    /**
+     * @var \App\Supports\Repositories\PartnerRepository
+     */
+    private PartnerRepository $repository;
+
+    public function __construct(PartnerRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -19,13 +30,8 @@ class EnsureUserHasPartnerWithRole
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        abort_if(! $this->getPartnerRepository()->isAuthorizeByRoles($roles), Response::HTTP_FORBIDDEN);
+        abort_if(! $this->repository->isAuthorizeByRoles($roles), Response::HTTP_FORBIDDEN);
 
         return $next($request);
-    }
-
-    private function getPartnerRepository(): PartnerRepository
-    {
-        return app(PartnerRepository::class);
     }
 }

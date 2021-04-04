@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageUpdated;
@@ -53,6 +54,13 @@ class CreateNewItemFromExistingPackage
      */
     public function handle()
     {
+        if (array_key_exists('handling', $this->attributes)) {
+            $this->attributes['handling'] = collect($this->attributes['handling'])
+                ->map(fn ($id) => Handling::query()->find($id))
+                ->filter(fn (?Handling $handling) => $handling !== null)
+                ->toArray();
+        }
+
         /** @var Item $item */
         $item = $this->package->items()->create($this->attributes);
 

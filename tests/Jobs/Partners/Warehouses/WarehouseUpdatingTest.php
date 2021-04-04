@@ -20,7 +20,7 @@ class WarehouseUpdatingTest extends TestCase
 
     /**
      * Warehouse instance.
-     * 
+     *
      * @var App\Models\Partners\Warehouse
      */
     private Warehouse $warehouse;
@@ -46,7 +46,7 @@ class WarehouseUpdatingTest extends TestCase
             'geo_province_id' => null,
             'geo_regency_id' => null,
             'geo_district_id' => null,
-            'code' => $this->faker->userName,
+            'code' => $this->faker->userName.$this->faker->randomNumber(3),
             'name' => $this->faker->name,
             'address' => $this->faker->address,
             'geo_area' => null,
