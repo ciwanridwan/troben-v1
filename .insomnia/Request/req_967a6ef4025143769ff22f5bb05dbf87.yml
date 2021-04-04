@@ -1,8 +1,8 @@
-_id: req_0a27a4705145460c9a33913692578f81
+_id: req_967a6ef4025143769ff22f5bb05dbf87
 type: Request
-parentId: fld_698665bd05ce4007bcebb511c9edefe5
-modified: 1617262089047
-created: 1617096271063
+parentId: fld_c4a0cbd407ea40159e0189d278bbc7e2
+modified: 1617263205736
+created: 1617262094597
 url: "{{ _.base_url }}/me"
 name: Me
 description: ""
@@ -17,9 +17,9 @@ headers:
 authentication:
   type: bearer
   prefix: ""
-  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450160.5
+metaSortKey: -1613198450148
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

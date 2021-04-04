@@ -1,10 +1,12 @@
-_id: req_0a27a4705145460c9a33913692578f81
+_id: req_189fd9b5e4504aa89aad540f450f1b97
 type: Request
-parentId: fld_698665bd05ce4007bcebb511c9edefe5
-modified: 1617262089047
-created: 1617096271063
-url: "{{ _.base_url }}/me"
-name: Me
+parentId: fld_720622b6a55a45e388fa9d0aef51f203
+modified: 1617565602841
+created: 1617565544075
+url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
+  'req_651b3de0b62a4e9198a27d5ec7fce3a2', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Detail Order
 description: ""
 method: GET
 body: {}
@@ -17,9 +19,9 @@ headers:
 authentication:
   type: bearer
   prefix: ""
-  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450160.5
+metaSortKey: -1613198450165.1875
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

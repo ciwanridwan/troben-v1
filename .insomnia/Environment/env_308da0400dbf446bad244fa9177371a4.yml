@@ -1,7 +1,7 @@
 _id: env_308da0400dbf446bad244fa9177371a4
 type: Environment
 parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
-modified: 1617096412375
+modified: 1617565113238
 created: 1612370393603
 name: Staging
 data:
@@ -14,6 +14,9 @@ data:
     driver:
       email: mb-driver-0@trawlbens.co.id
       password: password
+    warehouse:
+      email: mb-warehouse-0@trawlbens.co.id
+      password: password
     owner:
       email: mb-owner@trawlbens.co.id
       password: password
@@ -24,12 +27,16 @@ dataPropertyOrder:
   "&~|credentials":
     - customer
     - driver
+    - warehouse
     - owner
   "&~|credentials~|customer":
     - phone
     - email
     - password
   "&~|credentials~|driver":
+    - email
+    - password
+  "&~|credentials~|warehouse":
     - email
     - password
   "&~|credentials~|owner":

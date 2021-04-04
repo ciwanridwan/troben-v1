@@ -1,7 +1,7 @@
 _id: req_b23a54c206b540779dd70547960faf9d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1615631352607
+modified: 1617566962133
 created: 1613462471058
 url: "{{ _.base_url }}/order"
 name: Create Order
@@ -11,7 +11,7 @@ body:
   mimeType: application/json
   text: >
     {
-    	"service_code": "{% response 'body', 'req_242cca6fc3b4492cb693f3480e807d10', 'b64::JC5kYXRhLjAuY29kZQ==::46b', 'never', 60 %}",
+    	"service_code": "{% response 'body', 'req_242cca6fc3b4492cb693f3480e807d10', 'b64::JC5kYXRhLjAuY29kZQ==::46b', 'no-history', 60 %}",
     	"receiver_name": "Adit",
     	"receiver_phone": "+62 6666",
     	"receiver_address": "PR 19",
