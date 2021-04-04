@@ -43,7 +43,4 @@ mix.webpackConfig({
 mix
   .disableSuccessNotifications()
   .version()
-
-if (mix.inProduction()) {
-  mix.sourceMaps()
-}
+  .sourceMaps()
