@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
@@ -10,7 +11,6 @@ use App\Models\Customers\Customer;
 use App\Concerns\Models\HasBarcode;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Deliveries\DeliveryPackagePivot;

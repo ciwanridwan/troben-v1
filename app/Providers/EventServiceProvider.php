@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Packages\PackageEstimatedByWarehouse;
+use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;

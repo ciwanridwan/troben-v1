@@ -2,18 +2,18 @@
 
 namespace Tests\Listeners;
 
-use App\Events\Packages\WarehouseIsEstimatingPackage;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 use Tests\TestCase;
 use App\Models\Packages\Package;
+use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Events\Packages\PackageEstimatedByWarehouse;
+use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
+use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 
 class UpdatePackageStatusByEventTest extends TestCase

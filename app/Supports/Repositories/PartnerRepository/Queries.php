@@ -7,8 +7,8 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Queries
 {
@@ -39,10 +39,10 @@ class Queries
         $query = Package::query();
 
         $query->with([
-            'deliveries' => fn (BelongsToMany $builder) => $builder->where('partner_id', $this->partner->id)
+            'deliveries' => fn (BelongsToMany $builder) => $builder->where('partner_id', $this->partner->id),
         ]);
 
-        $query->whereHas('deliveries', fn(Builder $builder) => $builder
+        $query->whereHas('deliveries', fn (Builder $builder) => $builder
             ->where('partner_id', $this->partner->id));
 
         $this->resolvePackagesQueryByRole($query);

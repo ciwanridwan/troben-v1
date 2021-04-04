@@ -2,8 +2,8 @@
 
 namespace Database\Factories\Packages;
 
-use App\Models\Handling;
 use App\Models\Service;
+use App\Models\Handling;
 use App\Models\Geo\SubDistrict;
 use App\Models\Packages\Package;
 use Illuminate\Database\Eloquent\Factories\Factory;
