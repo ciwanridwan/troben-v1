@@ -9,7 +9,6 @@ use App\Supports\Repositories\PartnerRepository;
 
 class EnsureUserHasPartnerWithType
 {
-
     /**
      * @var \App\Supports\Repositories\PartnerRepository
      */

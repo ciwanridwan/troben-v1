@@ -37,7 +37,7 @@ class Queries
     {
         $query = Package::query();
 
-        $queryPartnerId = fn($builder) => $builder->where('partner_id', $this->partner->id);
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
 
         $query->with([
             'deliveries' => $queryPartnerId,
@@ -68,17 +68,17 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
-                $query->where(fn(Builder $builder) => $builder
+                $query->where(fn (Builder $builder) => $builder
                     ->where('packages.status', Package::STATUS_WAITING_FOR_ESTIMATING)
                     // condition that need authorization for estimator
-                    ->orWhere(fn(Builder $builder) => $builder
+                    ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
                             Package::STATUS_ESTIMATING,
                             Package::STATUS_ESTIMATED,
                         ])
                         ->where('estimator_id', $this->user->id))
                     // condition that need authorization for packager
-                    ->orWhere(fn(Builder $builder) => $builder
+                    ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
                             Package::STATUS_PACKING,
                             Package::STATUS_PACKED,
