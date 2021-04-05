@@ -2,17 +2,17 @@
 
 namespace Database\Seeders\Packages;
 
-use App\Events\Packages\PackageEstimatedByWarehouse;
-use App\Events\Packages\WarehouseIsEstimatingPackage;
-use App\Models\Deliveries\Delivery;
+use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Seeder;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Collection;
+use App\Events\Packages\PackageEstimatedByWarehouse;
+use App\Events\Packages\WarehouseIsEstimatingPackage;
 
 class CashierInChargeSeeder extends Seeder
 {
@@ -22,7 +22,7 @@ class CashierInChargeSeeder extends Seeder
 
         self::setModelGuardedAndQueueToSync(function () {
             /** @var Partner $partner */
-            $partner = Partner::query()->whereHas('deliveries', fn(Builder $builder) => $builder->where('status', Delivery::STATUS_FINISHED))->first();
+            $partner = Partner::query()->whereHas('deliveries', fn (Builder $builder) => $builder->where('status', Delivery::STATUS_FINISHED))->first();
 
             /** @var \App\Models\User $warehouseUser */
             $warehouseUser = $partner->users()->wherePivot('role', UserablePivot::ROLE_WAREHOUSE)->first();
@@ -30,19 +30,19 @@ class CashierInChargeSeeder extends Seeder
             auth()->setUser($warehouseUser);
 
             $query = Package::query()
-                ->whereHas('deliveries', fn(Builder $builder) => $builder->where('partner_id', $partner->id)->where('type', Delivery::TYPE_PICKUP))
+                ->whereHas('deliveries', fn (Builder $builder) => $builder->where('partner_id', $partner->id)->where('type', Delivery::TYPE_PICKUP))
                 ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING);
 
             Event::listen(PackageEstimatedByWarehouse::class,
-                fn(PackageEstimatedByWarehouse $event) => $this->command->warn('package from '.$event->package->sender_name.' status set to "estimated"'));
+                fn (PackageEstimatedByWarehouse $event) => $this->command->warn('package from '.$event->package->sender_name.' status set to "estimated"'));
 
             $query->take(ceil($query->count() / 2))
                 ->get()
-                ->tap(fn(Collection $collection) => $this->command->getOutput()->info('[FOR CASHIER] Begin set package to "estimated" ['.$collection->count().']'))
-                ->map(fn(Package $package) => new WarehouseIsEstimatingPackage($package))
-                ->each(fn(WarehouseIsEstimatingPackage $event) => event($event))
-                ->map(fn(WarehouseIsEstimatingPackage $event) => new PackageEstimatedByWarehouse($event->package))
-                ->each(fn(PackageEstimatedByWarehouse $event) => event($event));
+                ->tap(fn (Collection $collection) => $this->command->getOutput()->info('[FOR CASHIER] Begin set package to "estimated" ['.$collection->count().']'))
+                ->map(fn (Package $package) => new WarehouseIsEstimatingPackage($package))
+                ->each(fn (WarehouseIsEstimatingPackage $event) => event($event))
+                ->map(fn (WarehouseIsEstimatingPackage $event) => new PackageEstimatedByWarehouse($event->package))
+                ->each(fn (PackageEstimatedByWarehouse $event) => event($event));
         });
     }
 

@@ -2,15 +2,15 @@
 
 namespace Tests\Listeners;
 
-use App\Events\Packages\PackageCheckedByCashier;
-use Database\Seeders\Packages\CashierInChargeSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Events\Packages\PackageCheckedByCashier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Events\Packages\PackageEstimatedByWarehouse;
+use Database\Seeders\Packages\CashierInChargeSeeder;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
@@ -106,7 +106,6 @@ class UpdatePackageStatusByEventTest extends TestCase
             'id' => $package->id,
             'status' => Package::STATUS_WAITING_FOR_APPROVAL,
         ]);
-
     }
 
     /** @noinspection PhpIncompatibleReturnTypeInspection */

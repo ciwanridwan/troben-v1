@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Packages\CashierInChargeSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
+use Database\Seeders\Packages\CashierInChargeSeeder;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
 

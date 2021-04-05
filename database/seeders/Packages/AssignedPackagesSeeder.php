@@ -2,13 +2,13 @@
 
 namespace Database\Seeders\Packages;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Database\Seeders\TransportersTableSeeder;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;

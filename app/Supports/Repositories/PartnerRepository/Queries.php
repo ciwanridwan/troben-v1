@@ -93,7 +93,7 @@ class Queries
                     Package::STATUS_CANCEL,
                 ])->orWhereIn('payment_status', [
                     Package::PAYMENT_STATUS_PENDING,
-                    Package::PAYMENT_STATUS_PAID
+                    Package::PAYMENT_STATUS_PAID,
                 ]);
                 break;
         }

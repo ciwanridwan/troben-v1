@@ -16,7 +16,7 @@ use Database\Seeders\GeoTableSimpleSeeder;
 
 class PackagesTableSeeder extends Seeder
 {
-    static int $CUSTOMER_PACKAGES = 2;
+    public static int $CUSTOMER_PACKAGES = 2;
 
     /**
      * Run the database seeds.
