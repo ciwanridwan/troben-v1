@@ -16,6 +16,8 @@ use Database\Seeders\GeoTableSimpleSeeder;
 
 class PackagesTableSeeder extends Seeder
 {
+    static int $CUSTOMER_PACKAGES = 2;
+
     /**
      * Run the database seeds.
      *
@@ -28,7 +30,7 @@ class PackagesTableSeeder extends Seeder
         $this->command->info('=> create order for each customer.');
 
         Customer::query()->get()->each(
-            fn (Customer $customer) => Package::factory()->count(2)
+            fn (Customer $customer) => Package::factory()->count(self::$CUSTOMER_PACKAGES)
                 ->state([
                     'customer_id' => $customer->id,
                     'sender_name' => $customer->name,

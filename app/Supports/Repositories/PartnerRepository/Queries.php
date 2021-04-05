@@ -86,7 +86,15 @@ class Queries
                         ->where('estimator_id', $this->user->id)));
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
-                $query->where('packages.status', Package::STATUS_ESTIMATED);
+                $query->whereIn('packages.status', [
+                    Package::STATUS_ESTIMATED,
+                    Package::STATUS_REVAMP,
+                    Package::STATUS_ACCEPTED,
+                    Package::STATUS_CANCEL,
+                ])->orWhereIn('payment_status', [
+                    Package::PAYMENT_STATUS_PENDING,
+                    Package::PAYMENT_STATUS_PAID
+                ]);
                 break;
         }
     }

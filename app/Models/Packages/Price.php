@@ -40,7 +40,9 @@ class Price extends Model
      */
     protected $fillable = [
         'package_id',
+        'package_item_id',
         'type',
+        'description',
         'amount',
     ];
 
@@ -78,5 +80,10 @@ class Price extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'package_item_id', 'id');
     }
 }

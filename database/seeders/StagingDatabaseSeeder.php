@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\CashierInChargeSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
@@ -16,6 +17,8 @@ class StagingDatabaseSeeder extends Seeder
      */
     public function run()
     {
+        PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
+
         $this->call([
             UsersTableSeeder::class,
             GeoTableSimpleSeeder::class,
@@ -28,6 +31,7 @@ class StagingDatabaseSeeder extends Seeder
             TransportersTableSeeder::class,
             AssignedPackagesSeeder::class,
             WarehouseInChargeSeeder::class,
+            CashierInChargeSeeder::class,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\PackageCheckedByCashier;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -38,6 +39,9 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PackageEstimatedByWarehouse:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
+                break;
+            case $event instanceof PackageCheckedByCashier:
+                $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
                 break;
         }
     }

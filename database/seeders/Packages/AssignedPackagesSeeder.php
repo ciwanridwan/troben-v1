@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Packages;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -27,9 +28,9 @@ class AssignedPackagesSeeder extends Seeder
         $partnerQuery = Partner::query()->where('type', Partner::TYPE_BUSINESS);
 
         self::setModelGuarded(
-            fn () => Package::query()->take((int) ceil(Package::query()->count() / 2))->get()
+            fn () => Package::query()->take((int) ceil(Package::query()->count() * 3 / 4))->get()
                 // assign to partner
-                ->tap(fn () => $this->command->getOutput()->info('Begin assigning partner'))
+                ->tap(fn (Collection $collection) => $this->command->getOutput()->info('Begin assigning partner ['.$collection->count().']'))
                 ->tap(fn () => $this->command->info('=> filtering only packages that has transporter type that available in partners'))
                 ->filter(function (Package $package) use ($partnerQuery) {
                     return $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
@@ -45,9 +46,9 @@ class AssignedPackagesSeeder extends Seeder
                 })
                 ->each(fn (AssignFirstPartnerToPackage $job) => dispatch_now($job))
                 ->each(fn (AssignFirstPartnerToPackage $job) => $this->command->warn('=> package from '.$job->package->sender_name.' assigned to partner '.$job->partner->name))
-                ->take(ceil(Package::query()->count() / 4))
+                ->take(ceil(Package::query()->count() / 2))
                 // assign to transporter
-                ->tap(fn () => $this->command->getOutput()->info('Begin assigning driver'))
+                ->tap(fn ($collection) => $this->command->getOutput()->info('Begin assigning driver ['.$collection->count().']'))
                 ->map(function (AssignFirstPartnerToPackage $job, $index) {
                     $delivery = $job->package->deliveries()->first();
                     $matchedTransporters = $job->partner->transporters()->where('type', $job->package->transporter_type)->get();

@@ -80,6 +80,7 @@ class Package extends Model
     public const STATUS_ESTIMATING = 'estimating';
     public const STATUS_ESTIMATED = 'estimated';
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
+    public const STATUS_REVAMP = 'revamp';
     public const STATUS_ACCEPTED = 'accepted';
     public const STATUS_PACKING = 'packing';
     public const STATUS_PACKED = 'packed';
@@ -190,6 +191,7 @@ class Package extends Model
             self::STATUS_ESTIMATING,
             self::STATUS_ESTIMATED,
             self::STATUS_WAITING_FOR_APPROVAL,
+            self::STATUS_REVAMP,
             self::STATUS_ACCEPTED,
             self::STATUS_PACKING,
             self::STATUS_PACKED,

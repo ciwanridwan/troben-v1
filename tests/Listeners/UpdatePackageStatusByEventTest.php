@@ -2,6 +2,8 @@
 
 namespace Tests\Listeners;
 
+use App\Events\Packages\PackageCheckedByCashier;
+use Database\Seeders\Packages\CashierInChargeSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -61,7 +63,7 @@ class UpdatePackageStatusByEventTest extends TestCase
             ]));
     }
 
-    public function test_on_event_that_warehouse_in_charge()
+    public function test_on_event_warehouse_estimating_process()
     {
         $this->seed(WarehouseInChargeSeeder::class);
 
@@ -85,6 +87,26 @@ class UpdatePackageStatusByEventTest extends TestCase
             'id' => $package->id,
             'status' => Package::STATUS_ESTIMATED,
         ]);
+    }
+
+    public function test_on_cashier_in_charge()
+    {
+        $this->seed(CashierInChargeSeeder::class);
+
+        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_CASHIER);
+        $this->actingAs($user);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_ESTIMATED)->first();
+
+        $listener = new UpdatePackageStatusByEvent();
+
+        $listener->handle(new PackageCheckedByCashier($package));
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_WAITING_FOR_APPROVAL,
+        ]);
+
     }
 
     /** @noinspection PhpIncompatibleReturnTypeInspection */

@@ -16,16 +16,12 @@ class CreatePackagePricesTable extends Migration
     {
         Schema::create('package_prices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('package_id');
+            $table->foreignId('package_id')->references('id')->on('packages')->cascadeOnDelete();
+            $table->foreignId('package_item_id')->nullable()->references('id')->on('package_items')->cascadeOnDelete();
             $table->enum('type', Price::getAvailableTypes())->default(Price::TYPE_SERVICE);
-            $table->decimal('amount', 14, 2);
+            $table->string('description')->nullable();
+            $table->decimal('amount', 14);
             $table->timestamps();
-
-            $table
-                ->foreign('package_id')
-                ->references('id')
-                ->on('packages')
-                ->cascadeOnDelete();
         });
     }
 
