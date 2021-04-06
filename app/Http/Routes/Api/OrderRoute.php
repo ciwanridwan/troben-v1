@@ -39,6 +39,16 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('update'),
         ]);
 
+        $this->router->patch($this->prefix('{package_hash}/approve'), [
+            'as' => $this->name('approve'),
+            'uses' => $this->uses('approve'),
+        ]);
+
+        $this->router->post($this->prefix('{package_hash}/receipt'), [
+            'as' => $this->name('receipt'),
+            'uses' => $this->uses('receipt'),
+        ]);
+
         $this->router->post($this->prefix('{package_hash}/item'), [
             'as' => $this->name('item.store'),
             'uses' => $this->uses('store', ItemController::class),

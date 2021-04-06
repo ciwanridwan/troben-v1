@@ -83,7 +83,7 @@ class Queries
                             Package::STATUS_PACKING,
                             Package::STATUS_PACKED,
                         ])
-                        ->where('estimator_id', $this->user->id)));
+                        ->where('packager_id', $this->user->id)));
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
                 $query->whereIn('packages.status', [

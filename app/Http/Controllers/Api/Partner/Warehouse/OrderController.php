@@ -27,6 +27,11 @@ class OrderController extends Controller
             ->whereHas('deliveries', fn (Builder $builder) => $builder
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
+        $query->with([
+            'estimator',
+            'packager',
+        ]);
+
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))));
     }
 
