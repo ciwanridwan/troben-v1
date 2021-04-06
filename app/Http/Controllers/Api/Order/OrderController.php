@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\CustomerUploadReceipt;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -115,5 +117,40 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district')));
+    }
+
+    /**
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
+     */
+    public function approve(Package $package): JsonResponse
+    {
+        $this->authorize('update', $package);
+
+        event(new PackageApprovedByCustomer($package));
+
+        return $this->jsonSuccess(PackageResource::make($package->fresh()));
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function receipt(Request $request, Package $package): JsonResponse
+    {
+        $this->authorize('update', $package);
+
+        $request->validate([
+            'receipt' => 'required|image',
+        ]);
+
+        $job = new CustomerUploadReceipt($package, $request->file('receipt'));
+
+        $this->dispatchNow($job);
+
+        return $this->jsonSuccess(PackageResource::make($job->package));
     }
 }

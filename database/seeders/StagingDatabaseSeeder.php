@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\CustomerInChargeSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
@@ -32,6 +33,7 @@ class StagingDatabaseSeeder extends Seeder
             AssignedPackagesSeeder::class,
             WarehouseInChargeSeeder::class,
             CashierInChargeSeeder::class,
+            CustomerInChargeSeeder::class,
         ]);
     }
 }

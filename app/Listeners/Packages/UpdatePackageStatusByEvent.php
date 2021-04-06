@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\PackageApprovedByCustomer;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -14,10 +15,10 @@ class UpdatePackageStatusByEvent
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
      */
-    public function handle($event)
+    public function handle(object $event)
     {
         switch (true) {
             case $event instanceof Pickup\PackageLoadedByDriver:
@@ -42,6 +43,12 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PackageCheckedByCashier:
                 $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
+                break;
+            case $event instanceof PackageApprovedByCustomer:
+                $event->package
+                    ->setAttribute('status', Package::STATUS_ACCEPTED)
+                    ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                    ->save();
                 break;
         }
     }
