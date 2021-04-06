@@ -34,7 +34,7 @@ class CustomersTableSeeder extends Seeder
             ))
             ->create();
 
-        $this->command->table(['name', 'phone', 'email'], Customer::query()->get()->map(fn(Customer $customer) => [
+        $this->command->table(['name', 'phone', 'email'], Customer::query()->get()->map(fn (Customer $customer) => [
             $customer->name,
             $customer->phone,
             $customer->email,
