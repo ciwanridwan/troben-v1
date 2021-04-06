@@ -2,10 +2,9 @@
   <content-layout siderPosition="right">
     <template slot="content">
       <a-table
-        :class="['trawl-table-expanded']"
         :columns="orderColumns"
         :defaultExpandAllRows="true"
-        :data-source="orders.data"
+        :data-source="items.data"
       >
         <span slot="expandedRowRender" slot-scope="record">
           <a-row type="flex" justify="space-between" ref="expand">
@@ -13,28 +12,17 @@
               <order-status :record="record"></order-status>
             </a-col>
             <a-col :span="6" style="text-align:center">
-              <order-modal
-                :record="record"
-                v-if="
-                  record.package_status == 'pending' &&
-                    record.payment_status == 'draft'
-                "
-                triggerText="Lihat"
-              ></order-modal>
-              <order-modal
-                :record="record"
-                v-else-if="
-                  record.package_status != 'waiting_for_approval' &&
-                    record.package_status != 'accepted'
-                "
-                :sendButton="true"
-              ></order-modal>
               <order-modal-resi
-                v-else-if="
+                v-if="
                   record.package_status == 'accepted' &&
                     record.payment_status == 'paid'
                 "
               ></order-modal-resi>
+              <order-modal
+                :record="record"
+                v-else
+                :sendButton="true"
+              ></order-modal>
             </a-col>
           </a-row>
         </span>
@@ -66,11 +54,26 @@ export default {
     CalendarIcon,
     TrawlNotification
   },
+  methods: {
+    onSuccessResponse(resp) {
+      this.items = resp;
+      let numbering = this.items.from;
+
+      _.forEach(this.items.data, o => {
+        o.number = numbering++;
+      });
+    }
+  },
   data() {
     return {
       orderColumns,
-      orders
+      orders,
+      items: this.getDefaultPagination()
     };
+  },
+
+  mounted() {
+    this.getItems();
   }
 };
 </script>

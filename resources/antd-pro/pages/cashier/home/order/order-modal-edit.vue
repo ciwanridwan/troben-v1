@@ -1,19 +1,18 @@
 <template>
   <div>
-    <edit-button @click="visible = true"></edit-button>
-    <a-modal v-model="visible" :width="840" centered>
+    <edit-button @click="show"></edit-button>
+    <a-modal v-model="visible" centered @ok="onOk">
       <template slot="title">
         <h3><b>Edit Barang</b></h3>
       </template>
 
       <a-row type="flex" :gutter="10">
-        <a-col :span="14">
-          <!-- sender address -->
+        <!-- sender address -->
+        <!-- <a-col :span="14">
           <a-space align="start">
             <send-icon></send-icon>
             <address-component></address-component>
           </a-space>
-
           <a-radio-group>
             <a-space direction="vertical">
               <a-card v-for="index in 2" :key="index">
@@ -30,15 +29,15 @@
               </a-card>
             </a-space>
           </a-radio-group>
-        </a-col>
-        <a-col :span="10">
-          <!-- description -->
+        </a-col> -->
+        <a-col :span="24">
+          <!-- desc -->
           <a-form-model :model="form" ref="formRules" layout="vertical">
-            <a-form-model-item ref="description" prop="description">
+            <a-form-model-item ref="desc" prop="desc">
               <template slot="label">
                 <h3>Deskripsi Barang</h3>
               </template>
-              <a-input v-model="form.description"></a-input>
+              <a-input v-model="form.desc"></a-input>
             </a-form-model-item>
 
             <!-- dimension -->
@@ -57,48 +56,48 @@
               <!-- form -->
               <a-col :span="8">
                 <a-form-model-item ref="length" prop="length">
-                  <a-input v-model="form.length"></a-input>
+                  <a-input-number v-model="form.length"></a-input-number>
                 </a-form-model-item>
               </a-col>
               <a-col :span="8">
                 <a-form-model-item ref="width" prop="width">
-                  <a-input v-model="form.width"></a-input>
+                  <a-input-number v-model="form.width"></a-input-number>
                 </a-form-model-item>
               </a-col>
               <a-col :span="8">
                 <a-form-model-item ref="height" prop="height">
-                  <a-input v-model="form.height"></a-input>
+                  <a-input-number v-model="form.height"></a-input-number>
                 </a-form-model-item>
               </a-col>
             </a-row>
 
             <!-- actual weight -->
-            <a-form-model-item ref="actual_weight" prop="actual_weight">
+            <a-form-model-item ref="weight" prop="weight">
               <template slot="label">
                 <h3>Berat Aktual</h3>
               </template>
-              <a-input v-model="form.actual_weight"></a-input>
+              <a-input-number v-model="form.weight"></a-input-number>
             </a-form-model-item>
 
             <!-- package number -->
-            <a-form-model-item ref="package_number" prop="package_number">
+            <a-form-model-item ref="qty" prop="qty">
               <template slot="label">
                 <h3>Jumlah Barang</h3>
               </template>
-              <a-input v-model="form.package_number"></a-input>
+              <a-input-number v-model="form.qty"></a-input-number>
             </a-form-model-item>
 
             <!-- package price -->
-            <a-form-model-item ref="package_price" prop="package_price">
+            <a-form-model-item ref="price" prop="price">
               <template slot="label">
                 <h3>Harga Barang</h3>
               </template>
-              <a-input v-model="form.package_price"></a-input>
+              <a-input-number v-model="form.price"></a-input-number>
             </a-form-model-item>
 
-            <!-- Insurance -->
-            <a-form-model-item ref="insurance" prop="insurance">
-              <a-checkbox v-model="form.insurance">
+            <!-- is_Insured -->
+            <a-form-model-item ref="is_insured" prop="is_insured">
+              <a-checkbox v-model="form.is_insured">
                 Asuransi
               </a-checkbox>
             </a-form-model-item>
@@ -170,6 +169,16 @@ import { SendIcon, ReceiveIcon } from "../../../../components/icons";
 import AddressComponent from "../../../../components/orders/address-component.vue";
 import OrderEstimation from "../../../../components/orders/order-estimation.vue";
 export default {
+  props: {
+    item: {
+      type: Object,
+      default: () => {}
+    },
+    updateOrderItem: {
+      type: Function,
+      default: () => {}
+    }
+  },
   components: {
     editButton,
     SendIcon,
@@ -181,18 +190,31 @@ export default {
     return {
       visible: false,
       form: {
-        description: null,
+        desc: null,
         length: null,
         height: null,
         width: null,
-        actual_weight: null,
-        package_number: null,
-        package_price: null,
-        insurance: null,
+        weight: null,
+        qty: null,
+        price: null,
+        is_insured: null,
         packaging: null,
         packaging_type: null
       }
     };
+  },
+  methods: {
+    onOk() {
+      this.updateOrderItem();
+      this.onCancel();
+    },
+    onCancel() {
+      this.visible = false;
+    },
+    show() {
+      this.form = { ...this.form, ...this.item };
+      this.visible = true;
+    }
   }
 };
 </script>
