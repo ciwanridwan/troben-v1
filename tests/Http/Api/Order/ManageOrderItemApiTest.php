@@ -40,6 +40,7 @@ class ManageOrderItemApiTest extends TestCase
             'width' => $this->faker->numberBetween(1, 40),
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
+            'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
             'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
         ];
 
@@ -74,6 +75,7 @@ class ManageOrderItemApiTest extends TestCase
             'width' => $this->faker->numberBetween(1, 40),
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
+            'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
             'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
         ];
 

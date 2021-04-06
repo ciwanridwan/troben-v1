@@ -46,6 +46,7 @@ class UpdateExistingItem
             'height' => ['nullable', 'numeric'],
             'length' => ['nullable', 'numeric'],
             'width' => ['nullable', 'numeric'],
+            'price' => ['required', 'numeric'],
             'handling' => ['nullable', 'array'],
             'handling.*' => ['numeric', 'exists:handling,id'],
             'is_insured' => ['nullable', 'boolean'],
