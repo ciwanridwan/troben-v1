@@ -2,6 +2,11 @@
 
 namespace Tests\Http\Api\Order;
 
+use App\Events\Packages\PackageApprovedByCustomer;
+use App\Http\Controllers\Api\Order\OrderController;
+use Database\Seeders\Packages\CustomerInChargeSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use App\Models\Handling;
 use App\Models\Packages\Package;
@@ -138,5 +143,54 @@ class CustomerOrderApiTest extends TestCase
         $response->assertSuccessful();
 
         $this->assertEquals($package->barcode, $response->json('data.barcode'));
+    }
+
+    public function test_can_approve_order()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->actingAs($package->customer);
+
+        Event::fake();
+
+        $this->patchJson(action([OrderController::class, 'approve'], ['package_hash' => $package->hash]));
+
+        Event::assertDispatched(PackageApprovedByCustomer::class);
+    }
+
+    public function test_can_upload_receipt()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->actingAs($package->customer);
+
+        $response = $this->patchJson(action([OrderController::class, 'approve'], ['package_hash' => $package->hash]));
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_ACCEPTED,
+        ]);
+
+        $file = UploadedFile::fake()->image('avatar.jpg');
+
+        $response = $this->post(action([OrderController::class, 'receipt'], ['package_hash' => $package->hash]), [
+            'receipt' => $file,
+        ]);
+
+        $response->assertSuccessful();
+
+        $this->assertDatabaseHas('attachments', [
+            'title' => Package::ATTACHMENT_RECEIPT,
+        ]);
+
+        $this->assertNotNull($package->attachments()->where('title', Package::ATTACHMENT_RECEIPT)->first());
     }
 }
