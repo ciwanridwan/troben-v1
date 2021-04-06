@@ -21,7 +21,6 @@ class GeneratePackagePrices
                 // todo : create price type service, description item name
 
                 // todo : create price type insurance, attach to item
-
             });
 
             // todo : create service lainnya, contoh : biaya penjemputan
