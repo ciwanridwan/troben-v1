@@ -33,5 +33,11 @@ class CustomersTableSeeder extends Seeder
                 ['email_verified_at' => Carbon::now()]
             ))
             ->create();
+
+        $this->command->table(['name', 'phone', 'email'], Customer::query()->get()->map(fn(Customer $customer) => [
+            $customer->name,
+            $customer->phone,
+            $customer->email,
+        ]));
     }
 }
