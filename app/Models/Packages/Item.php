@@ -56,6 +56,7 @@ class Item extends Model
         'height',
         'length',
         'width',
+        'price',
         'in_estimation',
         'is_insured',
         'handling',
