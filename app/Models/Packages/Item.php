@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Casts\Package\Items\Handling;
 use App\Concerns\Models\HasBarcode;
 use Illuminate\Database\Eloquent\Model;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -74,7 +75,7 @@ class Item extends Model
         'price' => 'float',
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
-        'handling' => 'array',
+        'handling' => Handling::class,
     ];
 
     protected $hidden = [

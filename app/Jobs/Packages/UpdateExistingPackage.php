@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Casts\Package\Items\Handling;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -45,7 +46,7 @@ class UpdateExistingPackage
             'receiver_phone' => ['nullable'],
             'receiver_address' => ['nullable'],
             'handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             'origin_regency_id' => ['nullable'],
             'destination_regency_id' => ['nullable'],
             'destination_district_id' => ['nullable'],

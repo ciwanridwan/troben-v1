@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use App\Casts\Package\Items\Handling;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Packages\Package;
@@ -64,7 +65,7 @@ class OrderApiTest extends TestCase
         $uri = action([OrderController::class, 'update'], ['package_hash' => $package->hash]);
 
         $response = $this->putJson($uri, [
-            'handling' => $chosenHandling = $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
+            'handling' => $chosenHandling = $this->faker->randomElements(Handling::getTypes()),
         ]);
 
         $response->assertSuccessful();

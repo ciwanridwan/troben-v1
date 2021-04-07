@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageUpdated;
@@ -44,7 +45,7 @@ class CreateNewItemFromExistingPackage
             'price' => ['required', 'numeric'],
             'is_insured' => ['nullable', 'boolean'],
             'handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
 
         $this->package = $package;

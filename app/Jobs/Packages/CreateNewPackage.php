@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
@@ -64,7 +65,7 @@ class CreateNewPackage
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
             'handling' => ['nullable', 'array'],
-            'handling.*' => ['numeric', 'exists:handling,id'],
+            'handling.*' => ['string', Rule::in(Handling::getTypes())],
             'origin_regency_id' => ['required'],
             'destination_regency_id' => ['required'],
             'destination_district_id' => ['required'],
@@ -81,7 +82,7 @@ class CreateNewPackage
             '*.width' => ['required', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
 
         $this->isSeparate = $isSeparate;

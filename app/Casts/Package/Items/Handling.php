@@ -19,7 +19,7 @@ class Handling implements CastsAttributes
     /**
      * Cast the given value.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  \App\Models\Packages\Item  $model
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes
@@ -27,8 +27,10 @@ class Handling implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-
-        return $value;
+        return collect(json_decode($value))->map(fn(string $type) => [
+            'type' => $type,
+            'price' => self::calculator($type, $model->height, $model->length, $model->width, $model->weight),
+        ]);
     }
 
     /**
@@ -42,7 +44,21 @@ class Handling implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
-        return $value;
+        return json_encode($value);
+    }
+
+    public static function getTypes(): array
+    {
+        return [
+            self::TYPE_PLASTIC,
+            self::TYPE_BUBBLE_WRAP,
+            self::TYPE_CARDBOARD,
+            self::TYPE_PALLETE,
+            self::TYPE_SANDBAG_L,
+            self::TYPE_SANDBAG_MD,
+            self::TYPE_SANDBAG_SM,
+            self::TYPE_WOOD,
+        ];
     }
 
     public static function calculator($type, $height, $length, $width, $weight)
@@ -53,7 +69,7 @@ class Handling implements CastsAttributes
                 $base_price = 350;
                 $price = ($height + $length + $width) / 3 * $base_price;
                 return $price < $min_price ? $min_price : $price;
-            case self::TYPE_BUBBLE_WRAP:
+            case self::TYPE_PLASTIC:
                 $min_price = 3000;
                 $base_price = 125;
                 $price = ($height + $length + $width) / 3 * $base_price;

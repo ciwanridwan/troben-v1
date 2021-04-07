@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageUpdated;
@@ -48,7 +49,7 @@ class UpdateExistingItem
             'width' => ['nullable', 'numeric'],
             'price' => ['required', 'numeric'],
             'handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             'is_insured' => ['nullable', 'boolean'],
         ])->validate();
     }

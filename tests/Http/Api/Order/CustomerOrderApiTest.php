@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Order;
 
+use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Controllers\Api\Order\OrderController;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
@@ -47,7 +48,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
+            'handling' => $this->faker->randomElements(Handling::getTypes()),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
@@ -94,7 +95,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
+            'handling' => $this->faker->randomElements(Handling::getTypes()),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
