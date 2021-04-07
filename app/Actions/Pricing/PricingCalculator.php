@@ -5,6 +5,7 @@ namespace App\Actions\Pricing;
 use App\Models\Price;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Models\Service;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\PriceCalculatorResource;
@@ -41,9 +42,14 @@ class PricingCalculator
         $this->attributes = $inputs;
         $this->price = $this->getPrice($this->attributes['origin_province_id'], $this->attributes['origin_regency_id'], $this->attributes['destination_id']);
         if (Arr::has($this->attributes, ['height', 'length', 'width'])) {
-            $this->act_volume = $this->getWeight($this->getVolume());
+            $this->act_volume = $this->ceilByTolerance(
+                $this->getVolume(
+                    $this->attributes['height'],
+                    $this->attributes['length'],
+                    $this->attributes['width'],
+                    Arr::get($this->attributes, 'service', Service::TRAWLPACK_STANDARD)));
         }
-        $this->act_weight = $this->getWeight($this->attributes['weight']);
+        $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
     public function calculate(): JsonResponse
@@ -91,6 +97,7 @@ class PricingCalculator
      */
     public function getPrice(int $origin_province_id, int  $origin_regency_id, int $destination_id): Price
     {
+        /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
@@ -117,7 +124,7 @@ class PricingCalculator
         }
     }
 
-    public function getWeight(float $weight = 0)
+    public static function ceilByTolerance(float $weight = 0)
     {
         // decimal tolerance .3
         $tol = .3;
@@ -135,14 +142,13 @@ class PricingCalculator
         return $weight;
     }
 
-    public function getVolume($service = 'darat')
+    public static function getVolume($height, $length, $width, $service = Service::TRAWLPACK_STANDARD)
     {
-        $divider = 0;
-        switch ($divider) {
-            case 'udara':
+        switch ($service) {
+            case Service::TRAWLPACK_EXPRESS:
                 $divider = Price::DIVIDER_UDARA;
                 break;
-            case 'darat':
+            case Service::TRAWLPACK_STANDARD:
             default:
                 $divider = Price::DIVIDER_DARAT;
                 break;
@@ -150,7 +156,7 @@ class PricingCalculator
 
         // volume formula
         // HEIGHT * LENGTH * WIDTH
-        $volume = $this->attributes['height'] * $this->attributes['length'] * $this->attributes['width'];
+        $volume = $height * $length * $width;
         // divide by divider
         $volume /= $divider;
 

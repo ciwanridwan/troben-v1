@@ -3,6 +3,7 @@
 namespace App\Models\Packages;
 
 use App\Casts\Package\Items\Handling;
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Models\HasBarcode;
 use Illuminate\Database\Eloquent\Model;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -56,6 +57,7 @@ class Item extends Model
         'height',
         'length',
         'width',
+        'price',
         'in_estimation',
         'is_insured',
         'handling',
@@ -85,6 +87,7 @@ class Item extends Model
 
     protected $appends = [
         'hash',
+        'weight_borne',
     ];
 
     /**
@@ -95,5 +98,13 @@ class Item extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
+
+    public function getWeightBorneAttribute()
+    {
+        $weight = PricingCalculator::ceilByTolerance($this->weight);
+        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
+
+        return $weight > $volume ? $weight : $volume;
     }
 }

@@ -2,15 +2,21 @@
   <div>
     <slot name="title" v-if="hasTitleSlot"></slot>
     <h5 v-else>{{ receiver ? "Penerima" : "Pengirim" }}</h5>
-    <slot name="people" v-if="hasSlot('people')"> </slot>
+    <h5 v-if="hasSlot('name')">
+      <b><slot name="name"></slot></b>
+    </h5>
     <h5 v-else>
       <b>Faris Ferdian Akbar</b>
     </h5>
-    <slot name="phone" v-if="hasSlot('phone')"> </slot>
+    <h5 v-if="hasSlot('phone')">
+      <slot name="phone"></slot>
+    </h5>
     <h5 class="trawl-text-normal" v-else>
       085694455935
     </h5>
-    <slot name="address" v-if="hasSlot('address')"> </slot>
+    <p v-if="hasSlot('address')">
+      <slot name="address"> </slot>
+    </p>
     <p v-else>
       Jl. Soekarno No.1, Kel. Indarung, Kec. Lubuk Kilangan, Padang, Sumatera
       Barat.

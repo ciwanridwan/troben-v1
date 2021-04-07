@@ -2,13 +2,19 @@
   <a-card :class="['borderless-header', 'normal-title']">
     <template slot="extra">
       <a-space>
-        <order-modal-edit></order-modal-edit>
-        <delete-button></delete-button>
+        <order-modal-edit
+          ref="editForm"
+          :item="item"
+          :updateOrderItem="updateOrderItem"
+        ></order-modal-edit>
+        <delete-button
+          @click="deleteOrderItem(item.hash, record.hash)"
+        ></delete-button>
       </a-space>
     </template>
     <template slot="title">
-      <h4>Buku</h4>
-      30 x 30 x 30 cm
+      <h4>{{ item.name }}</h4>
+      {{ item.length }} x {{ item.width }} x {{ item.height }} cm
     </template>
 
     <!-- detail -->
@@ -18,7 +24,7 @@
         Berat volume
       </a-col>
       <a-col :span="8">
-        <b>2 Kg</b>
+        <b>{{ item.weight }} Kg</b>
       </a-col>
 
       <!-- perkiraan berat -->
@@ -26,7 +32,7 @@
         Berat volume
       </a-col>
       <a-col :span="8">
-        <b>20 Kg</b>
+        <b>{{ item.weight }} Kg</b>
       </a-col>
 
       <!-- estimasi berat -->
@@ -34,7 +40,7 @@
         Charge Weight per barang
       </a-col>
       <a-col :span="8">
-        <b>20 Kg</b>
+        <b>{{ item.weight }} Kg</b>
       </a-col>
 
       <!-- jumlah paket -->
@@ -42,7 +48,7 @@
         Jumlah paket
       </a-col>
       <a-col :span="8">
-        <b>20 Koli</b>
+        <b>{{ item.qty }} Koli</b>
       </a-col>
     </a-row>
 
@@ -53,7 +59,7 @@
         Total Charge Weight
       </a-col>
       <a-col :span="8">
-        <b>60 Kg</b>
+        <b>{{ totalChargeWeight }} Kg</b>
       </a-col>
 
       <!-- harga barang -->
@@ -78,6 +84,28 @@
 import orderModalEdit from "./order-modal-edit.vue";
 export default {
   components: { orderModalEdit },
-  props: ["item"]
+  props: ["item", "record", "deleteOrderItem"],
+  computed: {
+    totalChargeWeight() {
+      return this.item.weight * this.item.qty;
+    }
+  },
+  methods: {
+    async updateOrderItem() {
+      let form = this.$refs.editForm.form;
+      const response = await this.$http.patch(
+        this.routeUri("partner.cashier.home.updatePackageItem", {
+          item_hash: this.item.hash,
+          package_hash: this.record.hash
+        }),
+        form
+      );
+      const { data } = response.data;
+
+      Object.keys(this.item).forEach(key => {
+        this.item[key] = data[key];
+      });
+    }
+  }
 };
 </script>

@@ -22,6 +22,18 @@ class HomeRoute extends BaseRoute
             'as' => $this->name('all'),
             'uses' => $this->uses('index'),
         ]);
+        $this->router->patch($this->prefix('{package_hash}/{item_hash}'), [
+            'as' => $this->name('updatePackageItem'),
+            'uses' => $this->uses('updatePackageItem'),
+        ]);
+        $this->router->patch($this->prefix('{package_hash}'), [
+            'as' => $this->name('packageChecked'),
+            'uses' => $this->uses('packageChecked'),
+        ]);
+        $this->router->delete($this->prefix('{package_hash}/{item_hash}'), [
+            'as' => $this->name('deletePackageItem'),
+            'uses' => $this->uses('deletePackageItem'),
+        ]);
     }
 
     /**

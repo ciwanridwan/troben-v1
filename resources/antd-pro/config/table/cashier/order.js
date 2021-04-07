@@ -1,15 +1,17 @@
+import moment from "moment";
+
 export default [
   {
     title: "No",
-    dataIndex: "id",
-    customRender: (text, row, index) => {
-      return {
-        children: text,
-        attrs: {
-          rowSpan: 2
-        }
-      };
-    }
+    dataIndex: "number"
+    // customRender: (text, row, index) => {
+    //   return {
+    //     children: text,
+    //     attrs: {
+    //       rowSpan: 2
+    //     }
+    //   };
+    // }
   },
   {
     title: "ID Order",
@@ -29,7 +31,7 @@ export default [
         attrs: {
           colSpan: 2
         },
-        children: text
+        children: moment(text).format("ddd, DD MMM YYYY HH:mm:ss")
       };
     }
   }

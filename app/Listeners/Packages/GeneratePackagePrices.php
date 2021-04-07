@@ -15,7 +15,7 @@ class GeneratePackagePrices
      */
     public function handle($event)
     {
-        if (property_exists($event, 'package') && $event->package instanceof Package) {
+        if (property_exists($event, 'package') && $event->package instanceof Package && $event->package->payment_status !== Package::PAYMENT_STATUS_PAID) {
             // TODO : map item to price
             $event->package->items->each(function (Item $item) {
                 // todo : create price type service, description item name

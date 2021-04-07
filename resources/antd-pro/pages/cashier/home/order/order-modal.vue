@@ -1,9 +1,12 @@
 <template>
   <div>
-    <a-button @click="visible = true" class="trawl-button-success">
+    <a-button @click="show" class="trawl-button-success">
       {{ triggerText }}
     </a-button>
     <a-modal v-model="visible" centered :width="840" @cancel="handleCancel">
+      <template slot="closeIcon">
+        <a-icon type="close" @click="handleCancel"></a-icon>
+      </template>
       <span slot="title">
         <h3><b>Detail ID Order</b></h3>
       </span>
@@ -29,7 +32,11 @@
           <send-icon></send-icon>
         </a-col>
         <a-col :span="20">
-          <address-component></address-component>
+          <address-component>
+            <span slot="name">{{ record.sender_name }}</span>
+            <span slot="phone">{{ record.sender_phone }}</span>
+            <span slot="address">{{ record.sender_address }}</span>
+          </address-component>
         </a-col>
       </a-row>
 
@@ -43,10 +50,11 @@
         <a-col :span="20">
           <a-row>
             <a-col :span="16">
-              <address-component
-                :record="record"
-                :receiver="true"
-              ></address-component>
+              <address-component :receiver="true">
+                <span slot="name">{{ record.receiver_name }}</span>
+                <span slot="phone">{{ record.receiver_phone }}</span>
+                <span slot="address">{{ record.receiver_address }}</span>
+              </address-component>
               <order-estimation></order-estimation>
             </a-col>
             <a-col :span="8">
@@ -61,15 +69,23 @@
         <a-col :span="24 - iconSize">
           <a-row :gutter="[10, 10]">
             <!-- card barang -->
-            <a-col :span="12" v-for="index in 2" :key="index">
-              <order-item-card></order-item-card>
+            <a-col
+              :span="12"
+              v-for="(item, index) in record.items"
+              :key="index"
+            >
+              <order-item-card
+                :item="item"
+                :record="record"
+                :deleteOrderItem="deleteOrderItem"
+              ></order-item-card>
             </a-col>
           </a-row>
         </a-col>
       </a-row>
 
       <order-divider :iconSize="iconSize"></order-divider>
-
+      <!--
       <a-row type="flex">
         <a-col :span="iconSize"> </a-col>
         <a-col :span="24 - iconSize">
@@ -81,7 +97,7 @@
         </a-col>
       </a-row>
 
-      <order-divider :iconSize="iconSize"></order-divider>
+      <order-divider :iconSize="iconSize"></order-divider> -->
 
       <a-row type="flex">
         <a-col :span="iconSize"></a-col>
@@ -92,7 +108,7 @@
               <h4>
                 <a-space>
                   <car-icon />
-                  <span>GrandMax / L300</span>
+                  <span>{{ record.transporter_type }}</span>
                 </a-space>
               </h4>
             </a-col>
@@ -172,10 +188,10 @@ export default {
     OrderEstimation
   },
   props: {
-    triggerText: {
-      type: String,
-      default: "Cek"
-    },
+    // triggerText: {
+    //   type: String,
+    //   default: "Cek"
+    // },
     record: {
       type: Object,
       default: () => {}
@@ -196,7 +212,43 @@ export default {
       this.visible = false;
     },
     handleOk() {
+      this.sendToCustomer();
       this.visible = false;
+    },
+    async sendToCustomer() {
+      let response = await this.$http.patch(
+        this.routeUri("partner.cashier.home.packageChecked", {
+          package_hash: this.record.hash
+        })
+      );
+    },
+    async deleteOrderItem(item_hash, record_hash) {
+      await this.$http
+        .delete(
+          this.routeUri("partner.cashier.home.deletePackageItem", {
+            item_hash: item_hash,
+            package_hash: record_hash
+          })
+        )
+        .then(resp => {
+          let index = _.findIndex(this.record.items, { hash: item_hash });
+          this.record.items.splice(index, 1);
+        });
+    },
+    show() {
+      this.visible = true;
+    }
+  },
+  computed: {
+    triggerText() {
+      switch (this.record.status) {
+        case "estimated":
+          return "Cek";
+        case "revamp":
+          return "Lihat";
+        default:
+          return "Cek";
+      }
     }
   }
 };
