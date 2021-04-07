@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\Packages\PackageApprovedByCustomer;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -53,6 +54,9 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
         ],
         PackageCheckedByCashier::class => [
+            UpdatePackageStatusByEvent::class,
+        ],
+        PackageApprovedByCustomer::class => [
             UpdatePackageStatusByEvent::class,
         ],
     ];

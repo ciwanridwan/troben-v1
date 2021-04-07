@@ -2,6 +2,8 @@
 
 namespace Tests\Listeners;
 
+use App\Events\Packages\PackageApprovedByCustomer;
+use Database\Seeders\Packages\CustomerInChargeSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -105,6 +107,26 @@ class UpdatePackageStatusByEventTest extends TestCase
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_WAITING_FOR_APPROVAL,
+        ]);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function test_on_customer_in_charge()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $listener = new UpdatePackageStatusByEvent();
+
+        $listener->handle(new PackageApprovedByCustomer($package));
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_ACCEPTED,
+            'payment_status' => Package::PAYMENT_STATUS_PENDING,
         ]);
     }
 

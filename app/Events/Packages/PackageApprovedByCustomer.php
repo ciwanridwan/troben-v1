@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Validation\ValidationException;
 
 class PackageApprovedByCustomer
 {
@@ -21,9 +22,14 @@ class PackageApprovedByCustomer
      * Create a new event instance.
      *
      * @param \App\Models\Packages\Package $package
+     * @throws \Throwable
      */
     public function __construct(Package $package)
     {
+        throw_if($package->status !== Package::STATUS_WAITING_FOR_APPROVAL, ValidationException::withMessages([
+            'package' => __('package should be in '.Package::STATUS_WAITING_FOR_APPROVAL.' status'),
+        ]));
+
         $this->package = $package;
     }
 

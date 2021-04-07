@@ -14,6 +14,8 @@ use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Deliveries\DeliveryPackagePivot;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,9 +69,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read User|null packager
  * @property-read User|null estimator
  */
-class Package extends Model
+class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory, Attachable;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_CREATED = 'created';
@@ -93,6 +95,8 @@ class Package extends Model
     public const PAYMENT_STATUS_PENDING = 'pending';
     public const PAYMENT_STATUS_PAID = 'paid';
     public const PAYMENT_STATUS_FAILED = 'failed';
+
+    public const ATTACHMENT_RECEIPT = 'receipt';
 
     /**
      * Phone number column.
