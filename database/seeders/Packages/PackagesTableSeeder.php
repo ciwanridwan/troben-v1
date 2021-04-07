@@ -3,14 +3,12 @@
 namespace Database\Seeders\Packages;
 
 use App\Models\Service;
-use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
 use App\Models\Partners\Transporter;
-use Database\Seeders\HandlingSeeder;
 use Database\Seeders\ServiceTableSeeder;
 use Database\Seeders\GeoTableSimpleSeeder;
 
@@ -51,10 +49,6 @@ class PackagesTableSeeder extends Seeder
 
         if (Service::query()->count() === 0) {
             $this->call(ServiceTableSeeder::class);
-        }
-
-        if (Handling::query()->count() === 0) {
-            $this->call(HandlingSeeder::class);
         }
     }
 }

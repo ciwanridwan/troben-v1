@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Packages;
 
-use App\Models\Handling;
 use App\Models\Packages\Item;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -30,7 +29,7 @@ class ItemFactory extends Factory
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
             'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
-            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get(),
+            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
         ];
     }
 }

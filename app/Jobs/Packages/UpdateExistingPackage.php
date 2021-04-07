@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Packages;
 
-use App\Models\Handling;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -46,7 +45,7 @@ class UpdateExistingPackage
             'receiver_phone' => ['nullable'],
             'receiver_address' => ['nullable'],
             'handling' => ['nullable', 'array'],
-            'handling.*' => ['numeric', 'exists:handling,id'],
+            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
             'origin_regency_id' => ['nullable'],
             'destination_regency_id' => ['nullable'],
             'destination_district_id' => ['nullable'],
@@ -61,11 +60,6 @@ class UpdateExistingPackage
         if ($this->isSeparated !== null) {
             $this->package->is_separate_item = $this->isSeparated;
         }
-
-        $this->attributes['handling'] = collect($this->attributes['handling'] ?? [])
-            ->map(fn ($id) => Handling::query()->find($id))
-            ->filter(fn (?Handling $handling) => $handling !== null)
-            ->toArray();
 
         $this->package->fill($this->attributes);
 

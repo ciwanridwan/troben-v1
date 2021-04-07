@@ -2,8 +2,8 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Models\Handling;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\Partner\Warehouse\OrderController;
 
 class OrderApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     public bool $seed = true;
 
@@ -64,16 +64,11 @@ class OrderApiTest extends TestCase
         $uri = action([OrderController::class, 'update'], ['package_hash' => $package->hash]);
 
         $response = $this->putJson($uri, [
-            'handling' => $chosenHandling = Handling::query()
-                ->whereNotIn('id', collect($package->handling)->pluck('id')->toArray())
-                ->take(1)
-                ->get()
-                ->pluck('id')
-                ->toArray(),
+            'handling' => $chosenHandling = $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
         ]);
 
         $response->assertSuccessful();
-        $this->assertEquals(collect($response->json('data.handling'))->pluck('id')->toArray(), $chosenHandling);
+        $this->assertEquals($response->json('data.handling'), $chosenHandling);
     }
 
     public function test_can_fire_event_estimated()

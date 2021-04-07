@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Packages;
 
-use App\Models\Handling;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
@@ -82,7 +81,7 @@ class CreateNewPackage
             '*.width' => ['required', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.handling' => ['nullable', 'array'],
-            '*.handling.*' => ['numeric', 'exists:handling,id'],
+            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
         ])->validate();
 
         $this->isSeparate = $isSeparate;
@@ -96,11 +95,6 @@ class CreateNewPackage
      */
     public function handle(): bool
     {
-        $this->attributes['handling'] = collect($this->attributes['handling'] ?? [])
-            ->map(fn ($id) => Handling::query()->find($id))
-            ->filter(fn (?Handling $handling) => $handling !== null)
-            ->toArray();
-
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
         $this->package->save();
@@ -110,10 +104,6 @@ class CreateNewPackage
                 $item = new Item();
 
                 $attributes['package_id'] = $this->package->id;
-                $attributes['handling'] = collect($attributes['handling'] ?? [])
-                    ->map(fn ($id) => Handling::query()->find($id))
-                    ->filter(fn (?Handling $handling) => $handling !== null)
-                    ->toArray();
 
                 $item->fill($attributes);
                 $item->save();

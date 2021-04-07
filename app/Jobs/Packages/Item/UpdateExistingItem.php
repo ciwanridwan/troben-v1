@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Packages\Item;
 
-use App\Models\Handling;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UpdateExistingItem
@@ -48,20 +48,13 @@ class UpdateExistingItem
             'width' => ['nullable', 'numeric'],
             'price' => ['required', 'numeric'],
             'handling' => ['nullable', 'array'],
-            'handling.*' => ['numeric', 'exists:handling,id'],
+            '*.handling.*' => ['string', Rule::in([/* TODO : fill this with available const in Handling */])],
             'is_insured' => ['nullable', 'boolean'],
         ])->validate();
     }
 
     public function handle()
     {
-        if (array_key_exists('handling', $this->attributes)) {
-            $this->attributes['handling'] = collect($this->attributes['handling'])
-                ->map(fn ($id) => Handling::query()->find($id))
-                ->filter(fn (?Handling $handling) => $handling !== null)
-                ->toArray();
-        }
-
         $this->item->fill($this->attributes);
 
         $this->item->save();

@@ -3,7 +3,6 @@
 namespace Tests\Http\Api\Partner\Warehouse\Item;
 
 use Tests\TestCase;
-use App\Models\Handling;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -39,7 +38,7 @@ class ItemApiTest extends TestCase
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
             'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
-            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
+            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
         ];
 
         $url = route('api.order.item.store', [$package->hash]);
@@ -68,7 +67,7 @@ class ItemApiTest extends TestCase
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
             'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
-            'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
+            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
         ];
 
         $url = route('api.order.item.update', [$package->hash, $item->hash]);

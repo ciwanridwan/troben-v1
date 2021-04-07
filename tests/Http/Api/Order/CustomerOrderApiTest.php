@@ -8,11 +8,9 @@ use Database\Seeders\Packages\CustomerInChargeSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
-use App\Models\Handling;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
 use App\Models\Partners\Transporter;
-use Database\Seeders\HandlingSeeder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
@@ -32,8 +30,6 @@ class CustomerOrderApiTest extends TestCase
      */
     public function test_can_make_an_order()
     {
-        $this->seed(HandlingSeeder::class);
-
         $headers = $this->getCustomersHeader();
 
         $services = collect($this->getJson(route('api.service'), $headers)->json('data'));
@@ -51,7 +47,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'handling' => Handling::query()->take(2)->get()->map->id->toArray(),
+            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
@@ -64,7 +60,6 @@ class CustomerOrderApiTest extends TestCase
                 'length' => $this->faker->numberBetween(1, 40),
                 'height' => $this->faker->numberBetween(1, 40),
                 'is_insured' => true,
-                // 'handling' => Handling::query()->take($this->faker->numberBetween(1, Handling::query()->count()))->get()->map->id->toArray(),
             ])->toArray(),
         ];
 
@@ -99,7 +94,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'handling' => Handling::query()->take(1)->get()->map->id->toArray(),
+            'handling' => $this->faker->randomElements([/* TODO : fill this with available const in Handling */]),
             'origin_regency_id' => $originSubDistrict['regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
