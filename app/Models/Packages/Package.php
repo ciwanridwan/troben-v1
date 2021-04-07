@@ -74,6 +74,7 @@ class Package extends Model implements AttachableContract
     use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory, Attachable;
 
     public const STATUS_CANCEL = 'cancel';
+    public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
     public const STATUS_WAITING_FOR_PICKUP = 'waiting_for_pickup';
@@ -187,6 +188,7 @@ class Package extends Model implements AttachableContract
     {
         return [
             self::STATUS_CANCEL,
+            self::STATUS_LOST,
             self::STATUS_CREATED,
             self::STATUS_PENDING,
             self::STATUS_WAITING_FOR_PICKUP,
