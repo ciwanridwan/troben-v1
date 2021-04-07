@@ -30,15 +30,16 @@ class PackagesTableSeeder extends Seeder
         $this->command->info('=> create order for each customer.');
 
         Customer::query()->get()->each(
-            fn (Customer $customer) => Package::factory()->count(self::$CUSTOMER_PACKAGES)
+            fn (Customer $customer) => Package::factory()
+                ->count(self::$CUSTOMER_PACKAGES)
                 ->state([
                     'customer_id' => $customer->id,
                     'sender_name' => $customer->name,
                     'service_code' => Service::TRAWLPACK_STANDARD,
                     'transporter_type' => Transporter::TYPE_BIKE,
-                ])->create()->each(
-                fn (Package $package) => Item::factory()->count(random_int(1, 5))
-                    ->state(['package_id' => $package->id])->create()))
+                ])
+                ->create()
+                ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create()))
             ->each(fn (Customer $customer) => $this->command->warn('=> 2 order created for customer : '.$customer->name));
     }
 

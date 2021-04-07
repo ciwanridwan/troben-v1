@@ -19,6 +19,7 @@ class CreatePackageItemsTable extends Migration
             $table->string('barcode')->nullable();
             $table->unsignedInteger('qty')->default(1);
             $table->string('name');
+            $table->decimal('price', 14)->default(0);
             $table->text('desc')->nullable();
 
             $table->unsignedInteger('weight')->default(0);

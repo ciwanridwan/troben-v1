@@ -71,6 +71,7 @@ class Item extends Model
         'height' => 'int',
         'length' => 'int',
         'width' => 'int',
+        'price' => 'float',
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => 'array',
