@@ -2,8 +2,8 @@
 
 namespace Database\Factories\Packages;
 
-use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Item;
+use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ItemFactory extends Factory

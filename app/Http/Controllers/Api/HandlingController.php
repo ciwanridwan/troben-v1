@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Casts\Package\Items\Handling;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Casts\Package\Items\Handling;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class HandlingController extends Controller

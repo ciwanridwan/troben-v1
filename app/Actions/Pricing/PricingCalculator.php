@@ -4,8 +4,8 @@ namespace App\Actions\Pricing;
 
 use App\Models\Price;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Models\Service;
+use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\PriceCalculatorResource;

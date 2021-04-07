@@ -2,10 +2,10 @@
 
 namespace Tests\Http\Api\Order;
 
-use App\Casts\Package\Items\Handling;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
+use App\Casts\Package\Items\Handling;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

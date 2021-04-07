@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Partner\Cashier;
 
-use App\Concerns\Controllers\HasResource;
-use App\Events\Packages\PackageCheckedByCashier;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
-use App\Jobs\Packages\Item\UpdateExistingItem;
+use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
-use App\Supports\Repositories\PartnerRepository;
+use App\Http\Controllers\Controller;
+use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Jobs\Packages\Item\UpdateExistingItem;
+use App\Events\Packages\PackageCheckedByCashier;
+use App\Supports\Repositories\PartnerRepository;
+use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 
 class HomeController extends Controller
 {
-
     use HasResource;
 
     /**
@@ -63,6 +62,7 @@ class HomeController extends Controller
         $job = new UpdateExistingItem($package, $item, $request->toArray());
 
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->item))->json();
     }
 
@@ -71,6 +71,7 @@ class HomeController extends Controller
         $job = new DeleteItemFromExistingPackage($package, $item);
 
         $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS, $job->item))->json();
     }
 

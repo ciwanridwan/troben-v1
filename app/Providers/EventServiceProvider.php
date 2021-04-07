@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Events\Packages\PackageApprovedByCustomer;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
 use App\Events\Packages\PackageCheckedByCashier;
 use App\Listeners\Packages\GeneratePackagePrices;
+use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
