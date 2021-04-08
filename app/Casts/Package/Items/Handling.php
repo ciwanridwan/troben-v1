@@ -27,10 +27,7 @@ class Handling implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-        return collect(json_decode($value))->map(fn(string $type) => [
-            'type' => $type,
-            'price' => self::calculator($type, $model->height, $model->length, $model->width, $model->weight),
-        ]);
+        return json_decode($value, true);
     }
 
     /**
@@ -44,7 +41,12 @@ class Handling implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
-        return json_encode($value);
+        $data = collect($value)->map(fn(string $type) => [
+            'type' => $type,
+            'price' => self::calculator($type, $model->height, $model->length, $model->width, $model->weight),
+        ]);
+
+        return json_encode($data);
     }
 
     public static function getTypes(): array
@@ -111,8 +113,7 @@ class Handling implements CastsAttributes
 
                 return $price < $min_price ? $min_price : $price;
             default:
-                # code...
-                break;
+                return 0;
         }
     }
 }
