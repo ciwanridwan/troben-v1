@@ -1,14 +1,28 @@
 _id: req_55ac973776fb412590a8ea0a508a0df7
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1617566280272
+modified: 1617905992627
 created: 1615631386155
 url: "{{ _.base_url }}/order"
 name: List Order
-description: ""
+description: >-
+  Accepted Queries
+
+
+  |name|type|description|
+
+  |----|----|-----------|
+
+  |status|string/array|[enum see here](https://github.com/Trawlbens-Dev/trawlbens.core/blob/master/app/Models/Packages/Package.php#L74), enum may change while development occured|
+
+  |
 method: GET
 body: {}
-parameters: []
+parameters:
+  - name: status
+    value: waiting_for_approval
+    description: ""
+    id: pair_2268ac424eb1421fb2e0237414d08ebb
 headers:
   - name: Accept
     value: application/json
