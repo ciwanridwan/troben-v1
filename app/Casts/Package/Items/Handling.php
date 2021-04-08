@@ -33,7 +33,7 @@ class Handling implements CastsAttributes
     /**
      * Prepare the given value for storage.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  \App\Models\Packages\Item  $model
      * @param  string  $key
      * @param  mixed  $value
      * @param  array  $attributes
@@ -43,7 +43,7 @@ class Handling implements CastsAttributes
     {
         $data = collect($value)->map(fn(string $type) => [
             'type' => $type,
-            'price' => self::calculator($type, $model->height, $model->length, $model->width, $model->weight),
+            'price' => PricingCalculator::ceilByTolerance(self::calculator($type, $model->height, $model->length, $model->width, $model->weight)),
         ]);
 
         return json_encode($data);
