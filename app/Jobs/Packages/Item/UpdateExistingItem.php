@@ -47,7 +47,7 @@ class UpdateExistingItem
             'height' => ['nullable', 'numeric'],
             'length' => ['nullable', 'numeric'],
             'width' => ['nullable', 'numeric'],
-            'price' => ['required', 'numeric'],
+            'price' => ['nullable', 'numeric'],
             'handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             'is_insured' => ['nullable', 'boolean'],
