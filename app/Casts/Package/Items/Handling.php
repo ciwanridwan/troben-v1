@@ -43,7 +43,7 @@ class Handling implements CastsAttributes
     {
         $data = collect($value)->map(fn (string $type) => [
             'type' => $type,
-            'price' => PricingCalculator::ceilByTolerance(self::calculator($type, $model->height, $model->length, $model->width, $model->weight)),
+            'price' => ceil(self::calculator($type, $model->height, $model->length, $model->width, $model->weight)),
         ]);
 
         return json_encode($data);
