@@ -4,11 +4,13 @@ namespace App\Jobs\Packages;
 
 use App\Models\Packages\Package;
 use Illuminate\Http\UploadedFile;
-use Jalameta\Attachments\Concerns\AttachmentCreator;
+use App\Concerns\Jobs\AttachmentCreator;
 
 class CustomerUploadReceipt
 {
     use AttachmentCreator;
+
+    const DISK_DRIVER = 'receipt';
 
     public Package $package;
 
@@ -22,10 +24,14 @@ class CustomerUploadReceipt
 
     public function handle()
     {
-        $attachment = $this->create($this->receipt, [
-            'title' => Package::ATTACHMENT_RECEIPT,
+        $this->package->attachments()->updateOrCreate([
+            'type' => Package::ATTACHMENT_RECEIPT,
+        ], [
+            'type' => Package::ATTACHMENT_RECEIPT,
+            'title' => $this->receipt->getClientOriginalName(),
+            'path' => $this->storeFile($this->receipt, self::DISK_DRIVER),
+            'disk' => self::DISK_DRIVER,
+            'mime' => $this->getUploadedFileMime($this->receipt),
         ]);
-
-        $this->package->attachments()->attach($attachment);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Products;
 
+use App\Concerns\Jobs\AttachmentCreator;
 use Illuminate\Bus\Batchable;
 use App\Models\Products\Product;
 use Illuminate\Http\UploadedFile;
@@ -10,7 +11,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Products\NewProductCreated;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Jalameta\Attachments\Concerns\AttachmentCreator;
 
 class CreateNewProduct
 {

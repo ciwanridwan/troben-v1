@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use App\Models\Customers\Customer;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 
 class CustomersTableSeeder extends Seeder
 {
@@ -28,10 +27,10 @@ class CustomersTableSeeder extends Seeder
         // make the rest of the data.
         Customer::factory()
             ->count(9)
-            ->state(new Sequence(
-                ['email_verified_at' => null],
-                ['email_verified_at' => Carbon::now()]
-            ))
+            ->state([
+                'email_verified_at' => Carbon::now(),
+                'phone_verified_at' => Carbon::now(),
+            ])
             ->create();
 
         $this->command->table(['name', 'phone', 'email'], Customer::query()->get()->map(fn (Customer $customer) => [

@@ -26,7 +26,7 @@ class CreateAttachmentsTable extends Migration
             $table->string('path');
             $table->string('type')->default('attachment');
             $table->text('description')->nullable();
-            $table->text('options')->nullable();
+            $table->json('options')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Order;
 
+use App\Jobs\Packages\CustomerUploadReceipt;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use Illuminate\Http\UploadedFile;
@@ -177,16 +178,18 @@ class CustomerOrderApiTest extends TestCase
 
         $file = UploadedFile::fake()->image('avatar.jpg');
 
-        $response = $this->post(action([OrderController::class, 'receipt'], ['package_hash' => $package->hash]), [
+        $response = $this->postJson(action([OrderController::class, 'receipt'], ['package_hash' => $package->hash]), [
             'receipt' => $file,
         ]);
 
         $response->assertSuccessful();
 
         $this->assertDatabaseHas('attachments', [
-            'title' => Package::ATTACHMENT_RECEIPT,
+            'title' => $file->getClientOriginalName(),
+            'type' => Package::ATTACHMENT_RECEIPT,
+            'disk' => CustomerUploadReceipt::DISK_DRIVER,
         ]);
 
-        $this->assertNotNull($package->attachments()->where('title', Package::ATTACHMENT_RECEIPT)->first());
+        $this->assertNotNull($package->attachments()->where('type', Package::ATTACHMENT_RECEIPT)->first());
     }
 }

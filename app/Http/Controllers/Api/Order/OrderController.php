@@ -15,6 +15,7 @@ use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
+use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
@@ -25,6 +26,8 @@ class OrderController extends Controller
         $query->when($request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
             fn (Builder $query) => $query->orderByDesc('created_at'));
+
+        $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
 
@@ -43,6 +46,7 @@ class OrderController extends Controller
         $this->authorize('view', $package);
 
         return $this->jsonSuccess(new PackageResource($package->load(
+            'attachments',
             'items',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
@@ -151,6 +155,6 @@ class OrderController extends Controller
 
         $this->dispatchNow($job);
 
-        return $this->jsonSuccess(PackageResource::make($job->package));
+        return $this->jsonSuccess(PackageResource::make($job->package->load('attachments')));
     }
 }

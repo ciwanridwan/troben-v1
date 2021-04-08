@@ -55,6 +55,12 @@ class Price extends Model
         'amount' => 'float',
     ];
 
+    protected $hidden = [
+        'id',
+        'package_id',
+        'package_item_id',
+    ];
+
     /**
      * Get all available types.
      *
