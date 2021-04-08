@@ -9,7 +9,7 @@ use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewPriceFromExistingItem
+class UpdateOrCreatePriceFromExistingItem
 {
     use Dispatchable;
 
@@ -63,7 +63,9 @@ class CreateNewPriceFromExistingItem
         $this->attributes['package_id'] = $this->package->id;
 
         /** @var Price $price */
-        $price = $this->item->prices()->create($this->attributes);
+        $price = $this->item->prices()->updateOrCreate([
+            'package_id' => $this->package->id,
+        ], $this->attributes);
 
         $this->price = $price;
     }

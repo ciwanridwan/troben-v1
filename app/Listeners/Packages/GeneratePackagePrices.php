@@ -6,7 +6,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\Packages\Item\Prices\CreateNewPriceFromExistingItem;
+use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 
 class GeneratePackagePrices
 {
@@ -26,7 +26,7 @@ class GeneratePackagePrices
             $event->package->items->each(function (Item $item) use ($event) {
                 // todo : create price type handling
                 foreach (($item->handling ?? []) as $handling) {
-                    $job = new CreateNewPriceFromExistingItem($event->package, $item, [
+                    $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
                         'description' => $handling['type'],
                         'amount' => $handling['price'],
@@ -54,7 +54,7 @@ class GeneratePackagePrices
                 // todo : create price type insurance, attach to item
                 if ($item->is_insured) {
                     $insured_mul = 0.2 / 100; // 0.2%
-                    $job = new CreateNewPriceFromExistingItem($event->package, $item, [
+                    $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_INSURANCE,
                         'description' => Price::TYPE_INSURANCE,
                         'amount' => $item->price * $insured_mul,

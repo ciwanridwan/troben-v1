@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Packages;
 
+use App\Events\Packages\PackageCreated;
 use App\Models\Service;
 use App\Models\Packages\Item;
 use App\Models\Geo\SubDistrict;
@@ -37,7 +38,8 @@ class PackagesTableSeeder extends Seeder
                     'transporter_type' => Transporter::TYPE_BIKE,
                 ])
                 ->create()
-                ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create()))
+                ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create())
+                ->each(fn (Package $package) => event(new PackageCreated($package))))
             ->each(fn (Customer $customer) => $this->command->warn('=> 2 order created for customer : '.$customer->name));
     }
 
