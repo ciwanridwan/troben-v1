@@ -1,6 +1,7 @@
 import CarIcon from "./carIcon";
 import InformationIcon from "./informationIcon";
 import TrawlRedIcon from "./trawlRedIcon";
+import TrawlWhiteIcon from "./trawlWhiteIcon";
 import SendIcon from "./sendIcon";
 import ReceiveIcon from "./receiveIcon";
 import GpsIcon from "./gpsIcon";
@@ -29,5 +30,6 @@ export {
   PrintIcon,
   CalendarIcon,
   DeliveryIcon,
-  HomeIcon
+  HomeIcon,
+  TrawlWhiteIcon
 };
