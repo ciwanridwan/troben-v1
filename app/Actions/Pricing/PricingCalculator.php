@@ -47,7 +47,9 @@ class PricingCalculator
                     $this->attributes['height'],
                     $this->attributes['length'],
                     $this->attributes['width'],
-                    Arr::get($this->attributes, 'service', Service::TRAWLPACK_STANDARD)));
+                    Arr::get($this->attributes, 'service', Service::TRAWLPACK_STANDARD)
+                )
+            );
         }
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
@@ -61,7 +63,16 @@ class PricingCalculator
 
         $this->tier = $this->getTier($this->price, $weight);
 
-        $dimension_charge = $this->getDimensionCharge($weight, $this->tier);
+        $dimension_charge = $this->getDimensionCharge(
+            $this->attributes['origin_province_id'],
+            $this->attributes['origin_regency_id'],
+            $this->attributes['destination_id'],
+            $this->attributes['height'],
+            $this->attributes['length'],
+            $this->attributes['width'],
+            $this->attributes['weight'],
+            Arr::get($this->attributes, 'service', Service::TRAWLPACK_STANDARD)
+        );
 
         $goods_property = Arr::only($this->attributes, ['height', 'width', 'length', 'weight']);
 
@@ -82,8 +93,25 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public function getDimensionCharge(int $weight, int $tier = 0)
+    public static function getDimensionCharge($origin_province_id,   $origin_regency_id,  $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD)
     {
+        $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
+        $act_weight = self::ceilByTolerance($weight);
+        $act_volume = self::ceilByTolerance(
+            self::getVolume(
+                $height,
+                $length,
+                $width,
+                $service
+            )
+        );
+        $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
+
+        // check if lt min weight
+        $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
+
+        $tier = self::getTier($price, $weight);
+
         return $weight * $tier;
     }
 
@@ -95,7 +123,7 @@ class PricingCalculator
      * @return Price
      * @throws \Throwable
      */
-    public function getPrice(int $origin_province_id, int  $origin_regency_id, int $destination_id): Price
+    public static function getPrice($origin_province_id,   $origin_regency_id,  $destination_id): Price
     {
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
@@ -105,7 +133,7 @@ class PricingCalculator
         return $price;
     }
 
-    public function getTier(Price $price, float $weight = 0)
+    public static function getTier(Price $price, float $weight = 0)
     {
         if ($weight <= Price::TIER_1) {
             return $price->tier_1;

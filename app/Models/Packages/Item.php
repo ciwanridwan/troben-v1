@@ -9,6 +9,7 @@ use App\Actions\Pricing\PricingCalculator;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Package Item model.
@@ -98,6 +99,16 @@ class Item extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
+
+    /**
+     * Get all of the prices for the Item
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(Price::class, 'package_item_id', 'id');
     }
 
     public function getWeightBorneAttribute()
