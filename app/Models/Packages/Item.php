@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $width
  * @property bool $in_estimation
  * @property bool $is_insured
- * @property array $handling
+ * @property array|null $handling
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  *

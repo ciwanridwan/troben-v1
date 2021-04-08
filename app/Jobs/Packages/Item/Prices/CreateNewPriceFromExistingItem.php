@@ -36,8 +36,10 @@ class CreateNewPriceFromExistingItem
 
 
     /**
+     * @param \App\Models\Packages\Package $package
      * @param Item $item
      * @param array $inputs
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(Package $package, Item $item, array $inputs)
     {
@@ -59,10 +61,10 @@ class CreateNewPriceFromExistingItem
     public function handle()
     {
         $this->attributes['package_id'] = $this->package->id;
+
+        /** @var Price $price */
         $price = $this->item->prices()->create($this->attributes);
 
         $this->price = $price;
-
-        return $this->price->exists;
     }
 }

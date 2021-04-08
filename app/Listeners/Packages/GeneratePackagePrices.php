@@ -5,19 +5,19 @@ namespace App\Listeners\Packages;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
-use App\Casts\Package\Items\Handling;
-use App\Actions\Pricing\PricingCalculator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\CreateNewPriceFromExistingItem;
 
 class GeneratePackagePrices
 {
     use DispatchesJobs;
+
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function handle($event)
     {
@@ -25,7 +25,7 @@ class GeneratePackagePrices
             // TODO : map item to price
             $event->package->items->each(function (Item $item) use ($event) {
                 // todo : create price type handling
-                foreach ($item->handling as $handling) {
+                foreach (($item->handling ?? []) as $handling) {
                     $job = new CreateNewPriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
                         'description' => $handling['type'],
