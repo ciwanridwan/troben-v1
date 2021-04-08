@@ -2,10 +2,10 @@
 
 namespace App\Models\Packages;
 
-use App\Casts\Package\Items\Handling;
-use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Models\HasBarcode;
+use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
+use App\Actions\Pricing\PricingCalculator;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

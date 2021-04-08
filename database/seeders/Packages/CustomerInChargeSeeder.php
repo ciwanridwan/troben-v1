@@ -2,12 +2,12 @@
 
 namespace Database\Seeders\Packages;
 
-use App\Events\Packages\PackageCheckedByCashier;
-use App\Models\Packages\Package;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
+use App\Events\Packages\PackageCheckedByCashier;
 
 class CustomerInChargeSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class CustomerInChargeSeeder extends Seeder
         $this->prepareDependency();
 
         self::setModelGuardedAndQueueToSync(function () {
-            Event::listen(PackageCheckedByCashier::class, fn(PackageCheckedByCashier $event) => $this->command
+            Event::listen(PackageCheckedByCashier::class, fn (PackageCheckedByCashier $event) => $this->command
                 ->warn('=> package from '.$event->package->sender_name.' status changed to "waiting for approval"..'));
 
             $query = Package::query()->where('status', Package::STATUS_ESTIMATED);

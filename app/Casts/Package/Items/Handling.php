@@ -7,14 +7,14 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class Handling implements CastsAttributes
 {
-    const TYPE_BUBBLE_WRAP = "bubble wrap";
-    const TYPE_PLASTIC = "plastic";
-    const TYPE_CARDBOARD = "cardboard";
-    const TYPE_WOOD = "wood";
-    const TYPE_SANDBAG_SM = "sandbag sm";
-    const TYPE_SANDBAG_MD = "sandbag md";
-    const TYPE_SANDBAG_L = "sandbag l";
-    const TYPE_PALLETE = "pallete";
+    const TYPE_BUBBLE_WRAP = 'bubble wrap';
+    const TYPE_PLASTIC = 'plastic';
+    const TYPE_CARDBOARD = 'cardboard';
+    const TYPE_WOOD = 'wood';
+    const TYPE_SANDBAG_SM = 'sandbag sm';
+    const TYPE_SANDBAG_MD = 'sandbag md';
+    const TYPE_SANDBAG_L = 'sandbag l';
+    const TYPE_PALLETE = 'pallete';
 
     /**
      * Cast the given value.
@@ -70,29 +70,36 @@ class Handling implements CastsAttributes
                 $min_price = 10000;
                 $base_price = 350;
                 $price = ($height + $length + $width) / 3 * $base_price;
+
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_PLASTIC:
                 $min_price = 3000;
                 $base_price = 125;
                 $price = ($height + $length + $width) / 3 * $base_price;
+
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_CARDBOARD:
                 $min_price = 10000;
                 $base_price = 350;
                 $price = ($height + $length + $width) / 3 * $base_price;
+
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_SANDBAG_SM:
                 $base_price = 7500;
+
                 return $base_price;
             case self::TYPE_SANDBAG_MD:
                 $base_price = 10000;
+
                 return $base_price;
             case self::TYPE_SANDBAG_L:
                 $base_price = 12500;
+
                 return $base_price;
             case self::TYPE_PALLETE:
                 $base_price = 2000;
                 $price = ($length + $width) / 2 * $base_price;
+
                 return $price;
             case self::TYPE_WOOD:
                 $add_dimension = 7; // added 7cm each dimension

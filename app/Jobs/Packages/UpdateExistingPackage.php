@@ -2,10 +2,10 @@
 
 namespace App\Jobs\Packages;
 
-use App\Casts\Package\Items\Handling;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
+use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;

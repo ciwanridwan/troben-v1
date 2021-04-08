@@ -2,10 +2,10 @@
 
 namespace Tests\Http\Api\Partner\Warehouse\Item;
 
-use App\Casts\Package\Items\Handling;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Casts\Package\Items\Handling;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;

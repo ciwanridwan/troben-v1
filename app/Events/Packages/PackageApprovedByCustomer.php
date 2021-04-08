@@ -6,8 +6,8 @@ use App\Models\Packages\Package;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class PackageApprovedByCustomer
 {

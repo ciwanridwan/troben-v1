@@ -2,21 +2,21 @@
 
 namespace Tests\Http\Api\Order;
 
-use App\Casts\Package\Items\Handling;
-use App\Events\Packages\PackageApprovedByCustomer;
-use App\Http\Controllers\Api\Order\OrderController;
-use Database\Seeders\Packages\CustomerInChargeSeeder;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use App\Models\Packages\Package;
+use Illuminate\Http\UploadedFile;
 use App\Models\Customers\Customer;
 use App\Models\Partners\Transporter;
+use App\Casts\Package\Items\Handling;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\WithFaker;
+use App\Events\Packages\PackageApprovedByCustomer;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Http\Controllers\Api\Order\OrderController;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
+use Database\Seeders\Packages\CustomerInChargeSeeder;
 
 class CustomerOrderApiTest extends TestCase
 {

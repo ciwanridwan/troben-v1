@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Packages\Item;
 
-use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Item;
+use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
+use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Validation\Rule;
 
 class CreateNewItemFromExistingPackage
 {
