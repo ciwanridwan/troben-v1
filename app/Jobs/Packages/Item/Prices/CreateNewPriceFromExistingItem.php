@@ -3,11 +3,11 @@
 namespace App\Jobs\Packages\Item\Prices;
 
 use App\Models\Packages\Item;
-use App\Models\Packages\Package;
 use App\Models\Packages\Price;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\Packages\Package;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class CreateNewPriceFromExistingItem
 {
@@ -23,16 +23,16 @@ class CreateNewPriceFromExistingItem
      */
     public Item $item;
 
-    /**
-     * @var array
-     */
-    private array $attributes;
-
 
     /**
      * @var Price
      */
     public Price $price;
+
+    /**
+     * @var array
+     */
+    private array $attributes;
 
 
     /**

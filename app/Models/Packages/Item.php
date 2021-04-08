@@ -7,9 +7,9 @@ use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Package Item model.
@@ -102,7 +102,7 @@ class Item extends Model
     }
 
     /**
-     * Get all of the prices for the Item
+     * Get all of the prices for the Item.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

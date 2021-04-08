@@ -2,14 +2,13 @@
 
 namespace App\Listeners\Packages;
 
-use App\Actions\Pricing\PricingCalculator;
-use App\Casts\Package\Items\Handling;
-use App\Http\Controllers\Admin\Master\PricingController;
-use App\Jobs\Packages\Item\Prices\CreateNewPriceFromExistingItem;
 use App\Models\Packages\Item;
-use App\Models\Packages\Package;
 use App\Models\Packages\Price;
+use App\Models\Packages\Package;
+use App\Casts\Package\Items\Handling;
+use App\Actions\Pricing\PricingCalculator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Packages\Item\Prices\CreateNewPriceFromExistingItem;
 
 class GeneratePackagePrices
 {
@@ -30,7 +29,7 @@ class GeneratePackagePrices
                     $job = new CreateNewPriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
                         'description' => $handling['type'],
-                        'amount' => $handling['price']
+                        'amount' => $handling['price'],
                     ]);
                     $this->dispatch($job);
                 }
@@ -58,7 +57,7 @@ class GeneratePackagePrices
                     $job = new CreateNewPriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_INSURANCE,
                         'description' => Price::TYPE_INSURANCE,
-                        'amount' => $item->price * $insured_mul
+                        'amount' => $item->price * $insured_mul,
                     ]);
                     $this->dispatch($job);
                 }

@@ -93,7 +93,7 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public static function getDimensionCharge($origin_province_id,   $origin_regency_id,  $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD)
+    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD)
     {
         $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
         $act_weight = self::ceilByTolerance($weight);
@@ -123,7 +123,7 @@ class PricingCalculator
      * @return Price
      * @throws \Throwable
      */
-    public static function getPrice($origin_province_id,   $origin_regency_id,  $destination_id): Price
+    public static function getPrice($origin_province_id, $origin_regency_id, $destination_id): Price
     {
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
