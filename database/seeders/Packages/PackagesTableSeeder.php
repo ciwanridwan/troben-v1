@@ -31,19 +31,24 @@ class PackagesTableSeeder extends Seeder
         Customer::query()->get()->each(
             fn (Customer $customer) => Package::factory()
                 ->count(self::$CUSTOMER_PACKAGES)
-                ->state([
-                    'customer_id' => $customer->id,
-                    'sender_name' => $customer->name,
-                    'service_code' => Service::TRAWLPACK_STANDARD,
-                    'transporter_type' => Transporter::TYPE_BIKE,
-                ])
+                ->state($this->stateResolver($customer))
                 ->create()
                 ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create())
                 ->each(fn (Package $package) => event(new PackageCreated($package))))
-            ->each(fn (Customer $customer) => $this->command->warn('=> 2 order created for customer : '.$customer->name));
+            ->each(fn (Customer $customer) => $this->command->warn('=> '.self::$CUSTOMER_PACKAGES.' order created for customer : '.$customer->name));
     }
 
-    private function checkOrSeedDependenciesData()
+    protected function stateResolver(Customer $customer): array
+    {
+        return [
+            'customer_id' => $customer->id,
+            'sender_name' => $customer->name,
+            'service_code' => Service::TRAWLPACK_STANDARD,
+            'transporter_type' => Transporter::TYPE_BIKE,
+        ];
+    }
+
+    protected function checkOrSeedDependenciesData()
     {
         if (SubDistrict::query()->count() === 0) {
             $this->call(GeoTableSimpleSeeder::class);

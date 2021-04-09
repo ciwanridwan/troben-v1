@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\PostPaymentSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
@@ -18,8 +19,7 @@ class StagingDatabaseSeeder extends Seeder
      */
     public function run()
     {
-        PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
-
+        $this->command->getOutput()->title('Common seeder');
         $this->call([
             UsersTableSeeder::class,
             GeoTableSimpleSeeder::class,
@@ -27,12 +27,23 @@ class StagingDatabaseSeeder extends Seeder
             ServiceTableSeeder::class,
             PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
+        ]);
+
+        PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
+        $this->command->getOutput()->title('Pickup flow seeder');
+        $this->call([
             PackagesTableSeeder::class,
             TransportersTableSeeder::class,
             AssignedPackagesSeeder::class,
             WarehouseInChargeSeeder::class,
             CashierInChargeSeeder::class,
             CustomerInChargeSeeder::class,
+        ]);
+
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Post payment seeder');
+        $this->call([
+            PostPaymentSeeder::class,
         ]);
     }
 }
