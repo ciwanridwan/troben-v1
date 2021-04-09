@@ -3,15 +3,15 @@
 namespace App\Concerns\Jobs;
 
 use App\Models\Attachment;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 trait AttachmentCreator
 {
     /**
-     * Create any attachment
+     * Create any attachment.
      *
      * @param UploadedFile $file
      * @param array $attributes
@@ -26,7 +26,7 @@ trait AttachmentCreator
     }
 
     /**
-     * Store file into disk
+     * Store file into disk.
      *
      * @param UploadedFile $file
      * @param string $disk
@@ -103,5 +103,4 @@ trait AttachmentCreator
 
         return $attachment;
     }
-
 }

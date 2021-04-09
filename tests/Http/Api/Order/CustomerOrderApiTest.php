@@ -2,7 +2,6 @@
 
 namespace Tests\Http\Api\Order;
 
-use App\Jobs\Packages\CustomerUploadReceipt;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use Illuminate\Http\UploadedFile;
@@ -11,6 +10,7 @@ use App\Models\Partners\Transporter;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Builder;
+use App\Jobs\Packages\CustomerUploadReceipt;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Events\Packages\PackageApprovedByCustomer;
 use Database\Seeders\Packages\PackagesTableSeeder;

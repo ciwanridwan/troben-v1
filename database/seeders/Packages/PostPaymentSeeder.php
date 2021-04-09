@@ -2,18 +2,18 @@
 
 namespace Database\Seeders\Packages;
 
-use App\Events\Packages\PackageCreated;
 use App\Models\Attachment;
-use App\Models\Customers\Customer;
-use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\Partners\Transporter;
-use Database\Seeders\AttachmentsTableSeeder;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Customers\Customer;
 use Illuminate\Support\Collection;
+use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Event;
+use App\Events\Packages\PackageCreated;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Partners\Pivot\UserablePivot;
+use Database\Seeders\AttachmentsTableSeeder;
 
 class PostPaymentSeeder extends PackagesTableSeeder
 {
@@ -21,7 +21,7 @@ class PostPaymentSeeder extends PackagesTableSeeder
     {
         $packages = new Collection();
 
-        Event::listen(PackageCreated::class, fn(PackageCreated $event) => $packages->push($event->package));
+        Event::listen(PackageCreated::class, fn (PackageCreated $event) => $packages->push($event->package));
 
         parent::run();
 

@@ -2,11 +2,11 @@
 
 namespace App\Jobs\Products;
 
-use App\Concerns\Jobs\AttachmentCreator;
 use Illuminate\Bus\Batchable;
 use App\Models\Products\Product;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\SerializesModels;
+use App\Concerns\Jobs\AttachmentCreator;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Products\NewProductCreated;

@@ -36,7 +36,7 @@ class Attachment extends BaseAttachment
     }
 
     /**
-     * Override the disk attribute
+     * Override the disk attribute.
      *
      * @return \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed
      */
@@ -49,7 +49,7 @@ class Attachment extends BaseAttachment
     {
         parent::boot();
 
-        self::updating(function (Attachment $attachment) {
+        self::updating(function (self $attachment) {
             if ($attachment->isDirty('path')) {
                 Storage::disk($attachment->getAttribute('disk'))->delete($attachment->getRawOriginal('path'));
             }

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\Packages;
 
-use App\Events\Packages\PackageCreated;
 use App\Models\Service;
 use App\Models\Packages\Item;
 use App\Models\Geo\SubDistrict;
@@ -10,6 +9,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
 use App\Models\Partners\Transporter;
+use App\Events\Packages\PackageCreated;
 use Database\Seeders\ServiceTableSeeder;
 use Database\Seeders\GeoTableSimpleSeeder;
 

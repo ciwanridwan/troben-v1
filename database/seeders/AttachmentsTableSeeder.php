@@ -15,11 +15,11 @@ class AttachmentsTableSeeder extends Seeder
     public function run()
     {
         Attachment::query()->create([
-            "title" => "receipt.jpg",
-            "mime" => "image/jpeg",
-            "disk" => "receipt",
-            "path" => "dummies/receipt.jpg",
-            "type" => "receipt",
+            'title' => 'receipt.jpg',
+            'mime' => 'image/jpeg',
+            'disk' => 'receipt',
+            'path' => 'dummies/receipt.jpg',
+            'type' => 'receipt',
         ]);
     }
 }

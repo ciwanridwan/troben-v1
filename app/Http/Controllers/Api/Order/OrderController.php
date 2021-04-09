@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Response;
 use App\Exceptions\Error;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +16,6 @@ use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
-use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
