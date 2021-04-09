@@ -1,0 +1,43 @@
+_id: req_9a7ad173d5404788906eb522da9413ae
+type: Request
+parentId: fld_e25d5ee71505426f9268b98cda449dfa
+modified: 1617907657984
+created: 1617907522844
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}/receipt"
+name: Upload Receipt
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: receipt
+      value: ""
+      id: pair_4c2d6262eebd4f9197e471b41b695c8d
+      type: file
+      multiline: null
+      fileName: /home/muhajirin/codelabs/work/dev/trawlbens.core/storage/app/dummies/receipt.jpg
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_914d2cc83de64477ab7da3750dfd0436
+authentication: {}
+metaSortKey: -1613092841811.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
