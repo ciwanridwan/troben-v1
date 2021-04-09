@@ -8,16 +8,16 @@ use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Partners\Partner;
-use Illuminate\Contracts\Foundation\Application;
 
 class PartnerRepository
 {
     protected ?string $scopedRole = null;
-    private Application $application;
 
-    public function __construct(Application $application)
+    private \Closure $requestCallback;
+
+    public function __construct(\Closure $requestCallback)
     {
-        $this->application = $application;
+        $this->requestCallback = $requestCallback;
     }
 
     public function setScopeRole(string $role)
@@ -107,7 +107,8 @@ class PartnerRepository
 
     private function getRequest(): Request
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        return $this->application->make(Request::class);
+        $requestCallback = $this->requestCallback;
+
+        return $requestCallback();
     }
 }
