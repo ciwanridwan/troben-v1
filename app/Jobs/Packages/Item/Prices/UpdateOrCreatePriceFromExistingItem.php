@@ -65,6 +65,7 @@ class UpdateOrCreatePriceFromExistingItem
         /** @var Price $price */
         $price = $this->item->prices()->updateOrCreate([
             'package_id' => $this->package->id,
+            'type' => $this->attributes['type'],
         ], $this->attributes);
 
         $this->price = $price;
