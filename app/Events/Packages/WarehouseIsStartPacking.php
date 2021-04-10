@@ -29,7 +29,7 @@ class WarehouseIsStartPacking
     public function __construct(Package $package)
     {
         throw_if(
-            $package->status !== Package::STATUS_ACCEPTED || $package->payment_status !== Package::PAYMENT_STATUS_PAID,
+            $package->status !== Package::STATUS_WAITING_FOR_PACKING || $package->payment_status !== Package::PAYMENT_STATUS_PAID,
             ValidationException::withMessages([
                 'package' => __('package not ready to be packed.'),
             ]));

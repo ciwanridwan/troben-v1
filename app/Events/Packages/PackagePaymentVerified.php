@@ -9,7 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Validation\ValidationException;
 
-class PackagePaymentVerifiedByAdmin
+class PackagePaymentVerified
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

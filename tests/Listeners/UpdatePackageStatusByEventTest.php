@@ -3,7 +3,7 @@
 namespace Tests\Listeners;
 
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
-use App\Events\Packages\PackagePaymentVerifiedByAdmin;
+use App\Events\Packages\PackagePaymentVerified;
 use App\Events\Packages\WarehouseIsStartPacking;
 use Database\Seeders\Packages\PostPaymentSeeder;
 use Illuminate\Validation\ValidationException;
@@ -141,7 +141,7 @@ class UpdatePackageStatusByEventTest extends TestCase
         $package->setAttribute('status', Package::STATUS_ACCEPTED)->save();
 
         try {
-            $this->runListener(new PackagePaymentVerifiedByAdmin($package));
+            $this->runListener(new PackagePaymentVerified($package));
         } catch (ValidationException $e) {
             $this->assertTrue($e instanceof ValidationException);
         }
@@ -151,11 +151,11 @@ class UpdatePackageStatusByEventTest extends TestCase
             ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
             ->save();
 
-        $this->runListener(new PackagePaymentVerifiedByAdmin($package));
+        $this->runListener(new PackagePaymentVerified($package));
 
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
-            'status' => Package::STATUS_ACCEPTED,
+            'status' => Package::STATUS_WAITING_FOR_PACKING,
             'payment_status' => Package::PAYMENT_STATUS_PAID,
         ]);
     }

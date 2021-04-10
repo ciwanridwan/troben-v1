@@ -82,8 +82,7 @@ class Queries
                         ->where('estimator_id', $this->user->id))
                     // package that need packager
                     ->orWhere(fn (Builder $builder) => $builder
-                        ->where('status', Package::STATUS_ACCEPTED)
-                        ->where('payment_status', Package::PAYMENT_STATUS_PAID)
+                        ->where('status', Package::STATUS_WAITING_FOR_PACKING)
                         ->whereNull('packager_id'))
                     // condition that need authorization for packager
                     ->orWhere(fn (Builder $builder) => $builder

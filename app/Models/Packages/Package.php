@@ -85,6 +85,7 @@ class Package extends Model implements AttachableContract
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
     public const STATUS_REVAMP = 'revamp';
     public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_WAITING_FOR_PACKING = 'waiting_for_packing';
     public const STATUS_PACKING = 'packing';
     public const STATUS_PACKED = 'packed';
     public const STATUS_MANIFESTED = 'manifested';
@@ -199,6 +200,7 @@ class Package extends Model implements AttachableContract
             self::STATUS_WAITING_FOR_APPROVAL,
             self::STATUS_REVAMP,
             self::STATUS_ACCEPTED,
+            self::STATUS_WAITING_FOR_PACKING,
             self::STATUS_PACKING,
             self::STATUS_PACKED,
             self::STATUS_MANIFESTED,
