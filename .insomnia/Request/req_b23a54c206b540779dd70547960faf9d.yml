@@ -1,17 +1,29 @@
 _id: req_b23a54c206b540779dd70547960faf9d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1617566962133
+modified: 1618042940420
 created: 1613462471058
 url: "{{ _.base_url }}/order"
 name: Create Order
-description: ""
+description: >-
+  JSON data documentation
+
+
+  |name|type|description|
+
+  |----|----|-----------|
+
+  |transporter_type|string|[enum see here](https://github.com/Trawlbens-Dev/trawlbens.core/blob/master/app/Models/Partners/Transporter.php#L41), enum may change while development occured|
 method: POST
 body:
   mimeType: application/json
   text: >
     {
     	"service_code": "{% response 'body', 'req_242cca6fc3b4492cb693f3480e807d10', 'b64::JC5kYXRhLjAuY29kZQ==::46b', 'no-history', 60 %}",
+    	"transporter_type": "bike",
+    	"sender_name": "Hajir",
+    	"sender_phone": "+62 6611",
+    	"sender_address": "3/ 48",
     	"receiver_name": "Adit",
     	"receiver_phone": "+62 6666",
     	"receiver_address": "PR 19",
@@ -29,6 +41,7 @@ body:
     			"width": 100,
     			"length": 100,
     			"height": 100,
+    			"is_insured": true,
     			"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjAuaWQ=::46b', 'never', 60 %}"]
     		}
     	]

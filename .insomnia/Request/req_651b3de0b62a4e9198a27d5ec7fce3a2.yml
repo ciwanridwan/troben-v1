@@ -1,7 +1,7 @@
 _id: req_651b3de0b62a4e9198a27d5ec7fce3a2
 type: Request
 parentId: fld_720622b6a55a45e388fa9d0aef51f203
-modified: 1617565167271
+modified: 1618043952725
 created: 1617262138422
 url: "{{ _.base_url }}/partner/warehouse/order"
 name: List Order
@@ -24,7 +24,7 @@ method: GET
 body: {}
 parameters:
   - name: status
-    value: waiting_for_estimating
+    value: waiting_for_packing
     description: ""
     id: pair_e1a6f0007ae54524b93732d75bfaa3e1
     disabled: true

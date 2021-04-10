@@ -16,7 +16,6 @@ body:
       value: ""
       id: pair_4c2d6262eebd4f9197e471b41b695c8d
       type: file
-      multiline: null
       fileName: /home/muhajirin/codelabs/work/dev/trawlbens.core/storage/app/dummies/receipt.jpg
 parameters: []
 headers:
