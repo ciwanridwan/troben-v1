@@ -169,7 +169,7 @@ class UpdatePackageStatusByEventTest extends TestCase
 
         /** @var Package $package */
         $package = Package::query()
-            ->where('status', Package::STATUS_ACCEPTED)
+            ->where('status', Package::STATUS_WAITING_FOR_PACKING)
             ->where('payment_status', Package::PAYMENT_STATUS_PAID)
             ->first();
 

@@ -17,7 +17,7 @@ class CreateTransportersTable extends Migration
         Schema::create('transporters', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('partner_id');
-            $table->string('production_year')->default(Carbon::now()->year()); // STNK, Nama Pemilik
+            $table->string('production_year')->default(Carbon::now()->year); // STNK, Nama Pemilik
             $table->string('registration_name')->nullable(); // STNK, Nama Pemilik
             $table->string('registration_number'); // STNK, Plat Nomor
             $table->string('registration_year')->nullable(); // STNK, Tahun Berlaku

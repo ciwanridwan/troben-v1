@@ -63,7 +63,7 @@ class PostPaymentSeeder extends PackagesTableSeeder
     protected function stateResolver(Customer $customer): array
     {
         return array_merge(parent::stateResolver($customer), [
-            'status' => Package::STATUS_ACCEPTED,
+            'status' => Package::STATUS_WAITING_FOR_PACKING,
             'payment_status' => Package::PAYMENT_STATUS_PAID,
         ]);
     }
