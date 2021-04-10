@@ -2,9 +2,6 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use App\Events\Packages\PackageAlreadyPackedByWarehouse;
-use App\Events\Packages\WarehouseIsStartPacking;
-use Database\Seeders\Packages\PostPaymentSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -13,10 +10,13 @@ use App\Casts\Package\Items\Handling;
 use Illuminate\Support\Facades\Event;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
+use App\Events\Packages\WarehouseIsStartPacking;
+use Database\Seeders\Packages\PostPaymentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Http\Controllers\Api\Partner\Warehouse\OrderController;
 
 class OrderApiTest extends TestCase
