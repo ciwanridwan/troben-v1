@@ -174,7 +174,7 @@ class UpdatePackageStatusByEventTest extends TestCase
             ->first();
 
         $user = $package
-            ->deliveries
+            ->deliveries()
             ->first()
             ->partner->users()->wherePivot('role', UserablePivot::ROLE_WAREHOUSE)->first();
 

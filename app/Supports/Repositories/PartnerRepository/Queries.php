@@ -47,6 +47,8 @@ class Queries
 
         $this->resolvePackagesQueryByRole($query);
 
+        $query->orderByDesc('updated_at');
+
         return $query;
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Events\Packages\WarehouseIsStartPacking;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -57,6 +59,12 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
         ],
         PackageApprovedByCustomer::class => [
+            UpdatePackageStatusByEvent::class,
+        ],
+        WarehouseIsStartPacking::class => [
+            UpdatePackageStatusByEvent::class,
+        ],
+        PackageAlreadyPackedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
         ],
     ];
