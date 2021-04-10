@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Events\Packages\WarehouseIsStartPacking;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -79,6 +81,25 @@ class OrderController extends Controller
     public function estimated(Package $package): JsonResponse
     {
         event(new PackageEstimatedByWarehouse($package));
+
+        return $this->jsonSuccess(PackageResource::make($package));
+    }
+
+    /**
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Throwable
+     */
+    public function packing(Package $package):JsonResponse
+    {
+        event(new WarehouseIsStartPacking($package));
+
+        return $this->jsonSuccess(PackageResource::make($package));
+    }
+
+    public function packed(Package $package): JsonResponse
+    {
+        event(new PackageAlreadyPackedByWarehouse($package));
 
         return $this->jsonSuccess(PackageResource::make($package));
     }

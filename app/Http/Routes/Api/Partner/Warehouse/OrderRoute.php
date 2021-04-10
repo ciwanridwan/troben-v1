@@ -48,6 +48,16 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('estimated'),
             'uses' => $this->uses('estimated'),
         ]);
+
+        $this->router->patch($this->prefix('{package_hash}/packaging'), [
+            'as' => $this->name('packaging'),
+            'uses' => $this->uses('packaging'),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/packaged'), [
+            'as' => $this->name('packaged'),
+            'uses' => $this->uses('packaged'),
+        ]);
     }
 
     /**

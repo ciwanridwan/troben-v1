@@ -2,6 +2,9 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Events\Packages\PackagePaymentVerifiedByAdmin;
+use App\Events\Packages\WarehouseIsStartPacking;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -49,6 +52,17 @@ class UpdatePackageStatusByEvent
                     ->setAttribute('status', Package::STATUS_ACCEPTED)
                     ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
                     ->save();
+                break;
+            case $event instanceof PackagePaymentVerifiedByAdmin:
+                $event->package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID)->save();
+                break;
+            case $event instanceof WarehouseIsStartPacking:
+                $event->package->setAttribute('status', Package::STATUS_PACKING);
+                $event->package->packager()->associate($event->actor);
+                $event->package->save();
+                break;
+            case $event instanceof PackageAlreadyPackedByWarehouse:
+                $event->package->setAttribute('status', Package::STATUS_PACKED)->save();
                 break;
         }
     }

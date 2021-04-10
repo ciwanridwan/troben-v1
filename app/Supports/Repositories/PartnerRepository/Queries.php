@@ -69,7 +69,10 @@ class Queries
         switch (true) {
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
                 $query->where(fn (Builder $builder) => $builder
-                    ->where('packages.status', Package::STATUS_WAITING_FOR_ESTIMATING)
+                    // package that need estimator
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)
+                        ->whereNull('estimator_id'))
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
@@ -77,6 +80,11 @@ class Queries
                             Package::STATUS_ESTIMATED,
                         ])
                         ->where('estimator_id', $this->user->id))
+                    // package that need packager
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->where('status', Package::STATUS_ACCEPTED)
+                        ->where('payment_status', Package::PAYMENT_STATUS_PAID)
+                        ->whereNull('packager_id'))
                     // condition that need authorization for packager
                     ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [

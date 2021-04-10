@@ -2,6 +2,11 @@
 
 namespace Tests\Listeners;
 
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Events\Packages\PackagePaymentVerifiedByAdmin;
+use App\Events\Packages\WarehouseIsStartPacking;
+use Database\Seeders\Packages\PostPaymentSeeder;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -36,9 +41,8 @@ class UpdatePackageStatusByEventTest extends TestCase
     public function test_on_event_that_driver_in_charge()
     {
         $event = new PackageLoadedByDriver($this->getDelivery());
-        $listener = new UpdatePackageStatusByEvent();
 
-        $listener->handle($event);
+        $this->runListener($event);
 
         $event->delivery->packages()->cursor()
             ->each(fn (Package $package) => $this->assertDatabaseHas('packages', [
@@ -52,7 +56,7 @@ class UpdatePackageStatusByEventTest extends TestCase
 
         $event = new DriverUnloadedPackageInWarehouse($this->getDelivery());
 
-        $listener->handle($event);
+        $this->runListener($event);
 
         $event->delivery->packages()->cursor()
             ->each(fn (Package $package) => $this->assertDatabaseHas('packages', [
@@ -75,16 +79,14 @@ class UpdatePackageStatusByEventTest extends TestCase
         /** @var Package $package */
         $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)->first();
 
-        $listener = new UpdatePackageStatusByEvent();
-
-        $listener->handle(new WarehouseIsEstimatingPackage($package));
+        $this->runListener(new WarehouseIsEstimatingPackage($package));
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_ESTIMATING,
             'estimator_id' => $user->id,
         ]);
 
-        $listener->handle(new PackageEstimatedByWarehouse($package));
+        $this->runListener(new PackageEstimatedByWarehouse($package));
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_ESTIMATED,
@@ -101,9 +103,7 @@ class UpdatePackageStatusByEventTest extends TestCase
         /** @var Package $package */
         $package = Package::query()->where('status', Package::STATUS_ESTIMATED)->first();
 
-        $listener = new UpdatePackageStatusByEvent();
-
-        $listener->handle(new PackageCheckedByCashier($package));
+        $this->runListener(new PackageCheckedByCashier($package));
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_WAITING_FOR_APPROVAL,
@@ -120,9 +120,7 @@ class UpdatePackageStatusByEventTest extends TestCase
         /** @var Package $package */
         $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
 
-        $listener = new UpdatePackageStatusByEvent();
-
-        $listener->handle(new PackageApprovedByCustomer($package));
+        $this->runListener(new PackageApprovedByCustomer($package));
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_ACCEPTED,
@@ -130,9 +128,84 @@ class UpdatePackageStatusByEventTest extends TestCase
         ]);
     }
 
+    /**
+     * @throws \Throwable
+     */
+    public function test_on_admin_confirm_payment()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $package->setAttribute('status', Package::STATUS_ACCEPTED)->save();
+
+        try {
+            $this->runListener(new PackagePaymentVerifiedByAdmin($package));
+        } catch (ValidationException $e) {
+            $this->assertTrue($e instanceof ValidationException);
+        }
+
+        $package
+            ->setAttribute('status', Package::STATUS_ACCEPTED)
+            ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+            ->save();
+
+        $this->runListener(new PackagePaymentVerifiedByAdmin($package));
+
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_ACCEPTED,
+            'payment_status' => Package::PAYMENT_STATUS_PAID,
+        ]);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function test_event_warehouse_packing_a_package()
+    {
+        $this->seed(PostPaymentSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()
+            ->where('status', Package::STATUS_ACCEPTED)
+            ->where('payment_status', Package::PAYMENT_STATUS_PAID)
+            ->first();
+
+        $user = $package
+            ->deliveries
+            ->first()
+            ->partner->users()->wherePivot('role', UserablePivot::ROLE_WAREHOUSE)->first();
+
+        $this->actingAs($user);
+
+        $this->runListener(new WarehouseIsStartPacking($package));
+
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_PACKING,
+            'packager_id' => $user->id,
+        ]);
+
+        $this->runListener(new PackageAlreadyPackedByWarehouse($package));
+
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_PACKED,
+        ]);
+    }
+
     /** @noinspection PhpIncompatibleReturnTypeInspection */
     private function getDelivery(): Delivery
     {
         return Delivery::query()->whereNotNull('userable_id')->first();
+    }
+
+    private function runListener(object $event): void
+    {
+        $listener = new UpdatePackageStatusByEvent();
+
+        $listener->handle($event);
     }
 }

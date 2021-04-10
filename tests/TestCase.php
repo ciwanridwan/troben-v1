@@ -71,10 +71,14 @@ abstract class TestCase extends BaseTestCase
         self::assertEquals($expected->code, $response->json('code'));
     }
 
-    public function getUser($types, string $roles): ?User
+    public function getUser($types, string $roles, ?\Closure $additionalQuery = null): ?User
     {
+        $query = User::partnerRole($types, $roles);
+
+        $query->when($additionalQuery, $additionalQuery);
+
         /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return User::partnerRole($types, $roles)->first();
+        return $query->first();
     }
 
     /**
