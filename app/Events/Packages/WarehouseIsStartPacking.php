@@ -2,13 +2,13 @@
 
 namespace App\Events\Packages;
 
-use App\Models\Packages\Package;
 use App\Models\User;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Models\Packages\Package;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class WarehouseIsStartPacking
 {

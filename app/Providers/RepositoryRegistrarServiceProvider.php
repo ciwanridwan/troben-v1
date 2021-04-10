@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use App\Supports\Repositories\PartnerRepository;
 
@@ -17,7 +17,7 @@ class RepositoryRegistrarServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PartnerRepository::class, function (Application $app) {
-            return new PartnerRepository(fn() => $app->make(Request::class));
+            return new PartnerRepository(fn () => $app->make(Request::class));
         });
     }
 
