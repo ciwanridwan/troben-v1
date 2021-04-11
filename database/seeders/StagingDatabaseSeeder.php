@@ -19,6 +19,8 @@ class StagingDatabaseSeeder extends Seeder
      */
     public function run()
     {
+        UsersTableSeeder::$COUNT = 3;
+
         $this->command->getOutput()->title('Common seeder');
         $this->call([
             UsersTableSeeder::class,

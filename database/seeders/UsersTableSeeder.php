@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
@@ -11,7 +12,9 @@ use App\Models\Partners\Pivot\UserablePivot;
 
 class UsersTableSeeder extends Seeder
 {
-    const COMPOSES = [
+    public static int $COUNT = 1;
+
+    private const COMPOSES = [
         Partner::TYPE_BUSINESS => [
             UserablePivot::ROLE_OWNER,
             [
@@ -64,20 +67,36 @@ class UsersTableSeeder extends Seeder
 
         $users = collect();
 
-        Partner::factory(count(self::COMPOSES))->create()->map(function (Partner $partner, int $index) use ($admin, $users) {
-            if ($index === 0) {
-                // make sure at least one record contain admin.
-                $admin->partners()->attach($partner, [
-                    'role' => UserablePivot::ROLE_OWNER,
-                ]);
-            }
+        foreach (range(0, self::$COUNT - 1) as $index) {
+            $this->createFromComposes($users, self::$COUNT == 1 ? null : "$index-");
+        }
 
-            $userCreator = function ($role) use (&$index, $partner, $users, &$userCreator) {
+        // make sure at least one record contain admin.
+        $firstBusinessPartner = Partner::query()->where('type', Partner::TYPE_BUSINESS)->first();
+        $admin->partners()->attach($firstBusinessPartner, [
+            'role' => UserablePivot::ROLE_OWNER,
+        ]);
+
+        $this->command->info('=> other user created with info : ');
+        $this->command->table(
+            ['username', 'phone', 'partner', 'role'],
+            $users->map(fn (User $user) => [
+                $user->username,
+                $user->phone,
+                $user->partners->pluck('type')->implode(', '),
+                $user->partners->pluck('pivot.role')->implode(', '),
+            ]));
+    }
+
+    private function createFromComposes(Collection $users, $prefix = null)
+    {
+        Partner::factory(count(self::COMPOSES))->create()->map(function (Partner $partner, int $index) use ($users, $prefix) {
+            $userCreator = function ($role) use (&$index, $partner, $users, &$userCreator, $prefix) {
                 if (is_array($role)) {
                     foreach ($role as $key => $value) {
                         $data = [
-                            'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key,
-                            'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key.'@trawlbens.co.id',
+                            'username' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key,
+                            'email' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key.'@trawlbens.co.id',
                             'phone' => '+625555555'.str_pad($users->count(), 3, '0', STR_PAD_LEFT),
                             'verified_at' => Carbon::now(),
                         ];
@@ -91,8 +110,8 @@ class UsersTableSeeder extends Seeder
                 }
 
                 $data = [
-                    'username' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
-                    'email' => Str::slug(strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
+                    'username' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
+                    'email' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
                     'phone' => '+625555555'.str_pad($users->count(), 3, '0', STR_PAD_LEFT),
                     'verified_at' => Carbon::now(),
                 ];
@@ -104,15 +123,5 @@ class UsersTableSeeder extends Seeder
 
             collect(self::COMPOSES[$partner->type])->each($userCreator);
         });
-
-        $this->command->info('=> other user created with info : ');
-        $this->command->table(
-            ['username', 'phone', 'partner', 'role'],
-            $users->map(fn (User $user) => [
-                $user->username,
-                $user->phone,
-                $user->partners->pluck('type')->implode(', '),
-                $user->partners->pluck('pivot.role')->implode(', '),
-            ]));
     }
 }

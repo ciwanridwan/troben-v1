@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -63,6 +64,12 @@ class Queries
                     ->whereHas('assigned_to', fn (Builder $builder) => $builder
                         ->where('user_id', $this->user->id));
                 break;
+            case $this->role === UserablePivot::ROLE_WAREHOUSE:
+                $deliveriesQueryBuilder->whereIn('type', [
+                    Delivery::TYPE_DOORING,
+                    Delivery::TYPE_TRANSIT,
+                    Delivery::TYPE_RETURN,
+                ]);
         }
     }
 

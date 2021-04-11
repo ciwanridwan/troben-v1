@@ -16,14 +16,14 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
-     * @param JsonResource $resource
+     * @param \Illuminate\Http\Resources\Json\JsonResource|null $resource
      * @param \Illuminate\Http\Request|null $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function jsonSuccess(JsonResource $resource, ?Request $request = null): JsonResponse
+    public function jsonSuccess(?JsonResource $resource = null, ?Request $request = null): JsonResponse
     {
-        return (new Response(Response::RC_SUCCESS, $resource))->json($request);
+        return (new Response(Response::RC_SUCCESS, $resource ?? []))->json($request);
     }
 
     public function coming(): JsonResponse
