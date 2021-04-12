@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Jobs\Packages\CreateNewPackage;
+use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -37,6 +37,9 @@ class CreateNewManifest
         $this->originPartner = $originPartner;
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function handle()
     {
         $this->attributes['type'] = Delivery::TYPE_TRANSIT;
@@ -44,6 +47,28 @@ class CreateNewManifest
         $this->attributes['origin_district_id'] = $this->originPartner->geo_district_id;
         $this->attributes['origin_sub_district_id'] = $this->originPartner->geo_sub_district_id;
 
-        CreateNewPackage::dispatch($this->attributes, Partner::byHashOrFail($this->attributes['target_partner_hash']));
+        /** @var Partner $target */
+        $target = Partner::byHashOrFail($this->attributes['target_partner_hash']);
+
+        if (!array_key_exists('destination_regency_id', $this->attributes)) {
+            $this->attributes['destination_regency_id'] = $target->geo_regency_id;
+        }
+
+        if (!array_key_exists('destination_district_id', $this->attributes)) {
+            $this->attributes['destination_district_id'] = $target->geo_district_id;
+        }
+
+        if (!array_key_exists('destination_sub_district_id', $this->attributes)) {
+            $this->attributes['destination_sub_district_id'] = $target->geo_sub_district_id;
+        }
+
+        $job = new CreateNewDelivery($this->attributes, $target);
+
+        dispatch_now($job);
+
+        if ($job->delivery->exists) {
+            $job->delivery->origin_partner()->associate($this->originPartner);
+            $job->delivery->save();
+        }
     }
 }

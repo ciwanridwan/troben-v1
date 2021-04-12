@@ -1,11 +1,12 @@
 <?php
 
-namespace Database\Seeders\Packages;
+namespace Database\Seeders\Packages\PostPayment;
 
 use App\Models\Attachment;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Customers\Customer;
+use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Support\Collection;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;

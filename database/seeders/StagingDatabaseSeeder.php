@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Illuminate\Database\Seeder;
-use Database\Seeders\Packages\PostPaymentSeeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
