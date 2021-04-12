@@ -5,9 +5,9 @@ namespace App\Supports\Repositories\PartnerRepository;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Queries
 {
@@ -24,9 +24,13 @@ class Queries
         $this->user = $user;
     }
 
-    public function getDeliveriesQuery(): HasMany
+    public function getDeliveriesQuery(): Builder
     {
-        $query = $this->partner->deliveries();
+        $query = Delivery::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('partner_id', $this->partner->id)
+            ->orWhere('origin_partner_id', $this->partner->id));
 
         $this->resolveDeliveriesQueryByRole($query);
 
@@ -52,7 +56,7 @@ class Queries
         return $query;
     }
 
-    protected function resolveDeliveriesQueryByRole(HasMany $deliveriesQueryBuilder): void
+    protected function resolveDeliveriesQueryByRole(Builder $deliveriesQueryBuilder): void
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_CS:
@@ -63,6 +67,12 @@ class Queries
                     ->whereHas('assigned_to', fn (Builder $builder) => $builder
                         ->where('user_id', $this->user->id));
                 break;
+            case $this->role === UserablePivot::ROLE_WAREHOUSE:
+                $deliveriesQueryBuilder->whereIn('type', [
+                    Delivery::TYPE_DOORING,
+                    Delivery::TYPE_TRANSIT,
+                    Delivery::TYPE_RETURN,
+                ]);
         }
     }
 

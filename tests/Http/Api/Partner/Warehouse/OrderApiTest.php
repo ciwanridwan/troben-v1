@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Event;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Events\Packages\WarehouseIsStartPacking;
-use Database\Seeders\Packages\PostPaymentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use App\Http\Controllers\Api\Partner\Warehouse\OrderController;
 
 class OrderApiTest extends TestCase

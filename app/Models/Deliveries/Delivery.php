@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use App\Supports\Repositories\PartnerRepository;
 
 /**
  * Class Delivery.
  *
  * @property int id
+ * @property int origin_partner_id
  * @property int partner_id
  * @property string barcode
  * @property string type
@@ -27,6 +29,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int destination_sub_district_id
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
+ * @property-read ?string as
  */
 class Delivery extends Model
 {
@@ -43,6 +46,9 @@ class Delivery extends Model
     const STATUS_EN_ROUTE = 'en-route';
     const STATUS_FINISHED = 'finished';
 
+    const AS_ORIGIN = 'origin';
+    const AS_DESTINATION = 'destination';
+
     /**
      * The table associated with the model.
      *
@@ -56,6 +62,7 @@ class Delivery extends Model
      * @var string[]
      */
     protected $fillable = [
+        'origin_partner_id',
         'partner_id',
         'userable_id',
         'barcode',
@@ -125,6 +132,18 @@ class Delivery extends Model
             ->using(DeliveryPackagePivot::class);
     }
 
+    /**
+     * define relation who is create this delivery it is used for delivery.type transit
+     * when app need to know origin and destination of the partner, delivery can seen
+     * on those two partner this column is for origin_partner.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function origin_partner(): Relations\BelongsTo
+    {
+        return $this->belongsTo(Partner::class, 'origin_partner_id');
+    }
+
     public function partner(): Relations\BelongsTo
     {
         return $this->belongsTo(Partner::class);
@@ -138,5 +157,23 @@ class Delivery extends Model
     public function driver(): Relations\HasOneThrough
     {
         return $this->hasOneThrough(User::class, UserablePivot::class, 'id', 'id', 'userable_id', 'user_id');
+    }
+
+    public function getAsAttribute(): ?string
+    {
+        /** @var PartnerRepository $repository */
+        $repository = app(PartnerRepository::class);
+        $as = null;
+
+        switch ($repository->getPartner()->id) {
+            case $this->partner_id:
+                $as = self::AS_DESTINATION;
+                break;
+            case $this->origin_partner_id:
+                $as = self::AS_ORIGIN;
+                break;
+        }
+
+        return $as;
     }
 }

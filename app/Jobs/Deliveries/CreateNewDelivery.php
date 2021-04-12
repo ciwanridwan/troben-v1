@@ -30,6 +30,12 @@ class CreateNewDelivery
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Delivery::getAvailableTypes())],
             'status' => ['nullable', Rule::in(Delivery::getAvailableStatus())],
+            'origin_regency_id' => ['nullable', 'exists:geo_regencies,id'],
+            'origin_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'origin_sub_district_id' => ['nullable', 'exits:geo_sub_districts,id'],
+            'destination_regency_id' => ['nullable', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
         ])->validate();
 
         $this->delivery = new Delivery();

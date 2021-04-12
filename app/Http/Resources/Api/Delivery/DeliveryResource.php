@@ -4,6 +4,11 @@ namespace App\Http\Resources\Api\Delivery;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Class DeliveryResource.
+ *
+ * @property-read  \App\Models\Deliveries\Delivery $resource
+ */
 class DeliveryResource extends JsonResource
 {
     /**
@@ -14,6 +19,8 @@ class DeliveryResource extends JsonResource
      */
     public function toArray($request)
     {
+        $this->resource->append('as');
+
         return parent::toArray($request);
     }
 }

@@ -18,6 +18,9 @@ class CreateDeliveriesTable extends Migration
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
 
+            // only used when delivery type is transit
+            $table->foreignId('origin_partner_id')->nullable()->constrained('partners')->nullOnDelete();
+            // partner a.k.a target partner required if delivery type is transit
             $table->foreignIdFor(Partner::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignId('userable_id')->nullable()->constrained('userables')->nullOnDelete();
 

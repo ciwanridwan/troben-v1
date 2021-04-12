@@ -66,10 +66,10 @@ class CreateNewPackage
             'receiver_address' => ['required'],
             'handling' => ['nullable', 'array'],
             'handling.*' => ['string', Rule::in(Handling::getTypes())],
-            'origin_regency_id' => ['required'],
-            'destination_regency_id' => ['required'],
-            'destination_district_id' => ['required'],
-            'destination_sub_district_id' => ['required'],
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ])->validate();
 
         $this->items = Validator::make($items, [

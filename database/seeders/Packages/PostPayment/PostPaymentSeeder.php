@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Packages;
+namespace Database\Seeders\Packages\PostPayment;
 
 use App\Models\Attachment;
 use App\Models\Packages\Package;
@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\AttachmentsTableSeeder;
 use Database\Seeders\TransportersTableSeeder;
+use Database\Seeders\Packages\PackagesTableSeeder;
 
 class PostPaymentSeeder extends PackagesTableSeeder
 {
