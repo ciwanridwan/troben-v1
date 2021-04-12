@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -11,7 +12,6 @@ use Illuminate\Support\Facades\Event;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Events\Packages\WarehouseIsStartPacking;
-use Database\Seeders\Packages\PostPaymentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
