@@ -6,7 +6,6 @@ use App\Models\Attachment;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Customers\Customer;
-use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Support\Collection;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
@@ -16,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\AttachmentsTableSeeder;
 use Database\Seeders\TransportersTableSeeder;
+use Database\Seeders\Packages\PackagesTableSeeder;
 
 class PostPaymentSeeder extends PackagesTableSeeder
 {

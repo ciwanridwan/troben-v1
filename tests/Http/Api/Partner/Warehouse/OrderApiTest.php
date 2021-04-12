@@ -2,7 +2,6 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Tests\TestCase;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -17,6 +16,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use App\Http\Controllers\Api\Partner\Warehouse\OrderController;
 
 class OrderApiTest extends TestCase

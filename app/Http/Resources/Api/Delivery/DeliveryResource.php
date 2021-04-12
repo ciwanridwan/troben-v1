@@ -5,8 +5,7 @@ namespace App\Http\Resources\Api\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class DeliveryResource
- * @package App\Http\Resources\Api\Delivery
+ * Class DeliveryResource.
  *
  * @property-read  \App\Models\Deliveries\Delivery $resource
  */

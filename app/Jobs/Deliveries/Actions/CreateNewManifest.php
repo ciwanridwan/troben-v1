@@ -2,11 +2,11 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Jobs\Deliveries\CreateNewDelivery;
-use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\Deliveries\CreateNewDelivery;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class CreateNewManifest
@@ -50,15 +50,15 @@ class CreateNewManifest
         /** @var Partner $target */
         $target = Partner::byHashOrFail($this->attributes['target_partner_hash']);
 
-        if (!array_key_exists('destination_regency_id', $this->attributes)) {
+        if (! array_key_exists('destination_regency_id', $this->attributes)) {
             $this->attributes['destination_regency_id'] = $target->geo_regency_id;
         }
 
-        if (!array_key_exists('destination_district_id', $this->attributes)) {
+        if (! array_key_exists('destination_district_id', $this->attributes)) {
             $this->attributes['destination_district_id'] = $target->geo_district_id;
         }
 
-        if (!array_key_exists('destination_sub_district_id', $this->attributes)) {
+        if (! array_key_exists('destination_sub_district_id', $this->attributes)) {
             $this->attributes['destination_sub_district_id'] = $target->geo_sub_district_id;
         }
 

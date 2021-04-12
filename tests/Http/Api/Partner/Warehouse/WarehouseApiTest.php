@@ -2,23 +2,23 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
-use App\Models\Deliveries\Delivery;
+use Tests\TestCase;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
+use App\Models\Deliveries\Delivery;
 use Database\Seeders\UsersTableSeeder;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
+use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 
 class WarehouseApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public bool $seed = true;
-
     const PARTNER_COUNT = 3;
+
+    public bool $seed = true;
 
     protected function setUp(): void
     {
@@ -50,8 +50,8 @@ class WarehouseApiTest extends TestCase
         $this->seed(PostPaymentSeeder::class);
 
         $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE,
-            fn(Builder $builder) => $builder->whereHas('partners',
-                fn(Builder $builder) => $builder->whereHas('deliveries')));
+            fn (Builder $builder) => $builder->whereHas('partners',
+                fn (Builder $builder) => $builder->whereHas('deliveries')));
 
         $this->actingAs($user);
 

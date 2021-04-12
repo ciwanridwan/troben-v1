@@ -4,16 +4,14 @@ namespace Database\Seeders;
 
 use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
+use Illuminate\Support\Collection;
 use App\Models\Partners\Pivot\UserablePivot;
 
 class UsersTableSeeder extends Seeder
 {
-    public static int $COUNT = 1;
-
     private const COMPOSES = [
         Partner::TYPE_BUSINESS => [
             UserablePivot::ROLE_OWNER,
@@ -44,6 +42,7 @@ class UsersTableSeeder extends Seeder
             UserablePivot::ROLE_DRIVER,
         ],
     ];
+    public static int $COUNT = 1;
 
     /**
      * Run the database seeds.

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Models\Partners\Partner;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
+use App\Supports\Repositories\PartnerRepository;
+use App\Jobs\Deliveries\Actions\CreateNewManifest;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
-use App\Jobs\Deliveries\Actions\CreateNewManifest;
-use App\Models\Partners\Partner;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class ManifestController extends Controller
 {
@@ -28,11 +28,11 @@ class ManifestController extends Controller
 
         $query->when(
             $request->input('type'),
-            fn(Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
-            fn(Builder $builder, $type) => $builder->whereIn('type', [
+            fn (Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
+            fn (Builder $builder, $type) => $builder->whereIn('type', [
                 Partner::TYPE_BUSINESS,
                 Partner::TYPE_SPACE,
-                Partner::TYPE_POOL
+                Partner::TYPE_POOL,
             ])
         );
 

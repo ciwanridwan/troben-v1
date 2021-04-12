@@ -2,10 +2,10 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -28,7 +28,7 @@ class Queries
     {
         $query = Delivery::query();
 
-        $query->where(fn(Builder $builder) => $builder
+        $query->where(fn (Builder $builder) => $builder
             ->orWhere('partner_id', $this->partner->id)
             ->orWhere('origin_partner_id', $this->partner->id));
 

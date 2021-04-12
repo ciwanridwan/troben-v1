@@ -6,11 +6,11 @@ use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Concerns\Models\HasBarcode;
-use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use App\Supports\Repositories\PartnerRepository;
 
 /**
  * Class Delivery.
@@ -135,7 +135,7 @@ class Delivery extends Model
     /**
      * define relation who is create this delivery it is used for delivery.type transit
      * when app need to know origin and destination of the partner, delivery can seen
-     * on those two partner this column is for origin_partner
+     * on those two partner this column is for origin_partner.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -167,10 +167,10 @@ class Delivery extends Model
 
         switch ($repository->getPartner()->id) {
             case $this->partner_id:
-                $as = Delivery::AS_DESTINATION;
+                $as = self::AS_DESTINATION;
                 break;
             case $this->origin_partner_id:
-                $as = Delivery::AS_ORIGIN;
+                $as = self::AS_ORIGIN;
                 break;
         }
 
