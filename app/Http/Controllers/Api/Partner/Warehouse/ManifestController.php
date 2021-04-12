@@ -19,6 +19,8 @@ class ManifestController extends Controller
     {
         $query = $repository->queries()->getDeliveriesQuery();
 
+        $query->with('partner', 'packages');
+
         return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page'))));
     }
 

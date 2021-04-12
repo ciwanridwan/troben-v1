@@ -34,6 +34,7 @@ class CreateNewManifest
             'destination_district_id' => ['nullable'],
             'destination_sub_district_id' => ['nullable'],
         ])->validate();
+
         $this->originPartner = $originPartner;
     }
 

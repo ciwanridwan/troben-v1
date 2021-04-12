@@ -34,7 +34,7 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('partner'),
         ]);
 
-        $this->router->post($this->prefix('store'), [
+        $this->router->post($this->prefix, [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
         ]);
