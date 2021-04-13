@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -37,6 +38,10 @@ class AssignableController extends Controller
     public function driver(Request $request, PartnerRepository $repository): JsonResponse
     {
         $query = $repository->queries()->getTransporterDriverQuery();
+
+        $query->when($request->input('transporter_type'),
+            fn(Builder $userableQuery, $type) => $userableQuery->whereHasMorph('userable', Transporter::class,
+                fn(Builder $transporterQuery) => $transporterQuery->where('type', $type)));
 
         return $this->jsonSuccess(TransporterDriverResource::collection($query->paginate($request->input('per_page'))));
     }
