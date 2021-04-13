@@ -13,10 +13,7 @@
             </a-col>
             <a-col :span="6" style="text-align:center">
               <order-modal-resi
-                v-if="
-                  record.package_status == 'accepted' &&
-                    record.payment_status == 'paid'
-                "
+                v-if="record.payment_status == 'paid'"
               ></order-modal-resi>
               <order-modal
                 :record="record"
