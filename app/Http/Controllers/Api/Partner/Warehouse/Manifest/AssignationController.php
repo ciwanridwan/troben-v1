@@ -10,7 +10,7 @@ use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 
 class AssignationController extends Controller
 {
-    public function transporter(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
+    public function driver(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
         $job = new AssignDriverToDelivery($delivery, $userablePivot);
 

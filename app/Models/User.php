@@ -75,6 +75,7 @@ class User extends Authenticatable implements HasOtpToken
         'verified_at',
         'created_at',
         'updated_at',
+        'laravel_through_key',
     ];
 
     /**

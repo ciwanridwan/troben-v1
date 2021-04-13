@@ -107,6 +107,7 @@ class Transporter extends Model
         'created_at',
         'updated_at',
         'deleted_at',
+        'laravel_through_key',
     ];
 
 

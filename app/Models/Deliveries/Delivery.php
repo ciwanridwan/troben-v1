@@ -2,6 +2,7 @@
 
 namespace App\Models\Deliveries;
 
+use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -158,6 +159,12 @@ class Delivery extends Model
     public function driver(): Relations\HasOneThrough
     {
         return $this->hasOneThrough(User::class, UserablePivot::class, 'id', 'id', 'userable_id', 'user_id');
+    }
+
+    public function transporter(): Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(Transporter::class, UserablePivot::class, 'id', 'id', 'userable_id', 'userable_id')
+            ->where('userables.userable_type', Transporter::class);
     }
 
     public function getAsAttribute(): ?string

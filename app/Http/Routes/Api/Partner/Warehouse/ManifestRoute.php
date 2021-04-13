@@ -35,6 +35,11 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
+        $this->router->get($this->prefix('{delivery_hash}'), [
+            'as' => $this->name('show'),
+            'uses' => $this->uses('show'),
+        ]);
+
         $this->router->get($this->prefix('assignable/partner'), [
             'as' => $this->name('assignable.partner'),
             'uses' => $this->uses('partner', Manifest\AssignableController::class),
@@ -50,9 +55,9 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('package', Manifest\AssignableController::class),
         ]);
 
-        $this->router->patch($this->prefix('assignation/{delivery_hash}/transporter'), [
-            'as' => $this->name('assignation.transporter'),
-            'uses' => $this->uses('transporter', Manifest\AssignationController::class),
+        $this->router->patch($this->prefix('assignation/{delivery_hash}/driver/{userable_hash}'), [
+            'as' => $this->name('assignation.driver'),
+            'uses' => $this->uses('driver', Manifest\AssignationController::class),
         ]);
 
         $this->router->patch($this->prefix('assignation/{delivery_hash}/package'), [
