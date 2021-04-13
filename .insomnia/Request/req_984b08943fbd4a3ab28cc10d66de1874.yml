@@ -1,24 +1,18 @@
-_id: req_75ce972db11544b49e7bee876bf8099b
+_id: req_984b08943fbd4a3ab28cc10d66de1874
 type: Request
 parentId: fld_437d49b460c14fe48b0feac7a5ba04a2
-modified: 1618269850199
-created: 1618236080443
-url: "{{ _.base_url }}/partner/warehouse/manifest/assignable/partner"
-name: List Target Partner
+modified: 1618276829693
+created: 1618276333803
+url: "{{ _.base_url }}/partner/warehouse/manifest/assignable/package"
+name: List Package
 description: |-
-  Accepted Queries
+  this resource is pre filter with condition 
 
-  |name|type|description|
-  |----|----|-----------|
-  | type | string/array | enum: business(mb), pool(mpw), space(ms) |
+  status : packed
+  deliveries : doesn't have delivery that has type transit, dooring or return 
 method: GET
 body: {}
-parameters:
-  - name: type
-    value: business
-    description: ""
-    id: pair_310298694e474d958e43194fd6f7ae81
-    disabled: true
+parameters: []
 headers:
   - name: Accept
     value: application/json
@@ -29,7 +23,7 @@ authentication:
   prefix: ""
   token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450169.0938
+metaSortKey: -1613198450168.5078
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
