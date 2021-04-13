@@ -2,11 +2,11 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
-use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -53,6 +53,28 @@ class Queries
         $this->resolvePackagesQueryByRole($query);
 
         $query->orderByDesc('updated_at');
+
+        return $query;
+    }
+
+    /**
+     * get transporter driver.
+     *
+     * @param \App\Models\Partners\Partner|null $customPartner will be used when need other partner rather than scoped partner
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getTransporterDriverQuery(?Partner $customPartner = null): Builder
+    {
+        $query = UserablePivot::query();
+
+        $partner = $customPartner ?? $this->partner;
+
+        $query->whereHasMorph(
+            'userable',
+            Transporter::class,
+            fn (Builder $transporterQuery) => $transporterQuery->where('partner_id', $partner->id));
+
+        $query->with('userable', 'user');
 
         return $query;
     }
@@ -117,27 +139,5 @@ class Queries
                 ]));
                 break;
         }
-    }
-
-    /**
-     * get transporter driver
-     *
-     * @param \App\Models\Partners\Partner|null $customPartner will be used when need other partner rather than scoped partner
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function getTransporterDriverQuery(?Partner $customPartner = null): Builder
-    {
-        $query = UserablePivot::query();
-
-        $partner = $customPartner ?? $this->partner;
-
-        $query->whereHasMorph(
-            'userable',
-            Transporter::class,
-            fn(Builder $transporterQuery) => $transporterQuery->where('partner_id', $partner->id));
-
-        $query->with('userable', 'user');
-
-        return $query;
     }
 }

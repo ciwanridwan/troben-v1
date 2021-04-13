@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\Master\PartnerResource;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Http\Resources\Api\Transporter\TransporterDriverResource;
-use App\Models\Deliveries\Delivery;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+use App\Models\Deliveries\Delivery;
+use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
+use App\Supports\Repositories\PartnerRepository;
+use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Http\Resources\Api\Transporter\TransporterDriverResource;
 
 class AssignableController extends Controller
 {
@@ -23,8 +23,8 @@ class AssignableController extends Controller
 
         $query->when(
             $request->input('type'),
-            fn(Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
-            fn(Builder $builder, $type) => $builder->whereIn('type', [
+            fn (Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
+            fn (Builder $builder, $type) => $builder->whereIn('type', [
                 Partner::TYPE_BUSINESS,
                 Partner::TYPE_SPACE,
                 Partner::TYPE_POOL,
@@ -48,7 +48,7 @@ class AssignableController extends Controller
         $query->where('status', Package::STATUS_PACKED);
 
         $query->whereDoesntHave('deliveries',
-            fn(Builder $builder) => $builder
+            fn (Builder $builder) => $builder
                 ->where('origin_partner_id', '!=', $repository->getPartner()->id)
                 ->whereNotIn('type', [
                     Delivery::TYPE_TRANSIT,

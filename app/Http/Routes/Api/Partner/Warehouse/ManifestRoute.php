@@ -2,8 +2,8 @@
 
 namespace App\Http\Routes\Api\Partner\Warehouse;
 
-use App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use Jalameta\Router\BaseRoute;
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 
 class ManifestRoute extends BaseRoute
