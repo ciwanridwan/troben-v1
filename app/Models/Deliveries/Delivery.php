@@ -82,6 +82,7 @@ class Delivery extends Model
 
     protected $hidden = [
         'id',
+        'origin_partner_id',
         'partner_id',
         'userable_id',
         'origin_regency_id',

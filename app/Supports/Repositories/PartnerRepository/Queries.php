@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -116,5 +117,27 @@ class Queries
                 ]));
                 break;
         }
+    }
+
+    /**
+     * get transporter driver
+     *
+     * @param \App\Models\Partners\Partner|null $customPartner will be used when need other partner rather than scoped partner
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getTransporterDriverQuery(?Partner $customPartner = null): Builder
+    {
+        $query = UserablePivot::query();
+
+        $partner = $customPartner ?? $this->partner;
+
+        $query->whereHasMorph(
+            'userable',
+            Transporter::class,
+            fn(Builder $transporterQuery) => $transporterQuery->where('partner_id', $partner->id));
+
+        $query->with('userable', 'user');
+
+        return $query;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Partner\Warehouse;
 
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 
@@ -29,14 +30,34 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->get($this->prefix('partner'), [
-            'as' => $this->name('partner'),
-            'uses' => $this->uses('partner'),
-        ]);
-
         $this->router->post($this->prefix, [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
+        ]);
+
+        $this->router->get($this->prefix('assignable/partner'), [
+            'as' => $this->name('assignable.partner'),
+            'uses' => $this->uses('partner', Manifest\AssignableController::class),
+        ]);
+
+        $this->router->get($this->prefix('assignable/driver'), [
+            'as' => $this->name('assignable.driver'),
+            'uses' => $this->uses('driver', Manifest\AssignableController::class),
+        ]);
+
+        $this->router->get($this->prefix('assignable/package'), [
+            'as' => $this->name('assignable.package'),
+            'uses' => $this->uses('package', Manifest\AssignableController::class),
+        ]);
+
+        $this->router->patch($this->prefix('assignation/{delivery_hash}/transporter'), [
+            'as' => $this->name('assignation.transporter'),
+            'uses' => $this->uses('transporter', Manifest\AssignationController::class),
+        ]);
+
+        $this->router->patch($this->prefix('assignation/{delivery_hash}/package'), [
+            'as' => $this->name('assignation.package'),
+            'uses' => $this->uses('package', Manifest\AssignationController::class),
         ]);
     }
 

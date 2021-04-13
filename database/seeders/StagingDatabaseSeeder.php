@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\PostPayment\PackedSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
@@ -46,6 +47,7 @@ class StagingDatabaseSeeder extends Seeder
         $this->command->getOutput()->title('Post payment seeder');
         $this->call([
             PostPaymentSeeder::class,
+            PackedSeeder::class,
         ]);
     }
 }

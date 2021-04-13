@@ -68,6 +68,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read null|DeliveryPackagePivot pivot
  * @property-read User|null packager
  * @property-read User|null estimator
+ * @property int estimator_id
+ * @property int packager_id
  */
 class Package extends Model implements AttachableContract
 {
