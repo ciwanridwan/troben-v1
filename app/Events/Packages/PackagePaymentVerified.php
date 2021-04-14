@@ -26,7 +26,6 @@ class PackagePaymentVerified
      */
     public function __construct(Package $package)
     {
-
         throw_if(
             $package->payment_status !== Package::PAYMENT_STATUS_PENDING || $package->status !== Package::STATUS_ACCEPTED,
             ValidationException::withMessages([

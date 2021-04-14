@@ -2,10 +2,10 @@
 
 namespace Database\Factories\Packages;
 
+use App\Models\Price;
 use App\Models\Service;
 use App\Models\Geo\SubDistrict;
 use App\Models\Packages\Package;
-use App\Models\Price;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PackageFactory extends Factory
