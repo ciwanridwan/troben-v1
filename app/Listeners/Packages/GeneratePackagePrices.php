@@ -34,23 +34,22 @@ class GeneratePackagePrices
                     ]);
                     $this->dispatch($job);
                 }
-
                 // todo : create price type service, description item name
-                // $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
-                //     'type' => Price::TYPE_SERVICE,
-                //     'description' => Price::TYPE_SERVICE,
-                //     'amount' => PricingCalculator::getDimensionCharge(
-                //         $event->package->origin_regency->origin_province_id,
-                //         $event->package->origin_regency_id,
-                //         $event->package->destination_sub_district_id,
-                //         $item->height,
-                //         $item->length,
-                //         $item->width,
-                //         $item->weight,
-                //         $event->package->service_code
-                //     )
-                // ]);
-                // $this->dispatch($job);
+                $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
+                    'type' => Price::TYPE_SERVICE,
+                    'description' => Price::TYPE_SERVICE,
+                    'amount' => PricingCalculator::getDimensionCharge(
+                        $event->package->origin_regency->province_id,
+                        $event->package->origin_regency_id,
+                        $event->package->destination_sub_district_id,
+                        $item->height,
+                        $item->length,
+                        $item->width,
+                        $item->weight,
+                        $event->package->service_code
+                    )
+                ]);
+                $this->dispatch($job);
 
                 // todo : create price type insurance, attach to item
                 if ($item->is_insured) {
