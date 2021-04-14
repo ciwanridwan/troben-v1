@@ -2,7 +2,7 @@
   <div>
     <a-button
       :class="['trawl-button-success']"
-      @click="visible = true"
+      @click="showModal"
       @cancel="onCancel"
     >
       Print
@@ -41,7 +41,7 @@
                 <h2 :style="{ margin: 0 }"><b>Mitra Bisnis</b></h2>
                 <h4 style="font-weight:normal">Lubuk Kilangan, Padang</h4>
                 <h4 style="font-weight:normal" :class="['trawl-text-mute']">
-                  {{ currentDate }}
+                  {{ dateSimpleFormat(record.updated_at) }}
                 </h4>
               </a-col>
               <a-col :span="12" :class="['trawl-card-white-label']">
@@ -55,20 +55,24 @@
                 <a-space direction="vertical">
                   <div>
                     <h4 class="trawl-text-danger">Dari</h4>
-                    <h2 :style="{ margin: 0 }"><b>Bandung</b></h2>
+                    <h2 :style="{ margin: 0 }">
+                      <b>{{ record.origin_regency.name }}</b>
+                    </h2>
                     <h3 class="trawl-text-normal">Jawa Barat</h3>
                   </div>
 
                   <div>
-                    <h4 class="trawl-text-danger">Dari</h4>
-                    <h2 :style="{ margin: 0 }"><b>Padang</b></h2>
+                    <h4 class="trawl-text-danger">Ke</h4>
+                    <h2 :style="{ margin: 0 }">
+                      <b>{{ record.destination_regency.name }}</b>
+                    </h2>
                     <h3 class="trawl-text-normal">Sumatera Barat</h3>
                   </div>
                 </a-space>
               </a-col>
               <a-col :span="12" class="trawl-text-center">
-                <!-- <qrcode-vue value="value"></qrcode-vue> -->
-                <h3 class="trawl-text-normal">No Barang: 1-2-1234-0</h3>
+                <vue-qrcode :value="record.barcode" />
+                <h3 class="trawl-text-normal">No Resi: {{ record.barcode }}</h3>
               </a-col>
             </a-row>
 
@@ -85,21 +89,22 @@
                         Pengirim
                       </a-space>
                     </h3>
-                    <h3><b>Faris Ferdian Akbar</b></h3>
-                    <h3 class="trawl-text-normal">085694455935</h3>
+                    <h3>
+                      <b>{{ record.sender_name }}</b>
+                    </h3>
+                    <h3 class="trawl-text-normal">{{ record.sender_phone }}</h3>
                     <h3 class="trawl-text-normal">
-                      Jl. Soekarno No.1, Kel. Indarung, Kec. Lubuk Kilangan,
-                      Padang, Sumatera Barat.
+                      {{ record.sender_address }}
                     </h3>
                   </div>
 
-                  <h3 class="trawl-text-normal">Kode pos : 40256</h3>
+                  <!-- <h3 class="trawl-text-normal">Kode pos : 40256</h3> -->
 
                   <a-space direction="vertical" class="trawl-text-center">
-                    <qr-code-icon
-                      :style="{ width: '91px', height: '91px' }"
-                    ></qr-code-icon>
-                    <h3 class="trawl-text-normal">No Resi: 1-2-1234-0</h3>
+                    <vue-qrcode :value="item.barcode"></vue-qrcode>
+                    <h3 class="trawl-text-normal">
+                      No Barang: {{ item.barcode }}
+                    </h3>
                   </a-space>
                 </a-space>
               </a-col>
@@ -114,27 +119,30 @@
                         Penerima
                       </a-space>
                     </h3>
-                    <h3><b>Agus Andriatmo</b></h3>
-                    <h3 class="trawl-text-normal">085694455935</h3>
+                    <h3>
+                      <b>{{ record.receiver_name }}</b>
+                    </h3>
                     <h3 class="trawl-text-normal">
-                      Jl. Soekarno No.1, Kel. Indarung, Kec. Lubuk Kilangan,
-                      Padang, Sumatera Barat.
+                      {{ record.receiver_phone }}
+                    </h3>
+                    <h3 class="trawl-text-normal">
+                      {{ record.receiver_address }}
                     </h3>
                   </div>
 
-                  <h3 class="trawl-text-normal">Kode pos : 52312</h3>
+                  <!-- <h3 class="trawl-text-normal">Kode pos : 52312</h3> -->
 
                   <a-space direction="vertical">
                     <h3 class="trawl-text-normal">
                       Ket Barang :
-                      <b>Kulkas 2 Pintu</b>
+                      <b>{{ item.name }}</b>
                     </h3>
                     <h3 class="trawl-text-normal">
                       <a-space>
                         <package-icon></package-icon>
                         <span>
                           Berat :
-                          <b>20 Kg</b>
+                          <b>{{ item.weight }} Kg</b>
                         </span>
                       </a-space>
                     </h3>
@@ -143,7 +151,7 @@
                         <weight-machine-icon></weight-machine-icon>
                         <span>
                           Jml. Koli :
-                          <b>20 Kg</b>
+                          <b>{{ item.qty }} </b>
                         </span>
                       </a-space>
                     </h3>
@@ -176,14 +184,23 @@ import ReceiveIcon from "../../../../components/icons/receiveIcon.vue";
 import VueHtml2pdf from "vue-html2pdf";
 
 export default {
+  props: ["record"],
   data() {
     return {
       visible: false
     };
   },
+  computed: {
+    item() {
+      return this.record.items[0];
+    }
+  },
   methods: {
+    showModal() {
+      this.visible = true;
+      console.log(this.record);
+    },
     print() {
-      // this.$htmlToPaper("resi");
       this.$refs.html2Pdf.generatePdf();
     },
     onCancel() {

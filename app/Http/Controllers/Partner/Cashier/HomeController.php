@@ -45,7 +45,7 @@ class HomeController extends Controller
     public function index(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-            $this->query = $partnerRepository->queries()->getPackagesQuery()->with('items');
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'origin_regency', 'origin_district', 'destination_regency', 'destination_district', 'destination_sub_district']);
 
             $this->attributes = $request->validate($this->rules);
             $this->getResource();

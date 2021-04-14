@@ -14,6 +14,7 @@
             <a-col :span="6" style="text-align:center">
               <order-modal-resi
                 v-if="record.payment_status == 'paid'"
+                :record="record"
               ></order-modal-resi>
               <order-modal
                 :record="record"
