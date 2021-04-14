@@ -89,6 +89,7 @@ class Item extends Model
     protected $appends = [
         'hash',
         'weight_borne',
+        // 'tier_price'
     ];
 
     /**
@@ -118,4 +119,14 @@ class Item extends Model
 
         return $weight > $volume ? $weight : $volume;
     }
+    // public function getTierPriceAttribute()
+    // {
+    //     $origin_province_id = $this->package->origin_regency->province_id;
+    //     $origin_regency_id = $this->package->origin_regency_id;
+    //     $destination_id = $this->package->destination_district_id;
+
+    //     $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
+    //     $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
+    //     return $tierPrice;
+    // }
 }

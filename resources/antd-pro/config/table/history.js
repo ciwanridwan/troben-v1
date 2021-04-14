@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export default [
   {
     title: "No",
@@ -13,21 +15,22 @@ export default [
   },
   {
     title: "Customer",
-    dataIndex: "customer",
+    dataIndex: "customer.name",
     key: "customer",
     scopedSlots: { customRender: "customer" }
   },
   {
     title: "Tujuan",
+    dataIndex: "receiver_address",
     key: "destination",
     scopedSlots: { customRender: "destination" }
   },
   {
     title: "Harga / Kg",
-    dataIndex: "price",
-    key: "price",
+    dataIndex: "total_amount",
+    key: "total_amount",
     align: "center",
-    scopedSlots: { customRender: "price" }
+    scopedSlots: { customRender: "total_amount" }
   },
   {
     title: "Total",
@@ -46,7 +49,14 @@ export default [
   {
     title: "Tanggal",
     key: "created_at",
-    dataIndex: "created_at",
-    scopedSlots: { customRender: "created_at" }
+    // dataIndex: "created_at",
+    customRender: (text, row, index) => {
+      return {
+        attrs: {
+          colSpan: 2
+        },
+        children: moment(text).format("ddd, DD MMM YYYY HH:mm:ss")
+      };
+    }
   }
 ];

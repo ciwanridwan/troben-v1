@@ -14,6 +14,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Events\Packages\PackagePaymentVerified;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -65,6 +66,9 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
         ],
         PackageAlreadyPackedByWarehouse::class => [
+            UpdatePackageStatusByEvent::class,
+        ],
+        PackagePaymentVerified::class => [
             UpdatePackageStatusByEvent::class,
         ],
     ];

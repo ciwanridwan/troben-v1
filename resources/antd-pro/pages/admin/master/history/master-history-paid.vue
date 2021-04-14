@@ -20,11 +20,25 @@
         :class="['trawl']"
       >
         <span slot="number" slot-scope="number">{{ number }}</span>
-        <span slot="action" slot-scope="record">
+        <span
+          slot="expandedRowRender"
+          slot-scope="row"
+          v-if="row.payment_status === 'pending'"
+        >
+          <a-row type="flex" justify="end">
+            <a-col :span="12" :class="['trawl-text-right']">
+              <modal-payment-verified
+                :record="row"
+                :paymentVerfied="paymentVerified"
+              ></modal-payment-verified>
+            </a-col>
+          </a-row>
+        </span>
+        <!-- <span slot="action" slot-scope="record">
           <a-space>
             <delete-button @click="deleteConfirm(record)"></delete-button>
           </a-space>
-        </span>
+        </span> -->
       </a-table>
     </template>
   </content-layout>
@@ -32,9 +46,10 @@
 <script>
 import contentLayout from "../../../../layouts/content-layout.vue";
 import historyPaidColumns from "../../../../config/table/history";
+import ModalPaymentVerified from "./modal-payment-verified.vue";
 
 export default {
-  components: { contentLayout },
+  components: { contentLayout, ModalPaymentVerified },
   data: () => ({
     recordNumber: 0,
     items: {},
@@ -53,6 +68,13 @@ export default {
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
       });
+    },
+    async paymentVerified(package_hash) {
+      let uri = this.routeUri("admin.history.paymentVerifed", {
+        package_hash
+      });
+      await this.$http.patch(uri);
+      this.getItems();
     }
   },
   created() {

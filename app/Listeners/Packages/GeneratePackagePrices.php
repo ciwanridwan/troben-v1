@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
@@ -35,7 +36,7 @@ class GeneratePackagePrices
                 }
 
                 // todo : create price type service, description item name
-                // $job = new CreateNewPriceFromExistingItem($event->package, $item, [
+                // $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                 //     'type' => Price::TYPE_SERVICE,
                 //     'description' => Price::TYPE_SERVICE,
                 //     'amount' => PricingCalculator::getDimensionCharge(

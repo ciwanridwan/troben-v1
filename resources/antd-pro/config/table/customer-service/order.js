@@ -38,7 +38,7 @@ export default [
     title: "Tanggal Order",
     dataIndex: "created_at",
     key: "created_at",
-    width: "100px",
+    // width: "100px",
     colSpan: 2,
     align: "center",
     customRender: (text, row, index) => {
