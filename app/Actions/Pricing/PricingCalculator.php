@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pricing;
 
+use App\Casts\Package\Items\Handling;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -93,25 +94,29 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD)
+    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD, $handling = null)
     {
+
         $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
-        $act_weight = self::ceilByTolerance($weight);
-        $act_volume = self::ceilByTolerance(
-            self::getVolume(
-                $height,
-                $length,
-                $width,
-                $service
-            )
-        );
-        $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
+        if ($handling === Handling::TYPE_WOOD) {
+            $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
+        } else {
+            $act_weight = self::ceilByTolerance($weight);
+            $act_volume = self::ceilByTolerance(
+                self::getVolume(
+                    $height,
+                    $length,
+                    $width,
+                    $service
+                )
+            );
+            $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
+        }
 
         // check if lt min weight
         $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
 
         $tier = self::getTier($price, $weight);
-
         return $weight * $tier;
     }
 
