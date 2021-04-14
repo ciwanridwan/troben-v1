@@ -26,6 +26,10 @@ class HistoryRoute extends BaseRoute
             'as' => $this->name('paymentVerifed'),
             'uses' => $this->uses('paymentVerifed'),
         ]);
+        $this->router->get($this->prefix('pending'), [
+            'as' => $this->name('pending'),
+            'uses' => $this->uses('pending'),
+        ]);
         $this->router->get($this->prefix('cancel'), [
             'as' => $this->name('cancel'),
             'uses' => $this->uses('cancel'),

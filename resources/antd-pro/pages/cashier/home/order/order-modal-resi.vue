@@ -67,7 +67,7 @@
                 </a-space>
               </a-col>
               <a-col :span="12" class="trawl-text-center">
-                <qr-code-icon></qr-code-icon>
+                <!-- <qrcode-vue value="value"></qrcode-vue> -->
                 <h3 class="trawl-text-normal">No Barang: 1-2-1234-0</h3>
               </a-col>
             </a-row>

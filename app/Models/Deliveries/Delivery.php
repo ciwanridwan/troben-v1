@@ -36,6 +36,8 @@ class Delivery extends Model
 {
     use HashableId, HasBarcode;
 
+    protected $barcodeType = "MNF";
+
     const TYPE_PICKUP = 'pickup';
     const TYPE_RETURN = 'return';
     const TYPE_TRANSIT = 'transit';

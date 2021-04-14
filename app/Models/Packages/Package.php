@@ -110,6 +110,11 @@ class Package extends Model implements AttachableContract
     protected $phoneNumberColumn = 'receiver_phone';
 
     /**
+     * @var string
+     */
+    protected $barcodeType = "RCP";
+
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -347,6 +352,11 @@ class Package extends Model implements AttachableContract
     public function scopePaid($query)
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_PAID);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('payment_status', self::PAYMENT_STATUS_PENDING);
     }
 
     public function scopeFailed($query)

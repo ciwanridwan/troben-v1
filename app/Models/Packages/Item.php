@@ -44,6 +44,12 @@ class Item extends Model
     protected $table = 'package_items';
 
     /**
+     * @var string
+     */
+    protected $barcodeType = "ITM";
+
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]

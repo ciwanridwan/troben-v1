@@ -36,6 +36,12 @@ const main = {
     text: "Riwayat",
     route: "admin.history",
     children: {
+      pending: {
+        title: "All Pending Order",
+        text: "Data Pending Order",
+        route: "admin.history.pending",
+        children: null
+      },
       cancel: {
         title: "All Cancel Order",
         text: "Data Cancel Order",
