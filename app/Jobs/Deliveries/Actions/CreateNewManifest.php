@@ -44,6 +44,7 @@ class CreateNewManifest
     public function handle()
     {
         $this->attributes['type'] = Delivery::TYPE_TRANSIT;
+        $this->attributes['status'] = Delivery::STATUS_WAITING_ASSIGN_PACKAGE;
         $this->attributes['origin_regency_id'] = $this->originPartner->geo_regency_id;
         $this->attributes['origin_district_id'] = $this->originPartner->geo_district_id;
         $this->attributes['origin_sub_district_id'] = $this->originPartner->geo_sub_district_id;

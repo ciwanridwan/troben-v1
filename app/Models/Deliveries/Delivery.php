@@ -2,11 +2,14 @@
 
 namespace App\Models\Deliveries;
 
+use App\Models\Code;
+use App\Models\Packages\Item;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Concerns\Models\HasBarcode;
 use App\Models\Partners\Transporter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -30,11 +33,12 @@ use App\Supports\Repositories\PartnerRepository;
  * @property int destination_sub_district_id
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
- * @property-read ?string as
+ * @property-read string|null as
+ * @property int|null userable_id
  */
 class Delivery extends Model
 {
-    use HashableId, HasBarcode;
+    use HashableId, HasBarcode, HasFactory;
 
     const TYPE_PICKUP = 'pickup';
     const TYPE_RETURN = 'return';
@@ -44,6 +48,10 @@ class Delivery extends Model
     const STATUS_PENDING = 'pending';
     const STATUS_ACCEPTED = 'accepted';
     const STATUS_CANCELLED = 'cancelled';
+    const STATUS_WAITING_ASSIGN_PACKAGE = 'waiting_assign_package';
+    const STATUS_WAITING_ASSIGN_TRANSPORTER = 'waiting_assign_transporter';
+    const STATUS_WAITING_TRANSPORTER = 'waiting_transporter';
+    const STATUS_LOADING = 'loading';
     const STATUS_EN_ROUTE = 'en-route';
     const STATUS_FINISHED = 'finished';
 
@@ -122,6 +130,10 @@ class Delivery extends Model
             self::STATUS_PENDING,
             self::STATUS_ACCEPTED,
             self::STATUS_CANCELLED,
+            self::STATUS_WAITING_ASSIGN_PACKAGE,
+            self::STATUS_WAITING_ASSIGN_TRANSPORTER,
+            self::STATUS_WAITING_TRANSPORTER,
+            self::STATUS_LOADING,
             self::STATUS_EN_ROUTE,
             self::STATUS_FINISHED,
         ];
@@ -130,10 +142,21 @@ class Delivery extends Model
     public function packages(): Relations\MorphToMany
     {
         return $this->morphedByMany(Package::class, 'deliverable')
-            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
+            ->withPivot(['status', 'created_at', 'updated_at'])
             ->withTimestamps()
             ->orderByPivot('created_at')
             ->using(Deliverable::class);
+    }
+
+    public function item_codes(): Relations\MorphToMany
+    {
+        return $this->morphedByMany(Code::class, 'deliverable')
+            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
+            ->withTimestamps()
+            ->orderByPivot('created_at')
+            ->using(Deliverable::class)
+            ->where('codeable_type', Item::class)
+            ->with('codeable');
     }
 
     /**

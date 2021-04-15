@@ -112,6 +112,11 @@ class ManifestApiTest extends TestCase
 
         $response->assertOk();
 
+        $this->assertDatabaseHas('deliveries', [
+            'partner_id' => Partner::hashToId($targetPartnerHash),
+            'status' => Delivery::STATUS_WAITING_ASSIGN_PACKAGE,
+        ]);
+
         $response = $this->getJson(action([ManifestController::class, 'index']));
 
         $response->assertJsonCount(1, 'data');
