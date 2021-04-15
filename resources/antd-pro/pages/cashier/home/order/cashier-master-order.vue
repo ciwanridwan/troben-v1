@@ -14,6 +14,7 @@
             <a-col :span="6" style="text-align:center">
               <order-modal-resi
                 v-if="record.payment_status == 'paid'"
+                :partnerInfo="partnerInfo"
                 :record="record"
               ></order-modal-resi>
               <order-modal
@@ -60,18 +61,28 @@ export default {
       _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+    },
+    async getParterInfo() {
+      let { data } = await this.$http.get(this.routeUri(this.getRoute()), {
+        params: {
+          partner: true
+        }
+      });
+      this.partnerInfo = data.data;
     }
   },
   data() {
     return {
       orderColumns,
       orders,
-      items: this.getDefaultPagination()
+      items: this.getDefaultPagination(),
+      partnerInfo: {}
     };
   },
 
   mounted() {
     this.getItems();
+    this.getParterInfo();
   }
 };
 </script>

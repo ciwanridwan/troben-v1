@@ -27,6 +27,7 @@
         :enable-download="true"
         :preview-modal="false"
         :manual-pagination="true"
+        :filename="`${record.barcode} - ${item.barcode}`"
         pdf-format="a5"
         pdf-orientation="portrait"
         ref="html2Pdf"
@@ -38,8 +39,10 @@
             <a-row type="flex">
               <a-col :span="12">
                 <trawl-pack-with-text></trawl-pack-with-text>
-                <h2 :style="{ margin: 0 }"><b>Mitra Bisnis</b></h2>
-                <h4 style="font-weight:normal">Lubuk Kilangan, Padang</h4>
+                <h2 :style="{ margin: 0 }">
+                  <b>{{ partnerInfo.code }}</b>
+                </h2>
+                <h4 style="font-weight:normal">{{ partnerInfo.address }}</h4>
                 <h4 style="font-weight:normal" :class="['trawl-text-mute']">
                   {{ dateSimpleFormat(record.updated_at) }}
                 </h4>
@@ -58,7 +61,9 @@
                     <h2 :style="{ margin: 0 }">
                       <b>{{ record.origin_regency.name }}</b>
                     </h2>
-                    <h3 class="trawl-text-normal">Jawa Barat</h3>
+                    <h3 class="trawl-text-normal">
+                      {{ record.origin_regency.province.name }}
+                    </h3>
                   </div>
 
                   <div>
@@ -66,7 +71,9 @@
                     <h2 :style="{ margin: 0 }">
                       <b>{{ record.destination_regency.name }}</b>
                     </h2>
-                    <h3 class="trawl-text-normal">Sumatera Barat</h3>
+                    <h3 class="trawl-text-normal">
+                      {{ record.destination_regency.province.name }}
+                    </h3>
                   </div>
                 </a-space>
               </a-col>
@@ -184,7 +191,7 @@ import ReceiveIcon from "../../../../components/icons/receiveIcon.vue";
 import VueHtml2pdf from "vue-html2pdf";
 
 export default {
-  props: ["record"],
+  props: ["record", "partnerInfo"],
   data() {
     return {
       visible: false
