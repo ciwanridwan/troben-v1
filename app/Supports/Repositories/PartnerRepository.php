@@ -8,6 +8,7 @@ use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class PartnerRepository
 {
@@ -58,13 +59,20 @@ class PartnerRepository
     {
         $user = $this->getUser();
 
+        $resolvedAuthorized = false;
+
         if ($user) {
             $roles = Arr::wrap($roles);
 
-            return $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles));
+            $resolvedAuthorized = $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles));
         }
 
-        return false;
+        // owner has the right to access all resource
+        if (! $resolvedAuthorized && $user->partners->some(fn (Partner $partner) => $partner->pivot->role == UserablePivot::ROLE_OWNER)) {
+            $resolvedAuthorized = true;
+        }
+
+        return $resolvedAuthorized;
     }
 
     public function isAuthorizeByTypes($types): bool
