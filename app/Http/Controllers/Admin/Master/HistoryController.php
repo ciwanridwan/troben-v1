@@ -54,7 +54,7 @@ class HistoryController extends Controller
 
             $this->getResource();
             $this->query->when($request->input('q'), function (Builder $query, $q) {
-                $query->where('barcode', 'LIKE', '%' . $q . '%');
+                $query->where('barcode', 'LIKE', '%'.$q.'%');
             });
 
             $this->query->where('payment_status', Package::PAYMENT_STATUS_PENDING)->where('status', Package::STATUS_ACCEPTED);
@@ -79,7 +79,7 @@ class HistoryController extends Controller
             // $this->query = $this->query->whereIn('payment_status', ['paid', 'pending']);
             $this->query->orderBy('payment_status');
             $this->query->when($request->input('q'), function (Builder $query, $q) {
-                $query->where('barcode', 'LIKE', '%' . $q . '%');
+                $query->where('barcode', 'LIKE', '%'.$q.'%');
             });
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));

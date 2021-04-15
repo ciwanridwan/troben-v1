@@ -46,7 +46,7 @@ class Item extends Model
     /**
      * @var string
      */
-    protected $barcodeType = "ITM";
+    protected $barcodeType = 'ITM';
 
 
     /**

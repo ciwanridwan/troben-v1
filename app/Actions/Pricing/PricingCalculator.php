@@ -2,13 +2,13 @@
 
 namespace App\Actions\Pricing;
 
-use App\Casts\Package\Items\Handling;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
 use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
+use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceCalculatorResource;
 
 class PricingCalculator
@@ -96,7 +96,6 @@ class PricingCalculator
      */
     public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD, $handling = null)
     {
-
         $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
         if ($handling === Handling::TYPE_WOOD) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
@@ -117,6 +116,7 @@ class PricingCalculator
         $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
 
         $tier = self::getTier($price, $weight);
+
         return $weight * $tier;
     }
 

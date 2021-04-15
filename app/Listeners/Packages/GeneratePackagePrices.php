@@ -47,7 +47,7 @@ class GeneratePackagePrices
                         $item->width,
                         $item->weight,
                         $event->package->service_code
-                    )
+                    ),
                 ]);
                 $this->dispatch($job);
 

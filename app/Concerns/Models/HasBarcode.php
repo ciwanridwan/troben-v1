@@ -3,7 +3,6 @@
 namespace App\Concerns\Models;
 
 use Carbon\Carbon;
-use App\Models\Orders\Order;
 use App\Models\Packages\Package;
 
 trait HasBarcode
@@ -34,13 +33,13 @@ trait HasBarcode
         }
 
         // default
-        return $this->getBarcodeType() . Carbon::now()->format('dmy') . random_int(0, 10000);
+        return $this->getBarcodeType().Carbon::now()->format('dmy').random_int(0, 10000);
     }
 
     private function generateBarcodeOrder()
     {
-        $pre = $this->getBarcodeType() . Carbon::now()->format('dmy');
-        $last_order = $this->query()->where('barcode', 'LIKE', $pre . '%')->orderBy('barcode', 'desc')->first();
+        $pre = $this->getBarcodeType().Carbon::now()->format('dmy');
+        $last_order = $this->query()->where('barcode', 'LIKE', $pre.'%')->orderBy('barcode', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->barcode, strlen($pre)) : 0;
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
@@ -48,6 +47,6 @@ trait HasBarcode
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
 
-        return  $pre . $inc_number;
+        return  $pre.$inc_number;
     }
 }

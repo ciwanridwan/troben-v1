@@ -76,6 +76,7 @@ class Handling implements CastsAttributes
         } else {
             $weight = $volume_packed;
         }
+
         return $weight;
     }
 

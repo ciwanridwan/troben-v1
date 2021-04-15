@@ -45,7 +45,6 @@ class HomeController extends Controller
     public function index(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-
             if ($request->has('partner')) {
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }

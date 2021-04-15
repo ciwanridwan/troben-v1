@@ -112,7 +112,7 @@ class Package extends Model implements AttachableContract
     /**
      * @var string
      */
-    protected $barcodeType = "RCP";
+    protected $barcodeType = 'RCP';
 
     /**
      * The table associated with the model.

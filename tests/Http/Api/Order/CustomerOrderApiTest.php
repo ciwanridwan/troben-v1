@@ -16,7 +16,6 @@ use App\Events\Packages\PackageApprovedByCustomer;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Controllers\Api\Order\OrderController;
-use App\Models\Price;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
 
@@ -42,7 +41,7 @@ class CustomerOrderApiTest extends TestCase
 
         $destinationSubDistrict = collect($this->getJson(route('api.geo', [
             'type' => 'sub_district',
-            'id' => $price['destination']['id']
+            'id' => $price['destination']['id'],
         ]))->json('data'))->first();
 
         $data = [
@@ -94,7 +93,7 @@ class CustomerOrderApiTest extends TestCase
 
         $destinationSubDistrict = collect($this->getJson(route('api.geo', [
             'type' => 'sub_district',
-            'id' => $price['destination']['id']
+            'id' => $price['destination']['id'],
         ]))->json('data'))->first();
 
 
