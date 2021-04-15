@@ -72,6 +72,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
  * @property-read User|null estimator
  * @property int estimator_id
  * @property int packager_id
+ * @property Code code
  */
 class Package extends Model implements AttachableContract
 {

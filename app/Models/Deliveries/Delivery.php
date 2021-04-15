@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
@@ -42,25 +41,25 @@ class Delivery extends Model
 {
     use HashableId, HasCode, HasFactory;
 
-    const TYPE_PICKUP = 'pickup';
-    const TYPE_RETURN = 'return';
-    const TYPE_TRANSIT = 'transit';
-    const TYPE_DOORING = 'dooring';
+    public const TYPE_PICKUP = 'pickup';
+    public const TYPE_RETURN = 'return';
+    public const TYPE_TRANSIT = 'transit';
+    public const TYPE_DOORING = 'dooring';
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_WAITING_ASSIGN_PACKAGE = 'waiting_assign_package';
-    const STATUS_WAITING_ASSIGN_TRANSPORTER = 'waiting_assign_transporter';
-    const STATUS_WAITING_TRANSPORTER = 'waiting_transporter';
-    const STATUS_LOADING = 'loading';
-    const STATUS_EN_ROUTE = 'en-route';
-    const STATUS_FINISHED = 'finished';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_WAITING_ASSIGN_PACKAGE = 'waiting_assign_package';
+    public const STATUS_WAITING_ASSIGN_TRANSPORTER = 'waiting_assign_transporter';
+    public const STATUS_WAITING_TRANSPORTER = 'waiting_transporter';
+    public const STATUS_LOADING = 'loading';
+    public const STATUS_EN_ROUTE = 'en-route';
+    public const STATUS_FINISHED = 'finished';
 
-    const AS_ORIGIN = 'origin';
-    const AS_DESTINATION = 'destination';
+    public const AS_ORIGIN = 'origin';
+    public const AS_DESTINATION = 'destination';
 
-    protected $codeType = 'MNF';
+    protected string $codeType = 'MNF';
 
     /**
      * The table associated with the model.
@@ -157,7 +156,7 @@ class Delivery extends Model
             ->withTimestamps()
             ->orderByPivot('created_at')
             ->using(Deliverable::class)
-            ->where('codeable_type', Item::class)
+            ->whereHasMorph('codeable', Item::class)
             ->with('codeable');
     }
 

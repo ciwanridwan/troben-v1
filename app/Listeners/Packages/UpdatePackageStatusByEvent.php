@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\PackageAttachedToDelivery;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -21,7 +22,7 @@ class UpdatePackageStatusByEvent
      * @param object $event
      * @return void
      */
-    public function handle(object $event)
+    public function handle(object $event): void
     {
         switch (true) {
             case $event instanceof Pickup\PackageLoadedByDriver:
@@ -66,6 +67,11 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PackageAlreadyPackedByWarehouse:
                 $event->package->setAttribute('status', Package::STATUS_PACKED)->save();
+                break;
+            case $event instanceof PackageAttachedToDelivery:
+                if ($event->package->status === Package::STATUS_PACKED) {
+                    $event->package->setAttribute('status', Package::STATUS_MANIFESTED)->save();
+                }
                 break;
         }
     }

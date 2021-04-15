@@ -39,9 +39,14 @@ class AssignableController extends Controller
     {
         $query = $repository->queries()->getTransporterDriverQuery();
 
-        $query->when($request->input('transporter_type'),
-            fn (Builder $userableQuery, $type) => $userableQuery->whereHasMorph('userable', Transporter::class,
-                fn (Builder $transporterQuery) => $transporterQuery->where('type', $type)));
+        $query->when(
+            $request->input('transporter_type'),
+            fn (Builder $userableQuery, $type) => $userableQuery->whereHasMorph(
+                'userable',
+                Transporter::class,
+                fn (Builder $transporterQuery) => $transporterQuery->where('type', $type)
+            )
+        );
 
         return $this->jsonSuccess(TransporterDriverResource::collection($query->paginate($request->input('per_page'))));
     }
@@ -52,14 +57,16 @@ class AssignableController extends Controller
 
         $query->where('status', Package::STATUS_PACKED);
 
-        $query->whereDoesntHave('deliveries',
+        $query->whereDoesntHave(
+            'deliveries',
             fn (Builder $builder) => $builder
                 ->where('origin_partner_id', '!=', $repository->getPartner()->id)
                 ->whereNotIn('type', [
                     Delivery::TYPE_TRANSIT,
                     Delivery::TYPE_DOORING,
                     Delivery::TYPE_RETURN,
-                ]));
+                ])
+        );
 
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))));
     }

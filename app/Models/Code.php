@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Relations;
  * Class Code
  * @package App\Models
  *
- * @property-read  null|\App\Models\Deliveries\Delivery|\App\Models\Packages\Package|\App\Models\Packages\Item codeable
+ * @property  int id
+ * @property  string content
+ * @property-read  null|Delivery|Package|Item codeable
  */
 class Code extends Model
 {
@@ -26,6 +28,12 @@ class Code extends Model
 
     protected $fillable = [
         'content'
+    ];
+
+    protected $hidden = [
+        'id',
+        'codeable_type',
+        'codeable_id',
     ];
 
     public function codeable(): Relations\MorphTo

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
-use App\Jobs\Deliveries\Actions\AttachPackageToDelivery;
+use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Deliveries\Deliverable;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
@@ -29,7 +30,9 @@ class AssignationController extends Controller
      */
     public function package(Request $request, Delivery $delivery): JsonResponse
     {
-        $job = new AttachPackageToDelivery($delivery, $request->all());
+        $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
+            'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
+        ]));
 
         $this->dispatchNow($job);
 
