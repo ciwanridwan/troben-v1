@@ -16,6 +16,8 @@ use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
+use App\Models\Packages\Package;
+use App\Observers\CodeObserver;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -80,6 +82,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Package::observe(CodeObserver::class);
     }
 }
