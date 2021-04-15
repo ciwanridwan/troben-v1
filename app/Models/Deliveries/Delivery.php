@@ -125,13 +125,13 @@ class Delivery extends Model
         ];
     }
 
-    public function packages(): Relations\BelongsToMany
+    public function packages(): Relations\MorphToMany
     {
-        return $this->belongsToMany(Package::class)
-            ->withPivot(['is_onboard', 'created_at', 'updated_at'])
+        return $this->morphedByMany(Package::class, 'deliverable')
+            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
             ->withTimestamps()
             ->orderByPivot('created_at')
-            ->using(DeliveryPackagePivot::class);
+            ->using(Deliverable::class);
     }
 
     /**

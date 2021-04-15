@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Deliveries\Deliverable;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -12,16 +13,15 @@ use App\Concerns\Models\HasBarcode;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
-use App\Models\Deliveries\DeliveryPackagePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jalameta\Attachments\Contracts\AttachableContract;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Package model.
@@ -65,7 +65,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
- * @property-read null|DeliveryPackagePivot pivot
+ * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
  * @property int estimator_id
@@ -177,7 +177,7 @@ class Package extends Model implements AttachableContract
      */
     protected $casts = [
         'total_amount' => 'float',
-        'is_separate_item' => 'bool',
+        'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
     ];
@@ -265,13 +265,13 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
-    public function deliveries(): BelongsToMany
+    public function deliveries(): MorphToMany
     {
-        return $this->belongsToMany(Delivery::class)
-            ->withPivot(['is_onboard', 'created_at', 'updated_at'])
+        return $this->morphToMany(Delivery::class, 'deliverable')
+            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
             ->withTimestamps()
             ->orderByPivot('created_at')
-            ->using(DeliveryPackagePivot::class);
+            ->using(Deliverable::class);
     }
 
     public function estimator(): BelongsTo
