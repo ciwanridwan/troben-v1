@@ -2,9 +2,11 @@ import Vue from "vue";
 import Clipboard from "v-clipboard";
 import qs from "qs";
 import Laravel from "../antd-pro/laravel";
+import VueQrcode from "vue-qrcode";
+import moment from "moment";
 
 require("./bootstrap");
-
+Vue.component("vue-qrcode", VueQrcode);
 Vue.use(require("ant-design-vue"));
 Vue.use(require("vue-shortkey"), { prevent: ["input", "textarea"] });
 Vue.use(Clipboard);
@@ -46,6 +48,9 @@ Vue.mixin({
     }
   },
   methods: {
+    dateSimpleFormat(date) {
+      return moment(date).format("ddd, DD MMM YYYY");
+    },
     getBase64(img, callback) {
       const reader = new FileReader();
       reader.addEventListener("load", () => callback(reader.result));

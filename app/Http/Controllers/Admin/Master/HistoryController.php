@@ -46,6 +46,28 @@ class HistoryController extends Controller
         $this->baseBuilder();
     }
 
+    public function pending(Request $request)
+    {
+        if ($request->expectsJson()) {
+            $this->attributes = $request->validate($this->rules);
+
+
+            $this->getResource();
+            $this->query->when($request->input('q'), function (Builder $query, $q) {
+                $query->where('barcode', 'LIKE', '%'.$q.'%');
+            });
+
+            $this->query->where('payment_status', Package::PAYMENT_STATUS_PENDING)->where('status', Package::STATUS_ACCEPTED);
+
+            $this->query->orderBy('payment_status');
+            $this->query->with(['customer', 'items', 'attachments']);
+
+            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
+        }
+
+        return view('admin.master.history.pending.index');
+    }
+
     public function paid(Request $request)
     {
         if ($request->expectsJson()) {
@@ -53,7 +75,8 @@ class HistoryController extends Controller
 
             $this->query->with(['customer', 'items', 'attachments']);
             $this->getResource();
-            $this->query = $this->query->whereIn('payment_status', ['paid', 'pending']);
+            $this->query->paid();
+            // $this->query = $this->query->whereIn('payment_status', ['paid', 'pending']);
             $this->query->orderBy('payment_status');
             $this->query->when($request->input('q'), function (Builder $query, $q) {
                 $query->where('barcode', 'LIKE', '%'.$q.'%');

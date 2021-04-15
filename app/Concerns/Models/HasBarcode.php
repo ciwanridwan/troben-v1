@@ -3,7 +3,7 @@
 namespace App\Concerns\Models;
 
 use Carbon\Carbon;
-use App\Models\Orders\Order;
+use App\Models\Packages\Package;
 
 trait HasBarcode
 {
@@ -28,7 +28,7 @@ trait HasBarcode
 
     public function generateBarcode()
     {
-        if ($this instanceof Order) {
+        if ($this instanceof Package) {
             return $this->generateBarcodeOrder();
         }
 

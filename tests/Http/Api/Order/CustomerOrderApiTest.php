@@ -35,10 +35,14 @@ class CustomerOrderApiTest extends TestCase
         $headers = $this->getCustomersHeader();
 
         $services = collect($this->getJson(route('api.service'), $headers)->json('data'));
-        $subDistricts = collect($this->getJson(route('api.geo', ['type' => 'sub_district']))->json('data'));
 
-        $originSubDistrict = $subDistricts->random();
-        $destinationSubDistrict = $subDistricts->where('id', '!=', $originSubDistrict['id'])->random();
+        $prices = collect($this->getJson(route('api.pricing'))->json('data'));
+        $price = $prices->random();
+
+        $destinationSubDistrict = collect($this->getJson(route('api.geo', [
+            'type' => 'sub_district',
+            'id' => $price['destination']['id'],
+        ]))->json('data'))->first();
 
         $data = [
             'service_code' => $services->random()['code'],
@@ -49,7 +53,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'origin_regency_id' => $originSubDistrict['regency']['id'],
+            'origin_regency_id' => $price['origin_regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
             'destination_sub_district_id' => $destinationSubDistrict['id'],
@@ -83,10 +87,15 @@ class CustomerOrderApiTest extends TestCase
         $package = $customer->packages()->first();
 
         $services = collect($this->getJson(route('api.service'))->json('data'));
-        $subDistricts = collect($this->getJson(route('api.geo', ['type' => 'sub_district']))->json('data'));
 
-        $originSubDistrict = $subDistricts->random();
-        $destinationSubDistrict = $subDistricts->where('id', '!=', $originSubDistrict['id'])->random();
+        $prices = collect($this->getJson(route('api.pricing'))->json('data'));
+        $price = $prices->random();
+
+        $destinationSubDistrict = collect($this->getJson(route('api.geo', [
+            'type' => 'sub_district',
+            'id' => $price['destination']['id'],
+        ]))->json('data'))->first();
+
 
         $data = [
             'service_code' => $services->random()['code'],
@@ -97,7 +106,7 @@ class CustomerOrderApiTest extends TestCase
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
             'handling' => $this->faker->randomElements(Handling::getTypes()),
-            'origin_regency_id' => $originSubDistrict['regency']['id'],
+            'origin_regency_id' => $price['origin_regency']['id'],
             'destination_regency_id' => $destinationSubDistrict['regency']['id'],
             'destination_district_id' => $destinationSubDistrict['district']['id'],
             'destination_sub_district_id' => $destinationSubDistrict['id'],

@@ -50,6 +50,8 @@ class Delivery extends Model
     const AS_ORIGIN = 'origin';
     const AS_DESTINATION = 'destination';
 
+    protected $barcodeType = 'MNF';
+
     /**
      * The table associated with the model.
      *

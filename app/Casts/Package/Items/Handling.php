@@ -63,6 +63,23 @@ class Handling implements CastsAttributes
         ];
     }
 
+    public static function woodWeightBorne($height, $length, $width, $weight)
+    {
+        $add_dimension = 7; // added 7cm each dimension
+        $volume = PricingCalculator::getVolume($height, $length, $width);
+        $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension);
+        $weight = PricingCalculator::ceilByTolerance($weight);
+
+        if ($weight > $volume_packed) {
+            $volume_diff = $volume_packed - $volume;
+            $weight += $volume_diff;
+        } else {
+            $weight = $volume_packed;
+        }
+
+        return $weight;
+    }
+
     public static function calculator($type, $height, $length, $width, $weight)
     {
         switch ($type) {
@@ -102,21 +119,10 @@ class Handling implements CastsAttributes
 
                 return $price;
             case self::TYPE_WOOD:
-                $add_dimension = 7; // added 7cm each dimension
                 $min_price = 50000;
+                $weightBorne = self::woodWeightBorne($height, $length, $width, $weight);
 
-                $volume = PricingCalculator::getVolume($height, $length, $width);
-                $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension);
-                $weight = PricingCalculator::ceilByTolerance($weight);
-
-                if ($weight > $volume_packed) {
-                    $volume_diff = $volume_packed - $volume;
-                    $weight += $volume_diff;
-                } else {
-                    $weight = $volume_packed;
-                }
-
-                $price = $weight * 0.8;
+                $price = $weightBorne * 0.8;
 
                 return $price < $min_price ? $min_price : $price;
             default:
