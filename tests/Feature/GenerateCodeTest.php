@@ -26,7 +26,8 @@ class GenerateCodeTest extends TestCase
     {
         $this->seed(PackagesTableSeeder::class);
 
-        $item = Item::query()->where('qty', '>', 1)->first();
-        dd($item->codes->toArray());
+        $item = Item::query()->where('qty', '>', 1)->inRandomOrder()->first();
+        $item->qty = 10;
+        $item->save();
     }
 }
