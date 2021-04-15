@@ -2,13 +2,13 @@
 
 namespace App\Supports\Repositories;
 
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class PartnerRepository
 {
