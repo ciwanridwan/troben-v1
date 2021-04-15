@@ -7,7 +7,7 @@ use App\Models\Packages\Item;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Concerns\Models\HasBarcode;
+use App\Concerns\Models\HasCode;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * Class Delivery.
@@ -38,7 +40,7 @@ use App\Supports\Repositories\PartnerRepository;
  */
 class Delivery extends Model
 {
-    use HashableId, HasBarcode, HasFactory;
+    use HashableId, HasCode, HasFactory;
 
     const TYPE_PICKUP = 'pickup';
     const TYPE_RETURN = 'return';
@@ -58,7 +60,7 @@ class Delivery extends Model
     const AS_ORIGIN = 'origin';
     const AS_DESTINATION = 'destination';
 
-    protected $barcodeType = 'MNF';
+    protected $codeType = 'MNF';
 
     /**
      * The table associated with the model.
@@ -157,6 +159,14 @@ class Delivery extends Model
             ->using(Deliverable::class)
             ->where('codeable_type', Item::class)
             ->with('codeable');
+    }
+
+    /**
+     * @return MorphOne
+     */
+    public function code(): MorphOne
+    {
+        return $this->morphOne(Code::class, 'codeable');
     }
 
     /**

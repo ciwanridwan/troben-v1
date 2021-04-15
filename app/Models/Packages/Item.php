@@ -2,14 +2,16 @@
 
 namespace App\Models\Packages;
 
-use App\Concerns\Models\HasBarcode;
+use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
+use App\Models\Code;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Package Item model.
@@ -34,7 +36,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Item extends Model
 {
-    use HashableId, HasBarcode, HasFactory;
+    use HashableId, HasCode, HasFactory;
 
     /**
      * The table associated with the model.
@@ -46,7 +48,7 @@ class Item extends Model
     /**
      * @var string
      */
-    protected $barcodeType = 'ITM';
+    protected $codeType = 'ITM';
 
 
     /**
@@ -116,6 +118,14 @@ class Item extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_item_id', 'id');
+    }
+
+    /**
+     * @return MorphMany
+     */
+    public function codes(): MorphMany
+    {
+        return $this->morphMany(Code::class, 'codeable');
     }
 
     public function getWeightBorneAttribute()

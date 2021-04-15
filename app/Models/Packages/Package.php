@@ -9,9 +9,10 @@ use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
-use App\Concerns\Models\HasBarcode;
+use App\Concerns\Models\HasCode;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\Code;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Jalameta\Attachments\Contracts\AttachableContract;
 
 /**
@@ -73,7 +75,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory, Attachable;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -112,7 +114,7 @@ class Package extends Model implements AttachableContract
     /**
      * @var string
      */
-    protected $barcodeType = 'RCP';
+    protected $codeType = 'RCP';
 
     /**
      * The table associated with the model.
@@ -277,6 +279,11 @@ class Package extends Model implements AttachableContract
             ->withTimestamps()
             ->orderByPivot('created_at')
             ->using(Deliverable::class);
+    }
+
+    public function code(): MorphOne
+    {
+        return $this->morphOne(Code::class, 'codeable');
     }
 
     public function estimator(): BelongsTo

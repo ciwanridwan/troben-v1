@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\User;
 use Database\Seeders\Packages\PackagesTableSeeder;
+use Database\Seeders\StagingDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -24,7 +26,7 @@ class GenerateCodeTest extends TestCase
     {
         $this->seed(PackagesTableSeeder::class);
 
-        $package = Package::query()->first();
-        dd($package->barcode);
+        $item = Item::query()->where('qty', '>', 1)->first();
+        dd($item->codes->toArray());
     }
 }
