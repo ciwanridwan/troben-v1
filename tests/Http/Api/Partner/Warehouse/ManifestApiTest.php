@@ -188,6 +188,16 @@ class ManifestApiTest extends TestCase
             'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
         ]);
 
+        $response = $this->getJson(action([AssignableController::class, 'package']));
+
+        $packagesCodes = collect($response->json('data'))->map->code->map->content;
+
+        $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
+            'code' => $packagesCodes->random(1)->first(),
+        ]);
+
+        $response->assertOk();
+
         $response = $this->getJson(action([ManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
 
         $response->assertOk();

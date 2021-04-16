@@ -5,6 +5,12 @@ namespace App\Http\Resources\Api\Delivery;
 use App\Models\Code;
 use App\Models\Packages\Package;
 
+/**
+ * Class WarehouseManifestResource
+ * @package App\Http\Resources\Api\Delivery
+ *
+ * @property-read  \App\Models\Deliveries\Delivery $resource
+ */
 class WarehouseManifestResource extends DeliveryResource
 {
     public function toArray($request): array
