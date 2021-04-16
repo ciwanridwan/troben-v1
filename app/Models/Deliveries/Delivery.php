@@ -2,16 +2,20 @@
 
 namespace App\Models\Deliveries;
 
+use App\Models\Code;
+use App\Models\Packages\Item;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Concerns\Models\HasBarcode;
+use App\Concerns\Models\HasCode;
 use App\Models\Partners\Transporter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * Class Delivery.
@@ -30,27 +34,33 @@ use App\Supports\Repositories\PartnerRepository;
  * @property int destination_sub_district_id
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
- * @property-read ?string as
+ * @property-read \Illuminate\Database\Eloquent\Collection item_codes
+ * @property-read string|null as
+ * @property int|null userable_id
  */
 class Delivery extends Model
 {
-    use HashableId, HasBarcode;
+    use HashableId, HasCode, HasFactory;
 
-    const TYPE_PICKUP = 'pickup';
-    const TYPE_RETURN = 'return';
-    const TYPE_TRANSIT = 'transit';
-    const TYPE_DOORING = 'dooring';
+    public const TYPE_PICKUP = 'pickup';
+    public const TYPE_RETURN = 'return';
+    public const TYPE_TRANSIT = 'transit';
+    public const TYPE_DOORING = 'dooring';
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_EN_ROUTE = 'en-route';
-    const STATUS_FINISHED = 'finished';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_WAITING_ASSIGN_PACKAGE = 'waiting_assign_package';
+    public const STATUS_WAITING_ASSIGN_TRANSPORTER = 'waiting_assign_transporter';
+    public const STATUS_WAITING_TRANSPORTER = 'waiting_transporter';
+    public const STATUS_LOADING = 'loading';
+    public const STATUS_EN_ROUTE = 'en-route';
+    public const STATUS_FINISHED = 'finished';
 
-    const AS_ORIGIN = 'origin';
-    const AS_DESTINATION = 'destination';
+    public const AS_ORIGIN = 'origin';
+    public const AS_DESTINATION = 'destination';
 
-    protected $barcodeType = 'MNF';
+    protected string $codeType = 'MNF';
 
     /**
      * The table associated with the model.
@@ -122,18 +132,41 @@ class Delivery extends Model
             self::STATUS_PENDING,
             self::STATUS_ACCEPTED,
             self::STATUS_CANCELLED,
+            self::STATUS_WAITING_ASSIGN_PACKAGE,
+            self::STATUS_WAITING_ASSIGN_TRANSPORTER,
+            self::STATUS_WAITING_TRANSPORTER,
+            self::STATUS_LOADING,
             self::STATUS_EN_ROUTE,
             self::STATUS_FINISHED,
         ];
     }
 
-    public function packages(): Relations\BelongsToMany
+    public function packages(): Relations\MorphToMany
     {
-        return $this->belongsToMany(Package::class)
-            ->withPivot(['is_onboard', 'created_at', 'updated_at'])
+        return $this->morphedByMany(Package::class, 'deliverable')
+            ->withPivot(['status', 'created_at', 'updated_at'])
             ->withTimestamps()
             ->orderByPivot('created_at')
-            ->using(DeliveryPackagePivot::class);
+            ->using(Deliverable::class);
+    }
+
+    public function item_codes(): Relations\MorphToMany
+    {
+        return $this->morphedByMany(Code::class, 'deliverable')
+            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
+            ->withTimestamps()
+            ->orderByPivot('created_at')
+            ->using(Deliverable::class)
+            ->whereHasMorph('codeable', Item::class)
+            ->with('codeable');
+    }
+
+    /**
+     * @return MorphOne
+     */
+    public function code(): MorphOne
+    {
+        return $this->morphOne(Code::class, 'codeable');
     }
 
     /**

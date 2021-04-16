@@ -2,26 +2,29 @@
 
 namespace App\Models\Packages;
 
+use App\Models\Deliveries\Deliverable;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
-use App\Concerns\Models\HasBarcode;
+use App\Concerns\Models\HasCode;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\Code;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
-use App\Models\Deliveries\DeliveryPackagePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Jalameta\Attachments\Contracts\AttachableContract;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Package model.
@@ -65,15 +68,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
- * @property-read null|DeliveryPackagePivot pivot
+ * @property-read \Illuminate\Database\Eloquent\Collection item_codes
+ * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
  * @property int estimator_id
  * @property int packager_id
+ * @property Code code
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasBarcode, HasFactory, Attachable;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -112,7 +117,7 @@ class Package extends Model implements AttachableContract
     /**
      * @var string
      */
-    protected $barcodeType = 'RCP';
+    protected $codeType = 'RCP';
 
     /**
      * The table associated with the model.
@@ -182,7 +187,7 @@ class Package extends Model implements AttachableContract
      */
     protected $casts = [
         'total_amount' => 'float',
-        'is_separate_item' => 'bool',
+        'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
     ];
@@ -260,6 +265,20 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Item::class, 'package_id', 'id');
     }
 
+    public function item_codes(): HasManyThrough
+    {
+        return $this
+            ->hasManyThrough(
+                Code::class,
+                Item::class,
+                'package_id',
+                'codeable_id',
+                'id',
+                'id'
+            )
+            ->where('codes.codeable_type', Item::class);
+    }
+
     /**
      * Define `hasMany` relationship with Price model.
      *
@@ -270,13 +289,18 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
-    public function deliveries(): BelongsToMany
+    public function deliveries(): MorphToMany
     {
-        return $this->belongsToMany(Delivery::class)
-            ->withPivot(['is_onboard', 'created_at', 'updated_at'])
+        return $this->morphToMany(Delivery::class, 'deliverable')
+            ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
             ->withTimestamps()
             ->orderByPivot('created_at')
-            ->using(DeliveryPackagePivot::class);
+            ->using(Deliverable::class);
+    }
+
+    public function code(): MorphOne
+    {
+        return $this->morphOne(Code::class, 'codeable');
     }
 
     public function estimator(): BelongsTo

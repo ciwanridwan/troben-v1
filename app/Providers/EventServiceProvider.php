@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Events\Packages\PackageAttachedToDelivery;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -71,6 +73,12 @@ class EventServiceProvider extends ServiceProvider
         PackagePaymentVerified::class => [
             UpdatePackageStatusByEvent::class,
         ],
+        PackageAttachedToDelivery::class => [
+            UpdatePackageStatusByEvent::class,
+        ],
+        DeliverableItemCodeUpdate::class => [
+            //
+        ]
     ];
 
     /**
@@ -80,6 +88,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Package::observe(CodeObserver::class);
     }
 }

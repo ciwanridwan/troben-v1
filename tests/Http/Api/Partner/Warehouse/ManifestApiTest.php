@@ -2,6 +2,10 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
+use App\Models\Code;
+use App\Models\Deliveries\Deliverable;
+use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Packages\Package;
@@ -21,7 +25,7 @@ class ManifestApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    const PARTNER_COUNT = 3;
+    public const PARTNER_COUNT = 3;
 
     public bool $seed = true;
 
@@ -32,7 +36,7 @@ class ManifestApiTest extends TestCase
         parent::setUp();
     }
 
-    public function test_can_get_partner_for_manifest()
+    public function test_can_get_partner_for_manifest(): void
     {
         $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE);
         $this->actingAs($user);
@@ -50,20 +54,25 @@ class ManifestApiTest extends TestCase
         $response->assertJsonCount(self::PARTNER_COUNT - 1, 'data');
     }
 
-    public function test_can_get_transporter_driver_for_manifest()
+    public function test_can_get_transporter_driver_for_manifest(): void
     {
         $this->seed(TransportersTableSeeder::class);
 
-        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE,
-            fn (Builder $builder) => $builder->whereHas('partners',
-                fn (Builder $builder) => $builder->whereHas('transporters')));
+        $user = $this->getUser(
+            Partner::TYPE_BUSINESS,
+            UserablePivot::ROLE_WAREHOUSE,
+            fn (Builder $builder) => $builder->whereHas(
+                'partners',
+                fn (Builder $builder) => $builder->whereHas('transporters')
+            )
+        );
 
         $this->actingAs($user);
 
         $response = $this->getJson(action([AssignableController::class, 'driver']));
 
         $response->assertOk();
-        $this->assertNotEmpty($response->json('data'));
+        self::assertNotEmpty($response->json('data'));
         $response->assertJsonStructure([
             'data' => [
                 [
@@ -76,7 +85,7 @@ class ManifestApiTest extends TestCase
         ]);
     }
 
-    public function test_can_get_package_for_manifest()
+    public function test_can_get_package_for_manifest(): void
     {
         $this->seed(PackedSeeder::class);
 
@@ -92,13 +101,18 @@ class ManifestApiTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_can_create_manifest()
+    public function test_can_create_manifest(): void
     {
         $this->seed(PostPaymentSeeder::class);
 
-        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_WAREHOUSE,
-            fn (Builder $builder) => $builder->whereHas('partners',
-                fn (Builder $builder) => $builder->whereHas('deliveries')));
+        $user = $this->getUser(
+            Partner::TYPE_BUSINESS,
+            UserablePivot::ROLE_WAREHOUSE,
+            fn (Builder $builder) => $builder->whereHas(
+                'partners',
+                fn (Builder $builder) => $builder->whereHas('deliveries')
+            )
+        );
 
         $this->actingAs($user);
 
@@ -112,10 +126,80 @@ class ManifestApiTest extends TestCase
 
         $response->assertOk();
 
+        $this->assertDatabaseHas('deliveries', [
+            'partner_id' => Partner::hashToId($targetPartnerHash),
+            'status' => Delivery::STATUS_WAITING_ASSIGN_PACKAGE,
+        ]);
+
         $response = $this->getJson(action([ManifestController::class, 'index']));
 
         $response->assertJsonCount(1, 'data');
 
-        $this->assertSame(Delivery::AS_ORIGIN, $response->json('data.0.as'));
+        self::assertSame(Delivery::AS_ORIGIN, $response->json('data.0.as'));
+    }
+
+    public function test_can_scan_package_to_manifest(): void
+    {
+        $this->seed(ManifestSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_PACKED)->first();
+
+        /** @var User $user */
+        $user = User::query()->find($package->packager_id);
+        $this->actingAs($user);
+
+        $response = $this->getJson(action([ManifestController::class, 'index']));
+
+        $response->assertOk();
+        self::assertSame(Delivery::STATUS_WAITING_ASSIGN_PACKAGE, $response->json('data.0.status'));
+
+        $deliveryHash = $response->json('data.0.hash');
+
+        $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
+            'code' => $package->code->content,
+        ]);
+
+        $response->assertOk();
+
+        $delivery = Delivery::byHash($deliveryHash);
+
+        self::assertNotEmpty($delivery->item_codes);
+
+        self::assertSame($package->item_codes()->count(), $delivery->item_codes()->count());
+
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_MANIFESTED,
+        ]);
+
+        $itemCode = $package->item_codes()->first();
+
+        $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
+            'code' => $itemCode->content,
+        ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('deliverables', [
+            'delivery_id' => $delivery->id,
+            'deliverable_type' => Code::class,
+            'deliverable_id' => $itemCode->id,
+            'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
+        ]);
+
+        $response = $this->getJson(action([AssignableController::class, 'package']));
+
+        $packagesCodes = collect($response->json('data'))->map->code->map->content;
+
+        $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
+            'code' => $packagesCodes->random(1)->first(),
+        ]);
+
+        $response->assertOk();
+
+        $response = $this->getJson(action([ManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
+
+        $response->assertOk();
     }
 }

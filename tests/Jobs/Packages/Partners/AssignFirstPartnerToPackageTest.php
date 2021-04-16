@@ -32,8 +32,8 @@ class AssignFirstPartnerToPackageTest extends TestCase
 
         dispatch_now($job);
 
-        $this->assertDatabaseHas('delivery_package', [
-            'package_id' => $package->id,
+        $this->assertDatabaseHas('deliverables', [
+            'deliverable_id' => $package->id,
         ]);
 
         // get first partner

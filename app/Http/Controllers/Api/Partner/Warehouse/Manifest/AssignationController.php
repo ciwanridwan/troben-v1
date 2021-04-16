@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
+use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Deliveries\Deliverable;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use Illuminate\Http\Request;
 
 class AssignationController extends Controller
 {
@@ -19,8 +22,20 @@ class AssignationController extends Controller
         return $this->jsonSuccess();
     }
 
-    public function package(): JsonResponse
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Deliveries\Delivery $delivery
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function package(Request $request, Delivery $delivery): JsonResponse
     {
-        return $this->coming();
+        $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
+            'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
+        ]));
+
+        $this->dispatchNow($job);
+
+        return $this->jsonSuccess();
     }
 }

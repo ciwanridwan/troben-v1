@@ -17,8 +17,12 @@ class DeliveryResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
+        if (! $this->resource->relationLoaded('code')) {
+            $this->resource->load('code');
+        }
+
         $this->resource->append('as');
 
         return parent::toArray($request);
