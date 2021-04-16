@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
@@ -38,6 +39,13 @@ class ManifestController extends Controller
 
     public function show(Delivery $delivery): JsonResponse
     {
-        return $this->jsonSuccess(DeliveryResource::make($delivery->load('partner', 'packages.items', 'driver', 'transporter')));
+        return $this->jsonSuccess(WarehouseManifestResource::make($delivery->load(
+            'item_codes',
+            'code',
+            'partner',
+            'packages',
+            'driver',
+            'transporter',
+        )));
     }
 }

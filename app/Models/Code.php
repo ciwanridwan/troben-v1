@@ -36,6 +36,7 @@ class Code extends Model
         'id',
         'codeable_type',
         'codeable_id',
+        'laravel_through_key',
     ];
 
     public function codeable(): Relations\MorphTo

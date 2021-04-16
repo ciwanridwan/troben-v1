@@ -3,6 +3,8 @@
 namespace Tests\Http\Api\Partner\Warehouse;
 
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
+use App\Models\Code;
+use App\Models\Deliveries\Deliverable;
 use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Tests\TestCase;
 use App\Models\User;
@@ -176,6 +178,17 @@ class ManifestApiTest extends TestCase
         $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
             'code' => $itemCode->content,
         ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('deliverables', [
+            'delivery_id' => $delivery->id,
+            'deliverable_type' => Code::class,
+            'deliverable_id' => $itemCode->id,
+            'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
+        ]);
+
+        $response = $this->getJson(action([ManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
 
         $response->assertOk();
     }
