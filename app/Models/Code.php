@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations;
  * @property  int id
  * @property  string content
  * @property-read  null|Delivery|Package|Item codeable
+ * @property  Deliverable|null pivot
  */
 class Code extends Model
 {

@@ -14,6 +14,7 @@ use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\Code;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -67,6 +68,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Item[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Packages\Price[] $prices
  * @property-read \Illuminate\Database\Eloquent\Collection $deliveries
+ * @property-read \Illuminate\Database\Eloquent\Collection item_codes
  * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
@@ -261,6 +263,20 @@ class Package extends Model implements AttachableContract
     public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'package_id', 'id');
+    }
+
+    public function item_codes(): HasManyThrough
+    {
+        return $this
+            ->hasManyThrough(
+                Code::class,
+                Item::class,
+                'package_id',
+                'codeable_id',
+                'id',
+                'id'
+            )
+            ->where('codes.codeable_type', Item::class);
     }
 
     /**

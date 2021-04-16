@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Packages\PackageAttachedToDelivery;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
@@ -75,6 +76,9 @@ class EventServiceProvider extends ServiceProvider
         PackageAttachedToDelivery::class => [
             UpdatePackageStatusByEvent::class,
         ],
+        DeliverableItemCodeUpdate::class => [
+            //
+        ]
     ];
 
     /**

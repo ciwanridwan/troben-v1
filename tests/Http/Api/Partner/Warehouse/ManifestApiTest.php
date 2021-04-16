@@ -164,11 +164,19 @@ class ManifestApiTest extends TestCase
 
         self::assertNotEmpty($delivery->item_codes);
 
-        self::assertSame($package->items->sum('qty'), $delivery->item_codes()->count());
+        self::assertSame($package->item_codes()->count(), $delivery->item_codes()->count());
 
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_MANIFESTED,
         ]);
+
+        $itemCode = $package->item_codes()->first();
+
+        $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
+            'code' => $itemCode->content,
+        ]);
+
+        $response->assertOk();
     }
 }

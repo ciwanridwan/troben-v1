@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Packages\PackageAttachedToDelivery;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
@@ -55,9 +56,10 @@ class ProcessFromCodeToDelivery
             $this->delivery->save();
         }
 
+        /** @var Package $package */
         $package = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
-        if ($this->delivery->packages()->where('id', $package)->doesntExist()) {
+        if ($this->delivery->packages()->where('id', $package->id)->doesntExist()) {
             $this->delivery->packages()->attach($package);
 
             $itemCodes = $package->items->pluck('codes')->flatten(1);
@@ -65,11 +67,18 @@ class ProcessFromCodeToDelivery
             $this->delivery->item_codes()->syncWithoutDetaching($itemCodes->map->id->toArray());
 
             event(new PackageAttachedToDelivery($package, $this->delivery));
-        } elseif ($this->code->codeable instanceof Item && $this->status) {
+        }
+
+        if ($this->code->codeable instanceof Item && $this->status) {
             $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
                 'status' => $this->status,
                 'is_onboard' => Deliverable::isShouldOnBoard($this->status),
             ]);
+
+            /** @var Code $code */
+            $code = $this->delivery->item_codes()->find($this->code->id);
+
+            event(new DeliverableItemCodeUpdate($code->pivot));
         }
     }
 }
