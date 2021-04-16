@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
@@ -18,7 +19,7 @@ class StagingDatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         UsersTableSeeder::$COUNT = 3;
 
@@ -48,6 +49,7 @@ class StagingDatabaseSeeder extends Seeder
         $this->call([
             PostPaymentSeeder::class,
             PackedSeeder::class,
+            ManifestSeeder::class,
         ]);
     }
 }

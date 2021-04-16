@@ -19,7 +19,7 @@ use Database\Seeders\Packages\PackagesTableSeeder;
 
 class PostPaymentSeeder extends PackagesTableSeeder
 {
-    public function run()
+    public function run(): void
     {
         $packages = new Collection();
 
@@ -70,15 +70,15 @@ class PostPaymentSeeder extends PackagesTableSeeder
         ]);
     }
 
-    protected function checkOrSeedDependenciesData()
+    protected function checkOrSeedDependenciesData(): void
     {
         parent::checkOrSeedDependenciesData();
 
-        if (Attachment::query()->where('type', Package::ATTACHMENT_RECEIPT)->count() == 0) {
+        if (Attachment::query()->where('type', Package::ATTACHMENT_RECEIPT)->count() === 0) {
             $this->call(AttachmentsTableSeeder::class);
         }
 
-        if (Transporter::query()->count() == 0) {
+        if (Transporter::query()->count() === 0) {
             $this->call(TransportersTableSeeder::class);
         }
     }

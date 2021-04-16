@@ -34,7 +34,8 @@ class PackagesTableSeeder extends Seeder
                 ->state($this->stateResolver($customer))
                 ->create()
                 ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create())
-                ->each(fn (Package $package) => event(new PackageCreated($package))))
+                ->each(fn (Package $package) => event(new PackageCreated($package)))
+        )
             ->each(fn (Customer $customer) => $this->command->warn('=> '.self::$CUSTOMER_PACKAGES.' order created for customer : '.$customer->name));
     }
 
@@ -48,7 +49,7 @@ class PackagesTableSeeder extends Seeder
         ];
     }
 
-    protected function checkOrSeedDependenciesData()
+    protected function checkOrSeedDependenciesData(): void
     {
         if (SubDistrict::query()->count() === 0) {
             $this->call(GeoTableSimpleSeeder::class);

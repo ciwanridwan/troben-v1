@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PackedSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $this->prepareDependency();
 
@@ -23,9 +23,9 @@ class PackedSeeder extends Seeder
             ->each(fn (Package $package) => $this->command->warn(' => package from '.$package->sender_name.' set to packed...'));
     }
 
-    private function prepareDependency()
+    private function prepareDependency(): void
     {
-        if (Package::query()->where('status', Package::STATUS_WAITING_FOR_PACKING)->count() == 0) {
+        if (Package::query()->where('status', Package::STATUS_WAITING_FOR_PACKING)->count() === 0) {
             $this->call(PostPaymentSeeder::class);
         }
     }
