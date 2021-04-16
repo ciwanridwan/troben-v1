@@ -23,9 +23,11 @@ class OrderController extends Controller
     {
         $query = $request->user()->packages();
 
-        $query->when($request->input('order'),
+        $query->when(
+            $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
-            fn (Builder $query) => $query->orderByDesc('created_at'));
+            fn (Builder $query) => $query->orderByDesc('created_at')
+        );
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
@@ -48,13 +50,15 @@ class OrderController extends Controller
         return $this->jsonSuccess(new PackageResource($package->load(
             'attachments',
             'items',
+            'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
             'prices',
             'origin_regency',
             'destination_regency',
             'destination_district',
-            'destination_sub_district')));
+            'destination_sub_district'
+        )));
     }
 
     /**
@@ -88,7 +92,8 @@ class OrderController extends Controller
             'origin_regency',
             'destination_regency',
             'destination_district',
-            'destination_sub_district')));
+            'destination_sub_district'
+        )));
     }
 
     /**
@@ -120,7 +125,8 @@ class OrderController extends Controller
             'origin_regency',
             'destination_regency',
             'destination_district',
-            'destination_sub_district')));
+            'destination_sub_district'
+        )));
     }
 
     /**
