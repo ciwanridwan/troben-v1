@@ -11,6 +11,6 @@ class HandlingController extends Controller
 {
     public function index(): JsonResponse
     {
-        return $this->jsonSuccess(JsonResource::collection(Handling::getTypes()));
+        return $this->jsonSuccess(JsonResource::make(Handling::getTypes()));
     }
 }
