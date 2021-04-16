@@ -2,15 +2,15 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
-use App\Events\Packages\PackageAttachedToDelivery;
 use App\Models\Code;
-use App\Models\Deliveries\Deliverable;
-use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Item;
-use App\Models\Packages\Package;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\Packages\Package;
+use App\Models\Deliveries\Delivery;
+use App\Models\Deliveries\Deliverable;
+use Illuminate\Support\Facades\Validator;
+use App\Events\Packages\PackageAttachedToDelivery;
+use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 
 class ProcessFromCodeToDelivery
 {

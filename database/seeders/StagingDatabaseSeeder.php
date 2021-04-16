@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
@@ -10,6 +9,7 @@ use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use Database\Seeders\Packages\PostPayment\PackedSeeder;
+use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 
 class StagingDatabaseSeeder extends Seeder

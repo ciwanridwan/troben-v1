@@ -2,8 +2,8 @@
 
 namespace App\Models\Deliveries;
 
-use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 
 class Deliverable extends MorphPivot
 {

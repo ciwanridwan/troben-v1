@@ -2,15 +2,14 @@
 
 namespace App\Http\Resources\Api\Package;
 
+use App\Models\Packages\Package;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
-use App\Models\Packages\Package;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class PackageResource
- * @package App\Http\Resources\Api\Package
+ * Class PackageResource.
  *
  * @property  Package $resource
  */

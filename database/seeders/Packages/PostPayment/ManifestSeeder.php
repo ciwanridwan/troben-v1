@@ -2,10 +2,10 @@
 
 namespace Database\Seeders\Packages\PostPayment;
 
-use App\Models\Deliveries\Delivery;
+use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Illuminate\Database\Seeder;
+use App\Models\Deliveries\Delivery;
 
 class ManifestSeeder extends Seeder
 {
@@ -13,6 +13,7 @@ class ManifestSeeder extends Seeder
     {
         if (Partner::query()->where('type', Partner::TYPE_BUSINESS)->count() === 1) {
             $this->command->warn('manifest seeder only work while UsersTableSeeder::$COUNT > 1');
+
             return;
         }
 
@@ -40,7 +41,7 @@ class ManifestSeeder extends Seeder
                 'destination_district_id' => $otherPartners->get($index)->geo_district_id,
                 'destination_sub_district_id' => $otherPartners->get($index)->geo_sub_district_id,
                 'origin_partner_id' => $partner->id,
-                'partner_id' => $otherPartners->get($index)->id
+                'partner_id' => $otherPartners->get($index)->id,
             ]))
             ->each(fn (Delivery $delivery) => $delivery->save());
     }

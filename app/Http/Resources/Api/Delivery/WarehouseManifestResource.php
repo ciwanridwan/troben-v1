@@ -6,8 +6,7 @@ use App\Models\Code;
 use App\Models\Packages\Package;
 
 /**
- * Class WarehouseManifestResource
- * @package App\Http\Resources\Api\Delivery
+ * Class WarehouseManifestResource.
  *
  * @property-read  \App\Models\Deliveries\Delivery $resource
  */

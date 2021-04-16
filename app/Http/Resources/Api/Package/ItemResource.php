@@ -6,8 +6,7 @@ use App\Models\Packages\Item;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class ItemResource
- * @package App\Http\Resources\Api\Package
+ * Class ItemResource.
  *
  * @property  Item $resource
  */

@@ -2,12 +2,12 @@
 
 namespace App\Events\Packages;
 
-use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use App\Models\Deliveries\Delivery;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class PackageAttachedToDelivery
 {

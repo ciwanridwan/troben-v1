@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Deliveries\Deliverable;
-use App\Models\Deliveries\Delivery;
+use Carbon\Carbon;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Deliveries\Delivery;
+use App\Models\Deliveries\Deliverable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * Class Code
- * @package App\Models
+ * Class Code.
  *
  * @property  int id
  * @property  string content
@@ -29,7 +28,7 @@ class Code extends Model
 
 
     protected $fillable = [
-        'content'
+        'content',
     ];
 
     protected $hidden = [
@@ -45,7 +44,7 @@ class Code extends Model
     }
     public static function generateCodeContent($codeable_type)
     {
-        $query = Code::query();
+        $query = self::query();
 
         switch (true) {
             case $codeable_type instanceof Package:
@@ -59,8 +58,8 @@ class Code extends Model
                 break;
         }
 
-        $pre .=  Carbon::now()->format('dmy');
-        $last_order = $query->where('content', 'LIKE', $pre . '%')->orderBy('content', 'desc')->first();
+        $pre .= Carbon::now()->format('dmy');
+        $last_order = $query->where('content', 'LIKE', $pre.'%')->orderBy('content', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->content, strlen($pre)) : 0;
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
@@ -68,6 +67,6 @@ class Code extends Model
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
 
-        return  $pre . $inc_number;
+        return  $pre.$inc_number;
     }
 }

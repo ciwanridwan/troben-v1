@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
-use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
-use App\Models\Deliveries\Deliverable;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
+use App\Models\Deliveries\Deliverable;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
-use Illuminate\Http\Request;
+use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 
 class AssignationController extends Controller
 {

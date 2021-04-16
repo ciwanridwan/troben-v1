@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
-use App\Events\Packages\PackageAttachedToDelivery;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -12,12 +10,14 @@ use App\Events\Packages\PackageCheckedByCashier;
 use App\Events\Packages\WarehouseIsStartPacking;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Events\Packages\PackageAttachedToDelivery;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
+use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -78,7 +78,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         DeliverableItemCodeUpdate::class => [
             //
-        ]
+        ],
     ];
 
     /**

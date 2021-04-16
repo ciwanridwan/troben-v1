@@ -2,24 +2,24 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
-use App\Models\Code;
-use App\Models\Deliveries\Deliverable;
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Tests\TestCase;
+use App\Models\Code;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Deliveries\Deliverable;
 use Database\Seeders\UsersTableSeeder;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\TransportersTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\Packages\PostPayment\PackedSeeder;
+use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignableController;
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
 
 class ManifestApiTest extends TestCase
 {

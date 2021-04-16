@@ -2,29 +2,29 @@
 
 namespace App\Models\Packages;
 
-use App\Models\Deliveries\Deliverable;
+use App\Models\Code;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
+use App\Concerns\Models\HasCode;
 use App\Models\Payments\Payment;
 use App\Models\Customers\Customer;
-use App\Concerns\Models\HasCode;
 use App\Models\Deliveries\Delivery;
+use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
-use App\Models\Code;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Jalameta\Attachments\Contracts\AttachableContract;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Package model.

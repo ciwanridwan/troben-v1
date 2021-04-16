@@ -2,14 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Packages\Item;
-use App\Models\Packages\Package;
-use App\Models\User;
-use Database\Seeders\Packages\PackagesTableSeeder;
-use Database\Seeders\StagingDatabaseSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Packages\Item;
+use Database\Seeders\Packages\PackagesTableSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class GenerateCodeTest extends TestCase
 {

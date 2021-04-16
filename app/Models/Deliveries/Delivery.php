@@ -3,19 +3,19 @@
 namespace App\Models\Deliveries;
 
 use App\Models\Code;
-use App\Models\Packages\Item;
 use App\Models\User;
+use App\Models\Packages\Item;
+use App\Concerns\Models\HasCode;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Concerns\Models\HasCode;
 use App\Models\Partners\Transporter;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Delivery.
