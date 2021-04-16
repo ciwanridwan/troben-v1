@@ -64,6 +64,7 @@ class CustomerOrderApiTest extends TestCase
                 'width' => $this->faker->numberBetween(1, 40),
                 'length' => $this->faker->numberBetween(1, 40),
                 'height' => $this->faker->numberBetween(1, 40),
+                'price' => $this->faker->randomNumber([19000, 20000, 89999, 180000, 365000]),
                 'is_insured' => true,
                 'handling' => $this->faker->randomElements(Handling::getTypes()),
             ])->toArray(),

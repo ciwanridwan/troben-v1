@@ -30,6 +30,7 @@ class ItemFactory extends Factory
             'length' => $this->faker->numberBetween(1, 40),
             'height' => $this->faker->numberBetween(1, 40),
             'price' => $this->faker->randomElement([100000, 2000000, 4000000, 5000000, 19000, 900000]),
+            'is_insured' => true,
             'handling' => $this->faker->randomElements(Handling::getTypes()),
         ];
     }

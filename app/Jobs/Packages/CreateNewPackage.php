@@ -81,7 +81,7 @@ class CreateNewPackage
             '*.length' => ['required', 'numeric'],
             '*.width' => ['required', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
-            '*.price' => ['required', 'numeric'],
+            '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();

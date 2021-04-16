@@ -42,7 +42,7 @@ class CreateNewItemFromExistingPackage
             'height' => ['required', 'numeric'],
             'length' => ['required', 'numeric'],
             'width' => ['required', 'numeric'],
-            'price' => ['required', 'numeric'],
+            'price' => ['required_if:is_insured,true', 'numeric'],
             'is_insured' => ['nullable', 'boolean'],
             'handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
