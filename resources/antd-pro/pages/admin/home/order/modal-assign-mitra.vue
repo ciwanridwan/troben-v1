@@ -155,6 +155,10 @@ export default {
     order: {
       type: Object,
       default: () => ({})
+    },
+    afterAssign: {
+      type: Function,
+      default: () => ({})
     }
   },
   data() {
@@ -193,13 +197,16 @@ export default {
   methods: {
     showModal() {
       this.visible = true;
+      this.chosenPartner = null;
       this.getPartners();
     },
     onOk() {
-      this.save().then(() => this.$emit("ok"));
+      this.save().then(() => {
+        this.onCancel();
+        this.afterAssign();
+      });
     },
     onCancel() {
-      this.$emit("cancel");
       this.visible = false;
     },
     getPartners: _.debounce(async function() {

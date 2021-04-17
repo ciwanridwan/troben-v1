@@ -37,8 +37,7 @@
                 <modal-assign-mitra
                   :order="record"
                   :visible="orderModalVisibility"
-                  @ok="onOk"
-                  @cancel="() => (orderModalVisibility = false)"
+                  :afterAssign="afterAssign"
                 />
               </a-space>
             </a-col>
@@ -88,17 +87,11 @@ export default {
         o.number = numbering++;
       });
     },
-    assignOrder(order) {
-      this.orderModalObject = order;
-      this.orderModalVisibility = true;
-    },
-    onOk() {
-      this.orderModalVisibility = false;
-
+    afterAssign() {
       this.getItems();
     }
   },
-  created() {
+  mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
   }
