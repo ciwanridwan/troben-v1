@@ -48,11 +48,11 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-
             if ($request->has('partner')) {
-                $this->query = Partner::query()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = Partner::query()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->transporter_type);
                 });
+
                 return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
             }
 
