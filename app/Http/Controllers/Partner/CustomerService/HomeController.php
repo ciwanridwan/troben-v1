@@ -50,7 +50,7 @@ class HomeController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             if ($request->has('transporter')) {
-                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->type);
                 })->with('transporters', function ($query) use ($request) {
                     $query->where('type', $request->type);

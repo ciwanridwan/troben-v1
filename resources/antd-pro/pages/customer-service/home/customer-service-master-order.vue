@@ -72,7 +72,6 @@ export default {
         })
         .then(({ data: responseData }) => {
           this.transporters = responseData;
-          console.log(this.transporters);
         })
         .finally(() => (this.loading = false));
     }),
@@ -87,22 +86,20 @@ export default {
     async save(data = {}) {
       this.loading = true;
 
-      try {
-        console.log(this.routeUri(this.getRoute() + ".assign", data));
-        const response = await this.$http.patch(
-          this.routeUri(this.getRoute() + ".assign", data)
-        );
-
-        this.$notification.success({
-          message: "Sukses menugaskan transporter!"
+      const response = await this.$http
+        .patch(this.routeUri(this.getRoute() + ".assign", data))
+        .then(resp => {
+          this.getItems();
+          this.$notification.success({
+            message: "Sukses menugaskan transporter!"
+          });
+        })
+        .finally(e => {
+          this.onErrorResponse(e);
+          this.loading = false;
         });
 
-        return response;
-      } catch (e) {
-        this.onErrorResponse(e);
-      } finally {
-        this.loading = false;
-      }
+      return response;
     }
   },
   mounted() {

@@ -21,16 +21,19 @@ export default [
   },
   {
     title: "Armada",
-    dataIndex: "type",
     key: "transporter",
-    scopedSlots: { customRender: "transporter" }
+    customRender: (text, row, index) => {
+      return {
+        children: row.packages[0]?.transporter_type
+      };
+    }
   },
   {
     title: "Lokasi Penjemputan",
     key: "sender_address",
     customRender: (text, row, index) => {
       return {
-        children: row.packages[0].sender_address
+        children: row.packages[0]?.sender_address
       };
     }
   },

@@ -179,6 +179,9 @@ export default {
     };
   },
   computed: {
+    package() {
+      return this.order?.packages[0];
+    },
     leftSize() {
       return 24 - this.iconSize;
     },
@@ -197,7 +200,7 @@ export default {
     search: {
       immediate: false,
       handler() {
-        this.getTransporters(this.search, this.order.type);
+        this.getTransporters(this.search, this.package.transporter_type);
       }
     }
   },
@@ -206,10 +209,8 @@ export default {
       this.save({
         delivery_hash: this.order.hash,
         userable_hash: this.chosenTransporter
-      }).then(() => {
-        this.$emit("ok");
-        this.onCancel();
       });
+      this.onCancel();
     },
     onCancel() {
       this.$emit("cancel");
@@ -218,7 +219,7 @@ export default {
     onVisible() {
       this.visible = true;
       this.search = null;
-      this.getTransporters(null, this.order.type);
+      this.getTransporters(null, this.package.transporter_type);
     }
   }
 };
