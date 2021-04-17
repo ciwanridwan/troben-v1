@@ -1,9 +1,6 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
-      <modal-assign-transporter :order="orderModalObject" :visible="orderModalVisibility"
-                                @ok="onOk"
-                                @cancel="() => orderModalVisibility = false"/>
       <a-table
         :columns="orderColumns"
         :data-source="items.data"
@@ -37,7 +34,12 @@
             <a-col :span="12" class="trawl-text-right">
               <a-space>
                 <a-button type="danger" ghost>Cancel</a-button>
-                <a-button type="primary" class="trawl-button-success" @click="assignOrder(record)">Assign Mitra</a-button>
+                <modal-assign-mitra
+                  :order="record"
+                  :visible="orderModalVisibility"
+                  @ok="onOk"
+                  @cancel="() => (orderModalVisibility = false)"
+                />
               </a-space>
             </a-col>
           </a-row>
@@ -54,14 +56,14 @@ import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
-import ModalAssignTransporter from "./modal-assign-transporter.vue";
+import ModalAssignMitra from "./modal-assign-mitra.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
     OrderStatus,
     TrawlNotification,
-    ModalAssignTransporter
+    ModalAssignMitra
   },
   data: () => {
     return {
@@ -87,13 +89,13 @@ export default {
       });
     },
     assignOrder(order) {
-      this.orderModalObject = order
-      this.orderModalVisibility = true
+      this.orderModalObject = order;
+      this.orderModalVisibility = true;
     },
     onOk() {
-      this.orderModalVisibility = false
+      this.orderModalVisibility = false;
 
-      this.getItems()
+      this.getItems();
     }
   },
   created() {
