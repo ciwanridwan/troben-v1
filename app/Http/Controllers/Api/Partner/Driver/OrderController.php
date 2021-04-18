@@ -16,6 +16,7 @@ class OrderController extends Controller
         $query = $repository->queries()->getDeliveriesQuery();
 
         $query->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
+        $query->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
 
         $query->with('packages');
 

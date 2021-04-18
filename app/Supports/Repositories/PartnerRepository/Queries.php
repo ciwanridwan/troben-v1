@@ -60,8 +60,8 @@ class Queries
     /**
      * get transporter driver.
      *
-     * @param \App\Models\Partners\Partner|null $customPartner will be used when need other partner rather than scoped partner
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Partner|null $customPartner will be used when need other partner rather than scoped partner
+     * @return Builder
      */
     public function getTransporterDriverQuery(?Partner $customPartner = null): Builder
     {
@@ -72,7 +72,8 @@ class Queries
         $query->whereHasMorph(
             'userable',
             Transporter::class,
-            fn (Builder $transporterQuery) => $transporterQuery->where('partner_id', $partner->id));
+            fn (Builder $transporterQuery) => $transporterQuery->where('partner_id', $partner->id)
+        );
 
         $query->with('userable', 'user');
 

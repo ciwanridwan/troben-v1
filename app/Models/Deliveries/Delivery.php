@@ -208,6 +208,10 @@ class Delivery extends Model
         $repository = app(PartnerRepository::class);
         $as = null;
 
+        if ($repository->getScopedRole() === UserablePivot::ROLE_DRIVER) {
+            return 'driver';
+        }
+
         switch ($repository->getPartner()->id) {
             case $this->partner_id:
                 $as = self::AS_DESTINATION;

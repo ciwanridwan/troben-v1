@@ -21,7 +21,7 @@ class PartnerRepository
         $this->requestCallback = $requestCallback;
     }
 
-    public function setScopeRole(string $role)
+    public function setScopeRole(string $role): void
     {
         $this->scopedRole = $role;
     }
@@ -64,11 +64,11 @@ class PartnerRepository
         if ($user) {
             $roles = Arr::wrap($roles);
 
-            $resolvedAuthorized = $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles));
+            $resolvedAuthorized = $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles, true));
         }
 
         // owner has the right to access all resource
-        if (! $resolvedAuthorized && $user->partners->some(fn (Partner $partner) => $partner->pivot->role == UserablePivot::ROLE_OWNER)) {
+        if (! $resolvedAuthorized && $user->partners->some(fn (Partner $partner) => $partner->pivot->role === UserablePivot::ROLE_OWNER)) {
             $resolvedAuthorized = true;
         }
 
@@ -82,7 +82,7 @@ class PartnerRepository
         if ($user) {
             $types = Arr::wrap($types);
 
-            return $user->partners->some(fn (Partner $partner) => in_array($partner->type, $types));
+            return $user->partners->some(fn (Partner $partner) => in_array($partner->type, $types, true));
         }
 
         return false;
