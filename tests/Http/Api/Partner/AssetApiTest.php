@@ -2,6 +2,8 @@
 
 namespace Tests\Http\Api\Partner;
 
+use App\Http\Controllers\Api\Partner\AssetController;
+use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Partners\Partner;
@@ -41,32 +43,32 @@ class AssetApiTest extends TestCase
         $partner = $user->partners()->first();
         $this->actingAs($user);
 
-        /** @var Transporter $inputTransporter */
-        $inputTransporter = $partner->transporters()->first();
+        /** @var Transporter[]|Collection $inputTransporters */
+        $inputTransporters = $partner->transporters()->take(3)->get();
         /** @var User $inputUser */
-        $inputUser = $inputTransporter->users()->wherePivot('role', UserablePivot::ROLE_DRIVER)->first();
+        $inputUser = $inputTransporters->first()->users()->wherePivot('role', UserablePivot::ROLE_DRIVER)->first();
 
-        $response = $this->patchJson(route('api.partner.asset.fusion'), [
-            'transporter_hash' => $inputTransporter->hash,
+        $response = $this->patchJson(action([AssetController::class, 'fusion']), [
+            'transporter_hashes' => $inputTransporters->pluck('hash')->toArray(),
             'user_hash' => $inputUser->hash,
         ]);
 
-        $response->assertJsonValidationErrors('user_hash', 'data');
+        $response->assertStatus(422);
 
-        $inputTransporter->users()->detach($inputUser->id);
+        $inputTransporters->each(fn (Transporter $transporter) => $transporter->users()->detach($inputUser->id));
 
-        $response = $this->patchJson(route('api.partner.asset.fusion'), [
-            'transporter_hash' => $inputTransporter->hash,
+        $response = $this->patchJson(action([AssetController::class, 'fusion']), [
+            'transporter_hashes' => $inputTransporters->pluck('hash')->toArray(),
             'user_hash' => $inputUser->hash,
         ]);
 
         $response->assertOk();
 
-        $this->assertDatabaseHas('userables', [
+        $inputTransporters->each(fn (Transporter $transporter) => $this->assertDatabaseHas('userables', [
             'user_id' => $inputUser->id,
             'userable_type' => Transporter::class,
-            'userable_id' => $inputTransporter->id,
+            'userable_id' => $transporter->id,
             'role' => UserablePivot::ROLE_DRIVER,
-        ]);
+        ]));
     }
 }

@@ -16,7 +16,7 @@ class AttachDriverToTransporter
 
     public User $actor;
 
-    private Transporter $transporter;
+    public User $driver;
 
     /**
      * AttachUserToTransporter constructor.
@@ -32,16 +32,22 @@ class AttachDriverToTransporter
         $partner = $this->actor->partners()->first();
 
         $this->attributes = FacadeValidator::make($inputs, [
-            'transporter_hash' => ['required', new ExistsByHash(Transporter::class)],
+            'transporter_hashes' => ['required', 'array'],
+            'transporter_hashes.*' => ['string', new ExistsByHash(Transporter::class)],
             'user_hash' => ['required', new ExistsByHash(User::class)],
         ])
             ->after(function (Validator $validator) use ($partner, $inputs) {
-                $this->transporter = Transporter::byHashOrFail($inputs['transporter_hash']);
+                $this->driver = User::byHashOrFail($inputs['user_hash']);
 
-                $validator->errors()->addIf(
-                    $this->transporter->users()->where('users.id', User::hashToId($inputs['user_hash']))->exists(),
-                    'user_hash',
-                    __('transporter and user has already fused!'),
+                collect($inputs['transporter_hashes'])->each(
+                    fn (string $transporterHash, int $index) => $validator->errors()->addIf(
+                        $this->driver
+                            ->transporters()
+                            ->where('transporters.id', Transporter::hashToId($transporterHash))
+                            ->exists(),
+                        'transporter_hashes.'.$index,
+                        __('transporter and user has already fused!'),
+                    )
                 );
 
                 // check intersection actor and user_hash input
@@ -59,8 +65,12 @@ class AttachDriverToTransporter
 
     public function handle(): void
     {
-        $this->transporter->users()->attach(User::hashToId($this->attributes['user_hash']), [
-            'role' => UserablePivot::ROLE_DRIVER,
-        ]);
+        collect($this->attributes['transporter_hashes'])
+            ->each(fn (string $transporterHash) => $this
+                ->driver
+                ->transporters()
+                ->attach(Transporter::hashToId($transporterHash), [
+                    'role' => UserablePivot::ROLE_DRIVER,
+                ]));
     }
 }
