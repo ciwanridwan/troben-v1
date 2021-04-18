@@ -7,12 +7,11 @@ use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * Partner Model.
@@ -29,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
- * @property-read \App\Models\Partners\Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
- * @property-read \App\Models\Partners\Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
- * @property-read  \App\Models\User[]|\Illuminate\Database\Eloquent\Collection $users
+ * @property-read Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
+ * @property-read Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
+ * @property-read  User[]|\Illuminate\Database\Eloquent\Collection $users
  * @property  UserablePivot pivot
  * @property  int geo_regency_id
  * @property  int geo_district_id
@@ -46,14 +45,14 @@ class Partner extends Model
         HashableId,
         HasPartnerCode;
 
-    const TYPE_BUSINESS = 'business'; // bisa order dari application.
-    const TYPE_POOL = 'pool';
-    const TYPE_SPACE = 'space';
-    const TYPE_TRANSPORTER = 'transporter';
-    const CODE_TYPE_BUSINESS = 'MB'; // bisa order dari application.
-    const CODE_TYPE_POOL = 'MPW';
-    const CODE_TYPE_SPACE = 'MS';
-    const CODE_TYPE_TRANSPORTER = 'MTM';
+    public const TYPE_BUSINESS = 'business'; // bisa order dari application.
+    public const TYPE_POOL = 'pool';
+    public const TYPE_SPACE = 'space';
+    public const TYPE_TRANSPORTER = 'transporter';
+    public const CODE_TYPE_BUSINESS = 'MB'; // bisa order dari application.
+    public const CODE_TYPE_POOL = 'MPW';
+    public const CODE_TYPE_SPACE = 'MS';
+    public const CODE_TYPE_TRANSPORTER = 'MTM';
 
     /**
      * The table associated with the model.
@@ -144,7 +143,7 @@ class Partner extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function warehouses(): HasMany
+    public function warehouses(): Relations\HasMany
     {
         return $this->hasMany(Warehouse::class, 'partner_id', 'id');
     }
@@ -154,7 +153,7 @@ class Partner extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function transporters(): HasMany
+    public function transporters(): Relations\HasMany
     {
         return $this->hasMany(Transporter::class, 'partner_id', 'id');
     }
@@ -164,7 +163,7 @@ class Partner extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
-    public function users(): MorphToMany
+    public function users(): Relations\MorphToMany
     {
         return $this->morphToMany(User::class, 'userable', 'userables')
             ->withPivot('id', 'role')
@@ -172,17 +171,17 @@ class Partner extends Model
             ->using(UserablePivot::class);
     }
 
-    public function drivers(): MorphToMany
+    public function drivers(): Relations\MorphToMany
     {
         return $this->users()->wherePivot('role', UserablePivot::ROLE_DRIVER);
     }
 
-    public function inventories(): HasMany
+    public function inventories(): Relations\HasMany
     {
         return $this->hasMany(Inventory::class, 'partner_id', 'id');
     }
 
-    public function deliveries(): HasMany
+    public function deliveries(): Relations\HasMany
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
     }

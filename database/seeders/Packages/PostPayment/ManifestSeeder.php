@@ -26,6 +26,7 @@ class ManifestSeeder extends Seeder
         $partner = $delivery->partner;
         $otherPartners = Partner::query()->where('id', '!=', $partner->id)->whereIn('type', [
             Partner::TYPE_BUSINESS,
+            Partner::TYPE_POOL,
         ])->get();
 
         $factory = Delivery::factory()->count($otherPartners->count());
