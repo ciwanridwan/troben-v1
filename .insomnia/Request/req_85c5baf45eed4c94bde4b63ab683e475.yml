@@ -1,7 +1,7 @@
 _id: req_85c5baf45eed4c94bde4b63ab683e475
 type: Request
 parentId: fld_74dc4b592e5c4c4994bdf1253d9b4abb
-modified: 1618278792392
+modified: 1618639527233
 created: 1618278787840
 url: "{{ _.base_url }}/partner/warehouse/manifest/assignation/{% response
   'body', 'req_42889da8db2d4e81a6a5368182c358a8',
@@ -9,13 +9,21 @@ url: "{{ _.base_url }}/partner/warehouse/manifest/assignation/{% response
 name: Assign Package
 description: ""
 method: PATCH
-body: {}
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"code": "RCP17042100041"
+    }
 parameters: []
 headers:
   - name: Accept
     value: application/json
     description: ""
     id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_e613af8d4a75430cb65bb4d5c9167bad
 authentication:
   type: bearer
   prefix: ""

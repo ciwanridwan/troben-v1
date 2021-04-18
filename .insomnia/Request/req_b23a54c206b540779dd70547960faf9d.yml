@@ -1,7 +1,7 @@
 _id: req_b23a54c206b540779dd70547960faf9d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1618042940420
+modified: 1618556236948
 created: 1613462471058
 url: "{{ _.base_url }}/order"
 name: Create Order
@@ -30,9 +30,9 @@ body:
     	"origin_regency_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}",
     	"origin_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}",
     	"origin_sub_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjAuaWQ=::46b', 'no-history', 60 %}",
-    	"destination_regency_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}",
-    	"destination_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}",
-    	"destination_sub_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjUuaWQ=::46b', 'no-history', 60 %}",
+    	"destination_regency_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjEucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}",
+    	"destination_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjEuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}",
+    	"destination_sub_district_id": "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90', 'b64::JC5kYXRhLjEuaWQ=::46b', 'no-history', 60 %}",
     	"items": [
     		{
     			"name": "iBasso DC03",
@@ -42,7 +42,8 @@ body:
     			"length": 100,
     			"height": 100,
     			"is_insured": true,
-    			"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjAuaWQ=::46b', 'never', 60 %}"]
+    			"price": 859000,
+    			"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjE=::46b', 'never', 60 %}"]
     		}
     	]
     }

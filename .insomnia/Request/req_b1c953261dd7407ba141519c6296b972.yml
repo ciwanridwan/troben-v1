@@ -1,14 +1,24 @@
 _id: req_b1c953261dd7407ba141519c6296b972
 type: Request
 parentId: fld_61d187534f4c4bcaa155fb829180202d
-modified: 1616775735164
+modified: 1618727353210
 created: 1616747958906
 url: "{{ _.base_url }}/partner/driver/order"
 name: List Order
 description: ""
 method: GET
 body: {}
-parameters: []
+parameters:
+  - name: delivery_status
+    value: transit
+    description: ""
+    id: pair_88498fc3bcb646d79f76b19f3de629b2
+    disabled: true
+  - name: delivery_type
+    value: waiting_assign_package
+    description: ""
+    id: pair_5249c79f16ca458db7145314f00ef935
+    disabled: true
 headers:
   - name: Accept
     value: application/json
