@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class TransportersTableSeeder extends Seeder
 {
-    const COMPOSES = [
+    public const COMPOSES = [
         Partner::TYPE_BUSINESS => [
             Transporter::TYPE_BIKE,
             Transporter::TYPE_BIKE,
@@ -31,7 +31,7 @@ class TransportersTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->prepareSeederDependency();
 
@@ -54,7 +54,7 @@ class TransportersTableSeeder extends Seeder
         ]));
     }
 
-    public function createTransporters(Partner $partner, Collection $drivers)
+    public function createTransporters(Partner $partner, Collection $drivers): void
     {
         $transporters = collect(self::COMPOSES[$partner->type] ?? [])->map(fn ($transporterType) => Transporter::factory()->state([
             'partner_id' => $partner->id,
@@ -71,7 +71,7 @@ class TransportersTableSeeder extends Seeder
         });
     }
 
-    private function prepareSeederDependency()
+    private function prepareSeederDependency(): void
     {
         if (User::query()->count() === 0) {
             $this->call(UsersTableSeeder::class);

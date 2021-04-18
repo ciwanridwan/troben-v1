@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
@@ -48,17 +49,18 @@ class AssetController extends Controller
      * Route Method     : GET.
      *
      * @param \Illuminate\Http\Request $request
-     * @return void
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function index(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'type' => ['required',Rule::in(['transporter','employee'])],
+            'type' => ['required', Rule::in(['transporter', 'employee'])],
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
 
-        return $this->attributes['type'] == 'transporter'
+        return $this->attributes['type'] === 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
     }
@@ -79,9 +81,9 @@ class AssetController extends Controller
     {
         $this->partner = $request->user()->partners->first();
 
-        $type == 'transporter' ? $this->createTransporter($request) : $this->createEmployee($request);
+        $type === 'transporter' ? $this->createTransporter($request) : $this->createEmployee($request);
 
-        return $type == 'transporter'
+        return $type === 'transporter'
                 ? $this->getTransporter()
                 : $this->getEmployee();
     }
@@ -103,7 +105,7 @@ class AssetController extends Controller
     {
         $this->partner = $request->user()->partners->first();
 
-        return $type == 'transporter' ? $this->deleteTransporter($hash) : $this->deleteEmployee($hash);
+        return $type === 'transporter' ? $this->deleteTransporter($hash) : $this->deleteEmployee($hash);
     }
 
     /**
@@ -123,7 +125,21 @@ class AssetController extends Controller
     {
         $this->partner = $request->user()->partners->first();
 
-        return $type == 'transporter' ? $this->updateTransporter($request, $hash) : $this->updateEmployee($request, $hash);
+        return $type === 'transporter' ? $this->updateTransporter($request, $hash) : $this->updateEmployee($request, $hash);
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function fusion(Request $request): JsonResponse
+    {
+        $job = new AttachDriverToTransporter($request->all());
+
+        $this->dispatchNow($job);
+
+        return $this->jsonSuccess();
     }
 
     public function getEmployee(): JsonResponse
@@ -136,18 +152,18 @@ class AssetController extends Controller
         return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
     }
 
-    public function deleteEmployee($hash)
+    public function deleteEmployee($hash): JsonResponse
     {
-        $user = (new User())->byHashOrFail($hash);
+        $user = User::byHashOrFail($hash);
         $job = new DeleteExistingUser($user);
         $this->dispatch($job);
 
         return $this->getEmployee();
     }
 
-    public function deleteTransporter($hash)
+    public function deleteTransporter($hash): JsonResponse
     {
-        $transporter = (new Transporter())->byHashOrFail($hash);
+        $transporter = Transporter::byHashOrFail($hash);
         $job = new  DeleteExistingTransporter($transporter);
         $this->dispatch($job);
 
@@ -157,9 +173,10 @@ class AssetController extends Controller
     /**
      * Creating new employee from partner.
      *
-     * @param Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return void
+     * @throws \Throwable
      */
     protected function createEmployee(Request $request): void
     {
@@ -182,9 +199,11 @@ class AssetController extends Controller
     /**
      * Creating new Transporter from partner.
      *
-     * @param Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return void
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     protected function createTransporter(Request $request): void
     {
@@ -196,7 +215,7 @@ class AssetController extends Controller
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
     {
-        $user = (new User())->byHashOrFail($hash);
+        $user = User::byHashOrFail($hash);
         $job = new UpdateExistingUser($user, $request->all());
         $this->dispatch($job);
 
@@ -217,7 +236,7 @@ class AssetController extends Controller
         return $this->getEmployee();
     }
 
-    protected function updateTransporter(Request $request, $hash)
+    protected function updateTransporter(Request $request, $hash): JsonResponse
     {
         # CODE UPDATE
     }
