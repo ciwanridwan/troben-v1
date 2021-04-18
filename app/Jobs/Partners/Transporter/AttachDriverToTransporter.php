@@ -2,13 +2,13 @@
 
 namespace App\Jobs\Partners\Transporter;
 
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\Partners\Transporter;
 use App\Models\User;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use Illuminate\Validation\Validator;
-use Illuminate\Support\Facades\Validator as FacadeValidator;
+use App\Models\Partners\Pivot\UserablePivot;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
+use Illuminate\Support\Facades\Validator as FacadeValidator;
 
 class AttachDriverToTransporter
 {

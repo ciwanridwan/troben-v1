@@ -2,13 +2,13 @@
 
 namespace Tests\Http\Api\Partner;
 
-use App\Models\Partners\Transporter;
-use App\Models\User;
-use Database\Seeders\TransportersTableSeeder;
-use Illuminate\Database\Eloquent\Builder;
 use Tests\TestCase;
+use App\Models\User;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
+use Database\Seeders\TransportersTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AssetApiTest extends TestCase

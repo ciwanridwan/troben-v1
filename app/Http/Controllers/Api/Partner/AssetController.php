@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
-use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
@@ -21,6 +20,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Resources\Api\Partner\Asset\UserResource;
 use App\Jobs\Partners\Transporter\CreateNewTransporter;
+use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 
