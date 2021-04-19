@@ -102,6 +102,10 @@ class Queries
 
     protected function resolvePackagesQueryByRole(Builder $query): void
     {
+        if ($this->user->hasRoles(UserablePivot::ROLE_OWNER)) {
+            return;
+        }
+
         switch (true) {
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
                 $query->where(fn (Builder $builder) => $builder

@@ -21,11 +21,11 @@ class UserablePivot extends Relations\MorphPivot
 {
     use HashableId;
 
-    const ROLE_OWNER = 'owner';
-    const ROLE_DRIVER = 'driver';
-    const ROLE_CASHIER = 'cashier';
-    const ROLE_CS = 'customer-service';
-    const ROLE_WAREHOUSE = 'warehouse';
+    public const ROLE_OWNER = 'owner';
+    public const ROLE_DRIVER = 'driver';
+    public const ROLE_CASHIER = 'cashier';
+    public const ROLE_CS = 'customer-service';
+    public const ROLE_WAREHOUSE = 'warehouse';
 
     public $incrementing = true;
 

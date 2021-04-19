@@ -64,11 +64,11 @@ class PartnerRepository
         if ($user) {
             $roles = Arr::wrap($roles);
 
-            $resolvedAuthorized = $user->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, $roles, true));
+            $resolvedAuthorized = $user->hasRoles($roles);
         }
 
         // owner has the right to access all resource
-        if (! $resolvedAuthorized && $user->partners->some(fn (Partner $partner) => $partner->pivot->role === UserablePivot::ROLE_OWNER)) {
+        if (! $resolvedAuthorized && $user->hasRoles(UserablePivot::ROLE_OWNER)) {
             $resolvedAuthorized = true;
         }
 

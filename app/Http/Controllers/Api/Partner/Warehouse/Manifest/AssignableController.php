@@ -68,6 +68,8 @@ class AssignableController extends Controller
                 ])
         );
 
+        $query->with('estimator', 'packager');
+
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))));
     }
 }

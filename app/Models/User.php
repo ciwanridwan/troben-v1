@@ -125,7 +125,7 @@ class User extends Authenticatable implements HasOtpToken
         return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'user_id', 'userable_id', 'id', 'id');
     }
 
-    public function scopePartnerRole(Builder $builder, $types, $roles)
+    public function scopePartnerRole(Builder $builder, $types, $roles): void
     {
         $types = Arr::wrap($types);
         $roles = Arr::wrap($roles);
@@ -134,6 +134,22 @@ class User extends Authenticatable implements HasOtpToken
             'partners',
             fn (Builder $builder) => $builder
                 ->whereIn('userables.role', $roles)
-                ->whereIn('type', $types));
+                ->whereIn('type', $types)
+        );
+    }
+
+    /**
+     * Determine is the user has some role.
+     *
+     * @param string|array $roles
+     * @return bool
+     */
+    public function hasRoles($roles): bool
+    {
+        if (! $this->relationLoaded('partners')) {
+            $this->load('partners');
+        }
+
+        return $this->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, Arr::wrap($roles), true));
     }
 }
