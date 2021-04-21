@@ -53,10 +53,10 @@ class HomeController extends Controller
                 $this->query = $partnerRepository->getPartner()->transporters()->getQuery();
                 $this->query = $this->query->where('type', $request->type)
                     ->with('users', function ($query) use ($request) {
-                        $query->where('name', 'LIKE', '%' . $request->q . '%');
+                        $query->where('name', 'LIKE', '%'.$request->q.'%');
                     });
                 $this->getResource();
-                // dd($this->query->get()->toArray(), $this->query->toSql());
+            // dd($this->query->get()->toArray(), $this->query->toSql());
             } else {
                 $this->getResource();
             }
