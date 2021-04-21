@@ -45,17 +45,18 @@ class HomeController extends Controller
     public function index(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-            $this->query = $partnerRepository->queries()->getDeliveriesQuery()->with(['packages', 'packages.code']);
+            $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages')->with(['packages', 'packages.code']);
 
             $this->attributes = $request->validate($this->rules);
 
             if ($request->has('transporter')) {
-                $this->query = $partnerRepository->getPartner()->users()->getQuery()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
-                    $query->where('type', $request->type);
-                })->with('transporters', function ($query) use ($request) {
-                    $query->where('type', $request->type);
-                });
+                $this->query = $partnerRepository->getPartner()->transporters()->getQuery();
+                $this->query = $this->query->where('type', $request->type)
+                    ->with('users', function ($query) use ($request) {
+                        $query->where('name', 'LIKE', '%' . $request->q . '%');
+                    });
                 $this->getResource();
+                // dd($this->query->get()->toArray(), $this->query->toSql());
             } else {
                 $this->getResource();
             }

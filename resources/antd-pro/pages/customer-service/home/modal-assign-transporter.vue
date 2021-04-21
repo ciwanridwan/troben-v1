@@ -80,9 +80,9 @@
                   v-model="chosenTransporter"
                 >
                   <a-row type="flex" :gutter="[0, 24]">
-                    <template v-for="driver in items.data">
+                    <template v-for="transporter in items.data">
                       <a-col
-                        v-for="(transporter, index) in driver.transporters"
+                        v-for="(driver, index) in transporter.users"
                         :span="24"
                         :key="`transporter-` + index"
                       >
@@ -107,8 +107,7 @@
                               </h4>
                             </a-col>
                             <a-col :span="2" class="trawl-text-right">
-                              <a-radio :value="transporter.pivot.hash">
-                              </a-radio>
+                              <a-radio :value="driver.pivot.hash"> </a-radio>
                             </a-col>
                           </a-row>
                         </a-card>
