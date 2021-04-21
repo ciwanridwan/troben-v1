@@ -15,9 +15,11 @@ export default [
   },
   {
     title: "ID Order",
-    dataIndex: "barcode",
-    key: "code",
-    scopedSlots: { customRender: "code" }
+    customRender: (text, row, index) => {
+      return {
+        children: row.code.content
+      };
+    }
   },
   {
     title: "Tanggal Order",
