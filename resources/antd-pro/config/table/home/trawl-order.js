@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from "moment";
 
 export default [
   {
@@ -7,13 +7,15 @@ export default [
   },
   {
     title: "ID Order",
-    dataIndex: "barcode",
-    key: "barcode"
+    dataIndex: "code.content"
   },
   {
     title: "Mitra Penerima",
-    dataIndex: "receiver_name",
-    customSlot: "receiver"
+    customRender: (text, row, index) => {
+      return {
+        children: row.deliveries[0]?.partner.name
+      };
+    }
   },
   {
     title: "Lokasi Pengiriman",
@@ -30,7 +32,7 @@ export default [
     title: "Tanggal Order",
     dataIndex: "created_at",
     customRender(text) {
-      return moment(text).format('ddd, DD MMM YYYY HH:mm:ss')
+      return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
     }
   }
 ];

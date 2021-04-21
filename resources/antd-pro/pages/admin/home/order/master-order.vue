@@ -1,12 +1,7 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
-      <a-table
-        :columns="orderColumns"
-        :data-source="items.data"
-        :defaultExpandAllRows="true"
-        rowKey="barcode"
-      >
+      <a-table :columns="orderColumns" :data-source="items.data">
         <span slot="order_by" slot-scope="record">
           <a-badge
             v-if="record.order_by"
@@ -31,7 +26,11 @@
             <a-col :span="8">
               <order-status :record="record"></order-status>
             </a-col>
-            <a-col :span="12" class="trawl-text-right">
+            <a-col
+              :span="12"
+              class="trawl-text-right"
+              v-if="record.status === 'created'"
+            >
               <a-space>
                 <a-button type="danger" ghost>Cancel</a-button>
                 <modal-assign-mitra

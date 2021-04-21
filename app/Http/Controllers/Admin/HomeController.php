@@ -49,15 +49,16 @@ class HomeController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
-                $this->query = Partner::query()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = Partner::query()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->transporter_type);
                 });
 
                 return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
             }
 
-            $this->query->with('items');
-            $this->query->whereDoesntHave('deliveries');
+            $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
+            $this->query->orderBy('status');
+            // $this->query->whereDoesntHave('deliveries');
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
