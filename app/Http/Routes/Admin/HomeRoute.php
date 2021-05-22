@@ -27,6 +27,10 @@ class HomeRoute extends BaseRoute
             'as' => $this->name('assign'),
             'uses' => $this->uses('orderAssignation'),
         ]);
+        $this->router->patch($this->prefix('{package_hash}/payment-confirm'), [
+            'as' => $this->name('paymentConfirm'),
+            'uses' => $this->uses('paymentConfirm'),
+        ]);
     }
 
     /**

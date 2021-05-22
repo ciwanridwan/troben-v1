@@ -3,16 +3,19 @@
     <div class="trawl-modal-confirm--trigger" @click="showModal">
       <slot name="trigger"> </slot>
     </div>
-    <a-modal v-model="visible" :footer="null" :closable="false">
+    <a-modal v-model="visible" :footer="null" :closable="false" width="25%">
       <template v-if="hasSlot('title')" slot="title">
         <div class="trawl-modal-confirm--title">
           <slot name="title"></slot>
         </div>
       </template>
+      <div class="trawl-text-center trawl-modal-confirm--content-container">
+        <confirm-image />
 
-      <span class="trawl-modal-confirm--text">
-        <slot name="text"></slot>
-      </span>
+        <span class="trawl-modal-confirm--text">
+          <slot name="text"></slot>
+        </span>
+      </div>
       <a-row type="flex" :gutter="[12, 12]" class="trawl-modal-confirm--action">
         <a-col :span="12">
           <a-button
@@ -40,7 +43,10 @@
   </div>
 </template>
 <script>
+import confirmImage from "./icons/confirmImage.vue";
+
 export default {
+  components: { confirmImage },
   data() {
     return {
       visible: false

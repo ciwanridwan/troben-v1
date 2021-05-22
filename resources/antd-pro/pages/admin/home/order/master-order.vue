@@ -27,9 +27,9 @@
               <order-status :record="record"></order-status>
             </a-col>
             <a-col :span="12" class="trawl-text-right" v-if="record.status">
-              <order-action :record="record" />
+              <order-action :afterAction="getItems" :record="record" />
             </a-col>
-            <a-col
+            <!-- <a-col
               :span="12"
               class="trawl-text-right"
               v-else-if="record.status === 'created'"
@@ -42,7 +42,7 @@
                   :afterAssign="afterAssign"
                 />
               </a-space>
-            </a-col>
+            </a-col> -->
           </a-row>
         </span>
       </a-table>
@@ -57,7 +57,6 @@ import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
-import ModalAssignMitra from "./modal-assign-mitra.vue";
 import OrderAction from "./order-action.vue";
 export default {
   name: "MasterOrder",
@@ -65,7 +64,6 @@ export default {
     ContentLayout,
     OrderStatus,
     TrawlNotification,
-    ModalAssignMitra,
     OrderAction
   },
   data: () => {

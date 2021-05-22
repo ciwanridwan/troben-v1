@@ -9,6 +9,7 @@ use App\Models\Partners\Partner;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
+use App\Events\Packages\PackagePaymentVerified;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
@@ -49,7 +50,7 @@ class HomeController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
-                $this->query = Partner::query()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = Partner::query()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->transporter_type);
                 });
 
@@ -72,5 +73,10 @@ class HomeController extends Controller
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
+    }
+    public function paymentConfirm(Package $package)
+    {
+        event(new PackagePaymentVerified($package));
+        return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
     }
 }

@@ -1,35 +1,30 @@
 <template>
   <div v-if="record.status == 'accepted' && record.payment_status == 'pending'">
-    <trawl-modal-confirm :ok="paymentConfirm">
-      <template slot="trigger">
-        <a-button class="trawl-button-success">Lunas</a-button>
-      </template>
-      <template slot="text">
-        <p>
-          Apakah pembayaran telah berhasil dilunaskan?
-        </p>
-      </template>
-    </trawl-modal-confirm>
+    <modal-payment-confirm :afterConfirm="afterAction" :record="record" />
+  </div>
+  <div v-else-if="record.status === 'created'">
+    <a-space>
+      <a-button type="danger" ghost>Cancel</a-button>
+      <modal-assign-mitra :order="record" :afterAssign="afterAction" />
+    </a-space>
   </div>
   <div v-else>test</div>
 </template>
 <script>
 import trawlModalConfirm from "../../../../components/trawl-modal-confirm.vue";
+import ModalAssignMitra from "./modal-assign-mitra.vue";
+import ModalPaymentConfirm from "./modal-payment-confirm.vue";
 
 export default {
-  components: { trawlModalConfirm },
+  components: { trawlModalConfirm, ModalPaymentConfirm, ModalAssignMitra },
   props: {
     record: {
       type: Object,
       default: () => {}
-    }
-  },
-  mounted() {
-    console.log(this.record);
-  },
-  methods: {
-    paymentConfirm() {
-      console.log(this.record);
+    },
+    afterAction: {
+      type: Function,
+      default: () => {}
     }
   }
 };
