@@ -1,5 +1,18 @@
 @import "./variables.less";
 .trawl-button {
+  &-success {
+    &--ghost {
+      &,
+      &:hover,
+      &:visited,
+      &:active,
+      &:focus {
+        border-color: @success-darken;
+        background-color: @success-darken;
+        color: @success-darken;
+      }
+    }
+  }
   &-success,
   &-success:hover,
   &-success:visited,

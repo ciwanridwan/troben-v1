@@ -26,10 +26,13 @@
             <a-col :span="8">
               <order-status :record="record"></order-status>
             </a-col>
+            <a-col :span="12" class="trawl-text-right" v-if="record.status">
+              <order-action :record="record" />
+            </a-col>
             <a-col
               :span="12"
               class="trawl-text-right"
-              v-if="record.status === 'created'"
+              v-else-if="record.status === 'created'"
             >
               <a-space>
                 <a-button type="danger" ghost>Cancel</a-button>
@@ -55,13 +58,15 @@ import ContentLayout from "../../../../layouts/content-layout.vue";
 import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
 import ModalAssignMitra from "./modal-assign-mitra.vue";
+import OrderAction from "./order-action.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
     OrderStatus,
     TrawlNotification,
-    ModalAssignMitra
+    ModalAssignMitra,
+    OrderAction
   },
   data: () => {
     return {

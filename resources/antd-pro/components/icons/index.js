@@ -14,6 +14,7 @@ import WeightMachineIcon from "./weightMachineIcon";
 import CalendarIcon from "./calendarIcon";
 import DeliveryIcon from "./deliveryIcon";
 import HomeIcon from "./homeIcon";
+import ConfirmImage from "./confirmImage";
 
 export {
   CarIcon,
@@ -31,5 +32,6 @@ export {
   CalendarIcon,
   DeliveryIcon,
   HomeIcon,
-  TrawlWhiteIcon
+  TrawlWhiteIcon,
+  ConfirmImage
 };
