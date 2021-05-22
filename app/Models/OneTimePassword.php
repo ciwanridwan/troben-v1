@@ -25,15 +25,15 @@ class OneTimePassword extends Model
 {
     use UuidAsPrimaryKey;
 
-    const CHANNEL_EMAIL = 'email';
-    const CHANNEL_PHONE = 'phone';
+    public const CHANNEL_EMAIL = 'email';
+    public const CHANNEL_PHONE = 'phone';
 
-    const OTP_CHANNEL = [
+    public const OTP_CHANNEL = [
         self::CHANNEL_EMAIL,
         self::CHANNEL_PHONE,
     ];
 
-    const TOKEN_TTL = 1800;
+    public const TOKEN_TTL = 1800;
 
     /**
      * Indicates if the IDs are auto-incrementing.

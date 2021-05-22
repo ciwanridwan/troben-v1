@@ -60,7 +60,8 @@ class AssignedPackagesSeeder extends Seeder
                 })
                 ->each(fn (AssignDriverToDelivery $job) => dispatch_now($job))
                 ->each(fn (AssignDriverToDelivery $job) => $this->command
-                    ->warn('=> package from '.$job->delivery->packages()->first()->sender_name.' assigned to transporter ('.$job->transporter->registration_number.') and driver ('.$job->driver->username.')')));
+                    ->warn('=> package from '.$job->delivery->packages()->first()->sender_name.' assigned to transporter ('.$job->transporter->registration_number.') and driver ('.$job->driver->username.')'))
+        );
     }
 
     private static function setModelGuarded(callable $callback): void

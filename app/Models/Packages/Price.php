@@ -19,12 +19,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
-    const TYPE_SERVICE = 'service';
-    const TYPE_HANDLING = 'handling';
-    const TYPE_INSURANCE = 'insurance';
-    const TYPE_PROMOTION = 'promotion';
-    const TYPE_DISCOUNT = 'discount';
-    const TYPE_OTHER = 'other';
+    public const TYPE_SERVICE = 'service';
+    public const TYPE_HANDLING = 'handling';
+    public const TYPE_INSURANCE = 'insurance';
+    public const TYPE_PROMOTION = 'promotion';
+    public const TYPE_DISCOUNT = 'discount';
+    public const TYPE_OTHER = 'other';
 
     /**
      * The table associated with the model.

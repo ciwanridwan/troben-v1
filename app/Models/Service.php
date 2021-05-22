@@ -18,10 +18,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Service extends Model
 {
-    const TRAWLPACK_INSTANT = 'tpi';
-    const TRAWLPACK_SAMEDAY = 'tpd';
-    const TRAWLPACK_EXPRESS = 'tpx';
-    const TRAWLPACK_STANDARD = 'tps';
+    public const TRAWLPACK_INSTANT = 'tpi';
+    public const TRAWLPACK_SAMEDAY = 'tpd';
+    public const TRAWLPACK_EXPRESS = 'tpx';
+    public const TRAWLPACK_STANDARD = 'tps';
 
     /**
      * Indicates if the IDs are auto-incrementing.

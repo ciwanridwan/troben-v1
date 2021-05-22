@@ -50,7 +50,7 @@ class HomeController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
-                $this->query = Partner::query()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
+                $this->query = Partner::query()->where('name', 'LIKE', '%'.$request->q.'%')->whereHas('transporters', function ($query) use ($request) {
                     $query->where('type', $request->transporter_type);
                 });
 

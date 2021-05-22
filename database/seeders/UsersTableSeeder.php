@@ -84,7 +84,8 @@ class UsersTableSeeder extends Seeder
                 $user->phone,
                 $user->partners->pluck('type')->implode(', '),
                 $user->partners->pluck('pivot.role')->implode(', '),
-            ]));
+            ])
+        );
     }
 
     private function createFromComposes(Collection $users, $prefix = null)

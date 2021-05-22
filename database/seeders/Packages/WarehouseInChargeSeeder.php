@@ -22,9 +22,11 @@ class WarehouseInChargeSeeder extends Seeder
         $this->prepareDependency();
 
         self::setModelGuardedAndQueueToSync(function () {
-            Event::listen(DriverUnloadedPackageInWarehouse::class,
+            Event::listen(
+                DriverUnloadedPackageInWarehouse::class,
                 fn (DriverUnloadedPackageInWarehouse $event) => $this->command
-                    ->warn('=> package from '.$event->delivery->packages->implode('sender_name').' status changed to "waiting for estimating"..'));
+                    ->warn('=> package from '.$event->delivery->packages->implode('sender_name').' status changed to "waiting for estimating"..')
+            );
 
             User::query()->whereHas('deliveries')->each(fn (User $driver) => $driver->deliveries()
                 ->where('status', Delivery::STATUS_ACCEPTED)->take(ceil($driver->deliveries()->count() / 2))

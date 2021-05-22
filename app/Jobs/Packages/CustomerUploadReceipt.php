@@ -10,7 +10,7 @@ class CustomerUploadReceipt
 {
     use AttachmentCreator;
 
-    const DISK_DRIVER = 'receipt';
+    public const DISK_DRIVER = 'receipt';
 
     public Package $package;
 

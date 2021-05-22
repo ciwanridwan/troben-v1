@@ -38,19 +38,19 @@ class Transporter extends Model
         HashableId,
         HasFactory;
 
-    const TYPE_BIKE = 'bike';
-    const TYPE_MPV = 'mpv';
-    const TYPE_PICKUP = 'pickup';
-    const TYPE_PICKUP_BOX = 'pickup box';
-    const TYPE_CDE_ENGKEL = 'cde engkel';
-    const TYPE_CDE_ENGKEL_BOX = 'engkel box';
-    const TYPE_CDE_ENGKEL_DOUBLE = 'engkel double';
-    const TYPE_CDE_ENGKEL_DOUBLE_BOX = 'engkel double box';
-    const TYPE_FUSO_6M = 'fuso 6m';
-    const TYPE_FUSO_9M = 'fuso 9m';
-    const TYPE_TRONTON = 'tronton';
-    const TYPE_WINGBOX = 'wingbox';
-    const TYPE_VAN = 'van';
+    public const TYPE_BIKE = 'bike';
+    public const TYPE_MPV = 'mpv';
+    public const TYPE_PICKUP = 'pickup';
+    public const TYPE_PICKUP_BOX = 'pickup box';
+    public const TYPE_CDE_ENGKEL = 'cde engkel';
+    public const TYPE_CDE_ENGKEL_BOX = 'engkel box';
+    public const TYPE_CDE_ENGKEL_DOUBLE = 'engkel double';
+    public const TYPE_CDE_ENGKEL_DOUBLE_BOX = 'engkel double box';
+    public const TYPE_FUSO_6M = 'fuso 6m';
+    public const TYPE_FUSO_9M = 'fuso 9m';
+    public const TYPE_TRONTON = 'tronton';
+    public const TYPE_WINGBOX = 'wingbox';
+    public const TYPE_VAN = 'van';
 
     /**
      * The table associated with the model.
