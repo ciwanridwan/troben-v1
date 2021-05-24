@@ -1,5 +1,5 @@
 @extends('antd::trawl-admin-layout')
 
 @section('content')
-    <order-list></order-list>
+    <order-receipt-list></order-receipt-list>
 @endsection

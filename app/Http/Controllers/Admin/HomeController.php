@@ -47,20 +47,34 @@ class HomeController extends Controller
         $this->baseBuilder();
     }
 
+    function getSearch(Request $request)
+    {
+        $this->query->whereHas('code', function ($query) use ($request) {
+            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+        });
+        return $this;
+    }
+
+    public function dataRelation()
+    {
+        $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
+        $this->query->orderBy('status');
+        return $this;
+    }
+
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
                 return $this->getPartners($request);
             }
-            $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
-            });
+
+            $this->getSearch($request);
 
             // dont show canceled order
             $this->query->where('status', '!=', Package::STATUS_CANCEL);
-            $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
-            $this->query->orderBy('status');
+            $this->dataRelation($request);
+
             // $this->query->whereDoesntHave('deliveries');
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
@@ -68,6 +82,21 @@ class HomeController extends Controller
 
         return view('admin.home.index');
     }
+
+    public function receipt(Request $request)
+    {
+        if ($request->expectsJson()) {
+
+            $this->getSearch($request);
+            $this->dataRelation($request);
+
+            // $this->query->whereDoesntHave('deliveries');
+
+            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+        }
+        return view('admin.home.receipt.index');
+    }
+
 
     public function orderAssignation(Package $package, Partner $partner): JsonResponse
     {
@@ -92,7 +121,7 @@ class HomeController extends Controller
     {
         $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
             $query->where('type', $request->transporter_type);
-        })->whereRaw("LOWER(name) LIKE '%".strtolower($request->q)."%'");
+        })->whereRaw("LOWER(name) LIKE '%" . strtolower($request->q) . "%'");
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }

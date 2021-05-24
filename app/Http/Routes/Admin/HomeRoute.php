@@ -22,6 +22,10 @@ class HomeRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+        $this->router->get($this->prefix('receipt'), [
+            'as' => $this->name('receipt'),
+            'uses' => $this->uses('receipt'),
+        ]);
 
         $this->router->patch($this->prefix('{package_hash}/{partner_hash}/assign'), [
             'as' => $this->name('assign'),

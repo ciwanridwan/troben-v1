@@ -10,7 +10,19 @@
           <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
         <a-col :span="14">
-          <slot name="head-tools"></slot>
+          <a-row type="flex">
+            <a-col :span="search ? 16 : 24">
+              <slot name="head-tools"></slot>
+            </a-col>
+            <a-col v-if="search" :span="8">
+              <a-input-search
+                @search="search.action"
+                :placeholder="
+                  search.placeholder ? search.placeholder : 'search ...'
+                "
+              ></a-input-search>
+            </a-col>
+          </a-row>
         </a-col>
       </a-row>
       <a-layout>
@@ -43,6 +55,10 @@ export default {
     siderPosition: {
       type: String,
       default: "left"
+    },
+    search: {
+      type: Object,
+      default: () => {}
     }
   },
   computed: {

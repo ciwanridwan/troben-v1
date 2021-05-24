@@ -12,15 +12,34 @@ const main = {
       },
       resi: {
         title: "All Resi",
-        text: "Data Resi",
-        route: "admin.home.resi",
+        text: "Resi",
+        route: "admin.home.receipt",
         children: null
       },
       manifest: {
         title: "All Manifest",
-        text: "Data Manifest",
+        text: "Manifest",
         route: "admin.home.manifest",
-        children: null
+        children: {
+          all: {
+            title: "All Manifest",
+            text: "All Manifest",
+            route: "admin.home.manifest",
+            children: null
+          },
+          tracking: {
+            title: "Tracking Manifest",
+            text: "Tracking Manifest",
+            route: "admin.home.manifest.tracking",
+            children: null
+          },
+          request: {
+            title: "Request Transporter",
+            text: "Request Transporter",
+            route: "admin.home.manifest.request",
+            children: null
+          }
+        }
       },
       delivery: {
         title: "All Delivery Order",

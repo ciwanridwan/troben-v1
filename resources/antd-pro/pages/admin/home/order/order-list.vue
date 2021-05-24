@@ -1,5 +1,8 @@
 <template>
-  <content-layout siderPosition="right">
+  <content-layout
+    siderPosition="right"
+    :search="{ action: searchById, placeholder: 'cari id order ...' }"
+  >
     <template slot="head-tools">
       <a-row type="flex" justify="end" :gutter="12">
         <a-col :span="8">
@@ -8,7 +11,7 @@
               Click me <a-icon type="down" />
             </a>
 
-            <template slot="overlay">
+            <!-- <template slot="overlay">
               <a-card class="">
                 <a-checkbox-group
                   v-model="value"
@@ -17,7 +20,7 @@
                   @change="onChange"
                 />
               </a-card>
-            </template>
+            </template> -->
 
             <!-- <a-menu slot="overlay">
               <a-menu-item>
@@ -25,12 +28,6 @@
               </a-menu-item>
             </a-menu> -->
           </a-dropdown>
-        </a-col>
-        <a-col :span="10">
-          <a-input-search
-            @search="searchById"
-            placeholder="cari id order ..."
-          ></a-input-search>
         </a-col>
       </a-row>
     </template>

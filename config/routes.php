@@ -71,6 +71,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\RequestRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\PendingRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
+        App\Http\Routes\Admin\Home\ManifestRoute::class,
         /** @inject admin **/
     ],
     'cashier' => [
