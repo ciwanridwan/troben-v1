@@ -10,7 +10,6 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Packages\PackagePaymentVerified;
-use App\Models\Packages\Item;
 use Illuminate\Http\JsonResponse;
 
 class HistoryController extends Controller
@@ -48,13 +47,13 @@ class HistoryController extends Controller
         $this->baseBuilder();
     }
 
-    function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
+    public function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
     {
         if ($request->has('partner')) {
             return $this->getPartners($request);
         }
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
         });
 
         $this->query->where($status_condition);
@@ -67,7 +66,6 @@ class HistoryController extends Controller
 
     public function pending(Request $request)
     {
-
         if ($request->expectsJson()) {
             return $this->getHistoryDataByPackageStatus(
                 $request,

@@ -49,7 +49,7 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageCanceledByAdmin:
                 if (in_array($event->package->status, [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL])) {
                     $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
-                };
+                }
                 break;
             case $event instanceof PackageCheckedByCashier:
                 $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
