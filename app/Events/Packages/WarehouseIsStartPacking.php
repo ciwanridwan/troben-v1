@@ -32,7 +32,8 @@ class WarehouseIsStartPacking
             $package->status !== Package::STATUS_WAITING_FOR_PACKING || $package->payment_status !== Package::PAYMENT_STATUS_PAID,
             ValidationException::withMessages([
                 'package' => __('package not ready to be packed.'),
-            ]));
+            ])
+        );
 
         $this->package = $package;
 

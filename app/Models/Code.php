@@ -22,9 +22,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Code extends Model
 {
     use HasFactory;
-    const TYPE_RECEIPT = 'RCP';
-    const TYPE_MANIFEST = 'MNF';
-    const TYPE_ITEM = 'ITM';
+    public const TYPE_RECEIPT = 'RCP';
+    public const TYPE_MANIFEST = 'MNF';
+    public const TYPE_ITEM = 'ITM';
 
 
     protected $fillable = [

@@ -11,8 +11,8 @@ use NotificationChannels\Qontak\Contracts\QontakNotification;
 
 class OneTimePassword extends Notification implements QontakNotification
 {
-    const WHATSAPP_TEMPLATE_ID = '61be42f5-fd45-44f9-a510-e919e22d23bc';
-    const WHATSAPP_CHANNEL_ID = 'dec6c223-0d5a-4fc8-8381-9be441828b0c';
+    public const WHATSAPP_TEMPLATE_ID = '61be42f5-fd45-44f9-a510-e919e22d23bc';
+    public const WHATSAPP_CHANNEL_ID = 'dec6c223-0d5a-4fc8-8381-9be441828b0c';
 
     /**
      * OTP model instance.

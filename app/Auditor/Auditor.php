@@ -10,10 +10,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 class Auditor
 {
-    const AUDIT_TYPE_ACTION = 'action';
-    const AUDIT_TYPE_UPDATE = 'update';
-    const AUDIT_TYPE_CREATE = 'create';
-    const AUDIT_TYPE_DELETE = 'delete';
+    public const AUDIT_TYPE_ACTION = 'action';
+    public const AUDIT_TYPE_UPDATE = 'update';
+    public const AUDIT_TYPE_CREATE = 'create';
+    public const AUDIT_TYPE_DELETE = 'delete';
 
     /**
      * audit type.

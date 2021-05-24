@@ -53,10 +53,10 @@ class Price extends Model
     public const TIER_5 = 1000;
     public const TIER_6 = 3000;
 
-    const DIVIDER_DARAT = 4000;
-    const DIVIDER_UDARA = 6000;
+    public const DIVIDER_DARAT = 4000;
+    public const DIVIDER_UDARA = 6000;
 
-    const MIN_WEIGHT = 10;
+    public const MIN_WEIGHT = 10;
 
     /**
      * The accessors to append to the model's array form.

@@ -152,7 +152,8 @@ class GeoController extends Controller
     private function getBasicBuilder(Builder $builder): Builder
     {
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
-        $builder->when(request()->has('q') and request()->has('id') === false,
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
             fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
         );
 

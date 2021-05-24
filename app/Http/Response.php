@@ -17,36 +17,36 @@ use Illuminate\Http\Response as LaravelResponse;
 class Response implements Responsable
 {
     // success group 0000-0099
-    const RC_SUCCESS = '0000';
-    const RC_CREATED = '0001';
-    const RC_UPDATED = '0002';
-    const RC_ACCEPTED = '0003';
-    const RC_ACCEPTED_NO_CONTENT = '0004';
+    public const RC_SUCCESS = '0000';
+    public const RC_CREATED = '0001';
+    public const RC_UPDATED = '0002';
+    public const RC_ACCEPTED = '0003';
+    public const RC_ACCEPTED_NO_CONTENT = '0004';
 
     // client side fault. 0100 - 0199
-    const RC_INVALID_DATA = '0100';
-    const RC_RESOURCE_NOT_FOUND = '0101';
-    const RC_ROUTE_NOT_FOUND = '0102';
-    const RC_INVALID_PHONE_NUMBER = '0103';
-    const RC_OUT_OF_RANGE = '0104';
+    public const RC_INVALID_DATA = '0100';
+    public const RC_RESOURCE_NOT_FOUND = '0101';
+    public const RC_ROUTE_NOT_FOUND = '0102';
+    public const RC_INVALID_PHONE_NUMBER = '0103';
+    public const RC_OUT_OF_RANGE = '0104';
 
     // authentication / authorization related. 0200 - 0299
-    const RC_UNAUTHENTICATED = '0200';
-    const RC_INVALID_AUTHENTICATION_HEADER = '0201';
-    const RC_MISSING_AUTHENTICATION_HEADER = '0202';
-    const RC_ACCOUNT_NOT_VERIFIED = '0203';
-    const RC_UNAUTHORIZED = '0204';
+    public const RC_UNAUTHENTICATED = '0200';
+    public const RC_INVALID_AUTHENTICATION_HEADER = '0201';
+    public const RC_MISSING_AUTHENTICATION_HEADER = '0202';
+    public const RC_ACCOUNT_NOT_VERIFIED = '0203';
+    public const RC_UNAUTHORIZED = '0204';
 
     // one time password 0300 - 0399
-    const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
-    const RC_TOKEN_HAS_EXPIRED = '0302';
-    const RC_TOKEN_MISMATCH = '0303';
-    const RC_TOKEN_WAS_CLAIMED = '0304';
+    public const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
+    public const RC_TOKEN_HAS_EXPIRED = '0302';
+    public const RC_TOKEN_MISMATCH = '0303';
+    public const RC_TOKEN_WAS_CLAIMED = '0304';
 
     // server side faults. 0900 - 0999
-    const RC_SERVER_IN_MAINTENANCE = '0901';
-    const RC_DATABASE_ERROR = '0902';
-    const RC_OTHER = '0999';
+    public const RC_SERVER_IN_MAINTENANCE = '0901';
+    public const RC_DATABASE_ERROR = '0902';
+    public const RC_OTHER = '0999';
 
     /**
      * Response Code.

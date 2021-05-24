@@ -33,8 +33,10 @@ class CashierInChargeSeeder extends Seeder
                 ->whereHas('deliveries', fn (Builder $builder) => $builder->where('partner_id', $partner->id)->where('type', Delivery::TYPE_PICKUP))
                 ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING);
 
-            Event::listen(PackageEstimatedByWarehouse::class,
-                fn (PackageEstimatedByWarehouse $event) => $this->command->warn('package from '.$event->package->sender_name.' status set to "estimated"'));
+            Event::listen(
+                PackageEstimatedByWarehouse::class,
+                fn (PackageEstimatedByWarehouse $event) => $this->command->warn('package from '.$event->package->sender_name.' status set to "estimated"')
+            );
 
             $query->take(ceil($query->count() / 2))
                 ->get()
