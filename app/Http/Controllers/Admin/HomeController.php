@@ -47,10 +47,10 @@ class HomeController extends Controller
         $this->baseBuilder();
     }
 
-    function getSearch(Request $request)
+    public function getSearch(Request $request)
     {
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
         });
         return $this;
     }
@@ -86,7 +86,6 @@ class HomeController extends Controller
     public function receipt(Request $request)
     {
         if ($request->expectsJson()) {
-
             $this->getSearch($request);
             $this->dataRelation($request);
 
@@ -121,7 +120,7 @@ class HomeController extends Controller
     {
         $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
             $query->where('type', $request->transporter_type);
-        })->whereRaw("LOWER(name) LIKE '%" . strtolower($request->q) . "%'");
+        })->whereRaw("LOWER(name) LIKE '%".strtolower($request->q)."%'");
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }

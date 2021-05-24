@@ -5,11 +5,7 @@ namespace App\Supports\Repositories;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
-use App\Models\Packages\Package;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 
 class PackageRepository
 {
@@ -34,9 +30,9 @@ class PackageRepository
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
 
-        if (!$user->relationLoaded('partners')) {
+        if (! $user->relationLoaded('partners')) {
             $user->load('partners');
         }
 

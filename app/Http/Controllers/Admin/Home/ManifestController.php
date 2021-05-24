@@ -6,13 +6,9 @@ use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use App\Supports\Repositories\PackageRepository;
-use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ManifestController extends Controller
 {
@@ -47,11 +43,11 @@ class ManifestController extends Controller
         $this->query->whereHas('packages');
     }
 
-    function getSearch(Request $request)
+    public function getSearch(Request $request)
     {
         $this->query->whereHas('packages');
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
         });
         return $this;
     }
@@ -62,7 +58,7 @@ class ManifestController extends Controller
         return $this;
     }
 
-    function paginateWithTransformData()
+    public function paginateWithTransformData()
     {
         $paginator = $this->query->paginate(request('per_page', 15));
         $paginator->getCollection()->transform(function ($item) {
