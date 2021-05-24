@@ -51,5 +51,7 @@ class StagingDatabaseSeeder extends Seeder
             PackedSeeder::class,
             ManifestSeeder::class,
         ]);
+
+        $this->call(PartnerTableImport::class);
     }
 }

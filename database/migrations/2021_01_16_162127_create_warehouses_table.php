@@ -21,9 +21,9 @@ class CreateWarehousesTable extends Migration
             $table->unsignedBigInteger('geo_district_id')->nullable();
             $table->string('address')->nullable();
             $table->polygon('geo_area')->nullable();
-            $table->float('height');
-            $table->float('length');
-            $table->float('width');
+            $table->float('height')->default(0);;
+            $table->float('length')->default(0);;
+            $table->float('width')->default(0);;
             $table->boolean('is_pool')->default(0);
             $table->boolean('is_counter')->default(0);
             $table->timestamps();
