@@ -62,6 +62,8 @@ class PartnerTableImport extends Seeder
                 $p = new Partner();
                 $p->fill([
                     'name' => $item['name'],
+                    'contact_email' => $item['email'],
+                    'contact_phone' => $item['phonenumber'],
                     'address' => $item['address'],
                     'type' => $this->typeMapper[$item['type']],
                     'code' => $item['code'],
