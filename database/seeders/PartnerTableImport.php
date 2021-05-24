@@ -49,16 +49,15 @@ class PartnerTableImport extends Seeder
      */
     public function run()
     {
-        $path_file = __DIR__ . '/data/partner.csv';
+        $path_file = __DIR__.'/data/partner.csv';
         $partner = $this->loadFiles($path_file);
 
         $users = new Collection();
 
 
-        $this->command->info("\n\nImport Partner Data from " . $path_file);
+        $this->command->info("\n\nImport Partner Data from ".$path_file);
         foreach ($partner as $item) {
             DB::transaction(function () use ($item, $users) {
-
                 $p = new Partner();
                 $p->fill([
                     'name' => $item['name'],
@@ -103,7 +102,6 @@ class PartnerTableImport extends Seeder
         $this->command->table(
             ['email', 'username', 'password', 'partner code', 'partner type', 'role'],
             $users->map(function (User $user, $index) use ($partner) {
-
                 return [
                     $user->email,
                     $user->username,

@@ -95,9 +95,9 @@ class UsersTableSeeder extends Seeder
                 if (is_array($role)) {
                     foreach ($role as $key => $value) {
                         $data = [
-                            'username' => Str::slug($prefix . strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $value)) . '-' . $key,
-                            'email' => Str::slug($prefix . strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $value)) . '-' . $key . '@trawlbens.co.id',
-                            'phone' => '+625555555' . str_pad($users->count(), 3, '0', STR_PAD_LEFT),
+                            'username' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key,
+                            'email' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$value)).'-'.$key.'@trawlbens.co.id',
+                            'phone' => '+625555555'.str_pad($users->count(), 3, '0', STR_PAD_LEFT),
                             'verified_at' => Carbon::now(),
                         ];
 
@@ -110,9 +110,9 @@ class UsersTableSeeder extends Seeder
                 }
 
                 $data = [
-                    'username' => Str::slug($prefix . strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)),
-                    'email' => Str::slug($prefix . strtolower(Partner::getAvailableCodeTypes()[$partner->type] . ' ' . $role)) . '@trawlbens.co.id',
-                    'phone' => '+625555555' . str_pad($users->count(), 3, '0', STR_PAD_LEFT),
+                    'username' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)),
+                    'email' => Str::slug($prefix.strtolower(Partner::getAvailableCodeTypes()[$partner->type].' '.$role)).'@trawlbens.co.id',
+                    'phone' => '+625555555'.str_pad($users->count(), 3, '0', STR_PAD_LEFT),
                     'verified_at' => Carbon::now(),
                 ];
 
