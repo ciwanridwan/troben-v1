@@ -14,7 +14,6 @@ use App\Events\Packages\PackagePaymentVerified;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Models\Packages\Item;
 
 class HomeController extends Controller
 {
@@ -55,7 +54,7 @@ class HomeController extends Controller
                 return $this->getPartners($request);
             }
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             // dont show canceled order
@@ -68,15 +67,6 @@ class HomeController extends Controller
         }
 
         return view('admin.home.index');
-    }
-
-    private function getPartners(Request $request): JsonResponse
-    {
-        $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
-            $query->where('type', $request->transporter_type);
-        })->whereRaw("LOWER(name) LIKE '%" . strtolower($request->q) . "%'");
-
-        return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
     public function orderAssignation(Package $package, Partner $partner): JsonResponse
@@ -96,5 +86,14 @@ class HomeController extends Controller
     {
         event(new PackageCanceledByAdmin($package));
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
+    }
+
+    private function getPartners(Request $request): JsonResponse
+    {
+        $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
+            $query->where('type', $request->transporter_type);
+        })->whereRaw("LOWER(name) LIKE '%".strtolower($request->q)."%'");
+
+        return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 }
