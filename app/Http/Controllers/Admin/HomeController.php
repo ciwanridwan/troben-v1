@@ -9,10 +9,12 @@ use App\Models\Partners\Partner;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
+use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackagePaymentVerified;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Packages\Item;
 
 class HomeController extends Controller
 {
@@ -50,13 +52,14 @@ class HomeController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
-                $this->query = Partner::query()->where('name', 'LIKE', '%' . $request->q . '%')->whereHas('transporters', function ($query) use ($request) {
-                    $query->where('type', $request->transporter_type);
-                });
-
-                return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+                return $this->getPartners($request);
             }
+            $this->query->whereHas('code', function ($query) use ($request) {
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            });
 
+            // dont show canceled order
+            $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
             $this->query->orderBy('status');
             // $this->query->whereDoesntHave('deliveries');
@@ -65,6 +68,15 @@ class HomeController extends Controller
         }
 
         return view('admin.home.index');
+    }
+
+    private function getPartners(Request $request): JsonResponse
+    {
+        $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
+            $query->where('type', $request->transporter_type);
+        })->whereRaw("LOWER(name) LIKE '%" . strtolower($request->q) . "%'");
+
+        return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
     public function orderAssignation(Package $package, Partner $partner): JsonResponse
@@ -77,6 +89,12 @@ class HomeController extends Controller
     public function paymentConfirm(Package $package)
     {
         event(new PackagePaymentVerified($package));
+        return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
+    }
+
+    public function cancel(Package $package)
+    {
+        event(new PackageCanceledByAdmin($package));
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
     }
 }

@@ -10,6 +10,8 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Packages\PackagePaymentVerified;
+use App\Models\Packages\Item;
+use Illuminate\Http\JsonResponse;
 
 class HistoryController extends Controller
 {
@@ -46,43 +48,50 @@ class HistoryController extends Controller
         $this->baseBuilder();
     }
 
+    function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
+    {
+        if ($request->has('partner')) {
+            return $this->getPartners($request);
+        }
+        $this->query->whereHas('code', function ($query) use ($request) {
+            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+        });
+
+        $this->query->where($status_condition);
+        $this->query->with(['items', 'items.prices', 'deliveries', 'deliveries.partner', 'code']);
+        $this->query->orderBy('status');
+        // $this->query->whereDoesntHave('deliveries');
+
+        return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+    }
+
     public function pending(Request $request)
     {
+
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
-
-
-            $this->getResource();
-            $this->query->when($request->input('q'), function (Builder $query, $q) {
-                $query->where('barcode', 'LIKE', '%'.$q.'%');
-            });
-
-            $this->query->where('payment_status', Package::PAYMENT_STATUS_PENDING)->where('status', Package::STATUS_ACCEPTED);
-
-            $this->query->orderBy('payment_status');
-            $this->query->with(['customer', 'items', 'attachments']);
-
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
+            return $this->getHistoryDataByPackageStatus(
+                $request,
+                [
+                    ['status', Package::STATUS_ACCEPTED],
+                    ['payment_status', Package::PAYMENT_STATUS_PENDING]
+                ]
+            );
         }
+
 
         return view('admin.master.history.pending.index');
     }
 
     public function paid(Request $request)
     {
+        // dd(Package::with(['items', 'items.prices'])->get()->toArray());
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
-
-            $this->query->with(['customer', 'items', 'attachments']);
-            $this->getResource();
-            $this->query->paid();
-            // $this->query = $this->query->whereIn('payment_status', ['paid', 'pending']);
-            $this->query->orderBy('payment_status');
-            $this->query->when($request->input('q'), function (Builder $query, $q) {
-                $query->where('barcode', 'LIKE', '%'.$q.'%');
-            });
-
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
+            return $this->getHistoryDataByPackageStatus(
+                $request,
+                [
+                    ['payment_status', Package::PAYMENT_STATUS_PAID]
+                ]
+            );
         }
 
         return view('admin.master.history.paid.index');
@@ -99,12 +108,12 @@ class HistoryController extends Controller
     public function cancel(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
-
-            $this->getResource();
-            $this->query = $this->query->failed();
-
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))));
+            return $this->getHistoryDataByPackageStatus(
+                $request,
+                [
+                    ['status', Package::STATUS_CANCEL]
+                ]
+            );
         }
 
         return view('admin.master.history.cancel.index');

@@ -37,8 +37,8 @@ const main = {
     route: "admin.history",
     children: {
       pending: {
-        title: "All Pending Order",
-        text: "Data Pending Order",
+        title: "All Order",
+        text: "Menunggu Konfirmasi Admin",
         route: "admin.history.pending",
         children: null
       },

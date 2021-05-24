@@ -1,17 +1,17 @@
 <template>
-  <trawl-modal-confirm :ok="paymentConfirm">
+  <trawl-modal-confirm :ok="cancel">
     <template slot="trigger">
-      <a-button class="trawl-button-success">Lunas</a-button>
+      <a-button type="danger" ghost>Cancel</a-button>
     </template>
     <template slot="text">
       <p>
-        Apakah pembayaran telah berhasil dilunaskan?
+        Apakah kamu ingin membatalkan pesanan?
       </p>
     </template>
   </trawl-modal-confirm>
 </template>
 <script>
-import trawlModalConfirm from "../../../../components/trawl-modal-confirm.vue";
+import trawlModalConfirm from "./trawl-modal-confirm.vue";
 export default {
   props: {
     record: {
@@ -25,10 +25,10 @@ export default {
   },
   components: { trawlModalConfirm },
   methods: {
-    paymentConfirm() {
+    cancel() {
       this.$http
         .patch(
-          this.routeUri("admin.home.paymentConfirm", {
+          this.routeUri("admin.home.cancel", {
             package_hash: this.record.hash
           })
         )

@@ -13,16 +13,12 @@ const laravel = {
       return config;
     },
     trawlbensPagination() {
-      if (this.items) {
-        return {
-          showSizeChanger: true,
-          current: this.items.current_page,
-          pageSize: parseInt(this.items.per_page),
-          total: this.items.total
-        };
-      }
-
-      return null;
+      return {
+        showSizeChanger: true,
+        current: this.items?.current_page ? this.items.current_page : 1,
+        pageSize: parseInt(this.items?.per_page ? this.items.per_page : 10),
+        total: this.items?.total ? this.items.total : 0
+      };
     }
   },
   methods: {

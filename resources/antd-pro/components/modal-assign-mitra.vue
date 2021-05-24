@@ -134,11 +134,11 @@
   </div>
 </template>
 <script>
-import editButton from "../../../../components/button/edit-button.vue";
-import { SendIcon, ReceiveIcon, HomeIcon } from "../../../../components/icons";
+import editButton from "./button/edit-button.vue";
+import { SendIcon, ReceiveIcon, HomeIcon } from "./icons";
 
-import AddressComponent from "../../../../components/orders/address-component.vue";
-import OrderEstimation from "../../../../components/orders/order-estimation.vue";
+import AddressComponent from "./orders/address-component.vue";
+import OrderEstimation from "./orders/order-estimation.vue";
 import _ from "lodash";
 
 export default {

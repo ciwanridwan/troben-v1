@@ -1,5 +1,5 @@
 @extends('antd::admin-layout')
 
 @section('content')
-    <master-history-pending></master-history-pending>
+    <master-history></master-history>
 @endsection

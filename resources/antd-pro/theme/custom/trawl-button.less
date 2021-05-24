@@ -22,4 +22,17 @@
     background-color: @success-darken;
     color: white;
   }
+  &-danger {
+    &--ghost {
+      &,
+      &:hover,
+      &:visited,
+      &:active,
+      &:focus {
+        border-color: @primary;
+        background-color: @primary;
+        color: @primary;
+      }
+    }
+  }
 }

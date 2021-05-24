@@ -1,7 +1,47 @@
 <template>
   <content-layout siderPosition="right">
+    <template slot="head-tools">
+      <a-row type="flex" justify="end" :gutter="12">
+        <a-col :span="8">
+          <a-dropdown :trigger="['click']">
+            <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+              Click me <a-icon type="down" />
+            </a>
+
+            <template slot="overlay">
+              <a-card class="">
+                <a-checkbox-group
+                  v-model="value"
+                  name="checkboxgroup"
+                  :options="plainOptions"
+                  @change="onChange"
+                />
+              </a-card>
+            </template>
+
+            <!-- <a-menu slot="overlay">
+              <a-menu-item>
+                test
+              </a-menu-item>
+            </a-menu> -->
+          </a-dropdown>
+        </a-col>
+        <a-col :span="10">
+          <a-input-search
+            @search="searchById"
+            placeholder="cari id order ..."
+          ></a-input-search>
+        </a-col>
+      </a-row>
+    </template>
     <template slot="content">
-      <a-table :columns="orderColumns" :data-source="items.data">
+      <order-table :dataSource="items.data" />
+      <!-- <a-table
+        :columns="orderColumns"
+        :data-source="items.data"
+        :pagination="trawlbensPagination"
+        @change="handleTableChanged"
+      >
         <span slot="order_by" slot-scope="record">
           <a-badge
             v-if="record.order_by"
@@ -29,23 +69,9 @@
             <a-col :span="12" class="trawl-text-right" v-if="record.status">
               <order-action :afterAction="getItems" :record="record" />
             </a-col>
-            <!-- <a-col
-              :span="12"
-              class="trawl-text-right"
-              v-else-if="record.status === 'created'"
-            >
-              <a-space>
-                <a-button type="danger" ghost>Cancel</a-button>
-                <modal-assign-mitra
-                  :order="record"
-                  :visible="orderModalVisibility"
-                  :afterAssign="afterAssign"
-                />
-              </a-space>
-            </a-col> -->
           </a-row>
         </span>
-      </a-table>
+      </a-table> -->
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -53,18 +79,15 @@
   </content-layout>
 </template>
 <script>
-import orderColumns from "../../../../config/table/home/trawl-order";
 import ContentLayout from "../../../../layouts/content-layout.vue";
-import OrderStatus from "./order-status.vue";
 import TrawlNotification from "../../../../components/trawl-notification.vue";
-import OrderAction from "./order-action.vue";
+import OrderTable from "../../../../components/tables/order-table.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
-    OrderStatus,
     TrawlNotification,
-    OrderAction
+    OrderTable
   },
   data: () => {
     return {
@@ -76,7 +99,6 @@ export default {
         per_page: 15
       },
       loading: false,
-      orderColumns,
       orderModalVisibility: false,
       orderModalObject: {}
     };
@@ -90,6 +112,11 @@ export default {
       });
     },
     afterAssign() {
+      this.getItems();
+    },
+    searchById(value) {
+      this.filter.q = value;
+      console.log(value);
       this.getItems();
     }
   },
