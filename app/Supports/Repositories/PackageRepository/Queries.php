@@ -10,7 +10,6 @@ use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 
-
 class Queries
 {
     private Partner $partner;
