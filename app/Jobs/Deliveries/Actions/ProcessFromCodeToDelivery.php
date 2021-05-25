@@ -68,8 +68,6 @@ class ProcessFromCodeToDelivery
 
 
             if ($this->delivery->packages()->where('id', $package->id)->doesntExist()) {
-
-
                 $this->delivery->packages()->attach($package);
 
                 $itemCodes = $package->items->pluck('codes')->flatten(1);
@@ -80,7 +78,6 @@ class ProcessFromCodeToDelivery
             }
 
             if ($this->code->codeable instanceof Item && $this->status) {
-
                 $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
                     'status' => $this->status,
                     'is_onboard' => Deliverable::isShouldOnBoard($this->status),
