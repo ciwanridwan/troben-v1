@@ -44,6 +44,7 @@ class ManifestController extends Controller
             'code',
             'partner',
             'packages',
+            'packages.code',
             'driver',
             'transporter',
         )));
