@@ -15,6 +15,9 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
+use App\Exceptions\Error;
+use App\Http\Response;
+use App\Models\Code;
 
 class OrderController extends Controller
 {
@@ -44,6 +47,27 @@ class OrderController extends Controller
      */
     public function show(Package $package): JsonResponse
     {
+        $this->authorize('view', $package);
+
+        return $this->jsonSuccess(PackageResource::make($package->load([
+            'items',
+            'estimator',
+            'packager',
+        ])));
+    }
+
+    /**
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function showByReceipt(Code $code): JsonResponse
+    {
+        if (!$code->codeable instanceof Package) {
+            throw_if(true, Error::make(Response::RC_INVALID_DATA));
+        }
+
+        $package = $code->codeable;
         $this->authorize('view', $package);
 
         return $this->jsonSuccess(PackageResource::make($package->load([
@@ -90,7 +114,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function packing(Package $package):JsonResponse
+    public function packing(Package $package): JsonResponse
     {
         event(new WarehouseIsStartPacking($package));
 

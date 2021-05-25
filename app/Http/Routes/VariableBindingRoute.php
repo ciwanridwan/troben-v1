@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes;
 
+use App\Models\Code;
 use App\Models\Packages\Item;
 use Jalameta\Router\BaseRoute;
 use App\Models\Packages\Package;
@@ -25,5 +26,6 @@ class VariableBindingRoute extends BaseRoute
         $this->router->bind('userable_hash', fn ($hash) => UserablePivot::byHashOrFail($hash));
         $this->router->bind('item_hash', fn ($hash) => Item::byHashOrFail($hash));
         $this->router->bind('partner_hash', fn ($hash) => Partner::byHashOrFail($hash));
+        $this->router->bind('code_content', fn ($code) => Code::where('content', $code)->firstOrFail());
     }
 }
