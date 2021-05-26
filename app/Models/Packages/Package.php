@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;
 use App\Models\Geo\Regency;
@@ -78,7 +79,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -151,6 +152,17 @@ class Package extends Model implements AttachableContract
         'destination_regency_id',
         'destination_district_id',
         'destination_sub_district_id',
+    ];
+
+    protected $search_columns = [
+        'sender_name',
+        'sender_phone',
+        'sender_address',
+        'receiver_name',
+        'receiver_phone',
+        'receiver_address',
+        'handling',
+        'created_at'
     ];
 
     /**

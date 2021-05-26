@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\Code\Scanned;
+use App\Concerns\Models\CanSearch;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -22,11 +23,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Code extends Model
 {
-    use HasFactory;
+    use HasFactory, CanSearch;
     public const TYPE_RECEIPT = 'RCP';
     public const TYPE_MANIFEST = 'MNF';
     public const TYPE_ITEM = 'ITM';
 
+    protected $search_columns = [
+        'content'
+    ];
 
     protected $fillable = [
         'content',
@@ -65,7 +69,7 @@ class Code extends Model
         }
 
         $pre .= Carbon::now()->format('dmy');
-        $last_order = $query->where('content', 'LIKE', $pre.'%')->orderBy('content', 'desc')->first();
+        $last_order = $query->where('content', 'LIKE', $pre . '%')->orderBy('content', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->content, strlen($pre)) : 0;
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
@@ -73,6 +77,6 @@ class Code extends Model
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
 
-        return  $pre.$inc_number;
+        return  $pre . $inc_number;
     }
 }

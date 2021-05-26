@@ -49,8 +49,9 @@ class HomeController extends Controller
 
     public function getSearch(Request $request)
     {
-        $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+        $this->query = $this->query->search($request->q);
+        $this->query->orWhereHas('code', function ($query) use ($request) {
+            $query->search($request->q);
         });
         return $this;
     }
@@ -59,6 +60,7 @@ class HomeController extends Controller
     {
         $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
         $this->query->orderBy('status');
+
         return $this;
     }
 
@@ -120,7 +122,7 @@ class HomeController extends Controller
     {
         $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
             $query->where('type', $request->transporter_type);
-        })->whereRaw("LOWER(name) LIKE '%".strtolower($request->q)."%'");
+        })->search($request->q);
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }

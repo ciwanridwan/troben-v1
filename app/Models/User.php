@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Models\CanSearch;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
@@ -43,7 +44,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable implements HasOtpToken
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes, HashableId;
+    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes, HashableId, CanSearch;
 
     /**
      * The attributes that are mass assignable.
@@ -58,6 +59,8 @@ class User extends Authenticatable implements HasOtpToken
         'phone',
         'remember_token',
     ];
+
+
 
     /**
      * The attributes that should be hidden for arrays.
@@ -146,7 +149,7 @@ class User extends Authenticatable implements HasOtpToken
      */
     public function hasRoles($roles): bool
     {
-        if (! $this->relationLoaded('partners')) {
+        if (!$this->relationLoaded('partners')) {
             $this->load('partners');
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
@@ -38,12 +39,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Partner extends Model
 {
+
     use SoftDeletes,
         HashableId,
         HasPhoneNumber,
         HasFactory,
         HashableId,
-        HasPartnerCode;
+        HasPartnerCode,
+        CanSearch;
 
     public const TYPE_BUSINESS = 'business'; // bisa order dari application.
     public const TYPE_POOL = 'pool';
@@ -60,6 +63,16 @@ class Partner extends Model
      * @var string
      */
     protected $table = 'partners';
+
+    protected $search_columns = [
+        'name',
+        'code',
+        'contact_email',
+        'contact_phone',
+        'address',
+        'type',
+        'created_at'
+    ];
 
     /**
      * The attributes that are mass assignable.
