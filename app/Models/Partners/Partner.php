@@ -39,7 +39,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Partner extends Model
 {
-
     use SoftDeletes,
         HashableId,
         HasPhoneNumber,

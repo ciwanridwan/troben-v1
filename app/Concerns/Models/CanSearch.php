@@ -2,24 +2,22 @@
 
 namespace App\Concerns\Models;
 
-use Facade\Ignition\DumpRecorder\Dump;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 trait CanSearch
 {
     use AttributeColumns;
-    protected $search_value = "";
+    protected $search_value = '';
 
 
 
-    public function scopeSearch(Builder $builder, $search_value = "", $search_columns = [])
+    public function scopeSearch(Builder $builder, $search_value = '', $search_columns = [])
     {
         $this->search_value = $search_value;
         if ($search_columns === []) {
-            if (!property_exists($this, 'search_columns')) {
+            if (! property_exists($this, 'search_columns')) {
                 $this->search_columns = $this->getTableSearchColumns();
             }
         } else {
@@ -29,9 +27,9 @@ trait CanSearch
         foreach ($this->search_columns as $key => $value) {
             // dd(Schema::getColumnType($this->getTable(), $value));
             if ($key != 0) {
-                $builder->orWhere($value, 'ilike', "%" . $this->search_value . "%");
+                $builder->orWhere($value, 'ilike', '%'.$this->search_value.'%');
             } else {
-                $builder->where($value, 'ilike', "%" . $this->search_value . "%");
+                $builder->where($value, 'ilike', '%'.$this->search_value.'%');
             }
         }
     }

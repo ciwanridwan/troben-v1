@@ -2,13 +2,8 @@
 
 namespace App\Concerns\Models;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
-
 trait AttributeColumns
 {
-
-
     public function getTableSearchColumns()
     {
         $columns = $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
