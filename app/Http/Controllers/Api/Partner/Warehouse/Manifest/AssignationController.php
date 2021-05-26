@@ -10,6 +10,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Code;
 
 class AssignationController extends Controller
 {
@@ -30,8 +31,10 @@ class AssignationController extends Controller
      */
     public function package(Request $request, Delivery $delivery): JsonResponse
     {
+
         $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
             'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
+            'role' => UserablePivot::ROLE_WAREHOUSE
         ]));
 
         $this->dispatchNow($job);

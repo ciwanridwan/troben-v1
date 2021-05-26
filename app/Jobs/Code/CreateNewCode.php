@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Code;
 
+use App\Events\Codes\CodeCreated;
 use App\Models\Code;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -14,7 +15,7 @@ class CreateNewCode
 
     protected $model;
 
-    protected Code $code;
+    public Code $code;
 
     protected array $attributes;
 
@@ -41,7 +42,7 @@ class CreateNewCode
                     'content' => Code::generateCodeContent($this->model),
                 ];
                 $this->code = $this->model->code()->create($this->attributes);
-
+                event(new CodeCreated($this->code));
                 return $this->code->exists;
 
             case $this->model instanceof Item:
@@ -51,7 +52,7 @@ class CreateNewCode
                     ];
                     $this->code = $this->model->codes()->create($this->attributes);
                 }
-
+                event(new CodeCreated($this->code));
                 return $this->code->exists;
         }
     }

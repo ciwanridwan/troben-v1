@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\Codes\CodeCreated;
+use App\Events\CodeScanned;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -19,6 +21,7 @@ use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Packages\PackageCanceledByAdmin;
+use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -82,6 +85,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         DeliverableItemCodeUpdate::class => [
             //
+        ],
+        CodeCreated::class => [
+            UpdateOrCreateScannedCode::class
+        ],
+        CodeScanned::class => [
+            UpdateOrCreateScannedCode::class
         ],
     ];
 
