@@ -2,30 +2,18 @@
 
 namespace Tests\Listeners;
 
-use App\Events\CodeScanned;
-use App\Events\Packages\PackageAttachedToDelivery;
-use App\Events\Packages\PackageCreated;
-use App\Jobs\Code\CreateNewCode;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Jobs\Deliveries\CreateNewDelivery;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
-use App\Supports\Repositories\PartnerRepository;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
-use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class UpdateOrCreateScannedCodeByEventTest extends TestCase

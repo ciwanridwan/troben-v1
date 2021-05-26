@@ -9,10 +9,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
 
 class UpdateOrCreateScannedCode
@@ -142,7 +139,7 @@ class UpdateOrCreateScannedCode
         $deliveryScans = collect($delivery->code->scanned)->toArray();
 
         $fieldScans = collect($deliveryScans[$role]->$codeType)->toArray();
-        if (!Arr::has($fieldScans, $code->content)) {
+        if (! Arr::has($fieldScans, $code->content)) {
             $fieldScans[$code->content] = [
                 'is_scanned' => true,
                 'scanned_at' => Carbon::now()
@@ -158,7 +155,7 @@ class UpdateOrCreateScannedCode
     {
         $fieldScans = collect($code->scanned)->toArray();
 
-        if (!array_search($delivery->code->content, $fieldScans[$role])) {
+        if (! array_search($delivery->code->content, $fieldScans[$role])) {
             $fieldScans[$role][] = $delivery->code->content;
             $code->scanned = json_encode($fieldScans);
             $code->save();

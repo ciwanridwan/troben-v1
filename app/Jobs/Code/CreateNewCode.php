@@ -13,9 +13,9 @@ class CreateNewCode
 {
     use Dispatchable;
 
-    protected $model;
-
     public Code $code;
+
+    protected $model;
 
     protected array $attributes;
 
