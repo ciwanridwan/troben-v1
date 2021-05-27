@@ -1,5 +1,35 @@
 <template>
   <trawl-table :columns="orderColumns" :dataSource="dataSource">
+    <template slot="id_order" slot-scope="{ record }">
+      <order-modal :record="record">
+        <span slot="trigger">
+          <span class="trawl-text-bolder trawl-text-underline trawl-click">{{
+            record.code.content
+          }}</span>
+        </span>
+      </order-modal>
+      <a-space direction="vertical" :size="1">
+        <span
+          >Total Charge Weight:
+          <span class="trawl-text-bolder">{{
+            getTotalWeightBorne(record.items)
+          }}</span>
+          Kg
+        </span>
+        <span
+          >Total per Kg:
+          <span class="trawl-text-bolder">{{
+            currency(getTierPrice(record.items))
+          }}</span>
+        </span>
+        <span
+          >Total Biaya:
+          <span class="trawl-text-bolder">{{
+            getSubTotalItems(record.items)
+          }}</span>
+        </span>
+      </a-space>
+    </template>
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
         <a-timeline-item color="green">
@@ -33,9 +63,14 @@
 <script>
 import trawlTable from "../trawl-table.vue";
 import orderColumns from "../../config/table/home/trawl-order";
-import OrderStatus from "../order-status.vue";
-import OrderAction from "../order-action.vue";
-
+import OrderStatus from "../../components/order-status.vue";
+import OrderAction from "../../components/order-action.vue";
+import OrderModal from "../../components/orders/order-modal";
+import {
+  getTotalWeightBorne,
+  getTierPrice,
+  getSubTotalItems
+} from "../../functions/orders";
 export default {
   data() {
     return {
@@ -48,6 +83,11 @@ export default {
       return [];
     }
   },
-  components: { trawlTable, OrderAction, OrderStatus }
+  methods: {
+    getTotalWeightBorne,
+    getTierPrice,
+    getSubTotalItems
+  },
+  components: { trawlTable, OrderAction, OrderStatus, OrderModal }
 };
 </script>
