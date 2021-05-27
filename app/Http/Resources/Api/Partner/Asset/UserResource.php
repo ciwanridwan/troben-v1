@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Partner\Asset;
 
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -52,6 +53,9 @@ class UserResource extends JsonResource
                 }
             }
             $data['role'][] = $user->getOriginal('pivot_role');
+            if ($user->getOriginal('pivot_role') === UserablePivot::ROLE_DRIVER) {
+                $data['transporters'] = $user->transporters;
+            }
         }
 
         return $data;
