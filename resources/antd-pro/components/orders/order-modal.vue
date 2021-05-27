@@ -74,7 +74,11 @@
           </template>
           <template slot="content">
             <a-row type="flex" :gutter="[12, 12]">
-              <a-col v-for="item in record.items" :key="item.hash" :span="12">
+              <a-col
+                v-for="(item, index) in record.items"
+                :key="item.hash + '-' + index"
+                :span="12"
+              >
                 <order-item-card :record="record" :item="item" />
               </a-col>
             </a-row>
@@ -88,7 +92,7 @@
           <template slot="content">
             <a-row type="flex">
               <a-col :span="12">
-                <order-delivery-estimation :items="record.items" />
+                <order-delivery-estimation :record="record" />
               </a-col>
             </a-row>
           </template>

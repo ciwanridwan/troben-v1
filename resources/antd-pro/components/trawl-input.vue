@@ -19,11 +19,6 @@ export default {
     hasLabel() {
       return !!this.$slots.label;
     }
-  },
-  watch: {
-    value: value => {
-      console.log(value);
-    }
   }
 };
 </script>

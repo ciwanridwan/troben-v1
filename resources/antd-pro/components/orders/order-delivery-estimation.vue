@@ -10,9 +10,9 @@
           <a-col :span="18">
             <h4>
               <b>
-                BOGOR
+                {{ record.origin_regency.name }}
                 <a-icon type="arrow-right" />
-                YOGYAKARTA
+                {{ record.destination_regency.name }}
               </b>
             </h4>
             <h5>Harga perkilo yaitu Rp. {{ tierPrice }}/kg</h5>
@@ -67,7 +67,7 @@
             {{ currency(getInsurancePrice(item)) }}
           </a-col>
         </a-row>
-        <a-divider :key="index"></a-divider>
+        <a-divider :key="index + '-divider'"></a-divider>
       </template>
 
       <!-- sub total biaya -->
@@ -96,9 +96,9 @@ import {
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
-    items: {
-      type: Array,
-      default: []
+    record: {
+      type: Object,
+      default: () => {}
     },
     leftColumn: {
       type: Number,
@@ -108,6 +108,11 @@ export default {
       type: Number,
       default: 8
     }
+  },
+  data() {
+    return {
+      items: []
+    };
   },
   computed: {
     tierPrice() {
@@ -123,6 +128,9 @@ export default {
     getServicePrice,
     getTierPrice,
     getSubTotalItems
+  },
+  mounted() {
+    this.items = this.record.items;
   }
 };
 </script>
