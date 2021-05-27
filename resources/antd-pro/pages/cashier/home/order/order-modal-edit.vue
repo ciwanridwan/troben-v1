@@ -222,7 +222,7 @@ export default {
         handlings.push(item.type);
       });
       this.form.packaging = handlings.length > 0;
-      this.form.packaging_type = handlings.join(",");
+      this.form.packaging_type = handlings;
     },
     show() {
       this.getHandlings();
