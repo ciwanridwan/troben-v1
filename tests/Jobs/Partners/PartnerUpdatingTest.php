@@ -38,7 +38,7 @@ class PartnerUpdatingTest extends TestCase
             'name' => 'PT Tambak',
             'code' => 'MB-TBK-0001',
             'contact_email' => 'tambak@email.com',
-            'contact_phone' => '87287281109',
+            'contact_phone' => '087287281109',
             'address' => 'jalan tambak',
             'geo_location' => null,
             'type' => Partner::TYPE_BUSINESS,
@@ -73,13 +73,14 @@ class PartnerUpdatingTest extends TestCase
     public function test_on_invalid_data()
     {
         $this->withoutExceptionHandling();
-        $invalid_field_name = 'email';
+        $invalid_field_name = 'contact_email';
 
         $data = $this->data;
         $data[$invalid_field_name] = 'email';
 
         try {
-            $response = $this->dispatch(new UpdateExistingPartner($this->partner, $data));
+            $job = new UpdateExistingPartner($this->partner, $data);
+            $response = $this->dispatch($job);
             $this->assertTrue($response);
             $this->assertDatabaseHas('partners', $this->data);
         } catch (\Exception $e) {

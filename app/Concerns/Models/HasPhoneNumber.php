@@ -36,6 +36,9 @@ trait HasPhoneNumber
 
         $util = PhoneNumberUtil::getInstance();
         $value = $value ?: $this->{$this->getPhoneNumberColumn()};
+        if (empty($value)) {
+            return;
+        }
 
         $this->attributes[$this->getPhoneNumberColumn()] = $util->format($util->parse($value, 'ID'), PhoneNumberFormat::E164);
     }
