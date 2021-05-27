@@ -16,7 +16,12 @@ trait HasPhoneNumber
         /**
          * @var self|\Illuminate\Database\Eloquent\Model $model
          */
-        self::saving(fn (Model $model) => $model->assignPhoneAttribute());
+        self::creating(function (Model $model) {
+            $model->assignPhoneAttribute();
+        });
+        self::saving(function (Model $model) {
+            $model->assignPhoneAttribute();
+        });
     }
 
     /**
@@ -28,9 +33,6 @@ trait HasPhoneNumber
      */
     public function assignPhoneAttribute($value = null): void
     {
-        if (empty($value)) {
-            return;
-        }
 
         $util = PhoneNumberUtil::getInstance();
         $value = $value ?: $this->{$this->getPhoneNumberColumn()};

@@ -20,6 +20,7 @@ class TransporterResource extends JsonResource
                 'hash' => $transporter->hash,
                 'name' => $transporter->name,
                 'registration_number' => $transporter->registration_number,
+                'is_verified' => $transporter->is_verified,
                 'verified_at' => $transporter->verified_at,
                 'type' => $transporter->type,
             ];
