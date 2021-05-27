@@ -93,6 +93,7 @@ export default {
   methods: {
     async updateOrderItem() {
       let form = this.$refs.editForm.form;
+      form.handling = form.packaging_type;
       const response = await this.$http.patch(
         this.routeUri("partner.cashier.home.updatePackageItem", {
           item_hash: this.item.hash,

@@ -122,7 +122,7 @@
               ref="packaging_type"
               prop="packaging_type"
             >
-              <a-checkbox-group>
+              <a-checkbox-group v-model="form.packaging_type">
                 <a-row type="flex">
                   <a-col :span="12">
                     <a-checkbox value="wood">
@@ -203,6 +203,11 @@ export default {
       }
     };
   },
+  watch: {
+    "form.packaging_type": value => {
+      console.log(value);
+    }
+  },
   methods: {
     onOk() {
       this.updateOrderItem();
@@ -211,8 +216,20 @@ export default {
     onCancel() {
       this.visible = false;
     },
+    getHandlings() {
+      let handlings = [];
+      this.item.handling.forEach(item => {
+        handlings.push(item.type);
+      });
+      this.form.packaging = handlings.length > 0;
+      this.form.packaging_type = handlings.join(",");
+    },
     show() {
-      this.form = { ...this.form, ...this.item };
+      this.getHandlings();
+      this.form = {
+        ...this.form,
+        ...this.item
+      };
       this.visible = true;
     }
   }

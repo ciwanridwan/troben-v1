@@ -41,6 +41,7 @@ class Handling implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
+
         $data = collect($value)->map(fn (string $type) => [
             'type' => $type,
             'price' => ceil(self::calculator($type, $model->height, $model->length, $model->width, $model->weight)),

@@ -27,7 +27,7 @@
         :enable-download="true"
         :preview-modal="false"
         :manual-pagination="true"
-        :filename="`${record.barcode} - ${item.barcode}`"
+        :filename="`${record.code.content} - ${item.codes[0].content}`"
         pdf-format="a5"
         pdf-orientation="portrait"
         ref="html2Pdf"
@@ -78,8 +78,10 @@
                 </a-space>
               </a-col>
               <a-col :span="12" class="trawl-text-center">
-                <vue-qrcode :value="record.barcode" />
-                <h3 class="trawl-text-normal">No Resi: {{ record.barcode }}</h3>
+                <vue-qrcode :value="record.code.content" />
+                <h3 class="trawl-text-normal">
+                  No Resi: {{ record.code.content }}
+                </h3>
               </a-col>
             </a-row>
 
@@ -108,9 +110,9 @@
                   <!-- <h3 class="trawl-text-normal">Kode pos : 40256</h3> -->
 
                   <a-space direction="vertical" class="trawl-text-center">
-                    <vue-qrcode :value="item.barcode"></vue-qrcode>
+                    <vue-qrcode :value="item.codes[0].content"></vue-qrcode>
                     <h3 class="trawl-text-normal">
-                      No Barang: {{ item.barcode }}
+                      No Barang: {{ item.codes[0].content }}
                     </h3>
                   </a-space>
                 </a-space>

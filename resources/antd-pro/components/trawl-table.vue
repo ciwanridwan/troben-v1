@@ -1,11 +1,12 @@
 <template>
   <a-space direction="vertical" size="large" class="trawl-table-component">
     <a-card class="trawl-table-component-header--container">
-      <a-row type="flex" justify="space-between" class="trawl-text-center">
+      <a-row type="flex" justify="space-between">
         <a-col
           v-for="(column, index) in columns"
           :key="index"
           :span="column.colspan ? column.colspan : defaultColumnSize"
+          :class="[column.classes ? column.classes : 'trawl-text-center']"
         >
           <span class="trawl-table-component-header--title">{{
             column.title

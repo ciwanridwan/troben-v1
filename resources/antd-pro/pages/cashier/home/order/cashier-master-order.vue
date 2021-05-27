@@ -1,12 +1,12 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
-      <a-table
+      <trawl-table
         :columns="orderColumns"
         :defaultExpandAllRows="true"
         :data-source="items.data"
       >
-        <span slot="expandedRowRender" slot-scope="record">
+        <span slot="expandedRowRender" slot-scope="{ record }">
           <a-row type="flex" justify="space-between" ref="expand">
             <a-col :span="8">
               <order-status :record="record"></order-status>
@@ -25,7 +25,7 @@
             </a-col>
           </a-row>
         </span>
-      </a-table>
+      </trawl-table>
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -38,10 +38,11 @@ import orderColumns from "../../../../config/table/cashier/order";
 import contentLayout from "../../../../layouts/content-layout.vue";
 import OrderModal from "./order-modal.vue";
 import TrawlStatusWarning from "../../../../components/status/trawl-status-warning.vue";
-import OrderStatus from "./order-status.vue";
 import OrderModalResi from "./order-modal-resi.vue";
 import { CalendarIcon } from "../../../../components/icons";
 import TrawlNotification from "../../../../components/trawl-notification";
+import TrawlTable from "../../../../components/trawl-table.vue";
+import OrderStatus from "../../../../components/order-status.vue";
 
 export default {
   components: {
@@ -51,7 +52,9 @@ export default {
     OrderStatus,
     OrderModalResi,
     CalendarIcon,
-    TrawlNotification
+    TrawlNotification,
+    TrawlTable,
+    OrderStatus
   },
   methods: {
     onSuccessResponse(resp) {
