@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use phpDocumentor\Reflection\Types\This;
 
 /**
  * Package Item model.
@@ -96,8 +97,9 @@ class Item extends Model
 
     protected $appends = [
         'hash',
+        'weight_volume',
         'weight_borne',
-        // 'tier_price'
+        'tier_price'
     ];
 
     /**
@@ -135,14 +137,19 @@ class Item extends Model
 
         return $weight > $volume ? $weight : $volume;
     }
-    // public function getTierPriceAttribute()
-    // {
-    //     $origin_province_id = $this->package->origin_regency->province_id;
-    //     $origin_regency_id = $this->package->origin_regency_id;
-    //     $destination_id = $this->package->destination_district_id;
+    public function getWeightVolumeAttribute()
+    {
+        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
+        return $volume;
+    }
+    public function getTierPriceAttribute()
+    {
+        $origin_province_id = $this->package->origin_regency->province_id;
+        $origin_regency_id = $this->package->origin_regency_id;
+        $destination_id = $this->package->destination_sub_district_id;
 
-    //     $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
-    //     $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
-    //     return $tierPrice;
-    // }
+        $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
+        $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
+        return $tierPrice;
+    }
 }

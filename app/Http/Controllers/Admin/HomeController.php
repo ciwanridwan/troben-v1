@@ -58,7 +58,7 @@ class HomeController extends Controller
 
     public function dataRelation()
     {
-        $this->query->with(['items', 'deliveries', 'deliveries.partner', 'code']);
+        $this->query->with(['items', 'items.prices', 'prices', 'deliveries', 'deliveries.partner', 'code']);
         $this->query->orderBy('status');
 
         return $this;
@@ -66,6 +66,7 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
+
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
                 return $this->getPartners($request);
@@ -76,6 +77,7 @@ class HomeController extends Controller
             // dont show canceled order
             $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->dataRelation($request);
+
 
             // $this->query->whereDoesntHave('deliveries');
 
