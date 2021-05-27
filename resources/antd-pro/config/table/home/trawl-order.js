@@ -9,9 +9,9 @@ export default [
   },
   {
     title: "ID Order",
-    dataIndex: "code.content",
-    colspan: 5,
-    classes: ["trawl-text-center"]
+    scopedSlots: { customRender: "id_order" },
+    colspan: 6,
+    classes: ["trawl-text-left"]
   },
   {
     title: "Mitra Penerima",
@@ -41,7 +41,7 @@ export default [
   {
     title: "Tanggal Order",
     dataIndex: "created_at",
-    colspan: 5,
+    colspan: 4,
     classes: ["trawl-text-center"],
     customRender(text, row, index) {
       console.log(text);

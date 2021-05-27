@@ -33,10 +33,10 @@ class PackagesTableSeeder extends Seeder
                 ->count(self::$CUSTOMER_PACKAGES)
                 ->state($this->stateResolver($customer))
                 ->create()
-                ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->create())
+                ->each(fn (Package $package) => Item::factory()->state(['package_id' => $package->id])->count(random_int(1, 5))->create())
                 ->each(fn (Package $package) => event(new PackageCreated($package)))
         )
-            ->each(fn (Customer $customer) => $this->command->warn('=> '.self::$CUSTOMER_PACKAGES.' order created for customer : '.$customer->name));
+            ->each(fn (Customer $customer) => $this->command->warn('=> ' . self::$CUSTOMER_PACKAGES . ' order created for customer : ' . $customer->name));
     }
 
     protected function stateResolver(Customer $customer): array

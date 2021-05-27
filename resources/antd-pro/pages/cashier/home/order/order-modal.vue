@@ -165,7 +165,7 @@ import {
   ReceiveIcon
 } from "../../../../components/icons";
 import DeliveryIcon from "../../../../components/icons/deliveryIcon.vue";
-import OrderDeliveryEstimation from "../../../../components/order-delivery-estimation.vue";
+import OrderDeliveryEstimation from "../../../../components/orders/order-delivery-estimation.vue";
 import AddressComponent from "../../../../components/orders/address-component.vue";
 import OrderEstimation from "../../../../components/orders/order-estimation.vue";
 import OrderDivider from "./order-divider.vue";
