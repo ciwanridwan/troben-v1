@@ -66,7 +66,6 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->expectsJson()) {
             if ($request->has('partner')) {
                 return $this->getPartners($request);
