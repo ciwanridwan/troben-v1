@@ -36,6 +36,11 @@ class AssetController extends Controller
     protected Partner $partner;
 
     /**
+     * @var User
+     */
+    protected User $employee;
+
+    /**
      * Filtered attributes.
      *
      * @var array
@@ -144,7 +149,8 @@ class AssetController extends Controller
 
     public function getEmployee(): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
+        // return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
+        return (new Response(Response::RC_SUCCESS, $this->employee))->json();
     }
 
     public function getTransporter(): JsonResponse
@@ -157,6 +163,7 @@ class AssetController extends Controller
         $user = User::byHashOrFail($hash);
         $job = new DeleteExistingUser($user);
         $this->dispatch($job);
+        $this->employee = $job->user;
 
         return $this->getEmployee();
     }
@@ -183,7 +190,7 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
 
         foreach ($request->role as $role) {
             $pivot = new UserablePivot();
@@ -194,6 +201,7 @@ class AssetController extends Controller
                 'role' => $role,
             ])->save();
         }
+        $this->employee = $job->user;
     }
 
     /**
@@ -210,7 +218,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
