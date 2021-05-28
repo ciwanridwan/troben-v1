@@ -61,8 +61,8 @@ class AssetController extends Controller
         $this->partner = $request->user()->partners->first()->fresh();
 
         return $this->attributes['type'] === 'transporter'
-                ? $this->getTransporter()
-                : $this->getEmployee();
+            ? $this->getTransporter()
+            : $this->getEmployee();
     }
 
     /**
@@ -84,8 +84,8 @@ class AssetController extends Controller
         $type === 'transporter' ? $this->createTransporter($request) : $this->createEmployee($request);
 
         return $type === 'transporter'
-                ? $this->getTransporter()
-                : $this->getEmployee();
+            ? $this->getTransporter()
+            : $this->getEmployee();
     }
 
     /**
@@ -183,7 +183,7 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
 
         foreach ($request->role as $role) {
             $pivot = new UserablePivot();
@@ -210,7 +210,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
@@ -232,8 +232,12 @@ class AssetController extends Controller
                 ->where('user_id', $job->user->id)
                 ->delete();
         }
+        $user = $job->user;
+        if ($user->type == UserablePivot::ROLE_DRIVER) {
+            $user->load('transporters');
+        }
 
-        return $this->getEmployee();
+        return (new Response(Response::RC_SUCCESS, $user))->json();
     }
 
     protected function updateTransporter(Request $request, $hash): JsonResponse
