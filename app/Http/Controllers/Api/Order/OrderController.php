@@ -50,10 +50,10 @@ class OrderController extends Controller
         return $this->jsonSuccess(new PackageResource($package->load(
             'attachments',
             'items',
+            'items.prices',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
-            'prices',
             'origin_regency',
             'destination_regency',
             'destination_district',
@@ -76,7 +76,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -114,7 +114,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
