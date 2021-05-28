@@ -67,7 +67,7 @@ class AssetController extends Controller
 
         return $this->attributes['type'] === 'transporter'
             ? $this->getTransporter()
-            : $this->getEmployee();
+            : $this->getEmployees();
     }
 
     /**
@@ -146,10 +146,12 @@ class AssetController extends Controller
 
         return $this->jsonSuccess();
     }
-
+    public function getEmployees(): JsonResponse
+    {
+        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
+    }
     public function getEmployee(): JsonResponse
     {
-        // return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
         return (new Response(Response::RC_SUCCESS, $this->employee))->json();
     }
 
