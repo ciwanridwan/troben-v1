@@ -192,7 +192,7 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
         foreach ($request->role as $role) {
             $pivot = new UserablePivot();
@@ -220,7 +220,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
