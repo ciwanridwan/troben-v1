@@ -14,6 +14,7 @@ use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
+use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
@@ -53,6 +54,20 @@ class EventServiceProvider extends ServiceProvider
             //
         ],
         DeliveryPickup\DriverUnloadedPackageInWarehouse::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+        ],
+        DeliveryTransit\DriverArrivedAtPickupPoint::class => [
+            //
+        ],
+        DeliveryTransit\PackageLoadedByDriver::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+        ],
+        DeliveryTransit\DriverArrivedAtWarehouse::class => [
+            //
+        ],
+        DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
         ],

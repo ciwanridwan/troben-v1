@@ -1,7 +1,7 @@
 <?php
 
 /**
-         * Router configuration.
+ * Router configuration.
  *
  * @author      veelasky <veelasky@gmail.com>
  */
@@ -57,6 +57,7 @@ return [
         App\Http\Routes\Api\Partner\Owner\OrderRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\Order\ItemRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\ManifestRoute::class,
+        App\Http\Routes\Api\Partner\Driver\Order\TransitRoute::class,
         /** @inject api **/
     ],
     'admin' => [
