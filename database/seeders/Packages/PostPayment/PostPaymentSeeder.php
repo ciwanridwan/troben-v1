@@ -2,6 +2,8 @@
 
 namespace Database\Seeders\Packages\PostPayment;
 
+use App\Events\Packages\PackageApprovedByCustomer;
+use App\Events\Packages\PackageCheckedByCashier;
 use App\Models\Attachment;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -11,6 +13,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Event;
 use App\Events\Packages\PackageCreated;
+use App\Events\Packages\PackagePaymentVerified;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\AttachmentsTableSeeder;
@@ -26,6 +29,11 @@ class PostPaymentSeeder extends PackagesTableSeeder
         Event::listen(PackageCreated::class, fn (PackageCreated $event) => $packages->push($event->package));
 
         parent::run();
+        $packages->each(function ($package) {
+            event(new PackageCheckedByCashier($package));
+            event(new PackageApprovedByCustomer($package));
+            event(new PackagePaymentVerified($package));
+        });
 
         $partnerQuery = Partner::query()->where('type', Partner::TYPE_BUSINESS);
 
@@ -62,13 +70,13 @@ class PostPaymentSeeder extends PackagesTableSeeder
         });
     }
 
-    protected function stateResolver(Customer $customer): array
-    {
-        return array_merge(parent::stateResolver($customer), [
-            'status' => Package::STATUS_WAITING_FOR_PACKING,
-            'payment_status' => Package::PAYMENT_STATUS_PAID,
-        ]);
-    }
+    // protected function stateResolver(Customer $customer): array
+    // {
+    //     return array_merge(parent::stateResolver($customer), [
+    //         'status' => Package::STATUS_WAITING_FOR_PACKING,
+    //         'payment_status' => Package::PAYMENT_STATUS_PAID,
+    //     ]);
+    // }
 
     protected function checkOrSeedDependenciesData(): void
     {
