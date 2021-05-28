@@ -24,9 +24,9 @@
         </span>
         <span
           >Total Biaya:
-          <span class="trawl-text-bolder">{{
-            getSubTotalItems(record.items)
-          }}</span>
+          <span class="trawl-text-bolder">
+            {{ currency(getSubTotalItems(record.items)) }}</span
+          >
         </span>
       </a-space>
     </template>

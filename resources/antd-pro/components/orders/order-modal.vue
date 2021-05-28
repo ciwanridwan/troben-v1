@@ -139,7 +139,7 @@
                   </a-col>
                   <a-col :span="12">
                     <span class="trawl-text-bolder">
-                      Rp. {{ currency(getSubTotalItems(record.items)) }}
+                      {{ currency(getSubTotalItems(record.items)) }}
                     </span>
                   </a-col>
                 </a-row>
