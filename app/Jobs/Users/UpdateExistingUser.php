@@ -41,7 +41,7 @@ class UpdateExistingUser
     {
         $this->user = $user;
 
-        !Arr::has($inputs, 'phone') ?: $inputs['phone'] =
+        ! Arr::has($inputs, 'phone') ?: $inputs['phone'] =
             PhoneNumberUtil::getInstance()->format(
                 PhoneNumberUtil::getInstance()->parse($inputs['phone'], 'ID'),
                 PhoneNumberFormat::E164
