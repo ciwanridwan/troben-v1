@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Users\UserModificationFailed;
+use Illuminate\Support\Arr;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
@@ -40,7 +41,7 @@ class UpdateExistingUser
     {
         $this->user = $user;
 
-        $inputs['phone'] =
+        !Arr::has($inputs, 'phone') ?: $inputs['phone'] =
             PhoneNumberUtil::getInstance()->format(
                 PhoneNumberUtil::getInstance()->parse($inputs['phone'], 'ID'),
                 PhoneNumberFormat::E164
