@@ -15,7 +15,18 @@ class ManifestController extends Controller
 {
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $partner = $repository->getPartner();
         $query = $repository->queries()->getDeliveriesQuery();
+        $request->whenHas('arrival', function (bool $value) use ($query, $partner) {
+            if ($value) {
+                $query->where('partner_id', $partner->id);
+            }
+        });
+        $request->whenHas('departure', function (bool $value) use ($query, $partner) {
+            if ($value) {
+                $query->where('origin_partner_id', $partner->id);
+            }
+        });
 
         $query->with('partner', 'packages');
 
