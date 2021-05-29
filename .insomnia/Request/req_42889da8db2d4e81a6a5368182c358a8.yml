@@ -1,14 +1,24 @@
 _id: req_42889da8db2d4e81a6a5368182c358a8
 type: Request
 parentId: fld_010c167b657a40f1a9c1e130daeab0a2
-modified: 1618236303948
+modified: 1622257839103
 created: 1618236005327
 url: "{{ _.base_url }}/partner/warehouse/manifest"
 name: List Manifest
 description: ""
 method: GET
 body: {}
-parameters: []
+parameters:
+  - name: arrival
+    value: "true"
+    description: ""
+    id: pair_9289819fa90840a8b6ad1013b02e5b3c
+    disabled: true
+  - name: departure
+    value: "false"
+    description: ""
+    id: pair_626ce990a9c243fdbd97f847555dbe87
+    disabled: true
 headers:
   - name: Accept
     value: application/json
