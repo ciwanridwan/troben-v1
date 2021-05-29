@@ -7,9 +7,7 @@
           :item="item"
           :updateOrderItem="updateOrderItem"
         ></order-modal-edit>
-        <delete-button
-          @click="deleteOrderItem(item.hash, record.hash)"
-        ></delete-button>
+        <delete-button @click="deleteOrderItem()"></delete-button>
       </a-space>
     </template>
     <template slot="title">
@@ -59,7 +57,7 @@
         Total Charge Weight
       </a-col>
       <a-col :span="8">
-        <b>{{ totalChargeWeight }} Kg</b>
+        <b>{{ item.weight_borne_total }} Kg</b>
       </a-col>
 
       <!-- harga barang -->
@@ -85,11 +83,8 @@ import orderModalEdit from "./order-modal-edit.vue";
 import { getInsurancePrice } from "../../functions/orders";
 export default {
   components: { orderModalEdit },
-  props: ["item_hash", "record", "deleteOrderItem"],
+  props: ["item_hash", "record"],
   computed: {
-    totalChargeWeight() {
-      return this.item.weight_borne * this.item.qty;
-    },
     item() {
       return this.record.items.find(o => o.hash == this.item_hash);
     }
@@ -111,6 +106,24 @@ export default {
         o => o.hash == this.item_hash
       );
       this.$set(this.record.items, item_index, { ...data });
+    },
+    async deleteOrderItem() {
+      let form = this.$refs.editForm.form;
+      form.handling = form.packaging_type;
+      await this.$http
+        .delete(
+          this.routeUri("partner.cashier.home.deletePackageItem", {
+            item_hash: this.item.hash,
+            package_hash: this.record.hash
+          })
+        )
+        .then(() => {
+          let item_index = this.record.items.findIndex(
+            o => o.hash == this.item_hash
+          );
+          this.record.items.splice(item_index, 1);
+          this.$set(this.record.items, this.record.items);
+        });
     }
   }
 };

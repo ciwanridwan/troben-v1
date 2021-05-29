@@ -44,7 +44,8 @@
             <span>Pengirim</span>
             <span class="trawl-text-bolder">{{ record.sender_name }}</span>
             <span>{{ record.sender_phone }}</span>
-            <p>{{ record.sender_address }}</p>
+            <p class="trawl-text-normal">{{ getOriginAddress(record) }}</p>
+            <p class="trawl-text-normal">{{ record.sender_address }}</p>
           </a-space>
         </template>
       </order-modal-row-layout>
@@ -58,6 +59,7 @@
             <span>Penerima</span>
             <span class="trawl-text-bolder">{{ record.receiver_name }}</span>
             <span>{{ record.receiver_phone }}</span>
+            <p class="trawl-text-normal">{{ getDestinationAddress(record) }}</p>
             <p>{{ record.receiver_address }}</p>
             <order-estimation />
           </a-space>
@@ -163,7 +165,12 @@ import {
 import OrderEstimation from "./order-estimation.vue";
 import OrderItemCard from "./order-item-card.vue";
 import OrderDeliveryEstimation from "./order-delivery-estimation.vue";
-import { getTotalWeightBorne, getSubTotalItems } from "../../functions/orders";
+import {
+  getTotalWeightBorne,
+  getSubTotalItems,
+  getOriginAddress,
+  getDestinationAddress
+} from "../../functions/orders";
 export default {
   components: {
     orderModalRowLayout,
@@ -185,6 +192,8 @@ export default {
   methods: {
     getTotalWeightBorne,
     getSubTotalItems,
+    getOriginAddress,
+    getDestinationAddress,
     hasSlot(slotName) {
       return !!this.$slots[slotName];
     },

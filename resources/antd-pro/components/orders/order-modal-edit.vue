@@ -187,6 +187,13 @@ export default {
       handlings
     };
   },
+  watch: {
+    "form.packaging": function(value) {
+      if (!value) {
+        this.form.packaging_type = [];
+      }
+    }
+  },
   methods: {
     onOk() {
       this.updateOrderItem();
