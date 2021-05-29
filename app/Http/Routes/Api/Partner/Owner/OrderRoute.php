@@ -4,6 +4,7 @@ namespace App\Http\Routes\Api\Partner\Owner;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Owner\OrderController;
+use App\Http\Controllers\Api\Partner\Warehouse\OrderController as WarehouseOrderController;
 
 class OrderRoute extends BaseRoute
 {
@@ -26,6 +27,10 @@ class OrderRoute extends BaseRoute
         $this->router->get($this->prefix, [
             'as' => $this->name,
             'uses' => $this->uses('index'),
+        ]);
+        $this->router->get($this->prefix('code/{code_content}'), [
+            'as' => $this->name('showByReceipt'),
+            'uses' => $this->uses('showByReceipt', WarehouseOrderController::class),
         ]);
     }
 
