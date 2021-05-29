@@ -10,6 +10,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Users\UserModificationFailed;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class UpdateExistingUser
 {
@@ -37,12 +39,18 @@ class UpdateExistingUser
     public function __construct(User $user, $inputs = [])
     {
         $this->user = $user;
+
+        $inputs['phone'] =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($inputs['phone'], 'ID'),
+                PhoneNumberFormat::E164
+            );
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
             'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL", 'regex:/^\S*$/u'],
             'email' => ['filled', "unique:users,email,$user->id,id,deleted_at,NULL"],
             'phone' => ['filled', "unique:users,phone,$user->id,id,deleted_at,NULL", 'numeric', 'phone:AUTO,ID'],
-            'password' => ['filled','confirmed'],
+            'password' => ['filled', 'confirmed'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'verified_at' => ['nullable'],
