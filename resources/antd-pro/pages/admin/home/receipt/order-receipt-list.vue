@@ -113,7 +113,6 @@ export default {
     },
     searchById(value) {
       this.filter.q = value;
-      console.log(value);
       this.getItems();
     }
   },

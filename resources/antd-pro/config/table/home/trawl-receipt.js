@@ -36,7 +36,6 @@ export default [
     colspan: 5,
     classes: ["trawl-text-center"],
     customRender(text, row, index) {
-      console.log(text);
       return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
     }
   }

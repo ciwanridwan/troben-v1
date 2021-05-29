@@ -98,9 +98,7 @@ export default {
       return Math.floor(spanLeft / this.columns.length);
     }
   },
-  mounted() {
-    console.log(this.hasScopedSlot("address"), "checked");
-  },
+  mounted() {},
   methods: {
     hasSlot(slotName) {
       return !!this.$slots[slotName];

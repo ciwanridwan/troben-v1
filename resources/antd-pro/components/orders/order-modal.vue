@@ -79,7 +79,7 @@
                 :key="item.hash + '-' + index"
                 :span="12"
               >
-                <order-item-card :record="record" :item="item" />
+                <order-item-card :record.sync="record" :item_hash="item.hash" />
               </a-col>
             </a-row>
           </template>

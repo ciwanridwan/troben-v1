@@ -284,9 +284,7 @@ export default {
       }
     },
     getGeoItems() {
-      this.$http.get(this.routeUri("api.geo")).then(resp => {
-        console.log(resp);
-      });
+      this.$http.get(this.routeUri("api.geo")).then(resp => {});
     },
     fillForm() {
       let destination = _.find(

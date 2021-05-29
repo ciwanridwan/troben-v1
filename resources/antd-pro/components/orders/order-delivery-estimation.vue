@@ -57,9 +57,18 @@
             {{ currency(getServicePrice(item)) }}
           </a-col>
 
-          <a-col :span="leftColumn"> Biaya Packing x {{ item.qty }} </a-col>
-          <a-col :span="rightColumn" class="trawl-text-right">
-            {{ currency(getHandlingPrice(item)) }}
+          <a-col :span="24">
+            <template v-for="(handling, index) in item.handling">
+              <a-row :key="index" type="flex">
+                <a-col :span="leftColumn">
+                  Biaya Packing {{ handlings[handling.type] }} x
+                  {{ item.qty }}
+                </a-col>
+                <a-col :span="rightColumn" class="trawl-text-right">
+                  {{ currency(handling.price) }}
+                </a-col>
+              </a-row>
+            </template>
           </a-col>
 
           <a-col :span="leftColumn"> Asuransi x {{ item.qty }} </a-col>
@@ -86,12 +95,14 @@
 import informationIcon from "../icons/informationIcon.vue";
 import deliveryIcon from "../icons/deliveryIcon";
 import OrderEstimation from "./order-estimation.vue";
+import { handlings } from "../../data/handlings";
 import {
   getHandlingPrice,
   getInsurancePrice,
   getServicePrice,
   getTierPrice,
-  getSubTotalItems
+  getSubTotalItems,
+  getHandlings
 } from "../../functions/orders";
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
@@ -111,10 +122,13 @@ export default {
   },
   data() {
     return {
-      items: []
+      handlings
     };
   },
   computed: {
+    items() {
+      return this.record?.items;
+    },
     tierPrice() {
       return this.getTierPrice(this.items);
     },
@@ -127,10 +141,8 @@ export default {
     getInsurancePrice,
     getServicePrice,
     getTierPrice,
-    getSubTotalItems
-  },
-  mounted() {
-    this.items = this.record.items;
+    getSubTotalItems,
+    getHandlings
   }
 };
 </script>

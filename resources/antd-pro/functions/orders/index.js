@@ -16,6 +16,9 @@ const getHandlingPrice = item => {
   });
   return price;
 };
+const getHandlings = item => {
+  return item?.handling?.filter(o => o.type.toLowerCase() === "handling");
+};
 const getTierPrice = items => {
   return items ? items[0]?.tier_price : null;
 };
@@ -46,5 +49,6 @@ export {
   getServicePrice,
   getTierPrice,
   getTotalWeightBorne,
-  getSubTotalItems
+  getSubTotalItems,
+  getHandlings
 };

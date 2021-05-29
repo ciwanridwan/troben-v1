@@ -2,6 +2,9 @@
   <div>
     <edit-button @click="show"></edit-button>
     <a-modal v-model="visible" centered @ok="onOk">
+      <template slot="closeIcon"
+        ><a-icon type="close" @click="onCancel"></a-icon
+      ></template>
       <template slot="title">
         <h3><b>Edit Barang</b></h3>
       </template>
@@ -124,34 +127,13 @@
             >
               <a-checkbox-group v-model="form.packaging_type">
                 <a-row type="flex">
-                  <a-col :span="12">
-                    <a-checkbox value="wood">
-                      Kayu
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="box">
-                      Kardus
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="plastic">
-                      Plastik
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="pallate">
-                      Pallate
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="bubble_wrap">
-                      Bubble Wrap
-                    </a-checkbox>
-                  </a-col>
-                  <a-col :span="12">
-                    <a-checkbox value="sand_bag">
-                      Karung
+                  <a-col
+                    v-for="(value, key) in handlings"
+                    :key="key"
+                    :span="12"
+                  >
+                    <a-checkbox :value="key">
+                      {{ value }}
                     </a-checkbox>
                   </a-col>
                 </a-row>
@@ -168,6 +150,7 @@ import editButton from "../button/edit-button.vue";
 import { SendIcon, ReceiveIcon } from "../icons";
 import AddressComponent from "./address-component.vue";
 import OrderEstimation from "./order-estimation.vue";
+import { handlings } from "../../data/handlings";
 export default {
   props: {
     item: {
@@ -200,13 +183,9 @@ export default {
         is_insured: null,
         packaging: null,
         packaging_type: null
-      }
+      },
+      handlings
     };
-  },
-  watch: {
-    "form.packaging_type": value => {
-      console.log(value);
-    }
   },
   methods: {
     onOk() {

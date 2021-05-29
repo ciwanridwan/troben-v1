@@ -85,10 +85,13 @@ import orderModalEdit from "./order-modal-edit.vue";
 import { getInsurancePrice } from "../../functions/orders";
 export default {
   components: { orderModalEdit },
-  props: ["item", "record", "deleteOrderItem"],
+  props: ["item_hash", "record", "deleteOrderItem"],
   computed: {
     totalChargeWeight() {
       return this.item.weight_borne * this.item.qty;
+    },
+    item() {
+      return this.record.items.find(o => o.hash == this.item_hash);
     }
   },
   methods: {
@@ -104,10 +107,10 @@ export default {
         form
       );
       const { data } = response.data;
-
-      Object.keys(this.item).forEach(key => {
-        this.item[key] = data[key];
-      });
+      let item_index = this.record.items.findIndex(
+        o => o.hash == this.item_hash
+      );
+      this.$set(this.record.items, item_index, { ...data });
     }
   }
 };
