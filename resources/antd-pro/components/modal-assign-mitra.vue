@@ -28,7 +28,7 @@
               </a-col>
               <a-col :span="leftSize">
                 <address-component>
-                  <b slot="people">{{ order.sender_name }}</b>
+                  <b slot="name">{{ order.sender_name }}</b>
                   <h5 class="trawl-text-normal" slot="phone">
                     {{ order.sender_phone }}
                   </h5>
@@ -46,7 +46,7 @@
               </a-col>
               <a-col :span="leftSize">
                 <address-component :receiver="true">
-                  <b slot="people">{{ order.receiver_name }}</b>
+                  <b slot="name">{{ order.receiver_name }}</b>
                   <h5 class="trawl-text-normal" slot="phone">
                     {{ order.receiver_phone }}
                   </h5>

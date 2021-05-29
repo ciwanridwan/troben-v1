@@ -54,7 +54,7 @@
           <order-status :record="record"></order-status>
         </a-col>
         <a-col :span="12" class="trawl-text-right" v-if="record.status">
-          <order-action :afterAction="getItems" :record="record" />
+          <order-action :afterAction="getDataFunction" :record="record" />
         </a-col>
       </a-row>
     </span>
@@ -78,9 +78,15 @@ export default {
     };
   },
   props: {
-    dataSource: Array,
-    default: () => {
-      return [];
+    dataSource: {
+      type: Array,
+      default: () => {
+        return [];
+      }
+    },
+    getDataFunction: {
+      type: Function,
+      default: () => {}
     }
   },
   methods: {

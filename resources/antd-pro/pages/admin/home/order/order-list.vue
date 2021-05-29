@@ -32,43 +32,7 @@
       </a-row>
     </template>
     <template slot="content">
-      <order-table :dataSource="items.data" />
-      <!-- <a-table
-        :columns="orderColumns"
-        :data-source="items.data"
-        :pagination="trawlbensPagination"
-        @change="handleTableChanged"
-      >
-        <span slot="order_by" slot-scope="record">
-          <a-badge
-            v-if="record.order_by"
-            :count="record.order_by"
-            :class="['trawl-badge-success']"
-          />
-          <a-badge v-else :count="'Not Set'" :class="['trawl-badge-success']" />
-        </span>
-
-        <span slot="address" slot-scope="record">
-          <a-timeline :class="['trawl-timeline']">
-            <a-timeline-item color="green">
-              <span>{{ record.sender_address }}</span>
-            </a-timeline-item>
-            <a-timeline-item color="green">
-              <span>{{ record.receiver_address }}</span>
-            </a-timeline-item>
-          </a-timeline>
-        </span>
-        <span slot="expandedRowRender" slot-scope="record">
-          <a-row type="flex" justify="space-between">
-            <a-col :span="8">
-              <order-status :record="record"></order-status>
-            </a-col>
-            <a-col :span="12" class="trawl-text-right" v-if="record.status">
-              <order-action :afterAction="getItems" :record="record" />
-            </a-col>
-          </a-row>
-        </span>
-      </a-table> -->
+      <order-table :dataSource="items.data" :getDataFunction="getItems" />
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
