@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Models\Deliveries\Delivery;
 
 class OrderController extends Controller
 {
@@ -23,5 +24,17 @@ class OrderController extends Controller
         $query->orderByDesc('created_at');
 
         return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page', 15))));
+    }
+    public function show(Delivery $delivery): JsonResponse
+    {
+        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
+            'item_codes',
+            'code',
+            'partner',
+            'packages',
+            'packages.code',
+            'driver',
+            'transporter',
+        )));
     }
 }

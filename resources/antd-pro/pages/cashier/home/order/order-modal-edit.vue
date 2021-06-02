@@ -204,9 +204,7 @@ export default {
     };
   },
   watch: {
-    "form.packaging_type": value => {
-      console.log(value);
-    }
+    "form.packaging_type": value => {}
   },
   methods: {
     onOk() {

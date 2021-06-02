@@ -67,7 +67,7 @@ class HomeController extends Controller
 
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS, $job->item))->json();
+        return (new Response(Response::RC_SUCCESS, $job->item->load('prices')))->json();
     }
 
     public function deletePackageItem(Package $package, Item $item)

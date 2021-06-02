@@ -61,5 +61,6 @@ class UpdateExistingItem
         $this->item->save();
 
         event(new PackageUpdated($this->item->package));
+        return $this->item->exists;
     }
 }

@@ -28,6 +28,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->get($this->prefix('{delivery_hash}'), [
+            'as' => $this->name('show'),
+            'uses' => $this->uses('show'),
+        ]);
     }
 
     /**

@@ -22,6 +22,9 @@ class DeliveryResource extends JsonResource
         if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
+        if ($this->resource->type === 'transit') {
+            $this->resource->load('origin_partner');
+        }
 
         $this->resource->append('as');
 

@@ -207,7 +207,6 @@ export default {
   methods: {
     showModal() {
       this.visible = true;
-      console.log(this.record);
     },
     print() {
       this.$refs.html2Pdf.generatePdf();

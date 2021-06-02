@@ -41,7 +41,6 @@ export default {
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
-        console.log(o["code"]);
       });
     },
     async paymentVerified(package_hash) {
