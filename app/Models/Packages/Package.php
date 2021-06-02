@@ -32,7 +32,6 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  *
  * @property int $id
  * @property int $customer_id
- * @property string $barcode
  * @property string $service_code
  * @property string $transporter_type
  * @property string $sender_name

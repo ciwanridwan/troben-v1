@@ -10,10 +10,6 @@ class CodeObserver
     use DispatchesJobs;
     protected $model;
 
-    public function creating($model)
-    {
-        $model->barcode = 'DUMMY';
-    }
     public function created($model)
     {
         $job = new CreateNewCode($model);

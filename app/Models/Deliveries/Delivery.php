@@ -23,7 +23,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int id
  * @property int origin_partner_id
  * @property int partner_id
- * @property string barcode
  * @property string type
  * @property string status
  * @property int origin_regency_id
@@ -78,7 +77,6 @@ class Delivery extends Model
         'origin_partner_id',
         'partner_id',
         'userable_id',
-        'barcode',
         'type',
         'status',
         'origin_regency_id',

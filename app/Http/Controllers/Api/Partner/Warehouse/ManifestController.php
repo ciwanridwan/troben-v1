@@ -28,7 +28,7 @@ class ManifestController extends Controller
             }
         });
 
-        $query->with('partner', 'packages');
+        $query->with('partner', 'packages', 'item_codes');
 
         return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page'))));
     }

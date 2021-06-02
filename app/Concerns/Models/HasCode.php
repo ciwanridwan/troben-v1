@@ -14,9 +14,7 @@ trait HasCode
 
     public static function bootHasCode()
     {
-        self::creating(function ($model) {
-            $model->barcode = 'DUMMY';
-        });
+
         self::created(function ($model) {
             $job = new CreateNewCode($model);
             $model->dispatch($job);

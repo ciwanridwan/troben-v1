@@ -24,7 +24,6 @@ class CreateDeliveriesTable extends Migration
             $table->foreignIdFor(Partner::class)->nullable()->constrained()->nullOnDelete();
             $table->foreignId('userable_id')->nullable()->constrained('userables')->nullOnDelete();
 
-            $table->string('barcode');
             $table->enum('type', Delivery::getAvailableTypes());
             $table->enum('status', Delivery::getAvailableStatus())->default(Delivery::STATUS_PENDING);
 

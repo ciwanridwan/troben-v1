@@ -16,7 +16,6 @@ class CreatePackageItemsTable extends Migration
         Schema::create('package_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('package_id');
-            $table->string('barcode')->nullable();
             $table->unsignedInteger('qty')->default(1);
             $table->string('name')->nullable();
             $table->decimal('price', 14)->default(0);
