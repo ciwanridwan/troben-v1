@@ -1,24 +1,16 @@
-_id: req_b1c953261dd7407ba141519c6296b972
+_id: req_9d070cb25f034a60962e47aca1bda3a5
 type: Request
 parentId: fld_61d187534f4c4bcaa155fb829180202d
-modified: 1622603491718
-created: 1616747958906
-url: "{{ _.base_url }}/partner/driver/order"
-name: List Order
+modified: 1622604931945
+created: 1622604016548
+url: "{{ _.base_url }}/partner/driver/order/{% response 'body',
+  'req_b1c953261dd7407ba141519c6296b972', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Detail Order
 description: ""
 method: GET
 body: {}
-parameters:
-  - name: delivery_status
-    value: transit
-    description: ""
-    id: pair_88498fc3bcb646d79f76b19f3de629b2
-    disabled: true
-  - name: delivery_type
-    value: waiting_assign_package
-    description: ""
-    id: pair_5249c79f16ca458db7145314f00ef935
-    disabled: true
+parameters: []
 headers:
   - name: Accept
     value: application/json
@@ -29,7 +21,7 @@ authentication:
   prefix: ""
   token: "{% response 'body', 'req_a14289d3f9934173a9fe0cab4f5204a9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450185.5
+metaSortKey: -1615058937004.75
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
