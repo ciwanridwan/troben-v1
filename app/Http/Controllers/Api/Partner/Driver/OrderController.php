@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
-use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use App\Models\Deliveries\Delivery;
 
 class OrderController extends Controller
