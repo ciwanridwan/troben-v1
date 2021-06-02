@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class CodeLog extends Model
 {
     use HasFactory;
-    const TYPE_ERROR = 'error';
-    const TYPE_INFO = 'info';
-    const TYPE_WARNING = 'warning';
-    const TYPE_NEUTRAL = 'neutral';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_INFO = 'info';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_NEUTRAL = 'neutral';
 
     public static function getAvailableTypes()
     {

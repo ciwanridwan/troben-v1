@@ -14,7 +14,6 @@ trait HasCode
 
     public static function bootHasCode()
     {
-
         self::created(function ($model) {
             $job = new CreateNewCode($model);
             $model->dispatch($job);

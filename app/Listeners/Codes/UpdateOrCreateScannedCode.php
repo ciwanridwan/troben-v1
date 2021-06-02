@@ -141,7 +141,7 @@ class UpdateOrCreateScannedCode
         $deliveryScans = collect($delivery->code->scanned)->toArray();
 
         $fieldScans = collect($deliveryScans[$role]->$codeType)->toArray();
-        if (!Arr::has($fieldScans, $code->content)) {
+        if (! Arr::has($fieldScans, $code->content)) {
             $fieldScans[] = [
                 'content' => $code->content,
                 'is_scanned' => true,
@@ -158,7 +158,7 @@ class UpdateOrCreateScannedCode
     {
         $fieldScans = collect($code->scanned)->toArray();
 
-        if (!Arr::has($delivery->code->content, $fieldScans[$role])) {
+        if (! Arr::has($delivery->code->content, $fieldScans[$role])) {
             $fieldScans[$role][$delivery->code->content] =
                 [
                     'content' => $delivery->code->content,
