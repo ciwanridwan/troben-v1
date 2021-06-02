@@ -19,8 +19,11 @@ class DeliveryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        if (! $this->resource->relationLoaded('code')) {
+        if (!$this->resource->relationLoaded('code')) {
             $this->resource->load('code');
+        }
+        if ($this->resource->type === 'transit') {
+            $this->resource->load('origin_partner');
         }
 
         $this->resource->append('as');
