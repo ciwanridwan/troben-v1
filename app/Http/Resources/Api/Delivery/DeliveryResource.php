@@ -21,6 +21,21 @@ class DeliveryResource extends JsonResource
     {
         if (!$this->resource->relationLoaded('code')) {
             $this->resource->load('code', 'code.scan_receipt_codes', 'code.scan_item_codes', 'code.scan_item_codes.codeable');
+
+            $this->resource->code->scan_receipt_codes = $this->resource->code->scan_receipt_codes->map(function ($item) {
+                $item->status = $item->pivot->status;
+                $item->updated_at = $item->pivot->created_at;
+                return $item;
+            });
+
+            $this->resource->code->scan_item_codes = $this->resource->code->scan_item_codes->map(function ($item) {
+                $item->status = $item->pivot->status;
+                $item->updated_at = $item->pivot->created_at;
+                return $item;
+            });
+
+
+            // $this->resource->code->scan_item_codes->makeHidden(['pivot_code_logable_id', 'pivot_code_logable_type', 'pivot_code_id']);
         }
         if ($this->resource->type === 'transit') {
             if (!$this->resource->relationLoaded('partner')) {
