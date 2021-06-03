@@ -6,7 +6,6 @@ use App\Models\Code;
 use App\Models\User;
 use App\Models\Packages\Item;
 use App\Concerns\Models\HasCode;
-use App\Models\CodeLogable;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;

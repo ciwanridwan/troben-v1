@@ -154,7 +154,7 @@ class User extends Authenticatable implements HasOtpToken
      */
     public function hasRoles($roles): bool
     {
-        if (!$this->relationLoaded('partners')) {
+        if (! $this->relationLoaded('partners')) {
             $this->load('partners');
         }
 
