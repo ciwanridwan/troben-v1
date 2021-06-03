@@ -4,6 +4,7 @@ namespace App\Http\Routes\Api\Partner\Driver;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Driver\OrderController;
+use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 
 class OrderRoute extends BaseRoute
 {
@@ -31,7 +32,7 @@ class OrderRoute extends BaseRoute
 
         $this->router->get($this->prefix('{delivery_hash}'), [
             'as' => $this->name('show'),
-            'uses' => $this->uses('show'),
+            'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
     }
 

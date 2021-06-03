@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Partner\Warehouse;
 
+use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
@@ -37,7 +38,7 @@ class ManifestRoute extends BaseRoute
 
         $this->router->get($this->prefix('{delivery_hash}'), [
             'as' => $this->name('show'),
-            'uses' => $this->uses('show'),
+            'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
 
         $this->router->get($this->prefix('assignable/partner'), [
