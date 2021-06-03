@@ -39,16 +39,16 @@ class CreateNewUser
     public function __construct($inputs = [])
     {
         $this->user = new User();
-        ! Arr::has($inputs, 'phone') ?: $inputs['phone'] =
+        !Arr::has($inputs, 'phone') ?: $inputs['phone'] =
             PhoneNumberUtil::getInstance()->format(
                 PhoneNumberUtil::getInstance()->parse($inputs['phone'], 'ID'),
                 PhoneNumberFormat::E164
             );
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
-            'username' => ['required', 'unique:users,username', 'regex:/^\S*$/u'],
-            'email' => ['required', 'unique:users,email', 'email'],
-            'phone' => ['phone:AUTO,ID', 'required', 'unique:users,phone', 'numeric'],
+            'username' => ['required', 'unique:users,username,NULL,id,deleted_at,NULL', 'regex:/^\S*$/u'],
+            'email' => ['required', 'unique:users,email,NULL,id,deleted_at,NULL', 'email'],
+            'phone' => ['phone:AUTO,ID', 'required', 'unique:users,phone,NULL,id,deleted_at,NULL', 'numeric'],
             'password' => ['required', 'confirmed'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],

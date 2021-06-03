@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Tests\TestCase;
 use App\Models\Code;
 use App\Models\User;
@@ -199,7 +200,7 @@ class ManifestApiTest extends TestCase
 
         $response->assertOk();
 
-        $response = $this->getJson(action([ManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
+        $response = $this->getJson(action([PartnerManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
 
         $response->assertOk();
     }
