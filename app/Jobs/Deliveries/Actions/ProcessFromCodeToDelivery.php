@@ -84,8 +84,9 @@ class ProcessFromCodeToDelivery
                 'status' => $this->status,
                 'is_onboard' => Deliverable::isShouldOnBoard($this->status),
             ]);
-            $this->delivery->item_codes()->attach($this->code);
-            $this->delivery->item_codes()->syncWithoutDetaching([$this->code->id]);
+
+            $this->delivery->item_codes()->syncWithoutDetaching($code->id);
+
             /** @var Code $code */
             $code = $this->delivery->item_codes()->find($this->code->id);
 

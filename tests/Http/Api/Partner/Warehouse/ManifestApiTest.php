@@ -157,8 +157,9 @@ class ManifestApiTest extends TestCase
         $deliveryHash = $response->json('data.0.hash');
 
         $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
-            'code' => $package->code->content,
+            'code' => $package->item_codes->pluck('content')->toArray(),
         ]);
+
 
         $response->assertOk();
 
