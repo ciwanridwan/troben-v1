@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use ReflectionClass;
 
 /**
  * Package model.
@@ -202,6 +203,28 @@ class Package extends Model implements AttachableContract
         'received_at' => 'datetime',
         'handling' => 'array',
     ];
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getStatusConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'STATUS'), ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getPaymentStatusConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'PAYMENT_STATUS'), ARRAY_FILTER_USE_KEY);
+    }
 
     /**
      * Get all available statuses.

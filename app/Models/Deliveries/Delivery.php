@@ -6,6 +6,7 @@ use App\Models\Code;
 use App\Models\User;
 use App\Models\Packages\Item;
 use App\Concerns\Models\HasCode;
+use App\Models\CodeLogable;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
@@ -16,6 +17,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ReflectionClass;
 
 /**
  * Class Delivery.
@@ -104,6 +106,29 @@ class Delivery extends Model
         'destination_sub_district_id',
     ];
 
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getTypeConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'TYPE'), ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getStatusConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'STATUS'), ARRAY_FILTER_USE_KEY);
+    }
+
     /**
      * Get all available types.
      *
@@ -158,6 +183,8 @@ class Delivery extends Model
             ->whereHasMorph('codeable', Item::class)
             ->with('codeable');
     }
+
+
 
     /**
      * @return MorphOne

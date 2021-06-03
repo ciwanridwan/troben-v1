@@ -84,9 +84,11 @@ class ProcessFromCodeToDelivery
                 'status' => $this->status,
                 'is_onboard' => Deliverable::isShouldOnBoard($this->status),
             ]);
-
+            $this->delivery->item_codes()->attach($this->code);
+            $this->delivery->item_codes()->syncWithoutDetaching([$this->code->id]);
             /** @var Code $code */
             $code = $this->delivery->item_codes()->find($this->code->id);
+
             event(new DeliverableItemCodeUpdate($code->pivot));
             event(new CodeScanned($this->delivery, $this->code, $this->role));
         }
@@ -96,9 +98,9 @@ class ProcessFromCodeToDelivery
         if ($this->delivery->packages()->where('id', $package->id)->doesntExist()) {
             $this->delivery->packages()->attach($package);
 
-            $itemCodes = $package->items->pluck('codes')->flatten(1);
+            // $itemCodes = $package->items->pluck('codes')->flatten(1);
 
-            $this->delivery->item_codes()->syncWithoutDetaching($itemCodes->map->id->toArray());
+            // $this->delivery->item_codes()->syncWithoutDetaching($itemCodes->map->id->toArray());
 
             event(new PackageAttachedToDelivery($package, $this->delivery));
             event(new CodeScanned($this->delivery, $package->code, $this->role));

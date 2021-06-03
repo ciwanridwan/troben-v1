@@ -28,11 +28,10 @@ class OrderController extends Controller
     public function show(Delivery $delivery): JsonResponse
     {
         return $this->jsonSuccess(DeliveryResource::make($delivery->load(
-            'item_codes',
             'code',
             'partner',
             'packages',
-            'packages.code',
+            'packages.items',
             'driver',
             'transporter',
         )));
