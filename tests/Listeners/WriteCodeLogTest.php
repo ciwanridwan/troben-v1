@@ -3,16 +3,11 @@
 namespace Tests\Listeners;
 
 use App\Events\Packages\PackageCreated;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Listeners\Codes\WriteCodeLog;
-use App\Models\CodeLogable;
-use App\Models\Customers\Customer;
 use App\Models\Packages\Package;
-use Database\Seeders\CustomersTableSeeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class WriteCodeLogTest extends TestCase

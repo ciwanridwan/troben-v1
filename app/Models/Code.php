@@ -2,19 +2,15 @@
 
 namespace App\Models;
 
-use App\Casts\Code\Scanned;
 use App\Concerns\Models\CanSearch;
-use App\Models\Customers\Customer;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
-use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Code.
@@ -59,11 +55,11 @@ class Code extends Model
 
     public function scan_receipt_codes()
     {
-        return $this->morphToMany(Code::class, 'code_logable')->withPivot(['status', 'created_at'])->whereHasMorph('codeable', Package::class);
+        return $this->morphToMany(self::class, 'code_logable')->withPivot(['status', 'created_at'])->whereHasMorph('codeable', Package::class);
     }
     public function scan_item_codes()
     {
-        return $this->morphToMany(Code::class, 'code_logable')->whereHasMorph('codeable', Item::class)->withPivot(['status', 'created_at']);
+        return $this->morphToMany(self::class, 'code_logable')->whereHasMorph('codeable', Item::class)->withPivot(['status', 'created_at']);
     }
 
     public function scanned_in()
@@ -102,7 +98,7 @@ class Code extends Model
         }
 
         $pre .= Carbon::now()->format('dmy');
-        $last_order = $query->where('content', 'LIKE', $pre . '%')->orderBy('content', 'desc')->first();
+        $last_order = $query->where('content', 'LIKE', $pre.'%')->orderBy('content', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->content, strlen($pre)) : 0;
         $inc_number = (int) $inc_number;
         $inc_number = $last_order ? $inc_number + 1 : $inc_number;
@@ -110,6 +106,6 @@ class Code extends Model
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
 
-        return  $pre . $inc_number;
+        return  $pre.$inc_number;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\CodeLogable;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

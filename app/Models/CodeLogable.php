@@ -12,31 +12,31 @@ use ReflectionClass;
 
 class CodeLogable extends MorphPivot
 {
-    protected $table = 'code_logables';
     use HasFactory;
-    const TYPE_ERROR = 'error';
-    const TYPE_INFO = 'info';
-    const TYPE_WARNING = 'warning';
-    const TYPE_NEUTRAL = 'neutral';
-    const TYPE_SCAN = 'scan';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_INFO = 'info';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_NEUTRAL = 'neutral';
+    public const TYPE_SCAN = 'scan';
 
-    const SHOW_CUSTOMER = 'customer';
-    const SHOW_PARTNER = 'partner';
-    const SHOW_ADMIN = 'admin';
-    const SHOW_ALL = self::SHOW_CUSTOMER . ',' . self::SHOW_PARTNER . ',' . self::SHOW_ADMIN;
+    public const SHOW_CUSTOMER = 'customer';
+    public const SHOW_PARTNER = 'partner';
+    public const SHOW_ADMIN = 'admin';
+    public const SHOW_ALL = self::SHOW_CUSTOMER.','.self::SHOW_PARTNER.','.self::SHOW_ADMIN;
+    protected $table = 'code_logables';
 
     protected $hidden = [
         'id',
         'code_id',
         'code_logable_id',
         'code_logable_type',
-        "type",
-        "showable",
-        "status",
-        "description",
-        "created_at",
-        "updated_at",
-        "deleted_at",
+        'type',
+        'showable',
+        'status',
+        'description',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
     public function code(): BelongsTo
@@ -57,7 +57,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Package::getStatusConst() as $status => $statusValue) {
             foreach (Package::getPaymentStatusConst() as $paymentStatus => $paymentStatusValue) {
-                $statuses[$status . '_' . $paymentStatus] = $statusValue . '_' . $paymentStatusValue;
+                $statuses[$status.'_'.$paymentStatus] = $statusValue.'_'.$paymentStatusValue;
             }
         }
         return $statuses;
@@ -71,7 +71,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Delivery::getTypeConst() as $type => $typeValue) {
             foreach (Delivery::getStatusConst() as $status => $statusValue) {
-                $statuses[$type . '_' . $status] = $typeValue . '_' . $statusValue;
+                $statuses[$type.'_'.$status] = $typeValue.'_'.$statusValue;
             }
         }
         return $statuses;

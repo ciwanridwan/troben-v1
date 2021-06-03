@@ -65,7 +65,7 @@ class OrderController extends Controller
      */
     public function showByReceipt(Code $code): JsonResponse
     {
-        if (!$code->codeable instanceof Package) {
+        if (! $code->codeable instanceof Package) {
             throw_if(true, Error::make(Response::RC_INVALID_DATA));
         }
 
