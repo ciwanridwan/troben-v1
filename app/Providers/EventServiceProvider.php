@@ -118,10 +118,10 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         CodeCreated::class => [
-            UpdateOrCreateScannedCode::class
+            // UpdateOrCreateScannedCode::class
         ],
         CodeScanned::class => [
-            UpdateOrCreateScannedCode::class,
+            // UpdateOrCreateScannedCode::class,
             WriteCodeLog::class
         ],
     ];

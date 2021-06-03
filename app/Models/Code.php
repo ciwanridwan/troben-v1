@@ -39,9 +39,6 @@ class Code extends Model
         'content',
     ];
 
-    protected $casts = [
-        'scanned' => Scanned::class
-    ];
 
     protected $hidden = [
         'id',

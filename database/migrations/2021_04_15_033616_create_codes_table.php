@@ -17,7 +17,7 @@ class CreateCodesTable extends Migration
             $table->id();
             $table->morphs('codeable');
             $table->string('content')->index();
-            $table->json('scanned')->nullable();
+            // $table->json('scanned')->nullable();
 
             $table->timestamps();
         });
