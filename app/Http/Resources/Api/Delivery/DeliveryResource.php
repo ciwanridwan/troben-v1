@@ -19,7 +19,7 @@ class DeliveryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code', 'code.scan_receipt_codes', 'code.scan_item_codes', 'code.scan_item_codes.codeable');
 
             $this->resource->code->scan_receipt_codes = $this->resource->code->scan_receipt_codes->map(function ($item) {
@@ -38,7 +38,7 @@ class DeliveryResource extends JsonResource
             // $this->resource->code->scan_item_codes->makeHidden(['pivot_code_logable_id', 'pivot_code_logable_type', 'pivot_code_id']);
         }
         if ($this->resource->type === 'transit') {
-            if (!$this->resource->relationLoaded('partner')) {
+            if (! $this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }
             $this->resource->load('origin_partner');
