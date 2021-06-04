@@ -58,6 +58,7 @@ class DeliveryResource extends JsonResource
         }
 
         $this->resource->append('as');
+        $this->resource->load('item_codes');
 
         return parent::toArray($request);
     }
