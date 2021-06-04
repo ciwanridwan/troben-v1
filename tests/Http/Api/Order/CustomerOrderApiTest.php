@@ -148,8 +148,6 @@ class CustomerOrderApiTest extends TestCase
         $response = $this->getJson($url);
 
         $response->assertSuccessful();
-
-        $this->assertEquals($package->barcode, $response->json('data.barcode'));
     }
 
     public function test_can_approve_order()

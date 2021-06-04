@@ -23,6 +23,7 @@ use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
+use App\Listeners\Codes\WriteCodeLog;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -39,9 +40,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCreated::class => [
             GeneratePackagePrices::class,
+            WriteCodeLog::class
         ],
         PackageUpdated::class => [
             GeneratePackagePrices::class,
+            WriteCodeLog::class
         ],
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [
             //
@@ -49,6 +52,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryPickup\PackageLoadedByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         DeliveryPickup\DriverArrivedAtWarehouse::class => [
             //
@@ -56,6 +60,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryPickup\DriverUnloadedPackageInWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         DeliveryTransit\DriverArrivedAtPickupPoint::class => [
             //
@@ -63,6 +68,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\PackageLoadedByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         DeliveryTransit\DriverArrivedAtWarehouse::class => [
             //
@@ -70,42 +76,53 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         WarehouseIsEstimatingPackage::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageEstimatedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageCanceledByAdmin::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageCheckedByCashier::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageApprovedByCustomer::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         WarehouseIsStartPacking::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageAlreadyPackedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackagePaymentVerified::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PackageAttachedToDelivery::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         DeliverableItemCodeUpdate::class => [
-            //
+            WriteCodeLog::class
         ],
         CodeCreated::class => [
-            UpdateOrCreateScannedCode::class
+            // UpdateOrCreateScannedCode::class
         ],
         CodeScanned::class => [
-            UpdateOrCreateScannedCode::class
+            // UpdateOrCreateScannedCode::class,
+            WriteCodeLog::class
         ],
     ];
 

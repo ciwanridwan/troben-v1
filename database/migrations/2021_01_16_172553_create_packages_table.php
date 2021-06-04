@@ -23,7 +23,6 @@ class CreatePackagesTable extends Migration
                 ->constrained()
                 ->nullOnDelete();
 
-            $table->string('barcode');
             $table->char('service_code', 3);
             $table->string('transporter_type');
 

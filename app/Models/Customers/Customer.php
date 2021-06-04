@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Concerns\Models\VerifiableByOtp;
 use Illuminate\Notifications\Notifiable;
 use App\Auditor\Contracts\AuditableContract;
+use App\Models\CodeLogable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -122,6 +123,11 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
     public function addresses(): HasMany
     {
         return $this->hasMany(Address::class, 'customer_id', 'id');
+    }
+
+    public function code_logs()
+    {
+        return $this->morphMany(CodeLogable::class, 'code_logable');
     }
 
     /**

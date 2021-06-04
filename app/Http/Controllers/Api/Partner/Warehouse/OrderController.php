@@ -33,8 +33,10 @@ class OrderController extends Controller
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
         $query->with([
+            'items',
             'estimator',
             'packager',
+            'code.scanned_by'
         ]);
 
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))));
@@ -74,6 +76,7 @@ class OrderController extends Controller
             'items',
             'estimator',
             'packager',
+            'code.scanned_in',
         ])));
     }
 

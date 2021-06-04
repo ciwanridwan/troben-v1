@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\CodeLogable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -196,5 +197,10 @@ class Partner extends Model
     public function deliveries(): Relations\HasMany
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
+    }
+
+    public function code_logs()
+    {
+        return $this->morphMany(CodeLogable::class, 'code_logable');
     }
 }

@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @property int $id
  * @property int $package_id
- * @property string $barcode
  * @property int $qty
  * @property string $name
  * @property string $desc
@@ -59,7 +58,7 @@ class Item extends Model
      */
     protected $fillable = [
         'package_id',
-        'barcode',
+
         'qty',
         'name',
         'desc',

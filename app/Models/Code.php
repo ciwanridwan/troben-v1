@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Casts\Code\Scanned;
 use App\Concerns\Models\CanSearch;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
@@ -36,21 +35,52 @@ class Code extends Model
         'content',
     ];
 
-    protected $casts = [
-        'scanned' => Scanned::class
-    ];
 
     protected $hidden = [
         'id',
         'codeable_type',
         'codeable_id',
         'laravel_through_key',
+        'pivot'
     ];
 
     public function codeable(): Relations\MorphTo
     {
         return $this->morphTo();
     }
+
+    public function code_logs()
+    {
+        return $this->morphMany(CodeLogable::class, 'code_logable');
+    }
+
+    public function scan_receipt_codes()
+    {
+        return $this->morphToMany(self::class, 'code_logable')->withPivot(['status', 'created_at'])->whereHasMorph('codeable', Package::class);
+    }
+    public function scan_item_codes()
+    {
+        return $this->morphToMany(self::class, 'code_logable')->whereHasMorph('codeable', Item::class)->withPivot(['status', 'created_at']);
+    }
+
+    public function scanned_in()
+    {
+        return $this
+            ->morphedByMany(self::class, 'code_logable')
+            ->withPivot(['status', 'created_at'])
+            ->using(CodeLogable::class)
+            ->wherePivot('type', CodeLogable::TYPE_SCAN);
+    }
+
+    public function scanned_by()
+    {
+        return $this
+            ->morphedByMany(User::class, 'code_logable')
+            ->withPivot(['status', 'created_at'])
+            ->using(CodeLogable::class)
+            ->wherePivot('type', CodeLogable::TYPE_SCAN);
+    }
+
 
     public static function generateCodeContent($codeable_type)
     {

@@ -16,6 +16,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ReflectionClass;
 
 /**
  * Class Delivery.
@@ -23,7 +24,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int id
  * @property int origin_partner_id
  * @property int partner_id
- * @property string barcode
  * @property string type
  * @property string status
  * @property int origin_regency_id
@@ -78,7 +78,6 @@ class Delivery extends Model
         'origin_partner_id',
         'partner_id',
         'userable_id',
-        'barcode',
         'type',
         'status',
         'origin_regency_id',
@@ -105,6 +104,29 @@ class Delivery extends Model
         'destination_district_id',
         'destination_sub_district_id',
     ];
+
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getTypeConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'TYPE'), ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Get error codes.
+     *
+     * @return string[]
+     */
+    public static function getStatusConst(): array
+    {
+        $class = new ReflectionClass(__CLASS__);
+        return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'STATUS'), ARRAY_FILTER_USE_KEY);
+    }
 
     /**
      * Get all available types.
@@ -160,6 +182,8 @@ class Delivery extends Model
             ->whereHasMorph('codeable', Item::class)
             ->with('codeable');
     }
+
+
 
     /**
      * @return MorphOne

@@ -51,11 +51,13 @@ class UpdateOrCreateScannedCode
             case $code->codeable instanceof Delivery:
                 $scanned = [
                     UserablePivot::ROLE_DRIVER => [
+                        'content' => $code->content,
                         'is_scanned' => false,
                         'scanned_at' => null,
                         Code::TYPE_ITEM => []
                     ],
                     UserablePivot::ROLE_WAREHOUSE => [
+                        'content' => $code->content,
                         'is_scanned' => false,
                         'scanned_at' => null,
                         Code::TYPE_RECEIPT => [],
@@ -140,7 +142,8 @@ class UpdateOrCreateScannedCode
 
         $fieldScans = collect($deliveryScans[$role]->$codeType)->toArray();
         if (! Arr::has($fieldScans, $code->content)) {
-            $fieldScans[$code->content] = [
+            $fieldScans[] = [
+                'content' => $code->content,
                 'is_scanned' => true,
                 'scanned_at' => Carbon::now()
             ];
@@ -155,8 +158,13 @@ class UpdateOrCreateScannedCode
     {
         $fieldScans = collect($code->scanned)->toArray();
 
-        if (! array_search($delivery->code->content, $fieldScans[$role])) {
-            $fieldScans[$role][] = $delivery->code->content;
+        if (! Arr::has($delivery->code->content, $fieldScans[$role])) {
+            $fieldScans[$role][$delivery->code->content] =
+                [
+                    'content' => $delivery->code->content,
+                    'is_scanned' => true,
+                    'scanned_at' => Carbon::now()
+                ];
             $code->scanned = json_encode($fieldScans);
             $code->save();
         }

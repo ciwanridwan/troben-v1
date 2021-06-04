@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Tests\TestCase;
 use App\Models\Code;
 use App\Models\User;
@@ -157,8 +158,9 @@ class ManifestApiTest extends TestCase
         $deliveryHash = $response->json('data.0.hash');
 
         $response = $this->patchJson(action([AssignationController::class, 'package'], ['delivery_hash' => $deliveryHash]), [
-            'code' => $package->code->content,
+            'code' => $package->item_codes->pluck('content')->toArray(),
         ]);
+
 
         $response->assertOk();
 
@@ -198,7 +200,7 @@ class ManifestApiTest extends TestCase
 
         $response->assertOk();
 
-        $response = $this->getJson(action([ManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
+        $response = $this->getJson(action([PartnerManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
 
         $response->assertOk();
     }

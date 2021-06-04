@@ -128,6 +128,11 @@ class User extends Authenticatable implements HasOtpToken
         return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'user_id', 'userable_id', 'id', 'id');
     }
 
+    public function code_logs()
+    {
+        return $this->morphMany(CodeLogable::class, 'code_logable');
+    }
+
     public function scopePartnerRole(Builder $builder, $types, $roles): void
     {
         $types = Arr::wrap($types);
