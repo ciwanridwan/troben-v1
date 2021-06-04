@@ -14,7 +14,7 @@ class WarehouseManifestResource extends DeliveryResource
 {
     public function toArray($request): array
     {
-        if (!$this->resource->relationLoaded('item_codes')) {
+        if (! $this->resource->relationLoaded('item_codes')) {
             $this->resource->load('item_codes');
         }
         if ($this->resource->relationLoaded('code')) {
