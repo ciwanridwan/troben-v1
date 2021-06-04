@@ -1,11 +1,11 @@
 _id: req_ad339bdeed804d2fadf311b958cd5bfe
 type: Request
 parentId: fld_00564e8778df4e038a4dd4742a3adad9
-modified: 1622255741471
+modified: 1622775154506
 created: 1622255682319
 url: "{{ _.base_url }}/partner/driver/order/transit/{% response 'body',
-  'req_b1c953261dd7407ba141519c6296b972', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
-  'never', 60 %}/arrived"
+  'req_9d070cb25f034a60962e47aca1bda3a5', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}/arrived"
 name: Driver Arrived at Origin Warehouse
 description: |-
   doesn't update anything

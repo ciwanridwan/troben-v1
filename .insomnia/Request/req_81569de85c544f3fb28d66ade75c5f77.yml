@@ -1,21 +1,31 @@
 _id: req_81569de85c544f3fb28d66ade75c5f77
 type: Request
 parentId: fld_00564e8778df4e038a4dd4742a3adad9
-modified: 1622255745306
+modified: 1622775174801
 created: 1622255682327
 url: "{{ _.base_url }}/partner/driver/order/transit/{% response 'body',
-  'req_aa346c7db2a0427aa1d144ebec28f85d', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'req_ad339bdeed804d2fadf311b958cd5bfe', 'b64::JC5kYXRhLmhhc2g=::46b',
   'no-history', 60 %}/loaded"
 name: Package Loaded by Driver
 description: ""
 method: PATCH
-body: {}
+body:
+  mimeType: application/json
+  text: >-
+    {
+    	"code" : [
+    						"{% response 'body', 'req_9d070cb25f034a60962e47aca1bda3a5', 'b64::JC5kYXRhLmNvZGUuc2Nhbl9pdGVtX2NvZGVzLjAuY29udGVudA==::46b', 'never', 60 %}"
+    					 ]
+    }
 parameters: []
 headers:
   - name: Accept
     value: application/json
     description: ""
     id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_f62359b50d51477a98d37343cd887eeb
 authentication:
   type: bearer
   prefix: ""
