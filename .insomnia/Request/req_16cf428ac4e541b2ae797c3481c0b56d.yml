@@ -1,10 +1,12 @@
-_id: req_b23a54c206b540779dd70547960faf9d
+_id: req_16cf428ac4e541b2ae797c3481c0b56d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1622867086783
-created: 1613462471058
-url: "{{ _.base_url }}/order"
-name: Create Order
+modified: 1622867623884
+created: 1622867234961
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_55ac973776fb412590a8ea0a508a0df7', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Update Order
 description: >-
   JSON data documentation
 
@@ -28,7 +30,7 @@ body:
       description: ""
       id: pair_1bf5a6adb7b641dc87ca2d282df61156
     - name: sender_name
-      value: Hajir
+      value: Hajira
       description: ""
       id: pair_d4082a3b168b4d259ad6721ff4aa6be9
     - name: sender_phone
@@ -139,6 +141,10 @@ body:
       value: ""
       description: ""
       id: pair_cd62353f687b4ad1a79f075289ad13a4
+    - name: _method
+      value: PUT
+      description: ""
+      id: pair_533809c44e78423d9c6343d7f58d7ebf
 parameters: []
 headers:
   - name: Accept
@@ -158,7 +164,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1613462471058
+metaSortKey: -1613409666883.5
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
