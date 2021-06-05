@@ -1,0 +1,40 @@
+_id: req_845d0dfef45246aa8063ee82f192af32
+type: Request
+parentId: fld_e25d5ee71505426f9268b98cda449dfa
+modified: 1622876708324
+created: 1622876550569
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_55ac973776fb412590a8ea0a508a0df7', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'no-history', 60 %}/cancel/method"
+name: Select Cancel Pickup Method
+description: ""
+method: PATCH
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"pickup_method" : "cancel_self_pickup"
+    }
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'no-history', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: application/json
+    id: pair_e5e845324e2d47328c873db6de7c7e89
+authentication: {}
+metaSortKey: -1613145645973.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
