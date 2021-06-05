@@ -107,6 +107,7 @@ class Package extends Model implements AttachableContract
     public const PAYMENT_STATUS_FAILED = 'failed';
 
     public const ATTACHMENT_RECEIPT = 'receipt';
+    public const ATTACHMENT_PACKAGE = 'package';
 
     /**
      * Phone number column.

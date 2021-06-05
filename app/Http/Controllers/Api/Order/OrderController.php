@@ -70,6 +70,7 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+
         $inputs = $request->except('items');
 
         /** @var Customer $user */
@@ -77,7 +78,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -87,9 +88,9 @@ class OrderController extends Controller
 
         $this->dispatchNow($job);
 
-        // $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->input('photos'));
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos'));
 
-        // $this->dispatchNow($uploadJob);
+        $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new PackageResource($job->package->load(
             'items',
@@ -119,7 +120,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
