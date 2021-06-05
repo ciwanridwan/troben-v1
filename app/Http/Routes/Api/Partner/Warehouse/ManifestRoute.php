@@ -2,7 +2,6 @@
 
 namespace App\Http\Routes\Api\Partner\Warehouse;
 
-
 use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest;

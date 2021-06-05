@@ -3,11 +3,8 @@
 namespace App\Events\Packages;
 
 use App\Models\Packages\Package;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Validation\ValidationException;
@@ -25,7 +22,7 @@ class PackageCanceledByCustomer
     public function __construct(Package $package)
     {
         throw_if($package->status !== Package::STATUS_WAITING_FOR_APPROVAL || $package->payment_status !== Package::PAYMENT_STATUS_DRAFT, ValidationException::withMessages([
-            'package' => __('package should be in ' . Package::STATUS_WAITING_FOR_APPROVAL . ' status and payment status ' . Package::PAYMENT_STATUS_DRAFT),
+            'package' => __('package should be in '.Package::STATUS_WAITING_FOR_APPROVAL.' status and payment status '.Package::PAYMENT_STATUS_DRAFT),
         ]));
 
         $this->package = $package;

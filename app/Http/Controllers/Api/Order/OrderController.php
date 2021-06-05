@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
-use App\Events\Packages\PackageCanceledByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 
@@ -71,7 +70,6 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-
         $request->validate([
             'items' => ['required'],
             'photos' => ['required'],
@@ -85,7 +83,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -127,7 +125,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
