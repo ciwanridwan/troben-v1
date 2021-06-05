@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Events\Packages\PackageCanceledByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 
@@ -151,6 +152,20 @@ class OrderController extends Controller
         $this->authorize('update', $package);
 
         event(new PackageApprovedByCustomer($package));
+
+        return $this->jsonSuccess(PackageResource::make($package->fresh()));
+    }
+
+    /**
+     * @param \App\Models\Packages\Package $package
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
+     */
+    public function cancel(Package $package): JsonResponse
+    {
+        $this->authorize('update', $package);
+
+        event(new PackageCanceledByCustomer($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }

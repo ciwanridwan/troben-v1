@@ -44,6 +44,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('approve'),
         ]);
 
+        $this->router->patch($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancel'),
+            'uses' => $this->uses('cancel'),
+        ]);
+
         $this->router->post($this->prefix('{package_hash}/receipt'), [
             'as' => $this->name('receipt'),
             'uses' => $this->uses('receipt'),
