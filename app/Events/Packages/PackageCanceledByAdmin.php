@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Validation\ValidationException;
 
 class PackageCanceledByAdmin
 {
@@ -22,6 +23,10 @@ class PackageCanceledByAdmin
      */
     public function __construct(Package $package)
     {
+        $mustConditions = [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL];
+        throw_if(in_array($package->status, $mustConditions), ValidationException::withMessages([
+            'package' => __('package should be in ' . implode(',', $mustConditions) . ' status'),
+        ]));
         $this->package = $package;
     }
 
