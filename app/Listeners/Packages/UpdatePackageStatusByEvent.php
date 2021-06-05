@@ -47,15 +47,8 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageEstimatedByWarehouse:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
                 break;
-            case $event instanceof PackageCanceledByCustomer:
-                if (in_array($event->package->status, [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL]) && in_array($event->package->payment_status, [Package::PAYMENT_STATUS_DRAFT, Package::PAYMENT_STATUS_PENDING])) {
-                    $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
-                }
-                break;
-            case $event instanceof PackageCanceledByAdmin:
-                if (in_array($event->package->status, [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL])) {
-                    $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
-                }
+            case $event instanceof PackageCanceledByCustomer || $event instanceof PackageCanceledByAdmin:
+                $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
                 break;
             case $event instanceof PackageCheckedByCashier:
                 $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
