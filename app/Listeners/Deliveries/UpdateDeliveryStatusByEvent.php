@@ -4,6 +4,7 @@ namespace App\Listeners\Deliveries;
 
 use App\Events\Deliveries\Pickup;
 use App\Events\Deliveries\Transit;
+use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 
 class UpdateDeliveryStatusByEvent
@@ -34,6 +35,15 @@ class UpdateDeliveryStatusByEvent
                 $event->delivery->setAttribute('type', Delivery::TYPE_TRANSIT)->save();
                 $event->delivery->setAttribute('status', Delivery::STATUS_FINISHED)->save();
                 break;
+            case $event instanceof Transit\WarehouseUnloadedPackage:
+                /** @var Delivery $delivery */
+                $delivery = $event->delivery;
+                $delivery->packages->each(function ($package) use ($delivery) {
+                    $delivery->packages()->updateExistingPivot($package, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE]);
+                });
+                $delivery->item_codes->each(function ($item_code) use ($delivery) {
+                    $delivery->item_codes()->updateExistingPivot($item_code, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE]);
+                });
         }
     }
 }

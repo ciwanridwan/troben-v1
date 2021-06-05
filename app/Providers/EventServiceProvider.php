@@ -21,6 +21,7 @@ use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
@@ -121,6 +122,10 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         DeliverableItemCodeUpdate::class => [
+            WriteCodeLog::class
+        ],
+        WarehouseUnloadedPackage::class => [
+            UpdateDeliveryStatusByEvent::class,
             WriteCodeLog::class
         ],
         CodeCreated::class => [

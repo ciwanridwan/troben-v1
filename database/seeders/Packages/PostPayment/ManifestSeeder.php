@@ -23,6 +23,7 @@ class ManifestSeeder extends Seeder
         $package = Package::query()->where('status', Package::STATUS_PACKED)->first();
         /** @var Delivery $delivery */
         $delivery = $package->deliveries->first();
+        $delivery->item_codes()->syncWithoutDetaching($package->item_codes->pluck('id'));
         $partner = $delivery->partner;
         $otherPartners = Partner::query()->where('id', '!=', $partner->id)->whereIn('type', [
             Partner::TYPE_BUSINESS,
