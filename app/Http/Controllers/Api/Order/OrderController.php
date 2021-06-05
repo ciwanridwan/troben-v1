@@ -157,20 +157,6 @@ class OrderController extends Controller
     }
 
     /**
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
-     */
-    public function cancel(Package $package): JsonResponse
-    {
-        $this->authorize('update', $package);
-
-        event(new PackageCanceledByCustomer($package));
-
-        return $this->jsonSuccess(PackageResource::make($package->fresh()));
-    }
-
-    /**
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Packages\Package $package
      * @return \Illuminate\Http\JsonResponse

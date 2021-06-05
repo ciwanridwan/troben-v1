@@ -22,6 +22,7 @@ use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Packages\PackageCanceledByAdmin;
+use App\Events\Packages\PackageCanceledByCustomer;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use App\Listeners\Codes\WriteCodeLog;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -83,6 +84,10 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         PackageEstimatedByWarehouse::class => [
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        PackageCanceledByCustomer::class => [
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],

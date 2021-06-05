@@ -22,6 +22,7 @@ class UpdateDeliveryStatusByEvent
                 $event->delivery->setAttribute('status', Delivery::STATUS_EN_ROUTE)->save();
                 break;
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
+
                 $event->delivery->setAttribute('type', Delivery::TYPE_PICKUP)->save();
                 $event->delivery->setAttribute('status', Delivery::STATUS_FINISHED)->save();
                 break;
