@@ -16,8 +16,11 @@ use App\Events\Packages\PackageApprovedByCustomer;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Controllers\Api\Order\OrderController;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Attachment;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerOrderApiTest extends TestCase
 {
@@ -44,6 +47,8 @@ class CustomerOrderApiTest extends TestCase
             'id' => $price['destination']['id'],
         ]))->json('data'))->first();
 
+        $fileUploaded = UploadedFile::fake()->image('product.jpg');
+
         $data = [
             'service_code' => $services->random()['code'],
             'transporter_type' => Transporter::TYPE_BIKE,
@@ -68,11 +73,20 @@ class CustomerOrderApiTest extends TestCase
                 'is_insured' => true,
                 'handling' => $this->faker->randomElements(Handling::getTypes()),
             ])->toArray(),
+            'photos' => [$fileUploaded]
         ];
 
         $response = $this->postJson(route('api.order.store'), $data, $headers);
 
         $response->assertSuccessful();
+        $attachment = Attachment::firstWhere([
+            'type' => Package::ATTACHMENT_PACKAGE,
+            'title' => $fileUploaded->getClientOriginalName(),
+            'disk' => CustomerUploadPackagePhotos::DISK_DRIVER,
+            'mime' => $fileUploaded->getMimeType(),
+        ]);
+        $this->assertTrue($attachment->exists);
+        Storage::disk(CustomerUploadPackagePhotos::DISK_DRIVER)->assertExists($attachment->path);
     }
 
     public function test_can_update_existing_order()

@@ -71,6 +71,12 @@ class OrderController extends Controller
     public function store(Request $request): JsonResponse
     {
 
+        $request->validate([
+            'items' => ['required'],
+            'photos' => ['required'],
+            'photos.*' => ['image']
+        ]);
+
         $inputs = $request->except('items');
 
         /** @var Customer $user */
@@ -88,7 +94,7 @@ class OrderController extends Controller
 
         $this->dispatchNow($job);
 
-        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos'));
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
 

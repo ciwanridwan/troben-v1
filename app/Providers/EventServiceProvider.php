@@ -102,6 +102,7 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
+
         PackageAlreadyPackedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
