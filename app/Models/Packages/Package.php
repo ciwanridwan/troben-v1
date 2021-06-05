@@ -101,6 +101,9 @@ class Package extends Model implements AttachableContract
     public const STATUS_WITH_COURIER = 'with_courier';
     public const STATUS_DELIVERED = 'delivered';
 
+    public const STATUS_CANCEL_SELF_PICKUP = 'cancel_self_pickup';
+    public const STATUS_CANCE_DELIVERED = 'cancel_delivered';
+
     public const PAYMENT_STATUS_DRAFT = 'draft';
     public const PAYMENT_STATUS_PENDING = 'pending';
     public const PAYMENT_STATUS_PAID = 'paid';
@@ -108,6 +111,8 @@ class Package extends Model implements AttachableContract
 
     public const ATTACHMENT_RECEIPT = 'receipt';
     public const ATTACHMENT_PACKAGE = 'package';
+
+
 
     /**
      * Phone number column.
@@ -216,6 +221,14 @@ class Package extends Model implements AttachableContract
         return array_filter($class->getConstants(), fn ($key) => str_starts_with($key, 'STATUS'), ARRAY_FILTER_USE_KEY);
     }
 
+    public static function getAvailableCancelPickupMethod()
+    {
+        return [
+            self::STATUS_CANCEL_SELF_PICKUP,
+            self::STATUS_CANCE_DELIVERED
+        ];
+    }
+
     /**
      * Get error codes.
      *
@@ -254,6 +267,8 @@ class Package extends Model implements AttachableContract
             self::STATUS_IN_TRANSIT,
             self::STATUS_WITH_COURIER,
             self::STATUS_DELIVERED,
+            self::STATUS_CANCEL_SELF_PICKUP,
+            self::STATUS_CANCE_DELIVERED
         ];
     }
 

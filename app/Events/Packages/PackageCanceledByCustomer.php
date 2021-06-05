@@ -9,24 +9,22 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Validation\ValidationException;
 
-class PackageCanceledByAdmin
+class PackageCanceledByCustomer
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Package $package;
-
-
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\Packages\Package $package
+     * @return void
      */
     public function __construct(Package $package)
     {
-        $mustConditions = [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL];
-        throw_if(in_array($package->status, $mustConditions), ValidationException::withMessages([
-            'package' => __('package should be in '.implode(',', $mustConditions).' status'),
+        throw_if($package->status !== Package::STATUS_WAITING_FOR_APPROVAL || $package->payment_status !== Package::PAYMENT_STATUS_DRAFT, ValidationException::withMessages([
+            'package' => __('package should be in '.Package::STATUS_WAITING_FOR_APPROVAL.' status and payment status '.Package::PAYMENT_STATUS_DRAFT),
         ]));
+
         $this->package = $package;
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api;
 
+use App\Http\Controllers\Api\Order\CancelController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
 use App\Http\Controllers\Api\Order\OrderController;
@@ -42,6 +43,16 @@ class OrderRoute extends BaseRoute
         $this->router->patch($this->prefix('{package_hash}/approve'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve'),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancel'),
+            'uses' => $this->uses('cancel', CancelController::class),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/cancel/method'), [
+            'as' => $this->name('cancel.method'),
+            'uses' => $this->uses('method', CancelController::class),
         ]);
 
         $this->router->post($this->prefix('{package_hash}/receipt'), [

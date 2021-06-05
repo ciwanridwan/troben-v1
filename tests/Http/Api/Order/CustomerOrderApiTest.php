@@ -13,11 +13,17 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Events\Packages\PackageCanceledByCustomer;
+use App\Http\Controllers\Api\Order\CancelController;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Controllers\Api\Order\OrderController;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\SelectCancelPickupMethod;
+use App\Models\Attachment;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerOrderApiTest extends TestCase
 {
@@ -44,6 +50,8 @@ class CustomerOrderApiTest extends TestCase
             'id' => $price['destination']['id'],
         ]))->json('data'))->first();
 
+        $fileUploaded = UploadedFile::fake()->image('product.jpg');
+
         $data = [
             'service_code' => $services->random()['code'],
             'transporter_type' => Transporter::TYPE_BIKE,
@@ -68,11 +76,20 @@ class CustomerOrderApiTest extends TestCase
                 'is_insured' => true,
                 'handling' => $this->faker->randomElements(Handling::getTypes()),
             ])->toArray(),
+            'photos' => [$fileUploaded]
         ];
 
         $response = $this->postJson(route('api.order.store'), $data, $headers);
 
         $response->assertSuccessful();
+        $attachment = Attachment::firstWhere([
+            'type' => Package::ATTACHMENT_PACKAGE,
+            'title' => $fileUploaded->getClientOriginalName(),
+            'disk' => CustomerUploadPackagePhotos::DISK_DRIVER,
+            'mime' => $fileUploaded->getMimeType(),
+        ]);
+        $this->assertTrue($attachment->exists);
+        Storage::disk(CustomerUploadPackagePhotos::DISK_DRIVER)->assertExists($attachment->path);
     }
 
     public function test_can_update_existing_order()
@@ -146,6 +163,43 @@ class CustomerOrderApiTest extends TestCase
         $url = route('api.order.show', ['package_hash' => $package->hash]);
 
         $response = $this->getJson($url);
+
+        $response->assertSuccessful();
+    }
+
+    public function test_can_cancel_order()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->actingAs($package->customer);
+
+        $this->expectsEvents(PackageCanceledByCustomer::class);
+
+        $response = $this->patchJson(action([CancelController::class, 'cancel'], ['package_hash' => $package->hash]));
+
+        $response->assertSuccessful();
+    }
+
+    public function test_can_select_cancel_pickup_method()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->expectsEvents(PackageCanceledByCustomer::class);
+
+        event(new PackageCanceledByCustomer($package));
+
+        $this->actingAs($package->customer);
+
+        $this->expectsJobs(SelectCancelPickupMethod::class);
+        $response = $this->patchJson(action([CancelController::class, 'method'], ['package_hash' => $package->hash]), [
+            'pickup_method' => Package::STATUS_CANCEL_SELF_PICKUP
+        ]);
 
         $response->assertSuccessful();
     }

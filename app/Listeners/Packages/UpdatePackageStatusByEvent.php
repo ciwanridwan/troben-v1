@@ -14,6 +14,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackageCanceledByAdmin;
+use App\Events\Packages\PackageCanceledByCustomer;
 
 class UpdatePackageStatusByEvent
 {
@@ -46,10 +47,8 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageEstimatedByWarehouse:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
                 break;
-            case $event instanceof PackageCanceledByAdmin:
-                if (in_array($event->package->status, [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL])) {
-                    $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
-                }
+            case $event instanceof PackageCanceledByCustomer || $event instanceof PackageCanceledByAdmin:
+                $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
                 break;
             case $event instanceof PackageCheckedByCashier:
                 $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();

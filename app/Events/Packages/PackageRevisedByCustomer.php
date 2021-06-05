@@ -2,32 +2,23 @@
 
 namespace App\Events\Packages;
 
-use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Validation\ValidationException;
 
-class PackageCanceledByAdmin
+class PackageRevisedByCustomer
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public Package $package;
-
 
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\Packages\Package $package
+     * @return void
      */
-    public function __construct(Package $package)
+    public function __construct()
     {
-        $mustConditions = [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL];
-        throw_if(in_array($package->status, $mustConditions), ValidationException::withMessages([
-            'package' => __('package should be in '.implode(',', $mustConditions).' status'),
-        ]));
-        $this->package = $package;
+        //
     }
 
     /**

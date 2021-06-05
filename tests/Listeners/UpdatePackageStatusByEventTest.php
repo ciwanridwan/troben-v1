@@ -24,6 +24,8 @@ use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Packages\PackageCanceledByAdmin;
+use App\Events\Packages\PackageCanceledByCustomer;
 
 class UpdatePackageStatusByEventTest extends TestCase
 {
@@ -107,6 +109,40 @@ class UpdatePackageStatusByEventTest extends TestCase
         $this->assertDatabaseHas('packages', [
             'id' => $package->id,
             'status' => Package::STATUS_WAITING_FOR_APPROVAL,
+        ]);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function test_on_admin_cancel()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->runListener(new PackageCanceledByAdmin($package));
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_CANCEL,
+        ]);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function test_on_customer_cancel()
+    {
+        $this->seed(CustomerInChargeSeeder::class);
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_WAITING_FOR_APPROVAL)->first();
+
+        $this->runListener(new PackageCanceledByCustomer($package));
+        $this->assertDatabaseHas('packages', [
+            'id' => $package->id,
+            'status' => Package::STATUS_CANCEL,
         ]);
     }
 

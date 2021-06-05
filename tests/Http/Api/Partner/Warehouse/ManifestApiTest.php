@@ -2,6 +2,7 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
+use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Tests\TestCase;
 use App\Models\Code;
@@ -21,6 +22,7 @@ use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignableController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest\UnloadController;
 
 class ManifestApiTest extends TestCase
 {
@@ -203,5 +205,49 @@ class ManifestApiTest extends TestCase
         $response = $this->getJson(action([PartnerManifestController::class, 'show'], ['delivery_hash' => $deliveryHash]));
 
         $response->assertOk();
+    }
+
+    public function test_can_unload_package_from_manifest(): void
+    {
+        $this->seed(ManifestSeeder::class);
+
+        /** @var Delivery $delivery */
+        $delivery = Delivery::get()->random()->first();
+        event(new DriverUnloadedPackageInDestinationWarehouse($delivery));
+        $delivery->refresh();
+
+        /** @var Partner $destinationPartner */
+        $destinationPartner = $delivery->partner;
+        /** @var User $user */
+        $user = $destinationPartner->users()->wherePivot('role', UserablePivot::ROLE_WAREHOUSE)->first();
+
+        $this->actingAs($user);
+        $inputs = ['code' => $delivery->item_codes->pluck('content')->toArray()];
+
+        $response = $this->patchJson(action([UnloadController::class, 'unload'], ['delivery_hash' => $delivery->hash]), $inputs);
+
+        $response->assertOk();
+        self::assertSame(Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE, $response->json('data.packages.0.pivot.status'));
+
+
+        $deliveryHash = $response->json('data.hash');
+
+        $delivery = Delivery::byHash($deliveryHash);
+
+        self::assertNotEmpty($delivery->item_codes);
+
+        $this->assertDatabaseHas('deliverables', [
+            'delivery_id' => $delivery->id,
+            'deliverable_type' => Package::class,
+            'deliverable_id' => $delivery->packages()->withPivot('deliverable_id')->first()->id,
+            'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
+        ]);
+
+        $delivery->item_codes()->withPivot('deliverable_id')->get()->each(fn ($item_code) => $this->assertDatabaseHas('deliverables', [
+            'delivery_id' => $delivery->id,
+            'deliverable_type' => Code::class,
+            'deliverable_id' => $item_code->pivot->deliverable_id,
+            'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
+        ]));
     }
 }
