@@ -27,7 +27,6 @@ class CustomerUploadPackagePhotos
 
     public function handle()
     {
-
         $this->photos->each(function ($photo) {
             $this->photo = $photo;
             $this->package->attachments()->create([
