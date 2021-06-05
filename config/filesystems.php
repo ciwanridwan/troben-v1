@@ -40,6 +40,11 @@ return [
             'root' => storage_path('app/receipts'),
         ],
 
+        'package' => [
+            'driver' => 'local',
+            'root' => storage_path('app/packages'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

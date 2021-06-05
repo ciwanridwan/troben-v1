@@ -20,7 +20,6 @@ class WarehouseManifestResource extends DeliveryResource
         if ($this->resource->relationLoaded('code')) {
             $this->resource->load(['code.scan_receipt_codes', 'code.scan_item_codes', 'code.scan_item_codes.codeable']);
         }
-        $this->resource->makeHidden('item_codes');
 
         $itemCodes = $this->resource->item_codes->groupBy(fn (Code $code) => $code->codeable->package_id);
 

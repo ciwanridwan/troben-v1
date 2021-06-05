@@ -8,8 +8,12 @@ use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\PackageLoadedByDriver;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TransitController extends Controller
 {
@@ -20,8 +24,15 @@ class TransitController extends Controller
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 
-    public function loaded(Delivery $delivery): JsonResponse
+    public function loaded(Request $request, Delivery $delivery): JsonResponse
     {
+        $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
+            'status' => Deliverable::STATUS_LOAD_BY_DRIVER,
+            'role' => UserablePivot::ROLE_DRIVER
+        ]));
+
+        $this->dispatchNow($job);
+
         event(new PackageLoadedByDriver($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));

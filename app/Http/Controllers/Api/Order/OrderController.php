@@ -16,6 +16,7 @@ use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
 
 class OrderController extends Controller
 {
@@ -85,6 +86,10 @@ class OrderController extends Controller
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
+
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos'));
+
+        $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new PackageResource($job->package->load(
             'items',
