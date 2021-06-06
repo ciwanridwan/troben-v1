@@ -75,7 +75,7 @@ class OrderController extends Controller
         $request->validate([
             'items' => ['required'],
             'photos' => ['required'],
-            'photos.*' => ['image']
+            'photos.*' => ['required', 'image']
         ]);
 
         $inputs = $request->except('items');
