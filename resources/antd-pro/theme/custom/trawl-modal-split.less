@@ -1,0 +1,40 @@
+@border-properties: 0.3px solid @gray;
+@padding-properties: 1rem 2rem;
+.trawl-modal-split {
+  &--modal {
+    .ant-modal {
+      &-content {
+        overflow: hidden;
+      }
+      &-body {
+        padding: 0;
+      }
+    }
+  }
+  &--left {
+    &-container {
+      padding: @padding-properties;
+    }
+  }
+  &--right {
+    &-container {
+      border-left: @border-properties;
+    }
+    &-layout {
+      &--header {
+        height: unset;
+        line-height: normal;
+        padding: @padding-properties;
+        border-bottom: @border-properties;
+      }
+      &--content {
+        padding: @padding-properties;
+      }
+      &--footer {
+        padding: @padding-properties;
+        border-top: @border-properties;
+      }
+      min-height: 100%;
+    }
+  }
+}
