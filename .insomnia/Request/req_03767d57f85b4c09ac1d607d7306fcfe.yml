@@ -1,7 +1,7 @@
 _id: req_03767d57f85b4c09ac1d607d7306fcfe
 type: Request
 parentId: fld_87926dfa6e154807a1d1a57c89e1bc22
-modified: 1617130248216
+modified: 1622773068233
 created: 1617095740308
 url: "{{ _.base_url }}/partner/driver/order/pickup/{% response 'body',
   'req_aa346c7db2a0427aa1d144ebec28f85d', 'b64::JC5kYXRhLmhhc2g=::46b',
@@ -9,13 +9,21 @@ url: "{{ _.base_url }}/partner/driver/order/pickup/{% response 'body',
 name: Package Loaded by Driver
 description: ""
 method: PATCH
-body: {}
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"code": []
+    }
 parameters: []
 headers:
   - name: Accept
     value: application/json
     description: ""
     id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_64fb9b66e1cb405e84244b9e4acca2ba
 authentication:
   type: bearer
   prefix: ""

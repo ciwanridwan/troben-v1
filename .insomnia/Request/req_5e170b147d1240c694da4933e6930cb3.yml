@@ -1,21 +1,19 @@
-_id: req_81569de85c544f3fb28d66ade75c5f77
+_id: req_5e170b147d1240c694da4933e6930cb3
 type: Request
-parentId: fld_00564e8778df4e038a4dd4742a3adad9
-modified: 1622775174801
-created: 1622255682327
-url: "{{ _.base_url }}/partner/driver/order/transit/{% response 'body',
-  'req_ad339bdeed804d2fadf311b958cd5bfe', 'b64::JC5kYXRhLmhhc2g=::46b',
-  'no-history', 60 %}/loaded"
-name: Package Loaded by Driver
+parentId: fld_cb2b6fb74f5047d190406be185a38032
+modified: 1622936875689
+created: 1622877826574
+url: "{{ _.base_url }}/partner/warehouse/manifest/transit/{% response 'body',
+  'req_8682d164fa144c58ac7398e3464e2512', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'no-history', 60 %}/unloaded"
+name: Package Unloaded by Warehouse
 description: ""
 method: PATCH
 body:
   mimeType: application/json
   text: >-
     {
-    	"code" : [
-    						"{% response 'body', 'req_9d070cb25f034a60962e47aca1bda3a5', 'b64::JC5kYXRhLmNvZGUuc2Nhbl9pdGVtX2NvZGVzLjAuY29udGVudA==::46b', 'never', 60 %}"
-    					 ]
+    	"code": ["{% response 'body', 'req_572079ff50b04181ac6e1ad0f2b7c9cc', 'b64::JC5kYXRhLml0ZW1zWzBdLmNvZGVzLjAuY29udGVudA==::46b', 'always', 60 %}"]
     }
 parameters: []
 headers:
@@ -25,13 +23,13 @@ headers:
     id: pair_5f99e95fdd864182bec8fe456019ac4c
   - name: Content-Type
     value: application/json
-    id: pair_f62359b50d51477a98d37343cd887eeb
+    id: pair_a790e63dfeb042738a486501587bdea0
 authentication:
   type: bearer
   prefix: ""
   token: "{% response 'body', 'req_a14289d3f9934173a9fe0cab4f5204a9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613158847054.625
+metaSortKey: -1613147296141.4531
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

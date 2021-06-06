@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Events\Packages\PackageApprovedByCustomer;
-use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Http\Controllers\Api\Order\CancelController;
 use Database\Seeders\Packages\PackagesTableSeeder;

@@ -25,7 +25,7 @@ class PackageCanceledByAdmin
     {
         $mustConditions = [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_APPROVAL];
         throw_if(in_array($package->status, $mustConditions), ValidationException::withMessages([
-            'package' => __('package should be in ' . implode(',', $mustConditions) . ' status'),
+            'package' => __('package should be in '.implode(',', $mustConditions).' status'),
         ]));
         $this->package = $package;
     }
