@@ -54,27 +54,10 @@ class CreateNewPackage
      */
     public function __construct(array $inputs, array $items, bool $isSeparate = false)
     {
-        // $this->attributes = Validator::make($inputs, [
-        //     'customer_id' => ['required', 'exists:customers,id'],
-        //     'service_code' => ['required', 'exists:services,code'],
-        //     'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
-        //     'sender_name' => ['required'],
-        //     'sender_phone' => ['required'],
-        //     'sender_address' => ['required'],
-        //     'receiver_name' => ['required'],
-        //     'receiver_phone' => ['required'],
-        //     'receiver_address' => ['required'],
-        //     'handling' => ['nullable', 'array'],
-        //     'handling.*' => ['string', Rule::in(Handling::getTypes())],
-        //     'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-        //     'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
-        //     'destination_district_id' => ['required', 'exists:geo_districts,id'],
-        //     'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
-        // ])->validate();
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
-            'service_code' => ['required'],
-            'transporter_type' => ['required'],
+            'service_code' => ['required', 'exists:services,code'],
+            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['required'],
