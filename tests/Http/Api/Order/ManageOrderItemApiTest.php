@@ -9,7 +9,6 @@ use App\Casts\Package\Items\Handling;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 
 class ManageOrderItemApiTest extends TestCase
 {
