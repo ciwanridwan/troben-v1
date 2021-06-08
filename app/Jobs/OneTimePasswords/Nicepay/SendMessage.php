@@ -14,12 +14,12 @@ class SendMessage
 {
     use Dispatchable;
 
-    public const NICEPAY_MERCHANT_KEY = "33F49GnCMS1mFYlGXisbUDzVf2ATWCl9k3R++d5hDd3Frmuos/XLx8XhXpe+LDYAbpGKZYSwtlyyLOtS/8aD7A==";
+    public const NICEPAY_MERCHANT_KEY = '33F49GnCMS1mFYlGXisbUDzVf2ATWCl9k3R++d5hDd3Frmuos/XLx8XhXpe+LDYAbpGKZYSwtlyyLOtS/8aD7A==';
     public OneTimePassword $otp;
     public string $destination_number;
-    public string $otpPreMessage  = "JANGAN INFOKAN KODE INI KEPADA SIAPAPUN";
-    public string $otpContentMessage = "Kode otentikasi Anda : ";
-    public string $otpPostMessage = "Kode berlaku " . OtpVerification::EXPIRED_MINUTE . " mnt";
+    public string $otpPreMessage  = 'JANGAN INFOKAN KODE INI KEPADA SIAPAPUN';
+    public string $otpContentMessage = 'Kode otentikasi Anda : ';
+    public string $otpPostMessage = 'Kode berlaku '.OtpVerification::EXPIRED_MINUTE.' mnt';
 
     /**
      * @param OneTimePassword $otp
@@ -38,20 +38,19 @@ class SendMessage
      */
     public function handle()
     {
-
         $sendParams = [
-            "timeStamp" => date_format(Carbon::now(), 'YmdHis'),
-            "iMid" => "IONPAYTEST",
-            "smsType" => "2",
-            "reservedFlag" => "0",
-            "reservedDt" => "",
-            "reservedTm" => "",
-            "msgRefno" => "Trawlbens",
-            "recipientNo" => $this->destination_number,
-            "smsMsg" => $this->createOtpMessage(),
-            "dbProcessUrl" => "https://ptsv2.com/t/icha/post",
-            "reqNm" => "NICEPAY",
-            "sender" => "SENDER1",
+            'timeStamp' => date_format(Carbon::now(), 'YmdHis'),
+            'iMid' => 'IONPAYTEST',
+            'smsType' => '2',
+            'reservedFlag' => '0',
+            'reservedDt' => '',
+            'reservedTm' => '',
+            'msgRefno' => 'Trawlbens',
+            'recipientNo' => $this->destination_number,
+            'smsMsg' => $this->createOtpMessage(),
+            'dbProcessUrl' => 'https://ptsv2.com/t/icha/post',
+            'reqNm' => 'NICEPAY',
+            'sender' => 'SENDER1',
         ];
         $sendParams['merchantToken'] = $this->createMerchantToken($sendParams);
 
@@ -64,11 +63,11 @@ class SendMessage
 
     protected function createOtpMessage(): string
     {
-        return implode('. ', [$this->otpPreMessage, $this->otpContentMessage . $this->otp->token, $this->otpPostMessage]);
+        return implode('. ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage]);
     }
     protected function createMerchantToken($params): string
     {
-        $content = $params['timeStamp'] . $params['iMid'] . $params['msgRefno'] . self::NICEPAY_MERCHANT_KEY;
+        $content = $params['timeStamp'].$params['iMid'].$params['msgRefno'].self::NICEPAY_MERCHANT_KEY;
         return hash('sha256', $content);
     }
 }
