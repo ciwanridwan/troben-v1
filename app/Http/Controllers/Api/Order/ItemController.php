@@ -11,6 +11,10 @@ use App\Jobs\Packages\Item\UpdateExistingItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 use App\Jobs\Packages\Item\CreateNewItemFromExistingPackage;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Validator;
 
 class ItemController extends Controller
 {
@@ -38,13 +42,15 @@ class ItemController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function update(Request $request, Package $package, Item $item): JsonResponse
+    public function update(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-
-        $job = new UpdateExistingItem($package, $item, $request->all());
-
-        $this->dispatchNow($job);
+        $inputs = Arr::wrap($request->all());
+        foreach ($inputs as $itemInputs) {
+            $item = Item::byHash($itemInputs['hash']);
+            $job = new UpdateExistingItem($package, $item, $itemInputs);
+            $this->dispatchNow($job);
+        }
 
         return $this->jsonSuccess(new JsonResource($job->item));
     }

@@ -65,7 +65,7 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('store', ItemController::class),
         ]);
 
-        $this->router->put($this->prefix('{package_hash}/item/{item_hash}'), [
+        $this->router->put($this->prefix('{package_hash}/item'), [
             'as' => $this->name('item.update'),
             'uses' => $this->uses('update', ItemController::class),
         ]);

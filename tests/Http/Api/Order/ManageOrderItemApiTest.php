@@ -9,6 +9,7 @@ use App\Casts\Package\Items\Handling;
 use Illuminate\Foundation\Testing\WithFaker;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 
 class ManageOrderItemApiTest extends TestCase
 {
@@ -68,7 +69,9 @@ class ManageOrderItemApiTest extends TestCase
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
 
-        $newData = [
+        $newData = [];
+        $newData[] = [
+            'hash' => $item->hash,
             'qty' => $this->faker->numberBetween(1, 3),
             'name' => $this->faker->text(9),
             'weight' => $this->faker->numberBetween(1, 10),
@@ -79,7 +82,7 @@ class ManageOrderItemApiTest extends TestCase
             'handling' => $this->faker->randomElements(Handling::getTypes()),
         ];
 
-        $url = route('api.order.item.update', [$package->hash, $item->hash]);
+        $url = route('api.order.item.update', [$package->hash]);
         $headers = $this->getCustomersHeader();
 
         $response = $this->putJson($url, $newData, $headers);

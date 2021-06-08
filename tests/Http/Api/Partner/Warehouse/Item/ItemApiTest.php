@@ -10,6 +10,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
+use Illuminate\Support\Arr;
 
 class ItemApiTest extends TestCase
 {
@@ -59,8 +60,9 @@ class ItemApiTest extends TestCase
 
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
-
-        $newData = [
+        $newData = [];
+        $newData[] = [
+            'hash' => $item->hash,
             'qty' => $this->faker->numberBetween(1, 3),
             'name' => $this->faker->text(9),
             'weight' => $this->faker->numberBetween(1, 10),
@@ -71,7 +73,7 @@ class ItemApiTest extends TestCase
             'handling' => $this->faker->randomElements(Handling::getTypes()),
         ];
 
-        $url = route('api.order.item.update', [$package->hash, $item->hash]);
+        $url = route('api.order.item.update', [$package->hash]);
         $headers = $this->getCustomersHeader();
 
         $response = $this->putJson($url, $newData, $headers);
