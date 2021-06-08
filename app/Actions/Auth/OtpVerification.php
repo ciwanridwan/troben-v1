@@ -18,6 +18,7 @@ class OtpVerification
      * @var array
      */
     public array $attributes;
+    public const EXPIRED_MINUTE = 15;
 
     /**
      * OtpVerification constructor.
@@ -57,7 +58,7 @@ class OtpVerification
     {
         $otp = OneTimePassword::query()->findOrFail($this->attributes['otp']);
 
-        throw_if(! ($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
+        throw_if(!($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
         $otp = $this->attributes['retry'] ? $this->extendExpired($otp) : $otp->verifiable->createOtp();
 
@@ -74,7 +75,7 @@ class OtpVerification
     public function extendExpired(OneTimePassword $otp): OneTimePassword
     {
         if (Carbon::now()->gt($otp->expired_at)) {
-            $otp->expired_at = Carbon::now()->addMinutes(15);
+            $otp->expired_at = Carbon::now()->addMinutes(self::EXPIRED_MINUTE);
             $otp->save();
         }
 

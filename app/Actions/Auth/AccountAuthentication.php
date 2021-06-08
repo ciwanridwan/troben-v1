@@ -11,6 +11,7 @@ use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\Customers\CreateNewCustomer;
+use App\Jobs\OneTimePasswords\Nicepay\SendMessage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\PhoneNumberFormat;
@@ -90,14 +91,14 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         // if not asking for otp, make sure that the user is verified before.
-        throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
+        throw_if(!$this->attributes['otp'] && !$authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
@@ -135,6 +136,9 @@ class AccountAuthentication
     protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
+
+        // $job = new SendMessage($otp, $authenticatable->phone);
+        // $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,

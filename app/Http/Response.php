@@ -42,6 +42,7 @@ class Response implements Responsable
     public const RC_TOKEN_HAS_EXPIRED = '0302';
     public const RC_TOKEN_MISMATCH = '0303';
     public const RC_TOKEN_WAS_CLAIMED = '0304';
+    public const RC_SMS_GATEWAY_WAS_BROKEN = '0305';
 
     // server side faults. 0900 - 0999
     public const RC_SERVER_IN_MAINTENANCE = '0901';
