@@ -69,8 +69,10 @@ class ManageOrderItemApiTest extends TestCase
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
 
-        $newData = [];
-        $newData[] = [
+        $newData = [
+            'item' => []
+        ];
+        $newData['item'][] = [
             'hash' => $item->hash,
             'qty' => $this->faker->numberBetween(1, 3),
             'name' => $this->faker->text(9),

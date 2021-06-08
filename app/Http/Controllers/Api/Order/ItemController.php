@@ -7,6 +7,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Response;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
@@ -45,14 +46,21 @@ class ItemController extends Controller
     public function update(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-        $inputs = Arr::wrap($request->all());
-        foreach ($inputs as $itemInputs) {
-            $item = Item::byHash($itemInputs['hash']);
-            $job = new UpdateExistingItem($package, $item, $itemInputs);
-            $this->dispatchNow($job);
-        }
+        $request->validate([
+            'item' => ['required']
+        ]);
 
-        return $this->jsonSuccess(new JsonResource($job->item));
+        $itemInputs = Arr::wrap($request->item);
+
+        $items = new Collection();
+
+        foreach ($itemInputs as $itemInput) {
+            $item = Item::byHash($itemInput['hash']);
+            $job = new UpdateExistingItem($package, $item, $itemInput);
+            $this->dispatchNow($job);
+            $items->push($job->item);
+        }
+        return (new Response(Response::RC_SUCCESS, $items->toArray()))->json();
     }
 
     /**
