@@ -10,6 +10,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
+use Illuminate\Support\Arr;
 
 class ItemApiTest extends TestCase
 {
@@ -59,10 +60,8 @@ class ItemApiTest extends TestCase
 
         /** @var \App\Models\Packages\Item $item */
         $item = $package->items()->inRandomOrder()->first();
-        $newData = [
-            'item' => []
-        ];
-        $newData['item'][] = [
+        $newData = [];
+        $newData[] = [
             'hash' => $item->hash,
             'qty' => $this->faker->numberBetween(1, 3),
             'name' => $this->faker->text(9),

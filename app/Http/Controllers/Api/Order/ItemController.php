@@ -44,11 +44,8 @@ class ItemController extends Controller
     public function update(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-        $request->validate([
-            'item' => ['required']
-        ]);
 
-        $itemInputs = Arr::wrap($request->item);
+        $itemInputs = Arr::wrap($request->all());
 
         $items = new Collection();
 
