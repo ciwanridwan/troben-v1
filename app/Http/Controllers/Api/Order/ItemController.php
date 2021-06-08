@@ -12,6 +12,7 @@ use App\Jobs\Packages\Item\UpdateExistingItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 use App\Jobs\Packages\Item\CreateNewItemFromExistingPackage;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
 class ItemController extends Controller
