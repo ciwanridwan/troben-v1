@@ -65,11 +65,6 @@ class ManifestRoute extends BaseRoute
             'as' => $this->name('assignation.package'),
             'uses' => $this->uses('package', Manifest\AssignationController::class),
         ]);
-
-        $this->router->patch($this->prefix('unload/{delivery_hash}/package'), [
-            'as' => $this->name('unload'),
-            'uses' => $this->uses('unload', Manifest\UnloadController::class),
-        ]);
     }
 
     /**

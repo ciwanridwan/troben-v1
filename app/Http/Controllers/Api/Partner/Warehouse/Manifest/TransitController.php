@@ -9,7 +9,7 @@ use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Request;
 
-class UnloadController extends Controller
+class TransitController extends Controller
 {
     public function unload(Request $request, Delivery $delivery)
     {

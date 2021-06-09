@@ -22,6 +22,7 @@ use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignableController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
+use App\Http\Controllers\Api\Partner\Warehouse\Manifest\TransitController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\UnloadController;
 
 class ManifestApiTest extends TestCase
@@ -224,7 +225,7 @@ class ManifestApiTest extends TestCase
         $this->actingAs($user);
         $inputs = ['code' => $delivery->item_codes->pluck('content')->toArray()];
 
-        $response = $this->patchJson(action([UnloadController::class, 'unload'], ['delivery_hash' => $delivery->hash]), $inputs);
+        $response = $this->patchJson(action([TransitController::class, 'unload'], ['delivery_hash' => $delivery->hash]), $inputs);
 
         $response->assertOk();
         self::assertSame(Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE, $response->json('data.packages.0.pivot.status'));
