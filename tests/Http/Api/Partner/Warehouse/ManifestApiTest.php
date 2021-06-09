@@ -23,7 +23,6 @@ use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignableController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\TransitController;
-use App\Http\Controllers\Api\Partner\Warehouse\Manifest\UnloadController;
 
 class ManifestApiTest extends TestCase
 {
