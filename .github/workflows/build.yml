@@ -11,11 +11,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run php-cs-fixer
         uses: docker://oskarstark/php-cs-fixer-ga
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_user_name: 'digitalentropybot'
-          commit_user_email: 'dev@digitalentropy.co.id'
-          commit_message: "bot: cs fix"
+#       - uses: stefanzweifel/git-auto-commit-action@v4
+#         with:
+#           commit_user_name: 'digitalentropybot'
+#           commit_user_email: 'dev@digitalentropy.co.id'
+#           commit_message: "bot: cs fix"
   test:
     needs: cs
     runs-on: ubuntu-20.04
