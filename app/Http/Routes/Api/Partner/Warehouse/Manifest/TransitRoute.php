@@ -7,7 +7,6 @@ use Jalameta\Router\BaseRoute;
 
 class TransitRoute extends BaseRoute
 {
-
     protected $prefix = 'partner/warehouse/manifest/transit';
 
     protected $name = 'api.partner.warehouse.manifest.transit';
