@@ -184,6 +184,11 @@ class Partner extends Model
             ->using(UserablePivot::class);
     }
 
+    public function owner(): Relations\MorphToMany
+    {
+        return $this->users()->wherePivot('role',UserablePivot::ROLE_OWNER);
+    }
+
     public function drivers(): Relations\MorphToMany
     {
         return $this->users()->wherePivot('role', UserablePivot::ROLE_DRIVER);

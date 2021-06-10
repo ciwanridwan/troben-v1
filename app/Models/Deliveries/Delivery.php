@@ -51,6 +51,8 @@ class Delivery extends Model
     public const STATUS_ACCEPTED = 'accepted';
     public const STATUS_CANCELLED = 'cancelled';
     public const STATUS_WAITING_ASSIGN_PACKAGE = 'waiting_assign_package';
+    public const STATUS_WAITING_ASSIGN_PARTNER = 'waiting_assign_partner';
+    public const STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER = 'waiting_partner_assign_transporter';
     public const STATUS_WAITING_ASSIGN_TRANSPORTER = 'waiting_assign_transporter';
     public const STATUS_WAITING_TRANSPORTER = 'waiting_transporter';
     public const STATUS_LOADING = 'loading';
@@ -155,6 +157,8 @@ class Delivery extends Model
             self::STATUS_ACCEPTED,
             self::STATUS_CANCELLED,
             self::STATUS_WAITING_ASSIGN_PACKAGE,
+            self::STATUS_WAITING_ASSIGN_PARTNER,
+            self::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER,
             self::STATUS_WAITING_ASSIGN_TRANSPORTER,
             self::STATUS_WAITING_TRANSPORTER,
             self::STATUS_LOADING,
