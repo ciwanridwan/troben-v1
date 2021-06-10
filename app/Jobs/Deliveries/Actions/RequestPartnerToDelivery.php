@@ -36,7 +36,7 @@ class RequestPartnerToDelivery
         throw_if(
             $this->delivery->status !== Delivery::STATUS_WAITING_ASSIGN_PACKAGE,
             ValidationException::withMessages([
-                'package' => __('manifest not ready to be sent.'),
+                'manifest' => __('manifest not ready to be sent.'),
             ])
         );
         $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER)->save();
