@@ -14,7 +14,6 @@ use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
-use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -27,8 +26,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use ReflectionClass;
 
 /**
