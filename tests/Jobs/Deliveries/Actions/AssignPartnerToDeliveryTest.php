@@ -19,7 +19,7 @@ class AssignPartnerToDeliveryTest extends TestCase
     {
         $this->seed(RequestPartnerSeeder::class);
 
-        $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->first();
+        $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status',Delivery::STATUS_WAITING_ASSIGN_PARTNER)->first();
 
         $partner = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)->first();
 
