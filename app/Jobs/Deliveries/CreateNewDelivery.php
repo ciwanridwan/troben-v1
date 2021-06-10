@@ -18,6 +18,8 @@ class CreateNewDelivery
 
     private ?Partner $partner;
 
+    private ?Partner $originPartner;
+
     /**
      * CreateNewDelivery constructor.
      *
@@ -25,7 +27,7 @@ class CreateNewDelivery
      * @param \App\Models\Partners\Partner|null $partner
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(array $inputs = [], ?Partner $partner = null)
+    public function __construct(array $inputs = [], ?Partner $partner = null, ?Partner $originPartner = null)
     {
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Delivery::getAvailableTypes())],
@@ -40,6 +42,7 @@ class CreateNewDelivery
 
         $this->delivery = new Delivery();
         $this->partner = $partner;
+        $this->originPartner = $originPartner;
     }
 
     public function handle(): void
@@ -48,6 +51,9 @@ class CreateNewDelivery
 
         if ($this->partner) {
             $this->delivery->partner()->associate($this->partner);
+        }
+        if ($this->originPartner) {
+            $this->delivery->origin_partner()->associate($this->originPartner);
         }
 
         $this->delivery->save();

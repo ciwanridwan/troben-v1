@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Events\Packages\PackageCancelMethodSelected;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
@@ -36,6 +37,7 @@ class SelectCancelPickupMethod
     public function handle()
     {
         $this->package->setAttribute('status', $this->attributes['pickup_method'])->save();
+        event(new PackageCancelMethodSelected($this->package));
         return $this->package->exists;
     }
 }

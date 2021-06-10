@@ -1,0 +1,3 @@
+channel,name,admin_charges,is_bank_transfer,account_bank,account_number,account_name,options,auto_approve,is_active
+cod,cash on delivery,0,0,,,,,1,1
+cow,cash on walk in,0,0,,,,,1,1

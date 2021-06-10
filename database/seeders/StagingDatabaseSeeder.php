@@ -23,6 +23,10 @@ class StagingDatabaseSeeder extends Seeder
     {
         UsersTableSeeder::$COUNT = 3;
 
+        $this->call([
+            PaymentGatewaySeeder::class
+        ]);
+
         $this->command->getOutput()->title('Common seeder');
         $this->call([
             UsersTableSeeder::class,

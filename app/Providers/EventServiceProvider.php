@@ -26,6 +26,7 @@ use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use App\Listeners\Codes\WriteCodeLog;
+use App\Listeners\Packages\MakeInvoiceFromPackage;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
