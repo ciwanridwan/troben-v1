@@ -9,8 +9,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 /**
- * Class AssignPartnerToDelivery
- * @package App\Jobs\Deliveries\Actions
+ * Class AssignPartnerToDelivery.
  */
 class AssignPartnerToDelivery
 {

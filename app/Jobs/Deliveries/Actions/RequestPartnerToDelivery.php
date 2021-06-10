@@ -8,8 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Class RequestPartnerToDelivery
- * @package App\Jobs\Deliveries\Actions
+ * Class RequestPartnerToDelivery.
  */
 class RequestPartnerToDelivery
 {
@@ -40,7 +39,7 @@ class RequestPartnerToDelivery
                 'package' => __('manifest not ready to be sent.'),
             ])
         );
-        $this->delivery->setAttribute('status',Delivery::STATUS_WAITING_ASSIGN_PARTNER)->save();
+        $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER)->save();
         event(new PartnerRequested($this->delivery));
     }
 }

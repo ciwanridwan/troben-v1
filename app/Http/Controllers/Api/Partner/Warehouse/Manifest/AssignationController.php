@@ -15,8 +15,7 @@ use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 
 /**
- * Class AssignationController
- * @package App\Http\Controllers\Api\Partner\Warehouse\Manifest
+ * Class AssignationController.
  */
 class AssignationController extends Controller
 {

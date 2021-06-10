@@ -18,7 +18,7 @@ class RequestPartnerToDeliveryTest extends TestCase
     {
         $this->seed(RequestPartnerSeeder::class);
 
-        $delivery = Delivery::query()->where('type',Delivery::TYPE_TRANSIT)->first();
+        $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->first();
 
         $job = new RequestPartnerToDelivery($delivery);
 

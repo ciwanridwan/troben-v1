@@ -9,8 +9,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class PartnerRequested
- * @package App\Events\Deliveries
+ * Class PartnerRequested.
  */
 class PartnerRequested
 {
