@@ -4,7 +4,10 @@
       <a-col
         v-if="hasSlot('icon')"
         :span="iconSize"
-        class="trawl-order-row-layout--icon trawl-text-center"
+        :class="[
+          'trawl-order-row-layout--icon trawl-text-center',
+          !iconPadding ? 'trawl-order-row-layout--icon-0' : null
+        ]"
       >
         <slot name="icon"></slot>
       </a-col>
@@ -30,6 +33,10 @@
 export default {
   props: {
     afterLine: {
+      type: Boolean,
+      default: true
+    },
+    iconPadding: {
       type: Boolean,
       default: true
     }

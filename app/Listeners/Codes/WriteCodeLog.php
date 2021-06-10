@@ -19,6 +19,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\PackagePaymentVerified;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\WarehouseIsStartPacking;
+use App\Jobs\Codes\Logs\CreateNewLog;
 use App\Models\Code;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Model;
@@ -51,7 +52,7 @@ class WriteCodeLog
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();
-                if (! $user) {
+                if (!$user) {
                     $user = $package->customer;
                 }
                 $this->packageLog(
@@ -67,7 +68,7 @@ class WriteCodeLog
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();
-                if (! $user) {
+                if (!$user) {
                     $user = $package->customer;
                 }
                 $this->packageLog($user, $package, $package->code, [
@@ -78,7 +79,7 @@ class WriteCodeLog
                 $delivery = $event->delivery;
                 $delivery->refresh();
                 $user = auth()->user();
-                if (! $user) {
+                if (!$user) {
                     $user = $delivery->partner;
                 }
                 $this->deliveryLog(
@@ -97,7 +98,7 @@ class WriteCodeLog
                 $codeable = $code->codeable;
                 $package = $codeable instanceof Package ? $codeable : $codeable->package;
                 $user = $event->actor;
-                if (! $user) {
+                if (!$user) {
                     $user = $event->codeable;
                 }
                 $inputs = [
@@ -111,7 +112,7 @@ class WriteCodeLog
                 $delivery = $event->delivery;
                 $delivery->refresh();
                 $user = auth()->user();
-                if (! $user) {
+                if (!$user) {
                     $user = $delivery->partner;
                 }
                 $this->deliveryLog(
@@ -136,74 +137,75 @@ class WriteCodeLog
     }
     protected function packageLog(Model $model, Package $package, Code $code, $inputs)
     {
-        if (! Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$package->status.'_'.$package->payment_status];
+        if (!Arr::has($inputs, 'log_description')) {
+            $logDescription = CodeLogable::getAvailableStatusCode()[$package->status . '_' . $package->payment_status];
         } else {
             $logDescription = $inputs['log_description'];
         }
-        if (! Arr::has($inputs, 'log_status')) {
-            $logStatus = $package->status.'_'.$package->payment_status;
+        if (!Arr::has($inputs, 'log_status')) {
+            $logStatus = $package->status . '_' . $package->payment_status;
         } else {
             $logStatus = $inputs['log_status'];
         }
-        if (! Arr::has($inputs, 'log_showable')) {
+        if (!Arr::has($inputs, 'log_showable')) {
             $logShowable = CodeLogable::SHOW_ALL;
         } else {
             $logShowable = $inputs['log_showable'];
         }
-        if (! Arr::has($inputs, 'log_type')) {
+        if (!Arr::has($inputs, 'log_type')) {
             $logType = CodeLogable::TYPE_INFO;
         } else {
             $logType = $inputs['log_type'];
         }
         $inputs = [
-            'code_id' => $code->id,
             'type' => $logType,
-            'showable' => implode(',', Arr::wrap($logShowable)),
+            'showable' => Arr::wrap($logShowable),
             'status' => $logStatus,
             'description' => $logDescription
         ];
 
         if ($logType === CodeLogable::TYPE_SCAN) {
-            if (! $model->code_logs()->firstWhere($inputs)) {
-                $model->code_logs()->create($inputs);
+            if (!$model->code_logs()->firstWhere($inputs)) {
+                $job = new CreateNewLog($code, $model, $inputs);
+                $this->dispatch($job);
             }
         } else {
-            $model->code_logs()->create($inputs);
+            $job = new CreateNewLog($code, $model, $inputs);
+            $this->dispatch($job);
         }
     }
 
     protected function deliveryLog(Model $model, Delivery $delivery, Code $code, $inputs)
     {
-        if (! Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$delivery->type.'_'.$delivery->status];
+        if (!Arr::has($inputs, 'log_description')) {
+            $logDescription = CodeLogable::getAvailableStatusCode()[$delivery->type . '_' . $delivery->status];
         } else {
             $logDescription = $inputs['log_description'];
         }
-        if (! Arr::has($inputs, 'log_status')) {
-            $logStatus = $delivery->type.'_'.$delivery->status;
+        if (!Arr::has($inputs, 'log_status')) {
+            $logStatus = $delivery->type . '_' . $delivery->status;
         } else {
             $logStatus = $inputs['log_status'];
         }
-        if (! Arr::has($inputs, 'log_showable')) {
+        if (!Arr::has($inputs, 'log_showable')) {
             $logShowable = CodeLogable::SHOW_ALL;
         } else {
             $logShowable = $inputs['log_showable'];
         }
-        if (! Arr::has($inputs, 'log_type')) {
+        if (!Arr::has($inputs, 'log_type')) {
             $logType = CodeLogable::TYPE_INFO;
         } else {
             $logType = $inputs['log_type'];
         }
 
         $inputs = [
-            'code_id' => $code->id,
             'type' => $logType,
-            'showable' => implode(',', Arr::wrap($logShowable)),
+            'showable' => Arr::wrap($logShowable),
             'status' => $logStatus,
             'description' => $logDescription
         ];
 
-        $model->code_logs()->create($inputs);
+        $job = new CreateNewLog($code, $model, $inputs);
+        $this->dispatch($job);
     }
 }

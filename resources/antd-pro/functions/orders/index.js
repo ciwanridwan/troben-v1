@@ -62,6 +62,13 @@ const getSubTotalItems = items => {
   });
   return subTotal;
 };
+const getNumberOfItems = items => {
+  let numberItem = 0;
+  items.forEach(item => {
+    numberItem += item.qty;
+  });
+  return numberItem;
+};
 export {
   getHandlingPrice,
   getInsurancePrice,
@@ -71,5 +78,6 @@ export {
   getSubTotalItems,
   getHandlings,
   getOriginAddress,
-  getDestinationAddress
+  getDestinationAddress,
+  getNumberOfItems
 };

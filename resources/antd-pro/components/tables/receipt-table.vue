@@ -23,6 +23,12 @@
         <a-col :span="8">
           <order-status :record="record"></order-status>
         </a-col>
+        <a-col :span="8" class="trawl-text-right">
+          <trawl-receipt-manual-tracking
+            :afterStore="getItems"
+            :record="record"
+          />
+        </a-col>
       </a-row>
     </span>
   </trawl-table>
@@ -32,6 +38,7 @@ import trawlTable from "../trawl-table.vue";
 import receiptColumns from "../../config/table/home/trawl-receipt";
 import OrderStatus from "../order-status.vue";
 import OrderAction from "../order-action.vue";
+import TrawlReceiptManualTracking from "../trawl-receipt-manual-tracking.vue";
 
 export default {
   data() {
@@ -40,11 +47,22 @@ export default {
     };
   },
   props: {
-    dataSource: Array,
-    default: () => {
-      return [];
+    dataSource: {
+      type: Array,
+      default: () => {
+        return [];
+      }
+    },
+    getItems: {
+      type: Function,
+      default: () => {}
     }
   },
-  components: { trawlTable, OrderAction, OrderStatus }
+  components: {
+    trawlTable,
+    OrderAction,
+    OrderStatus,
+    TrawlReceiptManualTracking
+  }
 };
 </script>

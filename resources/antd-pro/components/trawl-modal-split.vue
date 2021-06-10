@@ -68,6 +68,7 @@
 </template>
 <script>
 export default {
+  props: ["visibleProp"],
   data() {
     return {
       visible: false
@@ -82,6 +83,11 @@ export default {
     },
     hasSlot(slotName) {
       return !!this.$slots[slotName];
+    }
+  },
+  watch: {
+    visibleProp: function(value) {
+      console.log(value);
     }
   }
 };

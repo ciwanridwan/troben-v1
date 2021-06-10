@@ -12,6 +12,22 @@ use ReflectionClass;
 
 class CodeLogable extends MorphPivot
 {
+    public static $staticMakeVisible;
+
+    public function __construct($attributes = array())
+    {
+        parent::__construct($attributes);
+
+        if (isset(self::$staticMakeVisible)) {
+            $this->makeVisible(self::$staticMakeVisible);
+        }
+    }
+
+    public function __destruct()
+    {
+        self::$staticMakeVisible = null;
+    }
+
     use HasFactory;
     public const TYPE_ERROR = 'error';
     public const TYPE_INFO = 'info';
@@ -22,7 +38,7 @@ class CodeLogable extends MorphPivot
     public const SHOW_CUSTOMER = 'customer';
     public const SHOW_PARTNER = 'partner';
     public const SHOW_ADMIN = 'admin';
-    public const SHOW_ALL = self::SHOW_CUSTOMER.','.self::SHOW_PARTNER.','.self::SHOW_ADMIN;
+    public const SHOW_ALL = self::SHOW_CUSTOMER . ',' . self::SHOW_PARTNER . ',' . self::SHOW_ADMIN;
     protected $table = 'code_logables';
 
     protected $hidden = [
@@ -57,7 +73,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Package::getStatusConst() as $status => $statusValue) {
             foreach (Package::getPaymentStatusConst() as $paymentStatus => $paymentStatusValue) {
-                $statuses[$status.'_'.$paymentStatus] = $statusValue.'_'.$paymentStatusValue;
+                $statuses[$status . '_' . $paymentStatus] = $statusValue . '_' . $paymentStatusValue;
             }
         }
         return $statuses;
@@ -71,7 +87,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Delivery::getTypeConst() as $type => $typeValue) {
             foreach (Delivery::getStatusConst() as $status => $statusValue) {
-                $statuses[$type.'_'.$status] = $typeValue.'_'.$statusValue;
+                $statuses[$type . '_' . $status] = $typeValue . '_' . $statusValue;
             }
         }
         return $statuses;
@@ -102,6 +118,16 @@ class CodeLogable extends MorphPivot
             self::TYPE_WARNING,
             self::TYPE_NEUTRAL,
             self::TYPE_SCAN
+        ];
+    }
+
+    public static function getAvailableShowable()
+    {
+        return [
+            self::SHOW_ADMIN,
+            self::SHOW_CUSTOMER,
+            self::SHOW_PARTNER,
+            self::SHOW_ALL
         ];
     }
 }

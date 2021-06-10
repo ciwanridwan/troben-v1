@@ -10,23 +10,6 @@
             <a class="ant-dropdown-link" @click="e => e.preventDefault()">
               Click me <a-icon type="down" />
             </a>
-
-            <!-- <template slot="overlay">
-              <a-card class="">
-                <a-checkbox-group
-                  v-model="value"
-                  name="checkboxgroup"
-                  :options="plainOptions"
-                  @change="onChange"
-                />
-              </a-card>
-            </template> -->
-
-            <!-- <a-menu slot="overlay">
-              <a-menu-item>
-                test
-              </a-menu-item>
-            </a-menu> -->
           </a-dropdown>
         </a-col>
       </a-row>

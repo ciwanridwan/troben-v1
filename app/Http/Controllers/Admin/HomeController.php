@@ -11,9 +11,14 @@ use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackagePaymentVerified;
+use App\Jobs\Codes\Logs\CreateNewLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Listeners\Codes\WriteCodeLog;
+use App\Models\Code;
+use App\Models\CodeLogable;
+use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class HomeController extends Controller
 {
@@ -89,14 +94,38 @@ class HomeController extends Controller
     public function receipt(Request $request)
     {
         if ($request->expectsJson()) {
+            if ($request->has('partner')) {
+                return $this->getPartners($request, false);
+            }
+
             $this->getSearch($request);
             $this->dataRelation($request);
-
+            $this->query->with(['code.logs']);
             // $this->query->whereDoesntHave('deliveries');
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
         return view('admin.home.receipt.index');
+    }
+
+    public function storeLog(Request $request, Package $package)
+    {
+        $request->validate([
+            'partner' => ['required', new ExistsByHash(Partner::class)],
+        ]);
+        /** @var Partner $partner */
+        $partner = Partner::byHash($request->partner);
+        $inputs = array_merge($request->all(), [
+            'showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_CUSTOMER]
+        ]);
+
+        if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
+            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
+            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
+        }
+        $job = new CreateNewLog($package->code, $partner, $inputs);
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
 
@@ -119,12 +148,21 @@ class HomeController extends Controller
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
     }
 
-    private function getPartners(Request $request): JsonResponse
+    private function getPartners(Request $request, bool $hasTransporter = true): JsonResponse
     {
-        $this->query = Partner::query()->whereHas('transporters', function ($query) use ($request) {
-            $query->where('type', $request->transporter_type);
-        })->search($request->q);
+        $this->query = Partner::query();
+        if ($hasTransporter) {
+            $this->query = $this->query->whereHas('transporters', function ($query) use ($request) {
+                $query->where('type', $request->transporter_type);
+            });
+        }
+        $this->query->search($request->q);
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+    }
+
+    private function getTrackings(Package $package): JsonResponse
+    {
+        return (new Response(Response::RC_SUCCESS, $package->code->logs))->json();
     }
 }
