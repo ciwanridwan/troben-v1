@@ -11,7 +11,6 @@ use Database\Seeders\PaymentGatewaySeeder;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CreateNewPaymentTest extends TestCase

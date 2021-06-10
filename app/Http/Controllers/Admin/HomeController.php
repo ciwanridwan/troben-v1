@@ -15,7 +15,6 @@ use App\Jobs\Codes\Logs\CreateNewLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Listeners\Codes\WriteCodeLog;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
@@ -120,8 +119,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
-            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
+            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);
