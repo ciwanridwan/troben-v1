@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
+use App\Http\Resources\Api\Package\PackageResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -56,6 +57,11 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
+        if ($this->resource->relationLoaded('packages')) {
+            $packages = PackageResource::collection($this->resource->packages->load('items'));
+            $this->resource->unsetRelation('packages');
+        }
+
         $this->resource->append('as');
         $this->resource->load('item_codes');
         $this->resource->item_codes = $this->resource->item_codes->map(function ($item) {
@@ -64,6 +70,11 @@ class DeliveryResource extends JsonResource
             return $item;
         });
 
-        return parent::toArray($request);
+        $data = parent::toArray($request);
+        if (isset($packages)) {
+            $data['packages'] = $packages;
+        }
+
+        return $data;
     }
 }

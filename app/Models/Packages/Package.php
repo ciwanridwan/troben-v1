@@ -14,6 +14,7 @@ use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use ReflectionClass;
 
 /**
@@ -102,7 +105,7 @@ class Package extends Model implements AttachableContract
     public const STATUS_DELIVERED = 'delivered';
 
     public const STATUS_CANCEL_SELF_PICKUP = 'cancel_self_pickup';
-    public const STATUS_CANCE_DELIVERED = 'cancel_delivered';
+    public const STATUS_CANCEL_DELIVERED = 'cancel_delivered';
 
     public const PAYMENT_STATUS_DRAFT = 'draft';
     public const PAYMENT_STATUS_PENDING = 'pending';
@@ -225,7 +228,7 @@ class Package extends Model implements AttachableContract
     {
         return [
             self::STATUS_CANCEL_SELF_PICKUP,
-            self::STATUS_CANCE_DELIVERED
+            self::STATUS_CANCEL_DELIVERED
         ];
     }
 
@@ -268,7 +271,7 @@ class Package extends Model implements AttachableContract
             self::STATUS_WITH_COURIER,
             self::STATUS_DELIVERED,
             self::STATUS_CANCEL_SELF_PICKUP,
-            self::STATUS_CANCE_DELIVERED
+            self::STATUS_CANCEL_DELIVERED
         ];
     }
 
@@ -305,6 +308,7 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
+
     /**
      * Define `hasMany` relationship with Item model.
      *
@@ -337,6 +341,11 @@ class Package extends Model implements AttachableContract
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
+    }
+
+    public function picked_up_by()
+    {
+        return $this->deliveries()->orderByPivot('created_at')->with('partner');
     }
 
     public function deliveries(): MorphToMany
