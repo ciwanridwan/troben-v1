@@ -32,7 +32,7 @@
       </a-row>
     </template>
     <template slot="content">
-      <receipt-table :getItems="getItems" :dataSource="items.data" />
+      <receipt-table :afterAction="getItems" :dataSource="items.data" />
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>

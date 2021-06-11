@@ -34,7 +34,7 @@
               <a-select
                 show-search
                 option-filter-prop="children"
-                :filter-option="filterOption"
+                :filter-option="filterOptionMethod"
                 v-model="form.origin_regency_id"
                 @change="assignOriginProvince"
               >
@@ -58,7 +58,7 @@
               <a-select
                 show-search
                 option-filter-prop="children"
-                :filter-option="filterOption"
+                :filter-option="filterOptionMethod"
                 v-model="form.destination_regency_id"
               >
                 <a-select-option
@@ -81,7 +81,7 @@
               <a-select
                 show-search
                 option-filter-prop="children"
-                :filter-option="filterOption"
+                :filter-option="filterOptionMethod"
                 v-model="form.destination_id"
                 @change="assignZipCode"
               >
@@ -105,7 +105,7 @@
               <a-select
                 show-search
                 option-filter-prop="children"
-                :filter-option="filterOption"
+                :filter-option="filterOptionMethod"
                 v-model="form.destination_district_id"
               >
                 <a-select-option

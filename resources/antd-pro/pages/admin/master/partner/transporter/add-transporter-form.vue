@@ -23,7 +23,7 @@
               </template>
               <a-select
                 show-search
-                :filter-option="filterOption"
+                :filter-option="filterOptionMethod"
                 v-model="form.type"
                 placeholder="- Jenis Kendaraan -"
                 @change="typeSelected"

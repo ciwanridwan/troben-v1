@@ -3,7 +3,7 @@
     <a-select
       v-model="responsible"
       show-search
-      :filter-option="filterOption"
+      :filter-option="filterOptionMethod"
       @change="addResponsible"
     >
       <a-select-option

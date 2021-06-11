@@ -17,7 +17,7 @@
             </template>
             <a-select
               show-search
-              :filter-option="filterOption"
+              :filter-option="filterOptionMethod"
               v-model="form.geo_province_id"
               placeholder="- pilih provinsi -"
             >
@@ -38,7 +38,7 @@
             </template>
             <a-select
               show-search
-              :filter-option="filterOption"
+              :filter-option="filterOptionMethod"
               v-model="form.geo_regency_id"
               placeholder="- pilih kota/kabupaten -"
             >
@@ -59,7 +59,7 @@
             </template>
             <a-select
               show-search
-              :filter-option="filterOption"
+              :filter-option="filterOptionMethod"
               v-model="form.geo_district_id"
               placeholder="- pilih kecamatan -"
             >
@@ -80,7 +80,7 @@
             </template>
             <a-select
               show-search
-              :filter-option="filterOption"
+              :filter-option="filterOptionMethod"
               v-model="form.geo_sub_district_id"
               placeholder="- pilih kelurahan -"
             >

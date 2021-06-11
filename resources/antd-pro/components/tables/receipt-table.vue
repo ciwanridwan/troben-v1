@@ -25,7 +25,7 @@
         </a-col>
         <a-col :span="8" class="trawl-text-right">
           <trawl-receipt-manual-tracking
-            :afterStore="getItems"
+            :afterStore="afterAction"
             :record="record"
           />
         </a-col>
@@ -53,7 +53,7 @@ export default {
         return [];
       }
     },
-    getItems: {
+    afterAction: {
       type: Function,
       default: () => {}
     }
