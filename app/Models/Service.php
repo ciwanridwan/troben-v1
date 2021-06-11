@@ -25,18 +25,6 @@ class Service extends Model
     public const TRAWLPACK_STANDARD = 'tps';
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope('service', function (Builder $builder) {
-            $builder->where('is_active', true);
-        });
-    }
-
-    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
@@ -82,5 +70,17 @@ class Service extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'service_code', 'code');
+    }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope('service', function (Builder $builder) {
+            $builder->where('is_active', true);
+        });
     }
 }
