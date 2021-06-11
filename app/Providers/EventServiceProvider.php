@@ -46,6 +46,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageUpdated::class => [
             GeneratePackagePrices::class,
+            UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [

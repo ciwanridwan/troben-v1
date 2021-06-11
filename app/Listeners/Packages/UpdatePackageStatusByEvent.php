@@ -15,6 +15,8 @@ use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
+use App\Events\Packages\PackageUpdated;
+use App\Models\Customers\Customer;
 
 class UpdatePackageStatusByEvent
 {
@@ -76,6 +78,15 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageAttachedToDelivery:
                 if ($event->package->status === Package::STATUS_PACKED) {
                     $event->package->setAttribute('status', Package::STATUS_MANIFESTED)->save();
+                }
+                break;
+            case $event instanceof PackageUpdated:
+                /** @var Package $package */
+                $package = $event->package;
+                $user = auth()->user();
+
+                if ($package->customer->id === $user->id && $user instanceof Customer) {
+                    $package->setAttribute('status', Package::STATUS_REVAMP)->save();
                 }
                 break;
         }
