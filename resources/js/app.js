@@ -67,7 +67,7 @@ Vue.mixin({
       }
       return false;
     },
-    filterOption(input, option) {
+    filterOptionMethod(input, option) {
       return (
         option.componentOptions.children[0].text
           .toLowerCase()
