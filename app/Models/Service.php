@@ -83,16 +83,4 @@ class Service extends Model
     {
         return $this->hasMany(Price::class, 'service_code', 'code');
     }
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope('service', function (Builder $builder) {
-            $builder->where('is_active', true);
-        });
-    }
 }
