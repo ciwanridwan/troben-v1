@@ -13,13 +13,13 @@ class CreateNewPayment
 {
     use Dispatchable;
 
-    protected array $attributes;
-
     public Payment $payment;
 
     public Gateway $gateway;
 
     public Model $payableModel;
+
+    protected array $attributes;
 
     /**
      * Create a new job instance.

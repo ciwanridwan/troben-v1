@@ -4,8 +4,6 @@ namespace App\Listeners\Packages;
 
 use App\Jobs\Payments\CreateNewPayment;
 use App\Models\Packages\Package;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class MakeInvoiceFromPackage
 {

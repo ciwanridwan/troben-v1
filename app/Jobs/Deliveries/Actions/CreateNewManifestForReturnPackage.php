@@ -6,12 +6,12 @@ use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Validator;
-use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class CreateNewManifestForReturnPackage
 {
     use Dispatchable;
+
+    public Delivery $delivery;
 
     private array $attributes;
 
@@ -19,8 +19,6 @@ class CreateNewManifestForReturnPackage
      * @var \App\Models\Partners\Partner
      */
     private Partner $originPartner;
-
-    public Delivery $delivery;
 
 
 

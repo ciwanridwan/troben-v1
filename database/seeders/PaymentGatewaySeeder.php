@@ -12,7 +12,6 @@ use League\Csv\Statement;
 
 class PaymentGatewaySeeder extends Seeder
 {
-
     /**
      * @param $filePath
      * @return \Illuminate\Support\Collection
@@ -37,22 +36,22 @@ class PaymentGatewaySeeder extends Seeder
      */
     public function run()
     {
-        $path_file = __DIR__ . '/data/payment_gateway_list.csv';
+        $path_file = __DIR__.'/data/payment_gateway_list.csv';
         $gateways = $this->loadFiles($path_file);
 
-        $this->command->info("\n\nImport Payment Gateway List Data from " . $path_file);
+        $this->command->info("\n\nImport Payment Gateway List Data from ".$path_file);
         foreach ($gateways as $item) {
             DB::transaction(function () use ($item) {
                 $g = new Gateway();
                 $g->fill([
                     'channel' => $item['channel'],
                     'name' => $item['name'],
-                    'admin_charges' => (float)$item['admin_charges'],
-                    'is_bank_transfer' => (bool)$item['is_bank_transfer'],
+                    'admin_charges' => (float) $item['admin_charges'],
+                    'is_bank_transfer' => (bool) $item['is_bank_transfer'],
                     'account_bank' => $item['account_bank'],
                     'account_number' => $item['account_number'],
-                    'auto_approve' => (bool)$item['auto_approve'],
-                    'is_active' => (bool)$item['is_active'],
+                    'auto_approve' => (bool) $item['auto_approve'],
+                    'is_active' => (bool) $item['is_active'],
                     'options' => json_encode(''),
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
