@@ -24,8 +24,10 @@ use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
+use App\Events\Packages\PackageCancelMethodSelected;
 use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use App\Listeners\Codes\WriteCodeLog;
+use App\Listeners\Deliveries\CreateDeliveryByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -91,6 +93,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCanceledByCustomer::class => [
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        PackageCancelMethodSelected::class => [
+            CreateDeliveryByEvent::class,
             WriteCodeLog::class
         ],
         PackageCanceledByAdmin::class => [
