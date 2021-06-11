@@ -2,105 +2,56 @@
 
 namespace Database\Seeders\Packages\PostPayment;
 
-use App\Events\Packages\PackageApprovedByCustomer;
-use App\Events\Packages\PackageCheckedByCashier;
-use App\Models\Attachment;
+use Illuminate\Database\Seeder;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Illuminate\Support\Collection;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
-use Illuminate\Support\Facades\Event;
-use App\Events\Packages\PackageCreated;
-use App\Events\Packages\PackagePaymentVerified;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\Partners\Pivot\UserablePivot;
-use Database\Seeders\AttachmentsTableSeeder;
-use Database\Seeders\TransportersTableSeeder;
-use Database\Seeders\Packages\PackagesTableSeeder;
 
-class RequestPartnerSeeder extends PackagesTableSeeder
+class RequestPartnerSeeder extends Seeder
 {
     public function run(): void
     {
-        $packages = new Collection();
+        if (Partner::query()->where('type', Partner::TYPE_BUSINESS)->count() === 1) {
+            $this->command->warn('manifest seeder only work while UsersTableSeeder::$COUNT > 1');
 
-        Event::listen(PackageCreated::class, fn (PackageCreated $event) => $packages->push($event->package));
-
-        parent::run();
-        $packages->each(function ($package) {
-            event(new PackageCheckedByCashier($package));
-            event(new PackageApprovedByCustomer($package));
-            event(new PackagePaymentVerified($package));
-        });
-
-        $partnerQuery = Partner::query()->where('type', Partner::TYPE_BUSINESS);
-
-        $dummyReceipt = Attachment::query()->first();
-
-        $packages->filter(function (Package $package) use ($partnerQuery, $dummyReceipt) {
-            return $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
-                ->where('type', $package->transporter_type))
-                ->exists();
-        })->each(function (Package $package) use ($partnerQuery, $dummyReceipt) {
-            /** @var Partner $partner */
-            $partner = $partnerQuery->whereHas('transporters', fn (Builder $builder) => $builder
-                ->where('type', $package->transporter_type))
-                ->first();
-
-            /** @var Transporter $transporter */
-            $transporter = $partner->transporters()->where('type', $package->transporter_type)->first();
-
-            /** @var \App\Models\User $userWarehouse */
-            $userWarehouse = $partner->users()->wherePivot('role', UserablePivot::ROLE_WAREHOUSE)->first();
-
-            $package->deliveries()->create([
-                'type' => Delivery::TYPE_PICKUP,
-                'partner_id' => $partner->id,
-                'userable_id' => $transporter->drivers->first()->pivot->id,
-                'status' => Delivery::STATUS_FINISHED,
-            ]);
-
-            $package->deliveries()->create([
-                'type' => Delivery::TYPE_TRANSIT,
-                'partner_id' => $partner->id,
-                'userable_id' => $transporter->drivers->first()->pivot->id,
-                'status' => Delivery::STATUS_WAITING_ASSIGN_PACKAGE,
-            ]);
-
-            $package->deliveries()->create([
-                'type' => Delivery::TYPE_TRANSIT,
-                'partner_id' => $partner->id,
-                'userable_id' => $transporter->drivers->first()->pivot->id,
-                'status' => Delivery::STATUS_WAITING_ASSIGN_PARTNER,
-            ]);
-
-            $package->update([
-                'estimator_id' => $userWarehouse->id,
-            ]);
-
-            $package->attachments()->attach($dummyReceipt);
-        });
-    }
-
-    // protected function stateResolver(Customer $customer): array
-    // {
-    //     return array_merge(parent::stateResolver($customer), [
-    //         'status' => Package::STATUS_WAITING_FOR_PACKING,
-    //         'payment_status' => Package::PAYMENT_STATUS_PAID,
-    //     ]);
-    // }
-
-    protected function checkOrSeedDependenciesData(): void
-    {
-        parent::checkOrSeedDependenciesData();
-
-        if (Attachment::query()->where('type', Package::ATTACHMENT_RECEIPT)->count() === 0) {
-            $this->call(AttachmentsTableSeeder::class);
+            return;
         }
 
-        if (Transporter::query()->count() === 0) {
-            $this->call(TransportersTableSeeder::class);
+        $this->prepareDependency();
+
+        /** @var Package $package */
+        $package = Package::query()->where('status', Package::STATUS_PACKED)->first();
+        /** @var Delivery $delivery */
+        $delivery = $package->deliveries->first();
+        $delivery->item_codes()->syncWithoutDetaching($package->item_codes->pluck('id'));
+        $partner = $delivery->partner;
+        $otherPartners = Partner::query()->where('id', '!=', $partner->id)->whereIn('type', [
+            Partner::TYPE_BUSINESS,
+            Partner::TYPE_POOL,
+        ])->get();
+
+        $factory = Delivery::factory()->count($otherPartners->count());
+
+        $factory->create()
+            ->each(fn (Delivery $delivery, $index) => $delivery->fill([
+                'type' => Delivery::TYPE_TRANSIT,
+                'status' => Delivery::STATUS_WAITING_ASSIGN_PARTNER,
+                'origin_regency_id' => $partner->geo_regency_id,
+                'origin_district_id' => $partner->geo_district_id,
+                'origin_sub_district_id' => $partner->geo_sub_district_id,
+                'destination_regency_id' => $otherPartners->get($index)->geo_regency_id,
+                'destination_district_id' => $otherPartners->get($index)->geo_district_id,
+                'destination_sub_district_id' => $otherPartners->get($index)->geo_sub_district_id,
+                'origin_partner_id' => $partner->id,
+                'partner_id' => $otherPartners->get($index)->id,
+            ]))
+            ->each(fn (Delivery $delivery) => $delivery->save());
+    }
+
+    private function prepareDependency(): void
+    {
+        if (Package::query()->where('status', Package::STATUS_PACKED)->count() === 0) {
+            $this->call(PackedSeeder::class);
         }
     }
 }

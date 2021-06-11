@@ -11,6 +11,7 @@ use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use Database\Seeders\Packages\PostPayment\PackedSeeder;
 use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
+use Database\Seeders\Packages\PostPayment\RequestPartnerSeeder;
 
 class StagingDatabaseSeeder extends Seeder
 {
@@ -37,16 +38,16 @@ class StagingDatabaseSeeder extends Seeder
             ProductsTableSeeder::class,
         ]);
 
-        PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
-        $this->command->getOutput()->title('Pickup flow seeder');
-        $this->call([
-            PackagesTableSeeder::class,
-            TransportersTableSeeder::class,
-            AssignedPackagesSeeder::class,
-            WarehouseInChargeSeeder::class,
-            CashierInChargeSeeder::class,
-            CustomerInChargeSeeder::class,
-        ]);
+        // PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
+        // $this->command->getOutput()->title('Pickup flow seeder');
+        // $this->call([
+        //     PackagesTableSeeder::class,
+        //     TransportersTableSeeder::class,
+        //     AssignedPackagesSeeder::class,
+        //     WarehouseInChargeSeeder::class,
+        //     CashierInChargeSeeder::class,
+        //     CustomerInChargeSeeder::class,
+        // ]);
 
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Post payment seeder');
@@ -54,6 +55,14 @@ class StagingDatabaseSeeder extends Seeder
             PostPaymentSeeder::class,
             PackedSeeder::class,
             ManifestSeeder::class,
+        ]);
+
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Transporter Request seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
         ]);
 
         $this->call(PartnerTableImport::class);
