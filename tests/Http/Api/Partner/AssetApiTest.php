@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Database\Seeders\TransportersTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Controllers\Api\Partner\AssetController;
+use libphonenumber\PhoneNumberUtil;
 
 class AssetApiTest extends TestCase
 {
@@ -26,6 +27,37 @@ class AssetApiTest extends TestCase
 
         $response = $this->getJson(route('api.partner.asset', ['type' => 'employee']));
 
+        $response->assertSuccessful();
+    }
+
+    public function test_can_create_employee(): void
+    {
+        $user = $this->getUser(Partner::TYPE_BUSINESS, UserablePivot::ROLE_OWNER);
+        $this->actingAs($user);
+
+        $employeeInputs = User::factory()->makeOne();
+        $employeeInputs = $employeeInputs->getAttributes();
+        $employeeInputs['password'] = 'password';
+        $employeeInputs['password_confirmation'] = 'password';
+        $employeeInputs['phone'] = '081234567891';
+        $employeeInputs['role'] = [UserablePivot::ROLE_DRIVER];
+
+        $response = $this->postJson(route('api.partner.asset.store', ['type' => 'employee']), $employeeInputs);
+
+        $response->assertSuccessful();
+
+        $loginInputs = [
+            'guard' => 'user',
+            'username' => $employeeInputs['username'],
+            'password' => $employeeInputs['password'],
+            'device_name' => 'DEFAULT'
+        ];
+
+        $assertEmployee = collect($employeeInputs)->only(['name', 'username', 'email'])->toArray();
+
+        $this->assertDatabaseHas('users', $assertEmployee);
+
+        $response = $this->postJson(route('api.auth.login'), $loginInputs);
         $response->assertSuccessful();
     }
 
