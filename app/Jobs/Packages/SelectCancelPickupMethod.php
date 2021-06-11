@@ -21,7 +21,7 @@ class SelectCancelPickupMethod
      *
      * @return void
      */
-    public function __construct(Package $package, $inputs)
+    public function __construct(Package $package, array $inputs = [])
     {
         $this->attributes = Validator::validate($inputs, [
             'pickup_method' => ['required', Rule::in(Package::getAvailableCancelPickupMethod())]
