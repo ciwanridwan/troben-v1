@@ -163,7 +163,6 @@ class ManifestApiTest extends TestCase
             'code' => $package->item_codes->pluck('content')->toArray(),
         ]);
 
-
         $response->assertOk();
 
         $delivery = Delivery::byHash($deliveryHash);

@@ -39,7 +39,6 @@ class CreateNewLog
      */
     public function __construct(Code $code, Model $actedBy, array $inputs = [])
     {
-
         $this->attributes = Validator::validate($inputs, [
             'type' => ['required', Rule::in(CodeLogable::getAvailableTypes())],
             'status' => ['required', Rule::in(array_keys(CodeLogable::getAvailableStatusCode()))],

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
@@ -95,7 +96,7 @@ class CodeLogable extends MorphPivot
 
     public static function getAvailableStatusCode()
     {
-        return array_flip(array_merge(self::getLogPackageStatusAvailables(), self::getLogDeliveryStatusAvailables()));
+        return array_flip(array_merge(self::getLogPackageStatusAvailables(), self::getLogDeliveryStatusAvailables(), [UserablePivot::ROLE_DRIVER, UserablePivot::ROLE_WAREHOUSE]));
     }
 
     /**
