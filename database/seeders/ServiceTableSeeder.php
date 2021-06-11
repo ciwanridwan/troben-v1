@@ -16,10 +16,13 @@ class ServiceTableSeeder extends Seeder
      */
     public function run()
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/trawlpack_services.csv');
+        $csv = Reader::createFromPath(__DIR__ . '/data/trawlpack_services.csv');
         $csv->setHeaderOffset(0);
 
         foreach ((new Statement())->process($csv) as $service) {
+            if ($service['code'] != Service::TRAWLPACK_STANDARD) {
+                $service['is_active'] = false;
+            }
             (new Service())->fill($service)->save();
         }
     }

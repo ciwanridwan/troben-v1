@@ -17,6 +17,7 @@ class CreateServicesTable extends Migration
             $table->char('code', 3)->primary();
             $table->string('name');
             $table->string('description')->nullable();
+            $table->boolean('is_active')->nullable()->default(true);
             $table->timestamps();
         });
     }

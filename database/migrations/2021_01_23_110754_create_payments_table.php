@@ -21,7 +21,7 @@ class CreatePaymentsTable extends Migration
             $table->string('payable_type');
             $table->unsignedBigInteger('payable_id');
 
-            $table->string('service_type')->default('pay'); // pay, withdrawal, reversal.
+            $table->string('service_type')->default(Payment::SERVICE_TYPE_PAYMENT); // pay, withdrawal, reversal.
             $table->decimal('payment_amount', 14, 2);
             $table->decimal('payment_admin_charges', 14, 2)->default(0);
             $table->decimal('total_payment', 14, 2);

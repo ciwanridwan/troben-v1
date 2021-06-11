@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -22,6 +23,18 @@ class Service extends Model
     public const TRAWLPACK_SAMEDAY = 'tpd';
     public const TRAWLPACK_EXPRESS = 'tpx';
     public const TRAWLPACK_STANDARD = 'tps';
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::addGlobalScope('service', function (Builder $builder) {
+            $builder->where('is_active', true);
+        });
+    }
 
     /**
      * Indicates if the IDs are auto-incrementing.
