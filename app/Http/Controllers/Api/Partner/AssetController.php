@@ -23,7 +23,6 @@ use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Jobs\Users\Actions\EmailVerifyExistingUser;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 
 class AssetController extends Controller
@@ -194,7 +193,7 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
         $verifyJob = new VerifyExistingUser($job->user);
         $this->dispatch($verifyJob);
@@ -226,7 +225,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse

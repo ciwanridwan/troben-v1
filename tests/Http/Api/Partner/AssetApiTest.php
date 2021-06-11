@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Database\Seeders\TransportersTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Controllers\Api\Partner\AssetController;
-use libphonenumber\PhoneNumberUtil;
 
 class AssetApiTest extends TestCase
 {
