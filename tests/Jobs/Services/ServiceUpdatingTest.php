@@ -38,7 +38,7 @@ class ServiceUpdatingTest extends TestCase
      */
     public function getTestSubject($latest = false)
     {
-        $service = Service::query();
+        $service = Service::query()->withoutGlobalScopes();
 
         return $latest
             ? $service->orderBy('code', 'desc')->first()

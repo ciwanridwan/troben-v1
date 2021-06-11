@@ -31,7 +31,7 @@ class Service extends Model
      */
     protected static function booted()
     {
-        static::addGlobalScope('service', function (Builder $builder) {
+        static::addGlobalScope('services', function (Builder $builder) {
             $builder->where('is_active', true);
         });
     }
