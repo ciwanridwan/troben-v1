@@ -80,7 +80,6 @@ class ProcessFromCodeToDelivery
         $this->checkAndAttachPackageToDelivery($package);
 
         if ($this->code->codeable instanceof Item && $this->status) {
-
             $this->delivery->item_codes()->syncWithoutDetaching($code->id);
 
             $this->delivery->item_codes()->updateExistingPivot($this->code->id, [

@@ -9,7 +9,6 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\Packages\PostPayment\ManifestSeeder;
-use Database\Seeders\Packages\PostPayment\PackedSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
