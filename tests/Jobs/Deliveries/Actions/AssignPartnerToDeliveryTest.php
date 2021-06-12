@@ -6,6 +6,7 @@ use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
 use Database\Seeders\Packages\InTransit\RequestPartnerSeeder;
+use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,6 +18,8 @@ class AssignPartnerToDeliveryTest extends TestCase
 
     public function test_on_valid_data()
     {
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+
         $this->seed(RequestPartnerSeeder::class);
 
         $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER)->first();
