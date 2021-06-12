@@ -10,8 +10,6 @@ use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
-use Database\Seeders\Packages\PackagesTableSeeder;
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Database\Seeders\PaymentGatewaySeeder;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Bus\DispatchesJobs;

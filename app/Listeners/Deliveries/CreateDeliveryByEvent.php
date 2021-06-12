@@ -4,13 +4,10 @@ namespace App\Listeners\Deliveries;
 
 use App\Events\Packages\PackageCancelMethodSelected;
 use App\Jobs\Deliveries\Actions\CreateNewManifestForReturnPackage;
-use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Queue\InteractsWithQueue;
 
 class CreateDeliveryByEvent
 {

@@ -2,22 +2,16 @@
 
 namespace Tests\Jobs\Deliveries\Actions;
 
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageCancelMethodSelected;
 use App\Events\Packages\PackageCheckedByCashier;
 use App\Jobs\Packages\Actions\SelectCanceledPickupMethodDelivered;
-use App\Jobs\Packages\SelectCancelPickupMethod;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;
-use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use Database\Seeders\PaymentGatewaySeeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CreateNewManifestForReturnPackageTest extends TestCase
@@ -43,7 +37,6 @@ class CreateNewManifestForReturnPackageTest extends TestCase
         /** @var Package $package */
         $package = Package::all()->random()->first();
         /** @var Delivery $delivery */
-
         event(new PackageCheckedByCashier($package));
 
         $package->refresh();
