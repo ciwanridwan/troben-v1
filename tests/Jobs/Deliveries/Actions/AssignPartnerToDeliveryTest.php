@@ -5,7 +5,7 @@ namespace Tests\Jobs\Deliveries\Actions;
 use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
-use Database\Seeders\Packages\PostPayment\RequestPartnerSeeder;
+use Database\Seeders\Packages\InTransit\RequestPartnerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,6 +22,7 @@ class AssignPartnerToDeliveryTest extends TestCase
         $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER)->first();
 
         $partner = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)->first();
+
 
         $job = new AssignPartnerToDelivery($delivery, $partner);
 
