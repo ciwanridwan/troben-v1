@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Jobs\Deliveries\Actions\RequestPartnerToDelivery;
 use Illuminate\Database\Seeder;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Database\Seeders\Packages\CashierInChargeSeeder;

@@ -4,13 +4,9 @@ namespace Database\Seeders\Packages\InTransit;
 
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
-use Database\Seeders\Packages\InTransit\PackageAssignedToManifestSeeder;
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 

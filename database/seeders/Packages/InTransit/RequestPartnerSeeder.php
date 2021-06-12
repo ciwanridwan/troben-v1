@@ -4,8 +4,6 @@ namespace Database\Seeders\Packages\InTransit;
 
 use App\Jobs\Deliveries\Actions\RequestPartnerToDelivery;
 use Illuminate\Database\Seeder;
-use App\Models\Packages\Package;
-use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
