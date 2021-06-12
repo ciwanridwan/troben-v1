@@ -76,48 +76,48 @@ class StagingDatabaseSeeder extends Seeder
             DriverLoadPackageSeeder::class,
         ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Partner Assigned Driver to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        //     PartnerAssignedDriverToDeliverySeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Partner Assigned Driver to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Assigned Partner to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Assigned Partner to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Transporter Request seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Transporter Request seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Assigned Driver to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     DriverAssignedSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Assigned Driver to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            DriverAssignedSeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Package Manifested Seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     PackageAssignedToManifestSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Package Manifested Seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            PackageAssignedToManifestSeeder::class,
+        ]);
 
         $this->call(PartnerTableImport::class);
     }
