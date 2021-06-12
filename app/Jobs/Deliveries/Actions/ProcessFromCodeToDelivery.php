@@ -80,12 +80,13 @@ class ProcessFromCodeToDelivery
         $this->checkAndAttachPackageToDelivery($package);
 
         if ($this->code->codeable instanceof Item && $this->status) {
+
+            $this->delivery->item_codes()->syncWithoutDetaching($code->id);
+
             $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
                 'status' => $this->status,
                 'is_onboard' => Deliverable::isShouldOnBoard($this->status),
             ]);
-
-            $this->delivery->item_codes()->syncWithoutDetaching($code->id);
 
             /** @var Code $code */
             $code = $this->delivery->item_codes()->find($this->code->id);
@@ -98,6 +99,13 @@ class ProcessFromCodeToDelivery
     {
         if ($this->delivery->packages()->where('id', $package->id)->doesntExist()) {
             $this->delivery->packages()->attach($package);
+
+            if ($this->status) {
+                $this->delivery->packages()->updateExistingPivot($package->id, [
+                    'status' => $this->status,
+                    'is_onboard' => Deliverable::isShouldOnBoard($this->status),
+                ]);
+            }
 
             // $itemCodes = $package->items->pluck('codes')->flatten(1);
 

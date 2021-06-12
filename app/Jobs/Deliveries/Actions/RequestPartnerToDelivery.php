@@ -34,7 +34,7 @@ class RequestPartnerToDelivery
     public function handle()
     {
         throw_if(
-            $this->delivery->status !== Delivery::STATUS_WAITING_ASSIGN_PACKAGE,
+            $this->delivery->status !== Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER,
             ValidationException::withMessages([
                 'manifest' => __('manifest not ready to be sent.'),
             ])

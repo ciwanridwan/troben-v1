@@ -17,8 +17,6 @@ class CodeScanned
 
     public Code $code;
 
-    public User $actor;
-
     public Delivery $delivery;
 
     /**
@@ -36,7 +34,6 @@ class CodeScanned
         $this->delivery = $delivery;
         $this->code = $code;
         $this->role = $role;
-        $this->actor = auth()->user();
     }
 
     /**
