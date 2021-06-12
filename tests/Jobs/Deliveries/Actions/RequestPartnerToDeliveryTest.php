@@ -5,7 +5,6 @@ namespace Tests\Jobs\Deliveries\Actions;
 use App\Jobs\Deliveries\Actions\RequestPartnerToDelivery;
 use App\Models\Deliveries\Delivery;
 use Database\Seeders\Packages\InTransit\PackageAssignedToManifestSeeder;
-use Database\Seeders\Packages\InTransit\RequestPartnerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
