@@ -8,11 +8,13 @@ use Database\Seeders\Packages\CashierInChargeSeeder;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
 use Database\Seeders\Packages\CustomerInChargeSeeder;
 use Database\Seeders\Packages\InTransit\DriverAssignedSeeder;
+use Database\Seeders\Packages\InTransit\Drivers\DriverArrivedAtDestinationWarehouseSeeder;
 use Database\Seeders\Packages\InTransit\Drivers\DriverLoadPackageSeeder;
 use Database\Seeders\Packages\InTransit\PackageAssignedToManifestSeeder;
 use Database\Seeders\Packages\InTransit\PartnerAssignedDriverToDeliverySeeder;
 use Database\Seeders\Packages\InTransit\PartnerAssignedToDeliverySeeder;
 use Database\Seeders\Packages\InTransit\RequestPartnerSeeder;
+use Database\Seeders\Packages\InTransit\Warehouses\WarehouseUnloadPackageAtDestinationSeeder;
 use Database\Seeders\Packages\WarehouseInChargeSeeder;
 use Database\Seeders\Packages\PostPayment\PackedSeeder;
 use Database\Seeders\Packages\PostPayment\ManifestSeeder;
@@ -54,25 +56,43 @@ class StagingDatabaseSeeder extends Seeder
             CashierInChargeSeeder::class,
             CustomerInChargeSeeder::class,
         ]);
-        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        $this->command->getOutput()->title('Post payment seeder');
-        $this->call([
-            PostPaymentSeeder::class,
-            PackedSeeder::class,
-            ManifestSeeder::class,
-        ]);
 
         PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        $this->command->getOutput()->title('Driver Pacakge seeder');
+        $this->command->getOutput()->title('Warehouse Unload Pacakge at destination warehouse seeder');
         $this->call([
             PostPaymentSeeder::class,
             PackedSeeder::class,
             RequestPartnerSeeder::class,
             PartnerAssignedToDeliverySeeder::class,
             PartnerAssignedDriverToDeliverySeeder::class,
-            DriverAssignedSeeder::class,
+            DriverLoadPackageSeeder::class,
+            DriverArrivedAtDestinationWarehouseSeeder::class,
+            WarehouseUnloadPackageAtDestinationSeeder::class
+        ]);
+
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Driver Arrived and Unload Pacakge  at destination warehouse seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+            DriverLoadPackageSeeder::class,
+            DriverArrivedAtDestinationWarehouseSeeder::class
+        ]);
+
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Driver Load Pacakge seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
             DriverLoadPackageSeeder::class,
         ]);
 
@@ -122,6 +142,15 @@ class StagingDatabaseSeeder extends Seeder
             PostPaymentSeeder::class,
             PackedSeeder::class,
             PackageAssignedToManifestSeeder::class,
+        ]);
+
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Post payment seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            ManifestSeeder::class,
         ]);
 
         $this->call(PartnerTableImport::class);
