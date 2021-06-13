@@ -24,7 +24,7 @@ class DriverArrivedAtDestinationWarehouseSeeder extends Seeder
         $deliveries = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_ACCEPTED)->get();
 
         $deliveries->each(function (Delivery $delivery) {
-            Event::listen(PackageLoadedByDriver::class, fn (PackageLoadedByDriver $event) => $this->command->warn('Manifest ' . $event->delivery->code->content . ' is Unloaded By Driver'));
+            Event::listen(PackageLoadedByDriver::class, fn (PackageLoadedByDriver $event) => $this->command->warn('Manifest '.$event->delivery->code->content.' is Unloaded By Driver'));
             event(new DriverArrivedAtOriginWarehouse($delivery));
             event(new PackageLoadedByDriver($delivery));
         });
