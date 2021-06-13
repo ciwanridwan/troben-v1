@@ -18,6 +18,7 @@ class AssignPartnerToDeliveryTest extends TestCase
 
     public function test_on_valid_data()
     {
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
 
         $this->seed(RequestPartnerSeeder::class);

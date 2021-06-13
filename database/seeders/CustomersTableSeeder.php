@@ -8,6 +8,7 @@ use App\Models\Customers\Customer;
 
 class CustomersTableSeeder extends Seeder
 {
+    public static int $CUSTOMER_CREATED = 9;
     /**
      * Seed the application's database.
      *
@@ -26,7 +27,7 @@ class CustomersTableSeeder extends Seeder
 
         // make the rest of the data.
         Customer::factory()
-            ->count(9)
+            ->count(self::$CUSTOMER_CREATED)
             ->state([
                 'email_verified_at' => Carbon::now(),
                 'phone_verified_at' => Carbon::now(),

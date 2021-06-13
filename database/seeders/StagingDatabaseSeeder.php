@@ -33,6 +33,7 @@ class StagingDatabaseSeeder extends Seeder
             PaymentGatewaySeeder::class
         ]);
 
+        CustomersTableSeeder::$CUSTOMER_CREATED = 3;
         $this->command->getOutput()->title('Common seeder');
         $this->call([
             UsersTableSeeder::class,
@@ -42,8 +43,6 @@ class StagingDatabaseSeeder extends Seeder
             PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
         ]);
-
-
 
         PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
         $this->command->getOutput()->title('Pickup flow seeder');
@@ -55,7 +54,7 @@ class StagingDatabaseSeeder extends Seeder
             CashierInChargeSeeder::class,
             CustomerInChargeSeeder::class,
         ]);
-
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Post payment seeder');
         $this->call([
@@ -64,6 +63,7 @@ class StagingDatabaseSeeder extends Seeder
             ManifestSeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Driver Pacakge seeder');
         $this->call([
@@ -76,6 +76,7 @@ class StagingDatabaseSeeder extends Seeder
             DriverLoadPackageSeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Partner Assigned Driver to Manifest seeder');
         $this->call([
@@ -86,6 +87,7 @@ class StagingDatabaseSeeder extends Seeder
             PartnerAssignedDriverToDeliverySeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Assigned Partner to Manifest seeder');
         $this->call([
@@ -95,6 +97,7 @@ class StagingDatabaseSeeder extends Seeder
             PartnerAssignedToDeliverySeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Transporter Request seeder');
         $this->call([
@@ -103,6 +106,7 @@ class StagingDatabaseSeeder extends Seeder
             RequestPartnerSeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Assigned Driver to Manifest seeder');
         $this->call([
@@ -111,6 +115,7 @@ class StagingDatabaseSeeder extends Seeder
             DriverAssignedSeeder::class,
         ]);
 
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
         $this->command->getOutput()->title('Package Manifested Seeder');
         $this->call([
