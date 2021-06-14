@@ -84,6 +84,7 @@ return [
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         App\Http\Routes\Partner\CustomerService\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],
 
