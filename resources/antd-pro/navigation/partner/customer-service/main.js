@@ -26,6 +26,13 @@ const main = {
             text: "Order yang dilewatkan",
             route: "partner.customer_service.order.passed",
             children: null
+          },
+          walkin: {
+            title: "Create Order",
+            text: "Buat Pesanan Walkin",
+            route: "partner.customer_service.order.walkin.create",
+            children: null,
+            display: false
           }
         }
       },

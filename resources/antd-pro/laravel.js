@@ -66,6 +66,16 @@ const laravel = {
     numbering(index, pagination) {
       return pagination.per_page * (pagination.current_page - 1) + index + 1;
     },
+    routeOriginUri(routeName) {
+      return location.origin + this.routeUri(routeName);
+    },
+    redirectToPathName(routeName) {
+      history.pushState(
+        null,
+        document.title,
+        location.origin + this.routeUri(routeName)
+      );
+    },
     pushState(state) {
       history.pushState(
         state,

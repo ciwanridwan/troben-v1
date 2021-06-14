@@ -5,7 +5,7 @@
   >
     <div class="trawl-main-menu-detail-content">
       <h3 class="trawl-main-menu-detail-title">
-        {{ menu.title ? menu.title : menu.text }}
+        {{ title }}
       </h3>
 
       <a-menu
@@ -24,8 +24,9 @@
   </a-layout-sider>
 </template>
 <script>
-import { getNavigation } from "../../navigation";
+import { getNavigation, getParent } from "../../navigation";
 import subMenu from "./sub-menu.vue";
+import TrawlSubMenu from "./trawl-sub-menu.vue";
 
 export default {
   props: {
@@ -34,9 +35,10 @@ export default {
       default: () => ({})
     }
   },
-  components: { subMenu },
+  components: { subMenu, TrawlSubMenu },
   methods: {
-    getNavigation
+    getNavigation,
+    getParent
   },
   computed: {
     openedKeys() {
@@ -53,18 +55,19 @@ export default {
       return opened;
     },
     menu() {
-      let menu = null;
-      _.forEach(this.navigation, (o, k) => {
-        if (this.getRoute().indexOf(o.route) >= 0) {
-          menu = o;
-        }
-      });
+      let menu = this.getParent(this.getRoute(), this.navigation);
+      if (menu == null) {
+        menu = this.navigation[Object.keys(this.navigation)[0]];
+      }
+
       return menu;
     },
     subMenu() {
-      return this.transUri(this.menu.children);
+      return this.transUri(this.menu?.children);
+    },
+    title() {
+      return this.menu?.title ? this.menu?.title : this.menu?.text ?? "";
     }
-  },
-  created() {}
+  }
 };
 </script>

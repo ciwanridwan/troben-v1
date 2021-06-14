@@ -41,7 +41,7 @@
   </a-layout>
 </template>
 <script>
-import getNavigation from "../navigation/navigation";
+import { getNavigation } from "../navigation";
 
 export default {
   props: {

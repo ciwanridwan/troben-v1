@@ -24,4 +24,36 @@ const getNavigation = (route = "", routeList = undefined) => {
   return nav;
 };
 
-export default getNavigation;
+const findNestedNavigation = (route = "", routeList = undefined) => {
+  let foundRoute = null;
+  let findNestedNavigationFn = (route = "", routeList = undefined) =>
+    _.forIn(routeList, function(value, key) {
+      if (foundRoute != null) {
+        return false;
+      }
+      if (value.route === route) {
+        foundRoute = value;
+      }
+
+      if (_.isObject(value.children)) {
+        findNestedNavigationFn(route, value.children);
+      }
+    });
+  findNestedNavigationFn(route, routeList);
+  return foundRoute;
+};
+
+const getParent = (route = "", routeList = undefined) => {
+  let parent = null;
+  _.forIn(routeList, (value, key) => {
+    if (_.isObject(value.children)) {
+      let foundEl = findNestedNavigation(route, value.children);
+      if (foundEl != null) {
+        parent = value;
+      }
+    }
+  });
+  return parent;
+};
+
+export { getNavigation, getParent };
