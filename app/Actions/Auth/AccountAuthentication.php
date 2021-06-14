@@ -79,7 +79,7 @@ class AccountAuthentication
                 );
                 break;
             default:
-                $column = self::CREDENTIAL_USERNAME;
+                $column = $this->attributes['guard'] == 'customer' ? self::CREDENTIAL_EMAIL : self::CREDENTIAL_USERNAME;
                 break;
         }
 
