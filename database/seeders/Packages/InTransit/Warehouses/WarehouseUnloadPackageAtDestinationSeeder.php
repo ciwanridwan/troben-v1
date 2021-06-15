@@ -21,7 +21,7 @@ class WarehouseUnloadPackageAtDestinationSeeder extends Seeder
         /** @var Delivery $deliveries */
         $deliveries = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_FINISHED)->get();
 
-        Event::listen(WarehouseUnloadedPackage::class, fn (WarehouseUnloadedPackage $event) => $this->command->warn('Manifest ID ' . $event->delivery->id . ' Was Unloaded By ' . $event->delivery->partner->name . ' Warehouse'));
+        Event::listen(WarehouseUnloadedPackage::class, fn (WarehouseUnloadedPackage $event) => $this->command->warn('Manifest ID '.$event->delivery->id.' Was Unloaded By '.$event->delivery->partner->name.' Warehouse'));
 
         $deliveries->each(fn (Delivery $delivery) => event(new WarehouseUnloadedPackage($delivery, ['code' => $delivery->item_codes->pluck('content')->toArray()])));
     }
