@@ -16,6 +16,7 @@ import DeliveryIcon from "./deliveryIcon";
 import HomeIcon from "./homeIcon";
 import ConfirmImage from "./confirmImage";
 import TermConditionIcon from "./termConditionIcon";
+import ShippingIcon from "./shippingIcon";
 
 export {
   CarIcon,
@@ -35,5 +36,6 @@ export {
   HomeIcon,
   TrawlWhiteIcon,
   ConfirmImage,
-  TermConditionIcon
+  TermConditionIcon,
+  ShippingIcon
 };

@@ -32,6 +32,7 @@
 import asideMenuNew from "./aside/aside-menu-new.vue";
 import MainMenuDetail from "./aside/main-menu-detail.vue";
 import MainMenuNew from "./aside/main-menu-new.vue";
+import TrawlMainMenuDetail from "./aside/trawl-main-menu-detail.vue";
 import TrawlMainMenu from "./aside/trawl-main-menu.vue";
 import AdminHeaderNew from "./header/admin-header-new.vue";
 import TrawlHeader from "./header/trawl-header.vue";
@@ -43,7 +44,8 @@ export default {
     MainMenuDetail,
     MainMenuNew,
     TrawlMainMenu,
-    TrawlHeader
+    TrawlHeader,
+    TrawlMainMenuDetail
   },
   props: {
     sidebar: {
@@ -92,7 +94,7 @@ export default {
     }
   },
   data: () => ({
-    drawerOpen: false,
+    drawerOpen: false
   }),
   methods: {
     toggleCollapse() {

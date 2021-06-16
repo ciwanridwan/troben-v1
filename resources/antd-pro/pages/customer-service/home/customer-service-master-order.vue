@@ -1,7 +1,14 @@
 <template>
   <content-layout siderPosition="right">
+    <template slot="head-tools">
+      <a :href="routeOriginUri('partner.customer_service.order.walkin.create')">
+        <a-button type="success" class="trawl-button-success">
+          Create Order
+        </a-button>
+      </a>
+    </template>
     <template slot="content">
-      <a-table
+      <trawl-table
         :columns="orderColumns"
         :defaultExpandAllRows="true"
         :data-source="items.data"
@@ -24,7 +31,7 @@
             </a-col>
           </a-row>
         </span>
-      </a-table>
+      </trawl-table>
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -40,6 +47,7 @@ import { orders } from "../../../mock";
 
 import OrderModalResi from "../../cashier/home/order/order-modal-resi.vue";
 import orderModal from "../../cashier/home/order/order-modal.vue";
+import TrawlTable from "../../../components/trawl-table.vue";
 
 export default {
   name: "CustomerServiceMasterOrder",
@@ -48,7 +56,8 @@ export default {
     OrderModalResi,
     TrawlNotification,
     ContentLayout,
-    ModalAssignTransporter
+    ModalAssignTransporter,
+    TrawlTable
   },
   data() {
     return {

@@ -1,5 +1,5 @@
 import main from "./main";
 import userDropdown from "./user-dropdown";
-import getNavigation from "./navigation";
+import { getNavigation, getParent } from "./navigation";
 
-export { main, userDropdown, getNavigation };
+export { main, userDropdown, getNavigation, getParent };

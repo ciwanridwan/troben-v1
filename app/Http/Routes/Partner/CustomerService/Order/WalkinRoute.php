@@ -1,18 +1,19 @@
 <?php
 
-namespace App\Http\Routes\Partner\CustomerService;
+namespace App\Http\Routes\Partner\CustomerService\Order;
 
+use App\Http\Controllers\Partner\CustomerService\Order\WalkinController;
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Partner\CustomerService\OrderController;
 
-class OrderRoute extends BaseRoute
+class WalkinRoute extends BaseRoute
 {
+
     /**
      * @var string
      */
-    protected $name = 'partner.customer_service.order';
+    protected $name = 'partner.customer_service.order.walkin';
 
-    protected $prefix = 'order';
+    protected $prefix = 'walkin';
 
     /**
      * Register routes handled by this class.
@@ -22,8 +23,8 @@ class OrderRoute extends BaseRoute
     public function register()
     {
         $this->router->get($this->prefix, [
-            'as' => $this->name('pickup'),
-            'uses' => $this->uses('index'),
+            'as' => $this->name('create'),
+            'uses' => $this->uses('create')
         ]);
     }
 
@@ -34,6 +35,6 @@ class OrderRoute extends BaseRoute
      */
     public function controller()
     {
-        return OrderController::class;
+        return WalkinController::class;
     }
 }
