@@ -34,7 +34,7 @@ export default {
     return {
       formRefs: ["itemComponent", "handlingComponent", "insuranceComponent"],
       MinusCircleIcon,
-      form: {},
+      valid: true,
     };
   },
   computed: {
@@ -46,18 +46,19 @@ export default {
       });
       return form;
     },
-    valid() {
-      let valid = true;
-      this.formRefs.forEach((ref) => {
-        let currentForm = this.$refs[ref];
-        currentForm?.$refs?.formRules?.validate()?.catch(() => (valid = false));
-      });
-      return valid;
-    },
   },
   methods: {
     destroyComponent() {
       this.$destroy();
+    },
+    async validate() {
+      this.formRefs.forEach(async (ref) => {
+        let currentForm = this.$refs[ref];
+        await currentForm?.$refs?.formRules
+          ?.validate()
+          ?.catch(() => (this.valid = false));
+      });
+      return this.valid;
     },
 
     onItemChange(itemForm) {

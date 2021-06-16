@@ -78,9 +78,16 @@ export default {
   },
   methods: {
     async validate() {
-      if (this.$refs.itemForm.valid) {
-        console.log(this.$refs.itemForm.getFormData);
-      }
+      this.$refs.itemForm
+        .validate()
+        .then(() => {
+          console.log(this.$refs.itemForm.valid);
+          console.log(this.$refs.itemForm.getFormData);
+        })
+        .catch(() => {
+          console.log(this.$refs.itemForm.valid, "FAils");
+          console.log(this.$refs.itemForm.getFormData);
+        });
     },
     addItem() {
       this.numberItem++;
