@@ -29,7 +29,9 @@
         <a-layout-content>
           <slot name="content"></slot>
         </a-layout-content>
-        <slot name="footer" v-if="hasFooterSlot"></slot>
+        <a-layout-footer v-if="hasFooterSlot" class="content-layout-footer">
+          <slot name="footer"></slot>
+        </a-layout-footer>
       </a-layout>
     </a-layout-content>
     <a-layout-sider
@@ -81,19 +83,3 @@ export default {
   }
 };
 </script>
-<style lang="scss">
-#content-layout {
-  min-height: 90vh;
-  position: relative;
-  .content {
-    padding: 24px;
-  }
-  .ant-layout-content {
-    .content-layout {
-      &-head {
-        margin-bottom: 24px;
-      }
-    }
-  }
-}
-</style>

@@ -1,5 +1,6 @@
 import CarIcon from "./carIcon";
 import InformationIcon from "./informationIcon";
+import InformationCircleIcon from "./informationCircleIcon";
 import TrawlRedIcon from "./trawlRedIcon";
 import TrawlWhiteIcon from "./trawlWhiteIcon";
 import SendIcon from "./sendIcon";
@@ -17,10 +18,13 @@ import HomeIcon from "./homeIcon";
 import ConfirmImage from "./confirmImage";
 import TermConditionIcon from "./termConditionIcon";
 import ShippingIcon from "./shippingIcon";
+import PlusCircleIcon from "./plusCircleIcon";
+import MinusCircleIcon from "./minusCircleIcon";
 
 export {
   CarIcon,
   InformationIcon,
+  InformationCircleIcon,
   TrawlRedIcon,
   SendIcon,
   ReceiveIcon,
@@ -37,5 +41,7 @@ export {
   TrawlWhiteIcon,
   ConfirmImage,
   TermConditionIcon,
-  ShippingIcon
+  ShippingIcon,
+  PlusCircleIcon,
+  MinusCircleIcon
 };

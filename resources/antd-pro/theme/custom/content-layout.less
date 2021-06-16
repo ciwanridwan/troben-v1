@@ -1,0 +1,23 @@
+#content-layout {
+  min-height: 90vh;
+  position: relative;
+  .content {
+    padding: 24px;
+  }
+  .content-layout {
+    &-footer {
+      position: fixed;
+      margin-left: -24px;
+      bottom: 0;
+      width: 100%;
+      background-color: white;
+    }
+  }
+  .ant-layout-content {
+    .content-layout {
+      &-head {
+        margin-bottom: 24px;
+      }
+    }
+  }
+}
