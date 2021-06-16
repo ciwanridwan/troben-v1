@@ -46,11 +46,17 @@ class Transporter extends Model
     public const TYPE_CDE_ENGKEL_BOX = 'engkel box';
     public const TYPE_CDE_ENGKEL_DOUBLE = 'engkel double';
     public const TYPE_CDE_ENGKEL_DOUBLE_BOX = 'engkel double box';
+    public const TYPE_CDE_ENGKEL_BAK = 'cde engkel bak';
+    public const TYPE_CDD_DOUBLE_BAK = 'cdd double bak';
+    public const TYPE_CDD_DOUBLE_BOX = 'cdd double box';
+    public const TYPE_FUSO_BOX = 'fuso box';
+    public const TYPE_FUSO_BAK = 'fuso bak';
     public const TYPE_FUSO_6M = 'fuso 6m';
     public const TYPE_FUSO_9M = 'fuso 9m';
     public const TYPE_TRONTON = 'tronton';
     public const TYPE_WINGBOX = 'wingbox';
     public const TYPE_VAN = 'van';
+
 
     /**
      * The table associated with the model.
@@ -127,6 +133,11 @@ class Transporter extends Model
             self::TYPE_CDE_ENGKEL_BOX,
             self::TYPE_CDE_ENGKEL_DOUBLE,
             self::TYPE_CDE_ENGKEL_DOUBLE_BOX,
+            self::TYPE_CDE_ENGKEL_BAK,
+            self::TYPE_CDD_DOUBLE_BAK,
+            self::TYPE_CDD_DOUBLE_BOX,
+            self::TYPE_FUSO_BOX,
+            self::TYPE_FUSO_BAK,
             self::TYPE_FUSO_6M,
             self::TYPE_FUSO_9M,
             self::TYPE_TRONTON,
@@ -173,6 +184,62 @@ class Transporter extends Model
                 'width' => 130,
                 'height' => 120,
                 'weight' => 1000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDE_ENGKEL_BOX,
+                'length' => 459,
+                'width' => 169,
+                'height' => 212,
+                'weight' => 2500,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDE_ENGKEL_BAK,
+                'length' => 459,
+                'width' => 169,
+                'height' => 212,
+                'weight' => 2500,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDD_DOUBLE_BAK,
+                'length' => 670,
+                'width' => 200,
+                'height' => 220,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDD_DOUBLE_BOX,
+                'length' => 670,
+                'width' => 200,
+                'height' => 220,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_FUSO_BAK,
+                'length' => 550,
+                'width' => 220,
+                'height' => 220,
+                'weight' => 8000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_VAN,
+                'length' => 220,
+                'width' => 135,
+                'height' => 130,
+                'weight' => 750,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_FUSO_BOX,
+                'length' => 700,
+                'width' => 250,
+                'height' => 260,
+                'weight' => 10000,
                 'path_icons' => '',
             ],
         ];
