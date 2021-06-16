@@ -7,7 +7,6 @@ use Jalameta\Router\BaseRoute;
 
 class WalkinRoute extends BaseRoute
 {
-
     /**
      * @var string
      */
