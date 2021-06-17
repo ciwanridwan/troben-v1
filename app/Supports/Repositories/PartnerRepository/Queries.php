@@ -38,6 +38,15 @@ class Queries
         return $query;
     }
 
+    public function getDeliveriesByUserableQuery(): Builder
+    {
+        $query = Delivery::query();
+
+        $query->where('userable_id', $this->partner->id);
+
+        return $query;
+    }
+
     public function getPackagesQuery(): Builder
     {
         $query = Package::query();
