@@ -41,7 +41,7 @@ class Queries
     public function getDeliveriesByUserableQuery(): Builder
     {
         /** @var Partner $userable */
-        $userable = $this->user->partners()->wherePivot('role',UserablePivot::ROLE_OWNER)->wherePivot('userable_id',$this->partner->id)->first();
+        $userable = $this->user->partners()->wherePivot('role', UserablePivot::ROLE_OWNER)->wherePivot('userable_id', $this->partner->id)->first();
         $query = Delivery::query();
 
         $query->where('userable_id', $userable->pivot->id);
