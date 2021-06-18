@@ -38,9 +38,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -59,18 +59,7 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
-        $this->attributes = $request->validate([
-            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
-            'height' => ['required_with:width,length', 'numeric'],
-            'width' => ['required_with:height,length', 'numeric'],
-            'length' => ['required_with:width,height', 'numeric'],
-            'weight' => ['required', 'numeric'],
-            'insurance' => ['filled', 'boolean'],
-        ]);
-
-        return (new PricingCalculator($this->attributes))->calculate();
+        return PricingCalculator::calculate($request->toArray());
     }
 
     /**
