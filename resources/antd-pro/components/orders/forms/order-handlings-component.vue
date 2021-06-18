@@ -1,26 +1,18 @@
 <template>
-  <a-form-model ref="formRules" :model="form" :rules="rules">
-    <!-- packaging -->
-    <a-form-model-item ref="packaging" prop="packaging">
-      <a-radio-group v-model="form.packaging">
+  <a-form-model ref="formRules" :model="value" :rules="rules">
+    <!-- handling -->
+    <a-form-model-item ref="handling" prop="handling">
+      <a-radio-group v-model="value.handling">
         <a-space direction="vertical">
-          <a-radio :value="false">
-            Tanpa Packing
-          </a-radio>
-          <a-radio :value="true">
-            Pakai Packing
-          </a-radio>
+          <a-radio :value="false"> Tanpa Packing </a-radio>
+          <a-radio :value="true"> Pakai Packing </a-radio>
         </a-space>
       </a-radio-group>
     </a-form-model-item>
 
-    <!-- packaging_type -->
-    <a-form-model-item
-      v-show="form.packaging"
-      ref="packaging_type"
-      prop="packaging_type"
-    >
-      <a-checkbox-group v-model="form.packaging_type">
+    <!-- handling_type -->
+    <a-form-model-item v-show="value.handling" ref="handling_type" prop="handling_type">
+      <a-checkbox-group v-model="value.handling_type">
         <a-row type="flex">
           <a-col v-for="(value, key) in handlings" :key="key" :span="12">
             <a-checkbox :value="key">
@@ -39,32 +31,52 @@ export default {
   props: {
     onChange: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
+    value: {
+      type: Object,
+      default: () => {
+        return {
+          handling: false,
+          handling_type: null,
+        };
+      },
+    },
+    defaultValue: {
+      type: Object,
+      default: () => {},
+    },
   },
   data() {
     return {
       handlings,
-      form: {
-        packaging: false,
-        packaging_type: null
-      },
       rules: {
-        packaging: [{ required: true }],
-        packaging_type: [{ required: true }]
-      }
+        handling: [{ required: true }],
+        handling_type: [{ required: false }],
+      },
     };
   },
-  watch: {
-    "form.packaging_type": function() {
-      this.onChange(this.form);
+  methods: {
+    setDefaultValue() {
+      Object.keys(this.form).forEach((k) => {
+        this.form[k] = this.defaultValue[k];
+      });
     },
-    "form.packaging": function(value) {
-      if (!value) {
-        this.form.packaging_type = [];
-      }
-      this.onChange(this.form);
-    }
-  }
+    updateHandling() {
+      this.$emit("change", this.form);
+    },
+  },
+  watch: {
+    value: {
+      handler: function (value) {
+        if (!value.handling) {
+          value.handling_type ? (this.value.handling_type = []) : null;
+        }
+        this.onChange(value);
+        this.$emit("change", value);
+      },
+      deep: true,
+    },
+  },
 };
 </script>

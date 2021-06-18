@@ -20,6 +20,10 @@ import TermConditionIcon from "./termConditionIcon";
 import ShippingIcon from "./shippingIcon";
 import PlusCircleIcon from "./plusCircleIcon";
 import MinusCircleIcon from "./minusCircleIcon";
+import NoteIcon from "./noteIcon";
+import PinCircleIcon from "./pinCircleIcon";
+import EditIcon from "./editIcon";
+import PackageIconSpark from "./packageIconSpark"
 
 export {
   CarIcon,
@@ -43,5 +47,9 @@ export {
   TermConditionIcon,
   ShippingIcon,
   PlusCircleIcon,
-  MinusCircleIcon
+  MinusCircleIcon,
+  NoteIcon,
+  PinCircleIcon,
+  EditIcon,
+  PackageIconSpark
 };

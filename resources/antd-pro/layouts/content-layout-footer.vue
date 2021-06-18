@@ -17,16 +17,14 @@
             <a-col v-if="search" :span="8">
               <a-input-search
                 @search="search.action"
-                :placeholder="
-                  search.placeholder ? search.placeholder : 'search ...'
-                "
+                :placeholder="search.placeholder ? search.placeholder : 'search ...'"
               ></a-input-search>
             </a-col>
           </a-row>
         </a-col>
       </a-row>
       <a-layout>
-        <a-layout-content>
+        <a-layout-content :class="[hasFooterSlot ? 'content-layout-content--gap' : null]">
           <slot name="content"></slot>
         </a-layout-content>
         <a-layout-footer v-if="hasFooterSlot" class="content-layout-footer">
@@ -48,20 +46,20 @@ import { getNavigation } from "../navigation";
 export default {
   props: {
     title: {
-      type: String
+      type: String,
     },
     sider: {
       type: Boolean,
-      default: false
+      default: false,
     },
     siderPosition: {
       type: String,
-      default: "left"
+      default: "left",
     },
     search: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   computed: {
     defaultTitle() {
@@ -76,10 +74,10 @@ export default {
     },
     hasFooterSlot() {
       return !!this.$slots["footer"];
-    }
+    },
   },
   methods: {
-    getNavigation
-  }
+    getNavigation,
+  },
 };
 </script>

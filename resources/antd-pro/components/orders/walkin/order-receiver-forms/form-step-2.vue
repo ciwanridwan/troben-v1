@@ -1,107 +1,124 @@
 <template>
-  <a-form-model
-    ref="formRules"
-    :model="form"
-    :rules="rules"
-    :hideRequiredMark="true"
-    layout="vertical"
-  >
-    <a-form-model-item prop="items">
-      <order-item-form ref="itemForm" v-bind:form.sync="form" />
-      <!-- <a-space :key="index" direction="vertical" :style="{ width: '100%' }" ref="items">
-        <trawl-divider v-if="numberItem > 1" orientation="right">
+  <div>
+    <a-form-model ref="formRules" :model="form" :rules="rules">
+      <a-form-model-item prop="items">
+        <template v-for="(item, index) in form.items">
+          <trawl-divider
+            :key="`destroyer_${index}`"
+            v-if="form.items.length > 1"
+            orientation="right"
+          >
+            <a-icon
+              :component="MinusCircleIcon"
+              :style="{ cursor: 'pointer' }"
+              @click="removeItem"
+            />
+          </trawl-divider>
+          <order-item-form :key="index" ref="itemForm" v-model="form.items[index]" />
+        </template>
+
+        <trawl-divider orientation="right">
           <a-icon
-            :component="MinusCircleIcon"
+            :component="PlusCircleIcon"
             :style="{ cursor: 'pointer' }"
-            @click="takeItem(index - 1)"
+            @click="addItem"
           />
         </trawl-divider>
-        <div>
-          <h3 class="trawl-text-bolder">Daftar Barang</h3>
-          <order-item-component :ref="`itemComponent${index}`" :onChange="onItemChange" />
-        </div>
-
-        <div>
-          <h3 class="trawl-text-bolder">Rekomendasi Packing</h3>
-          <order-handlings-component
-            :ref="`handlingComponent${index}`"
-            :onChange="onPackagingChange"
-          />
-        </div>
-        <div>
-          <h3 class="trawl-text-bolder">Asuransi</h3>
-          <order-insurance-component :ref="`insuranceComponent${index}`" />
-        </div>
-      </a-space> -->
-      <trawl-divider orientation="right">
-        <a-icon
-          :component="PlusCircleIcon"
-          :style="{ cursor: 'pointer' }"
-          @click="addItem"
-        />
-      </trawl-divider>
-    </a-form-model-item>
-  </a-form-model>
+      </a-form-model-item>
+      <a-form-model-item prop="photos">
+        <h3>Foto Keseluruhan Barang</h3>
+        <trawl-upload-list v-model="form.photos" />
+      </a-form-model-item>
+    </a-form-model>
+  </div>
 </template>
 <script>
 import { PlusCircleIcon, MinusCircleIcon } from "../../../icons";
-import trawlRadioButton from "../../../trawl-radio-button.vue";
-import { services } from "../../../../data/services";
-import OrderHandlingsComponent from "../../forms/order-handlings-component.vue";
-import OrderItemComponent from "../../forms/order-item-component.vue";
-import OrderInsuranceComponent from "../../forms/order-insurance-component.vue";
 import TrawlDivider from "../../../trawl-divider.vue";
+import TrawlUploadList from "../../../trawl-upload-list.vue";
+import OrderHandlingsComponent from "../../forms/order-handlings-component.vue";
 import OrderItemForm from "../../forms/order-item-form.vue";
 export default {
-  components: {
-    trawlRadioButton,
-    OrderHandlingsComponent,
-    OrderItemComponent,
-    OrderInsuranceComponent,
-    TrawlDivider,
-    OrderItemForm,
-  },
   data() {
     return {
-      PlusCircleIcon,
-      MinusCircleIcon,
-      services,
-      numberItem: 1,
-      formRefs: ["itemForm"],
       form: {
-        items: [],
+        items: [{}],
+        photos: [],
       },
+      valid: true,
       rules: {
         items: [{ required: true }],
+        photos: [{ required: true }],
       },
+      PlusCircleIcon,
+      MinusCircleIcon,
     };
   },
   methods: {
     async validate() {
-      this.$refs.itemForm
+      let form = this.$refs.itemForm;
+
+      let valid = true;
+
+      for (const component of form) {
+        valid = await component.validate();
+        if (!valid) {
+          return false;
+        }
+      }
+
+      await this.$refs.formRules
         .validate()
-        .then(() => {
-          console.log(this.$refs.itemForm.valid);
-          console.log(this.$refs.itemForm.getFormData);
+        ?.then((value) => {
+          if (!value) {
+            valid = false;
+          }
         })
-        .catch(() => {
-          console.log(this.$refs.itemForm.valid, "FAils");
-          console.log(this.$refs.itemForm.getFormData);
+        .catch((error) => {
+          valid = false;
         });
+
+      return valid;
     },
+
     addItem() {
-      this.numberItem++;
+      this.form.items.push({});
     },
-    takeItem(index) {
-      this.$refs.items[index].remove();
-      this.numberItem--;
-      console.log(this.numberItem);
+    removeItem(index) {
+      this.form.items.splice(index, 1);
     },
+  },
+  computed: {
+    items() {
+      let items = [];
+
+      this.form?.items?.forEach((item) => {
+        let tempItem = {};
+        Object.keys(item).forEach((k) => {
+          tempItem = { ...tempItem, ...item[k] };
+        });
+        items.push(tempItem);
+      });
+      return items;
+    },
+  },
+  components: {
+    OrderHandlingsComponent,
+    TrawlDivider,
+    OrderItemForm,
+    TrawlUploadList,
   },
   watch: {
     form: {
       handler: function (value) {
-        console.log(value);
+        this.$emit("change", {
+          ...value,
+          items: this.items,
+        });
+        this.$emit("input", {
+          ...value,
+          items: this.items,
+        });
       },
       deep: true,
     },

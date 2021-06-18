@@ -22,6 +22,10 @@ export default {
     };
   },
   props: {
+    value: {
+      type: Number,
+      default: 1,
+    },
     number: {
       type: Number,
       default: 1,
@@ -38,16 +42,43 @@ export default {
     },
   },
   methods: {
-    clickItem(value) {
-      if (!this.beforeChange(value)) {
+    async clickItem(value) {
+      let valid = await this.beforeChange(value);
+      if (!valid) {
+        return false;
+      }
+
+      this.current = value;
+      this.onChange(this.current);
+    },
+    async next() {
+      let nextStep = this.current + 1;
+      this.toStep(nextStep);
+    },
+    async prev() {
+      let prevStep = this.current - 1;
+      this.toStep(prevStep);
+    },
+    async toStep(value) {
+      let valid = await this.beforeChange(value);
+      if (!valid) {
         return false;
       }
       this.current = value;
       this.onChange(this.current);
     },
-    toStep(value) {
-      this.current = value;
-      this.onChange(this.current);
+  },
+  watch: {
+    value: {
+      handler: function (value) {
+        this.current = value;
+      },
+    },
+    current: {
+      handler: function (value) {
+        this.$emit("input", value);
+        this.$emit("change", value);
+      },
     },
   },
 };

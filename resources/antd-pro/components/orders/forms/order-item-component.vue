@@ -1,11 +1,11 @@
 <template>
-  <a-form-model ref="formRules" :model="form" :rules="rules">
+  <a-form-model ref="formRules" :hideRequiredMark="true" :model="value" :rules="rules">
     <a-row type="flex" :gutter="[12, 12]">
       <a-col :span="6">
         <a-form-model-item label="Deskripsi Barang" prop="description">
           <a-input
             size="large"
-            v-model="form.description"
+            v-model="value.description"
             placeholder="Deskripsi Barang"
           ></a-input>
         </a-form-model-item>
@@ -17,7 +17,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.length"
+            v-model.number="value.length"
             placeholder="Panjang (cm)"
           ></a-input>
         </a-form-model-item>
@@ -27,7 +27,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.width"
+            v-model.number="value.width"
             placeholder="Lebar (cm)"
           ></a-input>
         </a-form-model-item>
@@ -37,7 +37,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.height"
+            v-model.number="value.height"
             placeholder="Tinggi (cm)"
           ></a-input>
         </a-form-model-item>
@@ -49,7 +49,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.weight"
+            v-model.number="value.weight"
             placeholder="Berat (kg)"
           ></a-input>
         </a-form-model-item>
@@ -59,7 +59,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.qty"
+            v-model.number="value.qty"
             placeholder="Jumlah Paket"
           ></a-input>
         </a-form-model-item>
@@ -69,7 +69,7 @@
           <a-input
             type="number"
             size="large"
-            v-model="form.price"
+            v-model.number="value.price"
             placeholder="Perkiraan Harga Barang"
           ></a-input>
         </a-form-model-item>
@@ -81,15 +81,6 @@
 export default {
   data() {
     return {
-      form: {
-        description: null,
-        length: null,
-        width: null,
-        height: null,
-        weight: null,
-        qty: null,
-        price: null,
-      },
       rules: {
         description: [{ required: true }],
         length: [{ required: true }],
@@ -106,11 +97,30 @@ export default {
       type: Function,
       default: () => {},
     },
+    defaultValue: {
+      type: Object,
+      default: () => {},
+    },
+    value: {
+      type: Object,
+      default: () => {
+        return {
+          description: null,
+          length: null,
+          width: null,
+          height: null,
+          weight: null,
+          qty: null,
+          price: null,
+        };
+      },
+    },
   },
   watch: {
-    form: {
-      handler: function () {
-        this.onChange(this.form);
+    value: {
+      handler: function (value) {
+        this.onChange(value);
+        this.$emit("change", value);
       },
       deep: true,
     },
