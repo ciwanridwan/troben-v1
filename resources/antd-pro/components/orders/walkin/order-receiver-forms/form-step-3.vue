@@ -5,11 +5,9 @@
       <a-timeline-item>
         <a-space direction="vertical" :size="1" :style="{ width: '100%' }">
           <span class="trawl-text-muted"> Penjemputan Dari </span>
-          <p class="trawl-text-bold trawl-text-normal">
-            Prum Griya Alam Sentosa, Blok N12 No12 RT 09 RW 10 Cileungsi - Bogor
-          </p>
+          <p class="trawl-text-bold trawl-text-normal">{{ sender.address }}</p>
           <span></span>
-          <p class="trawl-text-normal">Faris Ferdian Akbar | 0856-9445-5935</p>
+          <p class="trawl-text-normal">{{ sender.name }} | {{ sender.phone }}</p>
           <trawl-divider />
         </a-space>
       </a-timeline-item>
@@ -23,10 +21,10 @@
           </a-space>
 
           <p class="trawl-text-bold trawl-text-normal">
-            Prum Griya Alam Sentosa, Blok N12 No12 RT 09 RW 10 Cileungsi - Bogor
+            {{ receiver.address }}
           </p>
           <span></span>
-          <p class="trawl-text-normal">Faris Ferdian Akbar | 0856-9445-5935</p>
+          <p class="trawl-text-normal">{{ receiver.name }} | {{ receiver.phone }}</p>
           <trawl-divider />
         </a-space>
       </a-timeline-item>
@@ -98,7 +96,22 @@ export default {
       },
     };
   },
+
   computed: {
+    sender() {
+      return {
+        name: this.data?.sender_name,
+        address: this.data?.sender_address,
+        phone: this.data?.sender_phone,
+      };
+    },
+    receiver() {
+      return {
+        name: this.data?.receiver_name,
+        address: this.data?.receiver_address,
+        phone: this.data?.receiver_phone,
+      };
+    },
     items() {
       return this.data?.items;
     },

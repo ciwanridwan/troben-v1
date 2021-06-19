@@ -249,8 +249,19 @@ class Partner extends Model
     /**
      * @return BelongsTo
      */
-    public function sub_districts(): BelongsTo
+    public function sub_district(): BelongsTo
     {
         return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
+    }
+
+    public function getGeoAddressAttribute()
+    {
+        $sub_district = $this->sub_district ? $this->sub_district->name : "";
+        $district = $this->district ? $this->district->name : "";
+        $regency = $this->regency ? $this->regency->name : "";
+        $province = $this->province ? $this->province->name : "";
+        $address = "$this->address, $sub_district $district $regency $province";
+        $address .= $this->sub_district ? $this->zip_code : '';
+        return $address;
     }
 }

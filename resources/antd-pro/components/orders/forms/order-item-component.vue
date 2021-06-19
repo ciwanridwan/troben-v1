@@ -2,10 +2,10 @@
   <a-form-model ref="formRules" :hideRequiredMark="true" :model="value" :rules="rules">
     <a-row type="flex" :gutter="[12, 12]">
       <a-col :span="6">
-        <a-form-model-item label="Deskripsi Barang" prop="description">
+        <a-form-model-item label="Deskripsi Barang" prop="desc">
           <a-input
             size="large"
-            v-model="value.description"
+            v-model="value.desc"
             placeholder="Deskripsi Barang"
           ></a-input>
         </a-form-model-item>
@@ -82,7 +82,8 @@ export default {
   data() {
     return {
       rules: {
-        description: [{ required: true }],
+        name: [{ required: true }],
+        desc: [{ required: true }],
         length: [{ required: true }],
         width: [{ required: true }],
         height: [{ required: true }],
@@ -105,7 +106,8 @@ export default {
       type: Object,
       default: () => {
         return {
-          description: null,
+          name: null,
+          desc: null,
           length: null,
           width: null,
           height: null,
@@ -119,6 +121,7 @@ export default {
   watch: {
     value: {
       handler: function (value) {
+        value.name = value.desc;
         this.onChange(value);
         this.$emit("change", value);
       },

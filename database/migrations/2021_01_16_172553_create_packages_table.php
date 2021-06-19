@@ -2,6 +2,7 @@
 
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
+use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -24,7 +25,7 @@ class CreatePackagesTable extends Migration
                 ->nullOnDelete();
 
             $table->char('service_code', 3);
-            $table->string('transporter_type');
+            $table->string('transporter_type')->nullable();
 
             $table->string('sender_name');
             $table->string('sender_phone');

@@ -24,6 +24,7 @@
           <a-tab-pane :key="3">
             <a-card :style="{ 'margin-bottom': '3rem' }">
               <order-receiver-form-step-3
+                ref="stepForm3"
                 :receiverEdit="receiverEdit"
                 :itemEdit="itemEdit"
                 :data="calculateData"
@@ -53,7 +54,15 @@
             <a-button v-if="current != 3" class="trawl-button-success" @click="next"
               >Selanjutnya</a-button
             >
+
             <a-button v-else class="trawl-button-success" @click="submit">
+              <trawl-modal-confirm
+                v-model="submitModal"
+                :cancelButton="false"
+                :ok="redirectHome"
+              >
+                <template slot="text">Telah berhasil terkirim ke Customer</template>
+              </trawl-modal-confirm>
               <a-space>
                 <span>Kirim Ke cus</span>
                 <a-icon :component="PackageIconSpark" />
@@ -72,6 +81,8 @@ import OrderReceiverFormStep3 from "../../../../components/orders/walkin/order-r
 import TrawlStepCircle from "../../../../components/trawl-step-circle.vue";
 import ContentLayoutFooter from "../../../../layouts/content-layout-footer.vue";
 import { InformationCircleIcon, PackageIconSpark } from "../../../../components/icons";
+import TrawlModalConfirm from "../../../../components/trawl-modal-confirm.vue";
+
 export default {
   name: "customer-service-walkin",
   components: {
@@ -80,6 +91,7 @@ export default {
     OrderReceiverFormStep3,
     ContentLayoutFooter,
     TrawlStepCircle,
+    TrawlModalConfirm,
   },
   data() {
     return {
@@ -96,11 +108,24 @@ export default {
       InformationCircleIcon,
       PackageIconSpark,
       loading: false,
+      submitModal: false,
     };
   },
   computed: {
     stepForms() {
       return ["stepForm1", "stepForm2"];
+    },
+
+    preparedStore() {
+      let formdata = new FormData();
+      console.log(this.preparedData);
+      Object.keys(this.preparedData).forEach((k) => {
+        if (k != "photos") {
+          formdata.append(k, JSON.stringify(this.preparedData[k]));
+        }
+      });
+      this.preparedData?.photos?.forEach((o) => formdata.append("photos", o));
+      return formdata;
     },
 
     preparedItems() {
@@ -133,7 +158,13 @@ export default {
     },
 
     submit() {
-      console.log(this.current);
+      const config = { headers: { "Content-Type": "multipart/form-data" } };
+      console.log(this.preparedStore);
+      this.$http
+        .post(this.routeUri(this.getRoute()), this.preparedStore, config)
+        .then(({ data }) => {
+          this.submitModal = true;
+        });
     },
 
     prev() {
@@ -149,6 +180,47 @@ export default {
     receiverEdit() {
       this.$refs.trawlStep.toStep(1);
     },
+
+    redirectHome() {
+      window.location.href = this.routeUri("partner.customer_service.home");
+    },
+
+    async getGeo(status = "province", params = {}) {
+      let result = {};
+      await this.$http
+        .get(this.routeUri("partner.customer_service.order.walkin.geo"), {
+          params: {
+            type: status,
+            ...params,
+          },
+        })
+        .then(({ data }) => {
+          let datas = data.data;
+          result = datas;
+        });
+
+      return result;
+    },
+
+    async getAddress(sub_district_id) {
+      let address = "";
+      await this.getGeo("sub_district", {
+        id: sub_district_id,
+      }).then((data) => {
+        let sub_district = data[0];
+        let list_address = [
+          sub_district?.name,
+          sub_district?.district?.name,
+          sub_district?.regency?.name,
+        ];
+        address += list_address.join(" ");
+        address += ", ";
+        address += sub_district?.province?.name;
+      });
+
+      return address;
+    },
+
     async calculate(params) {
       this.loading = true;
       let result = {};
@@ -176,9 +248,27 @@ export default {
             destination_sub_district_id: this.preparedData.destination_sub_district_id,
             items: this.preparedItems,
           };
-          this.calculate(params).then(({ data }) => {
-            this.calculateData = data;
-          });
+          this.calculate(params)
+            .then(({ data }) => {
+              this.calculateData = { ...this.form.steps[0], ...data };
+            })
+            .finally(() => {
+              // set receiver address
+              this.getAddress(this.preparedData?.destination_sub_district_id).then(
+                (address) => {
+                  this.calculateData = {
+                    ...this.calculateData,
+                    receiver_address: `${address} \n ${this.preparedData.receiver_address}`,
+                  };
+                }
+              );
+
+              let partner = this.$laravel.user.partners[0];
+              this.calculateData = {
+                ...this.calculateData,
+                sender_address: partner.address,
+              };
+            });
         }
       }
     },

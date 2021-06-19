@@ -16,6 +16,7 @@ class CustomerResource extends JsonResource
     {
         /** @var \App\Models\Customers\Customer $this */
         $data = [
+            'hash' => $this->hash,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,

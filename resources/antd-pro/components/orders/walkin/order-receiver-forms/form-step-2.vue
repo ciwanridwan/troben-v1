@@ -93,6 +93,7 @@ export default {
       let items = [];
 
       this.form?.items?.forEach((item) => {
+        console.log(item);
         let tempItem = {};
         Object.keys(item).forEach((k) => {
           tempItem = { ...tempItem, ...item[k] };

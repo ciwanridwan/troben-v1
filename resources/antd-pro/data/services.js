@@ -1,10 +1,15 @@
 import { ShippingIcon } from "../components/icons";
 const services = [
   {
-    type: "tps",
+    code: "tps",
     title: "Darat",
     icon: ShippingIcon
-  }
+  },
+  {
+    code: "tpi",
+    title: "Instant",
+    icon: ShippingIcon
+  },
 ];
 
 export { services };

@@ -16,8 +16,13 @@
           <slot name="text"></slot>
         </span>
       </div>
-      <a-row type="flex" :gutter="[12, 12]" class="trawl-modal-confirm--action">
-        <a-col :span="12">
+      <a-row
+        type="flex"
+        :gutter="[12, 12]"
+        class="trawl-modal-confirm--action"
+        justify="center"
+      >
+        <a-col :span="12" v-if="cancelButton">
           <a-button
             @click="onCancel"
             class="trawl-button-success--ghost"
@@ -29,12 +34,7 @@
           </a-button>
         </a-col>
         <a-col :span="12">
-          <a-button
-            @click="onOk"
-            class="trawl-button-success"
-            block
-            size="large"
-          >
+          <a-button @click="onOk" class="trawl-button-success" block size="large">
             Ya
           </a-button>
         </a-col>
@@ -49,18 +49,26 @@ export default {
   components: { confirmImage },
   data() {
     return {
-      visible: false
+      visible: false,
     };
   },
   props: {
+    value: {
+      type: Boolean,
+      default: false,
+    },
     ok: {
       type: Function,
-      default: () => {}
+      default: () => {},
+    },
+    cancelButton: {
+      type: Boolean,
+      default: true,
     },
     cancel: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   methods: {
     hasSlot(slotName) {
@@ -79,7 +87,13 @@ export default {
     onOk() {
       this.ok();
       this.hideModal();
-    }
-  }
+    },
+  },
+  watch: {
+    value: function (value) {
+      this.visible = value;
+      this.$emit("input", this.visible);
+    },
+  },
 };
 </script>

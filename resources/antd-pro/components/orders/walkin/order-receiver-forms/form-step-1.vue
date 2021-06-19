@@ -8,8 +8,44 @@
   >
     <a-space direction="vertical" :style="{ width: '100%' }">
       <div>
+        <h3 class="trawl-text-bolder">Pengirim</h3>
+        <a-form-model-item prop="customer_hash"></a-form-model-item>
+
+        <a-row type="flex" :gutter="[12, 12]">
+          <a-col :span="6">
+            <a-form-model-item label="Nomor Hp Pengirim" prop="sender_phone">
+              <a-input-search
+                size="large"
+                v-model="form.sender_phone"
+                placeholder="Nomor Hp Pengirim"
+                @search="getCustomerByPhone"
+              ></a-input-search>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="6">
+            <a-form-model-item label="Nama Pengirim" prop="sender_name">
+              <a-input
+                size="large"
+                v-model="form.sender_name"
+                placeholder="Nama Pengirim"
+              ></a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+      </div>
+
+      <div>
         <h3 class="trawl-text-bolder">Penerima</h3>
-        <a-row type="flex">
+        <a-row type="flex" :gutter="[12, 12]">
+          <a-col :span="6">
+            <a-form-model-item label="Nomor Hp Penerima" prop="receiver_phone">
+              <a-input
+                size="large"
+                v-model="form.receiver_phone"
+                placeholder="Nomor Hp Penerima"
+              ></a-input>
+            </a-form-model-item>
+          </a-col>
           <a-col :span="6">
             <a-form-model-item label="Nama Penerima" prop="receiver_name">
               <a-input
@@ -134,12 +170,12 @@
 
         <a-row type="flex" :gutter="[12, 12]">
           <a-col :span="12">
-            <a-form-model-item label="Alamat Lengkap" prop="destination_address">
+            <a-form-model-item label="Alamat Lengkap" prop="receiver_address">
               <a-textarea
                 rows="5"
                 type="textarea"
                 size="large"
-                v-model="form.destination_address"
+                v-model="form.receiver_address"
               >
               </a-textarea>
             </a-form-model-item>
@@ -148,12 +184,12 @@
       </div>
       <div>
         <h3 class="trawl-text-bolder">Metode Pengiriman</h3>
-        <a-form-model-item prop="service_type">
-          <a-radio-group v-model="form.service_type">
+        <a-form-model-item prop="service_code">
+          <a-radio-group v-model="form.service_code">
             <trawl-radio-button
-              v-for="(service, index) in services"
+              v-for="(service, index) in listOfService"
               :key="index"
-              :value="'test'"
+              :value="service.code"
             >
               <template slot="icon">
                 <a-icon :component="service.icon"></a-icon>
@@ -167,7 +203,11 @@
   </a-form-model>
 </template>
 <script>
-import { RC_OUT_OF_RANGE } from "../../../../data/response";
+import {
+  RC_OUT_OF_RANGE,
+  RC_INVALID_DATA,
+  RC_INVALID_PHONE_NUMBER,
+} from "../../../../data/response";
 import { getMessageByCode } from "../../../../functions/response";
 import trawlRadioButton from "../../../trawl-radio-button.vue";
 import { services } from "../../../../data/services";
@@ -175,7 +215,8 @@ export default {
   components: { trawlRadioButton },
   data() {
     return {
-      services,
+      _services: [],
+      listOfService: [],
 
       provinces: [],
       regencies: [],
@@ -185,24 +226,34 @@ export default {
       loading: false,
 
       form: {
+        customer_hash: null,
+        sender_phone: null,
+        sender_address: null,
+        sender_name: null,
+        receiver_phone: null,
+        receiver_address: null,
         receiver_name: null,
         destination_province_id: null,
         destination_regency_id: null,
         destination_district_id: null,
         destination_sub_district_id: null,
         destination_zip_code: null,
-        destination_address: null,
-        service_type: null,
+        service_code: null,
       },
       rules: {
+        customer_hash: [{ required: true, message: "sender phone required" }],
+        sender_phone: [{ required: true }],
+        sender_name: [{ required: true }],
+        sender_address: [{ required: true }],
+        receiver_phone: [{ required: true }],
         receiver_name: [{ required: true }],
+        receiver_address: [{ required: true }],
         destination_province_id: [{ required: true }],
         destination_regency_id: [{ required: true }],
         destination_district_id: [{ required: true }],
         destination_sub_district_id: [{ required: true }],
         destination_zip_code: null,
-        destination_address: [{ required: true }],
-        service_type: [{ required: true }],
+        service_code: [{ required: true }],
       },
       valid: false,
     };
@@ -239,6 +290,22 @@ export default {
         .then(({ data }) => {
           let datas = data.data;
           this.putGeoToData(status, datas);
+        })
+        .finally(() => (this.loading = false));
+    },
+    async getService() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri("partner.customer_service.order.walkin.service"))
+        .then(({ data }) => {
+          let datas = data.data;
+          this._services = datas;
+          let listOfService = [];
+          this._services?.forEach((o) => listOfService.push(o.code));
+
+          this.listOfService = services?.filter(
+            (o) => listOfService.indexOf(o.code) > -1
+          );
         })
         .finally(() => (this.loading = false));
     },
@@ -289,6 +356,28 @@ export default {
       this.form.destination_zip_code = subDistrict.zip_code;
       this.checkAvailableShipping();
     },
+    getCustomerByPhone() {
+      this.$http
+        .get(this.routeUri("partner.customer_service.order.walkin.customer"), {
+          params: {
+            phone: this.form.sender_phone,
+          },
+        })
+        .then(({ data }) => {
+          let customer = data.data;
+
+          this.form.customer_hash = customer.hash;
+          this.form.sender_name = customer.name;
+          console.log(this.form);
+        })
+        .catch((error) => {
+          let code = error.response.data.code;
+          let responseMessage = getMessageByCode(code);
+          this.$notification.error({
+            message: responseMessage?.message,
+          });
+        });
+    },
   },
   watch: {
     form: {
@@ -298,6 +387,9 @@ export default {
       },
       deep: true,
     },
+  },
+  mounted() {
+    this.getService();
   },
 };
 </script>

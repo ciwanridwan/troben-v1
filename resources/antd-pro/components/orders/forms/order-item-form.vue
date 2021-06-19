@@ -42,7 +42,8 @@ export default {
       default: () => {
         return {
           item: {
-            description: null,
+            name: null,
+            desc: null,
             length: null,
             width: null,
             height: null,
@@ -68,7 +69,8 @@ export default {
       valid: true,
       form: {
         item: {
-          description: null,
+          name: null,
+          desc: null,
           length: null,
           width: null,
           height: null,

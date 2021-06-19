@@ -35,6 +35,14 @@ const responseMessage = [
   {
     code: RC_OUT_OF_RANGE,
     message: "Sorry, we are haven't provide your destination"
+  },
+  {
+    code: RC_INVALID_DATA,
+    message: "Sorry, your data is invalid. please check your data"
+  },
+  {
+    code: RC_INVALID_PHONE_NUMBER,
+    message: "Sorry, your phone was invalid"
   }
 ];
 export {
