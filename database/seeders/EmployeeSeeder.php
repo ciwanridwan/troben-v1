@@ -4,20 +4,14 @@ namespace Database\Seeders;
 
 use App\Jobs\Partners\CreateNewEmployee;
 use App\Models\User;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Illuminate\Database\Seeder;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Warehouse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Models\Partners\Transporter;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Validation\ValidationException;
-use libphonenumber\PhoneNumberFormat;
-use libphonenumber\PhoneNumberUtil;
 
 class EmployeeSeeder extends Seeder
 {
@@ -35,11 +29,10 @@ class EmployeeSeeder extends Seeder
 
 
         $partners->each(function (Partner $partner) {
-            $this->command->info("\nCREATE EMPLOYEE FOR PARTNER [" . $partner->code . "] " . $partner->name);
+            $this->command->info("\nCREATE EMPLOYEE FOR PARTNER [".$partner->code.'] '.$partner->name);
             $employees = new Collection();
 
             foreach (UserablePivot::getAvailableRoles() as  $role) {
-
                 if ($role === UserablePivot::ROLE_OWNER) {
                     continue;
                 }
@@ -58,7 +51,7 @@ class EmployeeSeeder extends Seeder
                     $employees->push($job->employee);
                 } catch (ValidationException $e) {
                 }
-            };
+            }
             $this->command->table(
                 ['email', 'username', 'password', 'partner code', 'partner type', 'role'],
                 $employees->map(function (User $user) {

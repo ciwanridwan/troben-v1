@@ -9,23 +9,21 @@ use App\Jobs\Users\CreateNewUser;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Validation\ValidationException;
 
 class CreateNewEmployee
 {
     use Dispatchable;
 
     /**
-     * @var array
-     */
-    protected array $attributes;
-
-    /**
      * @var User
      */
     public User $employee;
+
+    /**
+     * @var array
+     */
+    protected array $attributes;
 
     /**
      * @var Partner
@@ -39,7 +37,6 @@ class CreateNewEmployee
      */
     public function __construct(Partner $partner, array $inputs)
     {
-
         $this->partner = $partner;
         $this->attributes =  $inputs;
     }
@@ -54,7 +51,7 @@ class CreateNewEmployee
         $job = new CreateNewUser($this->attributes);
         dispatch_now($job);
 
-        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
 
         $verifyJob = new VerifyExistingUser($job->user);
         dispatch_now($verifyJob);

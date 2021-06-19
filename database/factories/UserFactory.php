@@ -29,7 +29,7 @@ class UserFactory extends Factory
             'username' => $this->faker->unique()->userName,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => PhoneNumberUtil::getInstance()->format(
-                PhoneNumberUtil::getInstance()->parse('08' . str_pad(random_int(0, 9999), 8, '0', STR_PAD_LEFT), 'ID'),
+                PhoneNumberUtil::getInstance()->parse('08'.str_pad(random_int(0, 9999), 8, '0', STR_PAD_LEFT), 'ID'),
                 PhoneNumberFormat::E164
             ),
             'email_verified_at' => now(),
