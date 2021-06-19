@@ -264,6 +264,14 @@ class PricingCalculator
         return $weight;
     }
 
+    public static function getWeight($height = 0, $length = 0, $width = 0, $weight = 0)
+    {
+        $weight = self::ceilByTolerance($weight);
+        $volume = self::ceilByTolerance(self::getVolume($height, $length, $width));
+        $weight = $weight > $volume ? $weight : $volume;
+        return $weight;
+    }
+
     public static function getVolume($height, $length, $width, $service = Service::TRAWLPACK_STANDARD)
     {
         switch ($service) {
