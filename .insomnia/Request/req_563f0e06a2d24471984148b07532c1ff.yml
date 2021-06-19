@@ -1,7 +1,7 @@
 _id: req_563f0e06a2d24471984148b07532c1ff
 type: Request
 parentId: fld_639f81271ab94c24bcd1ed88b3c8a617
-modified: 1613555122560
+modified: 1624066352841
 created: 1613537990638
 url: "{{ _.base_url }}/pricing/calculator"
 name: Get Pricing Calculator
@@ -13,45 +13,30 @@ description: |-
   - `origin_id` => sub district id
   - `destination_id` => sub district id
   - `service_code` => service code.
-method: GET
+method: POST
 body:
-  mimeType: multipart/form-data
-  params: []
-parameters:
-  - name: origin_province_id
-    value: "1"
-    description: ""
-    id: pair_c5fe2f35834d492a9c1b76dd891051e4
-    disabled: false
-  - name: origin_regency_id
-    value: "1"
-    description: ""
-    id: pair_302a71a691b24faeb72ffae139a343cf
-    disabled: false
-  - name: destination_id
-    value: "71"
-    description: ""
-    id: pair_77c4065fc02f4fa2a77c2e5b5a9f7ba3
-    disabled: false
-  - name: height
-    value: "5"
-    description: ""
-    id: pair_351d54abbb2340ca876dcfad0543a882
-    disabled: false
-  - name: width
-    value: "5"
-    description: ""
-    id: pair_8099b22b97a84f388649868826fc5f30
-    disabled: false
-  - name: length
-    value: "5"
-    description: ""
-    id: pair_55827c2cf6d24e60b4e0abfd69c27560
-    disabled: false
-  - name: weight
-    value: "5"
-    description: ""
-    id: pair_653bf4caaaee42e287d2bfca8a8cb10a
+  mimeType: application/json
+  text: |-
+    
+    {
+    	"origin_province_id" : 1 ,
+    	"origin_regency_id" : 1,
+    	"destination_id": 66,
+    	"items" : [
+    		{
+    			"description": "asd",
+    			"handling": null,
+    			"height": 12,
+    			"insurance": false,
+    			"length": 12,
+    			"price": 12,
+    			"qty": 3,
+    			"weight": 12,
+    			"width": 12
+    		}
+    	]
+    }
+parameters: []
 headers:
   - name: Accept
     value: application/json
@@ -64,7 +49,7 @@ headers:
     id: pair_4f066567e7bb49ff9fd9e6a790dbad7e
     disabled: true
   - name: Content-Type
-    value: multipart/form-data
+    value: application/json
     id: pair_31b4de30e960473aacd0719f7d1eede6
 authentication: {}
 metaSortKey: -1612948839185
