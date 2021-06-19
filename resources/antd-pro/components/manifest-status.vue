@@ -7,43 +7,18 @@
   </div>
 </template>
 <script>
+import { TYPE_PICKUP, STATUS_ACCEPTED } from "../data/deliveryStatus";
+import { getMessageByTypeStatus } from "../functions/deliveryStatus";
 export default {
   props: ["record"],
-  data() {
-    return {
-      statuses: [
-        {
-          status: "pending",
-          type: "pickup",
-          message: "[PICKUP] Menunggu assign transporter",
-          messageType: "warning"
-        },
-        {
-          status: "accepted",
-          type: "pickup",
-          message:
-            "[PICKUP] Diterima oleh Driver " +
-            this.record?.assigned_to?.user?.name,
-          messageType: "warning"
-        }
-      ]
-    };
-  },
   computed: {
     currentStatus() {
-      let current = this.statuses.find(
-        status =>
-          this.record.status == status.status && this.record.type == status.type
-      );
-      if (current) {
-        return current;
-      } else {
-        return {
-          message: "[Untracked Status] Please contact developer",
-          messageType: "warning"
-        };
+      let status = getMessageByTypeStatus(this.record.type, this.record.status);
+      if (this.record.type == TYPE_PICKUP && this.record.status == STATUS_ACCEPTED) {
+        status.message += ` ${this.record?.assigned_to?.user?.name}`;
       }
-    }
-  }
+      return status;
+    },
+  },
 };
 </script>
