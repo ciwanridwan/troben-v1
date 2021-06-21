@@ -1,5 +1,8 @@
 <template>
-  <content-layout siderPosition="right" :search="true">
+  <content-layout
+    siderPosition="right"
+    :search="{ action: () => {}, placeholder: 'cari id order ...' }"
+  >
     <template slot="head-tools">
       <a :href="routeOriginUri('partner.customer_service.order.walkin.create')">
         <a-button type="success" class="trawl-button-success">
@@ -9,30 +12,7 @@
       </a>
     </template>
     <template slot="content">
-      <trawl-table
-        :columns="orderColumns"
-        :defaultExpandAllRows="true"
-        :data-source="items.data"
-      >
-        <span slot="expandedRowRender" slot-scope="record">
-          <a-row type="flex" justify="space-between" ref="expand">
-            <a-col :span="8">
-              <order-status :record="record"></order-status>
-            </a-col>
-            <a-col :span="6" style="text-align: center">
-              <a-space>
-                <modal-assign-transporter
-                  :order="record"
-                  :items="transporters"
-                  :getTransporters="getTransporters"
-                  :save="save"
-                ></modal-assign-transporter>
-                <a-button type="danger" ghost>Tolak</a-button>
-              </a-space>
-            </a-col>
-          </a-row>
-        </span>
-      </trawl-table>
+      <order-table :data-source="items.data" :get-data-function="getItems" />
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -50,6 +30,7 @@ import { NoteIcon } from "../../../components/icons";
 import OrderModalResi from "../../cashier/home/order/order-modal-resi.vue";
 import orderModal from "../../cashier/home/order/order-modal.vue";
 import TrawlTable from "../../../components/trawl-table.vue";
+import OrderTable from "../../../components/tables/customer-service/order-table";
 
 export default {
   name: "CustomerServiceMasterOrder",
@@ -60,6 +41,7 @@ export default {
     ContentLayout,
     ModalAssignTransporter,
     TrawlTable,
+    OrderTable,
   },
   data() {
     return {

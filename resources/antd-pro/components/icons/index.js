@@ -23,7 +23,9 @@ import MinusCircleIcon from "./minusCircleIcon";
 import NoteIcon from "./noteIcon";
 import PinCircleIcon from "./pinCircleIcon";
 import EditIcon from "./editIcon";
-import PackageIconSpark from "./packageIconSpark"
+import PackageIconSpark from "./packageIconSpark";
+import RadioCheckedIcon from "./radioCheckedIcon";
+import RadioUncheckedIcon from "./radioUncheckedIcon";
 
 export {
   CarIcon,
@@ -51,5 +53,7 @@ export {
   NoteIcon,
   PinCircleIcon,
   EditIcon,
-  PackageIconSpark
+  PackageIconSpark,
+  RadioCheckedIcon,
+  RadioUncheckedIcon
 };

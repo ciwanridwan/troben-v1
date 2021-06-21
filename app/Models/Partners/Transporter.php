@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +37,8 @@ class Transporter extends Model
 {
     use SoftDeletes,
         HashableId,
-        HasFactory;
+        HasFactory,
+        CanSearch;
 
     public const TYPE_BIKE = 'bike';
     public const TYPE_MPV = 'mpv';

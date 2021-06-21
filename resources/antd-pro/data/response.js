@@ -26,6 +26,9 @@ const RC_TOKEN_MISMATCH = "0303";
 const RC_TOKEN_WAS_CLAIMED = "0304";
 const RC_SMS_GATEWAY_WAS_BROKEN = "0305";
 
+// partner error
+const RC_PARTNER_GEO_UNAVAILABLE = "0401";
+
 // server side faults. 0900 - 0999
 const RC_SERVER_IN_MAINTENANCE = "0901";
 const RC_DATABASE_ERROR = "0902";
@@ -43,6 +46,10 @@ const responseMessage = [
   {
     code: RC_INVALID_PHONE_NUMBER,
     message: "Sorry, your phone was invalid"
+  },
+  {
+    code: RC_PARTNER_GEO_UNAVAILABLE,
+    message: "please complete your partner geo information"
   }
 ];
 export {

@@ -185,18 +185,10 @@
       <div>
         <h3 class="trawl-text-bolder">Metode Pengiriman</h3>
         <a-form-model-item prop="service_code">
-          <a-radio-group v-model="form.service_code">
-            <trawl-radio-button
-              v-for="(service, index) in listOfService"
-              :key="index"
-              :value="service.code"
-            >
-              <template slot="icon">
-                <a-icon :component="service.icon"></a-icon>
-              </template>
-              {{ service.title }}
-            </trawl-radio-button>
-          </a-radio-group>
+          <service-radio-group
+            v-model="form.service_code"
+            :available-services="services"
+          />
         </a-form-model-item>
       </div>
     </a-space>
@@ -209,13 +201,14 @@ import {
   RC_INVALID_PHONE_NUMBER,
 } from "../../../../data/response";
 import { getMessageByCode } from "../../../../functions/response";
-import trawlRadioButton from "../../../trawl-radio-button.vue";
-import { services } from "../../../../data/services";
+import trawlRadioButton from "../../../radio-buttons/trawl-radio-button";
+
+import ServiceRadioGroup from "../../../radio-buttons/service-radio-group.vue";
 export default {
-  components: { trawlRadioButton },
+  components: { trawlRadioButton, ServiceRadioGroup },
   data() {
     return {
-      _services: [],
+      services: [],
       listOfService: [],
 
       provinces: [],
@@ -299,13 +292,7 @@ export default {
         .get(this.routeUri("partner.customer_service.order.walkin.service"))
         .then(({ data }) => {
           let datas = data.data;
-          this._services = datas;
-          let listOfService = [];
-          this._services?.forEach((o) => listOfService.push(o.code));
-
-          this.listOfService = services?.filter(
-            (o) => listOfService.indexOf(o.code) > -1
-          );
+          this.services = datas;
         })
         .finally(() => (this.loading = false));
     },
@@ -340,7 +327,7 @@ export default {
           let responseMessage = getMessageByCode(data.code);
           if ((data.code = RC_OUT_OF_RANGE)) {
             this.$notification.error({
-              message: responseMessage.message,
+              message: responseMessage?.message,
             });
           } else {
             this.onErrorResponse(error);
@@ -368,7 +355,6 @@ export default {
 
           this.form.customer_hash = customer.hash;
           this.form.sender_name = customer.name;
-          console.log(this.form);
         })
         .catch((error) => {
           let code = error.response.data.code;
@@ -379,6 +365,7 @@ export default {
         });
     },
   },
+
   watch: {
     form: {
       handler: function (value) {

@@ -118,7 +118,6 @@ export default {
 
     preparedStore() {
       let formdata = new FormData();
-      console.log(this.preparedData);
       Object.keys(this.preparedData).forEach((k) => {
         if (k != "photos") {
           formdata.append(k, JSON.stringify(this.preparedData[k]));
@@ -159,7 +158,6 @@ export default {
 
     submit() {
       const config = { headers: { "Content-Type": "multipart/form-data" } };
-      console.log(this.preparedStore);
       this.$http
         .post(this.routeUri(this.getRoute()), this.preparedStore, config)
         .then(({ data }) => {

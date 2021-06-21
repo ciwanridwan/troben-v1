@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;

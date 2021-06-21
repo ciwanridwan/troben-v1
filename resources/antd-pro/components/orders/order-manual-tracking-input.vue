@@ -34,10 +34,7 @@
 
       <a-col v-if="types" :span="12">
         <a-form-model-item label="Tipe Tracking Manifest" prop="deliveryType">
-          <a-select
-            placeholder="Tipe Tracking Manifest"
-            v-model="form.deliveryType"
-          >
+          <a-select placeholder="Tipe Tracking Manifest" v-model="form.deliveryType">
             <a-select-option
               v-for="(type, index) in types"
               :key="index"
@@ -96,7 +93,7 @@
 import {
   trackingTypes,
   trackingStatusTypes,
-  trackingStatuses
+  trackingStatuses,
 } from "../../data/manualTracking";
 export default {
   data() {
@@ -108,34 +105,34 @@ export default {
         status: null,
         partner: null,
         description: null,
-        desc: null
+        desc: null,
       },
       rules: {
         type: [{ required: true }],
         status: [{ required: true }],
         partner: [{ required: true }],
         deliveryType: [{ required: true }],
-        description: [{ required: true }]
+        description: [{ required: true }],
       },
       partners: [],
       trackingTypes,
       trackingStatuses,
-      trackingStatusTypes
+      trackingStatusTypes,
     };
   },
   methods: {
-    getPartners: _.debounce(async function(value) {
+    getPartners: _.debounce(async function (value) {
       this.loading = true;
       const { data } = await this.$http.get(this.routeUri(this.getRoute()), {
         params: {
           partner: true,
           per_page: 10,
-          q: value
-        }
+          q: value,
+        },
       });
       this.partners = data;
       this.loading = false;
-    })
+    }),
   },
   computed: {
     statuses() {
@@ -150,34 +147,29 @@ export default {
     },
     description() {
       let desc = "";
-      let selectedType = this.types?.find(
-        o => o.type === this.form.deliveryType
-      );
+      let selectedType = this.types?.find((o) => o.type === this.form.deliveryType);
       desc += selectedType?.title ? selectedType.title : "";
-      let selectedStatus = this.statuses?.find(
-        o => o.status === this.form.status
-      );
-      console.log(selectedStatus);
+      let selectedStatus = this.statuses?.find((o) => o.status === this.form.status);
       desc += selectedStatus ? ` ${selectedStatus?.title}` : "";
       return desc;
-    }
+    },
   },
   watch: {
-    "form.type": function() {
+    "form.type": function () {
       this.form.description = this.description;
     },
-    "form.deliveryType": function() {
+    "form.deliveryType": function () {
       this.form.description = this.description;
     },
-    "form.statusType": function() {
+    "form.statusType": function () {
       this.form.description = this.description;
     },
-    "form.status": function() {
+    "form.status": function () {
       this.form.description = this.description;
     },
-    "form.partner": function() {
+    "form.partner": function () {
       this.form.description = this.description;
-    }
-  }
+    },
+  },
 };
 </script>

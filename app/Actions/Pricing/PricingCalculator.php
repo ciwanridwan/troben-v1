@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceCalculatorResource;
 use App\Http\Resources\PriceResource;
+use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Validator;
 
 class PricingCalculator
@@ -130,6 +131,7 @@ class PricingCalculator
         $servicePrice = $tierPrice * $totalWeightBorne;
         return $servicePrice;
     }
+
 
     public static function getTotalWeightBorne(array $items)
     {

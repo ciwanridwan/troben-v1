@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Partner\CustomerService\Order;
 
 use App\Actions\CustomerService\WalkIn\CreateWalkinOrder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
@@ -16,6 +17,7 @@ use App\Models\Partners\Partner;
 use App\Models\Price;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
@@ -29,14 +31,7 @@ class WalkinController extends Controller
             if ($request->check) {
                 /** @var Partner $partner */
                 $partner = $partnerRepository->getPartner();
-                /** @var Regency $regency */
-                $regency = $partner->regency;
-
-                /** @var Price $price */
-                $price = PricingCalculator::getPrice($regency->province_id, $regency->id, $request->destination_id);
-                if ($price) {
-                    return (new Response(Response::RC_SUCCESS))->json();
-                }
+                return $this->checkPrice($request, $partner);
             }
             if ($request->geo) {
                 $geo = Province::with('regencies', 'regencies.districts', 'regencies.districts.sub_districts')->all();
@@ -127,5 +122,20 @@ class WalkinController extends Controller
 
         $customer = Customer::where('phone', $phoneNumber)->first();
         return (new Response(Response::RC_SUCCESS, CustomerResource::make($customer)))->json();
+    }
+
+    public function checkPrice(Request $request, Partner $partner): JsonResponse
+    {
+
+        /** @var Regency $regency */
+        $regency = $partner->regency;
+
+        throw_if(!$regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
+
+        /** @var Price $price */
+        $price = PricingCalculator::getPrice($regency->province_id, $regency->id, $request->destination_id);
+        if ($price) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        }
     }
 }
