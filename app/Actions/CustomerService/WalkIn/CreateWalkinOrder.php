@@ -35,7 +35,7 @@ class CreateWalkinOrder
      * @param Partner $partner
      * @param array $inputs
      */
-    function __construct(Partner $partner, array $inputs)
+    public function __construct(Partner $partner, array $inputs)
     {
         foreach ($inputs as $key => $value) {
             if (is_string($value)) {
@@ -82,8 +82,6 @@ class CreateWalkinOrder
      */
     public function preparedPackageStore(): array
     {
-
-
         $this->inputs['customer_id'] = Customer::byHash($this->inputs['customer_hash'])->id;
 
         $this->inputs['sender_address'] = $this->partner->geo_address;

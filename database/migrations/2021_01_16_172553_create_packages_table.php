@@ -2,7 +2,6 @@
 
 use App\Models\Packages\Package;
 use App\Models\Customers\Customer;
-use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
