@@ -67,6 +67,14 @@ class OrderController extends Controller
             if ($request->has('transporter')) {
                 return $this->getTransporterList($request, $partnerRepository);
             } else {
+                $this->query = $this->query->where(function (Builder $query) use ($request) {
+                    $query->whereHas('packages', function (Builder $query) use ($request) {
+                        $query->search($request->q);
+                    })->orWhereHas('packages.code', function (Builder $query) use ($request) {
+                        $query->search($request->q);
+                    });
+                });
+
 
                 /** @var Delivery $deliveries */
                 $deliveries = $this->query->paginate(request('per_page', 15));

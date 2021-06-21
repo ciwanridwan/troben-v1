@@ -1,7 +1,7 @@
 <template>
   <content-layout
     siderPosition="right"
-    :search="{ action: () => {}, placeholder: 'cari id order ...' }"
+    :search="{ action: search, placeholder: 'cari id order ...' }"
   >
     <template slot="head-tools">
       <a :href="routeOriginUri('partner.customer_service.home.order.walkin.create')">
@@ -92,6 +92,10 @@ export default {
         });
 
       return response;
+    },
+    search(value) {
+      this.filter.q = value;
+      this.getItems();
     },
   },
   mounted() {

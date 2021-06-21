@@ -2,6 +2,14 @@ import config from "./config";
 import moment from "moment";
 
 const laravel = {
+  data() {
+    return {
+      filter: {
+        q: null,
+        per_page: 15
+      }
+    };
+  },
   computed: {
     config() {
       if (localStorage.getItem("antd_config") !== null)
