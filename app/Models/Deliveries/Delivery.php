@@ -15,6 +15,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Payments\Payment;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;

@@ -41,6 +41,12 @@ class PricingCalculator
      */
     public float $act_volume = 0;
 
+    public const INSURANCE_MIN = 1000;
+
+    public const INSURANCE_MUL = 0.2 / 100;
+
+    public const MIN_TOL = .3;
+
     public function __construct($inputs = [])
     {
         $this->attributes = $inputs;
@@ -76,11 +82,15 @@ class PricingCalculator
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
 
         $totalWeightBorne = 0;
+        $insurancePriceTotal = 0;
 
         foreach ($inputs['items'] as $index => $item) {
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+            $item['insurance_price'] = self::getInsurancePrice($item['price']);
+            $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
             $inputs['items'][$index] = $item;
+            $insurancePriceTotal += $item['insurance_price_total'];
             $totalWeightBorne += $item['weight_borne_total'];
         }
 
@@ -92,6 +102,7 @@ class PricingCalculator
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
             'result' => [
+                'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
                 'tier' => $tierPrice,
                 'service' => $servicePrice
@@ -176,6 +187,11 @@ class PricingCalculator
         return $weight;
     }
 
+    public static function getInsurancePrice($price)
+    {
+        return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
+    }
+
 
     /**
      * @param int $weight
@@ -251,13 +267,12 @@ class PricingCalculator
     public static function ceilByTolerance(float $weight = 0)
     {
         // decimal tolerance .3
-        $tol = .3;
         $whole = $weight;
         $maj = (int) $whole; //get major
         $min = $whole - $maj; //get after point
 
         // check with tolerance
-        if ($min >= $tol) {
+        if ($min >= self::MIN_TOL) {
             $min = 1;
         }
 

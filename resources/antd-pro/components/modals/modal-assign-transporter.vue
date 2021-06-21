@@ -105,7 +105,7 @@ export default {
     assignTransporter() {
       this.$http
         .patch(
-          this.routeUri("partner.customer_service.home.assign", {
+          this.routeUri("partner.customer_service.home.order.assign", {
             delivery_hash: this.delivery.hash,
             userable_hash: this.transporter_hash,
           })

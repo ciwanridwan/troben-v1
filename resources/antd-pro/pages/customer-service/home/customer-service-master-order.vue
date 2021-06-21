@@ -4,7 +4,7 @@
     :search="{ action: () => {}, placeholder: 'cari id order ...' }"
   >
     <template slot="head-tools">
-      <a :href="routeOriginUri('partner.customer_service.order.walkin.create')">
+      <a :href="routeOriginUri('partner.customer_service.home.order.walkin.create')">
         <a-button type="success" class="trawl-button-success">
           <a-icon :component="NoteIcon" fill="white" />
           <span>Create Order</span>
@@ -20,7 +20,6 @@
   </content-layout>
 </template>
 <script>
-import ModalAssignTransporter from "./modal-assign-transporter.vue";
 import TrawlNotification from "../../../components/trawl-notification.vue";
 import orderColumns from "../../../config/table/customer-service/order";
 import ContentLayout from "../../../layouts/content-layout.vue";
@@ -39,7 +38,6 @@ export default {
     OrderModalResi,
     TrawlNotification,
     ContentLayout,
-    ModalAssignTransporter,
     TrawlTable,
     OrderTable,
   },

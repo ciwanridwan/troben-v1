@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Partner\CustomerService\Order;
+namespace App\Http\Controllers\Partner\CustomerService\Home\Order;
 
 use App\Actions\CustomerService\WalkIn\CreateWalkinOrder;
 use App\Actions\Pricing\PricingCalculator;
@@ -12,9 +12,7 @@ use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Province;
-use App\Models\Geo\Regency;
 use App\Models\Partners\Partner;
-use App\Models\Price;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;

@@ -11,7 +11,7 @@
               :delivery="record"
               @assigned="getDataFunction"
             ></modal-assign-transporter>
-            <a-button type="danger" ghost>Tolak</a-button>
+            <modal-reject-pickup :delivery="record" @reject="getDataFunction" />
           </a-space>
         </a-col>
       </a-row>
@@ -30,6 +30,7 @@ import {
   getSubTotalItems,
 } from "../../../functions/orders";
 import ModalAssignTransporter from "../../modals/modal-assign-transporter.vue";
+import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
 export default {
   data() {
     return {
@@ -59,6 +60,9 @@ export default {
     OrderStatus,
     OrderModal,
     ModalAssignTransporter,
+    ModalRejectPickup,
   },
 };
 </script>
+
+ModalRejectPickup

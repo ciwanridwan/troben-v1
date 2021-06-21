@@ -186,7 +186,7 @@ export default {
     async getGeo(status = "province", params = {}) {
       let result = {};
       await this.$http
-        .get(this.routeUri("partner.customer_service.order.walkin.geo"), {
+        .get(this.routeUri("partner.customer_service.home.order.walkin.geo"), {
           params: {
             type: status,
             ...params,
@@ -223,7 +223,10 @@ export default {
       this.loading = true;
       let result = {};
       await this.$http
-        .post(this.routeUri("partner.customer_service.order.walkin.calculate"), params)
+        .post(
+          this.routeUri("partner.customer_service.home.order.walkin.calculate"),
+          params
+        )
         .then(({ data }) => {
           result = data;
         })

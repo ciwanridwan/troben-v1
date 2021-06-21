@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Http\Routes\Partner\CustomerService\Order;
+namespace App\Http\Routes\Partner\CustomerService\Home\Order;
 
 use App\Http\Controllers\Api\GeoController;
-use App\Http\Controllers\Api\PricingController;
 use App\Http\Controllers\Api\ServiceController;
-use App\Http\Controllers\Partner\CustomerService\Order\WalkinController;
+use App\Http\Controllers\Partner\CustomerService\Home\Order\WalkinController;
 use Jalameta\Router\BaseRoute;
 
 class WalkinRoute extends BaseRoute
 {
-    /**
-     * @var string
-     */
-    protected $name = 'partner.customer_service.order.walkin';
 
-    protected $prefix = 'walkin';
+    protected $prefix = 'home/order/walkin';
+
+    protected $name = 'partner.customer_service.home.order.walkin';
 
     /**
      * Register routes handled by this class.
@@ -24,7 +21,6 @@ class WalkinRoute extends BaseRoute
      */
     public function register()
     {
-
         $this->router->get($this->prefix('geo'), [
             'as' => $this->name('geo'),
             'uses' => $this->uses('index', GeoController::class)

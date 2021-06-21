@@ -274,7 +274,7 @@ export default {
     async getGeo(status = "province", params = {}) {
       this.loading = true;
       this.$http
-        .get(this.routeUri("partner.customer_service.order.walkin.geo"), {
+        .get(this.routeUri("partner.customer_service.home.order.walkin.geo"), {
           params: {
             type: status,
             ...params,
@@ -289,7 +289,7 @@ export default {
     async getService() {
       this.loading = true;
       this.$http
-        .get(this.routeUri("partner.customer_service.order.walkin.service"))
+        .get(this.routeUri("partner.customer_service.home.order.walkin.service"))
         .then(({ data }) => {
           let datas = data.data;
           this.services = datas;
@@ -345,7 +345,7 @@ export default {
     },
     getCustomerByPhone() {
       this.$http
-        .get(this.routeUri("partner.customer_service.order.walkin.customer"), {
+        .get(this.routeUri("partner.customer_service.home.order.walkin.customer"), {
           params: {
             phone: this.form.sender_phone,
           },

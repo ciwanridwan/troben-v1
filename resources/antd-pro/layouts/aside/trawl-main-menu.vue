@@ -9,17 +9,14 @@
     ref="trawlMainMenu"
   >
     <a-menu-item v-for="item in navigation" :key="item.route">
-      <a v-if="item.children === null" :href="routeUri(item.route)">
+      <a :href="routeUri(item.route)">
         <a-icon :type="item.icon" />
         <span>{{ item.text }}</span>
       </a>
-      <a
-        v-else
-        :href="routeUri(item.children[getFirstChild(item.children)].route)"
-      >
+      <!-- <a v-else :href="routeUri(item.children[getFirstChild(item.children)].route)">
         <a-icon :type="item.icon" />
         <span>{{ item.text }}</span>
-      </a>
+      </a> -->
     </a-menu-item>
   </a-menu>
 </template>
@@ -32,8 +29,8 @@ export default {
   props: {
     navigation: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   components: { subMenu },
   computed: {
@@ -54,7 +51,7 @@ export default {
       });
 
       return opened;
-    }
+    },
   },
   methods: {
     navigate(route) {
@@ -63,7 +60,7 @@ export default {
     getNavigation,
     getFirstChild(children) {
       return _.head(Object.keys(children));
-    }
-  }
+    },
+  },
 };
 </script>

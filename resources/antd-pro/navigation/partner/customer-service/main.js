@@ -7,30 +7,30 @@ const main = {
       order: {
         title: "All Order",
         text: "Data Order",
-        route: "partner.customer_service.order",
+        route: "partner.customer_service.home.order",
         children: {
           pickup: {
             title: "All Order",
             text: "Permintaan Penjemputan",
-            route: "partner.customer_service.order.pickup",
+            route: "partner.customer_service.home.order.pickup",
             children: null
           },
           taken: {
             title: "All Order",
             text: "Order yang diambil",
-            route: "partner.customer_service.order.taken",
+            route: "partner.customer_service.home.order.taken",
             children: null
           },
           passed: {
             title: "All Order",
             text: "Order yang dilewatkan",
-            route: "partner.customer_service.order.passed",
+            route: "partner.customer_service.home.order.passed",
             children: null
           },
           walkin: {
             title: "Create Order",
             text: "Buat Pesanan Walkin",
-            route: "partner.customer_service.order.walkin.create",
+            route: "partner.customer_service.home.order.walkin.create",
             children: null,
             display: false
           }

@@ -39,7 +39,7 @@
           <a-skeleton v-if="loading" active />
           <a-row v-else type="flex" v-for="(item, index) in items" :key="index">
             <a-col :span="12">
-              <span>{{ index + 1 }}. {{ item.description }}</span>
+              <span>{{ index + 1 }}. {{ item.desc }}</span>
             </a-col>
             <a-col :span="12">
               <span class="trawl-text-bold">{{ item.weight_borne_total }} Kg</span>
