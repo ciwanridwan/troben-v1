@@ -46,7 +46,7 @@ class StagingDatabaseSeeder extends Seeder
             ProductsTableSeeder::class,
         ]);
 
-        PackagesTableSeeder::$CUSTOMER_PACKAGES = 4;
+        PackagesTableSeeder::$CUSTOMER_PACKAGES = 35;
         $this->command->getOutput()->title('Pickup flow seeder');
         $this->call([
             PackagesTableSeeder::class,
