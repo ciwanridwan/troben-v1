@@ -76,6 +76,7 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['required']
         ]);
 
         /** @var Price $price */
@@ -124,6 +125,7 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['required']
         ]);
 
         /** @var Price $price */
