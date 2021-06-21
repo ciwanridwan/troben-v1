@@ -9,7 +9,6 @@ use Jalameta\Router\BaseRoute;
 
 class WalkinRoute extends BaseRoute
 {
-
     protected $prefix = 'home/order/walkin';
 
     protected $name = 'partner.customer_service.home.order.walkin';

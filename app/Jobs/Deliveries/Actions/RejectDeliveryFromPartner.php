@@ -2,8 +2,6 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Exceptions\Error;
-use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,8 +28,8 @@ class RejectDeliveryFromPartner
         $this->delivery = $delivery;
         $this->partner = $partner;
         $mustConditions = [Delivery::TYPE_PICKUP];
-        throw_if(!in_array($this->delivery->type, $mustConditions), ValidationException::withMessages([
-            'package' => __('Delivery should be in ' . implode(',', $mustConditions) . ' Type'),
+        throw_if(! in_array($this->delivery->type, $mustConditions), ValidationException::withMessages([
+            'package' => __('Delivery should be in '.implode(',', $mustConditions).' Type'),
         ]));
         if ($this->delivery->partner->id !== $this->partner->id) {
             throw new \LogicException('chosen partner must had the delivery');

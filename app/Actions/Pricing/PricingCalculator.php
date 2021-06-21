@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Validator;
 
 class PricingCalculator
 {
+    public const INSURANCE_MIN = 1000;
+
+    public const INSURANCE_MUL = 0.2 / 100;
+
+    public const MIN_TOL = .3;
     /**
      * @var array
      */
@@ -38,12 +43,6 @@ class PricingCalculator
      * @var float
      */
     public float $act_volume = 0;
-
-    public const INSURANCE_MIN = 1000;
-
-    public const INSURANCE_MUL = 0.2 / 100;
-
-    public const MIN_TOL = .3;
 
     public function __construct($inputs = [])
     {

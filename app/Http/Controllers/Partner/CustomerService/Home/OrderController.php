@@ -2,22 +2,13 @@
 
 namespace App\Http\Controllers\Partner\CustomerService\Home;
 
-use App\Actions\CustomerService\WalkIn\CreateWalkinOrder;
-use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Controllers\HasResource;
-use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Account\CustomerResource;
 use App\Http\Resources\Api\Delivery\DeliveryPickupResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
-use App\Jobs\Packages\CreateNewPackage;
-use App\Jobs\Packages\CustomerUploadPackagePhotos;
-use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
-use App\Models\Geo\Province;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
@@ -26,9 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use libphonenumber\PhoneNumberFormat;
-use libphonenumber\PhoneNumberUtil;
 
 class OrderController extends Controller
 {
@@ -108,7 +96,7 @@ class OrderController extends Controller
         return (new Response(Response::RC_SUCCESS, $transporterCollections))->json();
     }
 
-    function searchTransporter(Collection $transporters): Collection
+    public function searchTransporter(Collection $transporters): Collection
     {
         $transporterDrivers = new Collection();
 
