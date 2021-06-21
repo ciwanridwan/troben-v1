@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
-use App\Http\Resources\Api\Package\PackageResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -20,8 +19,7 @@ class DeliveryPickupResource extends JsonResource
      */
     public function toArray($request): array
     {
-
-        if (!$this->resource->relationLoaded('packages')) {
+        if (! $this->resource->relationLoaded('packages')) {
             $this->resource->load([
                 'packages', 'packages.code',
                 'packages.origin_regency',

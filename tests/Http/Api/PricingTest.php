@@ -27,7 +27,7 @@ class PricingTest extends TestCase
         $customer = Customer::find(1);
         $access_token = $customer->createToken('test')->plainTextToken;
         $this->header = [
-            'Authorization' => 'Bearer ' . $access_token,
+            'Authorization' => 'Bearer '.$access_token,
         ];
     }
     /**

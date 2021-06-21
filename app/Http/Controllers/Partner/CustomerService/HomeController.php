@@ -72,7 +72,7 @@ class HomeController extends Controller
                 $transporters->setCollection($transporterCollections);
 
                 return (new Response(Response::RC_SUCCESS, $transporterCollections))->json();
-                // dd($this->query->get()->toArray(), $this->query->toSql());
+            // dd($this->query->get()->toArray(), $this->query->toSql());
             } else {
 
                 /** @var Delivery $deliveries */
@@ -89,7 +89,7 @@ class HomeController extends Controller
         return view('partner.customer-service.home.index');
     }
 
-    function getTransporterList(Collection $transporters): Collection
+    public function getTransporterList(Collection $transporters): Collection
     {
         $transporterDrivers = new Collection();
 

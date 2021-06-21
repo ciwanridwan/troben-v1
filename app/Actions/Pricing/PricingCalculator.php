@@ -9,9 +9,7 @@ use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
-use App\Http\Resources\PriceCalculatorResource;
 use App\Http\Resources\PriceResource;
-use App\Models\Packages\Package;
 use Illuminate\Support\Facades\Validator;
 
 class PricingCalculator

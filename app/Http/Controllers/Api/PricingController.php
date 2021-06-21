@@ -38,9 +38,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
