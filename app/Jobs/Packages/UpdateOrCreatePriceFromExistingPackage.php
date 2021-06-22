@@ -41,7 +41,7 @@ class UpdateOrCreatePriceFromExistingPackage
      * @param array $inputs
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(Package $package,  array $inputs)
+    public function __construct(Package $package, array $inputs)
     {
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Price::getAvailableTypes())],

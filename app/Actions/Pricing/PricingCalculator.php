@@ -67,7 +67,7 @@ class PricingCalculator
      *
      * @return JsonResponse
      */
-    public static function calculate(array $inputs, string $returnType = "json"): JsonResponse
+    public static function calculate(array $inputs, string $returnType = 'json'): JsonResponse
     {
         $inputs =  Validator::validate($inputs, [
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
@@ -181,22 +181,8 @@ class PricingCalculator
         return $totalWeightBorne;
     }
 
-    private static function checkHandling($handling = [])
-    {
-
-        if ($handling !== []) {
-            if (Arr::has(Arr::wrap($handling[0]), 'type')) {
-                $handling = array_column($handling, 'type');
-            }
-        }
-        $handling = Arr::wrap($handling);
-
-        return $handling;
-    }
-
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
     {
-
         $handling = self::checkHandling($handling);
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
@@ -344,5 +330,17 @@ class PricingCalculator
         $volume = $volume > 1 ? $volume : 1;
 
         return $volume;
+    }
+
+    private static function checkHandling($handling = [])
+    {
+        if ($handling !== []) {
+            if (Arr::has(Arr::wrap($handling[0]), 'type')) {
+                $handling = array_column($handling, 'type');
+            }
+        }
+        $handling = Arr::wrap($handling);
+
+        return $handling;
     }
 }

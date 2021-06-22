@@ -25,7 +25,6 @@ class GeneratePackagePrices
     public function handle($event)
     {
         if (property_exists($event, 'package') && $event->package instanceof Package && $event->package->payment_status !== Package::PAYMENT_STATUS_PAID) {
-
             $event->package->items->each(function (Item $item) use ($event) {
                 foreach (($item->handling ?? []) as $handling) {
                     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
@@ -52,11 +51,11 @@ class GeneratePackagePrices
 
             $package->refresh();
 
-            if (!$package->relationLoaded('origin_regency')) {
+            if (! $package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (!$package->relationLoaded('destination_sub_district')) {
+            if (! $package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 

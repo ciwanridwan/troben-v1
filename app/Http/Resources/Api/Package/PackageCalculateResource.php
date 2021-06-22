@@ -15,7 +15,7 @@ class PackageCalculateResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('items')) {
+        if (! $this->resource->relationLoaded('items')) {
             $this->resource->load('items');
         }
         $items = $this->resource->items->toArray();

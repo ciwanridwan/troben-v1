@@ -11,7 +11,6 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
-use App\Http\Resources\Api\Package\PackageCalculateResource;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 

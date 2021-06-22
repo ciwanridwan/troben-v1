@@ -30,12 +30,12 @@ class RejectDeliveryFromPartner
         $this->delivery = $delivery;
         $this->partner = $partner;
         $typeConditions = [Delivery::TYPE_PICKUP];
-        throw_if(!in_array($this->delivery->type, $typeConditions), ValidationException::withMessages([
-            'package' => __('Delivery should be in ' . implode(',', $typeConditions) . ' Type'),
+        throw_if(! in_array($this->delivery->type, $typeConditions), ValidationException::withMessages([
+            'package' => __('Delivery should be in '.implode(',', $typeConditions).' Type'),
         ]));
         $statusConditions = [Delivery::STATUS_PENDING];
-        throw_if(!in_array($this->delivery->status, $statusConditions), ValidationException::withMessages([
-            'package' => __('Delivery should be in ' . implode(',', $statusConditions) . ' Status'),
+        throw_if(! in_array($this->delivery->status, $statusConditions), ValidationException::withMessages([
+            'package' => __('Delivery should be in '.implode(',', $statusConditions).' Status'),
         ]));
         if ($this->delivery->partner->id !== $this->partner->id) {
             throw new \LogicException('chosen partner must had the delivery');
@@ -57,6 +57,6 @@ class RejectDeliveryFromPartner
 
         event(new PackageRejectedByPartner($this->delivery));
 
-        return !$this->delivery->exists;
+        return ! $this->delivery->exists;
     }
 }
