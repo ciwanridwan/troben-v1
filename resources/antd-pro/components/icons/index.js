@@ -1,5 +1,6 @@
 import CarIcon from "./carIcon";
 import InformationIcon from "./informationIcon";
+import InformationCircleIcon from "./informationCircleIcon";
 import TrawlRedIcon from "./trawlRedIcon";
 import TrawlWhiteIcon from "./trawlWhiteIcon";
 import SendIcon from "./sendIcon";
@@ -16,10 +17,20 @@ import DeliveryIcon from "./deliveryIcon";
 import HomeIcon from "./homeIcon";
 import ConfirmImage from "./confirmImage";
 import TermConditionIcon from "./termConditionIcon";
+import ShippingIcon from "./shippingIcon";
+import PlusCircleIcon from "./plusCircleIcon";
+import MinusCircleIcon from "./minusCircleIcon";
+import NoteIcon from "./noteIcon";
+import PinCircleIcon from "./pinCircleIcon";
+import EditIcon from "./editIcon";
+import PackageIconSpark from "./packageIconSpark";
+import RadioCheckedIcon from "./radioCheckedIcon";
+import RadioUncheckedIcon from "./radioUncheckedIcon";
 
 export {
   CarIcon,
   InformationIcon,
+  InformationCircleIcon,
   TrawlRedIcon,
   SendIcon,
   ReceiveIcon,
@@ -35,5 +46,14 @@ export {
   HomeIcon,
   TrawlWhiteIcon,
   ConfirmImage,
-  TermConditionIcon
+  TermConditionIcon,
+  ShippingIcon,
+  PlusCircleIcon,
+  MinusCircleIcon,
+  NoteIcon,
+  PinCircleIcon,
+  EditIcon,
+  PackageIconSpark,
+  RadioCheckedIcon,
+  RadioUncheckedIcon
 };

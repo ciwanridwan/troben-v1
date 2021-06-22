@@ -4,7 +4,6 @@ namespace App\Concerns\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
 
 trait CanSearch
 {
@@ -25,11 +24,10 @@ trait CanSearch
         }
 
         foreach ($this->search_columns as $key => $value) {
-            // dd(Schema::getColumnType($this->getTable(), $value));
             if ($key != 0) {
-                $builder->orWhere($value, 'ilike', '%'.$this->search_value.'%');
+                $builder->orWhere($this->table.'.'.$value, 'ilike', '%'.$this->search_value.'%');
             } else {
-                $builder->where($value, 'ilike', '%'.$this->search_value.'%');
+                $builder->where($this->table.'.'.$value, 'ilike', '%'.$this->search_value.'%');
             }
         }
     }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
+use App\Events\Deliveries\PartnerRequested;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -15,6 +16,7 @@ use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
+use App\Events\Deliveries\Dooring as DeliveryDooring;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Listeners\Packages\UpdatePackageStatusByEvent;
@@ -25,7 +27,6 @@ use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageCancelMethodSelected;
-use App\Listeners\Codes\UpdateOrCreateScannedCode;
 use App\Listeners\Codes\WriteCodeLog;
 use App\Listeners\Deliveries\CreateDeliveryByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -67,15 +68,17 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
-        DeliveryTransit\DriverArrivedAtPickupPoint::class => [
-            //
+        DeliveryTransit\DriverArrivedAtOriginWarehouse::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         DeliveryTransit\PackageLoadedByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
-        DeliveryTransit\DriverArrivedAtWarehouse::class => [
+        DeliveryTransit\DriverArrivedAtDestinationWarehouse::class => [
             //
         ],
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
@@ -142,6 +145,24 @@ class EventServiceProvider extends ServiceProvider
             // UpdateOrCreateScannedCode::class,
             WriteCodeLog::class
         ],
+        DeliveryDooring\DriverArrivedAtOriginPartner::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        DeliveryDooring\PackageLoadedByDriver::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        DeliveryDooring\DriverUnloadedPackageInDooringPoint::class => [
+            // UpdateDeliveryStatusByEvent::class,
+            // UpdatePackageStatusByEvent::class,
+            // WriteCodeLog::class
+        ],
+        PartnerRequested::class => [
+            //
+        ]
     ];
 
     /**

@@ -7,7 +7,6 @@ use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
-use App\Models\Price as PriceModel;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -132,17 +131,13 @@ class Item extends Model
 
     public function getWeightBorneAttribute()
     {
-        $weight = PricingCalculator::ceilByTolerance($this->weight);
-        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
-        $weight = $weight > $volume ? $weight : $volume;
+        $weight = PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
         return $weight;
     }
 
     public function getWeightBorneTotalAttribute()
     {
-        $weight = $this->weightBorne * $this->qty;
-        // check if lt min weight
-        $weight > PriceModel::MIN_WEIGHT ?: $weight = PriceModel::MIN_WEIGHT;
+        $weight = PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty);
         return $weight;
     }
     public function getWeightVolumeAttribute()

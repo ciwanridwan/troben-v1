@@ -46,6 +46,7 @@ class GeneratePackagePrices
                         $item->length,
                         $item->width,
                         $item->weight,
+                        $item->qty,
                         $event->package->service_code
                     ),
                 ]);

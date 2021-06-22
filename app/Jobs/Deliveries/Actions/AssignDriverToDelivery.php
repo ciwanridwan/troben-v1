@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Models\Partners\Partner;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
@@ -44,7 +45,11 @@ class AssignDriverToDelivery
     public function handle()
     {
         $this->delivery->assigned_to()->associate($this->userablePivot);
-        $this->delivery->status = Delivery::STATUS_ACCEPTED;
+        if ($this->delivery->driver->partners->first()->type === Partner::TYPE_TRANSPORTER) {
+            $this->delivery->status = Delivery::STATUS_WAITING_TRANSPORTER;
+        } else {
+            $this->delivery->status = Delivery::STATUS_ACCEPTED;
+        }
         $this->delivery->save();
 
         if ($this->delivery->type === Delivery::TYPE_PICKUP) {

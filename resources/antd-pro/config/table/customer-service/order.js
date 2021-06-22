@@ -4,21 +4,13 @@ export default [
   {
     title: "No",
     dataIndex: "number"
-    // customRender: (text, row, index) => {
-    //   return {
-    //     children: text,
-    //     attrs: {
-    //       rowSpan: 2
-    //     }
-    //   };
-    // }
   },
 
   {
     title: "ID Order",
     customRender: (text, row, index) => {
       return {
-        children: row.packages[0]?.code.content
+        children: row.package.code.content
       };
     }
   },
@@ -27,7 +19,7 @@ export default [
     key: "transporter",
     customRender: (text, row, index) => {
       return {
-        children: row.packages[0]?.transporter_type
+        children: row.package.transporter_type
       };
     }
   },
@@ -36,7 +28,7 @@ export default [
     key: "sender_address",
     customRender: (text, row, index) => {
       return {
-        children: row.packages[0]?.sender_address
+        children: row.package.sender_address
       };
     }
   },

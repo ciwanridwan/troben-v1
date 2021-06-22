@@ -57,7 +57,7 @@ class CreateNewPackage
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
-            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+            'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['required'],

@@ -14,7 +14,7 @@ class ManifestRoute extends BaseRoute
     protected $name = 'api.partner.warehouse.manifest';
 
     protected $middleware = [
-        'partner.type:business,space,pool',
+        'partner.type:business,space,pool,transporter',
         'partner.role:warehouse',
         'partner.scope.role:warehouse',
     ];

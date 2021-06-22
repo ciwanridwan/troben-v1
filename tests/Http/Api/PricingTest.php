@@ -96,57 +96,57 @@ class PricingTest extends TestCase
         }
     }
 
-    public function test_pricing_calculator()
-    {
-        $price = Price::all()->random();
+    // public function test_pricing_calculator()
+    // {
+    //     $price = Price::all()->random();
 
-        // valid q string
-        $params = [
-            'origin_province_id' => $price->origin_province_id,
-            'origin_regency_id' => $price->origin_regency_id,
-            'destination_id' => $price->destination_id,
-            'height' => 5,
-            'width' => 5,
-            'length' => 5,
-            'weight' => 5,
-        ];
+    //     // valid q string
+    //     $params = [
+    //         'origin_province_id' => $price->origin_province_id,
+    //         'origin_regency_id' => $price->origin_regency_id,
+    //         'destination_id' => $price->destination_id,
+    //         'height' => 5,
+    //         'width' => 5,
+    //         'length' => 5,
+    //         'weight' => 5,
+    //     ];
 
-        $path_name = 'api.pricing.calculator';
-        $response = $this->json('GET', route($path_name), $params);
-        $this->assertSuccessResponse($response);
+    //     $path_name = 'api.pricing.calculator';
+    //     $response = $this->json('GET', route($path_name), $params);
+    //     $this->assertSuccessResponse($response);
 
-        // valid q string out of range
-        $params = [
-            'origin_province_id' => $price->origin_province_id,
-            'origin_regency_id' => $price->origin_regency_id,
-            'destination_id' => 1,
-            'height' => 5,
-            'width' => 5,
-            'length' => 5,
-            'weight' => 5,
-        ];
+    //     // valid q string out of range
+    //     $params = [
+    //         'origin_province_id' => $price->origin_province_id,
+    //         'origin_regency_id' => $price->origin_regency_id,
+    //         'destination_id' => 1,
+    //         'height' => 5,
+    //         'width' => 5,
+    //         'length' => 5,
+    //         'weight' => 5,
+    //     ];
 
-        $path_name = 'api.pricing.calculator';
-        $response = $this->json('GET', route($path_name), $params);
-        $this->assertResponseWithCode($response, Response::RC_OUT_OF_RANGE);
+    //     $path_name = 'api.pricing.calculator';
+    //     $response = $this->json('GET', route($path_name), $params);
+    //     $this->assertResponseWithCode($response, Response::RC_OUT_OF_RANGE);
 
-        // missing data
-        $path_name = 'api.pricing.calculator';
-        $response = $this->json('GET', route($path_name), []);
-        $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
+    //     // missing data
+    //     $path_name = 'api.pricing.calculator';
+    //     $response = $this->json('GET', route($path_name), []);
+    //     $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
 
-        // invalid data
-        $params = [
-            'origin_province_id' => 'a',
-            'origin_regency_id' => 'a',
-            'destination_id' => 'v',
-            'height' => 'c',
-            'width' => 'c',
-            'length' => 'c',
-            'weight' => 'c',
-        ];
-        $path_name = 'api.pricing.calculator';
-        $response = $this->json('GET', route($path_name), []);
-        $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
-    }
+    //     // invalid data
+    //     $params = [
+    //         'origin_province_id' => 'a',
+    //         'origin_regency_id' => 'a',
+    //         'destination_id' => 'v',
+    //         'height' => 'c',
+    //         'width' => 'c',
+    //         'length' => 'c',
+    //         'weight' => 'c',
+    //     ];
+    //     $path_name = 'api.pricing.calculator';
+    //     $response = $this->json('GET', route($path_name), []);
+    //     $this->assertResponseWithCode($response, Response::RC_INVALID_DATA);
+    // }
 }

@@ -2,6 +2,14 @@ import config from "./config";
 import moment from "moment";
 
 const laravel = {
+  data() {
+    return {
+      filter: {
+        q: null,
+        per_page: 15
+      }
+    };
+  },
   computed: {
     config() {
       if (localStorage.getItem("antd_config") !== null)
@@ -65,6 +73,16 @@ const laravel = {
     },
     numbering(index, pagination) {
       return pagination.per_page * (pagination.current_page - 1) + index + 1;
+    },
+    routeOriginUri(routeName) {
+      return location.origin + this.routeUri(routeName);
+    },
+    redirectToPathName(routeName) {
+      history.pushState(
+        null,
+        document.title,
+        location.origin + this.routeUri(routeName)
+      );
     },
     pushState(state) {
       history.pushState(

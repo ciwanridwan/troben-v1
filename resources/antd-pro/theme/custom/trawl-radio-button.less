@@ -1,0 +1,75 @@
+.trawl-radio-button {
+  height: fit-content;
+  border: none;
+
+  &.ant-radio-button-wrapper {
+    &:first-child,
+    &-checked,
+    &-checked:hover {
+      border: none;
+      box-shadow: none;
+    }
+    &:hover:before,
+    &::before {
+      background-color: unset;
+      opacity: unset;
+    }
+    &,
+    &:hover {
+      color: @gray-darken;
+    }
+    &:focus-within {
+      outline: unset;
+    }
+    &-checked {
+      &::before {
+        background-color: unset !important;
+        opacity: unset;
+      }
+      color: @gray-darken !important;
+      .trawl-radio-button {
+        &--icon {
+          border: none;
+          background-color: @success-darken;
+          color: white;
+          .anticon {
+            & > svg {
+              & > * {
+                fill: white;
+              }
+            }
+          }
+          & > svg {
+            & > * {
+              fill: white;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &--icon {
+    padding: 1rem;
+    border: 1px solid @gray;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: @success-darken;
+    .anticon {
+      & > svg {
+        width: 3rem;
+        height: 3rem;
+        & > * {
+          fill: @success-darken;
+        }
+      }
+    }
+    & > svg {
+      width: 3rem;
+      height: 3rem;
+      & > * {
+        fill: @success-darken;
+      }
+    }
+  }
+}

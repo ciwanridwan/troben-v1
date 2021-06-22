@@ -4,6 +4,7 @@ import qs from "qs";
 import Laravel from "../antd-pro/laravel";
 import VueQrcode from "vue-qrcode";
 import moment from "moment";
+import { isPromise } from "../antd-pro/functions/general";
 
 require("./bootstrap");
 Vue.component("vue-qrcode", VueQrcode);
@@ -48,6 +49,7 @@ Vue.mixin({
     }
   },
   methods: {
+    isPromise,
     dateSimpleFormat(date) {
       return moment(date).format("ddd, DD MMM YYYY");
     },

@@ -5,8 +5,9 @@
         v-if="hasSlot('icon')"
         :span="iconSize"
         :class="[
-          'trawl-order-row-layout--icon trawl-text-center',
-          !iconPadding ? 'trawl-order-row-layout--icon-0' : null
+          'trawl-order-row-layout--icon',
+          !iconPadding ? 'trawl-order-row-layout--icon-0' : null,
+          alignClass,
         ]"
       >
         <slot name="icon"></slot>
@@ -34,17 +35,21 @@ export default {
   props: {
     afterLine: {
       type: Boolean,
-      default: true
+      default: true,
     },
     iconPadding: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
+    align: {
+      type: String,
+      default: "center",
+    },
   },
   data() {
     return {
       iconSize: 4,
-      addonSize: 4
+      addonSize: 4,
     };
   },
   computed: {
@@ -61,12 +66,24 @@ export default {
         contentSize -= this.addonSize;
       }
       return contentSize;
-    }
+    },
+    alignClass() {
+      switch (this.align) {
+        case "center":
+          return "trawl-text-center";
+          break;
+        case "left":
+          return "trawl-text-left";
+          break;
+        default:
+          break;
+      }
+    },
   },
   methods: {
     hasSlot(value) {
       return !!this.$slots[value];
-    }
-  }
+    },
+  },
 };
 </script>

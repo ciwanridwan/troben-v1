@@ -9,10 +9,16 @@ use App\Exceptions\Error;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
-use App\Http\Resources\PriceCalculatorResource;
+use App\Http\Resources\PriceResource;
+use Illuminate\Support\Facades\Validator;
 
 class PricingCalculator
 {
+    public const INSURANCE_MIN = 1000;
+
+    public const INSURANCE_MUL = 0.2 / 100;
+
+    public const MIN_TOL = .3;
     /**
      * @var array
      */
@@ -55,38 +61,136 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
-    public function calculate(): JsonResponse
+    public static function calculate(array $inputs): JsonResponse
     {
-        $weight = $this->act_weight > $this->act_volume ? $this->act_weight : $this->act_volume;
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'items' => ['required'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.weight' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['required']
+        ]);
+
+        /** @var Price $price */
+        $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+
+        $totalWeightBorne = 0;
+        $insurancePriceTotal = 0;
+
+        foreach ($inputs['items'] as $index => $item) {
+            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
+            $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+            $item['insurance_price'] = self::getInsurancePrice($item['price']);
+            $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+            $inputs['items'][$index] = $item;
+            $insurancePriceTotal += $item['insurance_price_total'];
+            $totalWeightBorne += $item['weight_borne_total'];
+        }
+
+        $tierPrice = self::getTier($price, $totalWeightBorne);
+
+        $servicePrice = $tierPrice * $totalWeightBorne;
+
+        $response = [
+            'price' => PriceResource::make($price),
+            'items' => $inputs['items'],
+            'result' => [
+                'insurance_price_total' => $insurancePriceTotal,
+                'total_weight_borne' => $totalWeightBorne,
+                'tier' => $tierPrice,
+                'service' => $servicePrice
+            ]
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $response))->json();
+    }
+
+    public static function getServicePrice(array $inputs)
+    {
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'items' => ['required'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.weight' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['required']
+        ]);
+
+        /** @var Price $price */
+        $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+
+        $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
+
+        foreach ($inputs['items'] as $index => $item) {
+            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+            $inputs['items'][$index] = $item;
+            $totalWeightBorne += $item['weight_borne'];
+        }
+
+        $tierPrice = self::getTier($price, $totalWeightBorne);
+
+        $servicePrice = $tierPrice * $totalWeightBorne;
+        return $servicePrice;
+    }
+
+
+    public static function getTotalWeightBorne(array $items)
+    {
+        $items =  Validator::validate($items, [
+            '*.height' => ['required', 'numeric'],
+            '*.length' => ['required', 'numeric'],
+            '*.width' => ['required', 'numeric'],
+            '*.weight' => ['required', 'numeric'],
+            '*.qty' => ['required', 'numeric'],
+        ]);
+
+        $totalWeightBorne = 0;
+
+        foreach ($items as  $item) {
+            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+        }
+        return $totalWeightBorne;
+    }
+
+    public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
+    {
+        $handling = Arr::wrap($handling);
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
+        } else {
+            $act_weight = self::ceilByTolerance($weight);
+            $act_volume = self::ceilByTolerance(
+                self::getVolume(
+                    $height,
+                    $length,
+                    $width,
+                    $service
+                )
+            );
+            $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
+        }
+
+        $weight = $weight * $qty;
 
         // check if lt min weight
         $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
-
-        $this->tier = $this->getTier($this->price, $weight);
-
-        $dimension_charge = $this->getDimensionCharge(
-            $this->attributes['origin_province_id'],
-            $this->attributes['origin_regency_id'],
-            $this->attributes['destination_id'],
-            $this->attributes['height'],
-            $this->attributes['length'],
-            $this->attributes['width'],
-            $this->attributes['weight'],
-            Arr::get($this->attributes, 'service', Service::TRAWLPACK_STANDARD)
-        );
-
-        $goods_property = Arr::only($this->attributes, ['height', 'width', 'length', 'weight']);
-
-        $response = [
-            'price' => $this->price,
-            'actual_property' => $goods_property,
-            'dimension' => $dimension_charge,
-            'weight' => $weight,
-            'tier' => $this->tier,
-        ];
-
-        return (new Response(Response::RC_SUCCESS, PriceCalculatorResource::make($response)))->json();
+        return $weight;
     }
+
+    public static function getInsurancePrice($price)
+    {
+        return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
+    }
+
 
     /**
      * @param int $weight
@@ -94,7 +198,7 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $service = Service::TRAWLPACK_STANDARD, $handling = null)
+    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $service = Service::TRAWLPACK_STANDARD, $handling = null)
     {
         $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
         if ($handling === Handling::TYPE_WOOD) {
@@ -111,6 +215,8 @@ class PricingCalculator
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
+
+        $weight = $weight * $qty;
 
         // check if lt min weight
         $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
@@ -160,18 +266,25 @@ class PricingCalculator
     public static function ceilByTolerance(float $weight = 0)
     {
         // decimal tolerance .3
-        $tol = .3;
         $whole = $weight;
         $maj = (int) $whole; //get major
         $min = $whole - $maj; //get after point
 
         // check with tolerance
-        if ($min >= $tol) {
+        if ($min >= self::MIN_TOL) {
             $min = 1;
         }
 
         $weight = $maj + $min;
 
+        return $weight;
+    }
+
+    public static function getWeight($height = 0, $length = 0, $width = 0, $weight = 0)
+    {
+        $weight = self::ceilByTolerance($weight);
+        $volume = self::ceilByTolerance(self::getVolume($height, $length, $width));
+        $weight = $weight > $volume ? $weight : $volume;
         return $weight;
     }
 

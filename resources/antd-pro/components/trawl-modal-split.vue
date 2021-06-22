@@ -68,7 +68,7 @@
 </template>
 <script>
 export default {
-  props: ["visibleProp"],
+  props: ["value"],
   data() {
     return {
       visible: false
@@ -86,8 +86,12 @@ export default {
     }
   },
   watch: {
-    visibleProp: function(value) {
-      console.log(value);
+    value: function(value) {
+      this.visible = value;
+      this.$emit("input", value);
+    },
+    visible: function(value) {
+      this.$emit("input", value);
     }
   }
 };

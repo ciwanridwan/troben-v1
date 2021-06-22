@@ -52,13 +52,14 @@ return [
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,
-        \App\Http\Routes\Api\Partner\Driver\OrderRoute::class,
+        App\Http\Routes\Api\Partner\Driver\OrderRoute::class,
         App\Http\Routes\Api\Partner\Driver\Order\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\OrderRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\Order\ItemRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\ManifestRoute::class,
         App\Http\Routes\Api\Partner\Driver\Order\TransitRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\Manifest\TransitRoute::class,
+        App\Http\Routes\Api\Partner\Driver\Order\DooringRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -83,7 +84,8 @@ return [
     ],
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
-        App\Http\Routes\Partner\CustomerService\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],
 

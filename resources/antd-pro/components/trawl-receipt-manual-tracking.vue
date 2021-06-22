@@ -1,20 +1,16 @@
 <template>
-  <trawl-modal-split :visibleProp="visible">
+  <trawl-modal-split v-model="visible">
     <template slot="trigger">
       <span class="trawl-text-underline trawl-text-success trawl-icon-clickable"
         >Ubah posisi</span
       >
     </template>
-    <template slot="title">
-      Ubah detail posisi
-    </template>
+    <template slot="title"> Ubah detail posisi </template>
     <template slot="left">
       <a-layout class="trawl-bg-transparent" :style="{ height: '100%' }">
         <a-layout-content class="trawl-bg-transparent">
           <a-space direction="vertical" size="large">
-            <span class="trawl-text-bold"
-              >No Resi : {{ record.code.content }}</span
-            >
+            <span class="trawl-text-bold">No Resi : {{ record.code.content }}</span>
 
             <order-modal-row-layout :afterLine="false" :iconPadding="false">
               <template slot="icon">
@@ -27,9 +23,7 @@
                   <p class="trawl-text-normal">
                     {{ getOriginAddress(record) }}
                   </p>
-                  <span>
-                    Kode Pos : 12210
-                  </span>
+                  <span> Kode Pos : 12210 </span>
                 </a-space>
               </template>
             </order-modal-row-layout>
@@ -40,15 +34,11 @@
               <template slot="content">
                 <a-space direction="vertical" :size="1">
                   <span>Penerima</span>
-                  <span class="trawl-text-bold">{{
-                    record.receiver_address
-                  }}</span>
+                  <span class="trawl-text-bold">{{ record.receiver_address }}</span>
                   <p class="trawl-text-normal">
                     {{ getDestinationAddress(record) }}
                   </p>
-                  <span>
-                    Kode Pos : 12210
-                  </span>
+                  <span> Kode Pos : 12210 </span>
                 </a-space>
               </template>
             </order-modal-row-layout>
@@ -64,17 +54,13 @@
     </template>
     <template slot="rightContent">
       <a-timeline>
-        <a-timeline-item
-          v-for="(log, index) in record.code.logs"
-          :key="index"
-          >{{ log.description }}</a-timeline-item
-        >
+        <a-timeline-item v-for="(log, index) in record.code.logs" :key="index">{{
+          log.description
+        }}</a-timeline-item>
       </a-timeline>
     </template>
     <template slot="rightFooter">
-      <a-button block class="trawl-button-success" @click="storeLog"
-        >Simpan</a-button
-      >
+      <a-button block class="trawl-button-success" @click="storeLog">Simpan</a-button>
     </template>
   </trawl-modal-split>
 </template>
@@ -90,7 +76,7 @@ export default {
   data() {
     return {
       trackings: [],
-      visible: true
+      visible: true,
     };
   },
   methods: {
@@ -98,29 +84,28 @@ export default {
     getDestinationAddress,
     async storeLog() {
       this.$refs.trackingInput.$refs.formModel.validate().then(() => {
-        console.log(this.$refs.trackingInput.form);
         this.$http
           .post(
             this.routeUri("admin.home.receipt.log.store", {
-              package_hash: this.record.hash
+              package_hash: this.record.hash,
             }),
             this.$refs.trackingInput.form
           )
           .then(() => {
             this.$notification.success({
-              message: "Berhasil menambahkan tracking!"
+              message: "Berhasil menambahkan tracking!",
             });
             this.afterStore();
             this.$refs.trackingInput.$refs.formModel.resetFields();
           })
-          .catch(error => this.onErrorResponse(error));
+          .catch((error) => this.onErrorResponse(error));
       });
-    }
+    },
   },
   components: {
     TrawlModalSplit,
     CarIcon,
-    OrderManualTrackingInput
-  }
+    OrderManualTrackingInput,
+  },
 };
 </script>

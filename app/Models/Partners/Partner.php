@@ -8,12 +8,17 @@ use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CodeLogable;
+use App\Models\Geo\District;
+use App\Models\Geo\Province;
+use App\Models\Geo\Regency;
+use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Partner Model.
@@ -207,5 +212,56 @@ class Partner extends Model
     public function code_logs()
     {
         return $this->morphMany(CodeLogable::class, 'code_logable');
+    }
+
+
+    /**
+     * Define `belongsTo` relationship with District model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class, 'geo_district_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with City model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class, 'geo_regency_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Province model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class, 'geo_province_id', 'id');
+    }
+
+
+    /**
+     * @return BelongsTo
+     */
+    public function sub_district(): BelongsTo
+    {
+        return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
+    }
+
+    public function getGeoAddressAttribute()
+    {
+        $sub_district = $this->sub_district ? $this->sub_district->name : '';
+        $district = $this->district ? $this->district->name : '';
+        $regency = $this->regency ? $this->regency->name : '';
+        $province = $this->province ? $this->province->name : '';
+        $address = "$this->address, $sub_district $district $regency $province";
+        $address .= $this->sub_district ? $this->zip_code : '';
+        return $address;
     }
 }

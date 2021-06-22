@@ -29,11 +29,25 @@ class Queries
     {
         $query = Delivery::query();
 
-        $query->where(fn (Builder $builder) => $builder
-            ->orWhere('partner_id', $this->partner->id)
-            ->orWhere('origin_partner_id', $this->partner->id));
+        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+            $userable = $this->user->transporters->first();
+            $query->where('userable_id', $userable->pivot->id);
+        } else {
+            $query->where(fn (Builder $builder) => $builder
+                ->orWhere('partner_id', $this->partner->id)
+                ->orWhere('origin_partner_id', $this->partner->id));
 
-        $this->resolveDeliveriesQueryByRole($query);
+            $this->resolveDeliveriesQueryByRole($query);
+        }
+
+        return $query;
+    }
+
+    public function getDeliveriesByUserableQuery(): Builder
+    {
+        $query = Delivery::query();
+
+        $query->whereIn('userable_id', $this->partner->users->pluck('pivot.id')->toArray());
 
         return $query;
     }

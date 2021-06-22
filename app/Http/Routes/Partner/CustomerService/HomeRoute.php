@@ -26,12 +26,7 @@ class HomeRoute extends BaseRoute
     {
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index'),
-        ]);
-
-        $this->router->patch($this->prefix('{delivery_hash}/{userable_hash}/assign'), [
-            'as' => $this->name('assign'),
-            'uses' => $this->uses('orderAssignation'),
+            'uses' => fn () => redirect(route('partner.customer_service.home.order.pickup'))
         ]);
     }
 

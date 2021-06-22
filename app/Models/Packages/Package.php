@@ -429,6 +429,11 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(SubDistrict::class, 'destination_sub_district_id', 'id');
     }
 
+    public function scopeWalkin($query)
+    {
+        return $query->where('transporter_type', NULL);
+    }
+
     public function scopePaid($query)
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_PAID);
@@ -438,6 +443,7 @@ class Package extends Model implements AttachableContract
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_PENDING);
     }
+
 
     public function scopeFailed($query)
     {

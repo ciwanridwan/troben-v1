@@ -59,18 +59,7 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
-        $this->attributes = $request->validate([
-            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
-            'height' => ['required_with:width,length', 'numeric'],
-            'width' => ['required_with:height,length', 'numeric'],
-            'length' => ['required_with:width,height', 'numeric'],
-            'weight' => ['required', 'numeric'],
-            'insurance' => ['filled', 'boolean'],
-        ]);
-
-        return (new PricingCalculator($this->attributes))->calculate();
+        return PricingCalculator::calculate($request->toArray());
     }
 
     /**

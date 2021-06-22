@@ -44,6 +44,9 @@ class Response implements Responsable
     public const RC_TOKEN_WAS_CLAIMED = '0304';
     public const RC_SMS_GATEWAY_WAS_BROKEN = '0305';
 
+    // partner error
+    public const RC_PARTNER_GEO_UNAVAILABLE = '0401';
+
     // server side faults. 0900 - 0999
     public const RC_SERVER_IN_MAINTENANCE = '0901';
     public const RC_DATABASE_ERROR = '0902';
@@ -107,6 +110,7 @@ class Response implements Responsable
                 self::RC_TOKEN_MISMATCH,
                 self::RC_TOKEN_WAS_CLAIMED,
                 self::RC_OUT_OF_RANGE,
+                self::RC_PARTNER_GEO_UNAVAILABLE
             ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
@@ -167,7 +171,7 @@ class Response implements Responsable
             }
 
             $responseData['data'] = $this->data->toArray($request);
-        } elseif (array_key_exists('resource', $this->data)) {
+        } elseif (Arr::has($this->data, 'resource')) {
             if ($this->data['resource']->resource instanceof LengthAwarePaginator) {
                 $responseData = array_merge($responseData, $this->data['resource']->resource->toArray());
             }

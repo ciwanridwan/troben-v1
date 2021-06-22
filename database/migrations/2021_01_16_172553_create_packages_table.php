@@ -24,7 +24,7 @@ class CreatePackagesTable extends Migration
                 ->nullOnDelete();
 
             $table->char('service_code', 3);
-            $table->string('transporter_type');
+            $table->string('transporter_type')->nullable();
 
             $table->string('sender_name');
             $table->string('sender_phone');

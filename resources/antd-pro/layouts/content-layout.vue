@@ -10,16 +10,14 @@
           <h3 v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
         <a-col :span="14">
-          <a-row type="flex">
-            <a-col :span="search ? 16 : 24">
+          <a-row type="flex" :gutter="12">
+            <a-col :span="search ? 16 : 24" class="trawl-text-right">
               <slot name="head-tools"></slot>
             </a-col>
             <a-col v-if="search" :span="8">
               <a-input-search
                 @search="search.action"
-                :placeholder="
-                  search.placeholder ? search.placeholder : 'search ...'
-                "
+                :placeholder="search.placeholder ? search.placeholder : 'search ...'"
               ></a-input-search>
             </a-col>
           </a-row>
@@ -41,25 +39,25 @@
   </a-layout>
 </template>
 <script>
-import getNavigation from "../navigation/navigation";
+import { getNavigation } from "../navigation";
 
 export default {
   props: {
     title: {
-      type: String
+      type: String,
     },
     sider: {
       type: Boolean,
-      default: false
+      default: false,
     },
     siderPosition: {
       type: String,
-      default: "left"
+      default: "left",
     },
     search: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   computed: {
     defaultTitle() {
@@ -74,16 +72,17 @@ export default {
     },
     hasFooterSlot() {
       return !!this.$slots["footer"];
-    }
+    },
   },
   methods: {
-    getNavigation
-  }
+    getNavigation,
+  },
 };
 </script>
 <style lang="scss">
 #content-layout {
-  height: 90vh;
+  min-height: 90vh;
+  position: relative;
   .content {
     padding: 24px;
   }
