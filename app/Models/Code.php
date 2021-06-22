@@ -27,6 +27,8 @@ class Code extends Model
     public const TYPE_MANIFEST = 'MNF';
     public const TYPE_ITEM = 'ITM';
 
+    protected $table = 'codes';
+
     protected $search_columns = [
         'content'
     ];

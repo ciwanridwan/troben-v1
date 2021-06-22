@@ -7,9 +7,7 @@
         </span>
         <span
           >Jumlah Kg :
-          <span class="trawl-text-bold"
-            >{{ record.weight_borne_total }} Kg</span
-          ></span
+          <span class="trawl-text-bold">{{ record.weight_borne_total }} Kg</span></span
         >
         <span> </span>
       </a-space>
@@ -29,7 +27,7 @@
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between">
         <a-col :span="8">
-          <manifest-status :record="record"></manifest-status>
+          <delivery-status :record="record"></delivery-status>
         </a-col>
       </a-row>
     </span>
@@ -38,20 +36,20 @@
 <script>
 import trawlTable from "../trawl-table.vue";
 import manifestColumns from "../../config/table/home/trawl-manifest";
-import ManifestStatus from "../manifest-status.vue";
+import DeliveryStatus from "../delivery-status.vue";
 
 export default {
   data() {
     return {
-      manifestColumns
+      manifestColumns,
     };
   },
   props: {
     dataSource: Array,
     default: () => {
       return [];
-    }
+    },
   },
-  components: { trawlTable, ManifestStatus }
+  components: { trawlTable, DeliveryStatus },
 };
 </script>

@@ -3,7 +3,7 @@
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between" ref="expand">
         <a-col :span="8">
-          <order-status :record="record"></order-status>
+          <package-status :record="record" />
         </a-col>
         <a-col :span="6" style="text-align: center">
           <a-space>
@@ -21,7 +21,6 @@
 <script>
 import trawlTable from "../../trawl-table";
 import orderColumns from "../../../config/table/customer-service/order";
-import OrderStatus from "../../order-status";
 import OrderAction from "../../order-action";
 import OrderModal from "../../orders/order-modal";
 import {
@@ -31,6 +30,8 @@ import {
 } from "../../../functions/orders";
 import ModalAssignTransporter from "../../modals/modal-assign-transporter.vue";
 import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
+import PackageStatus from "../../package-status.vue";
+
 export default {
   data() {
     return {
@@ -57,10 +58,10 @@ export default {
   components: {
     trawlTable,
     OrderAction,
-    OrderStatus,
     OrderModal,
     ModalAssignTransporter,
     ModalRejectPickup,
+    PackageStatus,
   },
 };
 </script>
