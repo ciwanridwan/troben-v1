@@ -11,11 +11,11 @@ class CreateNewDooring
 {
     use Dispatchable;
 
+    public Delivery $delivery;
+
     private Partner $originPartner;
 
     private array $attributes;
-
-    public Delivery $delivery;
 
     /**
      * CreateNewDooring constructor.
