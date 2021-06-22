@@ -10,9 +10,9 @@
           <a-col :span="18">
             <h4>
               <b>
-                {{ record.origin_regency.name }}
+                {{ origin_regency_name }}
                 <a-icon type="arrow-right" />
-                {{ record.destination_regency.name }}
+                {{ destination_regency_name }}
               </b>
             </h4>
             <h5>Harga perkilo yaitu Rp. {{ tierPrice }}/kg</h5>
@@ -37,7 +37,7 @@
 
       <!-- items -->
       <template v-for="(item, index) in items">
-        <a-row :key="index">
+        <a-row type="flex" :key="index">
           <a-col :span="leftColumn">
             {{ item.name }}
           </a-col>
@@ -45,16 +45,9 @@
             {{ item.qty }} Koli
           </a-col>
 
-          <a-col :span="leftColumn">
-            Total Charge Weight
-          </a-col>
+          <a-col :span="leftColumn"> Total Charge Weight </a-col>
           <a-col :span="rightColumn" class="trawl-text-right">
             {{ item.weight_borne }} Kg
-          </a-col>
-
-          <a-col :span="leftColumn"> Biaya Jasa Kirim x {{ item.qty }} </a-col>
-          <a-col :span="rightColumn" class="trawl-text-right">
-            {{ currency(getServicePrice(item)) }}
           </a-col>
 
           <a-col :span="24">
@@ -69,11 +62,12 @@
                 </a-col>
               </a-row>
             </template>
-          </a-col>
-
-          <a-col :span="leftColumn"> Asuransi x {{ item.qty }} </a-col>
-          <a-col :span="rightColumn" class="trawl-text-right">
-            {{ currency(getInsurancePrice(item)) }}
+            <a-row v-if="item.is_insured" type="flex">
+              <a-col :span="leftColumn"> Asuransi x {{ item.qty }} </a-col>
+              <a-col :span="rightColumn" class="trawl-text-right">
+                {{ currency(getInsurancePrice(item)) }}
+              </a-col>
+            </a-row>
           </a-col>
         </a-row>
         <a-divider :key="index + '-divider'"></a-divider>
@@ -81,9 +75,12 @@
 
       <!-- sub total biaya -->
       <a-row type="flex">
-        <a-col :span="leftColumn">
-          Sub total biaya
+        <a-col :span="leftColumn"> Biaya Kirim </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(servicePrice) }}
         </a-col>
+
+        <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(subTotalPrice) }}
         </a-col>
@@ -102,39 +99,48 @@ import {
   getServicePrice,
   getTierPrice,
   getSubTotalItems,
-  getHandlings
+  getHandlings,
 } from "../../functions/orders";
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
-    record: {
+    package: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     leftColumn: {
       type: Number,
-      default: 16
+      default: 16,
     },
     rightColumn: {
       type: Number,
-      default: 8
-    }
+      default: 8,
+    },
   },
   data() {
     return {
-      handlings
+      handlings,
     };
   },
   computed: {
+    origin_regency_name() {
+      return this.package?.origin_regency?.name;
+    },
+    destination_regency_name() {
+      return this.package?.destination_regency?.name;
+    },
     items() {
-      return this.record?.items;
+      return this.package?.items;
     },
     tierPrice() {
-      return this.getTierPrice(this.items);
+      return this.package?.tier_price;
+    },
+    servicePrice() {
+      return this.package?.service_price;
     },
     subTotalPrice() {
-      return this.getSubTotalItems(this.items);
-    }
+      return this.package?.total_amount;
+    },
   },
   methods: {
     getHandlingPrice,
@@ -142,7 +148,7 @@ export default {
     getServicePrice,
     getTierPrice,
     getSubTotalItems,
-    getHandlings
-  }
+    getHandlings,
+  },
 };
 </script>

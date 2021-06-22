@@ -59,22 +59,22 @@ const statuses = [
   {
     status: STATUS_ESTIMATING,
     messageType: "warning",
-    message: "Pesanan sedang diukur dan timbang"
+    message: "Sedang dihitung di Gudang"
   },
   {
     status: STATUS_ESTIMATED,
     messageType: "warning",
-    message: "Pesanan telah diukur dan timbang"
+    message: "Telah dihitung di Gudang"
   },
   {
     status: STATUS_WAITING_FOR_APPROVAL,
     messageType: "warning",
-    message: "Pesanan menunggu persetujuan"
+    message: "Menunggu Konfirmasi Customer"
   },
   {
     status: STATUS_REVAMP,
     messageType: "warning",
-    message: "Pesanan direvisi"
+    message: "Revisi"
   },
   {
     status: STATUS_ACCEPTED,
@@ -90,6 +90,11 @@ const statuses = [
     status: STATUS_PACKING,
     messageType: "warning",
     message: "Pesanan sedang dikemas"
+  },
+  {
+    status: STATUS_PACKED,
+    messageType: "warning",
+    message: "Pesanan telah dikemas"
   },
   {
     status: STATUS_MANIFESTED,

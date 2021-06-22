@@ -1,8 +1,8 @@
 <template>
   <a-form-model ref="formRules" :rules="rules" :model="value">
-    <a-form-model-item prop="insurance">
+    <a-form-model-item prop="is_insured">
       <a-space>
-        <a-checkbox v-model="value.insurance">
+        <a-checkbox v-model="value.is_insured">
           Ganti rugi 90% jika produk hilang akibat insiden saat pengiriman barang. Biaya…
         </a-checkbox>
         <a-icon :component="InformationCircleIcon" :style="{ cursor: 'pointer' }" />
@@ -18,7 +18,7 @@ export default {
       InformationCircleIcon,
 
       rules: {
-        insurance: [{ required: false }],
+        is_insured: [{ required: false }],
       },
     };
   },
@@ -31,7 +31,7 @@ export default {
       type: Object,
       default: () => {
         return {
-          insurance: false,
+          is_insured: false,
         };
       },
     },

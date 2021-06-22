@@ -6,7 +6,7 @@ const main = {
     children: {
       order: {
         title: "All Order",
-        text: "Data Order",
+        text: "Semua",
         route: "partner.cashier.home.all",
         children: null
       },

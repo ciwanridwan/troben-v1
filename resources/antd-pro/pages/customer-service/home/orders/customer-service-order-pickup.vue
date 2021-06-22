@@ -20,16 +20,16 @@
   </content-layout>
 </template>
 <script>
-import TrawlNotification from "../../../components/trawl-notification.vue";
-import orderColumns from "../../../config/table/customer-service/order";
-import ContentLayout from "../../../layouts/content-layout.vue";
-import { orders } from "../../../mock";
-import { NoteIcon } from "../../../components/icons";
+import TrawlNotification from "../../../../components/trawl-notification.vue";
+import orderColumns from "../../../../config/table/customer-service/order";
+import ContentLayout from "../../../../layouts/content-layout.vue";
+import { orders } from "../../../../mock";
+import { NoteIcon } from "../../../../components/icons";
 
-import OrderModalResi from "../../cashier/home/order/order-modal-resi.vue";
-import orderModal from "../../cashier/home/order/order-modal.vue";
-import TrawlTable from "../../../components/trawl-table.vue";
-import OrderTable from "../../../components/tables/customer-service/order-table";
+import OrderModalResi from "../../../cashier/home/order/order-modal-resi.vue";
+import orderModal from "../../../cashier/home/order/order-modal.vue";
+import TrawlTable from "../../../../components/trawl-table.vue";
+import OrderTable from "../../../../components/tables/customer-service/order-table.vue";
 
 export default {
   name: "CustomerServiceMasterOrder",

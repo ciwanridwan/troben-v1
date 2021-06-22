@@ -29,6 +29,7 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageCancelMethodSelected;
 use App\Listeners\Codes\WriteCodeLog;
 use App\Listeners\Deliveries\CreateDeliveryByEvent;
+use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -45,10 +46,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCreated::class => [
             GeneratePackagePrices::class,
+            UpdatePackageTotalWeightByEvent::class,
             WriteCodeLog::class
         ],
         PackageUpdated::class => [
             GeneratePackagePrices::class,
+            UpdatePackageTotalWeightByEvent::class,
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],

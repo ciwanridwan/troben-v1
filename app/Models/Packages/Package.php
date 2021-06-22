@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;
@@ -44,6 +45,7 @@ use ReflectionClass;
  * @property string $status
  * @property bool $is_separate_item
  * @property float $total_amount
+ * @property float $total_weight
  * @property string $payment_status
  * @property int $origin_regency_id
  * @property int $origin_district_id
@@ -196,6 +198,9 @@ class Package extends Model implements AttachableContract
      */
     protected $appends = [
         'hash',
+        'tier_price',
+        'service_price',
+
     ];
 
     /**
@@ -204,6 +209,7 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $casts = [
+        'total_weight' => 'float',
         'total_amount' => 'float',
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
@@ -283,6 +289,21 @@ class Package extends Model implements AttachableContract
             self::PAYMENT_STATUS_PAID, // payment is done.
             self::PAYMENT_STATUS_FAILED, // payment is failed
         ];
+    }
+
+    public function getServicePriceAttribute()
+    {
+        try {
+            return $this->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+        } catch (\Throwable $th) {
+            return 0;
+        }
+    }
+    public function getTierPriceAttribute()
+    {
+        $price = PricingCalculator::getPrice($this->origin_regency->province_id, $this->origin_regency->id, $this->destination_sub_district->id);
+        $tier = PricingCalculator::getTier($price, $this->total_weight);
+        return $tier;
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Events\Deliveries\Pickup\PackageRejectedByPartner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Validation\ValidationException;
@@ -27,9 +29,13 @@ class RejectDeliveryFromPartner
     {
         $this->delivery = $delivery;
         $this->partner = $partner;
-        $mustConditions = [Delivery::TYPE_PICKUP];
-        throw_if(! in_array($this->delivery->type, $mustConditions), ValidationException::withMessages([
-            'package' => __('Delivery should be in '.implode(',', $mustConditions).' Type'),
+        $typeConditions = [Delivery::TYPE_PICKUP];
+        throw_if(!in_array($this->delivery->type, $typeConditions), ValidationException::withMessages([
+            'package' => __('Delivery should be in ' . implode(',', $typeConditions) . ' Type'),
+        ]));
+        $statusConditions = [Delivery::STATUS_PENDING];
+        throw_if(!in_array($this->delivery->status, $statusConditions), ValidationException::withMessages([
+            'package' => __('Delivery should be in ' . implode(',', $statusConditions) . ' Status'),
         ]));
         if ($this->delivery->partner->id !== $this->partner->id) {
             throw new \LogicException('chosen partner must had the delivery');
@@ -43,10 +49,14 @@ class RejectDeliveryFromPartner
      */
     public function handle()
     {
-        $this->delivery->setAttribute('status', Delivery::STATUS_PENDING);
-        $this->delivery->setAttribute('partner_id', null);
-        $this->delivery->save();
+        $this->delivery->packages->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_CREATED)->save());
 
-        return $this->delivery->exists;
+        $this->delivery->code()->delete();
+
+        $this->delivery->delete();
+
+        event(new PackageRejectedByPartner($this->delivery));
+
+        return !$this->delivery->exists;
     }
 }
