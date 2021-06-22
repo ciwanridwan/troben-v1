@@ -158,7 +158,7 @@ class StagingDatabaseSeeder extends Seeder
         $this->call([
             PackagesTableSeeder::class,
             PartnerTableImport::class,
-            EmployeeSeeder::class
+            // EmployeeSeeder::class
         ]);
     }
 }
