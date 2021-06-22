@@ -7,11 +7,11 @@
         </a-col>
         <a-col :span="6" style="text-align: center">
           <a-space>
-            <modal-assign-transporter
-              :delivery="record"
-              @assigned="getDataFunction"
-            ></modal-assign-transporter>
-            <modal-reject-pickup :delivery="record" @reject="getDataFunction" />
+            <order-modal :record="record" @change="getDataFunction">
+              <template slot="trigger">
+                <a-button type="success" class="trawl-button-success"> Cek </a-button>
+              </template>
+            </order-modal>
           </a-space>
         </a-col>
       </a-row>
@@ -19,18 +19,11 @@
   </trawl-table>
 </template>
 <script>
-import trawlTable from "../../trawl-table";
-import orderColumns from "../../../config/table/customer-service/order";
-import OrderAction from "../../order-action";
-import OrderModal from "../../orders/modal/order-modal";
-import {
-  getTotalWeightBorne,
-  getTierPrice,
-  getSubTotalItems,
-} from "../../../functions/orders";
 import ModalAssignTransporter from "../../modals/modal-assign-transporter.vue";
 import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
-import PackageStatus from "../../package-status.vue";
+import packageStatus from "../../package-status.vue";
+import orderColumns from "../../../config/table/cashier/order";
+import OrderModal from "../../orders/modal/order-modal.vue";
 
 export default {
   data() {
@@ -50,20 +43,11 @@ export default {
       default: () => {},
     },
   },
-  methods: {
-    getTotalWeightBorne,
-    getTierPrice,
-    getSubTotalItems,
-  },
   components: {
-    trawlTable,
-    OrderAction,
-    OrderModal,
+    packageStatus,
     ModalAssignTransporter,
     ModalRejectPickup,
-    PackageStatus,
+    OrderModal,
   },
 };
 </script>
-
-ModalRejectPickup

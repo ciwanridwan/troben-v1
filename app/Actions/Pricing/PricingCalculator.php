@@ -61,7 +61,13 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
-    public static function calculate(array $inputs): JsonResponse
+    /**
+     * @param array $inputs
+     * @param string $returnType="json"|"array"
+     *
+     * @return JsonResponse
+     */
+    public static function calculate(array $inputs, string $returnType = 'json'): JsonResponse
     {
         $inputs =  Validator::validate($inputs, [
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
@@ -73,7 +79,7 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
-            'items.*.handling' => ['required']
+            'items.*.handling' => ['nullable']
         ]);
 
         /** @var Price $price */
@@ -107,7 +113,17 @@ class PricingCalculator
             ]
         ];
 
-        return (new Response(Response::RC_SUCCESS, $response))->json();
+        switch ($returnType) {
+            case 'array':
+                return $response;
+            case 'json':
+                return (new Response(Response::RC_SUCCESS, $response))->json();
+                break;
+
+            default:
+                return (new Response(Response::RC_SUCCESS, $response))->json();
+                break;
+        }
     }
 
     public static function getServicePrice(array $inputs)
@@ -131,7 +147,8 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
 
         foreach ($inputs['items'] as $index => $item) {
-            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+            $handling = self::checkHandling($item['handling']);
+            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $handling);
             $inputs['items'][$index] = $item;
             $totalWeightBorne += $item['weight_borne'];
         }
@@ -151,7 +168,10 @@ class PricingCalculator
             '*.width' => ['required', 'numeric'],
             '*.weight' => ['required', 'numeric'],
             '*.qty' => ['required', 'numeric'],
+            '*.handling' => ['required']
         ]);
+
+
 
         $totalWeightBorne = 0;
 
@@ -163,7 +183,7 @@ class PricingCalculator
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
     {
-        $handling = Arr::wrap($handling);
+        $handling = self::checkHandling($handling);
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
         } else {
@@ -310,5 +330,17 @@ class PricingCalculator
         $volume = $volume > 1 ? $volume : 1;
 
         return $volume;
+    }
+
+    private static function checkHandling($handling = [])
+    {
+        if ($handling !== []) {
+            if (Arr::has(Arr::wrap($handling[0]), 'type')) {
+                $handling = array_column($handling, 'type');
+            }
+        }
+        $handling = Arr::wrap($handling);
+
+        return $handling;
     }
 }

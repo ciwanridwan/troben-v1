@@ -11,9 +11,7 @@
       <a-space direction="vertical" :size="1">
         <span
           >Total Charge Weight:
-          <span class="trawl-text-bolder">{{
-            getTotalWeightBorne(record.items)
-          }}</span>
+          <span class="trawl-text-bolder">{{ getTotalWeightBorne(record.items) }}</span>
           Kg
         </span>
         <span
@@ -65,16 +63,16 @@ import trawlTable from "../trawl-table.vue";
 import orderColumns from "../../config/table/home/trawl-order";
 import OrderStatus from "../../components/order-status.vue";
 import OrderAction from "../../components/order-action.vue";
-import OrderModal from "../../components/orders/order-modal";
+import OrderModal from "../../components/orders/modal/order-modal";
 import {
   getTotalWeightBorne,
   getTierPrice,
-  getSubTotalItems
+  getSubTotalItems,
 } from "../../functions/orders";
 export default {
   data() {
     return {
-      orderColumns
+      orderColumns,
     };
   },
   props: {
@@ -82,18 +80,18 @@ export default {
       type: Array,
       default: () => {
         return [];
-      }
+      },
     },
     getDataFunction: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   methods: {
     getTotalWeightBorne,
     getTierPrice,
-    getSubTotalItems
+    getSubTotalItems,
   },
-  components: { trawlTable, OrderAction, OrderStatus, OrderModal }
+  components: { trawlTable, OrderAction, OrderStatus, OrderModal },
 };
 </script>

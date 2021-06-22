@@ -1,8 +1,8 @@
 <template>
-  <a-form-model ref="formRules" :model="value" :rules="rules">
+  <a-form-model ref="formRules" :model="form" :rules="rules">
     <!-- handling -->
     <a-form-model-item ref="handling" prop="handling">
-      <a-radio-group v-model="value.handling">
+      <a-radio-group v-model="form.handling">
         <a-space direction="vertical">
           <a-radio :value="false"> Tanpa Packing </a-radio>
           <a-radio :value="true"> Pakai Packing </a-radio>
@@ -11,8 +11,8 @@
     </a-form-model-item>
 
     <!-- handling_type -->
-    <a-form-model-item v-show="value.handling" ref="handling_type" prop="handling_type">
-      <a-checkbox-group v-model="value.handling_type">
+    <a-form-model-item v-show="form.handling" ref="handling_type" prop="handling_type">
+      <a-checkbox-group v-model="form.handling_type">
         <a-row type="flex">
           <a-col v-for="(value, key) in handlings" :key="key" :span="12">
             <a-checkbox :value="key">
@@ -50,33 +50,31 @@ export default {
   data() {
     return {
       handlings,
+      form: {
+        handling: false,
+        handling_type: null,
+      },
       rules: {
         handling: [{ required: true }],
         handling_type: [{ required: false }],
       },
     };
   },
-  methods: {
-    setDefaultValue() {
-      Object.keys(this.form).forEach((k) => {
-        this.form[k] = this.defaultValue[k];
-      });
-    },
-    updateHandling() {
-      this.$emit("change", this.form);
-    },
-  },
   watch: {
-    value: {
+    form: {
       handler: function (value) {
         if (!value.handling) {
-          value.handling_type ? (this.value.handling_type = []) : null;
+          value.handling_type ? (this.form.handling_type = []) : null;
         }
         this.onChange(value);
+        this.$emit("input", value);
         this.$emit("change", value);
       },
       deep: true,
     },
+  },
+  mounted() {
+    this.form = { ...this.value };
   },
 };
 </script>
