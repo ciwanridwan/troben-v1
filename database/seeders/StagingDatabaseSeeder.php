@@ -57,92 +57,92 @@ class StagingDatabaseSeeder extends Seeder
             CustomerInChargeSeeder::class,
         ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Warehouse Unload Pacakge at destination warehouse seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        //     PartnerAssignedDriverToDeliverySeeder::class,
-        //     DriverLoadPackageSeeder::class,
-        //     DriverArrivedAtDestinationWarehouseSeeder::class,
-        //     WarehouseUnloadPackageAtDestinationSeeder::class
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Warehouse Unload Pacakge at destination warehouse seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+            DriverLoadPackageSeeder::class,
+            DriverArrivedAtDestinationWarehouseSeeder::class,
+            WarehouseUnloadPackageAtDestinationSeeder::class
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Driver Arrived and Unload Pacakge  at destination warehouse seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        //     PartnerAssignedDriverToDeliverySeeder::class,
-        //     DriverLoadPackageSeeder::class,
-        //     DriverArrivedAtDestinationWarehouseSeeder::class
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Driver Arrived and Unload Pacakge  at destination warehouse seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+            DriverLoadPackageSeeder::class,
+            DriverArrivedAtDestinationWarehouseSeeder::class
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Driver Load Pacakge seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        //     PartnerAssignedDriverToDeliverySeeder::class,
-        //     DriverLoadPackageSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Driver Load Pacakge seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+            DriverLoadPackageSeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Partner Assigned Driver to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        //     PartnerAssignedDriverToDeliverySeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Partner Assigned Driver to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+            PartnerAssignedDriverToDeliverySeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Assigned Partner to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        //     PartnerAssignedToDeliverySeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Assigned Partner to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+            PartnerAssignedToDeliverySeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Transporter Request seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     RequestPartnerSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Transporter Request seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            RequestPartnerSeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Assigned Driver to Manifest seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     DriverAssignedSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Assigned Driver to Manifest seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            DriverAssignedSeeder::class,
+        ]);
 
-        // PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
-        // PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
-        // $this->command->getOutput()->title('Package Manifested Seeder');
-        // $this->call([
-        //     PostPaymentSeeder::class,
-        //     PackedSeeder::class,
-        //     PackageAssignedToManifestSeeder::class,
-        // ]);
+        PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
+        $this->command->getOutput()->title('Package Manifested Seeder');
+        $this->call([
+            PostPaymentSeeder::class,
+            PackedSeeder::class,
+            PackageAssignedToManifestSeeder::class,
+        ]);
 
         PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
@@ -153,12 +153,12 @@ class StagingDatabaseSeeder extends Seeder
             ManifestSeeder::class,
         ]);
 
-        // PackagesTableSeeder::$CUSTOMER_PACKAGES = 35;
-        // PackagesTableSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
+        PackagesTableSeeder::$CUSTOMER_PACKAGES = 35;
+        PackagesTableSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         $this->call([
-            // PackagesTableSeeder::class,
+            PackagesTableSeeder::class,
             PartnerTableImport::class,
-            // EmployeeSeeder::class
+            EmployeeSeeder::class
         ]);
     }
 }
