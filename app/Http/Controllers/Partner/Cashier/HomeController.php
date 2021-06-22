@@ -11,6 +11,7 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
+use App\Http\Resources\Api\Package\PackageCalculateResource;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 
@@ -49,7 +50,9 @@ class HomeController extends Controller
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }
 
-            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code']);
+
+
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
 
             $this->attributes = $request->validate($this->rules);
             $this->getResource();

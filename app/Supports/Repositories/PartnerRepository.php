@@ -12,7 +12,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 
 class PartnerRepository
 {
-    protected ?string $scopedRole = null;
+    public ?string $scopedRole = null;
 
     private \Closure $requestCallback;
 

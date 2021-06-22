@@ -151,12 +151,11 @@ class Queries
             case $this->role === UserablePivot::ROLE_CASHIER:
                 $query->where(fn (Builder $builder) => $builder->whereIn('packages.status', [
                     Package::STATUS_ESTIMATED,
+                    Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,
                     Package::STATUS_ACCEPTED,
-                    Package::STATUS_CANCEL,
-                ])->orWhereIn('payment_status', [
-                    Package::PAYMENT_STATUS_PENDING,
-                    Package::PAYMENT_STATUS_PAID,
+                    Package::STATUS_WITH_COURIER,
+                    Package::STATUS_CANCEL
                 ]));
                 break;
         }

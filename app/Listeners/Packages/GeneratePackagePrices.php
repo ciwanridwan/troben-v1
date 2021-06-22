@@ -8,6 +8,7 @@ use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
+use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 
 class GeneratePackagePrices
 {
@@ -23,9 +24,8 @@ class GeneratePackagePrices
     public function handle($event)
     {
         if (property_exists($event, 'package') && $event->package instanceof Package && $event->package->payment_status !== Package::PAYMENT_STATUS_PAID) {
-            // TODO : map item to price
+
             $event->package->items->each(function (Item $item) use ($event) {
-                // todo : create price type handling
                 foreach (($item->handling ?? []) as $handling) {
                     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
@@ -34,25 +34,8 @@ class GeneratePackagePrices
                     ]);
                     $this->dispatch($job);
                 }
-                // todo : create price type service, description item name
-                $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
-                    'type' => Price::TYPE_SERVICE,
-                    'description' => Price::TYPE_SERVICE,
-                    'amount' => PricingCalculator::getDimensionCharge(
-                        $event->package->origin_regency->province_id,
-                        $event->package->origin_regency_id,
-                        $event->package->destination_sub_district_id,
-                        $item->height,
-                        $item->length,
-                        $item->width,
-                        $item->weight,
-                        $item->qty,
-                        $event->package->service_code
-                    ),
-                ]);
-                $this->dispatch($job);
 
-                // todo : create price type insurance, attach to item
+
                 if ($item->is_insured) {
                     $insured_mul = 0.2 / 100; // 0.2%
                     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
@@ -63,6 +46,36 @@ class GeneratePackagePrices
                     $this->dispatch($job);
                 }
             });
+
+            $package = $event->package;
+
+            $package->refresh();
+
+            if (!$package->relationLoaded('origin_regency')) {
+                $package->load('origin_regency');
+            }
+
+            if (!$package->relationLoaded('destination_sub_district')) {
+                $package->load('destination_sub_district');
+            }
+
+            $service_input = [
+                'origin_province_id' => $package->origin_regency->province_id,
+                'origin_regency_id' => $package->origin_regency->id,
+                'destination_id' => $package->destination_sub_district->id,
+                'items' => $package->items->toArray()
+            ];
+
+            $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                'type' => Price::TYPE_SERVICE,
+                'description' => Price::TYPE_SERVICE,
+                'amount' => PricingCalculator::getServicePrice($service_input),
+            ]);
+            $this->dispatch($job);
+
+
+            $total_amount = $package->prices->sum('amount');
+            $package->setAttribute('total_amount', $total_amount)->save();
 
             // todo : create service lainnya, contoh : biaya penjemputan
         }

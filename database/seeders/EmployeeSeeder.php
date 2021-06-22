@@ -25,11 +25,14 @@ class EmployeeSeeder extends Seeder
     public function run()
     {
         $partners = Partner::all();
+        $partnerTotal = $partners->count();
 
+        $this->command->info("=> Prepare create employee for each partner ");
 
-
-        $partners->each(function (Partner $partner) {
-            $this->command->info("\nCREATE EMPLOYEE FOR PARTNER [".$partner->code.'] '.$partner->name);
+        $count = 1;
+        $partners->each(function (Partner $partner) use ($partnerTotal, &$count) {
+            $this->command->warn("(" . $count++ . "/" . $partnerTotal . ")");
+            $this->command->info("\nCREATE EMPLOYEE FOR PARTNER [" . $partner->code . '] ' . $partner->name);
             $employees = new Collection();
 
             foreach (UserablePivot::getAvailableRoles() as  $role) {

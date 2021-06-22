@@ -1,20 +1,20 @@
 const getOriginAddress = selectedPackage => {
   let address = [
-    selectedPackage.origin_sub_district?.name,
-    selectedPackage.origin_district?.name,
-    selectedPackage.origin_regency?.name
+    selectedPackage?.origin_sub_district?.name,
+    selectedPackage?.origin_district?.name,
+    selectedPackage?.origin_regency?.name
   ];
   address = address.join(" ");
-  address += ", " + selectedPackage.origin_regency?.name;
+  address += ", " + selectedPackage?.origin_regency?.name;
   return address;
 };
 const getDestinationAddress = selectedPackage => {
   let address = [
-    selectedPackage.destination_district?.name,
-    selectedPackage.destination_sub_district?.name
+    selectedPackage?.destination_district?.name,
+    selectedPackage?.destination_sub_district?.name
   ];
   address = address.join(" ");
-  address += ", " + selectedPackage.destination_regency?.name;
+  address += ", " + selectedPackage?.destination_regency?.name;
   return address;
 };
 const getServicePrice = item => {
@@ -50,7 +50,7 @@ const getTotalWeightBorne = items => {
 };
 const getSubTotalItem = item => {
   let subTotal = 0;
-  item?.prices.forEach(price => {
+  item?.prices?.forEach(price => {
     subTotal += price.amount * item.qty;
   });
   return subTotal;
