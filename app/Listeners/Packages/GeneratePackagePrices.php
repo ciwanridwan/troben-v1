@@ -9,6 +9,7 @@ use App\Actions\Pricing\PricingCalculator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
+use Illuminate\Validation\ValidationException;
 
 class GeneratePackagePrices
 {
@@ -59,17 +60,23 @@ class GeneratePackagePrices
                 $package->load('destination_sub_district');
             }
 
-            $service_input = [
-                'origin_province_id' => $package->origin_regency->province_id,
-                'origin_regency_id' => $package->origin_regency->id,
-                'destination_id' => $package->destination_sub_district->id,
-                'items' => $package->items->toArray()
-            ];
+            try {
+                $service_input = [
+                    'origin_province_id' => $package->origin_regency->province_id,
+                    'origin_regency_id' => $package->origin_regency->id,
+                    'destination_id' => $package->destination_sub_district->id,
+                    'items' => $package->items->toArray()
+                ];
+
+                $service_price = PricingCalculator::getServicePrice($service_input);
+            } catch (ValidationException $e) {
+                $service_price = 0;
+            }
 
             $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                 'type' => Price::TYPE_SERVICE,
                 'description' => Price::TYPE_SERVICE,
-                'amount' => PricingCalculator::getServicePrice($service_input),
+                'amount' => $service_price,
             ]);
             $this->dispatch($job);
 
