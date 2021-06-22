@@ -156,9 +156,9 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverUnloadedPackageInDooringPoint::class => [
-            // UpdateDeliveryStatusByEvent::class,
-            // UpdatePackageStatusByEvent::class,
-            // WriteCodeLog::class
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
         ],
         PartnerRequested::class => [
             //

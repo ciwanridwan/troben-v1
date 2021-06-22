@@ -63,15 +63,14 @@ class UpdateDeliveryStatusByEvent
                 $event->delivery->setAttribute('status', Delivery::STATUS_EN_ROUTE)->save();
                 break;
             case $event instanceof Dooring\DriverUnloadedPackageInDooringPoint:
-                // /** @var Delivery $delivery */
-                // $delivery = $event->delivery;
-                // $delivery->packages->each(function ($package) use ($delivery) {
-                //     $delivery->packages()->updateExistingPivot($package, ['status' => Delivery::STATUS_FINISHED
-                //     ]);
-                // });
-                // $delivery->item_codes->each(function ($item_code) use ($delivery) {
-                //     $delivery->item_codes()->updateExistingPivot($item_code, ['status' => Delivery::STATUS_FINISHED]);
-                // });
+                 /** @var Delivery $delivery */
+                 $delivery = $event->delivery;
+                 $delivery->packages->each(function ($package) use ($delivery) {
+                     $delivery->packages()->updateExistingPivot($package, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
+                 });
+                 $delivery->item_codes->each(function ($item_code) use ($delivery) {
+                     $delivery->item_codes()->updateExistingPivot($item_code, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
+                 });
                 break;
         }
     }
