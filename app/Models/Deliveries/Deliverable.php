@@ -10,6 +10,7 @@ class Deliverable extends MorphPivot
     public const STATUS_PREPARED_BY_ORIGIN_WAREHOUSE = 'prepared_by_origin_warehouse';
     public const STATUS_LOAD_BY_DRIVER = 'load_by_driver';
     public const STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE = 'unload_by_destination_warehouse';
+    public const STATUS_UNLOAD_BY_DESTINATION_PACKAGE = 'unload_by_destination_package';
 
     protected $table = 'deliverables';
 
@@ -39,6 +40,7 @@ class Deliverable extends MorphPivot
             self::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
             self::STATUS_LOAD_BY_DRIVER,
             self::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
+            self::STATUS_UNLOAD_BY_DESTINATION_PACKAGE,
         ];
     }
 

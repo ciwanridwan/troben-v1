@@ -4,6 +4,7 @@ namespace Database\Seeders\Packages\InTransit\Warehouses;
 
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Models\Deliveries\Delivery;
+use Database\Seeders\Packages\InTransit\Drivers\DriverLoadPackageSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Event;
 
