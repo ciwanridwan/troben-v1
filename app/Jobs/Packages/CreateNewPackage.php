@@ -86,7 +86,7 @@ class CreateNewPackage
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
 
-        if (!isset($this->items[0]['handling'])) {
+        if (! isset($this->items[0]['handling'])) {
             $this->items[0]['handling'] = [];
         }
 
