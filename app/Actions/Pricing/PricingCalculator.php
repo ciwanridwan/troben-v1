@@ -138,7 +138,7 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
-            'items.*.handling' => ['required']
+            'items.*.handling' => ['nullable']
         ]);
 
         /** @var Price $price */
@@ -168,7 +168,7 @@ class PricingCalculator
             '*.width' => ['required', 'numeric'],
             '*.weight' => ['required', 'numeric'],
             '*.qty' => ['required', 'numeric'],
-            '*.handling' => ['required']
+            '*.handling' => ['nullable']
         ]);
 
 
