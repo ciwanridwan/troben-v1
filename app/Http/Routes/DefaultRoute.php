@@ -33,7 +33,7 @@ class DefaultRoute extends BaseRoute
 
         $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => fn () => redirect($this->prefix('auth/login'))
+            'uses' => fn () => redirect('auth/login')
         ]);
 
         $this->router->get($this->prefix('attachment/{attachment_uuid}'), [
