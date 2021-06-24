@@ -7,11 +7,7 @@
         </a-col>
         <a-col :span="6" style="text-align: center">
           <a-space>
-            <order-modal :record="record" @change="getDataFunction">
-              <template slot="trigger">
-                <a-button type="success" class="trawl-button-success"> Cek </a-button>
-              </template>
-            </order-modal>
+            <cashier-order-actions :package="record" @change="getDataFunction" />
           </a-space>
         </a-col>
       </a-row>
@@ -24,6 +20,7 @@ import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
 import packageStatus from "../../package-status.vue";
 import orderColumns from "../../../config/table/cashier/order";
 import OrderModal from "../../orders/modal/order-modal.vue";
+import CashierOrderActions from "../../orders/actions/cashier-order-actions.vue";
 
 export default {
   data() {
@@ -48,6 +45,7 @@ export default {
     ModalAssignTransporter,
     ModalRejectPickup,
     OrderModal,
+    CashierOrderActions,
   },
 };
 </script>

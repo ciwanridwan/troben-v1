@@ -20,6 +20,11 @@ const STATUS_DELIVERED = "delivered";
 const STATUS_CANCEL_SELF_PICKUP = "cancel_self_pickup";
 const STATUS_CANCEL_DELIVERED = "cancel_delivered";
 
+const PAYMENT_STATUS_DRAFT = "draft";
+const PAYMENT_STATUS_PENDING = "pending";
+const PAYMENT_STATUS_PAID = "paid";
+const PAYMENT_STATUS_FAILED = "failed";
+
 const statuses = [
   {
     status: STATUS_CANCEL,
@@ -150,5 +155,9 @@ export {
   STATUS_DELIVERED,
   STATUS_CANCEL_SELF_PICKUP,
   STATUS_CANCEL_DELIVERED,
+  PAYMENT_STATUS_DRAFT,
+  PAYMENT_STATUS_PENDING,
+  PAYMENT_STATUS_PAID,
+  PAYMENT_STATUS_FAILED,
   statuses
 };

@@ -7,7 +7,7 @@
       <template slot="content">
         <a-space direction="vertical">
           <span class="trawl-text-bolder"> {{ code }} </span>
-          <span>{{ created_at }}</span>
+          <span>{{ dateSimpleFormat(created_at) }}</span>
         </a-space>
       </template>
     </order-modal-row-layout>
@@ -17,12 +17,7 @@
         <a-icon :component="SendIcon" :style="{ 'font-size': '3rem' }" />
       </template>
       <template slot="content">
-        <a-space direction="vertical" :size="1">
-          <span>Pengirim</span>
-          <span class="trawl-text-bolder">{{ sender_name }}</span>
-          <span>{{ sender_phone }}</span>
-          <p class="trawl-text-normal">{{ sender_address }}</p>
-        </a-space>
+        <package-address :package="package" type="sender" />
       </template>
     </order-modal-row-layout>
 
@@ -32,10 +27,7 @@
       </template>
       <template slot="content">
         <a-space direction="vertical" :size="1">
-          <span>Penerima</span>
-          <span class="trawl-text-bolder">{{ receiver_name }}</span>
-          <span>{{ receiver_phone }}</span>
-          <p>{{ receiver_address }}</p>
+          <package-address :package="package" type="receiver" />
           <order-estimation />
         </a-space>
       </template>
@@ -46,9 +38,10 @@
   </div>
 </template>
 <script>
-import { getDestinationAddress, getOriginAddress } from "../../../functions/orders";
 import { TrawlRedIcon, SendIcon, ReceiveIcon } from "../../icons";
+import packageAddress from "../../packages/package-address.vue";
 export default {
+  components: { packageAddress },
   props: {
     package: {
       type: Object,
@@ -65,25 +58,6 @@ export default {
   computed: {
     code() {
       return this.package?.code?.content;
-    },
-    receiver_address() {
-      return this.package?.receiver_address + getDestinationAddress(this.package);
-    },
-    receiver_phone() {
-      return this.package?.receiver_phone;
-    },
-    receiver_name() {
-      return this.package?.receiver_name;
-    },
-
-    sender_address() {
-      return this.package?.sender_address + getOriginAddress(this.package);
-    },
-    sender_phone() {
-      return this.package?.sender_phone;
-    },
-    sender_name() {
-      return this.package?.sender_name;
     },
     created_at() {
       return this.package?.created_at;

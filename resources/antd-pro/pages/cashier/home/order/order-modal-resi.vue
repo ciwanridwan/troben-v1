@@ -1,10 +1,6 @@
 <template>
   <div>
-    <a-button
-      :class="['trawl-button-success']"
-      @click="showModal"
-      @cancel="onCancel"
-    >
+    <a-button :class="['trawl-button-success']" @click="showModal" @cancel="onCancel">
       Print
     </a-button>
     <a-modal v-model="visible" :width="640" centered :footer="null">
@@ -27,7 +23,7 @@
         :enable-download="true"
         :preview-modal="false"
         :manual-pagination="true"
-        :filename="`${record.code.content} - ${item.codes[0].content}`"
+        :filename="`${code} - ${item.codes[0].content}`"
         pdf-format="a5"
         pdf-orientation="portrait"
         ref="html2Pdf"
@@ -42,8 +38,8 @@
                 <h2 :style="{ margin: 0 }">
                   <b>{{ partnerInfo.code }}</b>
                 </h2>
-                <h4 style="font-weight:normal">{{ partnerInfo.address }}</h4>
-                <h4 style="font-weight:normal" :class="['trawl-text-mute']">
+                <h4 style="font-weight: normal">{{ partnerInfo.address }}</h4>
+                <h4 style="font-weight: normal" :class="['trawl-text-mute']">
                   {{ dateSimpleFormat(record.updated_at) }}
                 </h4>
               </a-col>
@@ -59,29 +55,27 @@
                   <div>
                     <h4 class="trawl-text-danger">Dari</h4>
                     <h2 :style="{ margin: 0 }">
-                      <b>{{ record.origin_regency.name }}</b>
+                      <b>{{ origin_regency_name }}</b>
                     </h2>
                     <h3 class="trawl-text-normal">
-                      {{ record.origin_regency.province.name }}
+                      {{ origin_province_name }}
                     </h3>
                   </div>
 
                   <div>
                     <h4 class="trawl-text-danger">Ke</h4>
                     <h2 :style="{ margin: 0 }">
-                      <b>{{ record.destination_regency.name }}</b>
+                      <b>{{ destination_regency_name }}</b>
                     </h2>
                     <h3 class="trawl-text-normal">
-                      {{ record.destination_regency.province.name }}
+                      {{ destination_province_name }}
                     </h3>
                   </div>
                 </a-space>
               </a-col>
               <a-col :span="12" class="trawl-text-center">
-                <vue-qrcode :value="record.code.content" />
-                <h3 class="trawl-text-normal">
-                  No Resi: {{ record.code.content }}
-                </h3>
+                <vue-qrcode :value="code" />
+                <h3 class="trawl-text-normal">No Resi: {{ code }}</h3>
               </a-col>
             </a-row>
 
@@ -99,11 +93,11 @@
                       </a-space>
                     </h3>
                     <h3>
-                      <b>{{ record.sender_name }}</b>
+                      <b>{{ sender_name }}</b>
                     </h3>
-                    <h3 class="trawl-text-normal">{{ record.sender_phone }}</h3>
+                    <h3 class="trawl-text-normal">{{ sender_phone }}</h3>
                     <h3 class="trawl-text-normal">
-                      {{ record.sender_address }}
+                      {{ sender_address }}
                     </h3>
                   </div>
 
@@ -129,13 +123,13 @@
                       </a-space>
                     </h3>
                     <h3>
-                      <b>{{ record.receiver_name }}</b>
+                      <b>{{ receiver_name }}</b>
                     </h3>
                     <h3 class="trawl-text-normal">
-                      {{ record.receiver_phone }}
+                      {{ receiver_phone }}
                     </h3>
                     <h3 class="trawl-text-normal">
-                      {{ record.receiver_address }}
+                      {{ receiver_address }}
                     </h3>
                   </div>
 
@@ -187,7 +181,7 @@ import {
   QrCodeIcon,
   PackageIcon,
   WeightMachineIcon,
-  PrintIcon
+  PrintIcon,
 } from "../../../../components/icons";
 import ReceiveIcon from "../../../../components/icons/receiveIcon.vue";
 import VueHtml2pdf from "vue-html2pdf";
@@ -196,13 +190,54 @@ export default {
   props: ["record", "partnerInfo"],
   data() {
     return {
-      visible: false
+      visible: false,
     };
   },
   computed: {
     item() {
       return this.record.items[0];
-    }
+    },
+    code() {
+      return this.record?.code?.content;
+    },
+    updated_at() {
+      return this.record?.updated_at;
+    },
+    origin_regency_name() {
+      return this.record?.origin_regency?.name;
+    },
+    origin_province_name() {
+      return this.record?.origin_regency?.province?.name;
+    },
+
+    destination_regency_name() {
+      return this.record?.destination_regency?.name;
+    },
+    destination_province_name() {
+      return this.record?.destination_regency?.province?.name;
+    },
+
+    sender_name() {
+      return this.record?.sender_name;
+    },
+    sender_phone() {
+      return this.record?.sender_phone;
+    },
+    sender_address() {
+      return this.record?.sender_address;
+    },
+    receiver_name() {
+      return this.record?.receiver_name;
+    },
+    receiver_phone() {
+      return this.record?.receiver_phone;
+    },
+    receiver_address() {
+      return this.record?.receiver_address;
+    },
+    items() {
+      return this.record?.items;
+    },
   },
   methods: {
     showModal() {
@@ -213,13 +248,13 @@ export default {
     },
     onCancel() {
       this.visible = false;
-    }
+    },
   },
   components: {
     VueHtml2pdf,
     TrawlPackWithText,
-    TrawlWhiteIcon
-  }
+    TrawlWhiteIcon,
+  },
 };
 </script>
 <style lang="less" scoped>

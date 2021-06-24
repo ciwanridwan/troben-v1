@@ -31,9 +31,9 @@ class DefaultRoute extends BaseRoute
     {
         $this->router->bind('attachment_uuid', fn ($id) => Attachment::query()->findOrFail($id));
 
-        $this->router->get($this->prefix(), [
+        $this->router->get($this->prefix, [
             'as' => $this->name,
-            'uses' => $this->uses('index'),
+            'uses' => fn () => redirect($this->prefix('auth/login'))
         ]);
 
         $this->router->get($this->prefix('attachment/{attachment_uuid}'), [

@@ -3,11 +3,15 @@
     <template slot="extra">
       <a-space>
         <order-modal-edit
+          v-if="modifiable ? editable : false"
           ref="editForm"
           v-model="item"
           @submit="onEdit"
         ></order-modal-edit>
-        <delete-button @click="onDelete"></delete-button>
+        <delete-button
+          v-if="modifiable ? deletable : false"
+          @click="onDelete"
+        ></delete-button>
       </a-space>
     </template>
     <template slot="title">
@@ -72,6 +76,18 @@ export default {
     value: {
       type: Object,
       default: () => {},
+    },
+    modifiable: {
+      type: Boolean,
+      default: true,
+    },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
+    deletable: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {

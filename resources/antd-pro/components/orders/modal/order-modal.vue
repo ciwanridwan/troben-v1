@@ -1,13 +1,13 @@
 <template>
   <div class="trawl-order-modal-component">
-    <span
-      v-if="hasSlot('trigger')"
-      class="trawl-order-modal-component--trigger"
-      @click="showModal"
-    >
-      <slot name="trigger"></slot>
+    <span class="trawl-order-modal-component--trigger" @click="showModal">
+      <slot v-if="hasSlot('trigger')" name="trigger"></slot>
+      <a-space v-else class="trawl-text-success-darken trawl-click">
+        <a-icon :component="GpsIcon" />
+        <span class="trawl-text-underline"> Invoice </span>
+      </a-space>
     </span>
-    <a-modal v-model="visible" width="65%" centered :footer="null">
+    <a-modal v-model="visible" width="65%" centered :footer="footer">
       <template slot="closeIcon"
         ><a-icon type="close" @click="hideModal"></a-icon
       ></template>
@@ -20,21 +20,38 @@
         </span>
       </template>
 
-      <order-modal-address :package="record" />
+      <order-modal-address :package="package" />
 
       <a-space direction="vertical" size="middle">
-        <order-modal-items @change="onItemChange" v-model="record.items" />
+        <order-modal-items
+          @change="onItemChange"
+          v-model="package.items"
+          :modifiable="modifiable"
+          :editable="editable"
+          :deletable="deletable"
+        />
 
-        <order-modal-estimations :package="record" />
+        <order-modal-estimations :package="package" />
 
-        <order-modal-delivery :package="record" />
+        <order-modal-delivery :package="package" />
       </a-space>
+
+      <template v-if="hasSlot('footer')" slot="footer">
+        <slot name="footer"></slot>
+      </template>
     </a-modal>
   </div>
 </template>
 <script>
 import orderModalRowLayout from "../order-modal-row-layout.vue";
-import { TrawlRedIcon, SendIcon, ReceiveIcon, DeliveryIcon, CarIcon } from "../../icons";
+import {
+  TrawlRedIcon,
+  SendIcon,
+  ReceiveIcon,
+  DeliveryIcon,
+  CarIcon,
+  GpsIcon,
+} from "../../icons";
 import OrderEstimation from "../order-estimation.vue";
 import OrderItemCard from "../order-item-card.vue";
 import OrderDeliveryEstimation from "../order-delivery-estimation.vue";
@@ -45,23 +62,45 @@ import {
   getDestinationAddress,
 } from "../../../functions/orders";
 import OrderModalEstimations from "./order-modal-estimations.vue";
+import OrderModalItems from "./order-modal-items.vue";
 export default {
   components: {
     orderModalRowLayout,
-    TrawlRedIcon,
-    SendIcon,
-    ReceiveIcon,
-    DeliveryIcon,
     OrderEstimation,
     OrderDeliveryEstimation,
     OrderItemCard,
-    CarIcon,
     OrderModalEstimations,
+    OrderModalItems,
   },
-  props: ["record"],
+  props: {
+    value: null,
+    package: {
+      type: Object,
+      default: () => {},
+    },
+    modifiable: {
+      type: Boolean,
+      default: true,
+    },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
+    deletable: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
       visible: false,
+      GpsIcon,
+      TrawlRedIcon,
+      SendIcon,
+      ReceiveIcon,
+      DeliveryIcon,
+      CarIcon,
+      footer: undefined,
     };
   },
   methods: {
@@ -81,6 +120,23 @@ export default {
     onItemChange() {
       this.$emit("change");
     },
+    setFooter() {
+      this.footer = !!this.$slots.footer ? undefined : null;
+    },
+  },
+  watch: {
+    visible: function (value) {
+      this.$emit("input", value);
+    },
+    value: function (value) {
+      this.visible = value;
+      this.$emit("input", value);
+    },
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.setFooter();
+    });
   },
 };
 </script>

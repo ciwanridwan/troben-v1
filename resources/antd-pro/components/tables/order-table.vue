@@ -1,7 +1,7 @@
 <template>
   <trawl-table :columns="orderColumns" :dataSource="dataSource">
     <template slot="id_order" slot-scope="{ record }">
-      <order-modal :record="record">
+      <order-modal :package="record">
         <span slot="trigger">
           <span class="trawl-text-bolder trawl-text-underline trawl-click">{{
             record.code.content

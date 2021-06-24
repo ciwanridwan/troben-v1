@@ -4,7 +4,13 @@
     <template slot="content">
       <a-row type="flex" :gutter="[12, 12]">
         <a-col v-for="(item, index) in value" :key="index" :span="12">
-          <order-item-card v-model="value[index]" @change="onChange" />
+          <order-item-card
+            v-model="value[index]"
+            @change="onChange"
+            :modifiable="modifiable"
+            :editable="editable"
+            :deletable="deletable"
+          />
         </a-col>
       </a-row>
     </template>
@@ -20,6 +26,18 @@ export default {
       default: () => {
         return [];
       },
+    },
+    modifiable: {
+      type: Boolean,
+      default: true,
+    },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
+    deletable: {
+      type: Boolean,
+      default: true,
     },
   },
   methods: {
