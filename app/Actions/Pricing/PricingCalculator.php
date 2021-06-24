@@ -89,6 +89,7 @@ class PricingCalculator
         $insurancePriceTotal = 0;
 
         foreach ($inputs['items'] as $index => $item) {
+            $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
             $item['insurance_price'] = self::getInsurancePrice($item['price']);
@@ -147,7 +148,7 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
 
         foreach ($inputs['items'] as $index => $item) {
-            $handling = self::checkHandling(($item['handling'] ?? []));
+            $handling = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $handling);
             $inputs['items'][$index] = $item;
             $totalWeightBorne += $item['weight_borne'];
@@ -176,7 +177,8 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], ($item['handling'] ?? []));
+            $item['handling'] = self::checkHandling($item['handling']);
+            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
         }
         return $totalWeightBorne;
     }
