@@ -4,6 +4,7 @@ namespace App\Http\Routes\Api\Auth;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\SocialLoginController;
 
 class AuthRoute extends BaseRoute
 {
@@ -31,6 +32,16 @@ class AuthRoute extends BaseRoute
         $this->router->post($this->prefix('login'), [
             'as' => $this->name('login'),
             'uses' => $this->uses('login'),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('login/google'), [
+            'as' => $this->name('login.google'),
+            'uses' => $this->uses('googleCallback', SocialLoginController::class),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('login/facebook'), [
+            'as' => $this->name('login.facebook'),
+            'uses' => $this->uses('facebookCallback', SocialLoginController::class),
         ])->withoutMiddleware('api');
 
         $this->router->post($this->prefix('register'), [
