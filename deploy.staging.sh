@@ -27,7 +27,7 @@ echo "Deploying application ..."
     screen -dm bash -c 'npm ci && npm run production'
 
     # Clear cache
-    php artisan optimize
+    php -memory_limit=44M artisan optimize
 
     # Reload PHP to update opcache
     echo "" | sudo -S service php7.4-fpm reload
