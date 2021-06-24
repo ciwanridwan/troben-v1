@@ -13,6 +13,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Event;
 use App\Events\Packages\PackageCreated;
+use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\PackagePaymentVerified;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -30,6 +31,7 @@ class PostPaymentSeeder extends PackagesTableSeeder
 
         parent::run();
         $packages->each(function ($package) {
+            event(new PackageEstimatedByWarehouse($package));
             event(new PackageCheckedByCashier($package));
             event(new PackageApprovedByCustomer($package));
             event(new PackagePaymentVerified($package));
