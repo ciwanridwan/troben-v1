@@ -119,8 +119,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
-            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
+            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);
