@@ -27,6 +27,9 @@ class ManifestController extends Controller
                 $query->where('origin_partner_id', $partner->id);
             }
         });
+        $request->whenHas('delivery_type', function (array $value) use ($query) {
+            $query->whereIn('type', $value);
+        });
 
         $query->with('partner', 'packages.items');
 

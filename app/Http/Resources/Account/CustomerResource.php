@@ -22,6 +22,12 @@ class CustomerResource extends JsonResource
             'phone' => $this->phone,
         ];
 
+        $address = $this->addresses;
+
+        if ($address->count() > 0) {
+            $data['address'] = ($address->where('is_default', true)->first()->only('address'))['address'];
+        }
+
         return $data;
     }
 }
