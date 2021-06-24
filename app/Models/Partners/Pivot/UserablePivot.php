@@ -84,7 +84,7 @@ class UserablePivot extends Relations\MorphPivot
             self::ROLE_CASHIER => route('partner.cashier.home.all'),
             self::ROLE_CS => route('partner.customer_service.home'),
         ];
-        if (!Arr::has($route, $roleName)) {
+        if (! Arr::has($route, $roleName)) {
             abort(404);
         }
 
