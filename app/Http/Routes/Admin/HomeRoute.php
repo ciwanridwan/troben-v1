@@ -7,9 +7,16 @@ use App\Http\Controllers\Admin\HomeController;
 
 class HomeRoute extends BaseRoute
 {
+    /**
+     * @var string
+     */
+    protected $prefix = 'home';
+
+    /**
+     * @var string
+     */
     protected $name = 'admin.home';
 
-    protected $prefix = 'home';
 
     /**
      * Register routes handled by this class.

@@ -114,6 +114,10 @@ class Package extends Model implements AttachableContract
     public const ATTACHMENT_RECEIPT = 'receipt';
     public const ATTACHMENT_PACKAGE = 'package';
 
+    public const TYPE_WALKIN = 'walkin';
+    public const TYPE_APP = 'app';
+
+
 
 
     /**
@@ -200,6 +204,7 @@ class Package extends Model implements AttachableContract
         'hash',
         'tier_price',
         'service_price',
+        'type'
 
     ];
 
@@ -469,5 +474,14 @@ class Package extends Model implements AttachableContract
     public function scopeFailed($query)
     {
         return $query->where('payment_status', self::PAYMENT_STATUS_FAILED);
+    }
+
+    public function getTypeAttribute()
+    {
+        if (!$this->transporter_type) {
+            return self::TYPE_WALKIN;
+        } else {
+            return self::TYPE_APP;
+        }
     }
 }
