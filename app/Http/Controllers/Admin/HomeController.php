@@ -119,8 +119,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
-            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
+            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);
@@ -151,9 +151,7 @@ class HomeController extends Controller
     {
         $this->query = Partner::query();
         if ($hasTransporter) {
-            $this->query = $this->query->whereHas('transporters', function ($query) use ($request) {
-                $query->where('type', $request->transporter_type);
-            });
+            $this->query = $this->query->whereHas('transporters', fn ($query) => $query->where('type', $request->transporter_type));
         }
         $this->query->search($request->q);
 

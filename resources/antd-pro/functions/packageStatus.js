@@ -1,4 +1,4 @@
-import { statuses } from "../data/packageStatus";
+import { statuses, types } from "../data/packageStatus";
 
 const getMessageByStatus = status => {
   let message = "";
@@ -11,5 +11,8 @@ const getMessageByStatus = status => {
     message: message
   };
 };
+const getPackageOrderType = type => {
+  return types.find(o => o.type == type);
+};
 
-export { getMessageByStatus };
+export { getMessageByStatus, getPackageOrderType };

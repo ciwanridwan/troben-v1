@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <a-space>
     <component
       v-for="(actionComponent, index) in actionComponents"
       :key="index"
@@ -7,10 +7,10 @@
       v-bind="setComponentProps(actionComponent.props)"
       @submit="onChange"
     ></component>
-  </div>
+  </a-space>
 </template>
 <script>
-import { actions } from "../../../data/order/cashier/orderActions";
+import { actions } from "../../../data/order/admin/orderActions";
 import { getComponentByStatusAndPaymentStatus } from "../../../functions/orders";
 export default {
   props: ["package", "role"],

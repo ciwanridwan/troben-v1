@@ -38,13 +38,8 @@
         </a-timeline-item>
       </a-timeline>
     </template>
-    <span slot="order_by" slot-scope="{ record }">
-      <a-badge
-        v-if="record.order_by"
-        :count="record.order_by"
-        :class="['trawl-badge-success']"
-      />
-      <a-badge v-else :count="'Not Set'" :class="['trawl-badge-success']" />
+    <span slot="type" slot-scope="{ record }">
+      <badge-package-type :package="record" />
     </span>
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between">
@@ -52,7 +47,7 @@
           <order-status :record="record"></order-status>
         </a-col>
         <a-col :span="12" class="trawl-text-right" v-if="record.status">
-          <order-action :afterAction="getDataFunction" :record="record" />
+          <admin-order-actions :package="record" @change="getDataFunction" />
         </a-col>
       </a-row>
     </span>
@@ -69,6 +64,8 @@ import {
   getTierPrice,
   getSubTotalItems,
 } from "../../functions/orders";
+import BadgePackageType from "../badges/badge-package-type.vue";
+import AdminOrderActions from "../orders/actions/admin-order-actions.vue";
 export default {
   data() {
     return {
@@ -92,6 +89,13 @@ export default {
     getTierPrice,
     getSubTotalItems,
   },
-  components: { trawlTable, OrderAction, OrderStatus, OrderModal },
+  components: {
+    trawlTable,
+    OrderAction,
+    OrderStatus,
+    OrderModal,
+    BadgePackageType,
+    AdminOrderActions,
+  },
 };
 </script>

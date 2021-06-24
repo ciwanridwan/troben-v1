@@ -19,12 +19,20 @@ const actions = [
   {
     status: [STATUS_ESTIMATED, STATUS_REVAMP],
     payment_status: [PAYMENT_STATUS_DRAFT],
-    component: ModalPackageSendToCustomer
+    components: [
+      {
+        component: ModalPackageSendToCustomer
+      }
+    ]
   },
   {
     status: [STATUS_ACCEPTED],
     payment_status: [PAYMENT_STATUS_PENDING],
-    component: OrderModal,
+    components: [
+      {
+        component: OrderModal
+      }
+    ],
     props: {
       modifiable: false
     }
@@ -32,7 +40,11 @@ const actions = [
   {
     status: [STATUS_ACCEPTED],
     payment_status: [PAYMENT_STATUS_PAID],
-    component: ModalReceiptToPdf
+    components: [
+      {
+        component: ModalReceiptToPdf
+      }
+    ]
   },
   {
     status: [
@@ -43,7 +55,11 @@ const actions = [
       STATUS_WITH_COURIER
     ],
     payment_status: [PAYMENT_STATUS_PAID],
-    component: OrderModal,
+    components: [
+      {
+        component: OrderModal
+      }
+    ],
     props: {
       modifiable: false
     }

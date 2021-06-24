@@ -4,38 +4,41 @@
       <a-button class="trawl-button-success">Lunas</a-button>
     </template>
     <template slot="text">
-      <p>
-        Apakah pembayaran telah berhasil dilunaskan?
-      </p>
+      <p>Apakah pembayaran telah berhasil dilunaskan?</p>
     </template>
   </trawl-modal-confirm>
 </template>
 <script>
-import trawlModalConfirm from "./trawl-modal-confirm.vue";
+import TrawlModalConfirm from "../trawl-modal-confirm.vue";
 export default {
   props: {
-    record: {
+    package: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     afterConfirm: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
+    routeSubmit: {
+      type: String,
+      default: "admin.home.paymentConfirm",
+    },
   },
-  components: { trawlModalConfirm },
+  components: { TrawlModalConfirm },
   methods: {
     paymentConfirm() {
       this.$http
         .patch(
-          this.routeUri("admin.home.paymentConfirm", {
-            package_hash: this.record.hash
+          this.routeUri(this.routeSubmit, {
+            package_hash: this.package.hash,
           })
         )
         .then(() => {
           this.afterConfirm();
+          this.$emit("submit");
         });
-    }
-  }
+    },
+  },
 };
 </script>

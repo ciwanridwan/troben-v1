@@ -9,7 +9,7 @@
           <a-space>
             <modal-assign-transporter
               :delivery="record"
-              @assigned="getDataFunction"
+              @submit="getDataFunction"
             ></modal-assign-transporter>
             <modal-reject-pickup :delivery="record" @reject="getDataFunction" />
           </a-space>
@@ -26,7 +26,7 @@ import OrderModal from "../../orders/modal/order-modal";
 import {
   getTotalWeightBorne,
   getTierPrice,
-  getSubTotalItems,
+  getSubTotalItems
 } from "../../../functions/orders";
 import ModalAssignTransporter from "../../modals/modal-assign-transporter.vue";
 import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
@@ -35,7 +35,7 @@ import PackageStatus from "../../package-status.vue";
 export default {
   data() {
     return {
-      orderColumns,
+      orderColumns
     };
   },
   props: {
@@ -43,17 +43,17 @@ export default {
       type: Array,
       default: () => {
         return [];
-      },
+      }
     },
     getDataFunction: {
       type: Function,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   methods: {
     getTotalWeightBorne,
     getTierPrice,
-    getSubTotalItems,
+    getSubTotalItems
   },
   components: {
     trawlTable,
@@ -61,8 +61,8 @@ export default {
     OrderModal,
     ModalAssignTransporter,
     ModalRejectPickup,
-    PackageStatus,
-  },
+    PackageStatus
+  }
 };
 </script>
 

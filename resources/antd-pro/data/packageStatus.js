@@ -25,6 +25,9 @@ const PAYMENT_STATUS_PENDING = "pending";
 const PAYMENT_STATUS_PAID = "paid";
 const PAYMENT_STATUS_FAILED = "failed";
 
+const TYPE_WALKIN = "walkin";
+const TYPE_APP = "app";
+
 const statuses = [
   {
     status: STATUS_CANCEL,
@@ -133,6 +136,36 @@ const statuses = [
   }
 ];
 
+const paymentStatuses = [
+  {
+    payment_status: PAYMENT_STATUS_DRAFT,
+    title: "Draft Pembayaran"
+  },
+  {
+    payment_status: PAYMENT_STATUS_PENDING,
+    title: "Menunggu pembayaran"
+  },
+  {
+    payment_status: PAYMENT_STATUS_PENDING,
+    title: "Terbayar"
+  },
+  {
+    payment_status: PAYMENT_STATUS_FAILED,
+    title: "Pembayaran Gagal"
+  }
+];
+
+const types = [
+  {
+    type: TYPE_WALKIN,
+    title: "Walk In"
+  },
+  {
+    type: TYPE_APP,
+    title: "Aplikasi"
+  }
+];
+
 export {
   STATUS_CANCEL,
   STATUS_LOST,
@@ -159,5 +192,7 @@ export {
   PAYMENT_STATUS_PENDING,
   PAYMENT_STATUS_PAID,
   PAYMENT_STATUS_FAILED,
-  statuses
+  statuses,
+  types,
+  paymentStatuses
 };

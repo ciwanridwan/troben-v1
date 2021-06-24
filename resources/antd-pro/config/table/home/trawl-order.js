@@ -32,8 +32,8 @@ export default [
   },
   {
     title: "Order By",
-    key: "order_by",
-    scopedSlots: { customRender: "order_by" },
+    key: "type",
+    scopedSlots: { customRender: "type" },
     sorter: true,
     classes: "trawl-text-center",
     colspan: 2

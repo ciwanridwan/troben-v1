@@ -7,7 +7,7 @@
       <a-row type="flex" justify="end" :gutter="12">
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
-            <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+            <a class="ant-dropdown-link" @click="(e) => e.preventDefault()">
               Click me <a-icon type="down" />
             </a>
           </a-dropdown>
@@ -15,7 +15,7 @@
       </a-row>
     </template>
     <template slot="content">
-      <order-table :dataSource="items.data" :getDataFunction="getItems" />
+      <order-table :dataSource="items.data" :get-data-function="getItems" />
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -31,7 +31,7 @@ export default {
   components: {
     ContentLayout,
     TrawlNotification,
-    OrderTable
+    OrderTable,
   },
   data: () => {
     return {
@@ -40,18 +40,18 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 15
+        per_page: 15,
       },
       loading: false,
       orderModalVisibility: false,
-      orderModalObject: {}
+      orderModalObject: {},
     };
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
-      _.forEach(this.items.data, o => {
+      _.forEach(this.items.data, (o) => {
         o.number = numbering++;
       });
     },
@@ -61,12 +61,12 @@ export default {
     searchById(value) {
       this.filter.q = value;
       this.getItems();
-    }
+    },
   },
   mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
-  }
+  },
 };
 </script>
 

@@ -10,11 +10,13 @@
         </div>
       </template>
       <div class="trawl-text-center trawl-modal-confirm--content-container">
-        <confirm-image />
+        <a-space direction="vertical">
+          <a-icon :component="confirmImage" :style="{ 'font-size': '12rem' }" />
 
-        <span class="trawl-modal-confirm--text">
-          <slot name="text"></slot>
-        </span>
+          <span class="trawl-modal-confirm--text">
+            <slot name="text"></slot>
+          </span>
+        </a-space>
       </div>
       <a-row
         type="flex"
@@ -46,10 +48,10 @@
 import confirmImage from "./icons/confirmImage.vue";
 
 export default {
-  components: { confirmImage },
   data() {
     return {
       visible: false,
+      confirmImage,
     };
   },
   props: {
@@ -83,10 +85,12 @@ export default {
     onCancel() {
       this.cancel();
       this.hideModal();
+      this.$emit("cancel");
     },
     onOk() {
       this.ok();
       this.hideModal();
+      this.$emit("ok");
     },
   },
   watch: {

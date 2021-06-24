@@ -21,6 +21,7 @@
 <script>
 import orderModalRowLayout from "../orders/order-modal-row-layout.vue";
 import PackageAddress from "./package-address.vue";
+import { SendIcon, ReceiveIcon } from "../icons";
 export default {
   props: {
     package: {
@@ -29,5 +30,11 @@ export default {
     },
   },
   components: { orderModalRowLayout, PackageAddress },
+  data() {
+    return {
+      SendIcon,
+      ReceiveIcon,
+    };
+  },
 };
 </script>
