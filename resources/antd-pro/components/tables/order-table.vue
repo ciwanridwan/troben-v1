@@ -8,25 +8,7 @@
           }}</span>
         </span>
       </order-modal>
-      <a-space direction="vertical" :size="1">
-        <span
-          >Total Charge Weight:
-          <span class="trawl-text-bolder">{{ getTotalWeightBorne(record.items) }}</span>
-          Kg
-        </span>
-        <span
-          >Total per Kg:
-          <span class="trawl-text-bolder">{{
-            currency(getTierPrice(record.items))
-          }}</span>
-        </span>
-        <span
-          >Total Biaya:
-          <span class="trawl-text-bolder">
-            {{ currency(getSubTotalItems(record.items)) }}</span
-          >
-        </span>
-      </a-space>
+      <package-table-detail :package="record" />
     </template>
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
@@ -66,6 +48,7 @@ import {
 } from "../../functions/orders";
 import BadgePackageType from "../badges/badge-package-type.vue";
 import AdminOrderActions from "../orders/actions/admin-order-actions.vue";
+import PackageTableDetail from "../packages/package-table-detail.vue";
 export default {
   data() {
     return {
@@ -96,6 +79,7 @@ export default {
     OrderModal,
     BadgePackageType,
     AdminOrderActions,
+    PackageTableDetail,
   },
 };
 </script>

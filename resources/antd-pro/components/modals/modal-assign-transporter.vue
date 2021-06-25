@@ -51,7 +51,7 @@
 import OrderModalRowLayout from "../orders/order-modal-row-layout.vue";
 import trawlModalSplit from "../trawl-modal-split.vue";
 import { SendIcon } from "../icons";
-import PackageModalDetil from "../packages/package-modal-detil.vue";
+import PackageModalDetil from "../packages/package-modal-detail.vue";
 import TransporterRadioButton from "../radio-buttons/transporter-radio-button.vue";
 import TrawlRadioButton from "../radio-buttons/trawl-radio-button.vue";
 import TransporterRadioGroup from "../radio-buttons/transporter-radio-group.vue";

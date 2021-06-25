@@ -6,8 +6,10 @@ use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ManifestController extends Controller
@@ -47,7 +49,7 @@ class ManifestController extends Controller
     {
         $this->query->whereHas('packages');
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            $query->search($request->q, 'content');
         });
         return $this;
     }
@@ -70,12 +72,29 @@ class ManifestController extends Controller
 
     public function index(Request $request)
     {
+
         if ($request->expectsJson()) {
+
+            if ($request->partner) {
+                return $this->getPartnerTransporter($request);
+            }
+
             $this->getSearch($request);
             $this->dataRelation();
 
             return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
         }
         return view('admin.home.manifest.index');
+    }
+
+    public function getPartnerTransporter(Request $request): JsonResponse
+    {
+        $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER);
+        $request->whenHas('q', function ($value) use ($query) {
+            $query->where(function ($query) use ($value) {
+                $query->search($value);
+            });
+        });
+        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
 }
