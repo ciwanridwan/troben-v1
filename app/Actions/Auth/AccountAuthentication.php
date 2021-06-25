@@ -2,6 +2,8 @@
 
 namespace App\Actions\Auth;
 
+use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
+use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
@@ -78,10 +80,15 @@ class AccountAuthentication
      */
     public function attempt(): JsonResponse
     {
+
         switch (true) {
             case Arr::has($this->attributes, self::CREDENTIAL_GOOGLE):
                 $this->attributes['username'] = $this->attributes[self::CREDENTIAL_GOOGLE];
                 $column = self::CREDENTIAL_GOOGLE;
+                break;
+            case Arr::has($this->attributes, self::CREDENTIAL_FACEBOOK):
+                $this->attributes['username'] = $this->attributes[self::CREDENTIAL_FACEBOOK];
+                $column = self::CREDENTIAL_FACEBOOK;
                 break;
             case filter_var($this->attributes['username'], FILTER_VALIDATE_EMAIL):
                 $column = self::CREDENTIAL_EMAIL;
@@ -100,24 +107,36 @@ class AccountAuthentication
 
         $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
 
-
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (! $authenticatable && in_array($column, self::getAvailableSocialLogin())) {
-            switch ($column) {
-                case self::CREDENTIAL_GOOGLE:
-                    // TODO: store google account to database
-                    break;
-                case self::CREDENTIAL_FACEBOOK:
-                    // TODO: store facebook account to database
-                    break;
-            }
+        if (in_array($column, self::getAvailableSocialLogin())){
+            if (! $authenticatable ) {
+                switch ($column) {
+                    case self::CREDENTIAL_GOOGLE:
+                        // TODO: store google account to database
+                        $job = new CreateNewCustomerByGoogle($this->attributes);
+                        $this->dispatch($job);
+                        $authenticatable = $job->customer;
+                        break;
+                    case self::CREDENTIAL_FACEBOOK:
+                        // TODO: store facebook account to database
+                        $job = new CreateNewCustomerByFacebook($this->attributes);
+                        $this->dispatch($job);
+                        $authenticatable = $job->customer;
 
+                        break;
+                }
+            }
+            return(new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            ]))->json();
             // TODO: get authenticatable
         }
+
+
 
         if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
