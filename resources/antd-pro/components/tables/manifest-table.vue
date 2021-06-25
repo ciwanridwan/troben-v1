@@ -30,7 +30,7 @@
           <delivery-status :record="record"></delivery-status>
         </a-col>
         <a-col :span="8">
-          <admin-delivery-actions :delivery="record" />
+          <admin-delivery-actions :delivery="record" @change="getDataFunction" />
         </a-col>
       </a-row>
     </span>
@@ -49,9 +49,15 @@ export default {
     };
   },
   props: {
-    dataSource: Array,
-    default: () => {
-      return [];
+    dataSource: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+    getDataFunction: {
+      type: Function,
+      default: () => {},
     },
   },
   components: { trawlTable, DeliveryStatus, AdminDeliveryActions },

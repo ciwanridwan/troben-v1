@@ -77,7 +77,7 @@ export default {
     },
     submitRoute: {
       type: String,
-      default: "admin.home.assign",
+      default: "admin.home.manifest.partner.transporter.assign",
     },
   },
   data() {
@@ -133,7 +133,8 @@ export default {
           this.visible = false;
           this.confirmVisible = true;
           this.$emit("submit");
-        });
+        })
+        .catch((error) => this.onErrorResponse(error));
     },
   },
   watch: {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Home;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
+use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Builder;
@@ -83,6 +84,13 @@ class ManifestController extends Controller
             return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
         }
         return view('admin.home.manifest.index');
+    }
+
+    public function assign(Delivery $delivery, Partner $partner)
+    {
+        $job = new AssignPartnerToDelivery($delivery, $partner);
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     public function getPartnerTransporter(Request $request): JsonResponse
