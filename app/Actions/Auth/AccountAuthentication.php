@@ -13,7 +13,7 @@ use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\Customers\CreateNewCustomer;
-use App\Jobs\OneTimePasswords\Nicepay\SendMessage;
+use App\Jobs\OneTimePasswords\SmsMasking\SendMessage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
@@ -112,7 +112,7 @@ class AccountAuthentication
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
         if (in_array($column, self::getAvailableSocialLogin())) {
-            if (! $authenticatable) {
+            if (!$authenticatable) {
                 switch ($column) {
                     case self::CREDENTIAL_GOOGLE:
                         // TODO: store google account to database
@@ -129,7 +129,7 @@ class AccountAuthentication
                         break;
                 }
             }
-            return(new Response(Response::RC_SUCCESS, [
+            return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
             // TODO: get authenticatable
@@ -137,14 +137,14 @@ class AccountAuthentication
 
 
 
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         // if not asking for otp, make sure that the user is verified before.
-        throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
+        throw_if(!$this->attributes['otp'] && !$authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
@@ -183,7 +183,13 @@ class AccountAuthentication
     {
         $otp = $authenticatable->createOtp($otp_channel);
 
-        // $job = new SendMessage($otp, $authenticatable->phone);
+        $phone = PhoneNumberUtil::getInstance()->formatNumberForMobileDialing(
+            PhoneNumberUtil::getInstance()->parse($authenticatable->phone, 'ID'),
+            'ID',
+            false
+        );
+
+        // $job = new SendMessage($otp, $phone);
         // $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [

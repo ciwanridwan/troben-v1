@@ -33,7 +33,7 @@ class OneTimePassword extends Model
         self::CHANNEL_PHONE,
     ];
 
-    public const TOKEN_TTL = 1800;
+    public const TOKEN_TTL = 5;
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -90,7 +90,7 @@ class OneTimePassword extends Model
     {
         parent::boot();
 
-        self::creating(fn (self $self) => $self->expired_at = Carbon::now()->addSeconds(self::TOKEN_TTL));
+        self::creating(fn (self $self) => $self->expired_at = Carbon::now()->addMinutes(self::TOKEN_TTL));
     }
 
     /**

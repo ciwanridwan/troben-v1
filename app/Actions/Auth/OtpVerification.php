@@ -13,7 +13,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 class OtpVerification
 {
     use DispatchesJobs;
-    public const EXPIRED_MINUTE = 15;
 
     /**
      * @var array
@@ -58,7 +57,7 @@ class OtpVerification
     {
         $otp = OneTimePassword::query()->findOrFail($this->attributes['otp']);
 
-        throw_if(! ($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
+        throw_if(!($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
         $otp = $this->attributes['retry'] ? $this->extendExpired($otp) : $otp->verifiable->createOtp();
 
@@ -75,7 +74,7 @@ class OtpVerification
     public function extendExpired(OneTimePassword $otp): OneTimePassword
     {
         if (Carbon::now()->gt($otp->expired_at)) {
-            $otp->expired_at = Carbon::now()->addMinutes(self::EXPIRED_MINUTE);
+            $otp->expired_at = Carbon::now()->addMinutes(OneTimePassword::TOKEN_TTL);
             $otp->save();
         }
 
