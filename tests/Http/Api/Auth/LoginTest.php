@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LoginTest extends TestCase
 {
-
     use RefreshDatabase;
 
     public function test_successful_attempt()

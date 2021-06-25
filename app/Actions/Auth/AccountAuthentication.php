@@ -80,7 +80,6 @@ class AccountAuthentication
      */
     public function attempt(): JsonResponse
     {
-
         switch (true) {
             case Arr::has($this->attributes, self::CREDENTIAL_GOOGLE):
                 $this->attributes['username'] = $this->attributes[self::CREDENTIAL_GOOGLE];
@@ -112,8 +111,8 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (in_array($column, self::getAvailableSocialLogin())){
-            if (! $authenticatable ) {
+        if (in_array($column, self::getAvailableSocialLogin())) {
+            if (! $authenticatable) {
                 switch ($column) {
                     case self::CREDENTIAL_GOOGLE:
                         // TODO: store google account to database

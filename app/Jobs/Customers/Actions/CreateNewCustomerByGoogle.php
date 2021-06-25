@@ -35,7 +35,6 @@ class CreateNewCustomerByGoogle
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-
     public function __construct($inputs = [])
     {
         $this->customer = new Customer();
