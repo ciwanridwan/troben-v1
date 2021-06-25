@@ -31,7 +31,7 @@ class ManifestController extends Controller
             $query->whereIn('type', $value);
         });
 
-        $query->with('partner', 'packages.items');
+        $query->with(['partner', 'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages']);
 
         return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page'))));
     }

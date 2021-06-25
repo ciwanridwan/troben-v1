@@ -299,7 +299,9 @@ class Package extends Model implements AttachableContract
     public function getServicePriceAttribute()
     {
         try {
-            return $this->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+            $service_price = $this->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+            $this->unsetRelation('prices');
+            return $service_price;
         } catch (\Throwable $th) {
             return 0;
         }
@@ -308,6 +310,7 @@ class Package extends Model implements AttachableContract
     {
         $price = PricingCalculator::getPrice($this->origin_regency->province_id, $this->origin_regency->id, $this->destination_sub_district->id);
         $tier = PricingCalculator::getTier($price, $this->total_weight);
+        $this->unsetRelations(['origin_regency', 'destination_sub_district']);
         return $tier;
     }
 
@@ -478,7 +481,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;

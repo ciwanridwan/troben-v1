@@ -150,6 +150,7 @@ class Item extends Model
         $origin_province_id = $this->package->origin_regency->province_id;
         $origin_regency_id = $this->package->origin_regency_id;
         $destination_id = $this->package->destination_sub_district_id;
+        $this->unsetRelation('package');
         try {
             $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
             $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
