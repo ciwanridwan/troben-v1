@@ -20,7 +20,7 @@ class DeliveryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        if (! $this->resource->relationLoaded('code.scan_item_codes.codeable')) {
+        if (!$this->resource->relationLoaded('code.scan_item_codes.codeable')) {
             $this->resource->load(['code.scan_receipt_codes', 'code.scan_item_codes.codeable']);
 
             $this->resource->code->scan_receipt_codes = $this->resource->code->scan_receipt_codes->map(function ($item) {
@@ -38,7 +38,7 @@ class DeliveryResource extends JsonResource
         }
 
         if ($this->resource->type === 'transit') {
-            if (! $this->resource->relationLoaded('partner')) {
+            if (!$this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }
             $this->resource->load('origin_partner');
@@ -50,7 +50,7 @@ class DeliveryResource extends JsonResource
         // }
 
         $this->resource->append('as');
-        if (! $this->resource->relationLoaded('item_codes')) {
+        if (!$this->resource->relationLoaded('item_codes')) {
             $this->resource->load('item_codes');
         }
         $this->resource->item_codes = $this->resource->item_codes->map(function ($item) {
