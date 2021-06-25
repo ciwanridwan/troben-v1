@@ -10,6 +10,7 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Deliveries\Actions\CreateNewManifest;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
+use Illuminate\Support\Arr;
 
 class ManifestController extends Controller
 {
@@ -28,10 +29,14 @@ class ManifestController extends Controller
             }
         });
         $request->whenHas('delivery_type', function (array $value) use ($query) {
+            $value = Arr::wrap($value);
             $query->whereIn('type', $value);
+            if (in_array(Delivery::TYPE_DOORING, $value)) {
+                $query->with('packages');
+            }
         });
 
-        $query->with(['partner', 'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages']);
+        $query->with(['partner', 'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes']);
 
         return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page'))));
     }

@@ -30,10 +30,14 @@ class AuthController extends Controller
             'password' => [Rule::requiredIf(! $request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
             'google_id' => ['nullable'],
             'facebook_id' => ['nullable'],
+            'email' => [Rule::requiredIf($request->has('google_id'))],
+            'name' => [Rule::requiredIf($request->has('google_id'))],
             'otp' => ['nullable', 'boolean'],
             'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
             'device_name' => ['required'],
         ]);
+
+
 
         // override value
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
