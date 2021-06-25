@@ -71,17 +71,13 @@ export default {
       type: String,
       default: null,
     },
-    package: {
+    delivery: {
       type: Object,
       default: () => {},
     },
     submitRoute: {
       type: String,
       default: "admin.home.assign",
-    },
-    partner_type: {
-      type: String,
-      default: null,
     },
   },
   data() {
@@ -112,8 +108,6 @@ export default {
           params: {
             ...this.filter,
             partner: true,
-            transporter_type: this.package?.transporter_type,
-            partner_type: this.partner_type,
           },
         })
         .then(({ data }) => {
@@ -131,7 +125,7 @@ export default {
       this.$http
         .patch(
           this.routeUri(this.submitRoute, {
-            package_hash: this.package.hash,
+            delivery_hash: this.delivery?.hash,
             partner_hash: this.form?.partner_hash,
           })
         )
