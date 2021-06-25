@@ -50,7 +50,7 @@ class DeliveryResource extends JsonResource
         // }
 
         $this->resource->append('as');
-        if (!$this->resource->relationLoaded('item_codes')) {
+        if (! $this->resource->relationLoaded('item_codes')) {
             $this->resource->load('item_codes');
         }
         $this->resource->item_codes = $this->resource->item_codes->map(function ($item) {
