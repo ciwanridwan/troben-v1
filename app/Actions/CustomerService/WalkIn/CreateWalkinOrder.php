@@ -2,7 +2,6 @@
 
 namespace App\Actions\CustomerService\WalkIn;
 
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageCheckedByCashier;

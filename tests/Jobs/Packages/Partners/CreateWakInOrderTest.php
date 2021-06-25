@@ -7,16 +7,12 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Item;
 use App\Models\Price;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Validation\ValidationException;
 
 class CreateWakInOrderTest extends TestCase
 {
