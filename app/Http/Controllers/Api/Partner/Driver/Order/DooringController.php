@@ -9,11 +9,14 @@ use App\Events\Deliveries\Dooring\PackageLoadedByDriver;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class DooringController extends Controller
 {
@@ -62,9 +65,15 @@ class DooringController extends Controller
      * @param Delivery $delivery
      * @return JsonResponse
      */
-    public function unloaded(Delivery $delivery): JsonResponse
+    public function unloaded(Delivery $delivery, $package): JsonResponse
     {
-        event(new DriverUnloadedPackageInDooringPoint($delivery));
+        $package = Code::query()->where('content', $package)->first()->codeable;
+
+        throw_if(! $package instanceof Package, ValidationException::withMessages([
+            'error' => __('must be package.'),
+        ]));
+
+        event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }

@@ -7,6 +7,7 @@ use App\Events\Deliveries\Pickup;
 use App\Events\Deliveries\Transit;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 
 class UpdateDeliveryStatusByEvent
@@ -63,14 +64,18 @@ class UpdateDeliveryStatusByEvent
                 $event->delivery->setAttribute('status', Delivery::STATUS_EN_ROUTE)->save();
                 break;
             case $event instanceof Dooring\DriverUnloadedPackageInDooringPoint:
-                 /** @var Delivery $delivery */
-                 $delivery = $event->delivery;
-                 $delivery->packages->each(function ($package) use ($delivery) {
-                     $delivery->packages()->updateExistingPivot($package, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
-                 });
-                 $delivery->item_codes->each(function ($item_code) use ($delivery) {
-                     $delivery->item_codes()->updateExistingPivot($item_code, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
-                 });
+                /** @var Delivery $delivery */
+                $delivery = $event->delivery;
+
+                /** @var Package $package */
+                $package = $event->package;
+
+                $delivery->packages()->where('id', $package->id)->updateExistingPivot($package, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
+
+                $scan_items = $delivery->code->scan_item_codes->pluck('id');
+                $delivery->item_codes->whereIn('id', $scan_items)->each(function ($item_code) use ($delivery) {
+                    $delivery->item_codes()->updateExistingPivot($item_code, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
+                });
                 break;
         }
     }

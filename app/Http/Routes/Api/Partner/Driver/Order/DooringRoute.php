@@ -41,7 +41,7 @@ class DooringRoute extends BaseRoute
             'uses' => $this->uses('finished'),
         ]);
 
-        $this->router->patch($this->prefix('unloaded'), [
+        $this->router->patch($this->prefix('unloaded/{package}'), [
             'as' => $this->name('unloaded'),
             'uses' => $this->uses('unloaded'),
         ]);
