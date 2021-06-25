@@ -2,7 +2,10 @@
 
 namespace App\Actions\CustomerService\WalkIn;
 
+use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Events\Packages\PackageCheckedByCashier;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Models\Customers\Customer;
@@ -65,13 +68,19 @@ class CreateWalkinOrder
 
         $job = new AssignFirstPartnerToPackage($package, $this->partner);
 
-        $package->refresh();
+        $this->dispatch($job);
 
-        $package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL);
+        $delivery = $job->delivery;
 
-        event(new PackageApprovedByCustomer($package));
+        event(new DriverUnloadedPackageInWarehouse($delivery));
 
-        return $job;
+        $package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
+
+        event(new PackageCheckedByCashier($package));
+
+        // event(new PackageApprovedByCustomer($package));
+
+        return $package;
     }
 
     /**

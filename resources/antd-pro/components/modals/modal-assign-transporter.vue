@@ -130,7 +130,6 @@ export default {
       if (!valid) {
         return false;
       }
-
       this.$http
         .patch(
           this.routeUri(this.submitRoute, {

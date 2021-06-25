@@ -23,6 +23,11 @@ class AssignFirstPartnerToPackage
      */
     public Partner $partner;
 
+    /**
+     * @var Delivery
+     */
+    public Delivery $delivery;
+
     public function __construct(Package $package, Partner $partner)
     {
         $this->package = $package;
@@ -45,6 +50,8 @@ class AssignFirstPartnerToPackage
 
             $job->delivery->packages()->attach($this->package);
 
+            $this->delivery = $job->delivery;
+
             $this->package->status = Package::STATUS_PENDING;
             $this->package->save();
 
@@ -57,6 +64,8 @@ class AssignFirstPartnerToPackage
         $firstDelivery->save();
 
         $this->updatePackageStatusToPending();
+
+        $this->delivery = $firstDelivery;
 
         event(new PartnerAssigned($this->package, $this->partner));
     }

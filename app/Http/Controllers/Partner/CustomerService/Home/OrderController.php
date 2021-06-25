@@ -108,8 +108,8 @@ class OrderController extends Controller
     {
         $transporterDrivers = new Collection();
 
-        $transporters->each(fn (Transporter $transporter) => $transporter->users->each(function (User $driver) use ($transporterDrivers, $transporter) {
-            $transporter->unsetRelation('users');
+        $transporters->each(fn (Transporter $transporter) => $transporter->drivers->each(function (User $driver) use ($transporterDrivers, $transporter) {
+            $transporter->unsetRelation('drivers');
             $transporterDriver = array_merge($transporter->toArray(), ['driver' => $driver->toArray()]);
             $transporterDriver = new Collection($transporterDriver);
             $transporterDrivers->push($transporterDriver);
@@ -136,7 +136,6 @@ class OrderController extends Controller
     public function getSearch(Request $request)
     {
         $this->query = $this->query->where('type', $request->type)
-            ->with('drivers')
             ->where(function (Builder $query) use ($request) {
                 $query->search($request->q, 'registration_number');
                 $query->orWhereHas('drivers', fn (Builder $userQuery) => $userQuery->search($request->q, 'name'));

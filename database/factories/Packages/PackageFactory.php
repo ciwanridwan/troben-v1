@@ -43,12 +43,12 @@ class PackageFactory extends Factory
             'receiver_name' => $this->faker->name,
             'receiver_phone' => $this->faker->phoneNumber,
             'receiver_address' => $this->faker->address,
-            'origin_regency_id' => $price->origin_regency_id,
-            'origin_district_id' => $price->origin_district_id,
-            'origin_sub_district_id' => $price->origin_sub_district_id,
-            'destination_regency_id' => $destinationSubDistrict->regency_id,
-            'destination_district_id' => $destinationSubDistrict->district_id,
-            'destination_sub_district_id' => $destinationSubDistrict->id,
+            'origin_regency_id' => (int) $price->origin_regency_id,
+            'origin_district_id' => (int) $price->origin_district_id,
+            'origin_sub_district_id' => (int) $price->origin_sub_district_id,
+            'destination_regency_id' => (int) $destinationSubDistrict->regency_id,
+            'destination_district_id' => (int) $destinationSubDistrict->district_id,
+            'destination_sub_district_id' => (int) $destinationSubDistrict->id,
         ];
     }
 }

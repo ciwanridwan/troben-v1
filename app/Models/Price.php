@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $id
  * @property int $origin_id
  * @property int $origin_province_id
- * @property int                              $origin_city_id
+ * @property int                              $origin_regency_id
  * @property int                              $origin_district_id
  * @property int                              $destination_id
  * @property string                           $service_code
