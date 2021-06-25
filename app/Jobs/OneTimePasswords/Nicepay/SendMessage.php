@@ -2,7 +2,6 @@
 
 namespace App\Jobs\OneTimePasswords\Nicepay;
 
-use App\Actions\Auth\OtpVerification;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\OneTimePassword;
@@ -19,7 +18,7 @@ class SendMessage
     public string $destination_number;
     public string $otpPreMessage  = 'JANGAN INFOKAN KODE INI KEPADA SIAPAPUN';
     public string $otpContentMessage = 'Kode otentikasi Anda : ';
-    public string $otpPostMessage = 'Kode berlaku ' . OneTimePassword::TOKEN_TTL . ' mnt';
+    public string $otpPostMessage = 'Kode berlaku '.OneTimePassword::TOKEN_TTL.' mnt';
 
     /**
      * @param OneTimePassword $otp
@@ -63,11 +62,11 @@ class SendMessage
 
     protected function createOtpMessage(): string
     {
-        return implode('. ', [$this->otpPreMessage, $this->otpContentMessage . $this->otp->token, $this->otpPostMessage]);
+        return implode('. ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage]);
     }
     protected function createMerchantToken($params): string
     {
-        $content = $params['timeStamp'] . $params['iMid'] . $params['msgRefno'] . self::NICEPAY_MERCHANT_KEY;
+        $content = $params['timeStamp'].$params['iMid'].$params['msgRefno'].self::NICEPAY_MERCHANT_KEY;
         return hash('sha256', $content);
     }
 }
