@@ -52,6 +52,7 @@ class SendMessage
         $response = $client->get('sendSMS.aspx', [
             'query' => $sendParams
         ]);
+
         throw_if($response->getStatusCode() != 200, Error::make(Response::RC_SMS_GATEWAY_WAS_BROKEN));
     }
 

@@ -135,7 +135,7 @@ export default {
         .patch(
           this.routeUri(this.submitRoute, {
             delivery_hash: this.delivery.hash,
-            userable_hash: this.transporter_hash,
+            userable_hash: this.form.transporter_hash,
           })
         )
         .then(() => {

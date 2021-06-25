@@ -136,10 +136,10 @@ class OrderController extends Controller
     public function getSearch(Request $request)
     {
         $this->query = $this->query->where('type', $request->type)
-            ->with('users')
+            ->with('drivers')
             ->where(function (Builder $query) use ($request) {
                 $query->search($request->q, 'registration_number');
-                $query->orWhereHas('users', fn (Builder $userQuery) => $userQuery->search($request->q, 'name'));
+                $query->orWhereHas('drivers', fn (Builder $userQuery) => $userQuery->search($request->q, 'name'));
             });
         return $this;
     }

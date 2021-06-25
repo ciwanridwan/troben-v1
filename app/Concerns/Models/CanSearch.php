@@ -16,7 +16,7 @@ trait CanSearch
     {
         $this->search_value = $search_value;
         if ($search_columns === []) {
-            if (! property_exists($this, 'search_columns')) {
+            if (!property_exists($this, 'search_columns')) {
                 $this->search_columns = $this->getTableSearchColumns();
             }
         } else {
@@ -25,9 +25,9 @@ trait CanSearch
 
         foreach ($this->search_columns as $key => $value) {
             if ($key != 0) {
-                $builder->orWhere($this->table.'.'.$value, 'ilike', '%'.$this->search_value.'%');
+                $builder->orWhere($this->getTable() . '.' . $value, 'ilike', '%' . $this->search_value . '%');
             } else {
-                $builder->where($this->table.'.'.$value, 'ilike', '%'.$this->search_value.'%');
+                $builder->where($this->getTable() . '.' . $value, 'ilike', '%' . $this->search_value . '%');
             }
         }
     }
