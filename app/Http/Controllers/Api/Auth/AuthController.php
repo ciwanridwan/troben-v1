@@ -24,11 +24,10 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-
         $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
-            'username' => [Rule::requiredIf(!$request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
-            'password' => [Rule::requiredIf(!$request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
+            'username' => [Rule::requiredIf(! $request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
+            'password' => [Rule::requiredIf(! $request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
             'google_id' => ['nullable'],
             'facebook_id' => ['nullable'],
             'otp' => ['nullable', 'boolean'],
