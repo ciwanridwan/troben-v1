@@ -72,9 +72,7 @@ class ManifestController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->expectsJson()) {
-
             if ($request->partner) {
                 return $this->getPartnerTransporter($request);
             }
