@@ -29,6 +29,9 @@
         <a-col :span="8">
           <delivery-status :record="record"></delivery-status>
         </a-col>
+        <a-col :span="8">
+          <admin-delivery-actions :delivery="record" />
+        </a-col>
       </a-row>
     </span>
   </trawl-table>
@@ -37,6 +40,7 @@
 import trawlTable from "../trawl-table.vue";
 import manifestColumns from "../../config/table/home/trawl-manifest";
 import DeliveryStatus from "../delivery-status.vue";
+import AdminDeliveryActions from "../orders/actions/admin-delivery-actions.vue";
 
 export default {
   data() {
@@ -50,6 +54,6 @@ export default {
       return [];
     },
   },
-  components: { trawlTable, DeliveryStatus },
+  components: { trawlTable, DeliveryStatus, AdminDeliveryActions },
 };
 </script>

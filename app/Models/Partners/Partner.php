@@ -105,6 +105,7 @@ class Partner extends Model
      */
     protected $appends = [
         'hash',
+        'geo_address',
     ];
 
     /**

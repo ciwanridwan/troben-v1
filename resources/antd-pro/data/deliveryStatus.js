@@ -48,47 +48,47 @@ const statuses = [
   },
   {
     status: STATUS_CANCELLED,
-    messageType: "danger",
+    messageType: "warning",
     message: "Pengantaran dibatalkan"
   },
   {
     status: STATUS_WAITING_ASSIGN_PACKAGE,
-    messageType: "danger",
+    messageType: "warning",
     message: "Menunggu Barang Masuk ke Manifest"
   },
   {
     status: STATUS_WAITING_ASSIGN_PARTNER,
-    messageType: "danger",
+    messageType: "warning",
     message: "Menunggu Assign Mitra"
   },
   {
     status: STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER,
-    messageType: "danger",
+    messageType: "warning",
     message: "Menunggu Mitra Transporter Menugaskan Transporter"
   },
   {
     status: STATUS_WAITING_ASSIGN_TRANSPORTER,
-    messageType: "danger",
+    messageType: "warning",
     message: "Menunggu Mitra Menugaskan Transporter"
   },
   {
     status: STATUS_WAITING_TRANSPORTER,
-    messageType: "danger",
+    messageType: "warning",
     message: "Menunggu Transporter"
   },
   {
     status: STATUS_LOADING,
-    messageType: "danger",
+    messageType: "warning",
     message: "Sedang Melakukan Loading Barang"
   },
   {
     status: STATUS_EN_ROUTE,
-    messageType: "danger",
+    messageType: "warning",
     message: "Sedang Dalam Perjalanan"
   },
   {
     status: STATUS_FINISHED,
-    messageType: "danger",
+    messageType: "warning",
     message: "Sampai di Tujuan"
   }
 ];

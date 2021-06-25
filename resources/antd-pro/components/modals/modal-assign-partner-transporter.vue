@@ -4,14 +4,14 @@
       <template slot="text"> Mitra telah ditugaskan </template>
     </trawl-modal-confirm>
     <trawl-modal-split v-model="visible">
-      <template slot="title"> Assign Mitra </template>
+      <template slot="title"> Assign Mitra Transporter</template>
       <template slot="trigger">
         <a-button type="success" class="trawl-button-success">
           <span>Assign Mitra</span>
         </a-button>
       </template>
       <template slot="left">
-        <package-modal-detail :package="package" />
+        <delivery-modal-detail :delivery="delivery" />
       </template>
 
       <template slot="rightHeader">
@@ -54,6 +54,7 @@ import PartnerRadioButton from "../radio-buttons/partner-radio-button.vue";
 import TrawlRadioButton from "../radio-buttons/trawl-radio-button.vue";
 import PartnerRadioGroup from "../radio-buttons/partner-radio-group.vue";
 import TrawlModalConfirm from "../trawl-modal-confirm.vue";
+import DeliveryModalDetail from "../deliveries/delivery-modal-detail.vue";
 export default {
   components: {
     trawlModalSplit,
@@ -63,6 +64,7 @@ export default {
     TrawlRadioButton,
     PartnerRadioGroup,
     TrawlModalConfirm,
+    DeliveryModalDetail,
   },
   props: {
     value: {

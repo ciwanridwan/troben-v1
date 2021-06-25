@@ -1,3 +1,6 @@
+import { getComponentByTypeAndStatus } from "./admin/deliveryActions";
+import { getComponentByStatusAndPaymentStatus } from "./cashier/orderActions";
+
 const getOriginAddress = selectedPackage => {
   let address = [
     selectedPackage?.origin_sub_district?.name,
@@ -70,21 +73,8 @@ const getNumberOfItems = items => {
   return numberItem;
 };
 
-const getComponentByStatusAndPaymentStatus = (
-  actions,
-  status,
-  payment_status
-) => {
-  let action = actions.find(
-    o =>
-      o.status.indexOf(status) > -1 &&
-      o.payment_status.indexOf(payment_status) > -1
-  );
-
-  return action;
-};
-
 export {
+  getComponentByTypeAndStatus,
   getComponentByStatusAndPaymentStatus,
   getHandlingPrice,
   getInsurancePrice,
