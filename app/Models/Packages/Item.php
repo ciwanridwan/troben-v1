@@ -147,10 +147,10 @@ class Item extends Model
     }
     public function getTierPriceAttribute()
     {
-        $origin_province_id = $this->package->origin_regency->province_id;
-        $origin_regency_id = $this->package->origin_regency_id;
-        $destination_id = $this->package->destination_sub_district_id;
-        $this->unsetRelation('package');
+        $package = $this->package()->first();
+        $origin_province_id = $package->origin_regency->province_id;
+        $origin_regency_id = $package->origin_regency_id;
+        $destination_id = $package->destination_sub_district_id;
         try {
             $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
             $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);

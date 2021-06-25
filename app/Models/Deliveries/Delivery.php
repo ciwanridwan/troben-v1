@@ -190,8 +190,6 @@ class Delivery extends Model
 
     public function item_codes(): Relations\MorphToMany
     {
-        $class = Code::class;
-        $class::$staticMakeVisible = ['pivot'];
         return $this->morphedByMany(Code::class, 'deliverable')
             ->withPivot(['is_onboard', 'status', 'created_at', 'updated_at'])
             ->withTimestamps()

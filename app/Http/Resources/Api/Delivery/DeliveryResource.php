@@ -50,7 +50,9 @@ class DeliveryResource extends JsonResource
         // }
 
         $this->resource->append('as');
-        $this->resource->load('item_codes');
+        if (!$this->resource->relationLoaded('item_codes')) {
+            $this->resource->load('item_codes');
+        }
         $this->resource->item_codes = $this->resource->item_codes->map(function ($item) {
             $item->status = $item->pivot->status;
             $item->updated_at = $item->pivot->created_at;
