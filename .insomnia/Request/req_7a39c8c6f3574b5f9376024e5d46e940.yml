@@ -1,10 +1,10 @@
 _id: req_7a39c8c6f3574b5f9376024e5d46e940
 type: Request
-parentId: fld_d152bd216a744f96a691eaac166e46dc
-modified: 1624355785552
+parentId: fld_010c167b657a40f1a9c1e130daeab0a2
+modified: 1624606124959
 created: 1624350248218
 url: "{{ _.base_url }}/partner/warehouse/dooring"
-name: Create New Dooring
+name: Create New Manifest Delivery Order (Dooring)
 description: ""
 method: POST
 body: {}
@@ -19,7 +19,7 @@ authentication:
   prefix: ""
   token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450167.9219
+metaSortKey: -1613198450168.8984
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
