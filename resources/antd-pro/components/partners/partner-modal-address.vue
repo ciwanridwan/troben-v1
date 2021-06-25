@@ -38,7 +38,7 @@ export default {
       return this.delivery?.partner?.phone;
     },
     receiver_name() {
-      return this.delivery?.partner?.name;
+      return this.delivery?.partner?.code;
     },
 
     sender_address() {
@@ -51,7 +51,7 @@ export default {
       return this.delivery?.origin_partner?.phone;
     },
     sender_name() {
-      return this.delivery?.origin_partner?.name;
+      return this.delivery?.origin_partner?.code;
     },
   },
 };
