@@ -336,12 +336,13 @@ class PricingCalculator
 
     private static function checkHandling($handling = [])
     {
+        $handling = Arr::wrap($handling);
+
         if ($handling !== []) {
-            if (Arr::has(Arr::wrap($handling[0]), 'type')) {
+            if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
         }
-        $handling = Arr::wrap($handling);
 
         return $handling;
     }
