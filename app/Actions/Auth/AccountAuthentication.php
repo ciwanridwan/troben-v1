@@ -106,8 +106,7 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (!$authenticatable && in_array($column, self::getAvailableSocialLogin())) {
-
+        if (! $authenticatable && in_array($column, self::getAvailableSocialLogin())) {
             switch ($column) {
                 case self::CREDENTIAL_GOOGLE:
                     // TODO: store google account to database
@@ -120,14 +119,14 @@ class AccountAuthentication
             // TODO: get authenticatable
         }
 
-        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
+        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         // if not asking for otp, make sure that the user is verified before.
-        throw_if(!$this->attributes['otp'] && !$authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
+        throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
