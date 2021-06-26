@@ -26,7 +26,6 @@ class ScopeRole
      */
     public function handle(Request $request, Closure $next, string $role)
     {
-
         $this->repository->setScopeRole($role);
         view()->composer(
             '*',
