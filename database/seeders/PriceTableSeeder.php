@@ -51,6 +51,7 @@ class PriceTableSeeder extends Seeder
             } catch (\Throwable $th) {
                 continue;
             }
+            $this->progressBar->advance();
 
             // get sub_district by name
             /** @var \App\Models\Geo\SubDistrict|null $sub_district */
