@@ -13,11 +13,15 @@
                 <a-icon type="user"></a-icon>
                 <span>{{ name }}</span>
               </a>
-              <a-menu slot="overlay">
-                <a-menu-item key="logout">
-                  <a :href="routeUri('auth.logout')">Logout</a>
-                </a-menu-item>
-              </a-menu>
+              <a-card slot="overlay">
+                <trawl-change-roles />
+                <a-divider class="trawl-text-normal" />
+                <a-menu>
+                  <a-menu-item key="logouts">
+                    <a :href="routeUri('auth.logout')">Logout</a>
+                  </a-menu-item>
+                </a-menu>
+              </a-card>
             </a-dropdown>
           </a-col>
         </a-row>

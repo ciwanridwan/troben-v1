@@ -19,7 +19,7 @@ class HomeRoute extends BaseRoute
     public function register()
     {
         $this->router->get($this->prefix, [
-            'as' => $this->name('all'),
+            'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
         $this->router->patch($this->prefix('{package_hash}/{item_hash}'), [

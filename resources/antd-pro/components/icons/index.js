@@ -27,6 +27,7 @@ import PackageIconSpark from "./packageIconSpark";
 import RadioCheckedIcon from "./radioCheckedIcon";
 import RadioUncheckedIcon from "./radioUncheckedIcon";
 import TrawlLabelImage from "./trawlLabelImage";
+import PeopleIcon from "./peopleIcon";
 
 export {
   CarIcon,
@@ -57,5 +58,6 @@ export {
   PackageIconSpark,
   RadioCheckedIcon,
   RadioUncheckedIcon,
-  TrawlLabelImage
+  TrawlLabelImage,
+  PeopleIcon
 };

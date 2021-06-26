@@ -7,7 +7,7 @@ const main = {
       order: {
         title: "All Order",
         text: "Semua",
-        route: "partner.cashier.home.all",
+        route: "partner.cashier.home",
         children: null
       },
       waiting: {

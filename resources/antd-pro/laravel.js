@@ -97,6 +97,13 @@ const laravel = {
     isAuthenticated() {
       return this.$laravel.is_authenticated;
     },
+    roles() {
+      let roles = [];
+      this.$laravel.user?.partners?.forEach(o =>
+        roles.push(o?.pivot?.role ?? null)
+      );
+      return roles;
+    },
     user() {
       return this.$laravel.user;
     },
