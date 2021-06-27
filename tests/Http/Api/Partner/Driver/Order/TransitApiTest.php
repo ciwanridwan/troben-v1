@@ -2,24 +2,16 @@
 
 namespace Tests\Http\Api\Partner\Driver\Order;
 
+use App\Events\Deliveries\Transit\DriverArrivedAtDestinationWarehouse;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
-use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Events\Deliveries\Transit\PackageLoadedByDriver;
+use App\Events\Deliveries\Transit\DriverArrivedAtOriginWarehouse;
+use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use App\Models\Partners\Pivot\UserablePivot;
-use Database\Seeders\Packages\InTransit\Drivers\DriverArrivedAtOriginWarehouseSeeder;
 use Database\Seeders\Packages\InTransit\Warehouses\AssignDriverToDeliverySeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\PackageAlreadyPackedByWarehouseSeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\PackageAttachedToDeliverySeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\WarehouseAssignPackageToManifestSeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\WarehouseIsStartPackingSeeder;
 
 class TransitApiTest extends TestCase
 {
@@ -44,7 +36,7 @@ class TransitApiTest extends TestCase
     {
         $deliveryHash = $this->getJson(route('api.partner.driver.order'))->json('data.0.hash');
 
-        // Event::fake();
+        Event::fake();
 
         $response = $this->patchJson(route('api.partner.driver.order.transit.arrived', [
             'delivery_hash' => $deliveryHash,
@@ -61,6 +53,7 @@ class TransitApiTest extends TestCase
 
         $response->assertSuccessful();
 
+
         $response = $this->patchJson(route('api.partner.driver.order.transit.finished', [
             'delivery_hash' => $deliveryHash,
         ]));
@@ -73,9 +66,9 @@ class TransitApiTest extends TestCase
 
         $response->assertSuccessful();
 
-        Event::assertDispatched(DriverArrivedAtPickupPoint::class);
+        Event::assertDispatched(DriverArrivedAtOriginWarehouse::class);
         Event::assertDispatched(PackageLoadedByDriver::class);
-        Event::assertDispatched(DriverArrivedAtWarehouse::class);
-        Event::assertDispatched(DriverUnloadedPackageInWarehouse::class);
+        Event::assertDispatched(DriverArrivedAtDestinationWarehouse::class);
+        Event::assertDispatched(DriverUnloadedPackageInDestinationWarehouse::class);
     }
 }
