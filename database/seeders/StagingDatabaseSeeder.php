@@ -56,6 +56,7 @@ class StagingDatabaseSeeder extends Seeder
             CashierInChargeSeeder::class,
             CustomerInChargeSeeder::class,
         ]);
+        $this->call(DriverArrivedAtDestinationWarehouseSeeder::class);
 
         PostPaymentSeeder::$CUSTOMER_PACKAGE_ITEM_MAX = 2;
         PostPaymentSeeder::$CUSTOMER_PACKAGES = 1;
