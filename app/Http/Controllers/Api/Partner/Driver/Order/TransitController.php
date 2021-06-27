@@ -21,7 +21,7 @@ class TransitController extends Controller
     {
         event(new DriverArrivedAtOriginWarehouse($delivery));
 
-        return $this->jsonSuccess(DeliveryResource::make($delivery));
+        return $this->jsonSuccess(DeliveryResource::make($delivery->refresh()));
     }
 
     public function loaded(Request $request, Delivery $delivery): JsonResponse

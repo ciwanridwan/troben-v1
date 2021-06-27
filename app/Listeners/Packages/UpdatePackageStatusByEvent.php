@@ -17,6 +17,9 @@ use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
+use App\Events\Deliveries\Transit;
+use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
+use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 
 class UpdatePackageStatusByEvent
 {
@@ -40,6 +43,12 @@ class UpdatePackageStatusByEvent
                     ->cursor()
                     ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_WAITING_FOR_ESTIMATING)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', false)->save());
+                break;
+            case $event instanceof Transit\DriverArrivedAtOriginWarehouse:
+                $event->delivery->packages()
+                    ->cursor()
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_TRANSIT && $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->save())
+                    ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', true)->save());
                 break;
             case $event instanceof WarehouseIsEstimatingPackage:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATING);
@@ -76,9 +85,14 @@ class UpdatePackageStatusByEvent
                 $event->package->setAttribute('status', Package::STATUS_PACKED)->save();
                 break;
             case $event instanceof PackageAttachedToDelivery:
-                if ($event->package->status === Package::STATUS_PACKED) {
+                if (in_array($event->package->status, [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])) {
                     $event->package->setAttribute('status', Package::STATUS_MANIFESTED)->save();
                 }
+                break;
+            case $event instanceof Transit\WarehouseUnloadedPackage:
+                /** @var Package $package */
+                $package = $event->package;
+                $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->save();
                 break;
             case $event instanceof PackageUpdated:
                 /** @var Package $package */

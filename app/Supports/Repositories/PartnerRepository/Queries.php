@@ -144,7 +144,13 @@ class Queries
                             Package::STATUS_PACKING,
                             Package::STATUS_PACKED,
                         ])
-                        ->where('packager_id', $this->user->id)));
+                        ->where('packager_id', $this->user->id)))
+                    // condition after driver unloaded the package
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->where(
+                            'status',
+                            Package::STATUS_IN_TRANSIT
+                        ));
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
                 $query->where(fn (Builder $builder) => $builder->whereIn('packages.status', [

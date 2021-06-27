@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignableController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\AssignationController;
 use App\Http\Controllers\Api\Partner\Warehouse\Manifest\TransitController;
+use Database\Seeders\Packages\InTransit\Drivers\DriverArrivedAtDestinationWarehouseSeeder;
 
 class ManifestApiTest extends TestCase
 {
@@ -208,12 +209,10 @@ class ManifestApiTest extends TestCase
 
     public function test_can_unload_package_from_manifest(): void
     {
-        $this->seed(ManifestSeeder::class);
+        $this->seed(DriverArrivedAtDestinationWarehouseSeeder::class);
 
         /** @var Delivery $delivery */
-        $delivery = Delivery::get()->random()->first();
-        event(new DriverUnloadedPackageInDestinationWarehouse($delivery));
-        $delivery->refresh();
+        $delivery = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_FINISHED)->first();
 
         /** @var Partner $destinationPartner */
         $destinationPartner = $delivery->partner;
@@ -225,9 +224,10 @@ class ManifestApiTest extends TestCase
 
         $response = $this->patchJson(action([TransitController::class, 'unload'], ['delivery_hash' => $delivery->hash]), $inputs);
 
-        $response->assertOk();
-        self::assertSame(Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE, $response->json('data.packages.0.pivot.status'));
 
+        $response->assertOk();
+        self::assertSame(Package::STATUS_IN_TRANSIT, $response->json('data.packages.0.status'));
+        self::assertSame(Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE, $response->json('data.packages.0.pivot.status'));
 
         $deliveryHash = $response->json('data.hash');
 
@@ -248,5 +248,9 @@ class ManifestApiTest extends TestCase
             'deliverable_id' => $item_code->pivot->deliverable_id,
             'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
         ]));
+
+        $response = $this->getJson(action([AssignableController::class, 'package']));
+        dd($response->json());
+        $response->assertOk();
     }
 }

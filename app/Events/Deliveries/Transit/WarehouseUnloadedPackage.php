@@ -4,6 +4,7 @@ namespace App\Events\Deliveries\Transit;
 
 use App\Models\Code;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -17,22 +18,17 @@ class WarehouseUnloadedPackage
 
     public Delivery $delivery;
 
-    public Code $code;
-
-    public array $codes;
+    public Package $package;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Delivery $delivery, array $inputs = [])
+    public function __construct(Delivery $delivery, Package $package)
     {
         $this->delivery = $delivery;
-        $deliveryCodes = $this->delivery->item_codes->pluck('content')->toArray();
-        $this->codes = Validator::validate($inputs, [
-            'code.*' => [Rule::in($deliveryCodes)]
-        ]);
+        $this->package = $package;
     }
 
     /**
