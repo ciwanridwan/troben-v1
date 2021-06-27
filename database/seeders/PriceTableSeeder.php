@@ -8,22 +8,20 @@ use League\Csv\Reader;
 use App\Models\Service;
 use League\Csv\Statement;
 use App\Models\Geo\Regency;
-use Illuminate\Support\Arr;
 use App\Models\Geo\SubDistrict;
 use Illuminate\Database\Seeder;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class PriceTableSeeder extends Seeder
 {
-
-    private ProgressBar $progressBar;
-
     protected $serviceMapper = [
         'TPI' => Service::TRAWLPACK_INSTANT,
         'TPX' => Service::TRAWLPACK_EXPRESS,
         'TPD' => Service::TRAWLPACK_SAMEDAY,
         'TPS' => Service::TRAWLPACK_STANDARD,
     ];
+
+    private ProgressBar $progressBar;
 
     /**
      * Run the database seeds.
@@ -33,7 +31,7 @@ class PriceTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $csv = Reader::createFromPath(__DIR__ . '/data/price_list_upload.csv');
+        $csv = Reader::createFromPath(__DIR__.'/data/price_list_upload.csv');
         $csv->setHeaderOffset(0);
 
         $this->command->info('Populating Pricing data');
