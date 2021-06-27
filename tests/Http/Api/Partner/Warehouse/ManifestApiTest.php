@@ -250,7 +250,6 @@ class ManifestApiTest extends TestCase
         ]));
 
         $response = $this->getJson(action([AssignableController::class, 'package']));
-        dd($response->json());
         $response->assertOk();
     }
 }
