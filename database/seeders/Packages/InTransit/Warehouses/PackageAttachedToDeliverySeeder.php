@@ -2,9 +2,6 @@
 
 namespace Database\Seeders\Packages\InTransit\Warehouses;
 
-
-use App\Events\Packages\PackageAlreadyPackedByWarehouse;
-use App\Events\Packages\PackageAttachedToDelivery;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Models\Deliveries\Deliverable;
@@ -14,12 +11,11 @@ use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Facades\Event;
 
 class PackageAttachedToDeliverySeeder extends Seeder
 {
-    public string $DELIVERY_TYPE = Delivery::TYPE_TRANSIT;
     use DispatchesJobs;
+    public string $DELIVERY_TYPE = Delivery::TYPE_TRANSIT;
     /**
      * Run the database seeds.
      *

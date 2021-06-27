@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\Packages\InTransit\Warehouses;
 
-use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\WarehouseIsStartPacking;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
