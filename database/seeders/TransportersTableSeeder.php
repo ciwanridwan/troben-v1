@@ -54,7 +54,7 @@ class TransportersTableSeeder extends Seeder
         ]));
     }
 
-    public function createTransporters(Partner $partner, Collection $drivers): void
+    public static function createTransporters(Partner $partner, Collection $drivers): void
     {
         $transporters = collect(self::COMPOSES[$partner->type] ?? [])->map(fn ($transporterType) => Transporter::factory()->state([
             'partner_id' => $partner->id,

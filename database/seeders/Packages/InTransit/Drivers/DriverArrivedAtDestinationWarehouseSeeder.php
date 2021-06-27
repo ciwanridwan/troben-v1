@@ -5,6 +5,7 @@ namespace Database\Seeders\Packages\InTransit\Drivers;
 use App\Events\Deliveries\Transit\DriverArrivedAtDestinationWarehouse;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Models\Deliveries\Delivery;
+use Database\Seeders\Packages\InTransit\PartnerAssignedDriverToDeliverySeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Event;
 
@@ -23,7 +24,7 @@ class DriverArrivedAtDestinationWarehouseSeeder extends Seeder
         $deliveries = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_EN_ROUTE)->get();
 
         $deliveries->each(function (Delivery $delivery) {
-            Event::listen(DriverUnloadedPackageInDestinationWarehouse::class, fn (DriverUnloadedPackageInDestinationWarehouse $event) => $this->command->warn('Driver '.$event->delivery->driver->name.' arrived at destination warehouse with Manifest ID '.$event->delivery->id));
+            Event::listen(DriverUnloadedPackageInDestinationWarehouse::class, fn (DriverUnloadedPackageInDestinationWarehouse $event) => $this->command->warn('Driver ' . $event->delivery->driver->name . ' arrived at destination warehouse with Manifest ID ' . $event->delivery->id));
             event(new DriverArrivedAtDestinationWarehouse($delivery));
             event(new DriverUnloadedPackageInDestinationWarehouse($delivery));
         });
