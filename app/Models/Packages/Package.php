@@ -202,7 +202,6 @@ class Package extends Model implements AttachableContract
      */
     protected $appends = [
         'hash',
-        'tier_price',
         'service_price',
         'type'
 

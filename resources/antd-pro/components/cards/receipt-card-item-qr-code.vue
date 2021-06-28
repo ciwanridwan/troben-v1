@@ -2,7 +2,7 @@
   <a-space direction="vertical" :size="1">
     <vue-qrcode
       v-if="codeContent"
-      class="receipt-card--qr-code"
+      class="receipt-card-item--qr-code"
       :value="codeContent"
     ></vue-qrcode>
     <span>No Barang: {{ codeContent }}</span>
@@ -14,7 +14,7 @@ export default {
   computed: {
     codeContent() {
       return this.code?.content;
-    },
-  },
+    }
+  }
 };
 </script>
