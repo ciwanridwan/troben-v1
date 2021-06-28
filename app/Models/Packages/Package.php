@@ -201,7 +201,6 @@ class Package extends Model implements AttachableContract
      */
     protected $appends = [
         'hash',
-        'tier_price',
         'service_price',
         'type'
 
@@ -472,7 +471,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
