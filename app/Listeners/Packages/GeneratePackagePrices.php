@@ -47,15 +47,16 @@ class GeneratePackagePrices
                 }
             });
 
+            /** @var Package $package */
             $package = $event->package;
 
             $package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -79,10 +80,16 @@ class GeneratePackagePrices
             ]);
             $this->dispatch($job);
 
+            $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
-            $total_amount = $package->prices->sum('amount');
-            $package->setAttribute('total_amount', $total_amount)->save();
-
+            $origin_regency = $package->origin_regency;
+            try {
+                $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                $tier = PricingCalculator::getTier($price, $package->total_weight);
+                $package->setAttribute('tier_price', $tier)->save();
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
             // todo : create service lainnya, contoh : biaya penjemputan
         }
     }

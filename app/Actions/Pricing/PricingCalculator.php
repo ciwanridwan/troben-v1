@@ -10,7 +10,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceResource;
+use App\Models\Packages\Item;
+use App\Models\Packages\Package;
+use App\Models\Packages\Price as PackagesPrice;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PricingCalculator
 {
@@ -61,13 +65,34 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
+    public static function getPackageTotalAmount(Package $package)
+    {
+        if (!$package->relationLoaded('items.prices')) {
+            $package->load('items.prices');
+        }
+        if (!$package->relationLoaded('prices')) {
+            $package->load('prices');
+        }
+
+        // get handling and insurance prices
+        $handling_price = 0;
+        $insurance_price = 0;
+        $package->items()->each(function (Item $item) use (&$handling_price, &$insurance_price) {
+            $handling_price += ($item->prices()->where('type', PackagesPrice::TYPE_HANDLING)->get()->sum('amount') * $item->qty);
+            $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
+        });
+        $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
+        $total_amount = $handling_price + $insurance_price + $service_price;
+        return $total_amount;
+    }
+
     /**
      * @param array $inputs
      * @param string $returnType="json"|"array"
      *
-     * @return JsonResponse
+     * @return JsonResponse|array
      */
-    public static function calculate(array $inputs, string $returnType = 'json'): JsonResponse
+    public static function calculate(array $inputs, string $returnType = 'json')
     {
         $inputs =  Validator::validate($inputs, [
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
@@ -85,7 +110,7 @@ class PricingCalculator
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
 
-        $totalWeightBorne = 0;
+        $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
 
         foreach ($inputs['items'] as $index => $item) {
@@ -96,12 +121,11 @@ class PricingCalculator
             $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
-            $totalWeightBorne += $item['weight_borne_total'];
         }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
-        $servicePrice = $tierPrice * $totalWeightBorne;
+        $servicePrice = self::getServicePrice($inputs, $price);
 
         $response = [
             'price' => PriceResource::make($price),
@@ -127,12 +151,12 @@ class PricingCalculator
         }
     }
 
-    public static function getServicePrice(array $inputs)
+    public static function getServicePrice(array $inputs, ?Price $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -142,17 +166,12 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        /** @var Price $price */
-        $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        if (!$price) {
+            /** @var Price $price */
+            $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        }
 
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
-
-        foreach ($inputs['items'] as $index => $item) {
-            $handling = self::checkHandling($item['handling']);
-            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $handling);
-            $inputs['items'][$index] = $item;
-            $totalWeightBorne += $item['weight_borne'];
-        }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
@@ -171,8 +190,6 @@ class PricingCalculator
             '*.qty' => ['required', 'numeric'],
             '*.handling' => ['nullable']
         ]);
-
-
 
         $totalWeightBorne = 0;
 
