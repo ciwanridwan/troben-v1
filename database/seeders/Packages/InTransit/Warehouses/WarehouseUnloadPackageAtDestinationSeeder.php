@@ -6,6 +6,7 @@ use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Jobs\Deliveries\Actions\UnloadCodeFromDelivery;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use Database\Seeders\Packages\InTransit\Drivers\DriverArrivedAtDestinationWarehouseSeeder;
 use Database\Seeders\Packages\InTransit\Drivers\DriverLoadPackageSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -36,7 +37,7 @@ class WarehouseUnloadPackageAtDestinationSeeder extends Seeder
     private function prepareDependency(): void
     {
         if (Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_FINISHED)->count() === 0) {
-            $this->call(DriverLoadPackageSeeder::class);
+            $this->call(DriverArrivedAtDestinationWarehouseSeeder::class);
         }
     }
 }
