@@ -6,11 +6,10 @@
       :show-layout="false"
       :manual-pagination="true"
       :pdf-quality="2"
-      pdf-format="a5"
+      pdf-format="a4"
       pdf-orientation="portrait"
       ref="html2Pdf"
       pdf-content-width="100%"
-      :paginate-elements-by-height="contentHeight"
       @progress="onProgress($event)"
       @startPagination="startPagination()"
       @hasPaginated="hasPaginated()"
@@ -19,7 +18,7 @@
     >
       <section slot="pdf-content">
         <!-- PDF Content Here -->
-        <slot name="content"></slot>
+        <slot name="pdf-content"></slot>
       </section>
     </vue-html2pdf>
     <span class="trawl-click" @click="showModal">
@@ -37,7 +36,11 @@
           <a-col :span="5">
             <span v-if="domRendered" class="trawl-click" @click="saveToPdf">
               <slot v-if="hasSlot('printTrigger')" name="printTrigger"></slot>
-              <a-icon v-else type="printer" :style="{ 'font-size': '1.5rem' }"></a-icon>
+              <a-icon
+                v-else
+                type="printer"
+                :style="{ 'font-size': '1.5rem' }"
+              ></a-icon>
             </span>
             <a-icon v-else type="loading" />
           </a-col>
@@ -54,33 +57,33 @@
 import VueHtml2pdf from "vue-html2pdf";
 export default {
   components: {
-    VueHtml2pdf,
+    VueHtml2pdf
   },
   props: {
     value: {
       type: Boolean,
-      default: false,
+      default: false
     },
     fileName: {
       type: String,
-      default: "",
+      default: ""
     },
     width: {
-      default: "50%",
-    },
+      default: "50%"
+    }
   },
   data() {
     return {
       visible: false,
       contentHeight: 1400,
       domRendered: false,
-      footer: undefined,
+      footer: undefined
     };
   },
   computed: {
     content() {
       return this.$slots?.content ? this.$slots.content[0] : null;
-    },
+    }
   },
   methods: {
     showModal() {
@@ -96,7 +99,10 @@ export default {
       console.log(event);
     },
     beforeDownload({ html2pdf, options, pdfContent }) {
-      let worker = html2pdf().set(options).from(pdfContent).toPdf();
+      let worker = html2pdf()
+        .set(options)
+        .from(pdfContent)
+        .toPdf();
       worker = worker
         .get("pdf")
         // .then(function (pdf) {
@@ -140,16 +146,16 @@ export default {
     },
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;
-    },
+    }
   },
   watch: {
-    value: function (value) {
+    value: function(value) {
       this.visible = value;
       this.$emit("input", value);
     },
-    visible: function (value) {
+    visible: function(value) {
       this.$emit("input", value);
-    },
+    }
   },
   mounted() {
     this.$nextTick(() => {
@@ -159,6 +165,6 @@ export default {
         ? this.content.elm.clientHeight
         : this.contentHeight;
     });
-  },
+  }
 };
 </script>

@@ -8,7 +8,7 @@
         <a-icon
           class="receipt-card--icon"
           :component="TrawlLabelImage"
-          :style="{ 'font-size': '12rem' }"
+          :style="{ 'font-size': '10rem' }"
         ></a-icon>
       </a-col>
     </a-row>
@@ -21,7 +21,7 @@
       </a-col>
     </a-row>
     <a-divider />
-    <receipt-card-item-info :package="package" :item="package.items[0]" />
+    <receipt-card-item-info :package="package" :item="item" :code="code" />
   </a-card>
 </template>
 <script>
@@ -31,17 +31,17 @@ import ReceiptCardPackageInfo from "./receipt-card-package-info.vue";
 import ReceiptCardPackageQrCode from "./receipt-card-package-qr-code.vue";
 import receiptCardPartnerInfo from "./receipt-card-partner-info.vue";
 export default {
-  props: ["package"],
+  props: ["package", "item", "code"],
   components: {
     receiptCardPartnerInfo,
     ReceiptCardPackageInfo,
     ReceiptCardPackageQrCode,
-    ReceiptCardItemInfo,
+    ReceiptCardItemInfo
   },
   data() {
     return {
-      TrawlLabelImage,
+      TrawlLabelImage
     };
-  },
+  }
 };
 </script>
