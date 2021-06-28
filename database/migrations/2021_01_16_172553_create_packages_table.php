@@ -37,6 +37,7 @@ class CreatePackagesTable extends Migration
             $table->enum('status', Package::getAvailableStatuses())->default(Package::STATUS_CREATED);
             $table->boolean('is_separate_item')->default(0);
             $table->decimal('total_weight', 14, 2)->default(0);
+            $table->decimal('tier_price', 14, 2)->default(0);
 
             # payment related field
             $table->decimal('total_amount', 14, 2)->default(0);

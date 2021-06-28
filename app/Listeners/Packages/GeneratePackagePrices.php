@@ -47,6 +47,7 @@ class GeneratePackagePrices
                 }
             });
 
+            /** @var Package $package */
             $package = $event->package;
 
             $package->refresh();
@@ -81,6 +82,14 @@ class GeneratePackagePrices
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
+            $origin_regency = $package->origin_regency;
+            try {
+                $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                $tier = PricingCalculator::getTier($price, $package->total_weight);
+                $package->setAttribute('tier_price', $tier)->save();
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
             // todo : create service lainnya, contoh : biaya penjemputan
         }
     }

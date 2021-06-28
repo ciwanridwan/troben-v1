@@ -305,14 +305,6 @@ class Package extends Model implements AttachableContract
             return 0;
         }
     }
-    public function getTierPriceAttribute()
-    {
-        $origin_regency = $this->origin_regency()->first();
-
-        $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $this->destination_sub_district_id);
-        $tier = PricingCalculator::getTier($price, $this->total_weight);
-        return $tier;
-    }
 
     /**
      * Define `morphMany` relationship with Payment model.
@@ -481,7 +473,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
