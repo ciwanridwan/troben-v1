@@ -138,6 +138,7 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         WarehouseUnloadedPackage::class => [
+            UpdatePackageStatusByEvent::class,
             UpdateDeliveryStatusByEvent::class,
             WriteCodeLog::class
         ],
