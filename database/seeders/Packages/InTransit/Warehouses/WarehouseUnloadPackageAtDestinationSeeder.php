@@ -7,7 +7,6 @@ use App\Jobs\Deliveries\Actions\UnloadCodeFromDelivery;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use Database\Seeders\Packages\InTransit\Drivers\DriverArrivedAtDestinationWarehouseSeeder;
-use Database\Seeders\Packages\InTransit\Drivers\DriverLoadPackageSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Event;
