@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Events\CodeScanned;
 use App\Models\Code;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
@@ -10,8 +9,6 @@ use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use Illuminate\Support\Facades\Validator;
-use App\Events\Packages\PackageAttachedToDelivery;
-use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Collection;

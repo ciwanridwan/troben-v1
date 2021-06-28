@@ -2,7 +2,6 @@
 
 namespace Tests\Http\Api\Partner\Warehouse;
 
-use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Tests\TestCase;
 use App\Models\Code;

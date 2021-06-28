@@ -5,15 +5,11 @@ namespace App\Listeners\Deliveries;
 use App\Events\Deliveries\Dooring;
 use App\Events\Deliveries\Pickup;
 use App\Events\Deliveries\Transit;
-use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
-use App\Jobs\Deliveries\CreateNewDelivery;
-use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Validation\ValidationException;
 
 class UpdateDeliveryStatusByEvent
 {

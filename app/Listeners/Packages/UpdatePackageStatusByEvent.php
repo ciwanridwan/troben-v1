@@ -18,8 +18,6 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
-use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
-use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 
 class UpdatePackageStatusByEvent
 {
