@@ -52,11 +52,11 @@ class GeneratePackagePrices
 
             $package->refresh();
 
-            if (!$package->relationLoaded('origin_regency')) {
+            if (! $package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (!$package->relationLoaded('destination_sub_district')) {
+            if (! $package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
