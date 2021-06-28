@@ -3,6 +3,7 @@
 namespace App\Listeners\Packages;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 
 class UpdatePackageTotalWeightByEvent
@@ -28,7 +29,11 @@ class UpdatePackageTotalWeightByEvent
         if (property_exists($event, 'package') && $event->package instanceof Package) {
             /** @var Package $package */
             $package = $event->package;
-            $items = $package->items->toArray();
+            $items = $package->items->map(function (Item $item) {
+                $item = $item->toArray();
+                $item['handling'] = array_column($item['handling'], 'type');
+                return $item;
+            })->toArray();
             $totalWeight = PricingCalculator::getTotalWeightBorne($items);
             $package->setAttribute('total_weight', $totalWeight)->save();
         }

@@ -51,11 +51,11 @@ class GeneratePackagePrices
 
             $package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -79,9 +79,7 @@ class GeneratePackagePrices
             ]);
             $this->dispatch($job);
 
-
-            $total_amount = $package->prices->sum('amount');
-            $package->setAttribute('total_amount', $total_amount)->save();
+            $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
             // todo : create service lainnya, contoh : biaya penjemputan
         }
