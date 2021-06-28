@@ -55,7 +55,7 @@ class AssignableController extends Controller
     {
         $query = $repository->queries()->getPackagesQuery();
 
-        $query->where('status', Package::STATUS_PACKED);
+        $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
 
         $query->whereDoesntHave(
             'deliveries',
