@@ -31,7 +31,9 @@ class UpdatePackageTotalWeightByEvent
             $package = $event->package;
             $items = $package->items->map(function (Item $item) {
                 $item = $item->toArray();
-                $item['handling'] = array_column($item['handling'], 'type');
+                if ($item['handling']) {
+                    $item['handling'] = array_column($item['handling'], 'type');
+                }
                 return $item;
             })->toArray();
             $totalWeight = PricingCalculator::getTotalWeightBorne($items);
