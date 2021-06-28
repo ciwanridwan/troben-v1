@@ -57,6 +57,8 @@ class AssignableController extends Controller
 
         $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
 
+        $request->whenHas('status', fn ($value) => $query->where('status', $value));
+
         $query->whereDoesntHave(
             'deliveries',
             fn (Builder $builder) => $builder
