@@ -4,10 +4,8 @@
       :filename="fileName"
       :enable-download="false"
       :show-layout="false"
-      :manual-pagination="true"
-      :pdf-quality="2"
-      pdf-format="a4"
-      pdf-orientation="portrait"
+      :manual-pagination="false"
+      :paginate-elements-by-height="contentHeight"
       ref="html2Pdf"
       pdf-content-width="100%"
       @progress="onProgress($event)"
@@ -70,6 +68,10 @@ export default {
     },
     width: {
       default: "50%"
+    },
+    options: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -77,7 +79,8 @@ export default {
       visible: false,
       contentHeight: 1400,
       domRendered: false,
-      footer: undefined
+      footer: undefined,
+      align: "center"
     };
   },
   computed: {
@@ -100,31 +103,15 @@ export default {
     },
     beforeDownload({ html2pdf, options, pdfContent }) {
       let worker = html2pdf()
-        .set(options)
+        .set({
+          ...options,
+          ...this.options
+        })
         .from(pdfContent)
-        .toPdf();
-      worker = worker
-        .get("pdf")
-        // .then(function (pdf) {
-        //   pdf.addPage();
-        // })
         .toContainer()
         .toCanvas()
         .toPdf();
-      // console.log(event);
-      // return false;
-      // pages.slice(1).forEach(function (page) {
-      //   worker = worker
-      //     .get("pdf")
-      //     .then(function (pdf) {
-      //       pdf.addPage();
-      //     })
-      //     .from(page)
-      //     .toContainer()
-      //     .toCanvas()
-      //     .toPdf();
-      // });
-      worker = worker.save();
+      worker.save();
     },
     onProgress(event) {
       console.log(event, "on Progress");

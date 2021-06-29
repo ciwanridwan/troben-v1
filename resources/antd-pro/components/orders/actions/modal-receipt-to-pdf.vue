@@ -1,5 +1,5 @@
 <template>
-  <modal-to-pdf :fileName="fileName">
+  <modal-to-pdf :fileName="fileName" :options="options">
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">Print</a-button>
     </template>
@@ -28,6 +28,7 @@
 </template>
 <script>
 import ReceiptCardCarousel from "../../cards/receipt-card-carousel.vue";
+import ReceiptCard from "../../cards/receipt-card.vue";
 import ReceiptCardsToPdf from "../../cards/receipt-cards-to-pdf.vue";
 import modalToPdf from "../../modals/modal-to-pdf.vue";
 export default {
@@ -36,6 +37,17 @@ export default {
       type: Object,
       default: () => {}
     }
+  },
+  data() {
+    return {
+      options: {
+        html2canvas: { scale: 1 },
+        jsPDF: { format: "a4", orientation: "portrait" },
+        pagebreak: {
+          mode: "legacy"
+        }
+      }
+    };
   },
   computed: {
     fileName() {
@@ -47,6 +59,11 @@ export default {
       return this.package?.items;
     }
   },
-  components: { modalToPdf, ReceiptCardCarousel, ReceiptCardsToPdf }
+  components: {
+    modalToPdf,
+    ReceiptCardCarousel,
+    ReceiptCardsToPdf,
+    ReceiptCard
+  }
 };
 </script>
