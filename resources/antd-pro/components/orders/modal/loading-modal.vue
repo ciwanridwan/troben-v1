@@ -4,6 +4,12 @@
     :cancelButton="false"
     :okButton="false"
   >
+    <template slot="text">
+      <a-space direction="vertical">
+        <a-icon type="loading" :style="{ 'font-size': '3rem' }" />
+        <span>Mohon tunggu </span>
+      </a-space>
+    </template>
   </trawl-modal-confirm>
 </template>
 <script>
@@ -22,6 +28,9 @@ export default {
   },
   components: { trawlModalConfirm },
   watch: {
+    value: function(value) {
+      this.visible = value;
+    },
     visible: function(value) {
       this.$emit("input", value);
     }
