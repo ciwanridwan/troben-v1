@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
 use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
+use App\Jobs\Users\Actions\VerifyExistingUser;
 
 class CreatePartner
 {
@@ -96,20 +97,23 @@ class CreatePartner
         $this->partner = $this->jobPartner->partner;
         $this->partner->users()->attach($this->user->id);
 
-        switch ($this->attributes['partner']['type']) {
-            case Partner::TYPE_POOL:
-                $this->create_pool();
-                break;
-            case Partner::TYPE_BUSINESS:
-                $this->create_business();
-                break;
-            case Partner::TYPE_SPACE:
-                $this->create_space();
-                break;
-            case Partner::TYPE_TRANSPORTER:
-                $this->create_transporter();
-                break;
-        }
+        $job = new VerifyExistingUser($this->user);
+        $this->dispatch($job);
+
+        // switch ($this->attributes['partner']['type']) {
+        //     case Partner::TYPE_POOL:
+        //         $this->create_pool();
+        //         break;
+        //     case Partner::TYPE_BUSINESS:
+        //         $this->create_business();
+        //         break;
+        //     case Partner::TYPE_SPACE:
+        //         $this->create_space();
+        //         break;
+        //     case Partner::TYPE_TRANSPORTER:
+        //         $this->create_transporter();
+        //         break;
+        // }
 
         return (new Response(Response::RC_SUCCESS, $this->partner))->json();
     }

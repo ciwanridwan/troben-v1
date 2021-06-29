@@ -8,10 +8,8 @@ use App\Models\Packages\Package;
 use App\Events\Packages\PackageCreated;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
-use App\Models\Packages\Price;
 use Database\Seeders\Packages\PackagesTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\JsonResponse;
 
 class GeneratePackagePricesTest extends TestCase
 {
