@@ -7,7 +7,6 @@ use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
-use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
