@@ -1,5 +1,5 @@
 <template>
-  <modal-to-pdf :fileName="fileName" :options="options">
+  <modal-to-pdf v-show="loaded" :fileName="fileName" :options="options">
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">Print</a-button>
     </template>
@@ -46,7 +46,8 @@ export default {
         pagebreak: {
           mode: "legacy"
         }
-      }
+      },
+      loaded: false
     };
   },
   computed: {
@@ -64,6 +65,11 @@ export default {
     ReceiptCardCarousel,
     ReceiptCardsToPdf,
     ReceiptCard
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.loaded = true;
+    });
   }
 };
 </script>
