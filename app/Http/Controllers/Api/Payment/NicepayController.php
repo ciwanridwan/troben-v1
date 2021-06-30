@@ -17,8 +17,8 @@ class NicepayController extends Controller
         switch ($paymentMethod):
             case 'va':
                 $bankCd = $request->input('bank_code');
-                return $this->jsonSuccess(new RegistrationResource($this->getVA($package, $bankCd)));
-            case 'qris':
+        return $this->jsonSuccess(new RegistrationResource($this->getVA($package, $bankCd)));
+        case 'qris':
                 return $this->jsonSuccess(new RegistrationResource($this->getQris($package)));
         endswitch;
 
@@ -29,12 +29,11 @@ class NicepayController extends Controller
     {
         if ($paymentMethod === 'va') {
             event(new PayingByVA($request));
-        } else if ($paymentMethod === 'qris') {
+        } elseif ($paymentMethod === 'qris') {
             event();
         }
 
         return $this->jsonSuccess();
-
     }
 
     protected function getVA(Package $package, $bankCd)

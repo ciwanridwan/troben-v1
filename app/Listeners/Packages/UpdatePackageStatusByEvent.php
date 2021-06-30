@@ -118,7 +118,7 @@ class UpdatePackageStatusByEvent
                 /** @var Gateway $gateway */
                 $gateway = Gateway::query()->find(3);
 
-                $jobs = new CreateNewPaymentForPackage($package,$gateway,[
+                $jobs = new CreateNewPaymentForPackage($package, $gateway, [
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
                     'payment_amount' => $package->total_amount,
                     'payment_ref_id' => $event->response->tXid,
@@ -131,7 +131,7 @@ class UpdatePackageStatusByEvent
                 if ($params->status == 0) {
                     /** @var Package $package */
                     $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
-                    $package->setAttribute('payment_status',Package::PAYMENT_STATUS_PAID);
+                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
 
                     Payment::query()
                         ->where('payment_ref_id', $params->tXid)

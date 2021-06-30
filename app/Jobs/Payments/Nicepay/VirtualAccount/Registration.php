@@ -36,10 +36,10 @@ class Registration
     {
         $client = new Client(['base_uri' => self::BASE_URI]);
         $this->response = json_decode($client->post(self::URL, [
-            'body' => json_encode($this->attributes,true)
+            'body' => json_encode($this->attributes, true)
         ])->getBody());
 
-        $this->flag = ($this->response->resultCd === "0000") ? true : false;
+        $this->flag = ($this->response->resultCd === '0000') ? true : false;
 
         return $this->flag;
     }

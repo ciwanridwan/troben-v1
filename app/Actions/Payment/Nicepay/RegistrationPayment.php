@@ -18,14 +18,14 @@ class RegistrationPayment
     protected const MERCHANT_KEY = '33F49GnCMS1mFYlGXisbUDzVf2ATWCl9k3R++d5hDd3Frmuos/XLx8XhXpe+LDYAbpGKZYSwtlyyLOtS/8aD7A==';
     protected const URL = 'registration';
 
+    /** @var array $attributes */
+    public array $attributes;
+
     /** @var Carbon $expDate */
     protected Carbon $expDate;
 
     /** @var Package $package */
     protected Package $package;
-
-    /** @var array $attributes */
-    public array $attributes;
 
     public function __construct(Package $package)
     {
@@ -45,7 +45,7 @@ class RegistrationPayment
             'referenceNo' => $package->code->content,
             'goodsNm' => 'Trawlpack Order',
             'billingNm' => $customer->name,
-            'billingPhone' => "081294529025",
+            'billingPhone' => '081294529025',
             'billingEmail' => $customer->email,
             'billingAddr' => $address->address ?? 'dirumah',
             'billingCity' => $address->regency->name ?? 'Jakarta',
@@ -60,11 +60,11 @@ class RegistrationPayment
 
     public function vaRegistration(string $bankCd): array
     {
-        $sendParams = array_merge($this->attributes,[
+        $sendParams = array_merge($this->attributes, [
             'payMethod' => '02',
             'bankCd' => $bankCd === 'BCA' ? 'CENA' : 'BMRI',
             'merFixAcctId' => '',
-            'dbProcessUrl' => env('API_DOMAIN','https://api.trawlbens.co.id').'/payment/nicepay/webhook/va',
+            'dbProcessUrl' => env('API_DOMAIN', 'https://api.trawlbens.co.id').'/payment/nicepay/webhook/va',
             'vacctValidDt' => $this->validDate(),
             'vacctValidTm' => $this->validTime(),
         ]);
@@ -84,14 +84,14 @@ class RegistrationPayment
 
     public function qrisRegistration(): array
     {
-        $sendParams = array_merge($this->attributes,[
+        $sendParams = array_merge($this->attributes, [
             'payMethod' => '08',
             'userIp' => request()->server('SERVER_ADDR'),
             'mitraCd' => 'QSHP',
             'shopId' => 'NICEPAY',
             'paymentExpDt' => '',
             'paymentExpTm' => '',
-            'dbProcessUrl' => env('API_DOMAIN','https://api.trawlbens.co.id').'/payment/nicepay/webhook/qris',
+            'dbProcessUrl' => env('API_DOMAIN', 'https://api.trawlbens.co.id').'/payment/nicepay/webhook/qris',
         ]);
 
         $job = new Registration($this->package, $sendParams);
@@ -107,7 +107,8 @@ class RegistrationPayment
 
     protected function merchantToken(string $iMid, string $refNo, int $amt, string $merchant_key): string
     {
-        return hash('sha256',
+        return hash(
+            'sha256',
             date_format(Carbon::now(), 'YmdHis').
             $iMid.
             $refNo.
@@ -116,11 +117,13 @@ class RegistrationPayment
         );
     }
 
-    protected function validDate() {
+    protected function validDate()
+    {
         return date_format($this->expDate, 'Ymd');
     }
 
-    protected function validTime() {
+    protected function validTime()
+    {
         return date_format($this->expDate, 'His');
     }
 }
