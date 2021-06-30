@@ -17,6 +17,10 @@ use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Code;
+use App\Models\CodeLogable;
+use App\Models\Packages\Item;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -83,7 +87,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -125,7 +129,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -173,5 +177,32 @@ class OrderController extends Controller
         $this->dispatchNow($job);
 
         return $this->jsonSuccess(PackageResource::make($job->package->load('attachments')));
+    }
+
+    /**
+     * @param Request $request
+     * @param Code $code
+     *
+     * @return JsonResponse
+     */
+    public function findReceipt(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => ['required', 'exists:codes,content']
+        ]);
+
+        $code = Code::query()->where('content', $request->code)->first();
+        $codeable = $code->codeable;
+
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
+            'code' => __('Code not instance of Package'),
+        ]));
+
+        /** @var Builder $query */
+        $query = $code->logs()->getQuery();
+
+        $query->whereJsonContains('showable', [CodeLogable::SHOW_CUSTOMER]);
+
+        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
 }

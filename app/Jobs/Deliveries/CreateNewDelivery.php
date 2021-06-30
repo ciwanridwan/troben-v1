@@ -57,7 +57,7 @@ class CreateNewDelivery
             $this->delivery->origin_partner()->associate($this->originPartner);
         }
         if ($this->delivery) {
-            event(new DeliveryCreated());
+            event(new DeliveryCreated($this->delivery));
         }
 
         $this->delivery->save();
