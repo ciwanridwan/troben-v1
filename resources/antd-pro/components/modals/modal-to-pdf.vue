@@ -1,13 +1,12 @@
 <template>
   <div>
+    <loading-modal v-model="loading" />
     <vue-html2pdf
       :filename="fileName"
       :enable-download="false"
       :show-layout="false"
-      :manual-pagination="true"
-      :pdf-quality="2"
-      pdf-format="a4"
-      pdf-orientation="portrait"
+      :manual-pagination="false"
+      :paginate-elements-by-height="contentHeight"
       ref="html2Pdf"
       pdf-content-width="100%"
       @progress="onProgress($event)"
@@ -55,9 +54,11 @@
 </template>
 <script>
 import VueHtml2pdf from "vue-html2pdf";
+import LoadingModal from "../orders/modal/loading-modal.vue";
 export default {
   components: {
-    VueHtml2pdf
+    VueHtml2pdf,
+    LoadingModal
   },
   props: {
     value: {
@@ -70,6 +71,10 @@ export default {
     },
     width: {
       default: "50%"
+    },
+    options: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
@@ -77,7 +82,9 @@ export default {
       visible: false,
       contentHeight: 1400,
       domRendered: false,
-      footer: undefined
+      footer: undefined,
+      align: "center",
+      loading: false
     };
   },
   computed: {
@@ -92,39 +99,26 @@ export default {
     hideModal() {
       this.visible = false;
     },
-    saveToPdf() {
-      this.$refs.html2Pdf.generatePdf();
+    async saveToPdf() {
+      this.loading = true;
+      await this.$refs.html2Pdf.generatePdf();
     },
     startPagination(event) {
       console.log(event);
     },
     beforeDownload({ html2pdf, options, pdfContent }) {
       let worker = html2pdf()
-        .set(options)
+        .set({
+          ...options,
+          ...this.options
+        })
         .from(pdfContent)
-        .toPdf();
-      worker = worker
-        .get("pdf")
-        // .then(function (pdf) {
-        //   pdf.addPage();
-        // })
         .toContainer()
         .toCanvas()
         .toPdf();
-      // console.log(event);
-      // return false;
-      // pages.slice(1).forEach(function (page) {
-      //   worker = worker
-      //     .get("pdf")
-      //     .then(function (pdf) {
-      //       pdf.addPage();
-      //     })
-      //     .from(page)
-      //     .toContainer()
-      //     .toCanvas()
-      //     .toPdf();
-      // });
-      worker = worker.save();
+      worker.save().then(() => {
+        this.loading = false;
+      });
     },
     onProgress(event) {
       console.log(event, "on Progress");

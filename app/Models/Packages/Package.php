@@ -26,6 +26,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use ReflectionClass;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Package model.
@@ -470,7 +471,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;

@@ -1,19 +1,24 @@
 <template>
   <div>
-    <a-select
-      v-model="responsible"
-      show-search
-      :filter-option="filterOptionMethod"
-      @change="addResponsible"
-    >
-      <a-select-option
-        v-for="regency in regenciesFiltered"
-        :key="regency.id"
-        :value="regency.id"
+    <h2>Tanggung Jawab</h2>
+    <a-space direction="vertical" :style="{ width: '100%' }">
+      <h3 class="trawl-text-normal trawl-text-bold">Jenis Mitra</h3>
+      <a-select
+        v-model="responsible"
+        show-search
+        :filter-option="filterOptionMethod"
+        @change="addResponsible"
       >
-        {{ regency.name }}
-      </a-select-option>
-    </a-select>
+        <a-select-option
+          v-for="regency in regenciesFiltered"
+          :key="regency.id"
+          :value="regency.id"
+        >
+          {{ regency.name }}
+        </a-select-option>
+      </a-select>
+    </a-space>
+
     <a-row type="flex" justify="space-between">
       <a-col :span="12" v-for="(item, index) in responsibles" :key="item.id">
         <a-row type="flex" align="middle">
@@ -62,6 +67,13 @@ export default {
     },
     removeResponsible(index) {
       this.responsibles.splice(index, 1);
+    }
+  },
+  watch: {
+    responsibles: {
+      handler: function(value) {
+        this.$emit("input", value);
+      }
     }
   }
 };

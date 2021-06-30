@@ -1,8 +1,6 @@
 <template>
   <div>
-    <a-button @click="visible = true" icon="plus">
-      Tambah Alat
-    </a-button>
+    <a-button @click="visible = true" icon="plus"> Tambah Alat </a-button>
     <a-modal
       v-model="visible"
       :width="720"
@@ -60,10 +58,10 @@
   </div>
 </template>
 <script>
-import trawlInput from "../../../../../components/trawl-input.vue";
+import TrawlInput from "../../../trawl-input.vue";
 export default {
   props: ["inventories"],
-  components: { trawlInput },
+  components: { TrawlInput },
   data() {
     return {
       visible: false,
@@ -96,7 +94,8 @@ export default {
     onOk() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          this.inventories.push({ ...this.form });
+          this.$emit("submit", { ...this.form });
+          this.$emit("input", { ...this.form });
           this.$refs.ruleForm.resetFields();
           this.closeForm();
         }

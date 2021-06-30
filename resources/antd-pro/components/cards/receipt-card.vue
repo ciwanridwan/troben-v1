@@ -8,7 +8,7 @@
         <a-icon
           class="receipt-card--icon"
           :component="TrawlLabelImage"
-          :style="{ 'font-size': '10rem' }"
+          :style="{ 'font-size': '9rem' }"
         ></a-icon>
       </a-col>
     </a-row>

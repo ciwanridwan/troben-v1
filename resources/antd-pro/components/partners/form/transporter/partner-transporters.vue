@@ -4,10 +4,10 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
-            <add-transporter-form
+            <partner-add-transporter-form
               :types="transporterTypes"
-              :transporters="form"
-            ></add-transporter-form>
+              @submit="addToTransporters"
+            ></partner-add-transporter-form>
           </a-col>
         </a-row>
       </template>
@@ -15,7 +15,7 @@
         <a-table
           :columns="partnerTransporterColumns"
           :data-source="form"
-          style="margin-top:24px"
+          style="margin-top: 24px"
         >
           <span slot="number" slot-scope="item, record, index">
             {{ index + 1 }}
@@ -27,8 +27,8 @@
               </a-col>
               <a-col :span="24">
                 <span
-                  >{{ record.length }} x {{ record.width }} x
-                  {{ record.height }}</span
+                  >{{ record.length }}cm x {{ record.width }}cm x
+                  {{ record.height }}cm</span
                 >
               </a-col>
             </a-row>
@@ -42,10 +42,11 @@
   </div>
 </template>
 <script>
-import addTransporterForm from "./add-transporter-form.vue";
-import partnerTransporterColumns from "../../../../../config/table/partner-transporter";
-import ContentLayout from "../../../../../layouts/content-layout.vue";
+import partnerTransporterColumns from "../../../../config/table/partner-transporter";
+import ContentLayout from "../../../../layouts/content-layout.vue";
+import PartnerAddTransporterForm from "./partner-add-transporter-form.vue";
 export default {
+  components: { ContentLayout, PartnerAddTransporterForm, ContentLayout },
   data() {
     return {
       form: [],
@@ -55,6 +56,9 @@ export default {
   methods: {
     deleteItem(index) {
       this.form.splice(index, 1);
+    },
+    addToTransporters(value) {
+      this.form.push(value);
     }
   },
   props: {
@@ -63,6 +67,12 @@ export default {
       default: []
     }
   },
-  components: { addTransporterForm, ContentLayout }
+  watch: {
+    form: {
+      handler: function(value) {
+        this.$emit("input", value);
+      }
+    }
+  }
 };
 </script>

@@ -4,7 +4,9 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end">
           <a-col>
-            <add-inventory :inventories="form"></add-inventory>
+            <partner-add-inventory
+              @submit="addToInventories"
+            ></partner-add-inventory>
           </a-col>
         </a-row>
       </template>
@@ -12,7 +14,7 @@
         <a-table
           :columns="partnerInventoryColumns"
           :data-source="form"
-          style="margin-top:24px"
+          style="margin-top: 24px"
         >
           <span slot="number" slot-scope="item, record, index">
             {{ index + 1 }}
@@ -26,9 +28,9 @@
   </div>
 </template>
 <script>
-import ContentLayout from "../../../../../layouts/content-layout.vue";
-import partnerInventoryColumns from "../../../../../config/table/partner-inventory";
-import AddInventory from "./add-inventory.vue";
+import partnerInventoryColumns from "../../../../config/table/partner-inventory";
+import ContentLayout from "../../../../layouts/content-layout.vue";
+import PartnerAddInventory from "./partner-add-inventory.vue";
 
 export default {
   data() {
@@ -37,10 +39,21 @@ export default {
       form: []
     };
   },
-  components: { ContentLayout, AddInventory },
+  components: { ContentLayout, PartnerAddInventory, ContentLayout },
   methods: {
     deleteItem(index) {
       this.form.splice(index, 1);
+    },
+    addToInventories(value) {
+      console.log(this.form);
+      this.form.push(value);
+    }
+  },
+  watch: {
+    form: {
+      handler: function(value) {
+        this.$emit("input", value);
+      }
     }
   }
 };

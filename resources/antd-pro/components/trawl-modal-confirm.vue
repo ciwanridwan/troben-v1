@@ -35,8 +35,13 @@
             Batal
           </a-button>
         </a-col>
-        <a-col :span="12">
-          <a-button @click="onOk" class="trawl-button-success" block size="large">
+        <a-col :span="12" v-if="okButton">
+          <a-button
+            @click="onOk"
+            class="trawl-button-success"
+            block
+            size="large"
+          >
             Ya
           </a-button>
         </a-col>
@@ -51,26 +56,30 @@ export default {
   data() {
     return {
       visible: false,
-      confirmImage,
+      confirmImage
     };
   },
   props: {
     value: {
       type: Boolean,
-      default: false,
+      default: false
     },
     ok: {
       type: Function,
-      default: () => {},
+      default: () => {}
+    },
+    okButton: {
+      type: Boolean,
+      default: true
     },
     cancelButton: {
       type: Boolean,
-      default: true,
+      default: true
     },
     cancel: {
       type: Function,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   methods: {
     hasSlot(slotName) {
@@ -91,13 +100,13 @@ export default {
       this.ok();
       this.hideModal();
       this.$emit("ok");
-    },
+    }
   },
   watch: {
-    value: function (value) {
+    value: function(value) {
       this.visible = value;
       this.$emit("input", this.visible);
-    },
-  },
+    }
+  }
 };
 </script>
