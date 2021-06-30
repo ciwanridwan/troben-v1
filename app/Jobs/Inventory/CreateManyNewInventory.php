@@ -24,12 +24,6 @@ class CreateManyNewInventory
      */
     public Partner $partner;
 
-
-    /**
-     * @var Warehouse
-     */
-    public Warehouse $warehouse;
-
     /**
      * Collection inventories.
      *
@@ -56,15 +50,15 @@ class CreateManyNewInventory
      *
      * @return void
      */
-    public function __construct(Partner $partner, Warehouse $warehouse, $inputs = [])
+    public function __construct(Partner $partner,  $inputs = [])
     {
         $this->partner = $partner;
-        $this->warehouse = $warehouse;
         $this->attributes = Validator::make($inputs, [
             '*.name' => ['required', 'string', 'max:255'],
             '*.capacity' => ['required', 'numeric'],
             '*.height' => ['required', 'numeric'],
             '*.qty' => ['required', 'numeric'],
+            '*.warehouse_id' => ['nullable', 'exists:warehouses,id']
         ])->validate();
     }
 
@@ -75,12 +69,11 @@ class CreateManyNewInventory
      */
     public function handle()
     {
-
         $this->inventories = $this->partner->inventories()->createMany($this->attributes);
 
-        if ($this->warehouse) {
-            $this->inventories->each(fn (Inventory $inventory) => $inventory->setAttribute('warehouse_id', $this->warehouse->id)->save());
-        }
+        // if ($this->warehouse) {
+        //     $this->inventories->each(fn (Inventory $inventory) => $inventory->setAttribute('warehouse_id', $this->warehouse->id)->save());
+        // }
 
         if ($this->inventories) {
             event(new ManyInventoryCreated($this->partner->inventories));

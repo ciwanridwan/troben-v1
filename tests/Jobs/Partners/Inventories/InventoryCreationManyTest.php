@@ -11,6 +11,9 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Inventory\ManyInventoryCreated;
 use App\Jobs\Inventory\CreateManyNewInventory;
+use App\Models\Partners\Warehouse;
+use Database\Seeders\UsersTableSeeder;
+use Database\Seeders\WarehousesTableSeeder;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -21,33 +24,37 @@ class InventoryCreationManyTest extends TestCase
     private $data;
     private Partner $partner;
     private Inventory $inventory;
+    private Warehouse $warehouse;
+
+    public bool $seed = true;
 
     public function setUp(): void
     {
         parent::setUp();
-
-        Partner::factory(1)->create([
-            'type' => Partner::TYPE_BUSINESS,
-        ]);
-        $this->partner = Partner::first();
+        $this->seed(WarehousesTableSeeder::class);
+        $this->partner = Partner::query()->where('type', Partner::TYPE_POOL)->whereHas('warehouses')->first();
+        $this->warehouse = $this->partner->warehouses->first();
         $this->data = [
             [
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
                 'qty' => $this->faker->randomNumber(),
+                'warehouse_id' => $this->warehouse->id
             ],
             [
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
                 'qty' => $this->faker->randomNumber(),
+                'warehouse_id' => $this->warehouse->id
             ],
             [
                 'name' => $this->faker->name,
                 'capacity' => $this->faker->randomFloat(),
                 'height' => $this->faker->randomFloat(),
                 'qty' => $this->faker->randomNumber(),
+                'warehouse_id' => $this->warehouse->id
             ],
         ];
     }

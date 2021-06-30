@@ -16,5 +16,6 @@ class Inventory extends Model
         'capacity',
         'height',
         'qty',
+        'warehouse_id'
     ];
 }

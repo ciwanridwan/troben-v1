@@ -47,6 +47,9 @@ class Response implements Responsable
     // partner error
     public const RC_PARTNER_GEO_UNAVAILABLE = '0401';
 
+    // patment gateway 0500-0599
+    public const RC_FAILED_REGISTRATION_PAYMENT = '0501';
+
     // server side faults. 0900 - 0999
     public const RC_SERVER_IN_MAINTENANCE = '0901';
     public const RC_DATABASE_ERROR = '0902';
@@ -116,6 +119,7 @@ class Response implements Responsable
                 self::RC_MISSING_AUTHENTICATION_HEADER,
                 self::RC_INVALID_AUTHENTICATION_HEADER,
                 self::RC_MISMATCH_TOKEN_OWNERSHIP,
+                self::RC_FAILED_REGISTRATION_PAYMENT,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
