@@ -75,7 +75,6 @@ class CreateManyNewInventory
      */
     public function handle()
     {
-
         $this->inventories = $this->partner->inventories()->createMany($this->attributes);
 
         if ($this->warehouse) {
