@@ -1,6 +1,13 @@
 <template>
   <content-layout>
     <template slot="content">
+      <trawl-modal-confirm
+        v-model="visible"
+        :cancelButton="false"
+        :okButton="false"
+      >
+        <template slot="text"> Berhasil Membuat Mitra </template>
+      </trawl-modal-confirm>
       <a-form-model ref="formRules" :model="form" :rules="rules">
         <a-card>
           <a-space direction="vertical">
@@ -92,6 +99,7 @@ import PartnerFormResponsibleArea from "../../../../components/partners/form/tra
 import PartnerOwnerForm from "../../../../components/partners/form/partner-owner-form.vue";
 import PartnerTransporters from "../../../../components/partners/form/transporter/partner-transporters.vue";
 import PartnerSpaceForm from "../../../../components/partners/form/space/partner-space-form.vue";
+import TrawlModalConfirm from "../../../../components/trawl-modal-confirm.vue";
 export default {
   components: {
     contentLayout,
@@ -100,13 +108,15 @@ export default {
     PartnerFormResponsibleArea,
     PartnerOwnerForm,
     PartnerTransporters,
-    PartnerSpaceForm
+    PartnerSpaceForm,
+    TrawlModalConfirm
   },
   data() {
     return {
       geo: {},
       partner_types: [],
       transporter_types: [],
+      visible: false,
       form: {
         type: null,
         location: null,
@@ -190,10 +200,15 @@ export default {
     submit() {
       this.$refs.formRules.validate(valid => {
         if (valid) {
-          this.$http.post(
-            this.routeUri("admin.master.partner.store"),
-            this.sendForm
-          );
+          this.visible = true;
+          this.$http
+            .post(this.routeUri("admin.master.partner.store"), this.sendForm)
+            .then(() => {
+              setTimeout(() => {
+                window.location.href = this.routeUri("admin.master.partner");
+              }, 3000);
+            })
+            .catch(error => this.onErrorValidation(error));
         }
       });
     }
