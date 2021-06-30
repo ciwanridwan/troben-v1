@@ -2,6 +2,9 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Payment\Nicepay;
+use App\Jobs\Payments\Actions\CreateNewPaymentForPackage;
+use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -18,9 +21,14 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
+use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
+use Carbon\Carbon;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class UpdatePackageStatusByEvent
 {
+    use DispatchesJobs;
     /**
      * Handle the event.
      *
@@ -99,6 +107,41 @@ class UpdatePackageStatusByEvent
 
                 if ($package->customer->id === $user->id && $user instanceof Customer) {
                     $package->setAttribute('status', Package::STATUS_REVAMP)->save();
+                }
+                break;
+            case $event instanceof Nicepay\NewRegistrationVA:
+                /** @var Package $package */
+                $package = $event->package;
+
+                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
+
+                /** @var Gateway $gateway */
+                $gateway = Gateway::query()->find(3);
+
+                $jobs = new CreateNewPaymentForPackage($package, $gateway, [
+                    'service_type' => Payment::SERVICE_TYPE_PAYMENT,
+                    'payment_amount' => $package->total_amount,
+                    'payment_ref_id' => $event->response->tXid,
+                ]);
+                $this->dispatchNow($jobs);
+                break;
+            case $event instanceof Nicepay\PayingByVA:
+                $params = $event->params;
+
+                if ($params->status == 0) {
+                    /** @var Package $package */
+                    $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
+                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
+
+                    Payment::query()
+                        ->where('payment_ref_id', $params->tXid)
+                        ->update([
+                            'status' => Payment::STATUS_SUCCESS,
+                            'sender_bank' => $params->bankCd == 'CENA' ? 'BCA' : 'OTHERS',
+                            'sender_name' => $params->billingNm,
+                            'sender_account' => $params->vacctNo,
+                            'confirmed_at' => Carbon::now(),
+                        ]);
                 }
                 break;
         }
