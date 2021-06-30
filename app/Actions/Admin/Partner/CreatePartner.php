@@ -145,7 +145,11 @@ class CreatePartner
         $this->validate_pool();
         $this->dispatch($this->jobWarehouse);
 
-        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->jobWarehouse->warehouse, $this->attributes['warehouse']['inventories']);
+        foreach ($this->attributes as $key => $value) {
+            $this->attributes['warehouse']['inventories'][$key] = $this->jobWarehouse->warehouse->id;
+        };
+
+        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->attributes['warehouse']['inventories']);
 
         $this->dispatch($this->jobInventory);
     }

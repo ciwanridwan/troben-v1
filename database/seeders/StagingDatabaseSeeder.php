@@ -39,6 +39,7 @@ class StagingDatabaseSeeder extends Seeder
         $this->command->getOutput()->title('Common seeder');
         $this->call([
             UsersTableSeeder::class,
+            WarehousesTableSeeder::class,
             GeoTableSimpleSeeder::class,
             CustomersTableSeeder::class,
             ServiceTableSeeder::class,
