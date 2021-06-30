@@ -1,0 +1,43 @@
+_id: req_8a72a6af3307498da72486d1774143f3
+type: Request
+parentId: fld_dff509231e04403b8311f8ad217a3c10
+modified: 1625019171919
+created: 1624676517311
+url: "{{ _.base_url }}/payment/nicepay/registration/qris/zbYweEBy"
+name: Registration VA
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: bank_code
+      value: MANDIRI
+      description: ""
+      id: pair_9cc3665fb9754159ae25ceac52d04a34
+      disabled: true
+    - name: ""
+      value: ""
+      description: ""
+      id: pair_7157dae0963b4f549cc8725d4c009825
+      disabled: true
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_c8270ceea235493aaaad719a2460767c
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_f99faab5f80e487492d363f2b9aff9d1
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1624676517311
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
