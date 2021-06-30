@@ -47,12 +47,20 @@ class CreateNewPayment
      */
     public function handle()
     {
+
         $defaultPaymentAttributes = [
-            'gateway_id' => $this->gateway->id,
-            'payment_admin_charges' => $this->gateway->admin_charges,
-            'total_payment' => $this->attributes['payment_amount'] + $this->gateway->admin_charges,
+            'total_payment' => $this->attributes['payment_amount'],
             'status' => Payment::STATUS_PENDING //payment was created not paid by customer
         ];
+
+        $defaultGatewayAttributes = [];
+        if ($this->gateway->exists) {
+            $defaultGatewayAttributes = [
+                'gateway_id' => $this->gateway->id,
+                'payment_admin_charges' => $this->gateway->admin_charges,
+            ];
+            $defaultPaymentAttributes['total_payment'] += $defaultGatewayAttributes['payment_admin_charges'];
+        }
 
         $this->attributes = array_merge($defaultPaymentAttributes, $this->attributes);
 

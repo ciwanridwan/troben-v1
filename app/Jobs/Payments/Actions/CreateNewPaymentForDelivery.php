@@ -25,11 +25,17 @@ class CreateNewPaymentForDelivery
      * @param Gateway $gateway
      * @param array $inputs
      */
-    public function __construct(Delivery $delivery, Gateway $gateway, $inputs = [])
+    public function __construct(Delivery $delivery)
     {
         $this->delivery = $delivery;
-        $this->gateway = $gateway;
-        $this->attributes = $inputs;
+        $this->attributes = [
+            'service_type' => '',
+            'payment_amount' => '',
+            'sender_bank' => '',
+            'sender_account' => '',
+            'sender_name' => '',
+        ];
+        $this->gateway = new Gateway();
     }
 
     /**
@@ -39,8 +45,17 @@ class CreateNewPaymentForDelivery
      */
     public function handle()
     {
+        switch ($this->delivery->type) {
+            case Delivery::TYPE_PICKUP:
+                # code...
+                break;
+
+            default:
+                # code...
+                break;
+        }
         $job = new CreateNewPayment($this->delivery, $this->gateway, $this->attributes);
-        dispatch_now($job);
+        dispatch_sync($job);
         $this->payment = $job->payment;
         return $this->payment->exists;
     }

@@ -43,6 +43,8 @@ class Payment extends Model
     public const SERVICE_TYPE_PAYMENT = 'pay';
     public const SERVICE_TYPE_REVERSAL = 'rev';
     public const SERVICE_TYPE_WITHDRAWAL = 'wdr';
+    public const SERVICE_TYPE_DEPOSIT = 'dep';
+
 
     /**
      * The attributes that are mass assignable.
