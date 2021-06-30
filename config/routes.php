@@ -61,6 +61,7 @@ return [
         App\Http\Routes\Api\Partner\Warehouse\Manifest\TransitRoute::class,
         App\Http\Routes\Api\Partner\Driver\Order\DooringRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\DooringRoute::class,
+        App\Http\Routes\Api\Payment\NicepayRoute::class,
         /** @inject api **/
     ],
     'admin' => [
