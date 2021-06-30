@@ -12,7 +12,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Inventory\ManyInventoryCreated;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Models\Partners\Warehouse;
-use Database\Seeders\UsersTableSeeder;
 use Database\Seeders\WarehousesTableSeeder;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,12 +20,12 @@ class InventoryCreationManyTest extends TestCase
 {
     use RefreshDatabase, DispatchesJobs, WithFaker;
 
+    public bool $seed = true;
+
     private $data;
     private Partner $partner;
     private Inventory $inventory;
     private Warehouse $warehouse;
-
-    public bool $seed = true;
 
     public function setUp(): void
     {
