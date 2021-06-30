@@ -1,5 +1,6 @@
 <template>
   <div>
+    <loading-modal v-model="loading" />
     <vue-html2pdf
       :filename="fileName"
       :enable-download="false"
@@ -53,9 +54,11 @@
 </template>
 <script>
 import VueHtml2pdf from "vue-html2pdf";
+import LoadingModal from "../orders/modal/loading-modal.vue";
 export default {
   components: {
-    VueHtml2pdf
+    VueHtml2pdf,
+    LoadingModal
   },
   props: {
     value: {
@@ -80,7 +83,8 @@ export default {
       contentHeight: 1400,
       domRendered: false,
       footer: undefined,
-      align: "center"
+      align: "center",
+      loading: false
     };
   },
   computed: {
@@ -95,8 +99,9 @@ export default {
     hideModal() {
       this.visible = false;
     },
-    saveToPdf() {
-      this.$refs.html2Pdf.generatePdf();
+    async saveToPdf() {
+      this.loading = true;
+      await this.$refs.html2Pdf.generatePdf();
     },
     startPagination(event) {
       console.log(event);
@@ -111,7 +116,9 @@ export default {
         .toContainer()
         .toCanvas()
         .toPdf();
-      worker.save();
+      worker.save().then(() => {
+        this.loading = false;
+      });
     },
     onProgress(event) {
       console.log(event, "on Progress");

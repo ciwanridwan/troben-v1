@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models\Packages;
+
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;

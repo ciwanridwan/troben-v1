@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Inventory\ManyInventoryCreated;
+use App\Models\Partners\Warehouse;
 
 class CreateManyNewInventory
 {
@@ -22,6 +23,12 @@ class CreateManyNewInventory
      * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
+
+
+    /**
+     * @var Warehouse
+     */
+    public Warehouse $warehouse;
 
     /**
      * Collection inventories.
@@ -49,9 +56,10 @@ class CreateManyNewInventory
      *
      * @return void
      */
-    public function __construct(Partner $partner, $inputs = [])
+    public function __construct(Partner $partner, Warehouse $warehouse, $inputs = [])
     {
         $this->partner = $partner;
+        $this->warehouse = $warehouse;
         $this->attributes = Validator::make($inputs, [
             '*.name' => ['required', 'string', 'max:255'],
             '*.capacity' => ['required', 'numeric'],
@@ -67,7 +75,13 @@ class CreateManyNewInventory
      */
     public function handle()
     {
+
         $this->inventories = $this->partner->inventories()->createMany($this->attributes);
+
+        if ($this->warehouse) {
+            $this->inventories->each(fn (Inventory $inventory) => $inventory->setAttribute('warehouse_id', $this->warehouse->id)->save());
+        }
+
         if ($this->inventories) {
             event(new ManyInventoryCreated($this->partner->inventories));
         }

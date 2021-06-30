@@ -35,9 +35,10 @@
   </div>
 </template>
 <script>
-import trawlInput from "../../../../../components/trawl-input.vue";
+import TrawlInput from "../../../trawl-input.vue";
+
 export default {
-  components: { trawlInput },
+  components: { TrawlInput },
   data() {
     return {
       form: {
@@ -51,6 +52,14 @@ export default {
         height: [{ required: true }]
       }
     };
+  },
+  watch: {
+    form: {
+      handler: function(value) {
+        this.$emit("input", value);
+      },
+      deep: true
+    }
   }
 };
 </script>

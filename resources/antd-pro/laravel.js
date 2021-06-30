@@ -48,7 +48,7 @@ const laravel = {
       let messages = err.response.data.data;
       _.map(messages, message => {
         this.$notification.error({
-          message: _.head(message)
+          message
         });
       });
     },
