@@ -45,13 +45,13 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         PackageCreated::class => [
-            GeneratePackagePrices::class,
             UpdatePackageTotalWeightByEvent::class,
+            GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
         PackageUpdated::class => [
-            GeneratePackagePrices::class,
             UpdatePackageTotalWeightByEvent::class,
+            GeneratePackagePrices::class,
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
