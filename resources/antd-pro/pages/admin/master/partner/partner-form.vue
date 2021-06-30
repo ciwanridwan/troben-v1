@@ -1,124 +1,183 @@
 <template>
   <content-layout>
-    <template slot="title" :gutter="[10, 10]">
-      <a-row type="flex" :gutter="48">
-        <a-col :span="2">
-          <a :href="routeUri('admin.master.partner')">
-            <a-button icon="left" />
-          </a>
-        </a-col>
-        <a-col>
-          <h3>Tambah Mitra</h3>
-        </a-col>
-      </a-row>
-    </template>
-
     <template slot="content">
-      <a-card id="partner-form">
-        <a-form-model ref="ruleForm" :rules="rules" :model="form">
-          <a-row type="flex">
-            <a-col :span="8">
-              <trawl-input label="Jenis Mitra">
-                <template slot="input">
-                  <a-form-model-item ref="type" prop="type">
-                    <a-select :default-value="form.type" v-model="form.type">
-                      <a-select-option
-                        v-for="type in partner_types"
-                        :key="type"
-                        :value="type"
-                      >
-                        {{ type }}
-                      </a-select-option>
-                    </a-select>
+      <a-form-model ref="formRules" :model="form" :rules="rules">
+        <a-card>
+          <a-space direction="vertical">
+            <a-row type="flex">
+              <a-col :span="8">
+                <a-space :style="{ width: '100%' }" direction="vertical">
+                  <h3 class="trawl-text-normal trawl-text-bold">Jenis Mitra</h3>
+                  <a-form-model-item prop="type">
+                    <partner-form-type v-model="form.type" />
                   </a-form-model-item>
-                </template>
-              </trawl-input>
+                </a-space>
+              </a-col>
+            </a-row>
+
+            <a-form-model-item prop="location">
+              <partner-form-location :geo="geo" v-model="form.location" />
+            </a-form-model-item>
+
+            <a-row v-if="isTypeTransporter" type="flex">
+              <a-col :span="8">
+                <a-form-model-item prop="transporter.responsibles">
+                  <partner-form-responsible-area
+                    :regencies="regencies"
+                    v-model="form.transporter.responsibles"
+                  />
+                </a-form-model-item>
+              </a-col>
+            </a-row>
+          </a-space>
+
+          <a-divider />
+
+          <a-form-model-item prop="owner">
+            <partner-owner-form v-model="form.owner" />
+          </a-form-model-item>
+
+          <template v-if="isTypeSpace">
+            <a-divider />
+
+            <a-form-model-item prop="space">
+              <partner-space-form v-model="form.space" />
+            </a-form-model-item>
+          </template>
+
+          <template v-if="isTypePool">
+            <a-divider />
+            <a-form-model-item prop="warehouse.inventories">
+              <partner-inventory v-model="form.warehouse.inventories" />
+            </a-form-model-item>
+          </template>
+
+          <template v-if="isTypeTransporter">
+            <a-form-model-item prop="transporter.transporters">
+              <partner-transporters
+                :transporterTypes="transporter_types"
+                v-model="form.transporter.transporters"
+              />
+            </a-form-model-item>
+          </template>
+
+          <a-row type="flex" justify="end">
+            <a-col :span="8">
+              <a-button
+                type="success"
+                class="trawl-button-success"
+                block
+                @click="submit"
+              >
+                Simpan
+              </a-button>
             </a-col>
           </a-row>
-        </a-form-model>
-
-        <partner-form-location
-          ref="location"
-          :geo="geo"
-        ></partner-form-location>
-
-        <div v-if="form.type !== null">
-          <partner-transporter-form
-            v-if="form.type == 'transporter'"
-            :geo="geo"
-          ></partner-transporter-form>
-        </div>
-
-        <hr />
-
-        <partner-owner-form ref="owner"></partner-owner-form>
-
-        <div v-if="form.type !== null" class="addon">
-          <hr />
-          <partner-space-form
-            ref="space"
-            v-if="addon_space >= 0"
-          ></partner-space-form>
-
-          <inventory ref="inventory" v-if="addon_inventory >= 0"></inventory>
-
-          <transporters
-            ref="transporter"
-            v-if="addon_transporter >= 0"
-            :transporter-types="transporter_types"
-          ></transporters>
-        </div>
-
-        <hr v-else />
-
-        <a-row type="flex" justify="end" :gutter="[10, 10]">
-          <a-col>
-            <a-button> Batal </a-button>
-          </a-col>
-          <a-col>
-            <a-button type="primary" @click="onPost"> Simpan </a-button>
-          </a-col>
-        </a-row>
-      </a-card>
+        </a-card>
+      </a-form-model>
     </template>
   </content-layout>
 </template>
 <script>
-import TrawlInput from "../../../../components/trawl-input.vue";
+import {
+  TYPE_BUSINESS,
+  TYPE_POOL,
+  TYPE_SPACE,
+  TYPE_TRANSPORTER
+} from "../../../../data/partnerType";
+import PartnerFormType from "../../../../components/partners/form/partner-form-type.vue";
 import contentLayout from "../../../../layouts/content-layout.vue";
-import Inventory from "./inventory/inventory";
-import PartnerFormLocation from "./partner-form-location.vue";
-import PartnerOwnerForm from "./partner-owner-form.vue";
-import PartnerSpaceForm from "./space/partner-space-form.vue";
-import PartnerTransporterForm from "./transporter/partner-transporter-form.vue";
-import Transporters from "./transporter/transporters.vue";
-
+import PartnerFormLocation from "../../../../components/partners/form/partner-form-location.vue";
+import PartnerFormResponsibleArea from "../../../../components/partners/form/transporter/partner-form-responsible-area.vue";
+import PartnerOwnerForm from "../../../../components/partners/form/partner-owner-form.vue";
+import PartnerTransporters from "../../../../components/partners/form/transporter/partner-transporters.vue";
+import PartnerSpaceForm from "../../../../components/partners/form/space/partner-space-form.vue";
 export default {
   components: {
     contentLayout,
+    PartnerFormType,
     PartnerFormLocation,
-    PartnerTransporterForm,
+    PartnerFormResponsibleArea,
     PartnerOwnerForm,
-    Transporters,
-    Inventory,
-    PartnerSpaceForm,
-    TrawlInput
+    PartnerTransporters,
+    PartnerSpaceForm
   },
   data() {
     return {
       geo: {},
       partner_types: [],
       transporter_types: [],
-      valid: false,
       form: {
         type: null,
-        name: "test"
+        location: null,
+        transporter: {
+          responsibles: null,
+          transporters: []
+        },
+        warehouse: {
+          inventories: []
+        },
+        owner: null,
+        space: null
       },
       rules: {
-        type: [{ required: true }],
-        name: [{ required: true }]
+        type: [{ required: true, trigger: ["change", "blur"] }],
+        location: [{ required: true, trigger: ["change", "blur"] }],
+        transporter: [{ required: true, trigger: ["change", "blur"] }],
+        "transporter.responsibles": [
+          { required: true, trigger: ["change", "blur"] }
+        ],
+        // "transporter.transporters": [{ required: true ,trigger:['change','blur']}],
+        warehouse: [{ required: true, trigger: ["change", "blur"] }],
+        // "warehouse.inventories": [{ required: true ,trigger:['change','blur']}],
+        owner: [{ required: true, trigger: ["change", "blur"] }],
+        space: [{ required: true, trigger: ["change", "blur"] }]
       }
     };
+  },
+  computed: {
+    regencies() {
+      return this.geo?.regencies ?? [];
+    },
+    isTypeTransporter() {
+      return [TYPE_TRANSPORTER, TYPE_BUSINESS].indexOf(this.form?.type) > -1;
+    },
+    isTypePool() {
+      return [TYPE_POOL, TYPE_BUSINESS].indexOf(this.form?.type) > -1;
+    },
+    isTypeSpace() {
+      return (
+        [TYPE_SPACE, TYPE_POOL, TYPE_BUSINESS].indexOf(this.form?.type) > -1
+      );
+    },
+    partner() {
+      return {
+        name: this.form?.owner?.name,
+        contact_email: this.form?.owner?.email,
+        contact_phone: this.form?.owner?.phone,
+        type: this.form.type,
+        ...this.form.location
+      };
+    },
+    warehouse() {
+      return {
+        ...this.form.warehouse,
+        ...this.form.space
+      };
+    },
+    transporter() {
+      return {
+        ...this.form.transporter.transporters
+      };
+    },
+    sendForm() {
+      return {
+        ...this.form,
+        partner: this.partner,
+        warehouse: this.warehouse,
+        transporter: this.transporter
+      };
+    }
   },
   methods: {
     onSuccessResponse(resp) {
@@ -128,134 +187,27 @@ export default {
       this.partner_types = data.partner_types;
       this.transporter_types = data.transporter_types;
     },
-    onSuccessStore(resp) {
-      this.$notification.success({
-        message: "Partner Has Been Created"
-      });
-      window.location.href = this.routeUri("admin.master.partner");
-    },
-
-    onPost() {
-      let form = {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        },
-        ...this.partnerForm,
-        ...this.ownerForm
-      };
-
-      switch (this.form.type) {
-        case "pool":
-          form = { ...form, ...this.poolData };
-          break;
-        case "business":
-          form = { ...form, ...this.businessData };
-          break;
-        case "space":
-          form = { ...form, ...this.spaceData };
-          break;
-        case "transporter":
-          form = { ...form, ...this.transporterData };
-          break;
-      }
-
-      if (this.valid) {
-        this.$http
-          .post(this.routeUri(this.getRoute()), form)
-          .then(this.onSuccessStore)
-          .catch(this.onErrorValidation);
-      } else {
-        this.$notification.error({
-          message: "Silahkan isi form tersebut"
-        });
-      }
-    }
-  },
-  created() {
-    this.getItems();
-  },
-  computed: {
-    partnerForm() {
-      let location = this.$refs.location;
-      location.$refs.ruleForm.validate(valid => {
-        this.valid = valid;
-      });
-
-      this.$refs.ruleForm.validate(valid => {
-        this.valid = valid;
-      });
-
-      return {
-        partner: {
-          ...location.$data.form,
-          ...this.form
+    submit() {
+      this.$refs.formRules.validate(valid => {
+        if (valid) {
+          this.$http.post(
+            this.routeUri("admin.master.partner.store"),
+            this.sendForm
+          );
         }
-      };
-    },
-
-    ownerForm() {
-      let owner = this.$refs.owner;
-      owner.$refs.ruleForm.validate(valid => {
-        this.valid = valid;
       });
-      return { owner: owner.$data.form, photo: owner.$data.form.photo };
-    },
-    transporterForm() {
-      return { transporter: this.$refs.transporter.$data.form };
-    },
-    inventoryForm() {
-      return { inventory: this.$refs.inventory.$data.form };
-    },
-    spaceForm() {
-      let space = this.$refs.space;
-      space.$refs.ruleForm.validate(valid => {
-        this.valid = valid;
-      });
-      return { warehouse: space.$data.form };
-    },
-    poolData() {
-      return {
-        ...this.spaceForm,
-        ...this.inventoryForm
-      };
-    },
-    spaceData() {
-      return {
-        ...this.spaceForm
-      };
-    },
-    transporterData() {
-      return {
-        ...this.transporterForm
-      };
-    },
-    businessData() {
-      return {
-        ...this.spaceForm,
-        ...this.inventoryForm,
-        ...this.transporterForm
-      };
-    },
-    addon_inventory() {
-      return _.indexOf(["business", "pool"], this.form.type);
-    },
-    addon_space() {
-      return _.indexOf(["business", "space", "pool"], this.form.type);
-    },
-    addon_transporter() {
-      return _.indexOf(["business", "transporter"], this.form.type);
     }
+  },
+  watch: {
+    form: {
+      handler: function(value) {
+        // this.$refs.formRules.validate();
+      },
+      deep: true
+    }
+  },
+  mounted() {
+    this.getItems();
   }
 };
 </script>
-
-<style lang="scss">
-#partner-form {
-  .ant-card-body > * {
-    margin-bottom: 24px;
-  }
-  .addon > * {
-    margin-bottom: 24px;
-  }
-}
-</style>

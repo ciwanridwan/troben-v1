@@ -16,6 +16,7 @@ use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
 use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
 use App\Jobs\Users\Actions\VerifyExistingUser;
+use App\Models\Partners\Warehouse;
 
 class CreatePartner
 {
@@ -76,6 +77,7 @@ class CreatePartner
 
     public function create()
     {
+
         // temp owner info same as partner info
         $this->attributes['partner']['contact_email'] = $this->attributes['owner']['email'];
         $this->attributes['partner']['contact_phone'] = $this->attributes['owner']['phone'];
@@ -90,7 +92,6 @@ class CreatePartner
         } catch (Exception $e) {
             $this->jobDeleteUser = new DeleteExistingUser($this->user, true);
             $this->dispatch($this->jobDeleteUser);
-
             return (new Response(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]))->json();
         }
 
@@ -100,20 +101,20 @@ class CreatePartner
         $job = new VerifyExistingUser($this->user);
         $this->dispatch($job);
 
-        // switch ($this->attributes['partner']['type']) {
-        //     case Partner::TYPE_POOL:
-        //         $this->create_pool();
-        //         break;
-        //     case Partner::TYPE_BUSINESS:
-        //         $this->create_business();
-        //         break;
-        //     case Partner::TYPE_SPACE:
-        //         $this->create_space();
-        //         break;
-        //     case Partner::TYPE_TRANSPORTER:
-        //         $this->create_transporter();
-        //         break;
-        // }
+        switch ($this->attributes['partner']['type']) {
+            case Partner::TYPE_POOL:
+                $this->create_pool();
+                break;
+            case Partner::TYPE_BUSINESS:
+                $this->create_business();
+                break;
+            case Partner::TYPE_SPACE:
+                $this->create_space();
+                break;
+            case Partner::TYPE_TRANSPORTER:
+                $this->create_transporter();
+                break;
+        }
 
         return (new Response(Response::RC_SUCCESS, $this->partner))->json();
     }
@@ -142,11 +143,20 @@ class CreatePartner
     public function create_pool()
     {
         $this->validate_pool();
+        $this->dispatch($this->jobWarehouse);
+
+        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->jobWarehouse->warehouse, $this->attributes['warehouse']['inventories']);
+
         $this->dispatch($this->jobInventory);
     }
     public function validate_pool()
     {
-        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->attributes['inventory']);
+        // temp warehouse info same as partner
+        $this->attributes['warehouse'] += $this->attributes['partner'];
+
+        $this->jobWarehouse = new CreateNewWarehouse($this->partner, $this->attributes['warehouse']);
+
+        $this->jobInventory = new CreateManyNewInventory($this->partner, new Warehouse(), $this->attributes['warehouse']['inventories']);
     }
 
     public function create_transporter()
@@ -174,9 +184,6 @@ class CreatePartner
 
     public function validate_space()
     {
-        // temp warehouse info same as partner
-        $this->attributes['warehouse'] += $this->attributes['partner'];
-
         $this->jobWarehouse = new CreateNewWarehouse($this->partner, $this->attributes['warehouse']);
     }
 

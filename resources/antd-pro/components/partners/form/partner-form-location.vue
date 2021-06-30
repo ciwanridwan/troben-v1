@@ -3,7 +3,7 @@
     <h2>Lokasi Mitra</h2>
 
     <a-form-model
-      ref="ruleForm"
+      ref="formRules"
       :rules="rules"
       :model="form"
       layout="vertical"
@@ -116,9 +116,9 @@
   </div>
 </template>
 <script>
-import trawlInput from "../../../../components/trawl-input.vue";
+import TrawlInput from "../../trawl-input.vue";
 export default {
-  components: { trawlInput },
+  components: { TrawlInput },
   props: {
     geo: {
       type: Object
@@ -135,10 +135,10 @@ export default {
         address: null
       },
       rules: {
-        regency: [{ required: true }],
-        province: [{ required: true }],
-        district: [{ required: true }],
-        sub_district: [{ required: true }],
+        geo_regency_id: [{ required: true }],
+        geo_province_id: [{ required: true }],
+        geo_district_id: [{ required: true }],
+        geo_sub_district_id: [{ required: true }],
         zip_code: [{ required: true }]
       }
     };
@@ -170,8 +170,13 @@ export default {
   watch: {
     "form.geo_sub_district_id": function(value) {
       this.form.zip_code = this.zip_code;
+    },
+    form: {
+      handler: function(value) {
+        this.$emit("input", value);
+      },
+      deep: true
     }
-  },
-  created() {}
+  }
 };
 </script>

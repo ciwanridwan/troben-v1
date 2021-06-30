@@ -77,22 +77,7 @@
             <template slot="label">
               <h3>Foto Owner</h3>
             </template>
-            <a-upload
-              :before-upload="handleBeforeUpload"
-              :show-upload-list="false"
-            >
-              <img
-                id="owner-photo-preview"
-                v-if="photoPreview"
-                :src="photoPreview"
-              />
-              <a-button
-                v-else
-                icon="plus"
-                size="large"
-                type="primary"
-              ></a-button>
-            </a-upload>
+            <trawl-upload-list :maxFile="1" v-model="form.photo" />
           </a-form-model-item>
         </a-col>
       </a-row>
@@ -101,9 +86,10 @@
 </template>
 
 <script>
-import trawlInput from "../../../../components/trawl-input.vue";
+import trawlInput from "../../trawl-input.vue";
+import TrawlUploadList from "../../trawl-upload-list.vue";
 export default {
-  components: { trawlInput },
+  components: { trawlInput, TrawlUploadList },
 
   data() {
     return {
@@ -131,13 +117,12 @@ export default {
       }
     };
   },
-  methods: {
-    handleBeforeUpload(file) {
-      this.getBase64(file, imageUrl => {
-        this.photoPreview = imageUrl;
-      });
-      this.form.photo = file;
-      return false;
+  watch: {
+    form: {
+      handler: function(value) {
+        this.$emit("input", value);
+      },
+      deep: true
     }
   }
 };

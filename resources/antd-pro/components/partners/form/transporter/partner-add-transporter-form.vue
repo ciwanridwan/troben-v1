@@ -117,9 +117,7 @@
   </div>
 </template>
 <script>
-import trawlInput from "../../../../../components/trawl-input.vue";
 export default {
-  components: { trawlInput },
   data() {
     return {
       visible: false,
@@ -151,11 +149,11 @@ export default {
   props: {
     types: {
       type: Array,
-      default: []
+      default: () => {}
     },
     transporters: {
       type: Array,
-      default: []
+      default: () => {}
     }
   },
   methods: {
@@ -175,7 +173,8 @@ export default {
     onOk() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          this.transporters.push({ ...this.form });
+          this.$emit("input", { ...this.form });
+          this.$emit("submit", { ...this.form });
           this.$refs.ruleForm.resetFields();
           this.closeForm();
         }
