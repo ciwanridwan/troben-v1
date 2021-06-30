@@ -33,14 +33,12 @@ class CreateNewPaymentForPackage
     }
 
     /**
-     * Execute the job.
-     *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $job = new CreateNewPayment($this->package, $this->gateway, $this->attributes);
-        dispatch_now($job);
+        dispatch_sync($job);
         $this->payment = $job->payment;
         return $this->payment->exists;
     }

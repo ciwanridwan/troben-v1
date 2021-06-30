@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sender_account
  * @property string $payment_ref_id
  * @property string $status
+ * @property \Carbon\Carbon $expired_at
  * @property int $confirmed_by
  * @property \Carbon\Carbon $confirmed_at
  * @property \Carbon\Carbon $created_at

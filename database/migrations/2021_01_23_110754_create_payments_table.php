@@ -35,6 +35,8 @@ class CreatePaymentsTable extends Migration
 
             $table->string('status')->default(Payment::STATUS_PENDING);
 
+            $table->timestamp('expired_at')->nullable();
+
             $table->unsignedBigInteger('confirmed_by')->nullable(); // null => auto approve by system.
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamps();

@@ -50,7 +50,9 @@ class CreateNewPayment
         $defaultPaymentAttributes = [
             'gateway_id' => $this->gateway->id,
             'payment_admin_charges' => $this->gateway->admin_charges,
-            'total_payment' => $this->attributes['payment_amount'] + $this->gateway->admin_charges,
+            'total_payment' => $this->gateway->is_fixed
+                ? $this->attributes['payment_amount'] + $this->gateway->admin_charges
+                : $this->attributes['payment_amount'] + ($this->attributes['payment_amount'] * $this->gateway->admin_charges / 100),
             'status' => Payment::STATUS_PENDING //payment was created not paid by customer
         ];
 
