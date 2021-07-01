@@ -19,7 +19,6 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
-use App\Models\Packages\Item;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -87,7 +86,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -129,7 +128,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -194,7 +193,7 @@ class OrderController extends Controller
         $code = Code::query()->where('content', $request->code)->first();
         $codeable = $code->codeable;
 
-        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
+        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
