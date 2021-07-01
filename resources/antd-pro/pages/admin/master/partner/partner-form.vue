@@ -200,10 +200,10 @@ export default {
     submit() {
       this.$refs.formRules.validate(valid => {
         if (valid) {
-          this.visible = true;
           this.$http
             .post(this.routeUri("admin.master.partner.store"), this.sendForm)
             .then(() => {
+              this.visible = true;
               setTimeout(() => {
                 window.location.href = this.routeUri("admin.master.partner");
               }, 3000);
