@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\Relation;

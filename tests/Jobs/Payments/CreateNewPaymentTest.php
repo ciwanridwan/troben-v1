@@ -7,7 +7,6 @@ use App\Jobs\Payments\Actions\CreateNewPaymentForPackage;
 use App\Jobs\Payments\CreateNewPayment;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Database\Seeders\Packages\AssignedPackagesSeeder;

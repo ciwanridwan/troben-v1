@@ -61,11 +61,11 @@ class SendMessage
 
     protected function createOtpMessage(): string
     {
-        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage . $this->otp->token, $this->otpPostMessage]);
+        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage]);
     }
     protected function createAuth($params): string
     {
-        $content = self::SMS_MASKING_USERNAME . self::SMS_MASKING_PASSWORD . $params['mobile'];
+        $content = self::SMS_MASKING_USERNAME.self::SMS_MASKING_PASSWORD.$params['mobile'];
         return hash('md5', $content);
     }
 }

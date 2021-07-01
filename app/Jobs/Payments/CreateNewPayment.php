@@ -28,7 +28,6 @@ class CreateNewPayment
      */
     public function __construct(Model $payableModel, Gateway $gateway, $inputs = [])
     {
-
         $this->payableModel = $payableModel;
         $this->gateway = $gateway;
         Validator::validate($inputs, [
@@ -48,7 +47,6 @@ class CreateNewPayment
      */
     public function handle()
     {
-
         $defaultPaymentAttributes = [
             'total_payment' => $this->attributes['payment_amount'],
             'status' => Payment::STATUS_PENDING //payment was created not paid by customer
