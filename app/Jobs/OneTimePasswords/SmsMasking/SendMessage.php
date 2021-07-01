@@ -7,6 +7,7 @@ use App\Http\Response;
 use App\Models\OneTimePassword;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Bus\Dispatchable;
+use libphonenumber\PhoneNumberUtil;
 
 class SendMessage
 {
@@ -30,7 +31,11 @@ class SendMessage
     public function __construct(OneTimePassword $otp, string $destination_number)
     {
         $this->otp = $otp;
-        $this->destination_number = $destination_number;
+        $this->destination_number = PhoneNumberUtil::getInstance()->formatNumberForMobileDialing(
+            PhoneNumberUtil::getInstance()->parse($destination_number, 'ID'),
+            'ID',
+            false
+        );
     }
 
     /**
@@ -56,11 +61,11 @@ class SendMessage
 
     protected function createOtpMessage(): string
     {
-        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage]);
+        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage . $this->otp->token, $this->otpPostMessage]);
     }
     protected function createAuth($params): string
     {
-        $content = self::SMS_MASKING_USERNAME.self::SMS_MASKING_PASSWORD.$params['mobile'];
+        $content = self::SMS_MASKING_USERNAME . self::SMS_MASKING_PASSWORD . $params['mobile'];
         return hash('md5', $content);
     }
 }

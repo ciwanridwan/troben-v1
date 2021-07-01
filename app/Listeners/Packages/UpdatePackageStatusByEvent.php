@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Deliveries\Dooring;
 use App\Events\Payment\Nicepay;
 use App\Jobs\Payments\Actions\CreateNewPaymentForPackage;
 use App\Models\Code;
@@ -55,6 +56,11 @@ class UpdatePackageStatusByEvent
                     ->cursor()
                     ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_TRANSIT && $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', true)->save());
+                break;
+            case $event instanceof Dooring\DriverUnloadedPackageInDooringPoint:
+                /** @var Package $package */
+                $package = $event->package;
+                $package->setAttribute('status', Package::STATUS_DELIVERED)->save();
                 break;
             case $event instanceof WarehouseIsEstimatingPackage:
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATING);

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -39,6 +40,9 @@ class Transporter extends Model
         HashableId,
         HasFactory,
         CanSearch;
+
+    public const GENERAL_TYPE_BIKE = 'bike';
+    public const GENERAL_TYPE_CAR = 'car';
 
     public const TYPE_BIKE = 'bike';
     public const TYPE_MPV = 'mpv';
@@ -145,6 +149,51 @@ class Transporter extends Model
             self::TYPE_TRONTON,
             self::TYPE_WINGBOX,
             self::TYPE_VAN,
+        ];
+    }
+
+    public static function getGeneralType($type)
+    {
+        foreach (self::getAvailableGeneralTypes() as $key => $value) {
+            if (in_array($type, $value)) {
+                return $key;
+            }
+        }
+    }
+
+    public static function getAvailableGeneralTypes()
+    {
+        return [
+            self::GENERAL_TYPE_BIKE => [
+                self::TYPE_BIKE
+            ],
+            self::GENERAL_TYPE_CAR => [
+                self::TYPE_MPV,
+                self::TYPE_PICKUP,
+                self::TYPE_PICKUP_BOX,
+                self::TYPE_CDE_ENGKEL,
+                self::TYPE_CDE_ENGKEL_BOX,
+                self::TYPE_CDE_ENGKEL_DOUBLE,
+                self::TYPE_CDE_ENGKEL_DOUBLE_BOX,
+                self::TYPE_CDE_ENGKEL_BAK,
+                self::TYPE_CDD_DOUBLE_BAK,
+                self::TYPE_CDD_DOUBLE_BOX,
+                self::TYPE_FUSO_BOX,
+                self::TYPE_FUSO_BAK,
+                self::TYPE_FUSO_6M,
+                self::TYPE_FUSO_9M,
+                self::TYPE_TRONTON,
+                self::TYPE_WINGBOX,
+                self::TYPE_VAN,
+            ]
+        ];
+    }
+
+    public static function getAvailableTransporterPrices()
+    {
+        return [
+            self::GENERAL_TYPE_BIKE => 10000,
+            self::GENERAL_TYPE_CAR => 25000
         ];
     }
 

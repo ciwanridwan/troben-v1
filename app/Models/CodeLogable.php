@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Code\Showable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -23,7 +24,7 @@ class CodeLogable extends MorphPivot
     public const SHOW_CUSTOMER = 'customer';
     public const SHOW_PARTNER = 'partner';
     public const SHOW_ADMIN = 'admin';
-    public const SHOW_ALL = self::SHOW_CUSTOMER.','.self::SHOW_PARTNER.','.self::SHOW_ADMIN;
+    public const SHOW_ALL = self::SHOW_CUSTOMER . ',' . self::SHOW_PARTNER . ',' . self::SHOW_ADMIN;
     public static $staticMakeVisible;
     protected $table = 'code_logables';
 
@@ -40,6 +41,17 @@ class CodeLogable extends MorphPivot
         'updated_at',
         'deleted_at',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'showable' => Showable::class,
+    ];
+
+
 
     public function __construct($attributes = [])
     {
@@ -73,7 +85,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Package::getStatusConst() as $status => $statusValue) {
             foreach (Package::getPaymentStatusConst() as $paymentStatus => $paymentStatusValue) {
-                $statuses[$status.'_'.$paymentStatus] = $statusValue.'_'.$paymentStatusValue;
+                $statuses[$status . '_' . $paymentStatus] = $statusValue . '_' . $paymentStatusValue;
             }
         }
         return $statuses;
@@ -87,7 +99,7 @@ class CodeLogable extends MorphPivot
         $statuses = [];
         foreach (Delivery::getTypeConst() as $type => $typeValue) {
             foreach (Delivery::getStatusConst() as $status => $statusValue) {
-                $statuses[$type.'_'.$status] = $typeValue.'_'.$statusValue;
+                $statuses[$type . '_' . $status] = $typeValue . '_' . $statusValue;
             }
         }
         return $statuses;

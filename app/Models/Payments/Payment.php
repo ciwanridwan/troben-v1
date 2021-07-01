@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sender_account
  * @property string $payment_ref_id
  * @property string $status
+ * @property \Carbon\Carbon $expired_at
  * @property int $confirmed_by
  * @property \Carbon\Carbon $confirmed_at
  * @property \Carbon\Carbon $created_at
@@ -43,6 +44,8 @@ class Payment extends Model
     public const SERVICE_TYPE_PAYMENT = 'pay';
     public const SERVICE_TYPE_REVERSAL = 'rev';
     public const SERVICE_TYPE_WITHDRAWAL = 'wdr';
+    public const SERVICE_TYPE_DEPOSIT = 'dep';
+
 
     /**
      * The attributes that are mass assignable.
@@ -51,6 +54,7 @@ class Payment extends Model
      */
     public $fillable = [
         'gateway_id',
+        'service_type',
         'payable_type',
         'payable_id',
         'payment_amount',
@@ -110,6 +114,7 @@ class Payment extends Model
             self::SERVICE_TYPE_PAYMENT,
             self::SERVICE_TYPE_REVERSAL,
             self::SERVICE_TYPE_WITHDRAWAL,
+            self::SERVICE_TYPE_DEPOSIT
         ];
     }
 

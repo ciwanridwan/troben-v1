@@ -52,11 +52,11 @@ class GeneratePackagePrices
 
             $package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -82,8 +82,8 @@ class GeneratePackagePrices
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
-            $origin_regency = $package->origin_regency;
             try {
+                $origin_regency = $package->origin_regency;
                 $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
                 $tier = PricingCalculator::getTier($price, $package->total_weight);
                 $package->setAttribute('tier_price', $tier)->save();

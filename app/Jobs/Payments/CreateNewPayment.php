@@ -28,6 +28,7 @@ class CreateNewPayment
      */
     public function __construct(Model $payableModel, Gateway $gateway, $inputs = [])
     {
+
         $this->payableModel = $payableModel;
         $this->gateway = $gateway;
         Validator::validate($inputs, [
@@ -47,14 +48,22 @@ class CreateNewPayment
      */
     public function handle()
     {
+
         $defaultPaymentAttributes = [
-            'gateway_id' => $this->gateway->id,
-            'payment_admin_charges' => $this->gateway->admin_charges,
-            'total_payment' => $this->attributes['payment_amount'] + $this->gateway->admin_charges,
+            'total_payment' => $this->attributes['payment_amount'],
             'status' => Payment::STATUS_PENDING //payment was created not paid by customer
         ];
 
-        $this->attributes = array_merge($defaultPaymentAttributes, $this->attributes);
+        $defaultGatewayAttributes = [];
+        if ($this->gateway->exists) {
+            $defaultGatewayAttributes = [
+                'gateway_id' => $this->gateway->id,
+                'payment_admin_charges' => $this->gateway->admin_charges,
+            ];
+            $defaultPaymentAttributes['total_payment'] += $defaultGatewayAttributes['payment_admin_charges'];
+        }
+
+        $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);
 
         $this->payment = $this->payableModel->payments()->create($this->attributes);
         return $this->payment->exists;

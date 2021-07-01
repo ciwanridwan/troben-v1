@@ -214,6 +214,7 @@ class Package extends Model implements AttachableContract
     protected $casts = [
         'total_weight' => 'float',
         'total_amount' => 'float',
+        'tier_price' => 'float',
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',

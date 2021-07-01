@@ -19,7 +19,7 @@ class CreateCodeLogsTable extends Migration
             $table->foreignId('code_id')->constrained('codes')->cascadeOnDelete();
             $table->morphs('code_logable');
             $table->enum('type', CodeLogable::getAvailableTypes())->nullable();
-            $table->string('showable')->nullable();
+            $table->json('showable')->nullable();
             $table->string('status')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();

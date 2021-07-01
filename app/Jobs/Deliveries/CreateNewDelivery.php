@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries;
 
+use App\Events\Deliveries\DeliveryCreated;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
@@ -54,6 +55,9 @@ class CreateNewDelivery
         }
         if ($this->originPartner) {
             $this->delivery->origin_partner()->associate($this->originPartner);
+        }
+        if ($this->delivery) {
+            event(new DeliveryCreated($this->delivery));
         }
 
         $this->delivery->save();

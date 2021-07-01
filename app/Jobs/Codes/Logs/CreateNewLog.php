@@ -57,7 +57,7 @@ class CreateNewLog
     public function handle()
     {
         $this->attributes['code_id'] = $this->code->id;
-        $this->attributes['showable'] = implode(',', $this->attributes['showable']);
+        // $this->attributes['showable'] = implode(',', $this->attributes['showable']);
         $this->codeLogable = $this->actedBy->code_logs()->create($this->attributes);
         event(new CodeLogged($this->codeLogable));
     }
