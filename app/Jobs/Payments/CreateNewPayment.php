@@ -28,6 +28,7 @@ class CreateNewPayment
      */
     public function __construct(Model $payableModel, Gateway $gateway, $inputs = [])
     {
+
         $this->payableModel = $payableModel;
         $this->gateway = $gateway;
         Validator::validate($inputs, [
@@ -62,7 +63,7 @@ class CreateNewPayment
             $defaultPaymentAttributes['total_payment'] += $defaultGatewayAttributes['payment_admin_charges'];
         }
 
-        $this->attributes = array_merge($defaultPaymentAttributes, $this->attributes);
+        $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);
 
         $this->payment = $this->payableModel->payments()->create($this->attributes);
         return $this->payment->exists;

@@ -7,6 +7,7 @@ use App\Jobs\Payments\Actions\CreateNewPaymentForPackage;
 use App\Jobs\Payments\CreateNewPayment;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Transporter;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Database\Seeders\Packages\AssignedPackagesSeeder;
@@ -36,6 +37,7 @@ class CreateNewPaymentTest extends TestCase
      */
     public function test_on_create_payment()
     {
+
         /** @var Package $package */
         $package = Package::all()->random()->first();
         /** @var Authenticatable $customer */
@@ -110,21 +112,16 @@ class CreateNewPaymentTest extends TestCase
         /** @var Gateway $gateway */
         $gateway = Gateway::where('is_bank_transfer', false)->first();
 
-        $inputs = [
-            'service_type' => Payment::SERVICE_TYPE_PAYMENT,
-            'payment_amount' => 12000,
-            'sender_bank' => null,
-            'sender_account' => null,
-            'sender_name' => null
-        ];
 
         // $this->expectsJobs(CreateNewPaymentForDelivery::class);
-        $job = new CreateNewPaymentForDelivery($delivery, $gateway, $inputs);
+        $job = new CreateNewPaymentForDelivery($delivery);
         $this->dispatch($job);
+
         /** @var Payment $payment */
         $payment = $job->payment;
-        $this->assertDatabaseHas('payments', array_merge([
-            'id' => $payment->id
-        ], $inputs));
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'service_type' => Payment::SERVICE_TYPE_DEPOSIT
+        ]);
     }
 }

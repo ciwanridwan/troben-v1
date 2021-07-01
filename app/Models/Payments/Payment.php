@@ -54,6 +54,7 @@ class Payment extends Model
      */
     public $fillable = [
         'gateway_id',
+        'service_type',
         'payable_type',
         'payable_id',
         'payment_amount',
@@ -113,6 +114,7 @@ class Payment extends Model
             self::SERVICE_TYPE_PAYMENT,
             self::SERVICE_TYPE_REVERSAL,
             self::SERVICE_TYPE_WITHDRAWAL,
+            self::SERVICE_TYPE_DEPOSIT
         ];
     }
 
