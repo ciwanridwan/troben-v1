@@ -24,6 +24,7 @@ use App\Models\Code;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use PDO;
 
 class WriteCodeLog
 {
@@ -35,7 +36,6 @@ class WriteCodeLog
      */
     public function __construct()
     {
-        //
     }
 
 
@@ -47,6 +47,10 @@ class WriteCodeLog
      */
     public function handle($event)
     {
+        if (!$this->checkDatabaseConnection()) {
+            return true;
+        }
+
         switch (true) {
             case $event instanceof PackageCreated:
                 $package = $event->package;
@@ -207,5 +211,17 @@ class WriteCodeLog
 
         $job = new CreateNewLog($code, $model, $inputs);
         $this->dispatch($job);
+    }
+
+    protected function checkDatabaseConnection()
+    {
+        $connection = config('database.default');
+
+        $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'sqlite') {
+            return false;
+        }
+        return true;
     }
 }
