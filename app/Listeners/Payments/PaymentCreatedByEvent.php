@@ -4,12 +4,8 @@ namespace App\Listeners\Payments;
 
 use App\Events\Deliveries\DeliveryCreated;
 use App\Jobs\Payments\Actions\CreateNewPaymentForDelivery;
-use App\Jobs\Payments\CreateNewPayment;
 use App\Models\Deliveries\Delivery;
-use App\Models\Payments\Gateway;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Queue\InteractsWithQueue;
 
 class PaymentCreatedByEvent
 {

@@ -11,12 +11,7 @@ use App\Events\Deliveries\Transit\PackageLoadedByDriver;
 use App\Events\Deliveries\Transit\DriverArrivedAtOriginWarehouse;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Models\Deliveries\Delivery;
-use Database\Seeders\Packages\InTransit\PackageAssignedToManifestSeeder;
 use Database\Seeders\Packages\InTransit\Warehouses\AssignDriverToDeliverySeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\PackageAlreadyPackedByWarehouseSeeder;
-use Database\Seeders\Packages\InTransit\Warehouses\PackageAttachedToDeliverySeeder;
-use Database\Seeders\Packages\PostPayment\ManifestSeeder;
-use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 
 class TransitApiTest extends TestCase
 {
