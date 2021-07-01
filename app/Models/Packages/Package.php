@@ -472,10 +472,31 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
         }
+    }
+
+    public static function getAvailableDescriptionFormat()
+    {
+        return [
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_CREATED],
+                'description' => 'pesanan diterima',
+                'variable' => []
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_PENDING],
+                'description' => 'pesanan telah diterima oleh mitra :partner_name',
+                'variable' => [
+                    'partner_name' => null
+                ]
+            ],
+
+        ];
     }
 }
