@@ -5,6 +5,7 @@ namespace App\Actions\Auth;
 use Carbon\Carbon;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\OneTimePasswords\SmsMasking\SendMessage;
 use App\Models\OneTimePassword;
 use Illuminate\Http\JsonResponse;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
@@ -60,6 +61,9 @@ class OtpVerification
         throw_if(! ($otp->verifiable), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
         $otp = $this->attributes['retry'] ? $this->extendExpired($otp) : $otp->verifiable->createOtp();
+
+        $job = new SendMessage($otp, $otp->verifiable->phone);
+        $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->getKey(),

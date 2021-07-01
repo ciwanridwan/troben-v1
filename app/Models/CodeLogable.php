@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Code\Showable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -40,6 +41,17 @@ class CodeLogable extends MorphPivot
         'updated_at',
         'deleted_at',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'showable' => Showable::class,
+    ];
+
+
 
     public function __construct($attributes = [])
     {

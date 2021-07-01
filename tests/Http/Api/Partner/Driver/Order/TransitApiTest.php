@@ -22,12 +22,10 @@ class TransitApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->seed(AssignDriverToDeliverySeeder::class);
 
         /** @var User $user */
         $user = User::query()->whereHas('deliveries', fn ($query) => $query->where('type', Delivery::TYPE_TRANSIT))->first();
-
 
         $this->actingAs($user);
     }
@@ -50,7 +48,6 @@ class TransitApiTest extends TestCase
         $response = $this->patchJson(route('api.partner.driver.order.transit.loaded', [
             'delivery_hash' => $deliveryHash
         ]), ['code' => $codes]);
-
         $response->assertSuccessful();
 
 

@@ -50,7 +50,7 @@ class CreateManyNewInventory
      *
      * @return void
      */
-    public function __construct(Partner $partner,  $inputs = [])
+    public function __construct(Partner $partner, $inputs = [])
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [

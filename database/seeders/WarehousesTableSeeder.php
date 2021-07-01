@@ -19,8 +19,8 @@ class WarehousesTableSeeder extends Seeder
         /** @var Partner $partners */
         $partners = Partner::query()->where('type', Partner::TYPE_POOL)->whereDoesntHave('warehouses')->get();
 
-        $this->command->info("Start Create Warehouse For Partners");
-        $partners->each(fn (Partner $partner) => $partner->warehouses()->create(Warehouse::factory()->makeOne()->toArray()))->each(fn (Partner $partner) => $this->command->warn("=> Create Warehouse For Partner " . $partner->code));
+        $this->command->info('Start Create Warehouse For Partners');
+        $partners->each(fn (Partner $partner) => $partner->warehouses()->create(Warehouse::factory()->makeOne()->toArray()))->each(fn (Partner $partner) => $this->command->warn('=> Create Warehouse For Partner '.$partner->code));
 
         //
     }

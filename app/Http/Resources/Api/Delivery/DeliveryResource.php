@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Delivery;
 
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -37,7 +38,14 @@ class DeliveryResource extends JsonResource
             // $this->resource->code->scan_item_codes->makeHidden(['pivot_code_logable_id', 'pivot_code_logable_type', 'pivot_code_id']);
         }
 
-        if ($this->resource->type === 'transit') {
+        if ($this->resource->type === Delivery::TYPE_TRANSIT) {
+            if (! $this->resource->relationLoaded('partner')) {
+                $this->resource->load('partner');
+            }
+            $this->resource->load('origin_partner');
+        }
+
+        if ($this->resource->type === Delivery::TYPE_DOORING) {
             if (! $this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }

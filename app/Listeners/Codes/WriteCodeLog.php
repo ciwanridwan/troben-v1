@@ -35,7 +35,6 @@ class WriteCodeLog
      */
     public function __construct()
     {
-        //
     }
 
 
@@ -47,6 +46,10 @@ class WriteCodeLog
      */
     public function handle($event)
     {
+        if (! $this->checkDatabaseConnection()) {
+            return true;
+        }
+
         switch (true) {
             case $event instanceof PackageCreated:
                 $package = $event->package;
@@ -165,7 +168,7 @@ class WriteCodeLog
         ];
 
         if ($logType === CodeLogable::TYPE_SCAN) {
-            if (! $model->code_logs()->firstWhere($inputs)) {
+            if (! $model->code_logs()->getQuery()->whereJsonContains('showable', $inputs['showable'])->firstWhere(Arr::except($inputs, 'showable'))) {
                 $job = new CreateNewLog($code, $model, $inputs);
                 $this->dispatch($job);
             }
@@ -207,5 +210,17 @@ class WriteCodeLog
 
         $job = new CreateNewLog($code, $model, $inputs);
         $this->dispatch($job);
+    }
+
+    protected function checkDatabaseConnection()
+    {
+        $connection = config('database.default');
+
+        $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'sqlite') {
+            return false;
+        }
+        return true;
     }
 }

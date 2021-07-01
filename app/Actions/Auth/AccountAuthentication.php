@@ -183,13 +183,7 @@ class AccountAuthentication
     {
         $otp = $authenticatable->createOtp($otp_channel);
 
-        $phone = PhoneNumberUtil::getInstance()->formatNumberForMobileDialing(
-            PhoneNumberUtil::getInstance()->parse($authenticatable->phone, 'ID'),
-            'ID',
-            false
-        );
-
-        $job = new SendMessage($otp, $phone);
+        $job = new SendMessage($otp, $authenticatable->phone);
         $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [

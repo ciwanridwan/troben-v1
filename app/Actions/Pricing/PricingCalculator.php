@@ -78,7 +78,9 @@ class PricingCalculator
         $handling_price = 0;
         $insurance_price = 0;
         $package->items()->each(function (Item $item) use (&$handling_price, &$insurance_price) {
-            $handling_price += (array_sum(array_column($item->handling, 'price')) * $item->qty);
+            if ($item->handling) {
+                $handling_price += (array_sum(array_column($item->handling, 'price')) * $item->qty);
+            }
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');

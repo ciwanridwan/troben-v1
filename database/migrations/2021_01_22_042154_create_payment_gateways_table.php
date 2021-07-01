@@ -18,6 +18,7 @@ class CreatePaymentGatewaysTable extends Migration
             $table->string('channel')->unique();
             $table->string('name');
             $table->decimal('admin_charges', 14, 2)->default(0);
+            $table->boolean('is_fixed')->default(1);
 
             // only bank transfer
             $table->boolean('is_bank_transfer')->default(1);

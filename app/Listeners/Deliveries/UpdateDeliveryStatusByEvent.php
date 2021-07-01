@@ -52,6 +52,11 @@ class UpdateDeliveryStatusByEvent
             case $event instanceof Dooring\PackageLoadedByDriver:
                 $event->delivery->setAttribute('type', Delivery::TYPE_DOORING)->save();
                 $event->delivery->setAttribute('status', Delivery::STATUS_EN_ROUTE)->save();
+
+                /** @var Delivery $delivery */
+                $delivery = $event->delivery;
+                $delivery->packages->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_WITH_COURIER)->save());
+
                 break;
             case $event instanceof Dooring\DriverUnloadedPackageInDooringPoint:
                 /** @var Delivery $delivery */
