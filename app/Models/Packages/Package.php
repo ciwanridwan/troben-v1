@@ -492,9 +492,7 @@ class Package extends Model implements AttachableContract
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_PENDING],
                 'description' => 'pesanan telah diterima oleh mitra :partner_name',
-                'variable' => [
-                    'partner_name' => null
-                ]
+                'variable' => ['partner_name']
             ],
 
         ];
