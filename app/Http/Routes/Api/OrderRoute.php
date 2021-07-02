@@ -36,7 +36,7 @@ class OrderRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('find'), [
-            'as' => $this->name('find'),
+            'as' => $this->name('find.public'),
             'uses' => $this->uses('findReceipt')
         ])->withoutMiddleware('api');
 
