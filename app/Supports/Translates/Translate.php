@@ -11,10 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Translate
 {
-
     public Model $model;
 
-    function __construct(Model $model)
+    public function __construct(Model $model)
     {
         $this->model = $model;
     }

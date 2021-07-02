@@ -5,8 +5,6 @@ namespace App\Casts\Code\Log;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use App\Models\Partners\Partner;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class Description implements CastsAttributes
@@ -44,8 +42,8 @@ class Description implements CastsAttributes
     public static function translateDelivery(Delivery $delivery)
     {
         $deliveryDescriptionFormat = self::getDeliveryDescriptionFormat($delivery);
-        if (!$deliveryDescriptionFormat) {
-            return $delivery->status . '_' . $delivery->payment_status;
+        if (! $deliveryDescriptionFormat) {
+            return $delivery->status.'_'.$delivery->payment_status;
         }
         // throw_if(!$deliveryDescriptionFormat, Error::make(Response::RC_CODE_LOG_UNAVAILABLE));
 

@@ -7,7 +7,6 @@ use App\Models\Deliveries\Delivery as DeliveriesDelivery;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 
 class Delivery implements HasCodeLog
 {
@@ -16,15 +15,15 @@ class Delivery implements HasCodeLog
     /**
      * @param App\Models\Deliveries\Delivery $delivery
      */
-    function __construct(DeliveriesDelivery $delivery)
+    public function __construct(DeliveriesDelivery $delivery)
     {
         $this->delivery = $delivery;
     }
     public function translate(): string
     {
         $deliveryDescriptionFormat = $this->getDescriptionFormat();
-        if (!$deliveryDescriptionFormat) {
-            return $this->delivery->status . '_' . $this->delivery->payment_status;
+        if (! $deliveryDescriptionFormat) {
+            return $this->delivery->status.'_'.$this->delivery->payment_status;
         }
 
         $deliveryDescriptionFormat['variable'] = array_flip($deliveryDescriptionFormat['variable']);

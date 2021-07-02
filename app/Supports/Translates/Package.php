@@ -8,7 +8,6 @@ use App\Models\Geo\Regency;
 use App\Models\Packages\Package as PackagesPackage;
 use App\Models\Partners\Partner;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 
@@ -18,7 +17,7 @@ class Package implements HasCodeLog
      * @var PackagesPackage $package
      */
     public PackagesPackage $package;
-    function __construct(PackagesPackage $package)
+    public function __construct(PackagesPackage $package)
     {
         $this->package = $package;
     }
@@ -30,7 +29,7 @@ class Package implements HasCodeLog
     {
         $packageDescriptionFormat = $this->getDescriptionFormat();
         if (empty($packageDescriptionFormat)) {
-            return $this->package->status . '_' . $this->package->payment_status;
+            return $this->package->status.'_'.$this->package->payment_status;
         }
         // throw_if(!$packageDescriptionFormat, Error::make(Response::RC_CODE_LOG_UNAVAILABLE));
 
@@ -41,7 +40,7 @@ class Package implements HasCodeLog
                 $packageDescriptionFormat['variable'][$key] = $this->replacer($key);
             } catch (\Throwable $th) {
                 $packageDescriptionFormat['variable'][$key] = '';
-                Log::warning("[TRANSLATE] Error Replacer");
+                Log::warning('[TRANSLATE] Error Replacer');
             }
         }
         $description = __($packageDescriptionFormat['description'], $packageDescriptionFormat['variable']);
@@ -59,7 +58,7 @@ class Package implements HasCodeLog
                 return $value;
             }
         }
-        return array();
+        return [];
     }
 
     /**

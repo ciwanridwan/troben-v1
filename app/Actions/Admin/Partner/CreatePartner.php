@@ -90,7 +90,6 @@ class CreatePartner
         try {
             $this->dispatch($this->jobPartner);
         } catch (Exception $e) {
-
             $this->jobDeleteUser = new DeleteExistingUser($this->user, true);
             $this->dispatch($this->jobDeleteUser);
             return (new Response(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]))->json();
