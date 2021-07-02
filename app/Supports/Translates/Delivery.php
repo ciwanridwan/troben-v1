@@ -4,6 +4,9 @@ namespace App\Supports\Translates;
 
 use App\Contracts\HasCodeLog;
 use App\Models\Deliveries\Delivery as DeliveriesDelivery;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Delivery implements HasCodeLog
@@ -15,7 +18,7 @@ class Delivery implements HasCodeLog
      */
     function __construct(DeliveriesDelivery $delivery)
     {
-        $this->$delivery = $delivery;
+        $this->delivery = $delivery;
     }
     public function translate(): string
     {
@@ -29,6 +32,7 @@ class Delivery implements HasCodeLog
         foreach ($deliveryDescriptionFormat['variable'] as $key => $value) {
             $deliveryDescriptionFormat['variable'][$key] = $this->replacer($key);
         }
+
         $description = __($deliveryDescriptionFormat['description'], $deliveryDescriptionFormat['variable']);
 
         return $description;
@@ -41,12 +45,36 @@ class Delivery implements HasCodeLog
                 return $value;
             }
         }
-        return false;
+        return [];
     }
 
     public function replacer(string $replace): string
     {
         switch ($replace) {
+            case 'origin_partner_code':
+                /** @var Partner $origin_partner */
+                $origin_partner = $this->delivery->origin_partner;
+                return $origin_partner->code;
+            case 'origin_partner_name':
+                /** @var Partner $origin_partner */
+                $origin_partner = $this->delivery->origin_partner;
+                return $origin_partner->name;
+            case 'partner_code':
+                /** @var Partner $partner */
+                $partner = $this->delivery->partner;
+                return $partner->code;
+            case 'partner_name':
+                /** @var Partner $partner */
+                $partner = $this->delivery->partner;
+                return $partner->name;
+            case 'driver_name':
+                /** @var User $driver */
+                $driver = $this->delivery->driver;
+                return $driver->name;
+            case 'transporter_registration_number':
+                /** @var Transporter $transporter */
+                $transporter = $this->delivery->transporter()->first();
+                return $transporter->registration_number;
             default:
                 return '';
         }

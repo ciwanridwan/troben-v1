@@ -191,6 +191,7 @@ class OrderController extends Controller
                 'code' => ['required', 'exists:codes,content']
             ]);
 
+            /** @var Code $code */
             $code = Code::query()->where('content', $request->code)->first();
         }
 
@@ -200,11 +201,12 @@ class OrderController extends Controller
             'code' => __('Code not instance of Package'),
         ]));
 
+        // dd($codeable->deliveries()->get()->pluck('code.content'));
+
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
-
-        $query->whereJsonContains('showable', [CodeLogable::SHOW_CUSTOMER]);
-
+        $query->where('status', '!=', CodeLogable::TYPE_SCAN);
+        $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
 
         return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
