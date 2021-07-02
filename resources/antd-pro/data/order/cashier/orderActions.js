@@ -11,7 +11,9 @@ import {
   STATUS_CANCEL_SELF_PICKUP,
   STATUS_ESTIMATED,
   STATUS_IN_TRANSIT,
+  STATUS_PACKED,
   STATUS_REVAMP,
+  STATUS_WAITING_FOR_PACKING,
   STATUS_WITH_COURIER
 } from "../../packageStatus";
 
@@ -38,7 +40,7 @@ const actions = [
     }
   },
   {
-    status: [STATUS_ACCEPTED],
+    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
       {

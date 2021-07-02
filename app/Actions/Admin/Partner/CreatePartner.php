@@ -90,6 +90,7 @@ class CreatePartner
         try {
             $this->dispatch($this->jobPartner);
         } catch (Exception $e) {
+
             $this->jobDeleteUser = new DeleteExistingUser($this->user, true);
             $this->dispatch($this->jobDeleteUser);
             return (new Response(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]))->json();
@@ -145,8 +146,8 @@ class CreatePartner
         $this->validate_pool();
         $this->dispatch($this->jobWarehouse);
 
-        foreach ($this->attributes as $key => $value) {
-            $this->attributes['warehouse']['inventories'][$key] = $this->jobWarehouse->warehouse->id;
+        foreach ($this->attributes['warehouse']['inventories'] as $key => $value) {
+            $this->attributes['warehouse']['inventories'][$key]['warehouse_id'] = $this->jobWarehouse->warehouse->id;
         }
 
         $this->jobInventory = new CreateManyNewInventory($this->partner, $this->attributes['warehouse']['inventories']);
@@ -156,11 +157,11 @@ class CreatePartner
     public function validate_pool()
     {
         // temp warehouse info same as partner
-        $this->attributes['warehouse'] += $this->attributes['partner'];
+        $this->attributes['warehouse'] = array_merge($this->attributes['warehouse'], $this->attributes['partner']);
 
         $this->jobWarehouse = new CreateNewWarehouse($this->partner, $this->attributes['warehouse']);
 
-        $this->jobInventory = new CreateManyNewInventory($this->partner, new Warehouse(), $this->attributes['warehouse']['inventories']);
+        $this->jobInventory = new CreateManyNewInventory($this->partner, $this->attributes['warehouse']['inventories']);
     }
 
     public function create_transporter()

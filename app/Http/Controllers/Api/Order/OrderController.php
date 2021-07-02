@@ -184,23 +184,29 @@ class OrderController extends Controller
      *
      * @return JsonResponse
      */
-    public function findReceipt(Request $request): JsonResponse
+    public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        $request->validate([
-            'code' => ['required', 'exists:codes,content']
-        ]);
+        if (!$code->exists) {
+            $request->validate([
+                'code' => ['required', 'exists:codes,content']
+            ]);
 
-        $code = Code::query()->where('content', $request->code)->first();
+            /** @var Code $code */
+            $code = Code::query()->where('content', $request->code)->first();
+        }
+
         $codeable = $code->codeable;
 
         throw_if(! $codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
+        // dd($codeable->deliveries()->get()->pluck('code.content'));
+
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
-
-        $query->whereJsonContains('showable', [CodeLogable::SHOW_CUSTOMER]);
+        $query->where('status', '!=', CodeLogable::TYPE_SCAN);
+        $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
 
         return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
