@@ -4,6 +4,7 @@ namespace App\Models\Payments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Payment gateway model.
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $channel
  * @property string $name
  * @property float $admin_charges
+ * @property bool $is_fixed
  * @property bool $is_bank_transfer
  * @property string $account_bank
  * @property string $account_number
@@ -27,6 +29,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Gateway extends Model
 {
+    use HashableId;
+
+    public const CHANNEL_CASH_ON_DELIVERY = 'cod';
+    public const CHANNEL_CASH_ON_WALK_IN = 'cow';
+    public const CHANNEL_NICEPAY_MANDIRI_VA = 'npmdrva';
+    public const CHANNEL_NICEPAY_BCA_VA = 'npbcava';
+    public const CHANNEL_NICEPAY_SHPPEE_QRIS = 'npsppqris';
+
     /**
      * The table associated with the model.
      *
@@ -45,6 +55,14 @@ class Gateway extends Model
         'options' => 'json',
         'auto_approve' => 'boolean',
         'is_active' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'id',
+    ];
+
+    protected $appends = [
+        'hash',
     ];
 
     /**
