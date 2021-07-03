@@ -9,6 +9,8 @@ use App\Actions\Pricing\PricingCalculator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
+use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
 use Illuminate\Validation\ValidationException;
 
 class GeneratePackagePrices
@@ -52,11 +54,11 @@ class GeneratePackagePrices
 
             $package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -79,6 +81,25 @@ class GeneratePackagePrices
                 'amount' => $service_price,
             ]);
             $this->dispatch($job);
+
+            // generate pickup price
+            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                'type' => Price::TYPE_DELIVERY,
+                'description' => Delivery::TYPE_PICKUP,
+                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
+            ]);
+
+            $this->dispatch($job);
+
+            // generate pickup price discount
+            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                'type' => Price::TYPE_DISCOUNT,
+                'description' => Delivery::TYPE_PICKUP,
+                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
+            ]);
+
+            $this->dispatch($job);
+
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
