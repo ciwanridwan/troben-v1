@@ -32,8 +32,10 @@ use App\Events\Packages\PackageCancelMethodSelected;
 use App\Listeners\Codes\WriteCodeLog;
 use App\Listeners\Deliveries\CreateDeliveryByEvent;
 use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
+use App\Listeners\Payments\PaymentCreatedByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use App\Events\Deliveries\DriverAssigned;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -165,6 +167,9 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
+        ],
+        DriverAssigned::class => [
+            PaymentCreatedByEvent::class
         ],
         PartnerRequested::class => [
             //

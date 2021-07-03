@@ -3,6 +3,7 @@
 namespace App\Listeners\Payments;
 
 use App\Events\Deliveries\DeliveryCreated;
+use App\Events\Deliveries\DriverAssigned;
 use App\Jobs\Payments\Actions\CreateNewPaymentForDelivery;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -32,7 +33,7 @@ class PaymentCreatedByEvent
     public function handle($event)
     {
         switch (true) {
-            case $event instanceof DeliveryCreated:
+            case $event instanceof DriverAssigned:
                 /** @var Delivery $delivery */
                 $delivery = $event->delivery;
 

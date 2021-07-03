@@ -34,8 +34,8 @@ class AssignDriverToDelivery
         $this->delivery = $delivery;
         $this->userablePivot = $userablePivot;
 
-        if (! $userablePivot->userable instanceof Transporter) {
-            throw new \LogicException('chosen userable must be one that morph '.Transporter::class.' model');
+        if (!$userablePivot->userable instanceof Transporter) {
+            throw new \LogicException('chosen userable must be one that morph ' . Transporter::class . ' model');
         }
 
         $this->transporter = $userablePivot->userable;
@@ -58,7 +58,6 @@ class AssignDriverToDelivery
                     ->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP)
                     ->save());
         }
-
         event(new DriverAssigned($this->delivery, $this->userablePivot));
     }
 }
