@@ -170,6 +170,7 @@ class Transporter extends Model
 
     public static function getAvailableGeneralTypes()
     {
+
         return [
             self::GENERAL_TYPE_BIKE => [
                 self::TYPE_BIKE
