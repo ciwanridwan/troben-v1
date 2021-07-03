@@ -162,6 +162,10 @@ class Transporter extends Model
     public static function getGeneralTypePrice($type)
     {
         $general_type = self::getGeneralType($type);
+        if (!$general_type) {
+            dump($general_type);
+            return 0;
+        }
         return self::getAvailableTransporterPrices()[$general_type];
     }
 
