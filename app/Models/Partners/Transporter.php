@@ -163,7 +163,6 @@ class Transporter extends Model
     {
         $general_type = self::getGeneralType($type);
         if (!$general_type) {
-            dump($general_type);
             return 0;
         }
         return self::getAvailableTransporterPrices()[$general_type];
