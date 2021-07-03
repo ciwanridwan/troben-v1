@@ -31,8 +31,6 @@ class Gateway extends Model
 {
     use HashableId;
 
-    public const CHANNEL_CASH_ON_DELIVERY = 'cod';
-    public const CHANNEL_CASH_ON_WALK_IN = 'cow';
     public const CHANNEL_NICEPAY_MANDIRI_VA = 'npmdrva';
     public const CHANNEL_NICEPAY_BCA_VA = 'npbcava';
     public const CHANNEL_NICEPAY_SHPPEE_QRIS = 'npsppqris';
@@ -63,6 +61,8 @@ class Gateway extends Model
 
     protected $appends = [
         'hash',
+        'type',
+        'bank'
     ];
 
     /**
@@ -73,5 +73,39 @@ class Gateway extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'gateway_id', 'id');
+    }
+
+    /**
+     * @param string $channel
+     * @return string[]
+     */
+    public static function convertChannel(string $channel): array
+    {
+        $bank = [
+            self::CHANNEL_NICEPAY_BCA_VA => [
+                'bank' => 'bca',
+                'type' => 'va',
+            ],
+            self::CHANNEL_NICEPAY_MANDIRI_VA => [
+                'bank' => 'mandiri',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_SHPPEE_QRIS => [
+                'bank' => 'shoppe-pay',
+                'type' => 'qris'
+            ]
+        ];
+
+        return $bank[$channel];
+    }
+
+    public function getTypeAttribute()
+    {
+        return self::convertChannel($this->channel)['type'];
+    }
+
+    public function getBankAttribute()
+    {
+        return self::convertChannel($this->channel)['bank'];
     }
 }
