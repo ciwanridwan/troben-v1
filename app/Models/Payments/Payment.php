@@ -3,6 +3,7 @@
 namespace App\Models\Payments;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -63,6 +64,7 @@ class Payment extends Model
         'sender_name',
         'sender_account',
         'payment_ref_id',
+        'expired_at',
         'confirmed_by',
         'confirmed_at',
     ];
@@ -124,5 +126,13 @@ class Payment extends Model
     public function gateway(): BelongsTo
     {
         return $this->belongsTo(Gateway::class, 'gateway_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function payable(): MorphTo
+    {
+        return $this->morphTo('payable');
     }
 }

@@ -18,12 +18,12 @@ class NicepayRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->post($this->prefix('registration/{payment_method}/{package_hash}'), [
+        $this->router->post($this->prefix('registration/{gateway_hash}/{package_hash}'), [
             'as' => $this->name('registration'),
             'uses' => $this->uses('registration')
         ]);
 
-        $this->router->post($this->prefix('webhook/{payment_method}'), [
+        $this->router->post($this->prefix('webhook/{gateway_hash}'), [
             'as' => $this->name('webhook'),
             'uses' => $this->uses('webhook')
         ])->withoutMiddleware(['api','auth:sanctum']);

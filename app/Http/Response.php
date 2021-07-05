@@ -49,6 +49,7 @@ class Response implements Responsable
 
     // patment gateway 0500-0599
     public const RC_FAILED_REGISTRATION_PAYMENT = '0501';
+    public const RC_UNAVAILABLE_PAYMENT_GATEWAY = '0502';
 
     // server side faults. 0900 - 0999
     public const RC_SERVER_IN_MAINTENANCE = '0901';
@@ -128,6 +129,7 @@ class Response implements Responsable
             ],
             LaravelResponse::HTTP_SERVICE_UNAVAILABLE => [
                 self::RC_SERVER_IN_MAINTENANCE,
+                self::RC_UNAVAILABLE_PAYMENT_GATEWAY,
             ],
             LaravelResponse::HTTP_INTERNAL_SERVER_ERROR => [
                 self::RC_DATABASE_ERROR,

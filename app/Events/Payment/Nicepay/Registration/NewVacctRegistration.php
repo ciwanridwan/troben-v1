@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Events\Payment\Nicepay;
+namespace App\Events\Payment\Nicepay\Registration;
 
 use App\Models\Packages\Package;
+use App\Models\Payments\Gateway;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewRegistrationVA
+class NewVacctRegistration
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,18 +19,24 @@ class NewRegistrationVA
     public Package $package;
 
     /**
+     * @var Gateway $gateway
+     */
+    public Gateway $gateway;
+
+    /**
      * @var $response
      */
     public $response;
 
     /**
-     * Create a new event instance.
-     *
-     * @return void
+     * NewVacctRegistration constructor.
+     * @param Package $package
+     * @param $response
      */
-    public function __construct(Package $package, $response)
+    public function __construct(Package $package, Gateway $gateway, $response)
     {
         $this->package = $package;
+        $this->gateway = $gateway;
         $this->response = $response;
     }
 

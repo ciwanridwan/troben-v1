@@ -5,8 +5,9 @@ namespace App\Providers;
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
 use App\Events\Deliveries\PartnerRequested;
-use App\Events\Payment\Nicepay\NewRegistrationVA;
-use App\Events\Payment\Nicepay\PayingByVA;
+use App\Events\Payment\Nicepay\Registration;
+use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Listeners\Payments\PaymentCreatedByEvent;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -169,10 +170,11 @@ class EventServiceProvider extends ServiceProvider
         PartnerRequested::class => [
             //
         ],
-        NewRegistrationVA::class => [
+        Registration\NewVacctRegistration::class => [
             UpdatePackageStatusByEvent::class,
+            PaymentCreatedByEvent::class,
         ],
-        PayingByVA::class => [
+        PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
         ]
     ];

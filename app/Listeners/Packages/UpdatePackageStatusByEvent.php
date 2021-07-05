@@ -2,8 +2,8 @@
 
 namespace App\Listeners\Packages;
 
-use App\Events\Payment\Nicepay;
-use App\Jobs\Payments\Actions\CreateNewPaymentForPackage;
+use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Events\Payment\Nicepay\Registration;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
@@ -21,14 +21,11 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
-use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Carbon\Carbon;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class UpdatePackageStatusByEvent
 {
-    use DispatchesJobs;
     /**
      * Handle the event.
      *
@@ -109,23 +106,12 @@ class UpdatePackageStatusByEvent
                     $package->setAttribute('status', Package::STATUS_REVAMP)->save();
                 }
                 break;
-            case $event instanceof Nicepay\NewRegistrationVA:
+            case $event instanceof Registration\NewVacctRegistration:
                 /** @var Package $package */
                 $package = $event->package;
-
                 $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
-
-                /** @var Gateway $gateway */
-                $gateway = Gateway::query()->find(3);
-
-                $jobs = new CreateNewPaymentForPackage($package, $gateway, [
-                    'service_type' => Payment::SERVICE_TYPE_PAYMENT,
-                    'payment_amount' => $package->total_amount,
-                    'payment_ref_id' => $event->response->tXid,
-                ]);
-                $this->dispatchNow($jobs);
                 break;
-            case $event instanceof Nicepay\PayingByVA:
+            case $event instanceof PayByNicepay:
                 $params = $event->params;
 
                 if ($params->status == 0) {
