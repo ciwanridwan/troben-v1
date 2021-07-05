@@ -1,0 +1,24 @@
+_id: req_ff734313e4bb43a59669682e5283966f
+type: Request
+parentId: fld_56de3a8380f845caaf2883dec07e8784
+modified: 1625213375430
+created: 1625213318512
+url: "{{ _.base_url }}/payment"
+name: Gateway list
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1625213318512
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
