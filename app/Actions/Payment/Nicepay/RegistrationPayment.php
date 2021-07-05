@@ -46,7 +46,7 @@ class RegistrationPayment
                 ->where('is_default', true)
                 ->first() ?? null;
 
-        $amt = $package->total_amount + self::adminChargeCalculator($gateway,$package->total_amount);
+        $amt = $package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount);
         $now = date_format(Carbon::now(), 'YmdHis');
 
         $this->attributes = [
