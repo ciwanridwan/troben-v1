@@ -96,7 +96,7 @@ class RegistrationPayment
             'va_number' => $job->response->vacctNo,
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_va' => date_format(date_create($job->response->vacctValidDt . $job->response->vacctValidTm), 'Y-m-d H:i:s'),
+            'expired_va' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
         ];
     }
 

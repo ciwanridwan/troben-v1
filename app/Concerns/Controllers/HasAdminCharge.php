@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Concerns\Controllers;
 
 use App\Models\Payments\Gateway;

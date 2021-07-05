@@ -57,7 +57,7 @@ class PaymentCreatedByEvent
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
                     'payment_amount' => $package->total_amount,
                     'payment_ref_id' => $response->tXid,
-                    'expired_at' => date_format(date_create($response->vacctValidDt . $response->vacctValidTm), 'Y-m-d H:i:s')
+                    'expired_at' => date_format(date_create($response->vacctValidDt.$response->vacctValidTm), 'Y-m-d H:i:s')
                 ]);
                 $this->dispatch($jobs);
                 break;

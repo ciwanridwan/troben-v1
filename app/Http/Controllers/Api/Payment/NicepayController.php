@@ -28,10 +28,10 @@ class NicepayController extends Controller
 //                if (!$payment) {
                 $resource = $this->getVA($package, $gateway);
 //                }
-                break;
+        break;
         case 'qris':
                 $resource = $this->getQris($package, $gateway);
-                break;
+        break;
         endswitch;
 
         return $this->jsonSuccess(new RegistrationResource($resource));

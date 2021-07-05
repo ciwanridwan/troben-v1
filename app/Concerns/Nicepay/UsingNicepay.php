@@ -6,7 +6,6 @@ use Carbon\Carbon;
 
 trait UsingNicepay
 {
-
     /**
      * @var Carbon $expDate
      */
@@ -20,7 +19,8 @@ trait UsingNicepay
      */
     public function merchantToken(string $timestamp, string $refNo, int $amt): string
     {
-        return hash('sha256',
+        return hash(
+            'sha256',
             $timestamp.
             config('nicepay.imid').
             $refNo.

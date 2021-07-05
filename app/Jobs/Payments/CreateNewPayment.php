@@ -57,10 +57,10 @@ class CreateNewPayment
         if ($this->gateway->exists) {
             $defaultGatewayAttributes = [
                 'gateway_id' => $this->gateway->id,
-                'payment_admin_charges' => self::adminChargeCalculator($this->gateway,$this->attributes['payment_amount']),
+                'payment_admin_charges' => self::adminChargeCalculator($this->gateway, $this->attributes['payment_amount']),
             ];
             $defaultPaymentAttributes['total_payment'] += $defaultGatewayAttributes['payment_admin_charges'];
-            $defaultPaymentAttributes = array_merge($defaultGatewayAttributes,$defaultPaymentAttributes);
+            $defaultPaymentAttributes = array_merge($defaultGatewayAttributes, $defaultPaymentAttributes);
         }
 
         $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);

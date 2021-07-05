@@ -7,8 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 /**
- * Class Registration
- * @package App\Jobs\Payments\Nicepay
+ * Class Registration.
  * @property array $attributes
  * @property object $response
  * @property Package $package
