@@ -8,7 +8,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
 
-class PayingByVA
+class PayByNicepay
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -16,9 +16,8 @@ class PayingByVA
     public Request $params;
 
     /**
-     * Create a new event instance.
-     *
-     * @return void
+     * PayByNicepay constructor.
+     * @param Request $request
      */
     public function __construct(Request $request)
     {

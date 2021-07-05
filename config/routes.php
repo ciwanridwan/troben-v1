@@ -62,6 +62,7 @@ return [
         App\Http\Routes\Api\Partner\Driver\Order\DooringRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\DooringRoute::class,
         App\Http\Routes\Api\Payment\NicepayRoute::class,
+        App\Http\Routes\Api\PaymentRoute::class,
         /** @inject api **/
     ],
     'admin' => [

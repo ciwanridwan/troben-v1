@@ -36,7 +36,7 @@ use ReflectionClass;
  * @property int destination_sub_district_id
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
- * @property-read \Illuminate\Database\Eloquent\Collection item_codes
+ * @property \Illuminate\Database\Eloquent\Collection item_codes
  * @property-read string|null as
  * @property int|null userable_id
  */

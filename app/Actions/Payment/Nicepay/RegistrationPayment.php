@@ -2,32 +2,42 @@
 
 namespace App\Actions\Payment\Nicepay;
 
-use App\Events\Payment\Nicepay\NewRegistrationVA;
+use App\Concerns\Controllers\HasAdminCharge;
+use App\Concerns\Nicepay\UsingNicepay;
+use App\Events\Payment\Nicepay\Registration\NewVacctRegistration;
 use App\Exceptions\Error;
 use App\Http\Response;
-use App\Jobs\Payments\Nicepay\VirtualAccount\Registration;
+use App\Jobs\Payments\Nicepay\Registration;
 use App\Models\Packages\Package;
+use App\Models\Payments\Gateway;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class RegistrationPayment
 {
-    use DispatchesJobs;
+    use DispatchesJobs, HasAdminCharge, UsingNicepay;
 
-    protected const IMID = 'IONPAYTEST';
-    protected const MERCHANT_KEY = '33F49GnCMS1mFYlGXisbUDzVf2ATWCl9k3R++d5hDd3Frmuos/XLx8XhXpe+LDYAbpGKZYSwtlyyLOtS/8aD7A==';
-    protected const URL = 'registration';
-
-    /** @var array $attributes */
+    /**
+     * @var array $attributes
+     */
     public array $attributes;
 
-    /** @var Carbon $expDate */
-    protected Carbon $expDate;
-
-    /** @var Package $package */
+    /**
+     * @var Package $package
+     */
     protected Package $package;
 
-    public function __construct(Package $package)
+    /**
+     * @var Gateway $gateway
+     */
+    protected Gateway $gateway;
+
+    /**
+     * RegistrationPayment constructor.
+     * @param Package $package
+     * @param Gateway $gateway
+     */
+    public function __construct(Package $package, Gateway $gateway)
     {
         $this->expDate = Carbon::now()->addDay();
         $customer = $package->customer;
@@ -37,93 +47,81 @@ class RegistrationPayment
                 ->first() ?? null;
 
         $this->attributes = [
-            'merchantToken' => $this->merchantToken(self::IMID, $package->code->content, $package->total_amount, self::MERCHANT_KEY),
-            'timeStamp' => date_format(Carbon::now(), 'YmdHis'),
-            'iMid' => self::IMID,
+            'iMid' => config('nicepay.imid'),
             'currency' => 'IDR',
-            'amt' => (string) $package->total_amount,
             'referenceNo' => $package->code->content,
             'goodsNm' => 'Trawlpack Order',
             'billingNm' => $customer->name,
-            'billingPhone' => '081294529025',
+            'billingPhone' => $customer->phone,
             'billingEmail' => $customer->email,
-            'billingAddr' => $address->address ?? 'dirumah',
+            'billingAddr' => $address->address ?? 'alamat',
             'billingCity' => $address->regency->name ?? 'Jakarta',
             'billingState' => $address->district->name ?? 'DKI Jakarta',
-            'billingPostCd' => '12345',
+            'billingPostCd' => $address->sub_district->zip_code ?? '12345',
             'billingCountry' => 'Indonesia',
             'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
         ];
 
         $this->package = $package;
+        $this->gateway = $gateway;
     }
 
-    public function vaRegistration(string $bankCd): array
+    /**
+     * @return array
+     * @throws \Throwable
+     */
+    public function vaRegistration(): array
     {
+        $amt = $this->package->total_amount + $this->adminChargeCalculator($this->gateway);
+        $now = date_format(Carbon::now(), 'YmdHis');
+
         $sendParams = array_merge($this->attributes, [
-            'payMethod' => '02',
-            'bankCd' => $bankCd === 'BCA' ? 'CENA' : 'BMRI',
-            'merFixAcctId' => '',
-            'dbProcessUrl' => env('API_DOMAIN', 'https://api.trawlbens.co.id').'/payment/nicepay/webhook/va',
+            'timeStamp' => $now,
+            'merchantToken' => $this->merchantToken($now, $this->package->code->content, $amt),
+            'amt' => $amt,
+            'payMethod' => config('nicepay.payment_method_code.va'),
+            'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
+            'merFixAcctId' => config('nicepay.merchant_fix_account_id'),
+            'dbProcessUrl' => config('nicepay.db_process_url'),
             'vacctValidDt' => $this->validDate(),
             'vacctValidTm' => $this->validTime(),
         ]);
 
         $job = new Registration($this->package, $sendParams);
-        $this->dispatchNow($job);
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
 
-        throw_if(! $job->flag, Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
-
-        event(new NewRegistrationVA($this->package, $job->response));
+        event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
 
         return [
             'va_number' => $job->response->vacctNo,
-            'bank' => $bankCd
+            'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
+            'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
+            'expired_va' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
         ];
     }
 
+    /**
+     * @return array
+     * @throws \Throwable
+     */
     public function qrisRegistration(): array
     {
         $sendParams = array_merge($this->attributes, [
-            'payMethod' => '08',
-            'userIp' => request()->server('SERVER_ADDR'),
-            'mitraCd' => 'QSHP',
-            'shopId' => 'NICEPAY',
+            'payMethod' => config('nicepay.payment_method_code.qris'),
+            'userIP' => request()->server('SERVER_ADDR'),
+            'mitraCd' => config('nicepay.mitra_code'),
+            'shopId' => config('nicepay.shop_id'),
             'paymentExpDt' => '',
             'paymentExpTm' => '',
-            'dbProcessUrl' => env('API_DOMAIN', 'https://api.trawlbens.co.id').'/payment/nicepay/webhook/qris',
+            'dbProcessUrl' => config('nicepay.db_process_url'),
         ]);
-
         $job = new Registration($this->package, $sendParams);
-        $this->dispatchNow($job);
 
-        throw_if(! $job->flag, Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
 
         return [
             'qr_content' => $job->response->qrContent,
             'qr_url' => $job->response->qrUrl
         ];
-    }
-
-    protected function merchantToken(string $iMid, string $refNo, int $amt, string $merchant_key): string
-    {
-        return hash(
-            'sha256',
-            date_format(Carbon::now(), 'YmdHis').
-            $iMid.
-            $refNo.
-            $amt.
-            $merchant_key
-        );
-    }
-
-    protected function validDate()
-    {
-        return date_format($this->expDate, 'Ymd');
-    }
-
-    protected function validTime()
-    {
-        return date_format($this->expDate, 'His');
     }
 }

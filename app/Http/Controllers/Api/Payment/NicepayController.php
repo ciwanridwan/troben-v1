@@ -3,46 +3,74 @@
 namespace App\Http\Controllers\Api\Payment;
 
 use App\Actions\Payment\Nicepay\RegistrationPayment;
-use App\Events\Payment\Nicepay\PayingByVA;
+use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
 use App\Models\Packages\Package;
+use App\Models\Payments\Gateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NicepayController extends Controller
 {
-    public function registration(Request $request, $paymentMethod, Package $package): JsonResponse
+    /**
+     * @param Request $request
+     * @param $paymentMethod
+     * @param Package $package
+     * @return JsonResponse
+     * @throws \Throwable
+     */
+    public function registration(Gateway $gateway, Package $package): JsonResponse
     {
-        switch ($paymentMethod):
+        switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
-                $bankCd = $request->input('bank_code');
-        return $this->jsonSuccess(new RegistrationResource($this->getVA($package, $bankCd)));
+//                $payment = (new CheckPayment($package))->inquiryPayment();
+//                if (!$payment) {
+                $resource = $this->getVA($package, $gateway);
+//                }
+        break;
         case 'qris':
-                return $this->jsonSuccess(new RegistrationResource($this->getQris($package)));
+                $resource = $this->getQris($package, $gateway);
+        break;
         endswitch;
 
-        return $this->jsonSuccess();
+        return $this->jsonSuccess(new RegistrationResource($resource));
     }
 
+    /**
+     * @param Request $request
+     * @param $paymentMethod
+     * @return JsonResponse
+     */
     public function webhook(Request $request, $paymentMethod): JsonResponse
     {
         if ($paymentMethod === 'va') {
-            event(new PayingByVA($request));
+            event(new PayByNicepay($request));
         } elseif ($paymentMethod === 'qris') {
-            event();
+            event(new PayByNicepay($request));
         }
 
         return $this->jsonSuccess();
     }
 
-    protected function getVA(Package $package, $bankCd)
+    /**
+     * @param Package $package
+     * @param Gateway $gateway
+     * @return array
+     * @throws \Throwable
+     */
+    protected function getVA(Package $package, Gateway $gateway): array
     {
-        return (new RegistrationPayment($package))->vaRegistration($bankCd);
+        return (new RegistrationPayment($package, $gateway))->vaRegistration();
     }
 
-    protected function getQris(Package $package)
+    /**
+     * @param Package $package
+     * @return array
+     * @throws \Throwable
+     */
+    protected function getQris(Package $package, Gateway $gateway)
     {
-        return (new RegistrationPayment($package))->qrisRegistration();
+        return (new RegistrationPayment($package, $gateway))->qrisRegistration();
     }
 }
