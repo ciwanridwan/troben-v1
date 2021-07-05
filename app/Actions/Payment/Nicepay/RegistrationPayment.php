@@ -46,7 +46,13 @@ class RegistrationPayment
                 ->where('is_default', true)
                 ->first() ?? null;
 
+        $amt = $package->total_amount + self::adminChargeCalculator($gateway,$package->total_amount);
+        $now = date_format(Carbon::now(), 'YmdHis');
+
         $this->attributes = [
+            'timeStamp' => $now,
+            'merchantToken' => $this->merchantToken($now, $package->code->content, $amt),
+            'amt' => $amt,
             'iMid' => config('nicepay.imid'),
             'currency' => 'IDR',
             'referenceNo' => $package->code->content,
@@ -72,13 +78,7 @@ class RegistrationPayment
      */
     public function vaRegistration(): array
     {
-        $amt = $this->package->total_amount + $this->adminChargeCalculator($this->gateway);
-        $now = date_format(Carbon::now(), 'YmdHis');
-
         $sendParams = array_merge($this->attributes, [
-            'timeStamp' => $now,
-            'merchantToken' => $this->merchantToken($now, $this->package->code->content, $amt),
-            'amt' => $amt,
             'payMethod' => config('nicepay.payment_method_code.va'),
             'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
             'merFixAcctId' => config('nicepay.merchant_fix_account_id'),

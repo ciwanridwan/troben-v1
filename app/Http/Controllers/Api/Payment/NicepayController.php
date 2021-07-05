@@ -14,8 +14,7 @@ use Illuminate\Http\Request;
 class NicepayController extends Controller
 {
     /**
-     * @param Request $request
-     * @param $paymentMethod
+     * @param Gateway $gateway
      * @param Package $package
      * @return JsonResponse
      * @throws \Throwable
@@ -28,10 +27,10 @@ class NicepayController extends Controller
 //                if (!$payment) {
                 $resource = $this->getVA($package, $gateway);
 //                }
-        break;
+            break;
         case 'qris':
                 $resource = $this->getQris($package, $gateway);
-        break;
+            break;
         endswitch;
 
         return $this->jsonSuccess(new RegistrationResource($resource));
@@ -66,10 +65,11 @@ class NicepayController extends Controller
 
     /**
      * @param Package $package
+     * @param Gateway $gateway
      * @return array
      * @throws \Throwable
      */
-    protected function getQris(Package $package, Gateway $gateway)
+    protected function getQris(Package $package, Gateway $gateway): array
     {
         return (new RegistrationPayment($package, $gateway))->qrisRegistration();
     }
