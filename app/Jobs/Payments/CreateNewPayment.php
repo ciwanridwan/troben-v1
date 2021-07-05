@@ -53,6 +53,7 @@ class CreateNewPayment
             'status' => Payment::STATUS_PENDING //payment was created not paid by customer
         ];
 
+        $defaultGatewayAttributes = [];
         if ($this->gateway->exists) {
             $defaultGatewayAttributes = [
                 'gateway_id' => $this->gateway->id,
@@ -62,7 +63,7 @@ class CreateNewPayment
             $defaultPaymentAttributes = array_merge($defaultGatewayAttributes,$defaultPaymentAttributes);
         }
 
-        $this->attributes = array_merge($defaultPaymentAttributes, $this->attributes);
+        $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);
 
         $this->payment = $this->payableModel->payments()->create($this->attributes);
         return $this->payment->exists;

@@ -22,6 +22,7 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Jobs\Codes\Logs\CreateNewLog;
 use App\Models\Code;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Supports\Translates\Translate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
@@ -35,7 +36,6 @@ class WriteCodeLog
      */
     public function __construct()
     {
-        //
     }
 
 
@@ -47,12 +47,16 @@ class WriteCodeLog
      */
     public function handle($event)
     {
+        if (! $this->checkDatabaseConnection()) {
+            return true;
+        }
+
         switch (true) {
             case $event instanceof PackageCreated:
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();
-                if (!$user) {
+                if (! $user) {
                     $user = $package->customer;
                 }
                 $this->packageLog(
@@ -68,7 +72,7 @@ class WriteCodeLog
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();
-                if (!$user) {
+                if (! $user) {
                     $user = $package->customer;
                 }
                 $this->packageLog($user, $package, $package->code, [
@@ -79,7 +83,7 @@ class WriteCodeLog
                 $delivery = $event->delivery;
                 $delivery->refresh();
                 $user = auth()->user();
-                if (!$user) {
+                if (! $user) {
                     $user = $delivery->partner;
                 }
                 $this->deliveryLog(
@@ -98,7 +102,7 @@ class WriteCodeLog
                 $codeable = $code->codeable;
                 $package = $codeable instanceof Package ? $codeable : $codeable->package;
                 $user = auth()->user();
-                if (!$user) {
+                if (! $user) {
                     $user = $delivery->partner;
                 }
                 $inputs = [
@@ -112,7 +116,7 @@ class WriteCodeLog
                 $delivery = $event->delivery;
                 $delivery->refresh();
                 $user = auth()->user();
-                if (!$user) {
+                if (! $user) {
                     $user = $delivery->partner;
                 }
                 $this->deliveryLog(
@@ -137,22 +141,22 @@ class WriteCodeLog
     }
     protected function packageLog(Model $model, Package $package, Code $code, $inputs)
     {
-        if (!Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$package->status . '_' . $package->payment_status];
+        if (! Arr::has($inputs, 'log_description')) {
+            $logDescription = (new Translate($package))->translate();
         } else {
             $logDescription = $inputs['log_description'];
         }
-        if (!Arr::has($inputs, 'log_status')) {
-            $logStatus = $package->status . '_' . $package->payment_status;
+        if (! Arr::has($inputs, 'log_status')) {
+            $logStatus = $package->status.'_'.$package->payment_status;
         } else {
             $logStatus = $inputs['log_status'];
         }
-        if (!Arr::has($inputs, 'log_showable')) {
+        if (! Arr::has($inputs, 'log_showable')) {
             $logShowable = CodeLogable::SHOW_ALL;
         } else {
             $logShowable = $inputs['log_showable'];
         }
-        if (!Arr::has($inputs, 'log_type')) {
+        if (! Arr::has($inputs, 'log_type')) {
             $logType = CodeLogable::TYPE_INFO;
         } else {
             $logType = $inputs['log_type'];
@@ -165,7 +169,7 @@ class WriteCodeLog
         ];
 
         if ($logType === CodeLogable::TYPE_SCAN) {
-            if (!$model->code_logs()->getQuery()->whereJsonContains('showable', $inputs['showable'])->firstWhere(Arr::except($inputs, 'showable'))) {
+            if (! $model->code_logs()->getQuery()->whereJsonContains('showable', $inputs['showable'])->firstWhere(Arr::except($inputs, 'showable'))) {
                 $job = new CreateNewLog($code, $model, $inputs);
                 $this->dispatch($job);
             }
@@ -177,22 +181,22 @@ class WriteCodeLog
 
     protected function deliveryLog(Model $model, Delivery $delivery, Code $code, $inputs)
     {
-        if (!Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$delivery->type . '_' . $delivery->status];
+        if (! Arr::has($inputs, 'log_description')) {
+            $logDescription = (new Translate($delivery))->translate();
         } else {
             $logDescription = $inputs['log_description'];
         }
-        if (!Arr::has($inputs, 'log_status')) {
-            $logStatus = $delivery->type . '_' . $delivery->status;
+        if (! Arr::has($inputs, 'log_status')) {
+            $logStatus = $delivery->type.'_'.$delivery->status;
         } else {
             $logStatus = $inputs['log_status'];
         }
-        if (!Arr::has($inputs, 'log_showable')) {
+        if (! Arr::has($inputs, 'log_showable')) {
             $logShowable = CodeLogable::SHOW_ALL;
         } else {
             $logShowable = $inputs['log_showable'];
         }
-        if (!Arr::has($inputs, 'log_type')) {
+        if (! Arr::has($inputs, 'log_type')) {
             $logType = CodeLogable::TYPE_INFO;
         } else {
             $logType = $inputs['log_type'];
@@ -207,5 +211,17 @@ class WriteCodeLog
 
         $job = new CreateNewLog($code, $model, $inputs);
         $this->dispatch($job);
+    }
+
+    protected function checkDatabaseConnection()
+    {
+        $connection = config('database.default');
+
+        $driver = config("database.connections.{$connection}.driver");
+
+        if ($driver === 'sqlite') {
+            return false;
+        }
+        return true;
     }
 }

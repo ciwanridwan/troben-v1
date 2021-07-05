@@ -4,6 +4,7 @@ namespace App\Jobs\Payments\Actions;
 
 use App\Jobs\Payments\CreateNewPayment;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Transporter;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,6 +19,8 @@ class CreateNewPaymentForDelivery
 
     public Delivery $delivery;
 
+    public Transporter $transporter;
+
     protected array $attributes;
 
     /**
@@ -25,12 +28,12 @@ class CreateNewPaymentForDelivery
      * @param Gateway $gateway
      * @param array $inputs
      */
-    public function __construct(Delivery $delivery)
+    public function __construct(Delivery $delivery, ?array $inputs = [])
     {
         $this->delivery = $delivery;
         $this->attributes = [
-            'service_type' => '',
-            'payment_amount' => '',
+            'service_type' => Payment::SERVICE_TYPE_DEPOSIT,
+            'payment_amount' => $inputs['payment_amount'] ?? $this->getDefaultPrice(),
             'sender_bank' => '',
             'sender_account' => '',
             'sender_name' => '',
@@ -47,7 +50,7 @@ class CreateNewPaymentForDelivery
     {
         switch ($this->delivery->type) {
             case Delivery::TYPE_PICKUP:
-                # code...
+                $this->attributes['payment_amount'] = $this->getDefaultPrice();
                 break;
 
             default:
@@ -58,5 +61,12 @@ class CreateNewPaymentForDelivery
         dispatch_sync($job);
         $this->payment = $job->payment;
         return $this->payment->exists;
+    }
+    public function getDefaultPrice()
+    {
+        /** @var Transporter $transporter */
+        $this->transporter = $this->delivery->transporter;
+        $generalType = Transporter::getGeneralType($this->transporter->type);
+        return Transporter::getAvailableTransporterPrices()[$generalType];
     }
 }

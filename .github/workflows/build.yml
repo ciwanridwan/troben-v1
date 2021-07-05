@@ -1,27 +1,27 @@
 name: CI Build
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 jobs:
   cs:
-   runs-on: ubuntu-20.04
-   steps:
-     - uses: actions/checkout@v2
-     - name: Run php-cs-fixer
-       uses: docker://oskarstark/php-cs-fixer-ga
-     - uses: stefanzweifel/git-auto-commit-action@v4
-       with:
-         commit_user_name: 'digitalentropybot'
-         commit_user_email: 'dev@digitalentropy.co.id'
-         commit_message: "bot: cs fix"
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run php-cs-fixer
+        uses: docker://oskarstark/php-cs-fixer-ga
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_user_name: "digitalentropybot"
+          commit_user_email: "dev@digitalentropy.co.id"
+          commit_message: "bot: cs fix"
   test:
     needs: cs
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        php: [ 7.4, 8.0 ]
+        php: [7.4, 8.0]
     services:
       mysql:
         image: mysql:latest
@@ -47,8 +47,6 @@ jobs:
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Install dependencies
         run: composer install -q --no-interaction
-#       - name: Remove facade ignition
-#         run: composer remove --dev facade/ignition
       - name: Generate key
         run: php artisan key:generate
       - name: Directory Permissions
@@ -80,3 +78,4 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: "cd ~/www/trawlbens.core && git pull origin master && /usr/bin/bash deploy.staging.sh"
+ 

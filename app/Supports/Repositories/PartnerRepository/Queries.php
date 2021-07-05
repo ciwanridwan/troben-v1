@@ -154,6 +154,7 @@ class Queries
                 break;
             case $this->role === UserablePivot::ROLE_CASHIER:
                 $query->where(fn (Builder $builder) => $builder->whereIn('packages.status', [
+                    Package::STATUS_WAITING_FOR_PACKING,
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,

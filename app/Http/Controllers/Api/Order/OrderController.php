@@ -19,7 +19,6 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
-use App\Models\Packages\Item;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -87,7 +86,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -129,7 +128,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -185,23 +184,29 @@ class OrderController extends Controller
      *
      * @return JsonResponse
      */
-    public function findReceipt(Request $request): JsonResponse
+    public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        $request->validate([
-            'code' => ['required', 'exists:codes,content']
-        ]);
+        if (! $code->exists) {
+            $request->validate([
+                'code' => ['required', 'exists:codes,content']
+            ]);
 
-        $code = Code::query()->where('content', $request->code)->first();
+            /** @var Code $code */
+            $code = Code::query()->where('content', $request->code)->first();
+        }
+
         $codeable = $code->codeable;
 
-        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
+        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
+        // dd($codeable->deliveries()->get()->pluck('code.content'));
+
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
-
-        $query->whereJsonContains('showable', [CodeLogable::SHOW_CUSTOMER]);
+        $query->where('status', '!=', CodeLogable::TYPE_SCAN);
+        $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
 
         return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
