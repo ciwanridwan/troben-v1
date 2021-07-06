@@ -112,6 +112,7 @@ class Package extends Model implements AttachableContract
 
     public const ATTACHMENT_RECEIPT = 'receipt';
     public const ATTACHMENT_PACKAGE = 'package';
+    public const ATTACHMENT_RECEIVED = 'received';
 
     public const TYPE_WALKIN = 'walkin';
     public const TYPE_APP = 'app';
@@ -163,6 +164,8 @@ class Package extends Model implements AttachableContract
         'destination_regency_id',
         'destination_district_id',
         'destination_sub_district_id',
+        'received_by',
+        'received_at',
     ];
 
     protected $search_columns = [
