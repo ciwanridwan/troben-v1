@@ -4,6 +4,8 @@ namespace App\Listeners\Packages;
 
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Payment\Nicepay\Registration;
+use App\Exceptions\Error;
+use App\Http\Response;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
@@ -21,8 +23,6 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
-use App\Models\Payments\Payment;
-use Carbon\Carbon;
 
 class UpdatePackageStatusByEvent
 {
@@ -114,20 +114,11 @@ class UpdatePackageStatusByEvent
             case $event instanceof PayByNicepay:
                 $params = $event->params;
 
-                if ($params->status == 0) {
+                throw_if($params->status !== '0', Error::make(Response::RC_PAYMENT_NOT_PAID));
+                if ($params->status === '0') {
                     /** @var Package $package */
                     $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
-                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
-
-                    Payment::query()
-                        ->where('payment_ref_id', $params->tXid)
-                        ->update([
-                            'status' => Payment::STATUS_SUCCESS,
-                            'sender_bank' => $params->bankCd == 'CENA' ? 'BCA' : 'OTHERS',
-                            'sender_name' => $params->billingNm,
-                            'sender_account' => $params->vacctNo,
-                            'confirmed_at' => Carbon::now(),
-                        ]);
+                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID)->save();
                 }
                 break;
         }

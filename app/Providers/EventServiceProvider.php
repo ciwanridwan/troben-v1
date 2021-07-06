@@ -8,6 +8,7 @@ use App\Events\Deliveries\PartnerRequested;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Listeners\Payments\PaymentCreatedByEvent;
+use App\Listeners\Payments\UpdatePaymentByEvent;
 use Illuminate\Auth\Events\Registered;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageUpdated;
@@ -176,6 +177,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
+            UpdatePaymentByEvent::class
         ]
     ];
 

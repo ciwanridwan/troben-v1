@@ -33,6 +33,10 @@ class Gateway extends Model
 
     public const CHANNEL_NICEPAY_MANDIRI_VA = 'npmdrva';
     public const CHANNEL_NICEPAY_BCA_VA = 'npbcava';
+    public const CHANNEL_NICEPAY_PERMATA_VA = 'nppmtva';
+    public const CHANNEL_NICEPAY_BRI_VA = 'npbriva';
+    public const CHANNEL_NICEPAY_BNI_VA = 'npbniva';
+    public const CHANNEL_NICEPAY_CIMB_VA = 'npcimbva';
     public const CHANNEL_NICEPAY_SHPPEE_QRIS = 'npsppqris';
 
     /**
@@ -90,6 +94,22 @@ class Gateway extends Model
                 'bank' => 'mandiri',
                 'type' => 'va'
             ],
+            self::CHANNEL_NICEPAY_PERMATA_VA => [
+                'bank' => 'permata',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_BNI_VA => [
+                'bank' => 'bni',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_BRI_VA => [
+                'bank' => 'bri',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_CIMB_VA => [
+                'bank' => 'cimb',
+                'type' => 'va'
+            ],
             self::CHANNEL_NICEPAY_SHPPEE_QRIS => [
                 'bank' => 'shoppe-pay',
                 'type' => 'qris'
@@ -99,11 +119,21 @@ class Gateway extends Model
         return $bank[$channel];
     }
 
+    /**
+     * Accessor for get type.
+     *
+     * @return string
+     */
     public function getTypeAttribute()
     {
         return self::convertChannel($this->channel)['type'];
     }
 
+    /**
+     * Accessor for get bank.
+     *
+     * @return string
+     */
     public function getBankAttribute()
     {
         return self::convertChannel($this->channel)['bank'];

@@ -33,21 +33,16 @@ class NicepayController extends Controller
         break;
         endswitch;
 
-        return $this->jsonSuccess(new RegistrationResource($resource));
+        return $this->jsonSuccess(new RegistrationResource($resource ?? []));
     }
 
     /**
      * @param Request $request
-     * @param $paymentMethod
      * @return JsonResponse
      */
-    public function webhook(Request $request, $paymentMethod): JsonResponse
+    public function webhook(Request $request): JsonResponse
     {
-        if ($paymentMethod === 'va') {
-            event(new PayByNicepay($request));
-        } elseif ($paymentMethod === 'qris') {
-            event(new PayByNicepay($request));
-        }
+        event(new PayByNicepay($request));
 
         return $this->jsonSuccess();
     }

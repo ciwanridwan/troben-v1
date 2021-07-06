@@ -21,7 +21,7 @@ return [
     /*
      * webhook url handle notification.
      */
-    'db_process_url' => config('app.url').'/webhook/payment/nicepay',
+    'db_process_url' => env('API_DOMAIN',config('app.url').'/api').'/payment/nicepay/webhook',
 
     /*
      * imid from nicepay.
@@ -62,5 +62,10 @@ return [
     'bank_code' => [
         Payments\Gateway::CHANNEL_NICEPAY_BCA_VA => 'CENA',
         Payments\Gateway::CHANNEL_NICEPAY_MANDIRI_VA => 'BMRI',
+        Payments\Gateway::CHANNEL_NICEPAY_PERMATA_VA => 'BBBA',
+        Payments\Gateway::CHANNEL_NICEPAY_BRI_VA => 'BRIN',
+        Payments\Gateway::CHANNEL_NICEPAY_BNI_VA => 'BNIN',
+        Payments\Gateway::CHANNEL_NICEPAY_CIMB_VA => 'BNIA',
+
     ]
 ];
