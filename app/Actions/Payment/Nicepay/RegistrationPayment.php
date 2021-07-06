@@ -66,6 +66,7 @@ class RegistrationPayment
             'billingPostCd' => $address->sub_district->zip_code ?? '12345',
             'billingCountry' => 'Indonesia',
             'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
+            'dbProcessUrl' => config('nicepay.db_process_url'),
         ];
 
         $this->package = $package;
@@ -78,21 +79,21 @@ class RegistrationPayment
      */
     public function vaRegistration(): array
     {
-        $sendParams = array_merge($this->attributes, [
+        $this->attributes = array_merge($this->attributes, [
             'payMethod' => config('nicepay.payment_method_code.va'),
             'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
             'merFixAcctId' => config('nicepay.merchant_fix_account_id'),
-            'dbProcessUrl' => config('nicepay.db_process_url'),
             'vacctValidDt' => $this->validDate(),
             'vacctValidTm' => $this->validTime(),
         ]);
 
-        $job = new Registration($this->package, $sendParams);
+        $job = new Registration($this->package, $this->attributes);
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
 
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
 
         return [
+            'total_amount' => $this->attributes['amt'],
             'va_number' => $job->response->vacctNo,
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -106,20 +107,20 @@ class RegistrationPayment
      */
     public function qrisRegistration(): array
     {
-        $sendParams = array_merge($this->attributes, [
+        $this->attributes = array_merge($this->attributes, [
             'payMethod' => config('nicepay.payment_method_code.qris'),
             'userIP' => request()->server('SERVER_ADDR'),
             'mitraCd' => config('nicepay.mitra_code'),
             'shopId' => config('nicepay.shop_id'),
             'paymentExpDt' => '',
             'paymentExpTm' => '',
-            'dbProcessUrl' => config('nicepay.db_process_url'),
         ]);
-        $job = new Registration($this->package, $sendParams);
+        $job = new Registration($this->package, $this->attributes);
 
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
 
         return [
+            'total_amount' => $this->attributes['amt'],
             'qr_content' => $job->response->qrContent,
             'qr_url' => $job->response->qrUrl
         ];
