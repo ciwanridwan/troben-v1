@@ -9,21 +9,16 @@ use App\Events\Deliveries\Dooring\PackageLoadedByDriver;
 use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
-use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
-use App\Jobs\Packages\CreateNewPackage;
-use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\DriverUploadReceiver;
 use App\Jobs\Packages\UpdateExistingPackage;
-use App\Models\Customers\Customer;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class DooringController extends Controller
 {
@@ -116,10 +111,8 @@ class DooringController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */
-
     public function unloadeditem(Delivery $delivery, Package $package, Request $request): JsonResponse
     {
-
         $this->authorize('update', $package);
 
         $inputs = $request->all();
@@ -141,6 +134,4 @@ class DooringController extends Controller
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
-
-
 }
