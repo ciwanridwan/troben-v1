@@ -21,7 +21,7 @@ return [
     /*
      * webhook url handle notification.
      */
-    'db_process_url' => env('API_DOMAIN',config('app.url').'/api').'/payment/nicepay/webhook',
+    'db_process_url' => env('API_DOMAIN', config('app.url').'/api').'/payment/nicepay/webhook',
 
     /*
      * imid from nicepay.
