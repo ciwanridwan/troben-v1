@@ -5,7 +5,6 @@ namespace App\Listeners\Payments;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Exceptions\Error;
 use App\Http\Response;
-use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Carbon\Carbon;
 

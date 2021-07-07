@@ -27,18 +27,18 @@ class NicepayController extends Controller
 //                (new CheckPayment($package))->inquiryPayment();
                 /** @var Payment $payment */
                 $payment = $package->payments->first();
-                if ($payment->expired_at >= \Carbon\Carbon::now()) {
-                    $resource = [
+        if ($payment->expired_at >= \Carbon\Carbon::now()) {
+            $resource = [
                         'total_amount' => $payment->total_payment,
                         'va_number' => $payment->sender_account,
                         'bank' => $payment->sender_bank,
                         'server_time' => \Carbon\Carbon::now(),
                         'expired_va' => $payment->expired_at,
                     ];
-                } else {
-                    $payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
-                    $resource = $this->getVA($package, $gateway);
-                }
+        } else {
+            $payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
+            $resource = $this->getVA($package, $gateway);
+        }
         break;
         case 'qris':
                 $resource = $this->getQris($package, $gateway);
