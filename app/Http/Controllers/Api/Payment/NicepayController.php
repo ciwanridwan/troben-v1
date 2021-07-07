@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,10 +24,21 @@ class NicepayController extends Controller
     {
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
-//                $payment = (new CheckPayment($package))->inquiryPayment();
-//                if (!$payment) {
-                $resource = $this->getVA($package, $gateway);
-//                }
+//                (new CheckPayment($package))->inquiryPayment();
+                /** @var Payment $payment */
+                $payment = $package->payments->first();
+                if ($payment->expired_at >= \Carbon\Carbon::now()) {
+                    $resource = [
+                        'total_amount' => $payment->total_payment,
+                        'va_number' => $payment->sender_account,
+                        'bank' => $payment->sender_bank,
+                        'server_time' => \Carbon\Carbon::now(),
+                        'expired_va' => $payment->expired_at,
+                    ];
+                } else {
+                    $payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
+                    $resource = $this->getVA($package, $gateway);
+                }
         break;
         case 'qris':
                 $resource = $this->getQris($package, $gateway);

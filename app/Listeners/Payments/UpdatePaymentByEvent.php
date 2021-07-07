@@ -39,9 +39,6 @@ class UpdatePaymentByEvent
                         ->where('payment_ref_id', $params->tXid)
                         ->update([
                             'status' => Payment::STATUS_SUCCESS,
-                            'sender_bank' => Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$params->bankCd])['bank'],
-                            'sender_name' => $params->billingNm,
-                            'sender_account' => $params->vacctNo,
                             'confirmed_at' => Carbon::now(),
                         ]);
                 }

@@ -41,6 +41,7 @@ class Payment extends Model
     public const STATUS_FAILED = 'failed';
     public const STATUS_SUCCESS = 'success';
     public const STATUS_WAITING_FOR_APPROVAL = 'waiting_for_approval';
+    public const STATUS_EXPIRED = 'expired';
 
     public const SERVICE_TYPE_PAYMENT = 'pay';
     public const SERVICE_TYPE_REVERSAL = 'rev';

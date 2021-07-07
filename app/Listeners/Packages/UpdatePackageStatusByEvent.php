@@ -118,7 +118,9 @@ class UpdatePackageStatusByEvent
                 if ($params->status === '0') {
                     /** @var Package $package */
                     $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
-                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID)->save();
+                    $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
+                    $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
+                    $package->save();
                 }
                 break;
         }
