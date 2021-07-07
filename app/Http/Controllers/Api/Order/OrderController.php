@@ -87,7 +87,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $inputs['customer_id'] = $user->id;
 
@@ -129,7 +129,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -187,25 +187,27 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (!$code->exists) {
+        if (! $code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
 
+            /** @var Code $code */
             $code = Code::query()->where('content', $request->code)->first();
         }
 
         $codeable = $code->codeable;
 
-        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
+        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
+        // dd($codeable->deliveries()->get()->pluck('code.content'));
+
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
-
-        $query->whereJsonContains('showable', [CodeLogable::SHOW_CUSTOMER]);
-
+        $query->where('status', '!=', CodeLogable::TYPE_SCAN);
+        $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
 
         return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }

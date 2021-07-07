@@ -1,30 +1,23 @@
 _id: req_8a72a6af3307498da72486d1774143f3
 type: Request
 parentId: fld_dff509231e04403b8311f8ad217a3c10
-modified: 1625021723274
+modified: 1625470497374
 created: 1624676517311
-url: "{{ _.base_url }}/payment/nicepay/registration/va/zbYweEBy"
-name: Registration VA
+url: "{{ _.base_url }}/payment/nicepay/registration/{% response 'body',
+  'req_ff734313e4bb43a59669682e5283966f', 'b64::JC5kYXRhWzFdLmhhc2g=::46b',
+  'never', 60 %}/{% response 'body', 'req_55ac973776fb412590a8ea0a508a0df7',
+  'b64::JC5kYXRhWzBdLmhhc2g=::46b', 'never', 60 %}"
+name: Registration
 description: |-
   Request VA account.
 
   Parameters
   --
-  - `bank` => possible values: `BCA`, `MANDIRI` => default `BCA`
+  - `bank` => possible values: `bca`, `mandiri` => default `bca`
 method: POST
 body:
   mimeType: multipart/form-data
-  params:
-    - name: bank_code
-      value: MANDIRI
-      description: ""
-      id: pair_9cc3665fb9754159ae25ceac52d04a34
-      disabled: false
-    - name: ""
-      value: ""
-      description: ""
-      id: pair_7157dae0963b4f549cc8725d4c009825
-      disabled: true
+  params: []
 parameters: []
 headers:
   - name: Accept

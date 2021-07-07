@@ -51,6 +51,8 @@ class UpdateExistingPackage
             'destination_regency_id' => ['nullable'],
             'destination_district_id' => ['nullable'],
             'destination_sub_district_id' => ['nullable'],
+            'received_by' => ['nullable'],
+            'received_at' => ['nullable'],
         ])->validate();
 
         $this->isSeparated = $isSeparated;

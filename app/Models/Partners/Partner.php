@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $deleted_at
  *
  * @property-read Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
+ * @property-read \App\Models\Geo\Regency|null  $regency
  * @property-read Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
  * @property-read  User[]|\Illuminate\Database\Eloquent\Collection $users
  * @property  UserablePivot pivot

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
-use App\Http\Resources\Api\Package\PackageResource;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 

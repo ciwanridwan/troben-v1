@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Payments;
 
+use App\Concerns\Controllers\HasAdminCharge;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Validation\Rule;
 
 class CreateNewPayment
 {
-    use Dispatchable;
+    use Dispatchable, HasAdminCharge;
 
     public Payment $payment;
 
@@ -56,9 +57,10 @@ class CreateNewPayment
         if ($this->gateway->exists) {
             $defaultGatewayAttributes = [
                 'gateway_id' => $this->gateway->id,
-                'payment_admin_charges' => $this->gateway->admin_charges,
+                'payment_admin_charges' => self::adminChargeCalculator($this->gateway, $this->attributes['payment_amount']),
             ];
             $defaultPaymentAttributes['total_payment'] += $defaultGatewayAttributes['payment_admin_charges'];
+            $defaultPaymentAttributes = array_merge($defaultGatewayAttributes, $defaultPaymentAttributes);
         }
 
         $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);

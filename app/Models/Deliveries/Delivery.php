@@ -36,7 +36,7 @@ use ReflectionClass;
  * @property int destination_sub_district_id
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
- * @property-read \Illuminate\Database\Eloquent\Collection item_codes
+ * @property \Illuminate\Database\Eloquent\Collection item_codes
  * @property-read string|null as
  * @property int|null userable_id
  */
@@ -261,5 +261,42 @@ class Delivery extends Model
         }
 
         return $as;
+    }
+
+
+    public static function getAvailableDescriptionFormat()
+    {
+        return [
+            [
+                'type' => [self::TYPE_PICKUP],
+                'status' => [self::STATUS_ACCEPTED],
+                'description' => 'Pesanan siap dijemput oleh :driver_name [:transporter_registration_number]',
+                'variable' => ['driver_name', 'transporter_registration_number']
+            ],
+            [
+                'type' => [self::TYPE_PICKUP],
+                'status' => [self::STATUS_WAITING_TRANSPORTER],
+                'description' => ':driver_name sedang dalam perjalanan ke tempat kamu',
+                'variable' => ['driver_name']
+            ],
+            [
+                'type' => [self::TYPE_PICKUP, self::TYPE_TRANSIT],
+                'status' => [self::STATUS_FINISHED],
+                'description' => 'Pesanan kamu telah ada di Mitra :partner_name [:partner_code]',
+                'variable' => ['partner_name', 'partner_code']
+            ],
+            [
+                'type' => [self::TYPE_TRANSIT],
+                'status' => [self::STATUS_WAITING_TRANSPORTER],
+                'description' => ':driver_name sedang dalam perjalanan ke :origin_partner_name [:origin_partner_code]',
+                'variable' => ['driver_name', 'origin_partner_name', 'origin_partner_code']
+            ],
+            [
+                'type' => [self::TYPE_TRANSIT],
+                'status' => [self::STATUS_EN_ROUTE],
+                'description' => ':driver_name sedang dalam perjalanan ke :partner [:partner_code]',
+                'variable' => ['driver_name', 'partner', 'partner_code']
+            ],
+        ];
     }
 }

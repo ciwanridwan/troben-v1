@@ -4,6 +4,7 @@ namespace App\Models\Payments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
  * Payment gateway model.
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $channel
  * @property string $name
  * @property float $admin_charges
+ * @property bool $is_fixed
  * @property bool $is_bank_transfer
  * @property string $account_bank
  * @property string $account_number
@@ -27,6 +29,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Gateway extends Model
 {
+    use HashableId;
+
+    public const CHANNEL_NICEPAY_MANDIRI_VA = 'npmdrva';
+    public const CHANNEL_NICEPAY_BCA_VA = 'npbcava';
+    public const CHANNEL_NICEPAY_PERMATA_VA = 'nppmtva';
+    public const CHANNEL_NICEPAY_BRI_VA = 'npbriva';
+    public const CHANNEL_NICEPAY_BNI_VA = 'npbniva';
+    public const CHANNEL_NICEPAY_CIMB_VA = 'npcimbva';
+    public const CHANNEL_NICEPAY_SHPPEE_QRIS = 'npsppqris';
+
     /**
      * The table associated with the model.
      *
@@ -47,6 +59,16 @@ class Gateway extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $hidden = [
+        'id',
+    ];
+
+    protected $appends = [
+        'hash',
+        'type',
+        'bank'
+    ];
+
     /**
      * Define `hasMany` relationship with Payment model.
      *
@@ -55,5 +77,65 @@ class Gateway extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'gateway_id', 'id');
+    }
+
+    /**
+     * @param string $channel
+     * @return string[]
+     */
+    public static function convertChannel(string $channel): array
+    {
+        $bank = [
+            self::CHANNEL_NICEPAY_BCA_VA => [
+                'bank' => 'bca',
+                'type' => 'va',
+            ],
+            self::CHANNEL_NICEPAY_MANDIRI_VA => [
+                'bank' => 'mandiri',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_PERMATA_VA => [
+                'bank' => 'permata',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_BNI_VA => [
+                'bank' => 'bni',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_BRI_VA => [
+                'bank' => 'bri',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_CIMB_VA => [
+                'bank' => 'cimb',
+                'type' => 'va'
+            ],
+            self::CHANNEL_NICEPAY_SHPPEE_QRIS => [
+                'bank' => 'shoppe-pay',
+                'type' => 'qris'
+            ]
+        ];
+
+        return $bank[$channel];
+    }
+
+    /**
+     * Accessor for get type.
+     *
+     * @return string
+     */
+    public function getTypeAttribute()
+    {
+        return self::convertChannel($this->channel)['type'];
+    }
+
+    /**
+     * Accessor for get bank.
+     *
+     * @return string
+     */
+    public function getBankAttribute()
+    {
+        return self::convertChannel($this->channel)['bank'];
     }
 }

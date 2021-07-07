@@ -112,6 +112,7 @@ class Package extends Model implements AttachableContract
 
     public const ATTACHMENT_RECEIPT = 'receipt';
     public const ATTACHMENT_PACKAGE = 'package';
+    public const ATTACHMENT_RECEIVED = 'received';
 
     public const TYPE_WALKIN = 'walkin';
     public const TYPE_APP = 'app';
@@ -163,6 +164,8 @@ class Package extends Model implements AttachableContract
         'destination_regency_id',
         'destination_district_id',
         'destination_sub_district_id',
+        'received_by',
+        'received_at',
     ];
 
     protected $search_columns = [
@@ -477,5 +480,120 @@ class Package extends Model implements AttachableContract
         } else {
             return self::TYPE_APP;
         }
+    }
+
+    public static function getAvailableDescriptionFormat()
+    {
+        return [
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_CREATED],
+                'description' => 'pesanan diterima pada :updated_at',
+                'variable' => ['updated_at']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_PENDING],
+                'description' => 'Menunggu Konfirmasi Mitra :partner_code menerima pesanan',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_WAITING_FOR_PICKUP],
+                'description' => 'Kurir menuju customer',
+                'variable' => []
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_PICKED_UP],
+                'description' => 'Paket telah dijemput oleh kurir :partner_code',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_WAITING_FOR_APPROVAL],
+                'description' => 'Menunggu Konfirmasi Customer',
+                'variable' => []
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_WAITING_FOR_ESTIMATING],
+                'description' => 'Menunggu proses ukur dan timbang',
+                'variable' => []
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_ESTIMATING],
+                'description' => 'Paket sedang di ukur dan ditimbang oleh :partner_code',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_ESTIMATED],
+                'description' => 'Paket telah di ukur dan di timbang oleh :partner_code',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_REVAMP],
+                'description' => 'Menunggu Konfirmasi Revisi oleh Mitra',
+                'variable' => ['updated_at']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_DRAFT],
+                'status' => [self::STATUS_CANCEL],
+                'description' => 'Pesanan dibatalkan (:updated_at)',
+                'variable' => ['updated_at']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PENDING],
+                'status' => [self::STATUS_ACCEPTED],
+                'description' => 'Pesanan telah diterima oleh :partner_code',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_WAITING_FOR_PACKING],
+                'description' => 'Menunggu proses packing',
+                'variable' => []
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_PACKING],
+                'description' => 'Paket sedang di packing',
+                'variable' => ['packager_name']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_PACKED],
+                'description' => 'Paket telah siap diantar menuju :partner_code',
+                'variable' => ['partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_MANIFESTED],
+                'description' => 'Paket sedang menuju :partner_code (:partner_regency_name)',
+                'variable' => ['partner_code', 'partner_regency_name']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_IN_TRANSIT],
+                'description' => 'Paket telah diterima oleh :partner_code (:partner_regency_name)',
+                'variable' => ['partner_code', 'partner_regency_name']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_WITH_COURIER],
+                'description' => 'Paket diantar ke penerima oleh :origin_partner_code',
+                'variable' => ['origin_partner_code']
+            ],
+            [
+                'payment_status' => [self::PAYMENT_STATUS_PAID],
+                'status' => [self::STATUS_DELIVERED],
+                'description' => 'Paket diterima oleh :received_by pada :received_at',
+                'variable' => ['received_by', 'received_at']
+            ],
+
+        ];
     }
 }

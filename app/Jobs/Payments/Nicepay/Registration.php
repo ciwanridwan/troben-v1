@@ -1,22 +1,36 @@
 <?php
 
-namespace App\Jobs\Payments\Nicepay\VirtualAccount;
+namespace App\Jobs\Payments\Nicepay;
 
 use App\Models\Packages\Package;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+/**
+ * Class Registration.
+ * @property array $attributes
+ * @property object $response
+ * @property Package $package
+ */
 class Registration
 {
     use Dispatchable;
 
-    protected const BASE_URI = 'https://www.nicepay.co.id/nicepay/direct/v2/';
-    protected const URL = 'registration';
+    /**
+     * @var array $attributes
+     */
     public array $attributes;
-    public $response;
-    public $flag;
 
+    /**
+     * @var object $response
+     */
+    public object $response;
+
+    /**
+     * @var Package $package
+     */
     protected Package $package;
+
     /**
      * Create a new job instance.
      *
@@ -34,13 +48,11 @@ class Registration
      */
     public function handle(): bool
     {
-        $client = new Client(['base_uri' => self::BASE_URI]);
-        $this->response = json_decode($client->post(self::URL, [
+        $client = new Client(['base_uri' => config('nicepay.uri')]);
+        $this->response = json_decode($client->post(config('nicepay.registration_url'), [
             'body' => json_encode($this->attributes, true)
         ])->getBody());
 
-        $this->flag = ($this->response->resultCd === '0000') ? true : false;
-
-        return $this->flag;
+        return ($this->response->resultCd === '0000') ? true : false;
     }
 }

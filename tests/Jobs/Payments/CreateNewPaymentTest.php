@@ -44,7 +44,7 @@ class CreateNewPaymentTest extends TestCase
         $this->actingAs($customer);
 
         /** @var Gateway $gateway */
-        $gateway = Gateway::where('is_bank_transfer', false)->first();
+        $gateway = Gateway::where('is_bank_transfer', true)->first();
 
         $inputs = [
             'service_type' => Payment::SERVICE_TYPE_PAYMENT,
@@ -78,7 +78,7 @@ class CreateNewPaymentTest extends TestCase
         $this->actingAs($customer);
 
         /** @var Gateway $gateway */
-        $gateway = Gateway::where('is_bank_transfer', false)->first();
+        $gateway = Gateway::where('is_bank_transfer', true)->first();
 
         $inputs = [
             'service_type' => Payment::SERVICE_TYPE_PAYMENT,
@@ -109,7 +109,7 @@ class CreateNewPaymentTest extends TestCase
         $delivery = Delivery::all()->random()->first();
 
         /** @var Gateway $gateway */
-        $gateway = Gateway::where('is_bank_transfer', false)->first();
+        $gateway = Gateway::where('is_bank_transfer', true)->first();
 
 
         // $this->expectsJobs(CreateNewPaymentForDelivery::class);

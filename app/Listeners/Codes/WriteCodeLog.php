@@ -22,6 +22,7 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Jobs\Codes\Logs\CreateNewLog;
 use App\Models\Code;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Supports\Translates\Translate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
@@ -141,7 +142,7 @@ class WriteCodeLog
     protected function packageLog(Model $model, Package $package, Code $code, $inputs)
     {
         if (! Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$package->status.'_'.$package->payment_status];
+            $logDescription = (new Translate($package))->translate();
         } else {
             $logDescription = $inputs['log_description'];
         }
@@ -181,7 +182,7 @@ class WriteCodeLog
     protected function deliveryLog(Model $model, Delivery $delivery, Code $code, $inputs)
     {
         if (! Arr::has($inputs, 'log_description')) {
-            $logDescription = CodeLogable::getAvailableStatusCode()[$delivery->type.'_'.$delivery->status];
+            $logDescription = (new Translate($delivery))->translate();
         } else {
             $logDescription = $inputs['log_description'];
         }
