@@ -52,6 +52,7 @@ class OrderController extends Controller
         $this->authorize('view', $package);
 
         return $this->jsonSuccess(new PackageResource($package->load(
+            'prices',
             'attachments',
             'items',
             'items.prices',

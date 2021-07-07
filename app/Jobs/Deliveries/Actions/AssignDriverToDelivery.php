@@ -58,7 +58,6 @@ class AssignDriverToDelivery
                     ->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP)
                     ->save());
         }
-
         event(new DriverAssigned($this->delivery, $this->userablePivot));
     }
 }

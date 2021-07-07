@@ -84,7 +84,8 @@ class PricingCalculator
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
-        $total_amount = $handling_price + $insurance_price + $service_price;
+        $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
+        $total_amount = $handling_price + $insurance_price + $service_price - $discount_price;
         return $total_amount;
     }
 
