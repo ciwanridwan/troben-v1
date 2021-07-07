@@ -25,6 +25,7 @@ class Price extends Model
     public const TYPE_PROMOTION = 'promotion';
     public const TYPE_DISCOUNT = 'discount';
     public const TYPE_OTHER = 'other';
+    public const TYPE_DELIVERY = 'delivery';
 
     /**
      * The table associated with the model.
@@ -75,6 +76,7 @@ class Price extends Model
             self::TYPE_PROMOTION,
             self::TYPE_DISCOUNT,
             self::TYPE_OTHER,
+            self::TYPE_DELIVERY
         ];
     }
 

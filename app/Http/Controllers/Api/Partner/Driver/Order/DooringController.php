@@ -17,6 +17,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -72,16 +73,21 @@ class DooringController extends Controller
     {
         $request->validate([
             'received_by' => 'required',
-            'received_at' => 'required',
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
 
 
+        $request->merge([
+            'received_at' => Carbon::now(),
+        ]);
 
-        $this->authorize('update', $package);
+
 
         $inputs = $request->all();
+
+
+
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
