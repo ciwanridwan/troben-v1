@@ -34,7 +34,6 @@ use App\Events\Packages\PackageCancelMethodSelected;
 use App\Listeners\Codes\WriteCodeLog;
 use App\Listeners\Deliveries\CreateDeliveryByEvent;
 use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
-use App\Listeners\Payments\PaymentCreatedByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
