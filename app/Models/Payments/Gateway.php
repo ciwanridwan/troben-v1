@@ -69,6 +69,10 @@ class Gateway extends Model
         'bank'
     ];
 
+    protected $casts = [
+        'admin_charges' => 'double',
+    ];
+
     /**
      * Define `hasMany` relationship with Payment model.
      *

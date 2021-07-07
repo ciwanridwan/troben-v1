@@ -15,6 +15,6 @@ trait HasAdminCharge
     {
         return $gateway->is_fixed
             ? $gateway->admin_charges
-            : ceil($gateway->admin_charges * $amount / 100);
+            : ceil($gateway->admin_charges * $amount);
     }
 }

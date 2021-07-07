@@ -32,6 +32,8 @@ class PaymentController extends Controller
                 'id',
                 'channel',
                 'name',
+                'is_fixed',
+                'admin_charges'
             ]);
 
         throw_if(empty($gateway->toArray()), Error::make(Response::RC_UNAVAILABLE_PAYMENT_GATEWAY));
