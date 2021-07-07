@@ -67,10 +67,10 @@ class PricingCalculator
 
     public static function getPackageTotalAmount(Package $package)
     {
-        if (!$package->relationLoaded('items.prices')) {
+        if (! $package->relationLoaded('items.prices')) {
             $package->load('items.prices');
         }
-        if (!$package->relationLoaded('prices')) {
+        if (! $package->relationLoaded('prices')) {
             $package->load('prices');
         }
 
@@ -157,9 +157,9 @@ class PricingCalculator
     public static function getServicePrice(array $inputs, ?Price $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -169,7 +169,7 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        if (!$price) {
+        if (! $price) {
             /** @var Price $price */
             $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
