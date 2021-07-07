@@ -18,7 +18,7 @@ class PaymentRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('/'), [
+        $this->router->get($this->prefix('/{package_hash}'), [
             'as' => $this->name,
             'uses' => $this->uses('index')
         ]);
