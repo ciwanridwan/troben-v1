@@ -59,9 +59,13 @@ class UpdateExistingCustomer
      */
     public function handle(): bool
     {
+        $this->customer->addresses()->where('is_default', true)->update(
+            ['address' => $this->attributes['address']]
+        );
         collect($this->attributes)->each(fn ($v, $k) => $this->customer->{$k} = $v);
 
         if ($this->customer->isDirty()) {
+            unset($this->customer['address']);
             if ($this->customer->save()) {
                 event(new CustomerModified($this->customer));
             } else {
