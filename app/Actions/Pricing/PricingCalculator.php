@@ -86,7 +86,10 @@ class PricingCalculator
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
         $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
-        $total_amount = $handling_price + $insurance_price + $service_price - $discount_price;
+        $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_PICKUP)->get()->sum('amount');
+
+        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+
         return $total_amount;
     }
 
