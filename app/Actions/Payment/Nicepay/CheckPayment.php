@@ -13,8 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 /**
- * Class CheckPayment
- * @package App\Actions\Payment\Nicepay
+ * Class CheckPayment.
  */
 class CheckPayment
 {
@@ -57,8 +56,8 @@ class CheckPayment
         $this->gateway = $gateway;
         $this->expDate = Carbon::now()->addDay();
         $this->payment = $package->payments()
-            ->where('status',Payment::STATUS_PENDING)
-            ->whereHasMorph('payable',[Package::class])
+            ->where('status', Payment::STATUS_PENDING)
+            ->whereHasMorph('payable', [Package::class])
             ->latest()
             ->first();
     }
@@ -75,7 +74,7 @@ class CheckPayment
                 'va_number' => $this->response->vacctNo,
                 'bank' => Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$this->response->bankCd])['bank'],
                 'server_time' => Carbon::now()->format('Y-m-d H-i-s'),
-                'expired_va' => date_format(date_create($this->response->vacctValidDt . $this->response->vacctValidTm), 'Y-m-d H:i:s'),
+                'expired_va' => date_format(date_create($this->response->vacctValidDt.$this->response->vacctValidTm), 'Y-m-d H:i:s'),
             ];
         } else {
             $this->payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
@@ -113,12 +112,12 @@ class CheckPayment
     }
 
     /**
-     * Nicepay va registration payment
+     * Nicepay va registration payment.
      *
      * @return array
      * @throws \Throwable
      */
-    public function vaRegistration (): array
+    public function vaRegistration(): array
     {
         if ($this->payment) {
             return self::inquiryPayment()->isValid();
