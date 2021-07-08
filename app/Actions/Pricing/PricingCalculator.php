@@ -118,9 +118,9 @@ class PricingCalculator
         $insurancePriceTotal = 0;
         $pickup_price = 0;
 
-        if ($inputs['fleet_name'] = 'bike'){
+        if ($inputs['fleet_name'] = 'bike') {
             $pickup_price = Transporter::PRICE_BIKE;
-        }else{
+        } else {
             $pickup_price = Transporter::PRICE_CAR;
         }
 
