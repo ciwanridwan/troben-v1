@@ -1,15 +1,21 @@
 _id: req_ff734313e4bb43a59669682e5283966f
 type: Request
 parentId: fld_56de3a8380f845caaf2883dec07e8784
-modified: 1625213375430
+modified: 1625648600328
 created: 1625213318512
-url: "{{ _.base_url }}/payment"
+url: "{{ _.base_url }}/payment/{% response 'body',
+  'req_55ac973776fb412590a8ea0a508a0df7', 'b64::JC5kYXRhWzBdLmhhc2g=::46b',
+  'never', 60 %}"
 name: Gateway list
 description: ""
 method: GET
 body: {}
 parameters: []
-headers: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_c8e0ec294273428b886a56bc073ce410
 authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
