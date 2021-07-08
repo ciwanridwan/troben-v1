@@ -7,6 +7,8 @@ use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,9 +35,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @property-read \App\Models\Packages\Package $package
  */
-class Item extends Model
+class Item extends Model implements AttachableContract
 {
-    use HashableId, HasCode, HasFactory;
+    use HashableId, HasCode, HasFactory, attachable;
+
+    public const ATTACHMENT_PACKAGE_ITEM = 'package_item';
 
     /**
      * The table associated with the model.

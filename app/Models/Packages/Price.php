@@ -24,6 +24,7 @@ class Price extends Model
     public const TYPE_INSURANCE = 'insurance';
     public const TYPE_PROMOTION = 'promotion';
     public const TYPE_DISCOUNT = 'discount';
+    public const TYPE_PICKUP = 'pickup';
     public const TYPE_OTHER = 'other';
     public const TYPE_DELIVERY = 'delivery';
 
@@ -75,6 +76,7 @@ class Price extends Model
             self::TYPE_INSURANCE,
             self::TYPE_PROMOTION,
             self::TYPE_DISCOUNT,
+            self::TYPE_PICKUP,
             self::TYPE_OTHER,
             self::TYPE_DELIVERY
         ];

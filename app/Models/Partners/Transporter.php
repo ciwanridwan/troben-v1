@@ -62,6 +62,10 @@ class Transporter extends Model
     public const TYPE_WINGBOX = 'wingbox';
     public const TYPE_VAN = 'van';
 
+    public const PRICE_BIKE = 10000;
+    public const PRICE_CAR = 25000;
+
+
 
     /**
      * The table associated with the model.

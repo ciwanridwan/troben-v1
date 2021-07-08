@@ -45,6 +45,11 @@ return [
             'root' => storage_path('app/packages'),
         ],
 
+        'package_item' => [
+            'driver' => 'local',
+            'root' => storage_path('app/package_item'),
+        ],
+
         'received' => [
             'driver' => 'local',
             'root' => storage_path('app/received'),

@@ -33,6 +33,7 @@ class OrderController extends Controller
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
         $query->with([
+            'attachments',
             'items',
             'estimator',
             'packager',
