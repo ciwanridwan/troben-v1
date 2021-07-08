@@ -4,13 +4,7 @@ namespace App\Jobs\Packages\Item;
 
 use App\Concerns\Jobs\AttachmentCreator;
 use App\Models\Packages\Item;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
 class WarehouseUploadItem
@@ -30,8 +24,6 @@ class WarehouseUploadItem
         $this->item = $item;
 
         $this->photos = collect($photos);
-
-
     }
 
     public function handle()
@@ -46,7 +38,5 @@ class WarehouseUploadItem
                 'mime' => $this->getUploadedFileMime($this->photo),
             ]);
         });
-
-
     }
 }
