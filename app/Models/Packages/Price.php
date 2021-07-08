@@ -24,7 +24,7 @@ class Price extends Model
     public const TYPE_INSURANCE = 'insurance';
     public const TYPE_PROMOTION = 'promotion';
     public const TYPE_DISCOUNT = 'discount';
-    public const TYPE_PICKUP = 'discount';
+    public const TYPE_PICKUP = 'pickup';
     public const TYPE_OTHER = 'other';
     public const TYPE_DELIVERY = 'delivery';
 
