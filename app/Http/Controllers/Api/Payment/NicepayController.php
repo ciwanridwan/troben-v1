@@ -25,10 +25,10 @@ class NicepayController extends Controller
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
                 $resource = (new CheckPayment($package, $gateway))->vaRegistration();
-        break;
+                break;
         case 'qris':
                 $resource = (new RegistrationPayment($package, $gateway))->qrisRegistration();
-        break;
+                break;
         endswitch;
 
         return $this->jsonSuccess(new RegistrationResource($resource ?? []));

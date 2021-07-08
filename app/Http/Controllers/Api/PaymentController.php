@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -36,7 +35,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Method for set response property
+     * Method for set response property.
      */
     private function getPaymentGateway(): object
     {
@@ -56,9 +55,10 @@ class PaymentController extends Controller
     }
 
     /**
-     * Giving status for able to choosed or not
+     * Giving status for able to choosed or not.
      */
-    private function isSelectable() {
+    private function isSelectable()
+    {
         $gatewayChoosed = $this->package->payments->first()->gateway->channel ?? null;
         foreach ($this->response as $key => $gateway) {
             $this->response[$key]['selectable'] = is_null($gatewayChoosed) ? true : ($gateway['channel'] === $gatewayChoosed ? true : false);
