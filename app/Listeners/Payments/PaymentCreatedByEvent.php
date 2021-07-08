@@ -54,9 +54,6 @@ class PaymentCreatedByEvent
                 $gateway = $event->gateway;
 
                 $jobs = new CreateNewPaymentForPackage($package, $gateway, [
-                    'sender_bank' => Gateway::convertChannel($gateway->channel)['bank'],
-                    'sender_name' => $response->billingNm,
-                    'sender_account' => $response->vacctNo,
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
                     'payment_amount' => $package->total_amount,
                     'payment_ref_id' => $response->tXid,
