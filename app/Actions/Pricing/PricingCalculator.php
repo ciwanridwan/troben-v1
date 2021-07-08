@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pricing;
 
+use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -115,6 +116,15 @@ class PricingCalculator
 
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
+        $pickup_price = 0;
+
+        if ($inputs['fleet_name'] = 'bike'){
+            $pickup_price = Transporter::PRICE_BIKE;
+        }else{
+            $pickup_price = Transporter::PRICE_CAR;
+        }
+
+        $discount = $pickup_price;
 
         foreach ($inputs['items'] as $index => $item) {
             $item['handling'] = self::checkHandling($item['handling']);
@@ -136,6 +146,8 @@ class PricingCalculator
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
+                'pickup_price' => $pickup_price,
+                'discount' => $discount,
                 'tier' => $tierPrice,
                 'service' => $servicePrice
             ]
