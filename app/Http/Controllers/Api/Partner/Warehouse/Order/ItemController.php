@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Jobs\Packages\Item\WarehouseUploadItem;
-use App\Jobs\Packages\Item\WarehouseUploadItemUpdate;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -74,7 +73,7 @@ class ItemController extends Controller
 
         if ($request->hasAny(['handling'])) {
             $handling = $request->handling;
-            if (head($handling) == null){
+            if (head($handling) == null) {
                 $item = Item::where('id', $item->id)->first();
                 $item->handling = [];
                 $item->save();
