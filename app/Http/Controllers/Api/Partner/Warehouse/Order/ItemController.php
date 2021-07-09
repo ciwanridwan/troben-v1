@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Jobs\Packages\Item\WarehouseUploadItem;
+use App\Jobs\Packages\Item\WarehouseUploadItemUpdate;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -69,7 +70,17 @@ class ItemController extends Controller
      */
     public function update(Request $request, Package $package, Item $item): JsonResponse
     {
-        $this->authorize('update', $package);
+        /*$this->authorize('update', $package);*/
+
+        if ($request->hasAny(['handling'])) {
+            $handling = $request->handling;
+            if (head($handling) == null){
+                $item = Item::where('id', $item->id)->first();
+                $item->handling = [];
+                $item->save();
+                unset($request['handling']);
+            }
+        }
 
         $job = new UpdateExistingItem($package, $item, $request->all());
 
