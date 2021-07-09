@@ -185,13 +185,11 @@ class AccountAuthentication
         $otp = $authenticatable->createOtp($otp_channel);
 
         $job = new SendMessage($otp, $authenticatable->phone);
-//        $this->dispatch($job);
+        $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [
-//            'otp' => $otp->id,
-            'otp' => '123456',
-//            'expired_at' => $otp->expired_at->timestamp,
-            'expired_at' => Carbon::now()->addDay(),
+            'otp' => $otp->id,
+            'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
     }
 }

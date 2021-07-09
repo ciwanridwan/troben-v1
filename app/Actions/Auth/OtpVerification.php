@@ -63,11 +63,10 @@ class OtpVerification
         $otp = $this->attributes['retry'] ? $this->extendExpired($otp) : $otp->verifiable->createOtp();
 
         $job = new SendMessage($otp, $otp->verifiable->phone);
-//        $this->dispatch($job);
+        $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [
-//            'otp' => $otp->getKey(),
-            'otp' => '123456',
+            'otp' => $otp->getKey(),
         ]))->json();
     }
 
