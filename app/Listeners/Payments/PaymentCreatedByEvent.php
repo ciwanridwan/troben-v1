@@ -15,18 +15,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 class PaymentCreatedByEvent
 {
     use DispatchesJobs;
-    /**
-     * @var array
-     */
-    protected array $attributes;
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-    }
 
     /**
      * Handle the event.
@@ -53,12 +41,35 @@ class PaymentCreatedByEvent
                 /** @var Gateway $gateway */
                 $gateway = $event->gateway;
 
-                $jobs = new CreateNewPaymentForPackage($package, $gateway, [
+                $attributes = [
+                    'payment_content' => $response->vacctValidDt,
+                    'expired_at' => date_format(date_create($response->vacctValidDt . $response->vacctValidTm), 'Y-m-d H:i:s'),
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
                     'payment_amount' => $package->total_amount,
                     'payment_ref_id' => $response->tXid,
-                    'expired_at' => date_format(date_create($response->vacctValidDt.$response->vacctValidTm), 'Y-m-d H:i:s')
-                ]);
+                ];
+
+                $jobs = new CreateNewPaymentForPackage($package, $gateway, $attributes);
+                $this->dispatch($jobs);
+                break;
+            case $event instanceof Registration\NewQrisRegistration:
+                /** @var Package $package */
+                $package = $event->package;
+
+                $response = $event->response;
+
+                /** @var Gateway $gateway */
+                $gateway = $event->gateway;
+
+                $attributes = [
+                    'payment_content' => $response->qrContent,
+                    'expired_at' => date_format(date_create($response->paymentExpDt . $response->paymentExpTm), 'Y-m-d H:i:s'),
+                    'service_type' => Payment::SERVICE_TYPE_PAYMENT,
+                    'payment_amount' => $package->total_amount,
+                    'payment_ref_id' => $response->tXid,
+                ];
+
+                $jobs = new CreateNewPaymentForPackage($package, $gateway, $attributes);
                 $this->dispatch($jobs);
                 break;
             default:

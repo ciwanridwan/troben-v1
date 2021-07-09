@@ -21,10 +21,8 @@ class UpdatePaymentByEvent
     }
 
     /**
-     * Handle the event.
-     *
-     * @param  object  $event
-     * @return void
+     * @param object $event
+     * @throws \Throwable
      */
     public function handle(object $event): void
     {

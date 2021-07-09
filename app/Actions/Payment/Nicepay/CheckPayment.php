@@ -69,16 +69,34 @@ class CheckPayment
     public function isValid(): array
     {
         if ($this->payment->expired_at >= Carbon::now()) {
+            $expiredAt = $this->response->payMethod === config('nicepay.payment_method_code.va')
+                ? $this->response->vacctValidDt . $this->response->vacctValidTm
+                : $this->response->paymentExpDt . $this->response->paymentExpTm;
+
             $result = [
                 'total_amount' => (int) $this->response->amt,
-                'va_number' => $this->response->vacctNo,
-                'bank' => Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$this->response->bankCd])['bank'],
-                'server_time' => Carbon::now()->format('Y-m-d H-i-s'),
-                'expired_va' => date_format(date_create($this->response->vacctValidDt.$this->response->vacctValidTm), 'Y-m-d H:i:s'),
+                'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
+                'expired_time' => date_format(date_create($expiredAt), 'Y-m-d H:i:s'),
             ];
+
+            if ($this->response->payMethod === config('nicepay.payment_method_code.va')) {
+                $result['bank'] = Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$this->response->bankCd])['bank'];
+                $result['va_number'] = $this->response->vacctNo;
+            }
+
+            if ($this->response->payMethod === config('nicepay.payment_method_code.qris')) {
+                $result['qr_content'] = $this->payment->payment_content;
+            }
         } else {
             $this->payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
-            $result = (new RegistrationPayment($this->package, $this->gateway))->vaRegistration();
+
+            if ($this->response->payMethod === config('nicepay.payment_method_code.va')) {
+                $result = (new RegistrationPayment($this->package, $this->gateway))->vaRegistration();
+            }
+
+            if ($this->response->payMethod === config('nicepay.payment_method_code.qris')) {
+                $result = (new RegistrationPayment($this->package, $this->gateway))->qrisRegistration();
+            }
         }
 
         return $result ?? [];
@@ -123,6 +141,19 @@ class CheckPayment
             return self::inquiryPayment()->isValid();
         } else {
             return (new RegistrationPayment($this->package, $this->gateway))->vaRegistration();
+        }
+    }
+
+    /**
+     * @return array
+     * @throws \Throwable
+     */
+    public function qrisRegistration(): array
+    {
+        if ($this->payment) {
+            return self::inquiryPayment()->isValid();
+        } else {
+            return  (new RegistrationPayment($this->package, $this->gateway))->qrisRegistration();
         }
     }
 }

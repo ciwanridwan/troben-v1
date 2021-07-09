@@ -4,6 +4,7 @@ namespace App\Actions\Payment\Nicepay;
 
 use App\Concerns\Controllers\HasAdminCharge;
 use App\Concerns\Nicepay\UsingNicepay;
+use App\Events\Payment\Nicepay\Registration\NewQrisRegistration;
 use App\Events\Payment\Nicepay\Registration\NewVacctRegistration;
 use App\Exceptions\Error;
 use App\Http\Response;
@@ -94,10 +95,10 @@ class RegistrationPayment
 
         return [
             'total_amount' => $this->attributes['amt'],
-            'va_number' => $job->response->vacctNo,
-            'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_va' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->vacctValidDt . $job->response->vacctValidTm), 'Y-m-d H:i:s'),
+            'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
+            'va_number' => $job->response->vacctNo,
         ];
     }
 
@@ -112,17 +113,17 @@ class RegistrationPayment
             'userIP' => request()->server('SERVER_ADDR'),
             'mitraCd' => config('nicepay.mitra_code'),
             'shopId' => config('nicepay.shop_id'),
-            'paymentExpDt' => '',
-            'paymentExpTm' => '',
         ]);
         $job = new Registration($this->package, $this->attributes);
 
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
+        event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
 
         return [
             'total_amount' => $this->attributes['amt'],
+            'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->paymentExpDt . $job->response->paymentExpTm), 'Y-m-d H:i:s'),
             'qr_content' => $job->response->qrContent,
-            'qr_url' => $job->response->qrUrl
         ];
     }
 }

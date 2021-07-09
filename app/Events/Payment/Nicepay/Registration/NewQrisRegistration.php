@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewVacctRegistration
+class NewQrisRegistration
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -29,8 +29,9 @@ class NewVacctRegistration
     public object $response;
 
     /**
-     * NewVacctRegistration constructor.
+     * NewQrisRegistration constructor.
      * @param Package $package
+     * @param Gateway $gateway
      * @param $response
      */
     public function __construct(Package $package, Gateway $gateway, $response)
