@@ -113,6 +113,8 @@ class RegistrationPayment
             'userIP' => request()->server('SERVER_ADDR'),
             'mitraCd' => config('nicepay.mitra_code'),
             'shopId' => config('nicepay.shop_id'),
+            'paymentExpDt' => '',
+            'paymentExpTm' => '',
         ]);
         $job = new Registration($this->package, $this->attributes);
 

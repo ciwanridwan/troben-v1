@@ -42,7 +42,7 @@ class PaymentCreatedByEvent
                 $gateway = $event->gateway;
 
                 $attributes = [
-                    'payment_content' => $response->vacctValidDt,
+                    'payment_content' => $response->vacctNo,
                     'expired_at' => date_format(date_create($response->vacctValidDt . $response->vacctValidTm), 'Y-m-d H:i:s'),
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
                     'payment_amount' => $package->total_amount,

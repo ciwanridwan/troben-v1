@@ -12,6 +12,7 @@ return [
      * endpoint registration.
      */
     'registration_url' => 'registration',
+    'cancel_url' => 'cancel',
 
     /*
      * endpoint inquiry.
