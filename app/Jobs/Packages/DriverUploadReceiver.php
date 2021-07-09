@@ -39,6 +39,5 @@ class DriverUploadReceiver implements ShouldQueue
                 'mime' => $this->getUploadedFileMime($this->photo),
             ]);
         });
-
     }
 }
