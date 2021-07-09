@@ -1,14 +1,13 @@
-_id: req_8a72a6af3307498da72486d1774143f3
+_id: req_f908667913d14c0f8f3342bedb05dedf
 type: Request
 parentId: fld_dff509231e04403b8311f8ad217a3c10
-modified: 1625804975383
-created: 1624676517311
-url: "{{ _.base_url }}/payment/nicepay/registration/{% response 'body',
-  'req_ff734313e4bb43a59669682e5283966f', 'b64::JC5kYXRhWzJdLmhhc2g=::46b',
-  'never', 60 %}/{% response 'body', 'req_55ac973776fb412590a8ea0a508a0df7',
-  'b64::JC5kYXRhWzBdLmhhc2g=::46b', 'never', 60 %}"
-name: Registration
-description: Registration payment to nicepay to get qris/va
+modified: 1625802888496
+created: 1625802620792
+url: "{{ _.base_url }}/payment/nicepay/cancel/{% response 'body',
+  'req_55ac973776fb412590a8ea0a508a0df7', 'b64::JC5kYXRhWzBdLmhhc2g=::46b',
+  'never', 60 %}"
+name: Cancel
+description: cancel nicepay payment
 method: POST
 body: {}
 parameters: []
@@ -21,7 +20,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1624676517311
+metaSortKey: -1623994199412.5
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
