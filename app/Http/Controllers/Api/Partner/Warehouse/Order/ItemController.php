@@ -44,9 +44,7 @@ class ItemController extends Controller
             'length' => 'required',
             'height' => 'required',
         ]);
-
         $inputs = $request->all();
-
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
@@ -54,7 +52,6 @@ class ItemController extends Controller
         $job = new CreateNewItemFromExistingPackage($package, $inputs);
 
         $this->dispatchNow($job);
-
 
         $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
 
@@ -74,7 +71,13 @@ class ItemController extends Controller
     {
         $this->authorize('update', $package);
 
-        $this->dispatchNow(new UpdateExistingItem($package, $item, $request->all()));
+        $job = new UpdateExistingItem($package, $item, $request->all());
+
+        $this->dispatchNow($job);
+
+        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+
+        $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new JsonResource($item->fresh()));
     }
