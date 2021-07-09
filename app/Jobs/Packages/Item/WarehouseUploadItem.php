@@ -4,10 +4,11 @@ namespace App\Jobs\Packages\Item;
 
 use App\Concerns\Jobs\AttachmentCreator;
 use App\Models\Packages\Item;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 
-class WarehouseUploadItem
+class WarehouseUploadItem implements ShouldQueue
 {
     use AttachmentCreator;
 

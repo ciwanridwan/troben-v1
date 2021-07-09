@@ -76,64 +76,18 @@ class DooringController extends Controller
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
-
-
         $request->merge([
             'received_at' => Carbon::now(),
         ]);
-
-
-
         $inputs = $request->all();
-
-
-
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
-
         $this->dispatchNow($job);
-
         $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
-
-
-
-        $this->dispatchNow($uploadJob);
-
-
-
-        event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
-
-
-        return $this->jsonSuccess(DeliveryResource::make($delivery));
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     * @throws \Throwable
-     */
-    public function unloadeditem(Delivery $delivery, Package $package, Request $request): JsonResponse
-    {
-        $this->authorize('update', $package);
-
-        $inputs = $request->all();
-
-
-        /** @noinspection PhpParamsInspection */
-        /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
-
-        $job = new UpdateExistingPackage($package, $inputs);
-
-        $this->dispatchNow($job);
-
-        $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
-
         $this->dispatchNow($uploadJob);
 
         event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
