@@ -70,8 +70,8 @@ class CheckPayment
     {
         if ($this->payment->expired_at >= Carbon::now()) {
             $expiredAt = $this->response->payMethod === config('nicepay.payment_method_code.va')
-                ? $this->response->vacctValidDt . $this->response->vacctValidTm
-                : $this->response->paymentExpDt . $this->response->paymentExpTm;
+                ? $this->response->vacctValidDt.$this->response->vacctValidTm
+                : $this->response->paymentExpDt.$this->response->paymentExpTm;
 
             $result = [
                 'total_amount' => (int) $this->response->amt,

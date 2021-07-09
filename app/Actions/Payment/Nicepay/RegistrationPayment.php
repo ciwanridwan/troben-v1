@@ -96,7 +96,7 @@ class RegistrationPayment
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_time' => date_format(date_create($job->response->vacctValidDt . $job->response->vacctValidTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $job->response->vacctNo,
         ];
@@ -124,7 +124,7 @@ class RegistrationPayment
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_time' => date_format(date_create($job->response->paymentExpDt . $job->response->paymentExpTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->paymentExpDt.$job->response->paymentExpTm), 'Y-m-d H:i:s'),
             'qr_content' => $job->response->qrContent,
         ];
     }

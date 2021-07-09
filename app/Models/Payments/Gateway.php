@@ -74,13 +74,6 @@ class Gateway extends Model
         'admin_charges' => 'double',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope(new ActiveScope());
-    }
-
     /**
      * Define `hasMany` relationship with Payment model.
      *
@@ -149,5 +142,12 @@ class Gateway extends Model
     public function getBankAttribute()
     {
         return self::convertChannel($this->channel)['bank'];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new ActiveScope());
     }
 }
