@@ -53,6 +53,7 @@ class OrderController extends Controller
         $this->authorize('view', $package);
 
         return $this->jsonSuccess(PackageResource::make($package->load([
+            'attachments',
             'items',
             'estimator',
             'packager',

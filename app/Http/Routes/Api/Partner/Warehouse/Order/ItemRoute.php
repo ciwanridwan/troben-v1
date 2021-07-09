@@ -29,7 +29,7 @@ class ItemRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
-        $this->router->put($this->prefix('{item_hash}'), [
+        $this->router->post($this->prefix('{item_hash}'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ]);
