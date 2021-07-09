@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
@@ -184,11 +185,13 @@ class AccountAuthentication
         $otp = $authenticatable->createOtp($otp_channel);
 
         $job = new SendMessage($otp, $authenticatable->phone);
-        $this->dispatch($job);
+//        $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS, [
-            'otp' => $otp->id,
-            'expired_at' => $otp->expired_at->timestamp,
+//            'otp' => $otp->id,
+            'otp' => '123456',
+//            'expired_at' => $otp->expired_at->timestamp,
+            'expired_at' => Carbon::now()->addDay(),
         ]))->json();
     }
 }
