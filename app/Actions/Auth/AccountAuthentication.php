@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use libphonenumber\PhoneNumberUtil;
