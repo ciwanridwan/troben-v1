@@ -79,9 +79,10 @@ class ItemController extends Controller
                 $item->handling = [];
                 $item->save();
                 unset($request['handling']);
-            }}else{
+            }
+        } else {
             $price = Price::where('package_item_id', $item->id)
-                ->Where('type', 'handling' )->delete();
+                ->Where('type', 'handling')->delete();
         }
 
 
