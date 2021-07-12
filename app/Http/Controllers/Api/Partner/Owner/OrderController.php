@@ -109,7 +109,7 @@ class OrderController extends Controller
             'outbound_manifest' => $outboundManifest,
             'paid_order' => $paidOrder,
             'unpaid_order' => $unpaidOrder,
-            'deposit_amount' => $depositAmount,
+            'deposit_amount' => (float) $depositAmount,
         ]));
     }
 }
