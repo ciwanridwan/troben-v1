@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -85,7 +86,10 @@ class AccountController extends Controller
         $job = new UpdateExistingCustomer($customer, $inputs->all());
         $this->dispatch($job);
 
-        return $job->customer->fresh();
+        $uploadJob = new CustomerUploadPhoto($job->customer, $inputs->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        return $job->customer->refresh();
     }
 
     /**
