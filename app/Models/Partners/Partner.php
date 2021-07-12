@@ -211,6 +211,11 @@ class Partner extends Model
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
     }
 
+    public function outbound(): Relations\HasMany
+    {
+        return $this->hasMany(Delivery::class, 'origin_partner_id', 'id');
+    }
+
     public function code_logs()
     {
         return $this->morphMany(CodeLogable::class, 'code_logable');

@@ -2,8 +2,10 @@
 
 namespace App\Models\Payments;
 
+use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -137,6 +139,14 @@ class Payment extends Model
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function payable(): MorphTo
+    {
+        return $this->morphTo('payable');
+    }
+
+    /**
+     * @return MorphTo
+     */
+    public function deliveries(): MorphTo
     {
         return $this->morphTo('payable');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use App\Http\Resources\Api\Partner\DashboardResource;
+use App\Models\Packages\Item;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -131,5 +133,65 @@ class OrderController extends Controller
         event(new PackageAlreadyPackedByWarehouse($package));
 
         return $this->jsonSuccess(PackageResource::make($package));
+    }
+
+    /**
+     * @param PartnerRepository $repository
+     * @return JsonResponse
+     */
+    public function dashboard(PartnerRepository $repository): JsonResponse
+    {
+        $estimating = $repository->queries()->getPackagesQuery()
+            ->whereIn('status', [Package::STATUS_WAITING_FOR_ESTIMATING, Package::STATUS_ESTIMATING])
+            ->get()
+            ->pluck('id');
+
+        $estimated = $repository->queries()->getPackagesQuery()
+            ->where('status', Package::STATUS_ESTIMATED)
+            ->get()
+            ->pluck('id');
+
+        $packing = $repository->queries()->getPackagesQuery()
+            ->whereIn('status', [Package::STATUS_WAITING_FOR_PACKING,Package::STATUS_PACKING])
+            ->get()
+            ->pluck('id');
+
+        $packed = $repository->queries()->getPackagesQuery()
+            ->where('status', Package::STATUS_PACKED)
+            ->get()
+            ->pluck('id');
+
+        $items = $repository->queries()->getPackagesQuery()
+            ->get()
+            ->pluck('id');
+
+        $returnWith = $repository->queries()->getPackagesQuery()
+            ->where('status', Package::STATUS_CANCEL_DELIVERED)
+            ->count();
+
+        $returnWithout = $repository->queries()->getPackagesQuery()
+            ->where('status', Package::STATUS_CANCEL_SELF_PICKUP)
+            ->count();
+
+        return $this->jsonSuccess(DashboardResource::make([
+            'estimating' => $this->resolveItemsCount($estimating),
+            'estimated' => $this->resolveItemsCount($estimated),
+            'packing' => $this->resolveItemsCount($packing),
+            'packed' => $this->resolveItemsCount($packed),
+            'item_count' => $this->resolveItemsCount($items),
+            'return_with_transporter' => $returnWith,
+            'return_without_transporter' => $returnWithout,
+        ]));
+    }
+
+    protected function resolveItemsCount($packagesId) {
+        $item_count = 0;
+        $items = Item::query()->whereIn('package_id',$packagesId)->get();
+
+        foreach ($items as $item) {
+            $item_count += $item->qty;
+        }
+
+        return $item_count;
     }
 }
