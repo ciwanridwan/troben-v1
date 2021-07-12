@@ -7,7 +7,6 @@ use App\Http\Resources\Api\Partner\DashboardResource;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;

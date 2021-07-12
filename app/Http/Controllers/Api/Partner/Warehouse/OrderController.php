@@ -184,9 +184,10 @@ class OrderController extends Controller
         ]));
     }
 
-    protected function resolveItemsCount($packagesId) {
+    protected function resolveItemsCount($packagesId)
+    {
         $item_count = 0;
-        $items = Item::query()->whereIn('package_id',$packagesId)->get();
+        $items = Item::query()->whereIn('package_id', $packagesId)->get();
 
         foreach ($items as $item) {
             $item_count += $item->qty;
