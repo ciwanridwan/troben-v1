@@ -4,6 +4,8 @@ namespace App\Models\Customers;
 
 use App\Contracts\HasOtpToken;
 use App\Models\Packages\Package;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
@@ -39,7 +41,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
+class Customer extends Model implements AttachableContract, AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
 {
     use SoftDeletes,
         HashableId,
@@ -50,7 +52,10 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         VerifiableByOtp,
         HasApiTokens,
         HasFactory,
-        Auditable;
+        Auditable,
+        attachable;
+
+    public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     /**
      * The table associated with the model.
