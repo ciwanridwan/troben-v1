@@ -5,19 +5,11 @@ namespace App\Jobs\Customers;
 use App\Concerns\Jobs\AttachmentCreator;
 use App\Models\Attachment;
 use App\Models\Customers\Customer;
-use App\Models\Packages\Item;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Jalameta\Attachments\Concerns\Attachable;
-use function PHPUnit\Framework\isNull;
 
 class CustomerUploadPhoto implements ShouldQueue
 {
@@ -43,7 +35,7 @@ class CustomerUploadPhoto implements ShouldQueue
         $attachable = DB::table('attachable')
             ->where('attachable_id', $this->customer->id)
             ->first();
-        if ($attachable == null){
+        if ($attachable == null) {
             $this->photos->each(function ($photo) {
                 $this->photo = $photo;
                 $this->customer->attachments()->create([
@@ -54,8 +46,7 @@ class CustomerUploadPhoto implements ShouldQueue
                     'mime' => $this->getUploadedFileMime($this->photo),
                 ]);
             });
-        }
-        else {
+        } else {
             $attachable = DB::table('attachable')
                 ->where('attachable_id', $this->customer->id)
                 ->first();

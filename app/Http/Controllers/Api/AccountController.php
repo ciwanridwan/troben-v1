@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Jobs\Customers\CustomerUploadPhoto;
-use App\Jobs\Packages\Item\WarehouseUploadItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +13,6 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class AccountController extends Controller
 {
