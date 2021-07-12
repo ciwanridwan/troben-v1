@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -65,6 +66,23 @@ class Queries
         $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('updated_at');
+
+        return $query;
+    }
+
+    public function getPaymentQuery(): Builder
+    {
+        $query = Payment::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+        ]);
+
+        $query->whereHas('deliveries', $queryPartnerId);
 
         $query->orderByDesc('updated_at');
 
