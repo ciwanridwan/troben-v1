@@ -3,13 +3,10 @@
 namespace App\Jobs\Customers;
 
 use App\Concerns\Jobs\AttachmentCreator;
-use App\Models\Attachment;
 use App\Models\Customers\Customer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class CustomerUploadPhoto implements ShouldQueue
 {

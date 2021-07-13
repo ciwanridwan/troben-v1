@@ -29,7 +29,6 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
-
     public const DISK_CUSTOMER = 'avatar';
 
     public function index(Request $request): JsonResponse
@@ -89,7 +88,7 @@ class AccountController extends Controller
      */
     protected function updateCustomer(Customer $customer, UpdateAccountRequest $inputs): Customer
     {
-        if ($inputs->has('photos')){
+        if ($inputs->has('photos')) {
             $attachable = DB::table('attachable')
                 ->where('attachable_id', $customer->id)
                 ->where('attachable_type', 'App\Models\Customers\Customer')
