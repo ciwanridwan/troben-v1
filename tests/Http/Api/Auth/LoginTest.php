@@ -77,6 +77,7 @@ class LoginTest extends TestCase
         $response = $this->json('POST', route('api.auth.login'), [
 
             'facebook_id' => '1234567890',
+            'name' => 'Tatang Sutarman',
             'device_name' => 'phpunit_test',
 
         ], [
@@ -87,6 +88,7 @@ class LoginTest extends TestCase
         // test using email
         $response = $this->json('POST', route('api.auth.login'), [
             'facebook_id' => '1234567890',
+            'name' => 'Tatang Sutarman',
             'device_name' => 'phpunit_test',
         ], [
             'Accept' => 'application/json',
