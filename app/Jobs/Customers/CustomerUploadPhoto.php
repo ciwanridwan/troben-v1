@@ -32,41 +32,15 @@ class CustomerUploadPhoto implements ShouldQueue
 
     public function handle()
     {
-        $attachable = DB::table('attachable')
-            ->where('attachable_id', $this->customer->id)
-            ->first();
-        if ($attachable == null) {
-            $this->photos->each(function ($photo) {
-                $this->photo = $photo;
-                $this->customer->attachments()->create([
-                    'type' => Customer::ATTACHMENT_PHOTO_PROFILE,
-                    'title' => $this->photo->getClientOriginalName(),
-                    'path' => $this->storeFile($this->photo, self::DISK_CUSTOMER),
-                    'disk' => self::DISK_CUSTOMER,
-                    'mime' => $this->getUploadedFileMime($this->photo),
-                ]);
-            });
-        } else {
-            $attachable = DB::table('attachable')
-                ->where('attachable_id', $this->customer->id)
-                ->first();
-
-            $attachment = Attachment::where('id', $attachable->attachment_id)->first();
-
-            Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
-
-            $attachment->forceDelete();
-
-            $this->photos->each(function ($photo) {
-                $this->photo = $photo;
-                $this->customer->attachments()->create([
-                    'type' => Customer::ATTACHMENT_PHOTO_PROFILE,
-                    'title' => $this->photo->getClientOriginalName(),
-                    'path' => $this->storeFile($this->photo, self::DISK_CUSTOMER),
-                    'disk' => self::DISK_CUSTOMER,
-                    'mime' => $this->getUploadedFileMime($this->photo),
-                ]);
-            });
-        }
+        $this->photos->each(function ($photo) {
+            $this->photo = $photo;
+            $this->customer->attachments()->create([
+                'type' => Customer::ATTACHMENT_PHOTO_PROFILE,
+                'title' => $this->photo->getClientOriginalName(),
+                'path' => $this->storeFile($this->photo, self::DISK_CUSTOMER),
+                'disk' => self::DISK_CUSTOMER,
+                'mime' => $this->getUploadedFileMime($this->photo),
+            ]);
+        });
     }
 }

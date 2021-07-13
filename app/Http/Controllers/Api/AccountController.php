@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Jobs\Customers\CustomerUploadPhoto;
+use App\Models\Attachment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,8 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AccountController extends Controller
 {
@@ -26,6 +29,9 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
+
+    public const DISK_CUSTOMER = 'avatar';
+
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
@@ -83,6 +89,15 @@ class AccountController extends Controller
      */
     protected function updateCustomer(Customer $customer, UpdateAccountRequest $inputs): Customer
     {
+        if ($inputs->has('photos')){
+            $attachable = DB::table('attachable')
+                ->where('attachable_id', $customer->id)
+                ->where('attachable_type', 'App\Models\Customers\Customer')
+                ->first();
+            $attachment = Attachment::where('id', $attachable->attachment_id)->first();
+            Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
+            $attachment->forceDelete();
+        }
         $job = new UpdateExistingCustomer($customer, $inputs->all());
         $this->dispatch($job);
 
