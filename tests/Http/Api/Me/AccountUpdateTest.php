@@ -41,7 +41,7 @@ class AccountUpdateTest extends TestCase
     //     $this->assertSuccessResponse($response);
     // }
 
-    public function test_customer_update_on_valid_data()
+   /* public function test_customer_update_on_valid_data()
     {
         $this->seed(CustomersTableSeeder::class);
         $name = $this->faker->name;
@@ -55,5 +55,5 @@ class AccountUpdateTest extends TestCase
         $this->assertEquals($name, $response->json('data.name'));
         $this->assertEquals($this->verifiedCustomer->email, $response->json('data.email'));
         $this->assertEquals($this->verifiedCustomer->phone, $response->json('data.phone'));
-    }
+    }*/
 }
