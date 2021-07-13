@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Jobs\Packages\Item\WarehouseUploadItem;
+use App\Models\Packages\Price;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -79,7 +80,11 @@ class ItemController extends Controller
                 $item->save();
                 unset($request['handling']);
             }
+        } else {
+            $price = Price::where('package_item_id', $item->id)
+                ->Where('type', 'handling')->delete();
         }
+
 
         $job = new UpdateExistingItem($package, $item, $request->all());
 
