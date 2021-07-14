@@ -13,7 +13,7 @@
       ></template>
       <template slot="title">
         <span v-if="!hasSlot('title')" class="trawl-order-modal-component--title">
-          Detail ID Order
+          Detail ID Order WOK
         </span>
         <span v-else class="trawl-order-modal-component--title">
           <slot name="title"></slot>
@@ -29,6 +29,7 @@
           :modifiable="modifiable"
           :editable="editable"
           :deletable="deletable"
+          :package="package"
         />
 
         <order-modal-estimations :package="package" />

@@ -6,6 +6,7 @@
       :is="actionComponent.component"
       v-bind="setComponentProps(actionComponent.props)"
       @submit="onChange"
+      @change="onChange"
     ></component>
   </div>
 </template>
