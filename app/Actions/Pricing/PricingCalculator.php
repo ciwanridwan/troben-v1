@@ -134,10 +134,10 @@ class PricingCalculator
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
 
-            if ($item['insurance'] == false ){
+            if ($item['insurance'] == false) {
                 $item['insurance_price'] = 0;
                 $item['insurance_price_total'] = 0;
-            }else{
+            } else {
                 $item['insurance_price'] = self::getInsurancePrice($item['price']);
                 $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
             }

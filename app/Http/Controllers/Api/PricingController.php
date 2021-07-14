@@ -59,8 +59,7 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
-        if (request()->input('insurance') == false ){
-
+        if (request()->input('insurance') == false) {
         }
 
         return PricingCalculator::calculate($request->toArray());
