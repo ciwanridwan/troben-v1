@@ -93,9 +93,11 @@ class AccountController extends Controller
                 ->where('attachable_id', $customer->id)
                 ->where('attachable_type', 'App\Models\Customers\Customer')
                 ->first();
-            $attachment = Attachment::where('id', $attachable->attachment_id)->first();
-            Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
-            $attachment->forceDelete();
+            if ($attachable != null) {
+                $attachment = Attachment::where('id', $attachable->attachment_id)->first();
+                Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
+                $attachment->forceDelete();
+            }
         }
         $job = new UpdateExistingCustomer($customer, $inputs->all());
         $this->dispatch($job);
