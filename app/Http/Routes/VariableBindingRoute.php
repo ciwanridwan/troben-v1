@@ -3,6 +3,7 @@
 namespace App\Http\Routes;
 
 use App\Models\Code;
+use App\Models\Customers\Customer;
 use App\Models\Packages\Item;
 use App\Models\Payments\Gateway;
 use Jalameta\Router\BaseRoute;
@@ -29,5 +30,6 @@ class VariableBindingRoute extends BaseRoute
         $this->router->bind('partner_hash', fn ($hash) => Partner::byHashOrFail($hash));
         $this->router->bind('code_content', fn ($code) => Code::where('content', $code)->firstOrFail());
         $this->router->bind('gateway_hash', fn ($hash) => Gateway::byHashOrFail($hash));
+        $this->router->bind('customer_hash', fn ($hash) => Customer::byHashOrFail($hash));
     }
 }
