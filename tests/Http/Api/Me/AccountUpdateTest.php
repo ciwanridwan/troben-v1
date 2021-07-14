@@ -12,13 +12,13 @@ class AccountUpdateTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-     public function test_user_update_on_valid_data()
-     {
-         $this->seed();
+    public function test_user_update_on_valid_data()
+    {
+        $this->seed();
 
-         $valid = User::first();
+        $valid = User::first();
 
-         $response = $this->json('POST', route('api.auth.login'),[
+        $response = $this->json('POST', route('api.auth.login'), [
              'username' => $valid->phone,
              'password' => 'password',
              'device_name' => 'phpunit_test',
@@ -26,23 +26,23 @@ class AccountUpdateTest extends TestCase
              'Accept' => 'application/json',
          ]);
 
-         $this->assertSuccessResponse($response);
+        $this->assertSuccessResponse($response);
 
-         $token = $response->original['data']['access_token'];
+        $token = $response->original['data']['access_token'];
 
-         $response = $this->post(route('api.me.update'),[
+        $response = $this->post(route('api.me.update'), [
              'name' => $this->faker->name,
-         ],[
+         ], [
              'Accept' => 'application/json',
              'Content-Type' => 'multipart/form-data',
              'Authorization' => "Bearer $token",
          ]);
 
-         $this->assertSuccessResponse($response);
-     }
+        $this->assertSuccessResponse($response);
+    }
 
-     public function test_customer_update_on_valid_data()
-     {
+    public function test_customer_update_on_valid_data()
+    {
         $this->seed(CustomersTableSeeder::class);
         $name = $this->faker->name;
 
@@ -55,5 +55,5 @@ class AccountUpdateTest extends TestCase
         $this->assertEquals($name, $response->json('data.name'));
         $this->assertEquals($this->verifiedCustomer->email, $response->json('data.email'));
         $this->assertEquals($this->verifiedCustomer->phone, $response->json('data.phone'));
-     }
+    }
 }
