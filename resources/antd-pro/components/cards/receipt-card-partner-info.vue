@@ -1,13 +1,13 @@
 <template>
   <a-space direction="vertical" :size="1">
     <trawl-pack-with-text />
-    <h2 class="trawl-text-bolder">
+    <h2 class="trawl-text-bolder" :style="{ 'font-size': '.65rem' }">
       {{ partnerType }}
     </h2>
-    <p>
+    <p :style="{ 'font-size': '.55rem' }">
       {{ partnerAddress }}
     </p>
-    <span class="trawl-text-mute trawl-text-bold">
+    <span class="trawl-text-mute trawl-text-bold" :style="{ 'font-size': '.55rem' }">
       {{ dateSimpleFormat(new Date()) }}
     </span>
   </a-space>
