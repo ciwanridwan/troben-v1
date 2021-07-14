@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Jobs\Customers\CustomerUploadPhoto;
-use App\Jobs\Customers\UpdateAddressCustomer;
 use App\Models\Attachment;
 use App\Models\Customers\Address;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
