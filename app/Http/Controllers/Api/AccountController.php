@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Models\Attachment;
+use App\Models\Customers\Address;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -120,5 +121,38 @@ class AccountController extends Controller
         $this->dispatch($job);
 
         return $job->user->fresh();
+    }
+
+
+    protected function storeAddress(Customer $customer, Request $request): Customer
+    {
+        $request->validate([
+            'name' => 'required',
+            'address' => 'required',
+            'geo_province_id' => 'required',
+            'geo_regency_id' => 'required',
+            'geo_district_id' => 'required',
+        ]);
+
+        $address = DB::table('customer_addresses')
+            ->where('customer_id', $customer->id)
+            ->first();
+        if ($address != null) {
+            $address->delete();
+        }
+
+
+        $address = new Address();
+
+        $address->customer_id = $customer->id;
+        $address->name = $request->name;
+        $address->address = $request->address;
+        $address->geo_province_id = $request->geo_province_id;
+        $address->geo_regency_id = $request->geo_regency_id;
+        $address->geo_district_id = $request->geo_district_id;
+        $address->is_default = '1';
+
+        $address->save();
+        return $customer->refresh();
     }
 }
