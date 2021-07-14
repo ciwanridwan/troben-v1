@@ -20,6 +20,7 @@ class CustomersTableSeeder extends Seeder
         Customer::factory()
             ->makeOne([
                 'phone' => '+625555555555',
+                'address' => 'Depok 2 Tengah',
                 'email' => 'customer@trawlbens.co.id',
                 'email_verified_at' => Carbon::now(),
                 'phone_verified_at' => Carbon::now(),
@@ -34,10 +35,11 @@ class CustomersTableSeeder extends Seeder
             ])
             ->create();
 
-        $this->command->table(['name', 'phone', 'email'], Customer::query()->get()->map(fn (Customer $customer) => [
+        $this->command->table(['name', 'phone',  'address', 'email'], Customer::query()->get()->map(fn (Customer $customer) => [
             $customer->name,
             $customer->phone,
             $customer->email,
+            $customer->address,
         ]));
     }
 }
