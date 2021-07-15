@@ -17,7 +17,6 @@ class VersionController extends Controller
     {
         $version  = Version::all();
 
-
         return (new Response(Response::RC_SUCCESS, $version))->json();;
     }
 }

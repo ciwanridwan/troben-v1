@@ -31,7 +31,7 @@ class VersionRoute extends BaseRoute
         $this->router->get($this->prefix(), [
             'as' => $this->name,
             'uses' => $this->uses('index'),
-        ]);
+        ])->withoutMiddleware('api');
     }
 
     /**
