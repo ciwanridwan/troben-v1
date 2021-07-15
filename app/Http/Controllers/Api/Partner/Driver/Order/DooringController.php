@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Jobs\Packages\CheckDeliveredStatus;
 use App\Jobs\Packages\DriverUploadReceiver;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Models\Deliveries\Deliverable;
@@ -81,6 +82,8 @@ class DooringController extends Controller
         ]);
         $inputs = $request->all();
 
+
+
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
@@ -92,6 +95,26 @@ class DooringController extends Controller
 
         event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
 
+        $job = new CheckDeliveredStatus($delivery);
+        $this->dispatchNow($job);
+
         return $this->jsonSuccess(DeliveryResource::make($delivery));
+    }
+
+
+    public function show(Delivery $delivery): JsonResponse
+    {
+        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
+            'code',
+            'partner',
+            'packages',
+            'packages.origin_district',
+            'packages.origin_sub_district',
+            'packages.destination_sub_district',
+            'packages.items',
+            'driver',
+            'transporter',
+            'item_codes.codeable'
+        )));
     }
 }
