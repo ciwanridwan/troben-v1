@@ -66,4 +66,14 @@ class AuthController extends Controller
 
         return (new AccountAuthentication($request->all()))->register();
     }
+
+    public function forgot(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+        ]);
+
+        return (new AccountAuthentication($request->all()))->register();
+    }
 }
