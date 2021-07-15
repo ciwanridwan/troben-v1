@@ -10,13 +10,13 @@ use App\Models\Partners\Partner;
 use App\Jobs\Users\CreateNewUser;
 use App\Jobs\Users\DeleteExistingUser;
 use App\Jobs\Partners\CreateNewPartner;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
 use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
 use App\Jobs\Users\Actions\VerifyExistingUser;
-use App\Models\Partners\Warehouse;
 
 class CreatePartner
 {
@@ -75,14 +75,18 @@ class CreatePartner
         $this->partner = new Partner();
     }
 
-    public function create()
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function create(): JsonResponse
     {
-
         // temp owner info same as partner info
         $this->attributes['partner']['contact_email'] = $this->attributes['owner']['email'];
         $this->attributes['partner']['contact_phone'] = $this->attributes['owner']['phone'];
 
-        $this->validate_input();
+        $this->jobUser = new CreateNewUser($this->attributes['owner']);
+        $this->jobPartner = new CreateNewPartner($this->attributes['partner']);
 
         $this->dispatch($this->jobUser);
         $this->user = $this->jobUser->user;
@@ -96,6 +100,7 @@ class CreatePartner
         }
 
         $this->partner = $this->jobPartner->partner;
+        $this->validate_input();
         $this->partner->users()->attach($this->user->id);
 
         $job = new VerifyExistingUser($this->user);
@@ -121,9 +126,6 @@ class CreatePartner
 
     public function validate_input()
     {
-        $this->jobUser = new CreateNewUser($this->attributes['owner']);
-        $this->jobPartner = new CreateNewPartner($this->attributes['partner']);
-
         switch ($this->attributes['partner']['type']) {
             case Partner::TYPE_POOL:
                 $this->validate_pool();
