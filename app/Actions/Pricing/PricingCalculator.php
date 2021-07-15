@@ -105,6 +105,7 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'fleet_name' => ['nullable'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -121,7 +122,7 @@ class PricingCalculator
         $insurancePriceTotal = 0;
         $pickup_price = 0;
 
-        if ($inputs['fleet_name'] = 'bike') {
+        if ($inputs['fleet_name'] == 'bike') {
             $pickup_price = Transporter::PRICE_BIKE;
         } else {
             $pickup_price = Transporter::PRICE_CAR;
