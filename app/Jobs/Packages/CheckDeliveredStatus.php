@@ -2,19 +2,10 @@
 
 namespace App\Jobs\Packages;
 
-use App\Casts\Package\Items\Handling;
-use App\Events\Packages\PackageUpdated;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class CheckDeliveredStatus implements ShouldQueue
 {
@@ -49,11 +40,11 @@ class CheckDeliveredStatus implements ShouldQueue
         $count = $packages->count();
         $check = 0;
         foreach ($packages as  $package) {
-            if ($package['status'] == Package::STATUS_DELIVERED ){
+            if ($package['status'] == Package::STATUS_DELIVERED) {
                 $check++;
             }
         }
-        if ($count == $check){
+        if ($count == $check) {
             $this->delivery->status = Delivery::STATUS_FINISHED;
             $this->delivery->save();
         }
