@@ -138,7 +138,13 @@ export default {
         geo_regency_id: [{ required: true }],
         geo_province_id: [{ required: true }],
         geo_district_id: [{ required: true }],
+
+        /// MASALAH
+
         geo_sub_district_id: [{ required: true }],
+
+        /// MASALAH
+
         zip_code: [{ required: true }]
       }
     };
