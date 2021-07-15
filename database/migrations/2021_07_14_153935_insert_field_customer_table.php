@@ -15,7 +15,6 @@ class InsertFieldCustomerTable extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->string('address')->after('phone')->nullable();
-
         });
     }
 

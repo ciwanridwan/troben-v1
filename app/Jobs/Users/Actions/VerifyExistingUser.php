@@ -23,11 +23,9 @@ class VerifyExistingUser
     }
 
     /**
-     * Execute the job.
-     *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->user->setAttribute('verified_at', Carbon::now())->save();
         return $this->user->verified_at != null;

@@ -47,7 +47,7 @@ class CreateNewPartner
             'geo_province_id' => ['nullable', 'exists:geo_provinces,id'],
             'geo_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'geo_district_id' => ['nullable', 'exists:geo_districts,id'],
-            'geo_sub_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'geo_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
             'address' => ['nullable', 'string', 'max:255'],
             'geo_location' => ['nullable'],
             'type' => ['required', Rule::in(Partner::getAvailableTypes())],

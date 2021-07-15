@@ -63,11 +63,9 @@ class CreateManyNewInventory
     }
 
     /**
-     * Execute the job.
-     *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->inventories = $this->partner->inventories()->createMany($this->attributes);
 

@@ -1,23 +1,44 @@
 <template>
   <a-space v-if="type === 'sender'" direction="vertical">
-    <span v-if="title">Pengirim</span>
-    <span class="trawl-text-bolder">{{ sender_name }}</span>
-    <span>{{ sender_phone }}</span>
-    <p class="trawl-text-normal">{{ sender_address }}</p>
-    <span>Kode pos : {{ sender_zip_code }}</span>
+    <span v-if="title" :style="textStyle">Pengirim</span>
+    <span class="trawl-text-bolder" :style="textStyle">{{ sender_name }}</span>
+    <span :style="textStyle">
+      {{ sender_phone }}
+    </span>
+    <p class="trawl-text-normal" :style="textStyle">
+      {{ sender_address }}
+    </p>
+    <span :style="textStyle">
+      Kode pos : {{ sender_zip_code }}
+    </span>
   </a-space>
   <a-space v-else direction="vertical">
-    <span v-if="title">Penerima</span>
-    <span class="trawl-text-bolder">{{ receiver_name }}</span>
-    <span>{{ receiver_phone }}</span>
-    <p class="trawl-text-normal">{{ receiver_address }}</p>
-    <span>Kode pos : {{ receiver_zip_code }}</span>
+    <span v-if="title" :style="textStyle">
+      Penerima
+    </span>
+    <span class="trawl-text-bolder" :style="textStyle">
+      {{ receiver_name }}
+    </span>
+    <span :style="textStyle">
+      {{ receiver_phone }}
+    </span>
+    <p class="trawl-text-normal" :style="textStyle">
+      {{ receiver_address }}
+    </p>
+    <span :style="textStyle">
+      Kode pos : {{ receiver_zip_code }}
+    </span>
   </a-space>
 </template>
 <script>
 import { getOriginAddress, getDestinationAddress } from "../../functions/orders";
 import orderModalRowLayout from "../orders/order-modal-row-layout.vue";
 export default {
+  data() {
+    return {
+      textStyle: { "font-size": ".57rem" },
+    }
+  },
   props: {
     package: {
       type: Object,

@@ -37,11 +37,9 @@ class CheckDeliveredStatus implements ShouldQueue
      * @param array $inputs
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(Delivery $delivery, bool $isSeparated = null)
+    public function __construct(Delivery $delivery)
     {
         $this->delivery = $delivery;
-
-
     }
 
     public function handle()

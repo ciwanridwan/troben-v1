@@ -4,18 +4,13 @@ namespace App\Jobs\Customers;
 
 use App\Events\Customers\CustomerAddressCreated;
 use App\Events\Customers\CustomerAddressModifiedFailed;
-use App\Events\Customers\CustomerModificationFailed;
-use App\Events\Customers\CustomerModified;
 use App\Models\Customers\Address;
 use App\Models\Customers\Customer;
 use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 
 class UpdateAddressCustomer implements ShouldQueue
@@ -43,7 +38,6 @@ class UpdateAddressCustomer implements ShouldQueue
      * @param array $request
      * @throws \Illuminate\Validation\ValidationException
      */
-
     public function __construct(Address $address)
     {
         dd($address);
@@ -60,7 +54,6 @@ class UpdateAddressCustomer implements ShouldQueue
         ])->validate();
 
         $this->address = $address;
-
     }
 
     /**
