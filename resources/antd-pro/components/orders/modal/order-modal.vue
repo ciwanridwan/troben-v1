@@ -13,7 +13,7 @@
       ></template>
       <template slot="title">
         <span v-if="!hasSlot('title')" class="trawl-order-modal-component--title">
-          Detail ID Order WOK
+          Detail ID Order
         </span>
         <span v-else class="trawl-order-modal-component--title">
           <slot name="title"></slot>
