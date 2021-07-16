@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\ApiCode;
+use App\Http\Requests\ResetPasswordRequest;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -37,8 +40,6 @@ class AuthController extends Controller
             'device_name' => ['required'],
         ]);
 
-
-
         // override value
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
         $inputs['otp'] = $inputs['otp'] ?? false;
@@ -69,11 +70,25 @@ class AuthController extends Controller
 
     public function forgot(Request $request): JsonResponse
     {
-        $this->validate($request, [
+        $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'username' => ['required'],
+            'otp' => ['nullable', 'boolean'],
             'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'device_name' => ['required'],
         ]);
 
-        return (new AccountAuthentication($request->all()))->register();
+        // override value
+        $inputs['guard'] = $inputs['guard'] ?? 'customer';
+        $inputs['otp'] = $inputs['otp'] ?? false;
+
+        return (new AccountAuthentication($inputs))->forgot();
     }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+
+    }
+
+
 }

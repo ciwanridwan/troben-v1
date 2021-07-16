@@ -34,16 +34,6 @@ class AuthRoute extends BaseRoute
             'uses' => $this->uses('login'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('login/google'), [
-            'as' => $this->name('login.google'),
-            'uses' => $this->uses('googleCallback', SocialLoginController::class),
-        ])->withoutMiddleware('api');
-
-        $this->router->post($this->prefix('login/facebook'), [
-            'as' => $this->name('login.facebook'),
-            'uses' => $this->uses('facebookCallback', SocialLoginController::class),
-        ])->withoutMiddleware('api');
-
         $this->router->post($this->prefix('register'), [
             'as' => $this->name('register'),
             'uses' => $this->uses('register'),
