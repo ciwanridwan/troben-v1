@@ -1,7 +1,7 @@
 _id: req_063b5d1a73d145c6b06dc736d1b534f7
 type: Request
 parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
-modified: 1617566817802
+modified: 1625811682941
 created: 1615631468717
 url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
   'req_189fd9b5e4504aa89aad540f450f1b97', 'b64::JC5kYXRhLmhhc2g=::46b',
@@ -10,18 +10,35 @@ url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
   'b64::JC5kYXRhLml0ZW1zLjAuaGFzaA==::46b', 'never', 60 %}"
 name: Update Order Item
 description: ""
-method: PUT
+method: POST
 body:
-  mimeType: application/json
-  text: |
-    {
-    	"name": "iBasso DC03",
-    	"qty": 1,
-    	"weight": 4,
-    	"width": 121,
-    	"length": 12,
-    	"height": 1
-    }
+  mimeType: multipart/form-data
+  params:
+    - name: name
+      value: Manhattan 200 Series
+      id: pair_a56d87703b7e46bfa7c0f822e9649d51
+    - id: pair_18e932a4ca264d8a868e788d6b8e1397
+      name: qty
+      value: "5"
+      description: ""
+    - id: pair_da807caea35a42e7afb54722bf0cc174
+      name: width
+      value: "50"
+      description: ""
+    - id: pair_bef596821bce4fd9ba6c16f0f1ca3a52
+      name: length
+      value: "50"
+      description: ""
+    - id: pair_4e74f0a2941b4e6e8e22f503c70c659e
+      name: height
+      value: "50"
+      description: ""
+    - id: pair_3da599632e8d440db87cf4c05db614bc
+      name: photo[]
+      value: ""
+      description: ""
+      type: text
+      multiline: true
 parameters: []
 headers:
   - name: Accept
@@ -34,7 +51,7 @@ headers:
     description: ""
     id: pair_c20cd03e13e54cd9aa04e9432c2460b6
   - name: Content-Type
-    value: application/json
+    value: multipart/form-data
     id: pair_2c7ae334b0c64c108ed5ed9ab2362437
 authentication: {}
 metaSortKey: -1613356862709
