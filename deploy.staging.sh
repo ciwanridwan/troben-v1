@@ -26,8 +26,7 @@ echo "Deploying application ..."
 
     # run NPM in screen mode and forget it
     # screen -dm bash -c 'npm ci && npm run production'
-    npm ci
-    npm run production
+    npm ci && npm run production
 
     # Clear cache
     php artisan optimize
