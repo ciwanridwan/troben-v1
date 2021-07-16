@@ -41,7 +41,7 @@ class UpdatePaymentByEvent
                                 ? Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$params->bankCd])['bank']
                                 : Gateway::convertChannel(Gateway::CHANNEL_NICEPAY_SHPPEE_QRIS),
                             'sender_name' => $params->billingNm,
-                            'sender_account' => $params->vacctNo,
+                            'sender_account' => $params->vacctNo ?? null,
                             'confirmed_at' => Carbon::now(),
                         ]);
                 }
