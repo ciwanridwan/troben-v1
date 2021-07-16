@@ -37,8 +37,6 @@ class AuthController extends Controller
             'device_name' => ['required'],
         ]);
 
-
-
         // override value
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
         $inputs['otp'] = $inputs['otp'] ?? false;
@@ -65,5 +63,26 @@ class AuthController extends Controller
         ]);
 
         return (new AccountAuthentication($request->all()))->register();
+    }
+
+    public function forgot(Request $request): JsonResponse
+    {
+        $inputs = $this->validate($request, [
+            'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'username' => ['required'],
+            'otp' => ['nullable', 'boolean'],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'device_name' => ['required'],
+        ]);
+
+        // override value
+        $inputs['guard'] = $inputs['guard'] ?? 'customer';
+        $inputs['otp'] = $inputs['otp'] ?? false;
+
+        return (new AccountAuthentication($inputs))->forgot();
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
     }
 }
