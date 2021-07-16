@@ -1,7 +1,7 @@
 _id: req_563f0e06a2d24471984148b07532c1ff
 type: Request
 parentId: fld_639f81271ab94c24bcd1ed88b3c8a617
-modified: 1624066352841
+modified: 1626404398389
 created: 1613537990638
 url: "{{ _.base_url }}/pricing/calculator"
 name: Get Pricing Calculator
@@ -22,6 +22,7 @@ body:
     	"origin_province_id" : 1 ,
     	"origin_regency_id" : 1,
     	"destination_id": 66,
+    	"fleet_name": "bike",
     	"items" : [
     		{
     			"description": "asd",
