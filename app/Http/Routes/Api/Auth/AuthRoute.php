@@ -4,7 +4,6 @@ namespace App\Http\Routes\Api\Auth;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Auth\SocialLoginController;
 
 class AuthRoute extends BaseRoute
 {

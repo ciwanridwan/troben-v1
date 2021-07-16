@@ -15,8 +15,7 @@ class CustomerResource extends JsonResource
     public function toArray($request)
     {
         /** @var \App\Models\Customers\Customer $this */
-
-        if (!is_null($this->google_id)){
+        if (! is_null($this->google_id)) {
             $data = [
                 'hash' => $this->hash,
                 'name' => $this->name,
@@ -26,7 +25,7 @@ class CustomerResource extends JsonResource
                 'avatar' => $this->attachments()->first()->uri ?? null,
                 'type' => 'google',
             ];
-        }elseif (!is_null($this->facebook_id)){
+        } elseif (! is_null($this->facebook_id)) {
             $data = [
                 'hash' => $this->hash,
                 'name' => $this->name,
@@ -36,7 +35,7 @@ class CustomerResource extends JsonResource
                 'avatar' => $this->attachments()->first()->uri ?? null,
                 'type' => 'facebook',
             ];
-        }else{
+        } else {
             $data = [
                 'hash' => $this->hash,
                 'name' => $this->name,

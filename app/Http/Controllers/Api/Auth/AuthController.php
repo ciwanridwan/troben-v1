@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\ApiCode;
-use App\Http\Requests\ResetPasswordRequest;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -87,8 +84,5 @@ class AuthController extends Controller
 
     public function updatePassword(Request $request): JsonResponse
     {
-
     }
-
-
 }

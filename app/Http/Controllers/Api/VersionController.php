@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Version;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class VersionController extends Controller
 {
@@ -17,6 +16,6 @@ class VersionController extends Controller
     {
         $version  = Version::all();
 
-        return (new Response(Response::RC_SUCCESS, $version))->json();;
+        return (new Response(Response::RC_SUCCESS, $version))->json();
     }
 }

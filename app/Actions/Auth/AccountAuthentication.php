@@ -143,8 +143,7 @@ class AccountAuthentication
 
         if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
             return $this->attributes['otp']
-                ?
-                : $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
+                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
         }
 
         return $this->attributes['otp']
@@ -152,62 +151,6 @@ class AccountAuthentication
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
-    }
-
-    /**
-     * @param HasOtpToken $authenticatable
-     * @param string $otp_channel
-     * @return JsonResponse
-     */
-    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
-    {
-        $otp = $authenticatable->createOtp($otp_channel);
-        $job = new SendMessage($otp, $authenticatable->phone);
-        $this->dispatch($job);
-        return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
-            'message' => 'Harap cek kotak pesan SMS anda',
-            'otp' => $otp->id,
-            'expired_at' => $otp->expired_at->timestamp,
-        ]))->json();
-    }
-
-    /**
-     * Customer registration.
-     *
-     * @return \App\Models\Customers\Customer
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    protected function customerRegistration(): Customer
-    {
-        $job = new CreateNewCustomer($this->attributes);
-        $this->dispatch($job);
-
-        return $job->customer;
-    }
-
-    protected function userRegistration(): User
-    {
-        // TODO: add user registration
-    }
-
-    /**
-     * Asking for OTP response.
-     *
-     * @param \App\Contracts\HasOtpToken $authenticatable
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
-    {
-        $otp = $authenticatable->createOtp($otp_channel);
-
-        $job = new SendMessage($otp, $authenticatable->phone);
-        $this->dispatch($job);
-
-        return (new Response(Response::RC_SUCCESS, [
-            'otp' => $otp->id,
-            'expired_at' => $otp->expired_at->timestamp,
-        ]))->json();
     }
 
     /**
@@ -279,5 +222,61 @@ class AccountAuthentication
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
+    }
+
+    /**
+     * @param HasOtpToken $authenticatable
+     * @param string $otp_channel
+     * @return JsonResponse
+     */
+    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    {
+        $otp = $authenticatable->createOtp($otp_channel);
+        $job = new SendMessage($otp, $authenticatable->phone);
+        $this->dispatch($job);
+        return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
+            'message' => 'Harap cek kotak pesan SMS anda',
+            'otp' => $otp->id,
+            'expired_at' => $otp->expired_at->timestamp,
+        ]))->json();
+    }
+
+    /**
+     * Customer registration.
+     *
+     * @return \App\Models\Customers\Customer
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function customerRegistration(): Customer
+    {
+        $job = new CreateNewCustomer($this->attributes);
+        $this->dispatch($job);
+
+        return $job->customer;
+    }
+
+    protected function userRegistration(): User
+    {
+        // TODO: add user registration
+    }
+
+    /**
+     * Asking for OTP response.
+     *
+     * @param \App\Contracts\HasOtpToken $authenticatable
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    {
+        $otp = $authenticatable->createOtp($otp_channel);
+
+        $job = new SendMessage($otp, $authenticatable->phone);
+        $this->dispatch($job);
+
+        return (new Response(Response::RC_SUCCESS, [
+            'otp' => $otp->id,
+            'expired_at' => $otp->expired_at->timestamp,
+        ]))->json();
     }
 }
