@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class InsertFieldCustomerTable extends Migration
+class ChangeTypePaymentContentFromPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class InsertFieldCustomerTable extends Migration
      */
     public function up()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->string('address')->after('phone')->nullable();
+        Schema::table('payments', function (Blueprint $table) {
+            $table->longText('payment_content')->change();
         });
     }
 
@@ -25,8 +25,8 @@ class InsertFieldCustomerTable extends Migration
      */
     public function down()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn('address');
+        Schema::table('payments', function (Blueprint $table) {
+            $table->string('payment_content')->change();
         });
     }
 }

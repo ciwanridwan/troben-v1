@@ -1,7 +1,7 @@
 _id: req_39ffe217786d47f0a649eddcc2c04ee1
 type: Request
 parentId: fld_d75a075e0d704cd2ac9b883f853e9127
-modified: 1625547416424
+modified: 1625811716780
 created: 1624247827745
 url: "{{ _.base_url }}/partner/driver/order/dooring/{% response 'body',
   'req_c912128e3322443680b4e49bf3287a53', 'b64::JC5kYXRhLmhhc2g=::46b',
@@ -17,11 +17,6 @@ body:
     - id: pair_91035062c9f14121b16f873a80c02082
       name: received_by
       value: Dadang
-      description: ""
-      disabled: false
-    - id: pair_5c39b01a6f9942b899128e096e825185
-      name: received_at
-      value: 1 Juni 2021
       description: ""
       disabled: false
     - id: pair_7b52ecc28ca647a9920230c2f030f426

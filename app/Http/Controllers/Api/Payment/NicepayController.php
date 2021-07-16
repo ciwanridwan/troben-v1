@@ -7,11 +7,9 @@ use App\Concerns\Nicepay\UsingNicepay;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
-use App\Jobs\Payments\Nicepay\Cancel;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

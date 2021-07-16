@@ -273,6 +273,7 @@ export default {
     },
     async getGeo(status = "province", params = {}) {
       this.loading = true;
+      params = { 'per_page': '-1', ...params };
       this.$http
         .get(this.routeUri("partner.customer_service.home.order.walkin.geo"), {
           params: {

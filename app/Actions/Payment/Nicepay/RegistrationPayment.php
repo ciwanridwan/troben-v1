@@ -89,7 +89,7 @@ class RegistrationPayment
         ]);
 
         $job = new Registration($this->package, $this->attributes);
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
 
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
 
@@ -116,7 +116,7 @@ class RegistrationPayment
         ]);
         $job = new Registration($this->package, $this->attributes);
 
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
         event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
 
         return [
