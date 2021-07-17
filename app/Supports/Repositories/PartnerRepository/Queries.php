@@ -78,11 +78,7 @@ class Queries
 
         $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
 
-        $query->with([
-            'deliveries' => $queryPartnerId,
-        ]);
-
-        $query->whereHas('deliveries', $queryPartnerId);
+        $query->whereHasMorph('payable', Delivery::class, $queryPartnerId);
 
         $query->orderByDesc('updated_at');
 
