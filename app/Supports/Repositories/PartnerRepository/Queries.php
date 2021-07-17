@@ -176,6 +176,7 @@ class Queries
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,
+                    Package::STATUS_PACKED,
                     Package::STATUS_ACCEPTED,
                     Package::STATUS_WITH_COURIER,
                     Package::STATUS_CANCEL
