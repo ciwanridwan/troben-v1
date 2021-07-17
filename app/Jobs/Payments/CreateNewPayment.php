@@ -64,6 +64,7 @@ class CreateNewPayment
         }
 
         $this->attributes = array_merge($this->attributes, $defaultPaymentAttributes, $defaultGatewayAttributes);
+        $this->attributes['total_payment'] = ceil($this->attributes['total_payment']);
 
         $this->payment = $this->payableModel->payments()->create($this->attributes);
         return $this->payment->exists;

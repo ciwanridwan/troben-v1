@@ -108,7 +108,7 @@ class CheckPayment
      */
     public function inquiryPayment(): object
     {
-        $amt = $this->payment->payment_amount + $this->payment->payment_admin_charges;
+        $amt = $this->payment->total_payment;
         $now = Carbon::now()->format('YmdHis');
 
         $this->attributes = [
@@ -120,9 +120,7 @@ class CheckPayment
             'iMid' => config('nicepay.imid'),
         ];
         $job = new Inquiry($this->attributes);
-        $this->dispatchNow($job);
-
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_INQUIRY_PAYMENT,[$job->response]));
 
         $this->response = $job->response;
 

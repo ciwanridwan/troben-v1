@@ -47,7 +47,7 @@ class RegistrationPayment
                 ->where('is_default', true)
                 ->first() ?? null;
 
-        $amt = $package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount);
+        $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
         $now = date_format(Carbon::now(), 'YmdHis');
 
         $this->attributes = [
@@ -57,11 +57,11 @@ class RegistrationPayment
             'iMid' => config('nicepay.imid'),
             'currency' => 'IDR',
             'referenceNo' => $package->code->content,
-            'goodsNm' => 'Trawlpack Order',
+            'goodsNm' => 'Trawlpack Order '.$package->code->content,
             'billingNm' => $customer->name,
             'billingPhone' => $customer->phone,
             'billingEmail' => $customer->email,
-            'billingAddr' => $address->address ?? 'alamat',
+            'billingAddr' => $address->address ?? 'Jl. alamat',
             'billingCity' => $address->regency->name ?? 'Jakarta',
             'billingState' => $address->district->name ?? 'DKI Jakarta',
             'billingPostCd' => $address->sub_district->zip_code ?? '12345',
