@@ -39,6 +39,6 @@ class Inquiry
             'body' => json_encode($this->attributes, true)
         ])->getBody());
 
-        return ($this->response->resultCd === '0000') ? true : false;
+        return $this->response->resultCd === '0000';
     }
 }
