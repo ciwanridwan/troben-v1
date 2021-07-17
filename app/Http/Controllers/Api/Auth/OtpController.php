@@ -40,4 +40,15 @@ class OtpController extends Controller
 
         return (new OtpVerification($inputs))->resend();
     }
+
+    public function forgot(Request $request): JsonResponse
+    {
+        $inputs = $request->validate([
+            'otp_token' => ['required'],
+            'otp' => ['required', 'exists:one_time_passwords,id'],
+            'device_name' => ['required'],
+        ]);
+
+        return (new OtpVerification($inputs))->verify();
+    }
 }

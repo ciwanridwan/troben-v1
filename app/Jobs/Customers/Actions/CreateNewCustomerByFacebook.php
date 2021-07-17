@@ -54,7 +54,6 @@ class CreateNewCustomerByFacebook
         $this->attributes['email'] = 'example@gmail.com';
         $this->attributes['phone'] = '';
         $this->customer->fill($this->attributes);
-        $this->customer->setAttribute('password', 'password');
 
         if ($this->customer->save()) {
             event(new NewCustomerCreated($this->customer));
