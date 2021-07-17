@@ -120,7 +120,7 @@ class CheckPayment
             'iMid' => config('nicepay.imid'),
         ];
         $job = new Inquiry($this->attributes);
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_INQUIRY_PAYMENT,[$job->response]));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_INQUIRY_PAYMENT, [$job->response]));
 
         $this->response = $job->response;
 
