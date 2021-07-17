@@ -40,7 +40,7 @@ const actions = [
     }
   },
   {
-    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING],
+    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING, STATUS_PACKED],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
       {
