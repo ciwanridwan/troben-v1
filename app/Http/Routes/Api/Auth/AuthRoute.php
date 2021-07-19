@@ -38,9 +38,14 @@ class AuthRoute extends BaseRoute
             'uses' => $this->uses('register'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('forgot'), [
-            'as' => $this->name('forgot'),
-            'uses' => $this->uses('forgot'),
+        $this->router->post($this->prefix('forgotbyphone'), [
+            'as' => $this->name('forgotByPhone'),
+            'uses' => $this->uses('forgotByPhone'),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('forgotbyemail'), [
+            'as' => $this->name('forgotByEmail'),
+            'uses' => $this->uses('forgotByEmail'),
         ])->withoutMiddleware('api');
     }
 
