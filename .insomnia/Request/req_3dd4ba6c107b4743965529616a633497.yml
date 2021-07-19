@@ -1,0 +1,39 @@
+_id: req_3dd4ba6c107b4743965529616a633497
+type: Request
+parentId: fld_ab0f3f91c0234108b5ecd4666cf197a4
+modified: 1626675781333
+created: 1626405750169
+url: "{{ _.base_url }}/auth/forgotbyphone"
+name: Send OTP
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - id: pair_d599399408c5461ea82aac59bba4f8b9
+      name: username
+      value: "087885145866"
+      description: ""
+      disabled: false
+    - id: pair_bdb81d4f3e264182b4ca96c2e1697fde
+      name: device_name
+      value: ANDROID
+      description: ""
+parameters: []
+headers:
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_33c755a150904101943307f387d7bfc6
+  - id: pair_b0010389a51b4b609a2f191825eb8053
+    name: Accept
+    value: application/json
+    description: ""
+authentication: {}
+metaSortKey: 100
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

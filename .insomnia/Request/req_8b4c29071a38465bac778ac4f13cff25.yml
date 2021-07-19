@@ -1,0 +1,48 @@
+_id: req_8b4c29071a38465bac778ac4f13cff25
+type: Request
+parentId: fld_a5ee6c6535d44037881ad71216b21943
+modified: 1626668251579
+created: 1626667918791
+url: "{{ _.base_url }}/auth/forgotbyemail"
+name: Send OTP
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - id: pair_d599399408c5461ea82aac59bba4f8b9
+      name: username
+      value: "087885145866"
+      description: ""
+      disabled: false
+    - id: pair_2ab8c990c41c45148e2e7cfab70d4d41
+      name: email
+      value: juliansyahmandree@gmail.com
+      description: ""
+      disabled: false
+    - id: pair_f2b13adaa660414ab99ad612b66e424c
+      name: otp
+      value: "1"
+      description: ""
+    - id: pair_bdb81d4f3e264182b4ca96c2e1697fde
+      name: device_name
+      value: ANDROID
+      description: ""
+parameters: []
+headers:
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_33c755a150904101943307f387d7bfc6
+  - id: pair_026ea8e7db394d73a4a0ebbb472dfe4f
+    name: Accept
+    value: application/json
+    description: ""
+authentication: {}
+metaSortKey: 150
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
