@@ -56,9 +56,9 @@ class UpdateExistingItem
 
     public function handle()
     {
-        if (count($this->attributes['handling']) < 1) {
-            $this->attributes['handling'] = null;
-        }
+//        if (count($this->attributes['handling']) < 1) {
+//            $this->attributes['handling'] = null;
+//        }
         $this->item->fill($this->attributes);
 
         $this->item->save();

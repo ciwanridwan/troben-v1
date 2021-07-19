@@ -134,6 +134,9 @@ export default {
   },
   methods: {
     onEdit(value) {
+      if (!value.handling) {
+        value.handling = [];
+      }
       this.$http
         .patch(
           this.routeUri("partner.cashier.home.updatePackageItem", {
