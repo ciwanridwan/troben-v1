@@ -51,8 +51,8 @@ trait UsingNicepay
      */
     public function validPhone(string $phonenumber)
     {
-        if (str_contains($phonenumber,'+')) {
-            return substr($phonenumber,1);
+        if (str_contains($phonenumber, '+')) {
+            return substr($phonenumber, 1);
         } else {
             return $phonenumber;
         }
