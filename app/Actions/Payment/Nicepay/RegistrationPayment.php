@@ -59,7 +59,7 @@ class RegistrationPayment
             'referenceNo' => $package->code->content,
             'goodsNm' => 'Trawlpack Order '.$package->code->content,
             'billingNm' => $customer->name,
-            'billingPhone' => $customer->phone,
+            'billingPhone' => $this->validPhone($package->sender_phone),
             'billingEmail' => $customer->email,
             'billingAddr' => $address->address ?? 'Jl. alamat',
             'billingCity' => $address->regency->name ?? 'Jakarta',
