@@ -113,6 +113,8 @@ class GeoController extends Controller
             ->Orwhere('name', 'Kota Adm. Jakarta Utara')
             ->Orwhere('name', 'Kabupaten Bekasi')
             ->Orwhere('name', 'Kota Bekasi')
+            ->Orwhere('name', 'Kabupaten Bogor')
+            ->Orwhere('name', 'Kota Bogor')
             ->Orwhere('name', 'Kota Depok'));
 
         return $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))));
