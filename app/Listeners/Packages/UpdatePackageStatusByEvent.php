@@ -111,6 +111,11 @@ class UpdatePackageStatusByEvent
                 $package = $event->package;
                 $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
                 break;
+            case $event instanceof Registration\NewQrisRegistration:
+                /** @var Package $package */
+                $package = $event->package;
+                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
+                break;
             case $event instanceof PayByNicepay:
                 $params = $event->params;
 

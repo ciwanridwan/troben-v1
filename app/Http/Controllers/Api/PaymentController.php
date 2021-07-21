@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -40,7 +41,6 @@ class PaymentController extends Controller
     private function getPaymentGateway(): object
     {
         $this->response = Gateway::query()
-            ->where('is_active', true)
             ->get([
                 'id',
                 'channel',
@@ -59,7 +59,10 @@ class PaymentController extends Controller
      */
     private function isSelectable()
     {
-        $gatewayChoosed = $this->package->payments->first()->gateway->channel ?? null;
+        $gatewayChoosed = $this->package->payments
+                ->where('status', Payment::STATUS_PENDING)
+                ->first()
+                ->gateway->channel ?? null;
         foreach ($this->response as $key => $gateway) {
             $this->response[$key]['selectable'] = is_null($gatewayChoosed) ? true : ($gateway['channel'] === $gatewayChoosed ? true : false);
         }

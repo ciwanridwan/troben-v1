@@ -89,6 +89,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    package: {
+      type: Object,
+      default: () => {},
+    }
   },
   data() {
     return {
@@ -133,7 +137,7 @@ export default {
       this.$http
         .patch(
           this.routeUri("partner.cashier.home.updatePackageItem", {
-            package_hash: value?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: value?.hash,
           }),
           value
@@ -142,15 +146,15 @@ export default {
           this.$notification.success({
             message: "Berhasil mengubah item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
     onDelete() {
       this.$http
         .delete(
           this.routeUri("partner.cashier.home.deletePackageItem", {
-            package_hash: this.item?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: this.item?.hash,
           })
         )
@@ -158,9 +162,9 @@ export default {
           this.$notification.success({
             message: "Berhasil Menghapus item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
   },
   watch: {

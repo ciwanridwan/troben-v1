@@ -50,6 +50,16 @@ return [
             'root' => storage_path('app/received'),
         ],
 
+        'package_item' => [
+            'driver' => 'local',
+            'root' => storage_path('app/package_item'),
+        ],
+
+        'avatar' => [
+            'driver' => 'local',
+            'root' => storage_path('app/avatar'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

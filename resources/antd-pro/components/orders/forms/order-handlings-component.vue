@@ -63,9 +63,9 @@ export default {
   watch: {
     form: {
       handler: function (value) {
-        if (!value.handling) {
-          value.handling_type ? (this.form.handling_type = []) : null;
-        }
+        // if (!value.handling) {
+        //   value.handling_type ? (this.form.handling_type = []) : null;
+        // }
         this.onChange(value);
         this.$emit("input", value);
         this.$emit("change", value);

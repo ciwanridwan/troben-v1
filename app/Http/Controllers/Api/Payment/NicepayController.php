@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Api\Payment;
 
-use App\Actions\Payment\Nicepay\RegistrationPayment;
+use App\Actions\Payment\Nicepay\CheckPayment;
+use App\Concerns\Nicepay\UsingNicepay;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class NicepayController extends Controller
 {
+    use UsingNicepay;
+
     /**
      * @param Gateway $gateway
      * @param Package $package
@@ -24,24 +27,10 @@ class NicepayController extends Controller
     {
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
-//                (new CheckPayment($package))->inquiryPayment();
-                /** @var Payment $payment */
-                $payment = $package->payments->first();
-        if ($payment->expired_at >= \Carbon\Carbon::now()) {
-            $resource = [
-                        'total_amount' => $payment->total_payment,
-                        'va_number' => $payment->sender_account,
-                        'bank' => $payment->sender_bank,
-                        'server_time' => \Carbon\Carbon::now(),
-                        'expired_va' => $payment->expired_at,
-                    ];
-        } else {
-            $payment->setAttribute('status', Payment::STATUS_EXPIRED)->save();
-            $resource = $this->getVA($package, $gateway);
-        }
+                $resource = (new CheckPayment($package, $gateway))->vaRegistration();
         break;
         case 'qris':
-                $resource = $this->getQris($package, $gateway);
+                $resource = (new CheckPayment($package, $gateway))->qrisRegistration();
         break;
         endswitch;
 
@@ -59,25 +48,37 @@ class NicepayController extends Controller
         return $this->jsonSuccess();
     }
 
-    /**
-     * @param Package $package
-     * @param Gateway $gateway
-     * @return array
-     * @throws \Throwable
-     */
-    protected function getVA(Package $package, Gateway $gateway): array
+    public function cancel(Package $package): JsonResponse
     {
-        return (new RegistrationPayment($package, $gateway))->vaRegistration();
-    }
+        /** @var Payment $payment */
+        $payment = $package->payments()
+            ->where('status', Payment::STATUS_PENDING)
+            ->latest()
+            ->first();
 
-    /**
-     * @param Package $package
-     * @param Gateway $gateway
-     * @return array
-     * @throws \Throwable
-     */
-    protected function getQris(Package $package, Gateway $gateway): array
-    {
-        return (new RegistrationPayment($package, $gateway))->qrisRegistration();
+//        $now = Carbon::now()->format('YmdHis');
+//        $job = new Cancel([
+//            'timeStamp' => $now,
+//            'tXid' => $payment->payment_ref_id,
+//            'iMid' => config('nicepay.imid'),
+//            'payMethod' => config('nicepay.payment_method_code.va'),
+//            'cancelType' => '1',
+//            'cancelMsg' => 'Request Cancel',
+//            'merchantToken' => $this->merchantToken($now,$payment->payment_ref_id,$payment->total_payment),
+//            'preauthToken' => '',
+//            'amt' => $payment->total_payment,
+//            'cancelServerIp' => '127.0.0.1',
+//            'cancelUserId' => 'admin',
+//            'cancelUserIp' => '127.0.0.1',
+//            'cancelUserInfo' => 'Test Cancel',
+//            'cancelRetryCnt' => '3',
+//            'referenceNo' =>  $package->code->content,
+//            'worker' => ''
+//        ]);
+//        $this->dispatchNow($job);
+
+        $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+
+        return $this->jsonSuccess();
     }
 }

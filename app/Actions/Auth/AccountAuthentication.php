@@ -6,7 +6,6 @@ use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Models\User;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -125,9 +124,14 @@ class AccountAuthentication
                         $job = new CreateNewCustomerByFacebook($this->attributes);
                         $this->dispatch($job);
                         $authenticatable = $job->customer;
-
                         break;
                 }
+            }
+            if ($authenticatable->phone_verified_at == null) {
+                return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
+                    'message' => 'Harap lengkapi data anda!',
+                    'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                ]))->json();
             }
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
@@ -136,21 +140,104 @@ class AccountAuthentication
         }
 
 
-
         if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
-
-        // if not asking for otp, make sure that the user is verified before.
-        throw_if(! $this->attributes['otp'] && ! $authenticatable->is_verified, Error::make(Response::RC_ACCOUNT_NOT_VERIFIED));
+        if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
+            return $this->attributes['otp']
+                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
+        }
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws ValidationException
+     * @throws \Throwable
+     * @throws \libphonenumber\NumberParseException
+     */
+    public function forgotByPhone(): JsonResponse
+    {
+        switch (true) {
+            case PhoneNumberUtil::getInstance()->isPossibleNumber($this->attributes['phone'], 'ID'):
+                $column = self::CREDENTIAL_PHONE;
+                $this->attributes['phone'] = PhoneNumberUtil::getInstance()->format(
+                    PhoneNumberUtil::getInstance()->parse($this->attributes['phone'], 'ID'),
+                    PhoneNumberFormat::E164
+                );
+                break;
+            default:
+                $column = $this->attributes['guard'] == 'customer' ? self::CREDENTIAL_EMAIL : self::CREDENTIAL_USERNAME;
+                break;
+        }
+
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
+
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+
+        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+
+        return $this->attributes['otp']
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            : (new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            ]))->json();
+    }
+
+
+    public function sendOTP(): JsonResponse
+    {
+        switch (true) {
+            case PhoneNumberUtil::getInstance()->isPossibleNumber($this->attributes['phone'], 'ID'):
+                $column = self::CREDENTIAL_PHONE;
+                $this->attributes['phone'] = PhoneNumberUtil::getInstance()->format(
+                    PhoneNumberUtil::getInstance()->parse($this->attributes['phone'], 'ID'),
+                    PhoneNumberFormat::E164
+                );
+                break;
+            default:
+                $column = $this->attributes['guard'] == 'customer' ? self::CREDENTIAL_EMAIL : self::CREDENTIAL_USERNAME;
+                break;
+        }
+
+        $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
+
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+
+        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['phone'])->first();
+
+
+        return $this->attributes['otp']
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            : (new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            ]))->json();
+    }
+
+    /**
+     * @param HasOtpToken $authenticatable
+     * @param string $otp_channel
+     * @return JsonResponse
+     */
+    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    {
+        $otp = $authenticatable->createOtp($otp_channel);
+        $job = new SendMessage($otp, $authenticatable->phone);
+        $this->dispatch($job);
+        return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
+            'message' => 'Harap cek kotak pesan SMS anda',
+            'otp' => $otp->id,
+            'expired_at' => $otp->expired_at->timestamp,
+        ]))->json();
     }
 
     /**
@@ -182,10 +269,8 @@ class AccountAuthentication
     protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
-
         $job = new SendMessage($otp, $authenticatable->phone);
         $this->dispatch($job);
-
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,

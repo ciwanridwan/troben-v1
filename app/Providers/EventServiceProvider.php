@@ -179,6 +179,10 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             PaymentCreatedByEvent::class,
         ],
+        Registration\NewQrisRegistration::class => [
+            UpdatePackageStatusByEvent::class,
+            PaymentCreatedByEvent::class,
+        ],
         PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
             UpdatePaymentByEvent::class

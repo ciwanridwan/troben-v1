@@ -5,6 +5,7 @@ namespace App\Listeners\Payments;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Exceptions\Error;
 use App\Http\Response;
+use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Carbon\Carbon;
 
@@ -21,10 +22,8 @@ class UpdatePaymentByEvent
     }
 
     /**
-     * Handle the event.
-     *
-     * @param  object  $event
-     * @return void
+     * @param object $event
+     * @throws \Throwable
      */
     public function handle(object $event): void
     {
@@ -38,6 +37,11 @@ class UpdatePaymentByEvent
                         ->where('payment_ref_id', $params->tXid)
                         ->update([
                             'status' => Payment::STATUS_SUCCESS,
+                            'sender_bank' => $params->payMethod === config('nicepay.payment_method_code.va')
+                                ? Gateway::convertChannel(array_flip(config('nicepay.bank_code'))[$params->bankCd])['bank']
+                                : Gateway::convertChannel(Gateway::CHANNEL_NICEPAY_SHPPEE_QRIS),
+                            'sender_name' => $params->billingNm,
+                            'sender_account' => $params->vacctNo ?? null,
                             'confirmed_at' => Carbon::now(),
                         ]);
                 }

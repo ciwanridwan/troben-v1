@@ -67,11 +67,9 @@ class BulkTransporter
     }
 
     /**
-     * Execute the job.
-     *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         $this->transporters = $this->partner->transporters()->createMany($this->attributes);
 

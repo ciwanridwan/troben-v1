@@ -37,12 +37,13 @@ class UpdateExistingCustomer
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(Customer $customer, $inputs = [])
+    public function __construct(Customer $customer, $request)
     {
-        $this->attributes = Validator::make($inputs, [
+        $this->attributes = Validator::make($request, [
             'name' => ['filled'],
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID'],
+            'address' => ['filled'],
             'password' => ['filled', 'min:8', 'alpha_num'],
             'fcm_token' => ['nullable'],
             'facebook_id' => ['nullable'],
@@ -60,7 +61,6 @@ class UpdateExistingCustomer
     public function handle(): bool
     {
         collect($this->attributes)->each(fn ($v, $k) => $this->customer->{$k} = $v);
-
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {
                 event(new CustomerModified($this->customer));

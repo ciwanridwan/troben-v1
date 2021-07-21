@@ -2,6 +2,7 @@
 
 namespace App\Models\Payments;
 
+use App\Scope\ActiveScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -141,5 +142,12 @@ class Gateway extends Model
     public function getBankAttribute()
     {
         return self::convertChannel($this->channel)['bank'];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new ActiveScope());
     }
 }

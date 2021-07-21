@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -65,6 +66,19 @@ class Queries
         $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('updated_at');
+
+        return $query;
+    }
+
+    public function getPaymentQuery(): Builder
+    {
+        $query = Payment::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->whereHasMorph('payable', Delivery::class, $queryPartnerId);
 
         $query->orderByDesc('updated_at');
 
@@ -158,6 +172,7 @@ class Queries
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,
+                    Package::STATUS_PACKED,
                     Package::STATUS_ACCEPTED,
                     Package::STATUS_WITH_COURIER,
                     Package::STATUS_CANCEL

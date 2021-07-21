@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Jobs\Customers\UpdateExistingCustomer;
+use App\Models\Customers\Customer;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
 use Illuminate\Validation\Rule;
@@ -37,8 +39,6 @@ class AuthController extends Controller
             'device_name' => ['required'],
         ]);
 
-
-
         // override value
         $inputs['guard'] = $inputs['guard'] ?? 'customer';
         $inputs['otp'] = $inputs['otp'] ?? false;
@@ -65,5 +65,52 @@ class AuthController extends Controller
         ]);
 
         return (new AccountAuthentication($request->all()))->register();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function updateSocial(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'email' => ['required'],
+            'phone' => ['required'],
+        ]);
+
+        // override value
+        $request['guard'] = $request['guard'] ?? 'customer';
+        $request['otp'] = true;
+
+        $customer = $request->user();
+
+        $job = new UpdateExistingCustomer($customer, $request->all());
+        $this->dispatch($job);
+
+        return (new AccountAuthentication($request->all()))->sendOTP();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
+     * @throws \libphonenumber\NumberParseException
+     */
+    public function forgotByPhone(Request $request): JsonResponse
+    {
+        $inputs = $this->validate($request, [
+            'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'username' => ['required'],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'device_name' => ['required'],
+        ]);
+
+        // override value
+        $inputs['guard'] = $inputs['guard'] ?? 'customer';
+        $inputs['otp'] = true;
+
+        return (new AccountAuthentication($inputs))->forgotByPhone();
     }
 }

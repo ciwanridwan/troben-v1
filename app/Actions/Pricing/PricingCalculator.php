@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pricing;
 
+use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -85,7 +86,10 @@ class PricingCalculator
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
         $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
-        $total_amount = $handling_price + $insurance_price + $service_price - $discount_price;
+        $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
+
+        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+
         return $total_amount;
     }
 
@@ -101,6 +105,7 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'fleet_name' => ['nullable'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -115,13 +120,28 @@ class PricingCalculator
 
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
+        $pickup_price = 0;
+
+        if ($inputs['fleet_name'] == 'bike') {
+            $pickup_price = Transporter::PRICE_BIKE;
+        } else {
+            $pickup_price = Transporter::PRICE_CAR;
+        }
+
+        $discount = $pickup_price;
 
         foreach ($inputs['items'] as $index => $item) {
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
-            $item['insurance_price'] = self::getInsurancePrice($item['price']);
-            $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+
+            if ($item['insurance'] == false) {
+                $item['insurance_price'] = 0;
+                $item['insurance_price_total'] = 0;
+            } else {
+                $item['insurance_price'] = self::getInsurancePrice($item['price']);
+                $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+            }
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
         }
@@ -136,6 +156,8 @@ class PricingCalculator
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
+                'pickup_price' => $pickup_price,
+                'discount' => $discount,
                 'tier' => $tierPrice,
                 'service' => $servicePrice
             ]

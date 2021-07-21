@@ -3,9 +3,9 @@
     <a-space align="center">
       <a-icon
         :component="TrawlPackIcon"
-        :style="{ 'font-size': '2rem' }"
+        :style="{ 'font-size': '.9rem' }"
       ></a-icon>
-      <span :style="{ 'font-size': '1.5rem' }">TRAWL <b>PACK</b></span>
+      <span :style="{ 'font-size': '0.65rem' }">TRAWL <b>PACK</b></span>
     </a-space>
   </span>
 </template>

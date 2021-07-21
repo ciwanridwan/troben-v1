@@ -153,7 +153,7 @@ export default {
     },
     setDefaultValue() {
       let handling = [];
-      this.value.handling.forEach((o) => handling.push(o.type));
+      this.value?.handling?.forEach((o) => handling.push(o.type));
       this.form = { ...this.value };
       this.form.handling = {
         handling: handling.length > 0,
