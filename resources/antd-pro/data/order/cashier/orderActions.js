@@ -12,6 +12,8 @@ import {
   STATUS_ESTIMATED,
   STATUS_IN_TRANSIT,
   STATUS_PACKED,
+  STATUS_MANIFESTED,
+  STATUS_WAITING_FOR_APPROVAL,
   STATUS_REVAMP,
   STATUS_WAITING_FOR_PACKING,
   STATUS_WITH_COURIER
@@ -28,7 +30,7 @@ const actions = [
     ]
   },
   {
-    status: [STATUS_ACCEPTED],
+    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_APPROVAL],
     payment_status: [PAYMENT_STATUS_PENDING],
     components: [
       {
@@ -40,7 +42,7 @@ const actions = [
     }
   },
   {
-    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING, STATUS_PACKED],
+    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING, STATUS_PACKED, STATUS_MANIFESTED],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
       {
