@@ -36,13 +36,9 @@ class LoginTest extends TestCase
         $this->assertSuccessResponse($response);
     }
 
-
+/*
     public function test_google_successful_attempt()
     {
-        /*$this->makeVerifiedCustomer();*/
-        /*$this->assertDatabaseCount('customers', 1);*/
-
-        // test using phone number
         $response = $this->json('POST', route('api.auth.login'), [
 
             'name' => 'M Andre Juliansyah',
@@ -53,7 +49,7 @@ class LoginTest extends TestCase
         ], [
             'Accept' => 'application/json',
         ]);
-        $this->assertSuccessResponse($response);
+        $this->assertAccountNotVerifiedResponse($response);
 
         // test using email
         $response = $this->json('POST', route('api.auth.login'), [
@@ -65,14 +61,11 @@ class LoginTest extends TestCase
             'Accept' => 'application/json',
         ]);
 
-        $this->assertSuccessResponse($response);
+        $this->assertAccountNotVerifiedResponse($response);
     }
 
     public function test_facebook_successful_attempt()
     {
-        /*$this->makeVerifiedCustomer();*/
-        /*$this->assertDatabaseCount('customers', 1);*/
-
         // test using phone number
         $response = $this->json('POST', route('api.auth.login'), [
 
@@ -83,7 +76,7 @@ class LoginTest extends TestCase
         ], [
             'Accept' => 'application/json',
         ]);
-        $this->assertSuccessResponse($response);
+        $this->assertAccountNotVerifiedResponse($response);
 
         // test using email
         $response = $this->json('POST', route('api.auth.login'), [
@@ -94,6 +87,6 @@ class LoginTest extends TestCase
             'Accept' => 'application/json',
         ]);
 
-        $this->assertSuccessResponse($response);
-    }
+        $this->assertAccountNotVerifiedResponse($response);
+    }*/
 }

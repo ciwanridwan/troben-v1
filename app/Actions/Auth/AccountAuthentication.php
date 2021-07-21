@@ -128,7 +128,7 @@ class AccountAuthentication
                         break;
                 }
             }
-            if ($authenticatable->verified_at == null){
+            if ($authenticatable->phone_verified_at == null){
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
@@ -140,12 +140,12 @@ class AccountAuthentication
             // TODO: get authenticatable
         }
 
+
         if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
-
         if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
             return $this->attributes['otp']
                 ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);

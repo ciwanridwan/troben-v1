@@ -41,6 +41,24 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * @param TestResponse $response
+     */
+    public function assertAccountNotVerifiedResponse(TestResponse $response)
+    {
+        $response->assertOk();
+
+        $response->assertJsonStructure([
+            'code',
+            'error',
+            'message',
+            'data',
+        ]);
+
+        self::assertEquals(0203, $response->json('code'));
+        self::assertNull($response->json('error'));
+    }
+
+    /**
      * Acting as authenticated customer.
      *
      * @param \App\Models\Customers\Customer|null $customer
