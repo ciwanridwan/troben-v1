@@ -40,9 +40,7 @@ class UpdateAddressCustomer implements ShouldQueue
      */
     public function __construct(Address $address)
     {
-        dd($address);
-
-        $request->validate = Validator::make($request, [
+        $this->validate($address, [
             'customer_id' => ['required'],
             'name' => ['required'],
             'address' => ['required'],
@@ -51,7 +49,7 @@ class UpdateAddressCustomer implements ShouldQueue
             'geo_regency_id' => ['required'],
             'geo_district_id' => ['required'],
             'is_default' => ['nullable'],
-        ])->validate();
+        ]);
 
         $this->address = $address;
     }

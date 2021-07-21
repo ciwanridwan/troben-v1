@@ -61,7 +61,6 @@ class UpdateExistingCustomer
     public function handle(): bool
     {
         collect($this->attributes)->each(fn ($v, $k) => $this->customer->{$k} = $v);
-
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {
                 event(new CustomerModified($this->customer));

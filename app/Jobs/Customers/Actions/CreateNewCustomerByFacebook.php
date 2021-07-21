@@ -51,7 +51,6 @@ class CreateNewCustomerByFacebook
      */
     public function handle(): bool
     {
-        $this->attributes['email'] = 'example@gmail.com';
         $this->attributes['phone'] = '';
         $this->customer->fill($this->attributes);
 

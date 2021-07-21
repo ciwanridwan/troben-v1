@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use App\Jobs\Customers\CustomerUploadPhoto;
+use App\Jobs\Customers\UpdateExistingCustomer;
+use App\Models\Attachment;
+use App\Models\Customers\Customer;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Actions\Auth\AccountAuthentication;
+use phpDocumentor\Reflection\Types\This;
 
 class AuthController extends Controller
 {
@@ -63,6 +71,30 @@ class AuthController extends Controller
         ]);
 
         return (new AccountAuthentication($request->all()))->register();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function updateSocial(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'email' => ['required'],
+            'phone' => ['required'],
+        ]);
+
+        // override value
+        $request['guard'] = $request['guard'] ?? 'customer';
+        $request['otp'] = true;
+
+        $customer = $request->user();
+
+        $job = new UpdateExistingCustomer($customer, $request->all());
+        $this->dispatch($job);
+
+        return (new AccountAuthentication($request->all()))->sendOTP();
     }
 
     /**

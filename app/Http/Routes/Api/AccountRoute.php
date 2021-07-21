@@ -43,7 +43,7 @@ class AccountRoute extends BaseRoute
             'uses' => $this->uses('storeAddress'),
         ]);
 
-        $this->router->post($this->prefix('/password'), [
+        $this->router->post($this->prefix('password'), [
             'as' => $this->name('updatePassword'),
             'uses' => $this->uses('updatePassword'),
         ])->withoutMiddleware('api');

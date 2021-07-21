@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Response;
 use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Models\Attachment;
 use App\Models\Customers\Address;
@@ -39,7 +40,6 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
-
         return $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
     }
 
@@ -177,11 +177,18 @@ class AccountController extends Controller
             ->Where('email', $inputs->email)
             ->first() ;
 
-        $job = new UpdateExistingCustomer($customer, $inputs->all());
-        $this->dispatch($job);
+        if ($customer != null){
 
-        $customer->save();
+            $job = new UpdateExistingCustomer($customer, $inputs->all());
+            $this->dispatch($job);
 
-        return $this->jsonSuccess(new CustomerResource($customer));
+            $customer->save();
+
+            return $this->jsonSuccess(new CustomerResource($customer));
+        }
+
+        return (new Response(Response::RC_INVALID_DATA, [
+
+        ]))->json();
     }
 }
