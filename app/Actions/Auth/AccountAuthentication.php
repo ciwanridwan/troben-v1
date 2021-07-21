@@ -6,7 +6,6 @@ use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Models\User;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -128,7 +127,7 @@ class AccountAuthentication
                         break;
                 }
             }
-            if ($authenticatable->phone_verified_at == null){
+            if ($authenticatable->phone_verified_at == null) {
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
