@@ -108,7 +108,7 @@ class AuthController extends Controller
     {
         $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
-            'username' => ['required'],
+            'phone' => ['required'],
             'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
             'device_name' => ['required'],
         ]);

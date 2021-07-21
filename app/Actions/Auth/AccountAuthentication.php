@@ -184,7 +184,7 @@ class AccountAuthentication
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
-        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+        $authenticatable = $query->where($column, $this->attributes['phone'])->first();
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
