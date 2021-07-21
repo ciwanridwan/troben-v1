@@ -1,28 +1,28 @@
 <template>
-  <a-space v-if="type === 'sender'" direction="vertical">
-    <span v-if="title" :style="textStyle">Pengirim</span>
+  <a-space v-if="type === 'sender'" direction="vertical" :size=".1">
+    <span v-if="title" :style='{ "font-size": ".7rem" }'>Pengirim</span>
     <span class="trawl-text-bolder" :style="textStyle">{{ sender_name }}</span>
-    <span :style="textStyle">
+    <span class="trawl-text-bolder" :style="textStyle">
       {{ sender_phone }}
     </span>
-    <p class="trawl-text-normal" :style="textStyle">
+    <p class="trawl-text-bolder" :style="textStyle">
       {{ sender_address }}
     </p>
     <span :style="textStyle">
       Kode pos : {{ sender_zip_code }}
     </span>
   </a-space>
-  <a-space v-else direction="vertical">
-    <span v-if="title" :style="textStyle">
+  <a-space v-else direction="vertical" :size=".1">
+    <span v-if="title" :style='{ "font-size": ".7rem" }'>
       Penerima
     </span>
     <span class="trawl-text-bolder" :style="textStyle">
       {{ receiver_name }}
     </span>
-    <span :style="textStyle">
+    <span class="trawl-text-bolder" :style="textStyle">
       {{ receiver_phone }}
     </span>
-    <p class="trawl-text-normal" :style="textStyle">
+    <p class="trawl-text-bolder" :style="textStyle">
       {{ receiver_address }}
     </p>
     <span :style="textStyle">
@@ -36,7 +36,7 @@ import orderModalRowLayout from "../orders/order-modal-row-layout.vue";
 export default {
   data() {
     return {
-      textStyle: { "font-size": ".57rem" },
+      textStyle: { "font-size": ".7rem" },
     }
   },
   props: {

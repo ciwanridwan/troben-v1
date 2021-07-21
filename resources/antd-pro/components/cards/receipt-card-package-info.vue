@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-space direction="vertical" size="small">
-      <a-space direction="vertical" :size="1">
+      <a-space direction="vertical" :size=".1">
         <span
           class="trawl-text-bolder trawl-text-danger"
           :style="textStyle"
@@ -49,7 +49,7 @@
 export default {
   data() {
     return {
-      textStyle: { 'font-size': '.65rem' }
+      textStyle: { 'font-size': '.6rem' }
     }
   },
   props: ["package"],

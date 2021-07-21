@@ -15,7 +15,7 @@
               :package="package"
               :item="item"
               :code="code"
-              :style="{ 'height': '150mm', 'margin-top': '0' }"
+              :style="{ 'height': '155mm', 'margin-top': '0', 'padding-bottom': '0' }"
             ></receipt-card>
           </section>
           <div
