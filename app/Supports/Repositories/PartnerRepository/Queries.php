@@ -175,7 +175,9 @@ class Queries
                     Package::STATUS_PACKED,
                     Package::STATUS_ACCEPTED,
                     Package::STATUS_WITH_COURIER,
-                    Package::STATUS_CANCEL
+                    Package::STATUS_CANCEL,
+                    Package::STATUS_MANIFESTED,
+                    Package::STATUS_IN_TRANSIT,
                 ]));
                 break;
         }
