@@ -1,0 +1,64 @@
+_id: req_78df9644bc9e425b94a78d6d118a7581
+type: Request
+parentId: fld_e0b469f59e044384b8d3e080b311e8cd
+modified: 1626836966900
+created: 1626836400407
+url: "{{ _.base_url }}/auth/login"
+name: Social Login Request
+description: |-
+  Authenticate user or customer.
+
+  Parameters
+  --
+  - `guard` => possible values: `customer`, `user` => default `customer`
+  - `username` => customer/user can be `username`, `email`, or, `phone_number`
+  - `password` => given password
+  - `otp` => wether to be verified using otp => default `false`
+  - `device_name` => current device name.
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: device_name
+      value: "{{ _.device_name }}"
+      description: ""
+      id: pair_0a7805eecf5b43618ba9d6170f934c70
+      disabled: false
+    - id: pair_8526af01ef2c4d33aedde1805b16425b
+      name: google_id
+      value: "1234567890123"
+      description: ""
+      disabled: true
+    - id: pair_477d76908d3a42eead053cecf4ead904
+      name: facebook_id
+      value: "123333"
+      description: ""
+      disabled: false
+    - id: pair_f193dd057e0d4a5aa334738361157ad1
+      name: name
+      value: Frawewewew
+      description: ""
+      disabled: false
+    - id: pair_37f0b5ada02e474db2cd5afd6cdf9027
+      name: email
+      value: TB_FB_001@gmail.com
+      description: ""
+      disabled: true
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_44d5bec0dcd045adb8b078187d10c9a8
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_a12e225614614007aa139375c5a9e8b6
+authentication: {}
+metaSortKey: 50
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
