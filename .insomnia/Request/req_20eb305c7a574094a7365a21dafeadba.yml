@@ -1,0 +1,56 @@
+_id: req_20eb305c7a574094a7365a21dafeadba
+type: Request
+parentId: fld_e0b469f59e044384b8d3e080b311e8cd
+modified: 1626836439078
+created: 1626836437366
+url: "{{ _.base_url }}/auth/otp/verify"
+name: Verify
+description: |-
+  verify account
+
+  Parameters
+  --
+  - `otp` => One Time Password Id
+  - `otp_token` => Plain Text of One Time Password Token
+  - `device_name` => Device name when request One Time Password
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: otp
+      value: 93f2181f-0e6b-4d00-abfd-e183b7386b8d
+      description: ""
+      id: pair_1514377da4724ea8b9fe194455356972
+      type: text
+      multiline: false
+      disabled: false
+    - name: otp_token
+      value: "123456"
+      description: ""
+      id: pair_5fe64f606f54453a93c5b2534880bd19
+    - name: device_name
+      value: "{{ _.device_name }}"
+      description: ""
+      id: pair_808be66ec92048ceb747fa54001638df
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_39000aaad2fd4b5f8b6cc0169d7d151c
+  - name: ""
+    value: ""
+    description: ""
+    id: pair_6a5baefd027f45aaadf5c3047b8ce8ff
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_5b80befc5db3489a89e15b41aa5de403
+authentication: {}
+metaSortKey: 150
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
