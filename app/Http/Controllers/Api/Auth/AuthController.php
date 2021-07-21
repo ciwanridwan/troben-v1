@@ -2,20 +2,14 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Jobs\Customers\UpdateExistingCustomer;
-use App\Models\Attachment;
 use App\Models\Customers\Customer;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Actions\Auth\AccountAuthentication;
-use phpDocumentor\Reflection\Types\This;
 
 class AuthController extends Controller
 {

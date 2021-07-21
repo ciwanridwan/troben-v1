@@ -16,9 +16,7 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
@@ -82,6 +80,33 @@ class AccountController extends Controller
     public function getUserInfo(User $account): JsonResponse
     {
         return $this->jsonSuccess(new UserResource($account));
+    }
+
+
+    public function updatePassword(Request $inputs): JsonResponse
+    {
+        $phoneNumber =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($inputs->phone, 'ID'),
+                PhoneNumberFormat::E164
+            );
+
+        $customer = Customer::where('phone', $phoneNumber)
+            ->Where('email', $inputs->email)
+            ->first();
+
+        if ($customer != null) {
+            $job = new UpdateExistingCustomer($customer, $inputs->all());
+            $this->dispatch($job);
+
+            $customer->save();
+
+            return $this->jsonSuccess(new CustomerResource($customer));
+        }
+
+        return (new Response(Response::RC_INVALID_DATA, [
+
+        ]))->json();
     }
 
     /**
@@ -162,33 +187,5 @@ class AccountController extends Controller
 
         $address->save();
         return $customer->refresh();
-    }
-
-
-    public function updatePassword(Request $inputs): JsonResponse
-    {
-        $phoneNumber =
-            PhoneNumberUtil::getInstance()->format(
-                PhoneNumberUtil::getInstance()->parse($inputs->phone, 'ID'),
-                PhoneNumberFormat::E164
-            );
-
-        $customer = Customer::where('phone', $phoneNumber)
-            ->Where('email', $inputs->email)
-            ->first() ;
-
-        if ($customer != null){
-
-            $job = new UpdateExistingCustomer($customer, $inputs->all());
-            $this->dispatch($job);
-
-            $customer->save();
-
-            return $this->jsonSuccess(new CustomerResource($customer));
-        }
-
-        return (new Response(Response::RC_INVALID_DATA, [
-
-        ]))->json();
     }
 }
