@@ -1,0 +1,27 @@
+_id: req_11c53cb8cb9d423fa50ac17b051ee79e
+type: Request
+parentId: fld_71fd5d968a8341278831c32a1d20194d
+modified: 1626405759281
+created: 1626341079737
+url: "{{ _.base_url }}/version"
+name: Get Current Version
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_3e286d2b6c894c2d8f335e1b336c0a9c
+    name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    disabled: true
+authentication: {}
+metaSortKey: 0
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

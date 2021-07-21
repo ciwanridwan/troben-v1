@@ -1,0 +1,58 @@
+_id: req_03a06fc8507b44988067ddf45305ed90
+type: Request
+parentId: fld_ab0f3f91c0234108b5ecd4666cf197a4
+modified: 1626679942838
+created: 1626676236685
+url: "{{ _.base_url }}/me/password"
+name: Update Password
+description: |-
+  user or customer update profile.
+
+  Parameters
+  --
+  - `guard` => possible values: `customer`, `user` => default `customer`
+  - `name` => Customer/User Name.
+  - `email` => Customer/user Email.
+  - `phone` => Customer/user Phone Number. must Indonesia Number
+  - `password` => given password
+  - `fcm_token` => optional for regist using .......
+  - `facebook_id` => optional for regist using facebook
+  - `google_id` => optional for regist using google
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: email
+      value: andre@gmail.com
+      description: ""
+      id: pair_9101231f196445ca805bd26d1f455a3e
+      type: text
+      multiline: false
+      disabled: false
+    - id: pair_0d29cbb60635448c9e73d9a5b668bae3
+      name: phone
+      value: "+6287885145866"
+      description: ""
+    - name: password
+      value: password
+      description: ""
+      id: pair_88be9e4a15444fd393cbfb5cea5e2345
+      disabled: false
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_44d5bec0dcd045adb8b078187d10c9a8
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_a12e225614614007aa139375c5a9e8b6
+authentication: {}
+metaSortKey: 200
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
