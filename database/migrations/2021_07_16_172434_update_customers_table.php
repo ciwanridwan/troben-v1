@@ -15,6 +15,7 @@ class UpdateCustomersTable extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->string('password')->nullable()->change();
+            $table->string('email')->nullable()->change();
         });
     }
 
