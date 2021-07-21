@@ -4,7 +4,7 @@
       <a-col :span="12">
         <receipt-card-partner-info />
       </a-col>
-      <a-col :span="10" class="trawl-text-center">
+      <a-col :span="12" class="trawl-text-center">
         <a-icon
           class="receipt-card--icon"
           :component="TrawlLabelImage"

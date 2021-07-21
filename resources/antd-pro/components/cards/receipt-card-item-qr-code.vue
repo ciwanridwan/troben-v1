@@ -5,7 +5,7 @@
       class="receipt-card-item--qr-code"
       :value="codeContent"
     ></vue-qrcode>
-    <span :style="{ 'font-size': '.55rem' }" >No Barang: {{ codeContent }}</span>
+    <span class="trawl-text-bolder" :style="{ 'font-size': '.55rem' }" >No Barang: {{ codeContent }}</span>
   </a-space>
 </template>
 <script>
