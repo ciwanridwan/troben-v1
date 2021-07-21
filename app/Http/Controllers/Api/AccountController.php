@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Response;
 use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Models\Attachment;
 use App\Models\Customers\Address;
@@ -17,6 +18,8 @@ use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class AccountController extends Controller
 {
@@ -35,7 +38,6 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
-
         return $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
     }
 
@@ -78,6 +80,33 @@ class AccountController extends Controller
     public function getUserInfo(User $account): JsonResponse
     {
         return $this->jsonSuccess(new UserResource($account));
+    }
+
+
+    public function updatePassword(Request $inputs): JsonResponse
+    {
+        $phoneNumber =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($inputs->phone, 'ID'),
+                PhoneNumberFormat::E164
+            );
+
+        $customer = Customer::where('phone', $phoneNumber)
+            ->Where('email', $inputs->email)
+            ->first();
+
+        if ($customer != null) {
+            $job = new UpdateExistingCustomer($customer, $inputs->all());
+            $this->dispatch($job);
+
+            $customer->save();
+
+            return $this->jsonSuccess(new CustomerResource($customer));
+        }
+
+        return (new Response(Response::RC_INVALID_DATA, [
+
+        ]))->json();
     }
 
     /**
@@ -123,7 +152,11 @@ class AccountController extends Controller
         return $job->user->fresh();
     }
 
-
+    /**
+     * @param Customer $customer
+     * @param Request $request
+     * @return Customer
+     */
     protected function storeAddress(Customer $customer, Request $request): Customer
     {
         $request->validate([

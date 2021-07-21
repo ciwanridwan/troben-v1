@@ -32,10 +32,6 @@ class OtpRoute extends BaseRoute
             'as' => $this->name('resend'),
             'uses' => $this->uses('resendToken'),
         ])->withoutMiddleware('api');
-        $this->router->post($this->prefix('forgotverify'), [
-            'as' => $this->name('forgot'),
-            'uses' => $this->uses('forgot'),
-        ])->withoutMiddleware('api');
     }
 
     /**
