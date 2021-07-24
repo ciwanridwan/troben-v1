@@ -80,7 +80,7 @@ export default {
   data() {
     return {
       visible: false,
-      contentHeight: 1400,
+      contentHeight: 625,
       domRendered: false,
       footer: undefined,
       align: "center",
@@ -99,12 +99,12 @@ export default {
     hideModal() {
       this.visible = false;
     },
-    async saveToPdf() {
+    saveToPdf() {
       this.loading = true;
-      await this.$refs.html2Pdf.generatePdf();
+      this.$refs.html2Pdf.generatePdf();
     },
     startPagination(event) {
-      console.log(event);
+      // console.log(event);
     },
     beforeDownload({ html2pdf, options, pdfContent }) {
       let worker = html2pdf()
@@ -121,22 +121,22 @@ export default {
       });
     },
     onProgress(event) {
-      console.log(event, "on Progress");
+      // console.log(event, "on Progress");
     },
     hasStartedGeneration(value) {
-      console.log("started", value);
+      // console.log("started", value);
     },
     hasGenerated(event) {
-      console.log(event);
+      // console.log(event);
     },
     hasSlot(slot = "") {
       return !!this.$slots[slot];
     },
     hasPaginated() {
-      console.log("Paginated");
+      // console.log("Paginated");
     },
     hasDownloaded(event) {
-      console.log(event);
+      // console.log(event);
     },
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;

@@ -172,12 +172,14 @@ class Queries
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,
+                    Package::STATUS_PACKING,
                     Package::STATUS_PACKED,
                     Package::STATUS_ACCEPTED,
                     Package::STATUS_WITH_COURIER,
                     Package::STATUS_CANCEL,
                     Package::STATUS_MANIFESTED,
                     Package::STATUS_IN_TRANSIT,
+                    Package::STATUS_DELIVERED,
                 ]));
                 break;
         }

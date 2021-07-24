@@ -11,17 +11,22 @@ import {
   STATUS_CANCEL_SELF_PICKUP,
   STATUS_ESTIMATED,
   STATUS_IN_TRANSIT,
+  STATUS_PACKING,
   STATUS_PACKED,
   STATUS_MANIFESTED,
   STATUS_WAITING_FOR_APPROVAL,
   STATUS_REVAMP,
   STATUS_WAITING_FOR_PACKING,
-  STATUS_WITH_COURIER
+  STATUS_WITH_COURIER,
+  STATUS_DELIVERED
 } from "../../packageStatus";
 
 const actions = [
   {
-    status: [STATUS_ESTIMATED, STATUS_REVAMP],
+    status: [
+      STATUS_ESTIMATED,
+      STATUS_REVAMP
+    ],
     payment_status: [PAYMENT_STATUS_DRAFT],
     components: [
       {
@@ -30,7 +35,10 @@ const actions = [
     ]
   },
   {
-    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_APPROVAL],
+    status: [
+      STATUS_ACCEPTED,
+      STATUS_WAITING_FOR_APPROVAL
+    ],
     payment_status: [PAYMENT_STATUS_PENDING],
     components: [
       {
@@ -42,7 +50,16 @@ const actions = [
     }
   },
   {
-    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING, STATUS_PACKED, STATUS_MANIFESTED],
+    status: [
+      STATUS_ACCEPTED,
+      STATUS_WAITING_FOR_PACKING,
+      STATUS_PACKING,
+      STATUS_PACKED,
+      STATUS_MANIFESTED,
+      STATUS_IN_TRANSIT,
+      STATUS_WITH_COURIER,
+      STATUS_DELIVERED
+    ],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
       {
