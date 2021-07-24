@@ -25,6 +25,8 @@ class UpdateEmailField extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('customers');
+        Schema::table('customers', function (Blueprint $table) {
+            $table->dropColumn('email');
+        });
     }
 }
