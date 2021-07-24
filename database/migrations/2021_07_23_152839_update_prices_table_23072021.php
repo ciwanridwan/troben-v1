@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateCustomersTable extends Migration
+class UpdatePricesTable23072021 extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class UpdateCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->string('password')->nullable()->change();
+        Schema::table('prices', function (Blueprint $table) {
+            $table->string('notes')->after('service_code')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class UpdateCustomersTable extends Migration
      */
     public function down()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn('password');
+        Schema::table('prices', function (Blueprint $table) {
+            $table->dropColumn('notes');
         });
     }
 }
