@@ -4,6 +4,7 @@
     width="42.142"
     height="43.432"
     viewBox="0 0 42.142 43.432"
+    id="trawlpackimage"
   >
     <g id="Group_18214" data-name="Group 18214" transform="translate(0 0)">
       <g
