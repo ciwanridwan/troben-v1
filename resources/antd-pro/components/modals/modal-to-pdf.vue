@@ -113,8 +113,6 @@ export default {
       const receiveIconUri = await svgAsPng.svgAsPngUri(document.getElementById('receiveiconimage'));
       const packageIconUri = await svgAsPng.svgAsPngUri(document.getElementById('package'));
       const weightIconUri = await svgAsPng.svgAsPngUri(document.getElementById('weighing-machine'));
-      const itemQRUri = await QRCode.toDataURL('ITM1237842734')
-      const receiptQRUri = await QRCode.toDataURL('RCP1237842734')
 
       const doc = new JsPdf({
           unit: 'mm',
@@ -122,11 +120,12 @@ export default {
       });
 
       // dummy packages
-      const packages = new Array(50).fill({})
-      const lastIndex = packages.length - 1
+      const packages = new Array(50).fill({ senderName: 'Hofifah Hayati' })
+      const packagesLength = packages.length
+      let idx = 0
 
-      packages.forEach((pack, i) => {
-  
+      for await (const pack of packages) {
+        idx++
         // text normal
         doc.setFont('times')
         doc.setTextColor('#000')
@@ -157,7 +156,7 @@ export default {
         doc.text('Kabupaten Kediri', 9, 64, { maxWidth: 35 })
         
         // pengirim / sender
-        doc.text('Hofifah Hayati', 9, 82)
+        doc.text(pack.senderName, 9, 82)
         doc.text('+6281234343553', 9, 86)
         doc.text('Perumahan Karang Asem No.16 RT.15 / RW.17 Kel. Jati Bening Kec. Sampireun', 9, 90, { maxWidth: 35 })
         
@@ -208,13 +207,17 @@ export default {
         doc.addImage(receiveIconUri, "JPEG", 55, 75, 2, 2);
         doc.addImage(weightIconUri, "JPEG", 55, 124, 2, 2);
         doc.addImage(packageIconUri, "JPEG", 55, 130, 2, 2);
+
+        const itemQRUri = await QRCode.toDataURL('ITM1237842734')
+        const receiptQRUri = await QRCode.toDataURL('RCP1237842734')
+
         doc.addImage(receiptQRUri, "JPEG", 60, 32, 20, 20);
         doc.addImage(itemQRUri, "JPEG", 15, 115, 20, 20);
 
-        if (i !== lastIndex) {
+        if (idx < packagesLength) {
           doc.addPage()
         }
-      })
+      }
 
       doc.save('test.pdf', { returnPromise: true }).then(() => {
         this.loading = false
