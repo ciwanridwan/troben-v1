@@ -1,25 +1,6 @@
 <template>
   <div>
     <loading-modal v-model="loading" />
-    <vue-html2pdf
-      :filename="fileName"
-      :enable-download="false"
-      :show-layout="false"
-      :manual-pagination="false"
-      :paginate-elements-by-height="contentHeight"
-      ref="html2Pdf"
-      pdf-content-width="100%"
-      @progress="onProgress($event)"
-      @startPagination="startPagination()"
-      @hasPaginated="hasPaginated()"
-      @beforeDownload="beforeDownload($event)"
-      @hasDownloaded="hasDownloaded($event)"
-    >
-      <section slot="pdf-content">
-        <!-- PDF Content Here -->
-        <slot name="pdf-content"></slot>
-      </section>
-    </vue-html2pdf>
     <span class="trawl-click" @click="showModal">
       <slot name="trigger"> </slot>
     </span>
@@ -53,14 +34,15 @@
   </div>
 </template>
 <script>
-import VueHtml2pdf from "vue-html2pdf";
 import JsPdf from "jspdf";
 import svgAsPng from "save-svg-as-png";
 import QRCode from "qrcode";
 import LoadingModal from "../orders/modal/loading-modal.vue";
+import {getDestinationAddress} from "../../functions/orders";
+import {getPartnerByType} from "../../functions/partnerType";
+import moment from "moment";
 export default {
   components: {
-    VueHtml2pdf,
     LoadingModal
   },
   props: {
@@ -78,6 +60,14 @@ export default {
     options: {
       type: Object,
       default: () => {}
+    },
+    package: {
+      type: Object,
+      default: () => {}
+    },
+    items: {
+      type: Array,
+      default: () => {}
     }
   },
   data() {
@@ -91,11 +81,67 @@ export default {
     };
   },
   computed: {
+    partner() {
+      return this.$laravel.user.partners[0];
+    },
     content() {
       return this.$slots?.content ? this.$slots.content[0] : null;
     }
   },
   methods: {
+    partnerAddress() {
+      return this.partner?.address;
+    },
+    partnerCode() {
+      return this.partner?.code;
+    },
+    partnerType() {
+      let partner = getPartnerByType(this.partner?.type);
+      return partner?.title;
+    },
+    receiver_zip_code() {
+      return this.package?.destination_sub_district?.zip_code;
+    },
+    receiver_address() {
+      return `${this.package?.receiver_address} ${getDestinationAddress(this.package)}`;
+    },
+    receiver_phone() {
+      return this.package?.receiver_phone;
+    },
+    receiver_name() {
+      return this.package?.receiver_name;
+    },
+    sender_zip_code() {
+      return this.package?.origin_sub_district?.zip_code ?? '';
+    },
+    sender_address() {
+      return this.package?.sender_address;
+    },
+    sender_phone() {
+      return this.package?.sender_phone;
+    },
+    sender_name() {
+      return this.package?.sender_name;
+    },
+    origin_regency_name() {
+      return this.package?.origin_regency?.name;
+    },
+    origin_province_name() {
+      return this.package?.origin_regency?.province?.name;
+    },
+
+    destination_regency_name() {
+      return this.package?.destination_regency?.name;
+    },
+    destination_province_name() {
+      return this.package?.destination_regency?.province?.name;
+    },
+    packageCode() {
+      return this.package?.code?.content;
+    },
+    dateSimpleFormat(date) {
+      return moment(date).format("ddd, DD MMM YYYY");
+    },
     showModal() {
       this.visible = true;
     },
@@ -104,7 +150,6 @@ export default {
     },
     async saveToPdf() {
       this.loading = true;
-      // this.$refs.html2Pdf.generatePdf();
 
       //get uri png converted from svg asset
       const trawlLogoUri = await svgAsPng.svgAsPngUri(document.getElementById('trawllabelimage'));
@@ -119,144 +164,115 @@ export default {
           format: [100, 165]
       });
 
-      // dummy packages
-      const packages = new Array(50).fill({ senderName: 'Hofifah Hayati' })
-      const packagesLength = packages.length
+      const itemsLength = this.items.length;
+      let date = this.dateSimpleFormat(new Date());
       let idx = 0
 
-      for await (const pack of packages) {
+      for await (const item of this.items) {
         idx++
-        // text normal
-        doc.setFont('times')
-        doc.setTextColor('#000')
-        doc.setFontSize(9);
-        doc.text('TRAWL', 13, 13); // brand title
-        doc.text('Kode pos: 1123', 9, 112) // postcode pengirim
-        doc.text('Kode pos: 1134', 55, 112) // postcode penerima
-        doc.setFontSize(8);
-        doc.text('Ket Barang:', 55, 120)
-        doc.text('Berat            :', 58, 126) // label only
-        doc.text('Jumlah Koli :', 58, 132) // label only
+        let weight_borne_total = item?.weight_borne_total.toString() ?? '0';
+        let desc = item?.desc ?? '';
+        let qty = item?.qty.toString() ?? '1';
 
-        /**
-         * bold text
-        */
-        doc.setFontSize(9);
-        doc.setFont('times', '', 700)
-        doc.text('PACK', 24.5, 13); // service title
-        doc.text('Mitra Bisnis', 9, 18)
-        doc.text('MB-JKT-0011', 9, 23)
+        for (const code of item.codes) {
+          // text normal
+          doc.setFont('times')
+          doc.setTextColor('#000')
+          doc.setFontSize(9);
+          doc.text('TRAWL', 13, 13); // brand title
+          doc.text(`Kode pos: ${ this.sender_zip_code() }`, 9, 112) // postcode pengirim
+          doc.text(`Kode pos: ${ this.receiver_zip_code() }`, 55, 112) // postcode penerima
+          doc.setFontSize(8);
+          doc.text('Ket Barang       :', 55, 120)
+          doc.text('Berat            :', 58, 126) // label only
+          doc.text('Jumlah Koli :', 58, 132) // label only
+          /**
+           * bold text
+           */
+          doc.setFontSize(9);
+          doc.setFont('times', '', 700)
+          doc.text('PACK', 24.5, 13); // service title
+          doc.text(this.partnerType(), 9, 18)
+          doc.text(this.partnerCode(), 9, 23)
 
-        // from
-        doc.text('DKI Jakarta', 9, 39)
-        doc.text('Kota Adm. Jakarta Selatan', 9, 43, { maxWidth: 35 })
-        
-        // to
-        doc.text('Jawa Timur', 9, 60)
-        doc.text('Kabupaten Kediri', 9, 64, { maxWidth: 35 })
-        
-        // pengirim / sender
-        doc.text(pack.senderName, 9, 82)
-        doc.text('+6281234343553', 9, 86)
-        doc.text('Perumahan Karang Asem No.16 RT.15 / RW.17 Kel. Jati Bening Kec. Sampireun', 9, 90, { maxWidth: 35 })
-        
-        // penerima / receiver
-        doc.text('Noimaah Sarifuad', 55, 82)
-        doc.text('+6281545234344', 55, 86)
-        doc.text('Perumahan Karang Asem No.16 RT.15 / RW.17 Kel. Jati Bening Kec. Sampireun', 55, 90, { maxWidth: 35 })
-        
-        doc.setFontSize(8)
-        //no. barang
-        doc.text('No. Barang: ITM1237842734', 9, 140)
-        // no.resi
-        doc.text('No. Resi: RCP1237842734', 55, 57, { maxWidth: 36 })
+          // from
+          doc.text(this.origin_province_name(), 9, 39)
+          doc.text(this.origin_regency_name(), 9, 43, { maxWidth: 36 })
 
-        doc.setFontSize(7)
-        // berat value
-        doc.text('1.072 Kg', 75, 126)
-        // koli value
-        doc.text('12', 75, 132)
+          // to
+          doc.text(this.destination_province_name(), 9, 60)
+          doc.text(this.destination_regency_name(), 9, 64, { maxWidth: 36 })
 
-        /**
-         * end of bold text
-         */
+          // pengirim / sender
+          doc.text(this.sender_name(), 9, 82)
+          doc.text(this.sender_phone(), 9, 86)
+          doc.text(this.sender_address(), 9, 90, { maxWidth: 36 })
 
-        // text with grey color
-        doc.setTextColor('#94a2b8')
-        doc.setFontSize(8);
-        doc.text('Sat, 24 Jul 2021', 9, 29)
-        doc.setFontSize(7);
-        doc.text('Pengirim', 12, 77)
-        doc.text('Penerima', 58, 77)
-        doc.text('www.trawlbens.id', 50, 150)
+          // penerima / receiver
+          doc.text(this.receiver_name(), 55, 82)
+          doc.text(this.receiver_phone(), 55, 86)
+          doc.text(this.receiver_address(), 55, 90, { maxWidth: 36 })
+
+          doc.setFontSize(8)
+          //no. barang
+          doc.text(`No. Barang: ${code.content}`, 9, 140)
+          // no.resi
+          doc.text(`No. Resi: ${this.packageCode()}`, 55, 57, { maxWidth: 36 })
+
+          doc.setFontSize(7)
+          doc.text(desc, 75, 120)
+          // berat value
+          doc.text(weight_borne_total, 75, 126)
+          // koli value
+          doc.text(qty, 75, 132)
+
+          /**
+           * end of bold text
+           */
+          // text with grey color
+          doc.setTextColor('#94a2b8')
+          doc.setFontSize(8);
+          doc.text(date, 9, 29)
+          doc.setFontSize(7);
+          doc.text('Pengirim', 12, 77)
+          doc.text('Penerima', 58, 77)
+          doc.text('www.trawlbens.id', 50, 150)
 
 
-        // text with red color
-        doc.setFontSize(9);
-        doc.setTextColor('#e60013')
-        doc.text('Dari', 9, 35)
-        doc.text('Ke', 9, 56)
+          // text with red color
+          doc.setFontSize(9);
+          doc.setTextColor('#e60013')
+          doc.text('Dari', 9, 35)
+          doc.text('Ke', 9, 56)
 
-        // rounded border
-        doc.roundedRect(5, 5, 90, 155, 5, 5, 'S')
+          // rounded border
+          doc.roundedRect(5, 5, 90, 155, 5, 5, 'S')
 
-        // render image
-        doc.addImage(trawlLogoUri, 'PNG', 60, 5, 20, 20);
-        doc.addImage(trawlPackUri, 'PNG', 9, 10, 3, 3);
-        doc.addImage(sendIconUri, "JPEG", 9, 75, 2, 2);
-        doc.addImage(receiveIconUri, "JPEG", 55, 75, 2, 2);
-        doc.addImage(weightIconUri, "JPEG", 55, 124, 2, 2);
-        doc.addImage(packageIconUri, "JPEG", 55, 130, 2, 2);
+          // render image
+          doc.addImage(trawlLogoUri, 'PNG', 60, 5, 20, 20);
+          doc.addImage(trawlPackUri, 'PNG', 9, 10, 3, 3);
+          doc.addImage(sendIconUri, "JPEG", 9, 75, 2, 2);
+          doc.addImage(receiveIconUri, "JPEG", 55, 75, 2, 2);
+          doc.addImage(weightIconUri, "JPEG", 55, 124, 2, 2);
+          doc.addImage(packageIconUri, "JPEG", 55, 130, 2, 2);
 
-        const itemQRUri = await QRCode.toDataURL('ITM1237842734')
-        const receiptQRUri = await QRCode.toDataURL('RCP1237842734')
+          const itemQRUri = await QRCode.toDataURL(code.content)
+          const receiptQRUri = await QRCode.toDataURL(this.packageCode())
 
-        doc.addImage(receiptQRUri, "JPEG", 60, 32, 20, 20);
-        doc.addImage(itemQRUri, "JPEG", 15, 115, 20, 20);
+          doc.addImage(receiptQRUri, "JPEG", 60, 32, 20, 20);
+          doc.addImage(itemQRUri, "JPEG", 15, 115, 20, 20);
 
-        if (idx < packagesLength) {
-          doc.addPage()
+          if (idx < itemsLength) {
+            doc.addPage()
+          }
         }
       }
-
-      doc.save('test.pdf', { returnPromise: true }).then(() => {
+      doc.save(this.fileName, { returnPromise: true }).then(() => {
         this.loading = false
       })
     },
-    startPagination(event) {
-      // console.log(event);
-    },
-    beforeDownload({ html2pdf, options, pdfContent }) {
-      let worker = html2pdf()
-        .set({
-          ...options,
-          ...this.options
-        })
-        .from(pdfContent)
-        .toContainer()
-        .toCanvas()
-        .toPdf();
-      worker.save().then(() => {
-        this.loading = false;
-      });
-    },
-    onProgress(event) {
-      // console.log(event, "on Progress");
-    },
-    hasStartedGeneration(value) {
-      // console.log("started", value);
-    },
-    hasGenerated(event) {
-      // console.log(event);
-    },
     hasSlot(slot = "") {
       return !!this.$slots[slot];
-    },
-    hasPaginated() {
-      // console.log("Paginated");
-    },
-    hasDownloaded(event) {
-      // console.log(event);
     },
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;

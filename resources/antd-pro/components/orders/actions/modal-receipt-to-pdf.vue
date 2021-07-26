@@ -1,5 +1,11 @@
 <template>
-  <modal-to-pdf v-show="loaded" :fileName="fileName" :options="options">
+  <modal-to-pdf
+    v-show="loaded"
+    :fileName="fileName"
+    :options="options"
+    :package="package"
+    :items="items"
+  >
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">Print</a-button>
     </template>
