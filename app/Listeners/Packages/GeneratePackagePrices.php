@@ -24,10 +24,11 @@ class GeneratePackagePrices
      * @return void
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function handle($event)
+    public function handle(object $event)
     {
         if (property_exists($event, 'package') && $event->package instanceof Package && $event->package->payment_status !== Package::PAYMENT_STATUS_PAID) {
             $event->package->items->each(function (Item $item) use ($event) {
+                $existing_handling = [];
                 foreach (($item->handling ?? []) as $handling) {
                     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
@@ -35,8 +36,13 @@ class GeneratePackagePrices
                         'amount' => $handling['price'],
                     ]);
                     $this->dispatch($job);
+
+                    $existing_handling[] = $handling['type'];
                 }
 
+                $item->prices()->where('type', Price::TYPE_HANDLING)
+                    ->whereNotIn('description',$existing_handling)
+                    ->delete();
 
                 if ($item->is_insured) {
                     $insured_mul = 0.2 / 100; // 0.2%
@@ -46,13 +52,13 @@ class GeneratePackagePrices
                         'amount' => $item->price * $insured_mul,
                     ]);
                     $this->dispatch($job);
+                } else {
+                    $item->prices()->where('type', Price::TYPE_INSURANCE)->delete();
                 }
             });
 
             /** @var Package $package */
-            $package = $event->package;
-
-            $package->refresh();
+            $package = $event->package->refresh();
 
             if (! $package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
