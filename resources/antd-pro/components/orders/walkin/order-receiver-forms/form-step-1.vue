@@ -14,11 +14,12 @@
         <a-row type="flex" :gutter="[12, 12]">
           <a-col :span="6">
             <a-form-model-item label="Nomor Hp Pengirim" prop="sender_phone">
-              <a-input
+              <a-input-search
                 size="large"
                 v-model="form.sender_phone"
                 placeholder="Nomor Hp Pengirim"
-              ></a-input>
+                @search="getCustomerByPhone"
+              ></a-input-search>
             </a-form-model-item>
           </a-col>
           <a-col :span="6">
@@ -40,7 +41,6 @@
             <a-form-model-item label="Nomor Hp Penerima" prop="receiver_phone">
               <a-input
                 size="large"
-                type="number"
                 v-model="form.receiver_phone"
                 placeholder="Nomor Hp Penerima"
               ></a-input>
@@ -234,7 +234,7 @@ export default {
         service_code: null,
       },
       rules: {
-        customer_hash: [{ required: false, message: "sender phone required" }],
+        customer_hash: [{ required: true, message: "sender phone required" }],
         sender_phone: [{ required: true }],
         sender_name: [{ required: true }],
         sender_address: [{ required: true }],
@@ -344,7 +344,7 @@ export default {
       this.form.destination_zip_code = subDistrict.zip_code;
       this.checkAvailableShipping();
     },
-    /*getCustomerByPhone() {
+    getCustomerByPhone() {
       this.$http
         .get(this.routeUri("partner.customer_service.home.order.walkin.customer"), {
           params: {
@@ -364,7 +364,7 @@ export default {
             message: responseMessage?.message,
           });
         });
-    },*/
+    },
   },
 
   watch: {
