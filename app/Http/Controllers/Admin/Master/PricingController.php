@@ -91,7 +91,6 @@ class PricingController extends Controller
             ];
             $data = array_merge($data, $this->extraData());
 
-
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
 
