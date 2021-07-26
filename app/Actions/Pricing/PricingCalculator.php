@@ -222,7 +222,8 @@ class PricingCalculator
             $item['handling'] = self::checkHandling($item['handling']);
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
         }
-        return $totalWeightBorne;
+
+        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
@@ -231,23 +232,17 @@ class PricingCalculator
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
         } else {
-            $act_weight = self::ceilByTolerance($weight);
-            $act_volume = self::ceilByTolerance(
-                self::getVolume(
-                    $height,
-                    $length,
-                    $width,
-                    $service
-                )
+            $act_weight = $weight;
+            $act_volume = self::getVolume(
+                $height,
+                $length,
+                $width,
+                $service
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
 
-        $weight = $weight * $qty;
-
-        // check if lt min weight
-        $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
-        return $weight;
+        return self::ceilByTolerance($weight * $qty);
     }
 
     public static function getInsurancePrice($price)
@@ -335,9 +330,7 @@ class PricingCalculator
         $min = $whole - $maj; //get after point
 
         // check with tolerance
-        if ($min >= self::MIN_TOL) {
-            $min = 1;
-        }
+        $min = (int) ($min >= self::MIN_TOL ? 1 : 0);
 
         $weight = $maj + $min;
 

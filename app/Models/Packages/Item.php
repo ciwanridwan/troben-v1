@@ -61,7 +61,6 @@ class Item extends Model implements AttachableContract
      */
     protected $fillable = [
         'package_id',
-
         'qty',
         'name',
         'desc',
