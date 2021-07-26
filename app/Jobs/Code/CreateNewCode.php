@@ -47,6 +47,7 @@ class CreateNewCode
 
             case $this->model instanceof Item:
                 for ($i = 0; $i < $this->model->qty; $i++) {
+                    dd('asasa');
                     $this->attributes = [
                         'content' => Code::generateCodeContent($this->model),
                     ];
