@@ -37,7 +37,7 @@ class UpdateExistingCode
             case $this->model instanceof Item:
                 $codes = $this->model->codes;
 
-                if ($this->model->qty !== $codes->count()){
+                if ($this->model->qty !== $codes->count()) {
                     Code::destroy($codes->pluck('id'));
                     for ($i = 0; $i < $this->model->qty; $i++) {
                         $this->attributes = [
