@@ -122,7 +122,7 @@ class PricingCalculator
         $insurancePriceTotal = 0;
         $pickup_price = 0;
 
-        if (array_key_exists('fleet_name', $inputs)){
+        if (array_key_exists('fleet_name', $inputs)) {
             if ($inputs['fleet_name'] == 'bike') {
                 $pickup_price = Transporter::PRICE_BIKE;
             } else {
