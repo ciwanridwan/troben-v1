@@ -41,7 +41,7 @@ class GeneratePackagePrices
                 }
 
                 $item->prices()->where('type', Price::TYPE_HANDLING)
-                    ->whereNotIn('description',$existing_handling)
+                    ->whereNotIn('description', $existing_handling)
                     ->delete();
 
                 if ($item->is_insured) {

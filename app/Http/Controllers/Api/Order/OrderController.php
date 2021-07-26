@@ -70,7 +70,7 @@ class OrderController extends Controller
      * Create new order
      * Route Path       : {API_DOMAIN}/order
      * Route Method     : POST
-     * Route Name       : api.order.store
+     * Route Name       : api.order.store.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse

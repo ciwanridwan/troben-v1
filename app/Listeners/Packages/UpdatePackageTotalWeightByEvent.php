@@ -3,7 +3,6 @@
 namespace App\Listeners\Packages;
 
 use App\Actions\Pricing\PricingCalculator;
-use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 
 class UpdatePackageTotalWeightByEvent
@@ -31,7 +30,7 @@ class UpdatePackageTotalWeightByEvent
             $package = $event->package->refresh();
 
             $items = [];
-            foreach ($package->items as $item){
+            foreach ($package->items as $item) {
                 $items[] = [
                     'weight' => $item->weight,
                     'height' => $item->height,
