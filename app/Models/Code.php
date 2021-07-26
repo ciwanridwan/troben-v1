@@ -76,6 +76,7 @@ class Code extends Model
 
     public function logs()
     {
+        dump(1);
         $class = CodeLogable::class;
         $class::$staticMakeVisible = ['status', 'showable', 'description'];
         return $this->hasMany(CodeLogable::class, 'code_id', 'id');
@@ -112,7 +113,6 @@ class Code extends Model
     public static function generateCodeContent($codeable_type)
     {
         $query = self::query();
-
         switch (true) {
             case $codeable_type instanceof Package:
                 $pre = self::TYPE_RECEIPT;
@@ -133,6 +133,7 @@ class Code extends Model
 
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
+
 
         return  $pre.$inc_number;
     }

@@ -70,7 +70,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, Package $package, Item $item): JsonResponse
     {
-        /*$this->authorize('update', $package);*/
+        $this->authorize('update', $package);
 
         if ($request->hasAny(['handling'])) {
             $handling = $request->handling;
