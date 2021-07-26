@@ -47,8 +47,8 @@
                     <span v-if="record.destination">{{
                       record.destination.name
                     }}</span>
-                    <span v-if="record.destination.zip_code"
-                      >, {{ record.destination.zip_code }}</span
+                    <span v-if="record.destination.notes"
+                      >, {{ record.destination.notes }}</span
                     >
                   </a-timeline-item>
                 </a-timeline>
