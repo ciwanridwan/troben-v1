@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Customers;
 
-use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
@@ -41,8 +40,8 @@ class CreateNewCustomer
         $this->customer = new Customer();
 
         if (array_key_exists('phone', $inputs)) {
-            $output = preg_replace("/^0/", "+62", $inputs['phone']);
-            $replacements = array('phone' => $output);
+            $output = preg_replace('/^0/', '+62', $inputs['phone']);
+            $replacements = ['phone' => $output];
             $inputs = array_replace($inputs, $replacements);
         }
 
@@ -55,7 +54,6 @@ class CreateNewCustomer
             'facebook_id' => ['nullable'],
             'google_id' => ['nullable'],
         ])->validate();
-
     }
 
     /**

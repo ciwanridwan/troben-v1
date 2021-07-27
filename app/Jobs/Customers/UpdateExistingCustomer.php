@@ -40,8 +40,8 @@ class UpdateExistingCustomer
     public function __construct(Customer $customer, $request)
     {
         if (array_key_exists('phone', $request)) {
-            $output = preg_replace("/^0/", "+62", $request['phone']);
-            $replacements = array('phone' => $output);
+            $output = preg_replace('/^0/', '+62', $request['phone']);
+            $replacements = ['phone' => $output];
             $request = array_replace($request, $replacements);
         }
 
