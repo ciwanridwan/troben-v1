@@ -39,10 +39,16 @@ class UpdateExistingCustomer
      */
     public function __construct(Customer $customer, $request)
     {
+        if (array_key_exists('phone', $request)) {
+            $output = preg_replace('/^0/', '+62', $request['phone']);
+            $replacements = ['phone' => $output];
+            $request = array_replace($request, $replacements);
+        }
+
         $this->attributes = Validator::make($request, [
             'name' => ['filled'],
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
-            'phone' => ['filled', 'numeric', 'phone:AUTO,ID'],
+            'phone' => ['filled', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,'.$customer->id.',id,deleted_at,NULL'],
             'address' => ['filled'],
             'password' => ['filled', 'min:8', 'alpha_num'],
             'fcm_token' => ['nullable'],
