@@ -75,7 +75,7 @@ class AuthController extends Controller
     public function updateSocial(Request $request): JsonResponse
     {
         $this->validate($request, [
-            'email' => ['required'],
+            'email' => ['nullable'],
             'phone' => ['required'],
         ]);
 
