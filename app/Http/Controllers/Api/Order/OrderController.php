@@ -207,8 +207,6 @@ class OrderController extends Controller
             'code' => __('Code not instance of Package'),
         ]));
 
-        // dd($codeable->deliveries()->get()->pluck('code.content'));
-
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
         $query->where('status', '!=', CodeLogable::TYPE_SCAN);
