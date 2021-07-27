@@ -173,8 +173,11 @@ export default {
         let weight_borne_total = item?.weight_borne_total.toString() ?? '0';
         let desc = item?.desc ?? '';
         let qty = item?.qty.toString() ?? '1';
+        let idy = 0;
+        let codeLength = item.codes?.length;
 
         for (const code of item.codes) {
+          idy++
           // text normal
           doc.setFont('times')
           doc.setTextColor('#000')
@@ -262,7 +265,7 @@ export default {
           doc.addImage(receiptQRUri, "JPEG", 60, 32, 20, 20);
           doc.addImage(itemQRUri, "JPEG", 15, 115, 20, 20);
 
-          if (idx < itemsLength) {
+          if (idx < itemsLength || idy < codeLength) {
             doc.addPage()
           }
         }
