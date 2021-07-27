@@ -183,7 +183,7 @@ export default {
           doc.setTextColor('#000')
           doc.setFontSize(9);
           doc.text('TRAWL', 13, 13); // brand title
-          doc.text(`Kode pos: ${ this.sender_zip_code() }`, 9, 112) // postcode pengirim
+          // doc.text(`Kode pos: ${ this.sender_zip_code() }`, 9, 112) // postcode pengirim
           doc.text(`Kode pos: ${ this.receiver_zip_code() }`, 55, 112) // postcode penerima
           doc.setFontSize(8);
           doc.text('Ket Barang       :', 55, 120)
