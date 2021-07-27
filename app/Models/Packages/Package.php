@@ -5,7 +5,6 @@ namespace App\Models\Packages;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;
-use App\Models\Price;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\SubDistrict;
@@ -362,11 +361,6 @@ class Package extends Model implements AttachableContract
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
-    }
-
-    public function price_tag(): BelongsTo
-    {
-        return $this->belongsTo(Price::class, 'destination_id', 'destination_sub_district_id');
     }
 
     public function picked_up_by()
