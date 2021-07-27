@@ -76,7 +76,6 @@ class Code extends Model
 
     public function logs()
     {
-        dump(1);
         $class = CodeLogable::class;
         $class::$staticMakeVisible = ['status', 'showable', 'description'];
         return $this->hasMany(CodeLogable::class, 'code_id', 'id');
