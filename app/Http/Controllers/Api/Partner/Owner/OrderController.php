@@ -61,7 +61,6 @@ class OrderController extends Controller
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
         $this->query->with(['items', 'items.prices', 'estimator', 'packager']);
-
         return $this->jsonSuccess(PackageResource::collection($this->query->paginate($request->input('per_page'))));
     }
 
