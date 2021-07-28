@@ -198,7 +198,20 @@ class PricingCalculator
             $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
 
-        $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
+        $items = [];
+
+        foreach ($inputs['items'] as $item) {
+            $items[] = [
+                'weight' => $item['weight'],
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => ! empty($item['handling']) ? array_column($item['handling'], 'type') : null
+            ];
+        }
+
+        $totalWeightBorne = self::getTotalWeightBorne($items);
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
