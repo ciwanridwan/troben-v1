@@ -63,7 +63,7 @@ class HomeController extends Controller
     public function dataRelation()
     {
         $this->query->with(['items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'prices', 'deliveries', 'deliveries.partner', 'code']);
-        $this->query->orderBy('status');
+        // $this->query->orderBy('status','desc');
 
         return $this;
     }
@@ -81,6 +81,7 @@ class HomeController extends Controller
             $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->dataRelation($request);
 
+            $this->query->orderBy('created_at','desc');
 
             // $this->query->whereDoesntHave('deliveries');
 
