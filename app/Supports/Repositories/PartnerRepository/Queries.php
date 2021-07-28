@@ -61,6 +61,8 @@ class Queries
 
         $query->with([
             'deliveries' => $queryPartnerId,
+            'deliveries.origin_partner',
+            'deliveries.partner'
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
