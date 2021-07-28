@@ -61,9 +61,17 @@ class CreateNewPackage
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['required'],
+            'sender_way_point' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
+
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
+            'receiver_way_point' => ['nullable'],
+            'receiver_latitude' => ['nullable'],
+            'receiver_longitude' => ['nullable'],
+
             'handling' => ['nullable', 'array'],
             'handling.*' => ['string', Rule::in(Handling::getTypes())],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
