@@ -79,7 +79,6 @@ export default {
     },
     modifiable: {
       type: Boolean,
-      default: true,
     },
     editable: {
       type: Boolean,
