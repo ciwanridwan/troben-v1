@@ -234,7 +234,9 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            $item['handling'] = self::checkHandling($item['handling']);
+            if (! empty($items['handling'])) {
+                $item['handling'] = self::checkHandling($item['handling']);
+            }
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
         }
 
@@ -257,7 +259,7 @@ class PricingCalculator
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
 
-        return self::ceilByTolerance($weight * $qty);
+        return (self::ceilByTolerance($weight) * $qty);
     }
 
     public static function getInsurancePrice($price)
