@@ -13,8 +13,8 @@ class SendMessage
 {
     use Dispatchable;
 
-    public const SMS_MASKING_USERNAME = 'trawlbens';
-    public const SMS_MASKING_PASSWORD = 'u0z2dnfq';
+    public const SMS_MASKING_USERNAME = 'trawlbens2';
+    public const SMS_MASKING_PASSWORD = 'v98aut6q';
     public const SMS_MASKING_BASE_URL = 'http://send.smsmasking.co.id:8080/web2sms/api/';
 
     public OneTimePassword $otp;

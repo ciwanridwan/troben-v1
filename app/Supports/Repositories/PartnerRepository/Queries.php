@@ -49,6 +49,12 @@ class Queries
         $query = Delivery::query();
 
         $query->whereIn('userable_id', $this->partner->users->pluck('pivot.id')->toArray());
+        $query->with([
+            'packages',
+            'origin_partner',
+            'partner',
+            'transporter'
+        ]);
 
         return $query;
     }
