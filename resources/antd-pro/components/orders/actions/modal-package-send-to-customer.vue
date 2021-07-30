@@ -1,5 +1,5 @@
 <template>
-  <order-modal :package="package" @change="onChange" v-model="visible">
+  <order-modal :package="package" @change="onChange" :modifiable="modifiable" v-model="visible">
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">
         {{ triggerText }}
@@ -22,7 +22,7 @@ import { STATUS_PACKED, STATUS_REVAMP } from "../../../data/packageStatus";
 
 export default {
   components: { orderModal },
-  props: ["package"],
+  props: ["package", "modifiable"],
   data() {
     return {
       visible: false,

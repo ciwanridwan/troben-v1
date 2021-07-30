@@ -45,9 +45,9 @@ const actions = [
         component: OrderModal
       }
     ],
-    props: {
-      modifiable: false
-    }
+    // props: {
+    //   modifiable: false
+    // }
   },
   {
     status: [
@@ -56,8 +56,6 @@ const actions = [
       STATUS_PACKING,
       STATUS_PACKED,
       STATUS_MANIFESTED,
-      STATUS_IN_TRANSIT,
-      STATUS_WITH_COURIER,
       STATUS_DELIVERED
     ],
     payment_status: [PAYMENT_STATUS_PAID],
@@ -72,8 +70,6 @@ const actions = [
       STATUS_CANCEL,
       STATUS_CANCEL_DELIVERED,
       STATUS_CANCEL_SELF_PICKUP,
-      STATUS_IN_TRANSIT,
-      STATUS_WITH_COURIER
     ],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
@@ -81,9 +77,27 @@ const actions = [
         component: OrderModal
       }
     ],
-    props: {
-      modifiable: false
-    }
+    // props: {
+    //   modifiable: false
+    // }
+  },
+  {
+    status: [
+      STATUS_IN_TRANSIT,
+      STATUS_WITH_COURIER
+    ],
+    payment_status: [PAYMENT_STATUS_PAID],
+    components: [
+      {
+        component: OrderModal
+      },
+      {
+        component: ModalReceiptToPdf
+      }
+    ],
+    // props: {
+    //   modifiable: false
+    // },
   }
 ];
 
