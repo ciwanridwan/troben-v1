@@ -21,7 +21,6 @@ class UpdatePackagesTableLongitudeLatitude extends Migration
             $table->string('receiver_way_point')->after('receiver_address')->nullable();
             $table->string('receiver_latitude')->after('receiver_way_point')->nullable();
             $table->string('receiver_longitude')->after('receiver_latitude')->nullable();
-
         });
     }
 

@@ -20,6 +20,9 @@ export default {
       type: Function,
       default: () => {},
     },
+    package: {
+      type: Object
+    }
   },
   components: { TrawlModalConfirm },
   methods: {
@@ -27,11 +30,11 @@ export default {
       this.$http
         .patch(
           this.routeUri("admin.home.cancel", {
-            package_hash: this.record.hash,
+            package_hash: this.package.hash,
           })
         )
         .then(() => {
-          this.afterConfirm();
+          this.$emit("submit")
         });
     },
   },
