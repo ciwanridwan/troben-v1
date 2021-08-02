@@ -40,7 +40,7 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 15,
+        per_page: 50,
       },
       loading: false,
       orderModalVisibility: false,

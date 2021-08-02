@@ -381,9 +381,7 @@ class PricingCalculator
         $volume /= $divider;
 
         // volume < 1?1:volume
-        $volume = $volume > 1 ? $volume : 1;
-
-        return $volume;
+        return $volume > 1 ? $volume : 1;
     }
 
     private static function checkHandling($handling = [])

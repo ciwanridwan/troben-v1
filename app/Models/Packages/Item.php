@@ -5,6 +5,7 @@ namespace App\Models\Packages;
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
+use App\Models\Price;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -140,11 +141,19 @@ class Item extends Model implements AttachableContract
 
     public function getWeightBorneTotalAttribute()
     {
-        $weight = PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty);
-        return $weight;
+        $handling = ! empty($item->handling) ? array_column($item->handling, 'type') : [];
+        $weight = PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
+        return $weight > Price::MIN_WEIGHT ? $weight : Price::MIN_WEIGHT;
     }
     public function getWeightVolumeAttribute()
     {
+        $handling = ! empty($item->handling) ? array_column($item->handling, 'type') : [];
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            $add_dimension = Handling::ADD_WOOD_DIMENSION;
+            $this->height += $add_dimension;
+            $this->length += $add_dimension;
+            $this->width += $add_dimension;
+        }
         $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
         return $volume;
     }
