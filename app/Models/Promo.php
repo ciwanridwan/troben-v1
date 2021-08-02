@@ -2,24 +2,27 @@
 
 namespace App\Models;
 
-use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 
-class Version extends Model
+class Promo extends Model implements AttachableContract
 {
-    use HasFactory, CustomSerializeDate;
+    use HasFactory, Attachable;
 
-    protected $table = 'version';
+    public const ATTACHMENT_VIDEO = 'promo_video';
+
+    protected $table = 'promo';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'app',
-        'version',
+        'title',
         'description',
+        'type',
         'is_active',
     ];
 

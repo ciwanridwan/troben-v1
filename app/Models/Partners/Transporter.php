@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
@@ -38,7 +39,8 @@ class Transporter extends Model
     use SoftDeletes,
         HashableId,
         HasFactory,
-        CanSearch;
+        CanSearch,
+        CustomSerializeDate;
 
     public const GENERAL_TYPE_BIKE = 'bike';
     public const GENERAL_TYPE_CAR = 'car';

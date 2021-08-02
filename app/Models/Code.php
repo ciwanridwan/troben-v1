@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Code extends Model
 {
-    use HasFactory, CanSearch;
+    use HasFactory, CanSearch, CustomSerializeDate;
     public const TYPE_RECEIPT = 'TRB';
     public const TYPE_MANIFEST = 'MNF';
     public const TYPE_ITEM = 'ITM';
