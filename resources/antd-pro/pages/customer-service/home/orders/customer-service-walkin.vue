@@ -6,13 +6,19 @@
           <a-tab-pane :key="1">
             <a-card :style="{ 'margin-bottom': '3rem' }">
               <a-form-model-item prop="steps.0.valid">
-                <order-receiver-form-step-1 ref="stepForm1" v-model="form.steps[0]" />
+                <order-receiver-form-step-1
+                  ref="stepForm1"
+                  v-model="form.steps[0]"
+                />
               </a-form-model-item>
             </a-card>
           </a-tab-pane>
           <a-tab-pane :key="2">
             <a-card :style="{ 'margin-bottom': '3rem' }">
-              <order-receiver-form-step-2 ref="stepForm2" v-model="form.steps[1]" />
+              <order-receiver-form-step-2
+                ref="stepForm2"
+                v-model="form.steps[1]"
+              />
               <a-checkbox v-model="form.eula">
                 <a-space size="large">
                   <span>Saya menyetujui semua ketentuan yang berlaku </span>
@@ -48,20 +54,34 @@
         </a-col>
         <a-col :span="10" class="trawl-text-right">
           <a-space>
-            <a-button ghost class="trawl-button trawl-button-success--ghost" @click="prev"
-              >Sebelumnya</a-button
+            <a-button
+              ghost
+              class="trawl-button trawl-button-success--ghost"
+              @click="prev"
+            >Sebelumnya</a-button
             >
-            <a-button v-if="current != 3" class="trawl-button-success" @click="next"
-              >Selanjutnya</a-button
+            <a-button
+              v-if="current != 3"
+              class="trawl-button-success"
+              @click="next"
+            >Selanjutnya</a-button
             >
 
-            <a-button v-else class="trawl-button-success" @click="submit">
+            <a-button
+              v-else
+              class="trawl-button-success"
+              @click="submit"
+              :disabled="isActive"
+              :loading="loading"
+            >
               <trawl-modal-confirm
                 v-model="submitModal"
                 :cancelButton="false"
                 :ok="redirectHome"
               >
-                <template slot="text">Telah berhasil terkirim ke Customer</template>
+                <template slot="text"
+                >Telah berhasil terkirim ke Customer</template
+                >
               </trawl-modal-confirm>
               <a-space>
                 <span>Kirim Ke cus</span>
@@ -80,7 +100,10 @@ import OrderReceiverFormStep2 from "../../../../components/orders/walkin/order-r
 import OrderReceiverFormStep3 from "../../../../components/orders/walkin/order-receiver-forms/form-step-3.vue";
 import TrawlStepCircle from "../../../../components/trawl-step-circle.vue";
 import ContentLayoutFooter from "../../../../layouts/content-layout-footer.vue";
-import { InformationCircleIcon, PackageIconSpark } from "../../../../components/icons";
+import {
+  InformationCircleIcon,
+  PackageIconSpark
+} from "../../../../components/icons";
 import TrawlModalConfirm from "../../../../components/trawl-modal-confirm.vue";
 
 export default {
@@ -91,17 +114,17 @@ export default {
     OrderReceiverFormStep3,
     ContentLayoutFooter,
     TrawlStepCircle,
-    TrawlModalConfirm,
+    TrawlModalConfirm
   },
   data() {
     return {
       form: {
         steps: [{}, {}],
-        eula: false,
+        eula: false
       },
       rules: {
         "steps.0.valid": [{ required: true }],
-        "steps.1.valid": [{ required: true }],
+        "steps.1.valid": [{ required: true }]
       },
       calculateData: {},
       current: 1,
@@ -109,6 +132,7 @@ export default {
       PackageIconSpark,
       loading: false,
       submitModal: false,
+      isActive: false
     };
   },
   computed: {
@@ -118,18 +142,18 @@ export default {
 
     preparedStore() {
       let formdata = new FormData();
-      Object.keys(this.preparedData).forEach((k) => {
+      Object.keys(this.preparedData).forEach(k => {
         if (k != "photos") {
           formdata.append(k, JSON.stringify(this.preparedData[k]));
         }
       });
-      this.preparedData?.photos?.forEach((o) => formdata.append("photos", o));
+      this.preparedData?.photos?.forEach(o => formdata.append("photos", o));
       return formdata;
     },
 
     preparedItems() {
       let items = [];
-      this.preparedData.items.forEach((item) => {
+      this.preparedData.items.forEach(item => {
         item.handling = item.handling_type;
         delete item.handling_type;
         items.push(item);
@@ -138,12 +162,12 @@ export default {
     },
     preparedData() {
       let form = {};
-      this.form.steps.forEach((step) => {
+      this.form.steps.forEach(step => {
         form = { ...form, ...step };
       });
 
       return form;
-    },
+    }
   },
   methods: {
     async validateStep(toStep) {
@@ -158,10 +182,13 @@ export default {
 
     submit() {
       const config = { headers: { "Content-Type": "multipart/form-data" } };
+      this.isActive = true;
+      this.loading = true;
       this.$http
         .post(this.routeUri(this.getRoute()), this.preparedStore, config)
         .then(({ data }) => {
           this.submitModal = true;
+          this.loading = false;
         });
     },
 
@@ -189,8 +216,8 @@ export default {
         .get(this.routeUri("partner.customer_service.home.order.walkin.geo"), {
           params: {
             type: status,
-            ...params,
-          },
+            ...params
+          }
         })
         .then(({ data }) => {
           let datas = data.data;
@@ -203,13 +230,13 @@ export default {
     async getAddress(sub_district_id) {
       let address = "";
       await this.getGeo("sub_district", {
-        id: sub_district_id,
-      }).then((data) => {
+        id: sub_district_id
+      }).then(data => {
         let sub_district = data[0];
         let list_address = [
           sub_district?.name,
           sub_district?.district?.name,
-          sub_district?.regency?.name,
+          sub_district?.regency?.name
         ];
         address += list_address.join(" ");
         address += ", ";
@@ -232,22 +259,23 @@ export default {
         })
         .finally(() => (this.loading = false));
       return result;
-    },
+    }
   },
   watch: {
     form: {
-      handler: function (value) {},
-      deep: true,
+      handler: function(value) {},
+      deep: true
     },
-    current: function () {
+    current: function() {
       if (this.current === 3) {
         if (this.preparedData) {
           let params = {
             destination_district_id: this.preparedData.destination_district_id,
             destination_province_id: this.preparedData.destination_province_id,
             destination_regency_id: this.preparedData.destination_regency_id,
-            destination_sub_district_id: this.preparedData.destination_sub_district_id,
-            items: this.preparedItems,
+            destination_sub_district_id: this.preparedData
+              .destination_sub_district_id,
+            items: this.preparedItems
           };
           this.calculate(params)
             .then(({ data }) => {
@@ -255,24 +283,24 @@ export default {
             })
             .finally(() => {
               // set receiver address
-              this.getAddress(this.preparedData?.destination_sub_district_id).then(
-                (address) => {
-                  this.calculateData = {
-                    ...this.calculateData,
-                    receiver_address: `${address} \n ${this.preparedData.receiver_address}`,
-                  };
-                }
-              );
+              this.getAddress(
+                this.preparedData?.destination_sub_district_id
+              ).then(address => {
+                this.calculateData = {
+                  ...this.calculateData,
+                  receiver_address: `${address} \n ${this.preparedData.receiver_address}`
+                };
+              });
 
               let partner = this.$laravel.user.partners[0];
               this.calculateData = {
                 ...this.calculateData,
-                sender_address: partner.address,
+                sender_address: partner.address
               };
             });
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
