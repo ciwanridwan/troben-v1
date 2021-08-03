@@ -2,7 +2,6 @@
 
 namespace App\Models\Deliveries;
 
-use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Code;
 use App\Models\User;
 use App\Models\Packages\Item;

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Casts\Code\Showable;
-use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
