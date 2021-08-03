@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
 use App\Jobs\Promo\UploadFilePromo;
-use App\Jobs\Promo\UploadPhotoPromo;
 use App\Models\Promo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
