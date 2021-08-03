@@ -14,7 +14,7 @@
         <a-row type="flex" :gutter="[12, 12]">
           <a-col :span="8">
             <a-form-model-item
-              label="Apakah Customer memiliki hp android?"
+              label="Apakah Customer Memiliki Akun TrawlBens?"
               prop="android"
             >
               <a-radio-group v-model="value" @change="onChange">

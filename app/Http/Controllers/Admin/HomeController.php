@@ -85,6 +85,7 @@ class HomeController extends Controller
 
             // $this->query->whereDoesntHave('deliveries');
 
+
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
 
