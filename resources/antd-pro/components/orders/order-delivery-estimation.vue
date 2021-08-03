@@ -65,7 +65,7 @@
             <a-row v-if="item.is_insured" type="flex">
               <a-col :span="leftColumn"> Asuransi x {{ item.qty }} </a-col>
               <a-col :span="rightColumn" class="trawl-text-right">
-                {{ currency(getInsurancePrice(item)) }}
+                {{ currency(getInsurancePrice(item.prices)) }}
               </a-col>
             </a-row>
           </a-col>

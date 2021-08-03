@@ -24,8 +24,9 @@ const getServicePrice = item => {
   let price = item?.prices?.find(o => o.type.toLowerCase() === "service");
   return price?.amount;
 };
-const getInsurancePrice = item => {
-  let price = item?.prices?.find(o => o.type.toLowerCase() === "insurance");
+const getInsurancePrice = prices => {
+  // console.log(item)
+  let price = prices?.find(o => o.type.toLowerCase() === "insurance");
   return price?.amount;
 };
 const getHandlingPrice = item => {
