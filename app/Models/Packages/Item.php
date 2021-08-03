@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Item extends Model implements AttachableContract
 {
-    use HashableId, HasCode, HasFactory, attachable, CustomSerializeDate;
+    use HashableId, HasCode, HasFactory, attachable;
 
     public const ATTACHMENT_PACKAGE_ITEM = 'package_item';
 

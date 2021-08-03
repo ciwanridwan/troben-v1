@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Version extends Model
 {
-    use HasFactory, CustomSerializeDate;
+    use HasFactory;
 
     protected $table = 'version';
     /**

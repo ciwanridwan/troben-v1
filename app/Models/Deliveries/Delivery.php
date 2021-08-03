@@ -43,7 +43,7 @@ use ReflectionClass;
  */
 class Delivery extends Model
 {
-    use HashableId, HasCode, HasFactory, CustomSerializeDate;
+    use HashableId, HasCode, HasFactory;
 
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_RETURN = 'return';
