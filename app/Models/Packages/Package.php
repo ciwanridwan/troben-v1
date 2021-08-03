@@ -2,7 +2,6 @@
 
 namespace App\Models\Packages;
 
-use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;

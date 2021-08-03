@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
