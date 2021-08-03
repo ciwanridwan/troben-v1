@@ -56,6 +56,7 @@ class OrderController extends Controller
             'attachments',
             'items',
             'items.prices',
+            'tarif',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',

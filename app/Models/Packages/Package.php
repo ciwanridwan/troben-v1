@@ -379,6 +379,11 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function tarif(): HasMany
+    {
+        return $this->hasMany(\App\Models\Price::class, 'destination_id', 'destination_sub_district_id');
+    }
+
     public function picked_up_by()
     {
         return $this->deliveries()->orderByPivot('created_at')->with('partner');
