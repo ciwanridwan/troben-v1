@@ -15,7 +15,7 @@ use ReflectionClass;
 
 class CodeLogable extends MorphPivot
 {
-    use HasFactory, CustomSerializeDate;
+    use HasFactory;
     public const TYPE_ERROR = 'error';
     public const TYPE_INFO = 'info';
     public const TYPE_WARNING = 'warning';

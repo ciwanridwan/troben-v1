@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Code extends Model
 {
-    use HasFactory, CanSearch, CustomSerializeDate;
+    use HasFactory, CanSearch;
     public const TYPE_RECEIPT = 'TRB';
     public const TYPE_MANIFEST = 'MNF';
     public const TYPE_ITEM = 'ITM';

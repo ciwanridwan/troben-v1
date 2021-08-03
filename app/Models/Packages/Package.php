@@ -89,7 +89,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
