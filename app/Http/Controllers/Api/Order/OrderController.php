@@ -210,7 +210,7 @@ class OrderController extends Controller
 
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
-        $query->selectRaw("min(status) as status, min(description) as description, min(id) as id");
+        $query->selectRaw('min(status) as status, min(description) as description, min(id) as id');
         $query->where('status', '!=', CodeLogable::TYPE_SCAN);
         $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
         $query->groupBy('status');
