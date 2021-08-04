@@ -63,7 +63,7 @@
       <!-- asuransi -->
       <a-col :span="16"> Asuransi </a-col>
       <a-col :span="8">
-        <b>{{currency(getInsurancePrice(prices)) }}</b>
+        <b>{{currency(getInsurancePrice(prices))  }}</b>
       </a-col>
     </a-row>
   </a-card>
