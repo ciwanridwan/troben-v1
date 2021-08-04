@@ -2,7 +2,7 @@
   <div>
     <div v-if="record.status == 'cancel'">
       <a-badge status="error" text=""></a-badge>
-      <span :class="['trawl-status-error']">Pesaan Dibatalkan</span>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan</span>
     </div>
     <div v-else-if="record.status == 'created'">
       <a-badge status="warning" text=""></a-badge>
