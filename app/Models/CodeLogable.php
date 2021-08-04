@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Casts\Code\Log\Description;
 use App\Casts\Code\Showable;
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -14,7 +16,7 @@ use ReflectionClass;
 
 class CodeLogable extends MorphPivot
 {
-    use HasFactory;
+    use HasFactory, CustomSerializeDate;
     public const TYPE_ERROR = 'error';
     public const TYPE_INFO = 'info';
     public const TYPE_WARNING = 'warning';
@@ -53,6 +55,7 @@ class CodeLogable extends MorphPivot
      */
     protected $casts = [
         'showable' => Showable::class,
+        'description' => Description::class,
     ];
 
 
