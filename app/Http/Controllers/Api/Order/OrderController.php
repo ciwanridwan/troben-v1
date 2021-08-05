@@ -208,6 +208,13 @@ class OrderController extends Controller
             'code' => __('Code not instance of Package'),
         ]));
 
+        $package = $codeable->load(['origin_regency','destination_district','destination_district.regency'])->only([
+            'sender_name',
+            'receiver_name',
+            'origin_regency',
+            'destination_district',
+        ]);
+
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
         $query->selectRaw('min(status) as status, min(description) as description, min(id) as id, min(created_at) as created_at');
@@ -216,6 +223,9 @@ class OrderController extends Controller
         $query->groupBy('status');
         $query->orderBy('id');
 
-        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+        return (new Response(Response::RC_SUCCESS, [
+            'package' => $package,
+            'track' => $query->get()
+        ]))->json();
     }
 }
