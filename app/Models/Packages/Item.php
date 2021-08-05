@@ -5,7 +5,6 @@ namespace App\Models\Packages;
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
-use App\Models\Price;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -135,15 +134,13 @@ class Item extends Model implements AttachableContract
 
     public function getWeightBorneAttribute()
     {
-        $weight = PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
-        return $weight;
+        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
     }
 
     public function getWeightBorneTotalAttribute()
     {
         $handling = ! empty($item->handling) ? array_column($item->handling, 'type') : [];
-        $weight = PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
-        return $weight > Price::MIN_WEIGHT ? $weight : Price::MIN_WEIGHT;
+        return PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
     }
     public function getWeightVolumeAttribute()
     {
