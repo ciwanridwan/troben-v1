@@ -21,7 +21,8 @@ class Description implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-        return $attributes['status'] === Package::STATUS_CREATED.'_'.Package::PAYMENT_STATUS_DRAFT ? $value : $value.' pada '.date('d M Y H:i:s', strtotime($attributes['created_at']));
+        // return $attributes['status'] === Package::STATUS_CREATED.'_'.Package::PAYMENT_STATUS_DRAFT ? $value : $value.' pada '.date('d M Y H:i:s', strtotime($attributes['created_at']));
+        return $value;
     }
 
     /**

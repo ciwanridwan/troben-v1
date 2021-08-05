@@ -55,7 +55,7 @@ class CodeLogable extends MorphPivot
      */
     protected $casts = [
         'showable' => Showable::class,
-        'description' => Description::class,
+        // 'description' => Description::class,
     ];
 
 
