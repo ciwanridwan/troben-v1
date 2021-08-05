@@ -101,7 +101,8 @@ class Item extends Model implements AttachableContract
         'weight_volume',
         'weight_borne',
         'weight_borne_total',
-        'tier_price'
+        'tier_price',
+        'codeable'
     ];
 
     /**
@@ -167,5 +168,10 @@ class Item extends Model implements AttachableContract
             $tierPrice = 0;
         }
         return $tierPrice;
+    }
+
+    public function getCodeableAttribute($value)
+    {
+        return ['qty' => $this->attributes['qty']];
     }
 }
