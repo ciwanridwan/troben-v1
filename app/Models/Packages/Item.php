@@ -5,7 +5,6 @@ namespace App\Models\Packages;
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
-use App\Models\Price;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
 use Jalameta\Attachments\Concerns\Attachable;
