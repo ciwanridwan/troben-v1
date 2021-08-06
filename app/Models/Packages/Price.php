@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Price extends Model
 {
+    use CustomSerializeDate;
     public const TYPE_SERVICE = 'service';
     public const TYPE_HANDLING = 'handling';
     public const TYPE_INSURANCE = 'insurance';

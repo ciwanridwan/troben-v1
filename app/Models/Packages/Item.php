@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
@@ -38,7 +39,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Item extends Model implements AttachableContract
 {
-    use HashableId, HasCode, HasFactory, attachable;
+    use HashableId, HasCode, HasFactory, attachable, CustomSerializeDate;
 
     public const ATTACHMENT_PACKAGE_ITEM = 'package_item';
 
