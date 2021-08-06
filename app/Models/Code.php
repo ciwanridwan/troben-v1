@@ -40,6 +40,9 @@ class Code extends Model
         'content',
     ];
 
+    protected $appends = [
+        'qty'
+    ];
 
     protected $hidden = [
         'id',
@@ -136,5 +139,13 @@ class Code extends Model
 
 
         return  $pre.$inc_number;
+    }
+
+    public function getQtyAttribute($value)
+    {
+        if ($this->attributes['codeable_type'] === 'App\Models\Packages\Item') {
+            $itemId = $this->attributes['codeable_id'];
+            return (Item::query()->find($itemId))->qty;
+        }
     }
 }
