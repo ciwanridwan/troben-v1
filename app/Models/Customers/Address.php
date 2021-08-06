@@ -2,6 +2,7 @@
 
 namespace App\Models\Customers;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Address extends Model
 {
+    use CustomSerializeDate;
     /**
      * The table associated with the model.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Models\Customers;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Contracts\HasOtpToken;
 use App\Models\Packages\Package;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -54,7 +55,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         HasApiTokens,
         HasFactory,
         Auditable,
-        attachable;
+        attachable, CustomSerializeDate;
 
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
