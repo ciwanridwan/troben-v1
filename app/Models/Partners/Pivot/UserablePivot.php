@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners\Pivot;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use App\Models\Deliveries\Delivery;
@@ -19,7 +20,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class UserablePivot extends Relations\MorphPivot
 {
-    use HashableId;
+    use HashableId, CustomSerializeDate;
 
     public const ROLE_OWNER = 'owner';
     public const ROLE_DRIVER = 'driver';

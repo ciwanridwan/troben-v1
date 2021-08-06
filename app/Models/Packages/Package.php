@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;
@@ -88,7 +89,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
