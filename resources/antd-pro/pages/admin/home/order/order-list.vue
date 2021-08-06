@@ -7,7 +7,7 @@
       <a-row type="flex" justify="end" :gutter="12">
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
-            <a class="ant-dropdown-link" @click="(e) => e.preventDefault()">
+            <a class="ant-dropdown-link" @click="e => e.preventDefault()">
               Click me <a-icon type="down" />
             </a>
           </a-dropdown>
@@ -15,7 +15,12 @@
       </a-row>
     </template>
     <template slot="content">
-      <order-table :dataSource="items.data" :get-data-function="getItems" />
+      <order-table
+        :pagination="pagination"
+        :dataSource="items.data"
+        :get-data-function="getItems"
+        :change-page="changePage"
+      />
     </template>
     <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -31,7 +36,7 @@ export default {
   components: {
     ContentLayout,
     TrawlNotification,
-    OrderTable,
+    OrderTable
   },
   data: () => {
     return {
@@ -40,20 +45,34 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 50,
+        per_page: 5
       },
       loading: false,
       orderModalVisibility: false,
       orderModalObject: {},
+      pagination: {}
     };
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
-      _.forEach(this.items.data, (o) => {
+      _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = {
+        current_page: resp.current_page,
+        first_page_url: resp.first_page_url,
+        from: resp.from,
+        last_page_url: resp.last_page_url,
+        last_page: resp.last_page,
+        next_page_url: resp.next_page_url,
+        path: resp.path,
+        per_page: Number(resp.per_page),
+        prev_page_url: resp.prev_page_url,
+        to: resp.to,
+        total: resp.total
+      };
     },
     afterAssign() {
       this.getItems();
@@ -62,11 +81,16 @@ export default {
       this.filter.q = value;
       this.getItems();
     },
+    changePage(value) {
+      this.filter.page = value;
+      this.getItems();
+    }
   },
+
   mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
-  },
+  }
 };
 </script>
 

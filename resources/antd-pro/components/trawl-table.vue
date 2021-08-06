@@ -69,10 +69,23 @@
         </a-col>
       </a-row>
     </a-card>
+    <a-pagination
+      v-model="current"
+      :total="pagination.total"
+      :defaultPageSize="pagination.per_page"
+      show-less-items
+      @change="reloadItems"
+    />
+    <h1>{{ current }}</h1>
   </a-space>
 </template>
 <script>
 export default {
+  data() {
+    return {
+      current: 1
+    };
+  },
   props: {
     columns: {
       type: Array,
@@ -85,6 +98,10 @@ export default {
       default: () => {
         return [];
       }
+    },
+    pagination: {
+      type: Object,
+      default: () => {}
     }
   },
   computed: {
@@ -118,6 +135,9 @@ export default {
       return (children && children != "") || children != undefined
         ? children
         : result;
+    },
+    reloadItems() {
+      this.$emit("changePage", this.current);
     }
   }
 };
