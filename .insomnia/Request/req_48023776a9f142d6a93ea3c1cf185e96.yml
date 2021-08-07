@@ -1,0 +1,34 @@
+_id: req_48023776a9f142d6a93ea3c1cf185e96
+type: Request
+parentId: fld_f96ddd3ae87443aca9fdeb9037ee4785
+modified: 1628069647829
+created: 1627360263556
+url: "{{ _.base_url }}/order/find"
+name: Recipe
+description: ""
+method: GET
+body: {}
+parameters:
+  - name: code
+    value: RCP22072100000
+    description: ""
+    id: pair_a3354512e2f241ab930f755f4f833f71
+  - name: per_page
+    value: "-1"
+    description: ""
+    id: pair_d29becbb7c0747e698bdf2123fffa946
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_8c9e59f1cb6548c59b307f3cf9019b31
+    disabled: false
+authentication: {}
+metaSortKey: -1627360263556
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
