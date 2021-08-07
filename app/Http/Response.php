@@ -52,6 +52,7 @@ class Response implements Responsable
     public const RC_UNAVAILABLE_PAYMENT_GATEWAY = '0502';
     public const RC_PAYMENT_NOT_PAID = '0503';
     public const RC_FAILED_INQUIRY_PAYMENT = '0504';
+    public const RC_PAYMENT_HAS_PAID = '505';
 
     // code logs 0600 - 0699
     public const RC_CODE_LOG_UNAVAILABLE = '0601';
@@ -98,6 +99,7 @@ class Response implements Responsable
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
                 self::RC_UPDATED,
+                self::RC_PAYMENT_HAS_PAID,
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,

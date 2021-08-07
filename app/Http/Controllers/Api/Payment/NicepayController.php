@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
+use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
@@ -25,6 +27,8 @@ class NicepayController extends Controller
      */
     public function registration(Gateway $gateway, Package $package): JsonResponse
     {
+        throw_if($this->checkPaymentHasPaid($package), new Response(Response::RC_PAYMENT_HAS_PAID));
+
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
                 $resource = (new CheckPayment($package, $gateway))->vaRegistration();
@@ -50,6 +54,9 @@ class NicepayController extends Controller
 
     public function cancel(Package $package): JsonResponse
     {
+
+        throw_if($this->checkPaymentHasPaid($package), new Response(Response::RC_PAYMENT_HAS_PAID));
+
         /** @var Payment $payment */
         $payment = $package->payments()
             ->where('status', Payment::STATUS_PENDING)
@@ -80,5 +87,15 @@ class NicepayController extends Controller
         $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
 
         return $this->jsonSuccess();
+    }
+
+    private function checkPaymentHasPaid (Package $package): bool
+    {
+        $payment = $package->payments()
+            ->where('status', Payment::STATUS_SUCCESS)
+            ->latest()
+            ->first();
+
+        return $payment->exists;
     }
 }
