@@ -99,7 +99,6 @@ class Response implements Responsable
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
                 self::RC_UPDATED,
-                self::RC_PAYMENT_HAS_PAID,
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,
@@ -131,6 +130,7 @@ class Response implements Responsable
                 self::RC_CODE_LOG_UNAVAILABLE,
                 self::RC_PAYMENT_NOT_PAID,
                 self::RC_FAILED_INQUIRY_PAYMENT,
+                self::RC_PAYMENT_HAS_PAID,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
