@@ -52,7 +52,7 @@ class Response implements Responsable
     public const RC_UNAVAILABLE_PAYMENT_GATEWAY = '0502';
     public const RC_PAYMENT_NOT_PAID = '0503';
     public const RC_FAILED_INQUIRY_PAYMENT = '0504';
-    public const RC_PAYMENT_HAS_PAID = '505';
+    public const RC_PAYMENT_HAS_PAID = '0505';
 
     // code logs 0600 - 0699
     public const RC_CODE_LOG_UNAVAILABLE = '0601';
@@ -122,6 +122,9 @@ class Response implements Responsable
                 self::RC_OUT_OF_RANGE,
                 self::RC_PARTNER_GEO_UNAVAILABLE
             ],
+            LaravelResponse::HTTP_FORBIDDEN => [
+                self::RC_PAYMENT_HAS_PAID,
+            ],
             LaravelResponse::HTTP_PRECONDITION_FAILED => [
                 self::RC_MISSING_AUTHENTICATION_HEADER,
                 self::RC_INVALID_AUTHENTICATION_HEADER,
@@ -130,7 +133,6 @@ class Response implements Responsable
                 self::RC_CODE_LOG_UNAVAILABLE,
                 self::RC_PAYMENT_NOT_PAID,
                 self::RC_FAILED_INQUIRY_PAYMENT,
-                self::RC_PAYMENT_HAS_PAID,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,
