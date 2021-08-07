@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Events\Payment\Nicepay\PayByNicepay;
-use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
 use App\Http\Response;
@@ -54,7 +53,6 @@ class NicepayController extends Controller
 
     public function cancel(Package $package): JsonResponse
     {
-
         throw_if($this->checkPaymentHasPaid($package), new Response(Response::RC_PAYMENT_HAS_PAID));
 
         /** @var Payment $payment */
@@ -89,7 +87,7 @@ class NicepayController extends Controller
         return $this->jsonSuccess();
     }
 
-    private function checkPaymentHasPaid (Package $package): bool
+    private function checkPaymentHasPaid(Package $package): bool
     {
         $payment = $package->payments()
             ->where('status', Payment::STATUS_SUCCESS)
