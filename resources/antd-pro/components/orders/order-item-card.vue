@@ -21,6 +21,12 @@
 
     <!-- detail -->
     <a-row>
+      <!-- packing -->
+      <a-col :span="16"> Detail Packing </a-col>
+      <a-col :span="8">
+        <b>{{ packing }}</b>
+      </a-col>
+
       <!-- berat -->
       <a-col :span="16"> Berat volume </a-col>
       <a-col :span="8">
@@ -61,10 +67,10 @@
       </a-col>
 
       <!-- asuransi -->
-      <a-col :span="16"> Asuransi </a-col>
-      <a-col :span="8">
-        <b>{{currency(getInsurancePrice(prices))  }}</b>
-      </a-col>
+<!--      <a-col :span="16"> Asuransi </a-col>-->
+<!--      <a-col :span="8">-->
+<!--        <b>{{currency(getInsurancePrice(prices))  }}</b>-->
+<!--      </a-col>-->
     </a-row>
   </a-card>
 </template>
@@ -132,8 +138,18 @@ export default {
       return this.item?.price;
     },
     prices() {
-      //console.log(this.package)
       return this.item?.prices;
+    },
+    packing() {
+      let packing = "tanpa packing.";
+      if (this.item?.handling) {
+        let count = this.item?.handling.length;
+        packing = "";
+        this.item?.handling.forEach((h,i) => {
+          packing += `${ h.type === "wood" ? 'kayu' : h.type }${ (count-1) === i ? '.' : ',' } `
+        })
+      }
+      return packing;
     }
   },
   methods: {
