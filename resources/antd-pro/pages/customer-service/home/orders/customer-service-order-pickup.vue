@@ -4,7 +4,11 @@
     :search="{ action: search, placeholder: 'cari id order ...' }"
   >
     <template slot="head-tools">
-      <a :href="routeOriginUri('partner.customer_service.home.order.walkin.create')">
+      <a
+        :href="
+          routeOriginUri('partner.customer_service.home.order.walkin.create')
+        "
+      >
         <a-button type="success" class="trawl-button-success">
           <a-icon :component="NoteIcon" fill="white" />
           <span>Create Order</span>
@@ -12,11 +16,17 @@
       </a>
     </template>
     <template slot="content">
-      <order-table :data-source="items.data" :get-data-function="getItems" />
+      <order-table
+        :data-source="items.data"
+        :get-data-function="getItems"
+        :pagination="pagination"
+        :change-page="changePage"
+        :change-size-page="changeSizePage"
+      />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -39,7 +49,7 @@ export default {
     TrawlNotification,
     ContentLayout,
     TrawlTable,
-    OrderTable,
+    OrderTable
   },
   data() {
     return {
@@ -48,19 +58,20 @@ export default {
       orders,
       items: this.getDefaultPagination(),
       transporters: this.getDefaultPagination(),
+      pagination: {}
     };
   },
   methods: {
-    getTransporters: _.debounce(function (search = null, type = null) {
+    getTransporters: _.debounce(function(search = null, type = null) {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), {
           params: {
             transporter: true,
             type: type,
-            per_page: 2,
-            q: search,
-          },
+            per_page: 10,
+            q: search
+          }
         })
         .then(({ data: responseData }) => {
           this.transporters = responseData;
@@ -71,22 +82,23 @@ export default {
       this.items = resp;
       let numbering = this.items.from;
 
-      _.forEach(this.items.data, (o) => {
+      _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = this.trawlbensPagination;
     },
     async save(data = {}) {
       this.loading = true;
 
       const response = await this.$http
         .patch(this.routeUri(this.getRoute() + ".assign", data))
-        .then((resp) => {
+        .then(resp => {
           this.getItems();
           this.$notification.success({
-            message: "Sukses menugaskan transporter!",
+            message: "Sukses menugaskan transporter!"
           });
         })
-        .finally((e) => {
+        .finally(e => {
           this.onErrorResponse(e);
           this.loading = false;
         });
@@ -97,9 +109,18 @@ export default {
       this.filter.q = value;
       this.getItems();
     },
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
+      this.getItems();
+    }
   },
   mounted() {
     this.getItems();
-  },
+  }
 };
 </script>

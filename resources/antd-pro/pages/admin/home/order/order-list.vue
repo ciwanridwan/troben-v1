@@ -16,15 +16,16 @@
     </template>
     <template slot="content">
       <order-table
-        :pagination="pagination"
         :dataSource="items.data"
         :get-data-function="getItems"
+        :pagination="pagination"
         :change-page="changePage"
+        :change-size-page="changeSizePage"
       />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -45,7 +46,7 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 5
+        per_page: 10
       },
       loading: false,
       orderModalVisibility: false,
@@ -60,19 +61,7 @@ export default {
       _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
-      this.pagination = {
-        current_page: resp.current_page,
-        first_page_url: resp.first_page_url,
-        from: resp.from,
-        last_page_url: resp.last_page_url,
-        last_page: resp.last_page,
-        next_page_url: resp.next_page_url,
-        path: resp.path,
-        per_page: Number(resp.per_page),
-        prev_page_url: resp.prev_page_url,
-        to: resp.to,
-        total: resp.total
-      };
+      this.pagination = this.trawlbensPagination;
     },
     afterAssign() {
       this.getItems();
@@ -81,8 +70,13 @@ export default {
       this.filter.q = value;
       this.getItems();
     },
-    changePage(value) {
-      this.filter.page = value;
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
       this.getItems();
     }
   },
