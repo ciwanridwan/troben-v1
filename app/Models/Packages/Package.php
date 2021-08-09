@@ -222,8 +222,8 @@ class Package extends Model implements AttachableContract
     protected $appends = [
         'hash',
         'service_price',
-        'type'
-
+        'type',
+        'charge_price_note'
     ];
 
     /**
@@ -502,6 +502,14 @@ class Package extends Model implements AttachableContract
         } else {
             return self::TYPE_APP;
         }
+    }
+
+    public function getChargePriceNoteAttribute()
+    {
+        return \App\Models\Price::query()
+            ->where('origin_regency_id', $this->attributes['origin_regency_id'])
+            ->where('destination_id', $this->attributes['destination_sub_district_id'])
+            ->first();
     }
 
     public static function getAvailableDescriptionFormat()
