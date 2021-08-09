@@ -1,0 +1,28 @@
+_id: req_997683a4d5e2486084e50d527e477821
+type: Request
+parentId: fld_b05a80fb85cd4c2cbe35e1aa011ad519
+modified: 1628481932914
+created: 1628481744202
+url: "{{ _.base_url }}/partner/list"
+name: Get list partner
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - id: pair_11223b018daf448e8731d0dc255d6e49
+    name: Accept
+    value: application/json
+    description: ""
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1628481744202
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
