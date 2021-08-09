@@ -55,7 +55,7 @@
     <div v-else>
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']"
-        >[Untracked Status] Please contact developer
+        >[Onprogress Status] Pesanan sedang diproses Mitra
       </span>
     </div>
   </div>
