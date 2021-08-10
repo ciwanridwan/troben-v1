@@ -4,6 +4,7 @@
     :dataSource="dataSource"
     :pagination="pagination"
     @changePage="changePage"
+    @changeSizePage="changeSizePage"
   >
     <template slot="id_order" slot-scope="{ record }">
       <order-modal :package="record">
@@ -76,6 +77,10 @@ export default {
       default: () => {}
     },
     changePage: {
+      type: Function,
+      default: () => {}
+    },
+    changeSizePage: {
       type: Function,
       default: () => {}
     }

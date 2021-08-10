@@ -1,5 +1,11 @@
 <template>
-  <trawl-table :columns="manifestColumns" :dataSource="dataSource">
+  <trawl-table
+    :columns="manifestColumns"
+    :dataSource="dataSource"
+    :pagination="pagination"
+    @changePage="changePage"
+    @changeSizePage="changeSizePage"
+  >
     <template slot="manifest" slot-scope="{ record }">
       <a-space direction="vertical">
         <span v-if="record.code">
@@ -7,7 +13,9 @@
         </span>
         <span
           >Jumlah Kg :
-          <span class="trawl-text-bold">{{ record.weight_borne_total }} Kg</span></span
+          <span class="trawl-text-bold"
+            >{{ record.weight_borne_total }} Kg</span
+          ></span
         >
         <span> </span>
       </a-space>
@@ -30,7 +38,10 @@
           <delivery-status :record="record"></delivery-status>
         </a-col>
         <a-col :span="8">
-          <admin-delivery-actions :delivery="record" @change="getDataFunction" />
+          <admin-delivery-actions
+            :delivery="record"
+            @change="getDataFunction"
+          />
         </a-col>
       </a-row>
     </span>
@@ -45,7 +56,7 @@ import AdminDeliveryActions from "../orders/actions/admin-delivery-actions.vue";
 export default {
   data() {
     return {
-      manifestColumns,
+      manifestColumns
     };
   },
   props: {
@@ -53,13 +64,25 @@ export default {
       type: Array,
       default: () => {
         return [];
-      },
+      }
     },
     getDataFunction: {
       type: Function,
-      default: () => {},
+      default: () => {}
     },
+    pagination: {
+      type: Object,
+      default: () => {}
+    },
+    changePage: {
+      type: Function,
+      default: () => {}
+    },
+    changeSizePage: {
+      type: Function,
+      default: () => {}
+    }
   },
-  components: { trawlTable, DeliveryStatus, AdminDeliveryActions },
+  components: { trawlTable, DeliveryStatus, AdminDeliveryActions }
 };
 </script>

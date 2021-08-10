@@ -22,7 +22,7 @@
 
       <a-row :style="'padding:24px 0px'">
         <a-col>
-          <order-estimation></order-estimation>
+          <order-estimation v-if="this.package.charge_price_note.notes" :note="this.package.charge_price_note"></order-estimation>
         </a-col>
       </a-row>
 
