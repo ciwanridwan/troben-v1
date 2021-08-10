@@ -96,6 +96,7 @@ class Price extends Model
         'destination_id',
         'zip_code',
         'service_code',
+        'notes',
         'tier_1',
         'tier_2',
         'tier_3',

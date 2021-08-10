@@ -28,9 +28,15 @@ class OrderRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
         $this->router->get($this->prefix('code/{code_content}'), [
             'as' => $this->name('showByReceipt'),
             'uses' => $this->uses('showByReceipt', WarehouseOrderController::class),
+        ]);
+
+        $this->router->get($this->prefix('dashboard'), [
+            'as' => $this->name('dashboard'),
+            'uses' => $this->uses('dashboard'),
         ]);
     }
 

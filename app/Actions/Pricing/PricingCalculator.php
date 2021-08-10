@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pricing;
 
+use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -85,7 +86,10 @@ class PricingCalculator
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
         $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
-        $total_amount = $handling_price + $insurance_price + $service_price - $discount_price;
+        $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
+
+        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+
         return $total_amount;
     }
 
@@ -101,6 +105,7 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'fleet_name' => ['nullable'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -115,13 +120,30 @@ class PricingCalculator
 
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
+        $pickup_price = 0;
+
+        if (array_key_exists('fleet_name', $inputs)) {
+            if ($inputs['fleet_name'] == 'bike') {
+                $pickup_price = Transporter::PRICE_BIKE;
+            } else {
+                $pickup_price = Transporter::PRICE_CAR;
+            }
+        }
+
+        $discount = $pickup_price;
 
         foreach ($inputs['items'] as $index => $item) {
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
-            $item['insurance_price'] = self::getInsurancePrice($item['price']);
-            $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+
+            if ($item['insurance'] == false) {
+                $item['insurance_price'] = 0;
+                $item['insurance_price_total'] = 0;
+            } else {
+                $item['insurance_price'] = self::getInsurancePrice($item['price']);
+                $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+            }
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
         }
@@ -136,6 +158,8 @@ class PricingCalculator
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
+                'pickup_price' => $pickup_price,
+                'discount' => $discount,
                 'tier' => $tierPrice,
                 'service' => $servicePrice
             ]
@@ -174,7 +198,20 @@ class PricingCalculator
             $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
 
-        $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
+        $items = [];
+
+        foreach ($inputs['items'] as $item) {
+            $items[] = [
+                'weight' => $item['weight'],
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => ! empty($item['handling']) ? array_column($item['handling'], 'type') : null
+            ];
+        }
+
+        $totalWeightBorne = self::getTotalWeightBorne($items);
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
@@ -197,10 +234,13 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            $item['handling'] = self::checkHandling($item['handling']);
+            if (! empty($items['handling'])) {
+                $item['handling'] = self::checkHandling($item['handling']);
+            }
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
         }
-        return $totalWeightBorne;
+
+        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
@@ -209,23 +249,17 @@ class PricingCalculator
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
         } else {
-            $act_weight = self::ceilByTolerance($weight);
-            $act_volume = self::ceilByTolerance(
-                self::getVolume(
-                    $height,
-                    $length,
-                    $width,
-                    $service
-                )
+            $act_weight = $weight;
+            $act_volume = self::getVolume(
+                $height,
+                $length,
+                $width,
+                $service
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
 
-        $weight = $weight * $qty;
-
-        // check if lt min weight
-        $weight > Price::MIN_WEIGHT ?: $weight = Price::MIN_WEIGHT;
-        return $weight;
+        return (self::ceilByTolerance($weight) * $qty);
     }
 
     public static function getInsurancePrice($price)
@@ -313,9 +347,7 @@ class PricingCalculator
         $min = $whole - $maj; //get after point
 
         // check with tolerance
-        if ($min >= self::MIN_TOL) {
-            $min = 1;
-        }
+        $min = (int) ($min >= self::MIN_TOL ? 1 : 0);
 
         $weight = $maj + $min;
 
@@ -349,9 +381,7 @@ class PricingCalculator
         $volume /= $divider;
 
         // volume < 1?1:volume
-        $volume = $volume > 1 ? $volume : 1;
-
-        return $volume;
+        return $volume > 1 ? $volume : 1;
     }
 
     private static function checkHandling($handling = [])

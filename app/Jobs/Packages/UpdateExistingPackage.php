@@ -42,9 +42,17 @@ class UpdateExistingPackage
             'sender_name' => ['nullable'],
             'sender_phone' => ['nullable'],
             'sender_address' => ['nullable'],
+            'sender_way_point' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
+
             'receiver_name' => ['nullable'],
             'receiver_phone' => ['nullable'],
             'receiver_address' => ['nullable'],
+            'receiver_way_point' => ['nullable'],
+            'receiver_latitude' => ['nullable'],
+            'receiver_longitude' => ['nullable'],
+
             'handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             'origin_regency_id' => ['nullable'],

@@ -24,9 +24,9 @@ class NewVacctRegistration
     public Gateway $gateway;
 
     /**
-     * @var $response
+     * @var object $response
      */
-    public $response;
+    public object $response;
 
     /**
      * NewVacctRegistration constructor.

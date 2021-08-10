@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
@@ -52,7 +53,7 @@ class Partner extends Model
         HasFactory,
         HashableId,
         HasPartnerCode,
-        CanSearch;
+        CanSearch, CustomSerializeDate;
 
     public const TYPE_BUSINESS = 'business'; // bisa order dari application.
     public const TYPE_POOL = 'pool';
@@ -209,6 +210,11 @@ class Partner extends Model
     public function deliveries(): Relations\HasMany
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
+    }
+
+    public function outbound(): Relations\HasMany
+    {
+        return $this->hasMany(Delivery::class, 'origin_partner_id', 'id');
     }
 
     public function code_logs()

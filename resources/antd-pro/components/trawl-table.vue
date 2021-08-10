@@ -69,10 +69,25 @@
         </a-col>
       </a-row>
     </a-card>
+    <a-pagination
+      v-model="current"
+      show-size-changer
+      @showSizeChange="changePerPage"
+      :total="pageTotal"
+      :defaultPageSize="pagePer_page"
+      show-less-items
+      @change="reloadItems"
+      :pageSizeOptions="['10', '15', '25', '40']"
+    />
   </a-space>
 </template>
 <script>
 export default {
+  data() {
+    return {
+      current: 1
+    };
+  },
   props: {
     columns: {
       type: Array,
@@ -85,6 +100,9 @@ export default {
       default: () => {
         return [];
       }
+    },
+    pagination: {
+      type: Object
     }
   },
   computed: {
@@ -96,6 +114,16 @@ export default {
         }
       });
       return Math.floor(spanLeft / this.columns.length);
+    },
+    pageTotal() {
+      return this.pagination
+        ? this.pagination.total
+        : this.getDefaultPagination().total;
+    },
+    pagePer_page() {
+      return this.pagination
+        ? this.pagination.pageSize
+        : this.getDefaultPagination().total;
     }
   },
   mounted() {},
@@ -118,6 +146,12 @@ export default {
       return (children && children != "") || children != undefined
         ? children
         : result;
+    },
+    reloadItems() {
+      this.$emit("changePage", this.current);
+    },
+    changePerPage(current, size) {
+      this.$emit("changeSizePage", size);
     }
   }
 };

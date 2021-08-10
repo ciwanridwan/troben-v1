@@ -16,6 +16,8 @@ class Handling implements CastsAttributes
     public const TYPE_SANDBAG_L = 'sandbag l';
     public const TYPE_PALLETE = 'pallete';
 
+    public const ADD_WOOD_DIMENSION = 7;
+
     /**
      * Cast the given value.
      *
@@ -65,10 +67,9 @@ class Handling implements CastsAttributes
 
     public static function woodWeightBorne($height, $length, $width, $weight)
     {
-        $add_dimension = 7; // added 7cm each dimension
+        $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
         $volume = PricingCalculator::getVolume($height, $length, $width);
         $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension);
-        $weight = PricingCalculator::ceilByTolerance($weight);
 
         if ($weight > $volume_packed) {
             $volume_diff = $volume_packed - $volume;
@@ -120,9 +121,8 @@ class Handling implements CastsAttributes
                 return $price;
             case self::TYPE_WOOD:
                 $min_price = 50000;
-                $weightBorne = self::woodWeightBorne($height, $length, $width, $weight);
-
-                $price = $weightBorne * 0.8;
+                $add_dimension = self::ADD_WOOD_DIMENSION;
+                $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.8);
 
                 return $price < $min_price ? $min_price : $price;
             default:

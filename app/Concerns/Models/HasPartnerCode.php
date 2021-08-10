@@ -26,13 +26,14 @@ trait HasPartnerCode
     public function generateCode()
     {
         $partner_code = Partner::getAvailableCodeTypes()[$this->type];
-        // $partner_regency = Regency::find($this->origin_regency);
+        /** @var Regency $partner_regency */
+        $partner_regency = Regency::find($this->geo_regency_id);
 
-        $code = $partner_code.'-'.'JKT'.'-';
+        $code = $partner_code.'-'.($partner_regency->bsn_code === 'KYB' ? 'JKT' : $partner_regency->bsn_code).'-';
 
         $last_code = Partner::where('code', 'LIKE', $code.'%')->latest()->first();
         if ($last_code === null) {
-            $code = $code.str_pad(0, 5, '0', STR_PAD_LEFT);
+            $code = $code.str_pad(0, 4, '0', STR_PAD_LEFT);
             $code_number = (int) substr($last_code, strlen($code));
         } else {
             $last_code = $last_code->code;

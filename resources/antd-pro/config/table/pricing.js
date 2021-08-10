@@ -54,9 +54,9 @@ export default [
   },
   {
     title: "Catatan",
-    dataIndex: "zip_code",
-    key: "zip_code",
-    scopedSlots: { customRender: "zip_code" }
+    dataIndex: "notes",
+    key: "notes",
+    scopedSlots: { customRender: "notes" }
   },
   {
     title: "Action",

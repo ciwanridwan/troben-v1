@@ -1,5 +1,11 @@
 <template>
-  <trawl-table :columns="receiptColumns" :dataSource="dataSource">
+  <trawl-table
+    :columns="receiptColumns"
+    :dataSource="dataSource"
+    :pagination="pagination"
+    @changePage="changePage"
+    @changeSizePage="changeSizePage"
+  >
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
         <a-timeline-item color="green">
@@ -54,6 +60,18 @@ export default {
       }
     },
     afterAction: {
+      type: Function,
+      default: () => {}
+    },
+    pagination: {
+      type: Object,
+      default: () => {}
+    },
+    changePage: {
+      type: Function,
+      default: () => {}
+    },
+    changeSizePage: {
       type: Function,
       default: () => {}
     }

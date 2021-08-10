@@ -51,6 +51,7 @@ class Response implements Responsable
     public const RC_FAILED_REGISTRATION_PAYMENT = '0501';
     public const RC_UNAVAILABLE_PAYMENT_GATEWAY = '0502';
     public const RC_PAYMENT_NOT_PAID = '0503';
+    public const RC_FAILED_INQUIRY_PAYMENT = '0504';
 
     // code logs 0600 - 0699
     public const RC_CODE_LOG_UNAVAILABLE = '0601';
@@ -126,7 +127,8 @@ class Response implements Responsable
                 self::RC_MISMATCH_TOKEN_OWNERSHIP,
                 self::RC_FAILED_REGISTRATION_PAYMENT,
                 self::RC_CODE_LOG_UNAVAILABLE,
-                self::RC_PAYMENT_NOT_PAID
+                self::RC_PAYMENT_NOT_PAID,
+                self::RC_FAILED_INQUIRY_PAYMENT,
             ],
             LaravelResponse::HTTP_UNAUTHORIZED => [
                 self::RC_UNAUTHENTICATED,

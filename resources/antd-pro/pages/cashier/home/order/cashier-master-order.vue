@@ -3,9 +3,9 @@
     <template slot="content">
       <order-table :dataSource="items.data" :get-data-function="getItems" />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -17,36 +17,36 @@ export default {
   components: {
     contentLayout,
     OrderTable,
-    TrawlNotification,
+    TrawlNotification
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
 
-      _.forEach(this.items.data, (o) => {
+      _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
     },
     async getParterInfo() {
       let { data } = await this.$http.get(this.routeUri(this.getRoute()), {
         params: {
-          partner: true,
-        },
+          partner: true
+        }
       });
       this.partnerInfo = data.data;
-    },
+    }
   },
   data() {
     return {
       items: this.getDefaultPagination(),
-      partnerInfo: {},
+      partnerInfo: {}
     };
   },
 
   mounted() {
     this.getItems();
     this.getParterInfo();
-  },
+  }
 };
 </script>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Jobs\Packages\CheckDeliveredStatus;
 use App\Jobs\Packages\DriverUploadReceiver;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Models\Deliveries\Deliverable;
@@ -76,16 +77,10 @@ class DooringController extends Controller
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
-
-
         $request->merge([
             'received_at' => Carbon::now(),
         ]);
-
-
-
         $inputs = $request->all();
-
 
 
 
@@ -94,50 +89,32 @@ class DooringController extends Controller
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
-
         $this->dispatchNow($job);
-
         $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
-
-
-
         $this->dispatchNow($uploadJob);
-
-
 
         event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
 
+        $job = new CheckDeliveredStatus($delivery);
+        $this->dispatchNow($job);
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     * @throws \Throwable
-     */
-    public function unloadeditem(Delivery $delivery, Package $package, Request $request): JsonResponse
+
+    public function show(Delivery $delivery): JsonResponse
     {
-        $this->authorize('update', $package);
-
-        $inputs = $request->all();
-
-
-        /** @noinspection PhpParamsInspection */
-        /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
-
-        $job = new UpdateExistingPackage($package, $inputs);
-
-        $this->dispatchNow($job);
-
-        $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
-
-        $this->dispatchNow($uploadJob);
-
-        event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
-
-        return $this->jsonSuccess(DeliveryResource::make($delivery));
+        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
+            'code',
+            'partner',
+            'packages',
+            'packages.origin_district',
+            'packages.origin_sub_district',
+            'packages.destination_sub_district',
+            'packages.items',
+            'driver',
+            'transporter',
+            'item_codes.codeable'
+        )));
     }
 }

@@ -32,6 +32,11 @@ class AssignableController extends Controller
             ])
         );
 
+        $query->when(
+            $request->input('code'),
+            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
+        );
+
         return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
     }
 

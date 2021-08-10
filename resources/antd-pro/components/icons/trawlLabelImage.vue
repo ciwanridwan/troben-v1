@@ -4,6 +4,7 @@
     width="61"
     height="57"
     viewBox="0 0 61 57"
+    id="trawllabelimage"
   >
     <g transform="translate(-2440 -127)">
       <path

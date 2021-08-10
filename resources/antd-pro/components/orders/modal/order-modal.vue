@@ -8,9 +8,11 @@
       </a-space>
     </span>
     <a-modal v-model="visible" width="65%" centered :footer="footer">
-      <template slot="closeIcon"
-        ><a-icon type="close" @click="hideModal"></a-icon
-      ></template>
+
+      <template slot="closeIcon">
+        <a-icon type="close" @click="hideModal"></a-icon>
+      </template>
+
       <template slot="title">
         <span v-if="!hasSlot('title')" class="trawl-order-modal-component--title">
           Detail ID Order
@@ -29,7 +31,7 @@
           :modifiable="modifiable"
           :editable="editable"
           :deletable="deletable"
-        />
+          :package="package"/>
 
         <order-modal-estimations :package="package" />
 
@@ -80,7 +82,6 @@ export default {
     },
     modifiable: {
       type: Boolean,
-      default: true,
     },
     editable: {
       type: Boolean,

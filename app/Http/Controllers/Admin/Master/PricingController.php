@@ -89,8 +89,7 @@ class PricingController extends Controller
             $data = [
                 'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15))),
             ];
-            $data = array_merge($data, $this->extraData());
-
+            /*$data = array_merge($data, $this->extraData());*/
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }

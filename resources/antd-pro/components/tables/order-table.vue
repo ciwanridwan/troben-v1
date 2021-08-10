@@ -1,5 +1,11 @@
 <template>
-  <trawl-table :columns="orderColumns" :dataSource="dataSource">
+  <trawl-table
+    :columns="orderColumns"
+    :dataSource="dataSource"
+    :pagination="pagination"
+    @changePage="changePage"
+    @changeSizePage="changeSizePage"
+  >
     <template slot="id_order" slot-scope="{ record }">
       <order-modal :package="record">
         <span slot="trigger">
@@ -44,7 +50,7 @@ import OrderModal from "../../components/orders/modal/order-modal";
 import {
   getTotalWeightBorne,
   getTierPrice,
-  getSubTotalItems,
+  getSubTotalItems
 } from "../../functions/orders";
 import BadgePackageType from "../badges/badge-package-type.vue";
 import AdminOrderActions from "../orders/actions/admin-order-actions.vue";
@@ -52,7 +58,7 @@ import PackageTableDetail from "../packages/package-table-detail.vue";
 export default {
   data() {
     return {
-      orderColumns,
+      orderColumns
     };
   },
   props: {
@@ -60,17 +66,29 @@ export default {
       type: Array,
       default: () => {
         return [];
-      },
+      }
     },
     getDataFunction: {
       type: Function,
-      default: () => {},
+      default: () => {}
     },
+    pagination: {
+      type: Object,
+      default: () => {}
+    },
+    changePage: {
+      type: Function,
+      default: () => {}
+    },
+    changeSizePage: {
+      type: Function,
+      default: () => {}
+    }
   },
   methods: {
     getTotalWeightBorne,
     getTierPrice,
-    getSubTotalItems,
+    getSubTotalItems
   },
   components: {
     trawlTable,
@@ -79,7 +97,8 @@ export default {
     OrderModal,
     BadgePackageType,
     AdminOrderActions,
-    PackageTableDetail,
+    PackageTableDetail
   },
+  mounted() {}
 };
 </script>

@@ -10,6 +10,7 @@
             :modifiable="modifiable"
             :editable="editable"
             :deletable="deletable"
+            :package="package"
           />
         </a-col>
       </a-row>
@@ -39,6 +40,12 @@ export default {
       type: Boolean,
       default: true,
     },
+    package: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    }
   },
   methods: {
     onChange() {

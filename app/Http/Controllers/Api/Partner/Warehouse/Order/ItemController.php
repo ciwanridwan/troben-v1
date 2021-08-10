@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 
+use App\Exceptions\Error;
+use App\Http\Response;
+use App\Jobs\Packages\Item\WarehouseUploadItem;
+use App\Models\Packages\Price;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
@@ -20,13 +24,39 @@ class ItemController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function store(Request $request, Package $package): JsonResponse
+    /*public function store(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
 
         $job = new CreateNewItemFromExistingPackage($package, $request->all());
 
         $this->dispatchNow($job);
+
+        return $this->jsonSuccess(new JsonResource($job->item));
+    }*/
+
+    public function store(Request $request, Package $package): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required',
+            'qty' => 'required',
+            'weight' => 'required',
+            'width' => 'required',
+            'length' => 'required',
+            'height' => 'required',
+        ]);
+        $inputs = $request->all();
+        /** @noinspection PhpParamsInspection */
+        /** @noinspection PhpUnhandledExceptionInspection */
+        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
+
+        $job = new CreateNewItemFromExistingPackage($package, $inputs);
+
+        $this->dispatchNow($job);
+
+        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+
+        $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new JsonResource($job->item));
     }
@@ -42,7 +72,27 @@ class ItemController extends Controller
     {
         $this->authorize('update', $package);
 
-        $this->dispatchNow(new UpdateExistingItem($package, $item, $request->all()));
+        if ($request->hasAny(['handling'])) {
+            $handling = $request->handling;
+            if (head($handling) == null) {
+                $item = Item::where('id', $item->id)->first();
+                $item->handling = [];
+                $item->save();
+                unset($request['handling']);
+            }
+        } else {
+            $price = Price::where('package_item_id', $item->id)
+                ->Where('type', 'handling')->delete();
+        }
+
+
+        $job = new UpdateExistingItem($package, $item, $request->all());
+
+        $this->dispatchNow($job);
+
+        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+
+        $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new JsonResource($item->fresh()));
     }

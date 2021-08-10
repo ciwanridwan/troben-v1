@@ -142,9 +142,9 @@
           <a-col :span="8">
             <a-form-model-item ref="desc" prop="desc">
               <template slot="label">
-                <h4>Keterangan</h4>
+                <h4>Estimasi</h4>
               </template>
-              <a-textarea v-model="form.desc"></a-textarea>
+              <a-textarea v-model="form.notes"></a-textarea>
             </a-form-model-item>
           </a-col>
         </a-row>

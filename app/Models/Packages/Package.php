@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\User;
@@ -38,9 +39,17 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $sender_name
  * @property string $sender_phone
  * @property string $sender_address
+ * @property string $sender_way_point
+ * @property string $sender_latitude
+ * @property string $sender_longitude
+ *
  * @property string $receiver_phone
  * @property string $receiver_name
  * @property string $receiver_address
+ * @property string $receiver_way_point
+ * @property string $receiver_latitude
+ * @property string $receiver_longitude
+ *
  * @property string $status
  * @property bool $is_separate_item
  * @property float $total_amount
@@ -80,7 +89,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class Package extends Model implements AttachableContract
 {
-    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch;
+    use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -151,9 +160,17 @@ class Package extends Model implements AttachableContract
         'sender_name',
         'sender_phone',
         'sender_address',
+        'sender_way_point',
+        'sender_latitude',
+        'sender_longitude',
+
         'receiver_name',
         'receiver_phone',
         'receiver_address',
+        'receiver_way_point',
+        'receiver_latitude',
+        'receiver_longitude',
+
         'handling',
         'estimator_id',
         'packager_id',
@@ -215,7 +232,7 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $casts = [
-        'total_weight' => 'float',
+        'total_weight' => 'int',
         'total_amount' => 'float',
         'tier_price' => 'float',
         'is_separate_item' => 'boolean',
@@ -361,6 +378,11 @@ class Package extends Model implements AttachableContract
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
+    }
+
+    public function tarif(): HasMany
+    {
+        return $this->hasMany(\App\Models\Price::class, 'destination_id', 'destination_sub_district_id');
     }
 
     public function picked_up_by()

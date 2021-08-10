@@ -63,13 +63,14 @@
       <!-- asuransi -->
       <a-col :span="16"> Asuransi </a-col>
       <a-col :span="8">
-        <b>{{ currency(1000) }}</b>
+        <b>{{currency(getInsurancePrice(prices))  }}</b>
       </a-col>
     </a-row>
   </a-card>
 </template>
 <script>
 import orderModalEdit from "./order-modal-edit.vue";
+import {getInsurancePrice} from "../../functions/orders";
 export default {
   components: { orderModalEdit },
   props: {
@@ -79,7 +80,6 @@ export default {
     },
     modifiable: {
       type: Boolean,
-      default: true,
     },
     editable: {
       type: Boolean,
@@ -89,6 +89,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    package: {
+      type: Object,
+      default: () => {},
+    }
   },
   data() {
     return {
@@ -127,13 +131,21 @@ export default {
     price() {
       return this.item?.price;
     },
+    prices() {
+      //console.log(this.package)
+      return this.item?.prices;
+    }
   },
   methods: {
+    getInsurancePrice,
     onEdit(value) {
+      if (!value.handling) {
+        value.handling = [];
+      }
       this.$http
         .patch(
           this.routeUri("partner.cashier.home.updatePackageItem", {
-            package_hash: value?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: value?.hash,
           }),
           value
@@ -142,15 +154,15 @@ export default {
           this.$notification.success({
             message: "Berhasil mengubah item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
     onDelete() {
       this.$http
         .delete(
           this.routeUri("partner.cashier.home.deletePackageItem", {
-            package_hash: this.item?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: this.item?.hash,
           })
         )
@@ -158,9 +170,9 @@ export default {
           this.$notification.success({
             message: "Berhasil Menghapus item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
   },
   watch: {

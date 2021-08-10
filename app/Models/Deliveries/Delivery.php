@@ -2,6 +2,7 @@
 
 namespace App\Models\Deliveries;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Code;
 use App\Models\User;
 use App\Models\Packages\Item;
@@ -42,7 +43,7 @@ use ReflectionClass;
  */
 class Delivery extends Model
 {
-    use HashableId, HasCode, HasFactory;
+    use HashableId, HasCode, HasFactory, CustomSerializeDate;
 
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_RETURN = 'return';

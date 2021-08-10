@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -48,6 +49,12 @@ class Queries
         $query = Delivery::query();
 
         $query->whereIn('userable_id', $this->partner->users->pluck('pivot.id')->toArray());
+        $query->with([
+            'packages',
+            'origin_partner',
+            'partner',
+            'transporter'
+        ]);
 
         return $query;
     }
@@ -60,11 +67,26 @@ class Queries
 
         $query->with([
             'deliveries' => $queryPartnerId,
+            'deliveries.origin_partner',
+            'deliveries.partner'
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('updated_at');
+
+        return $query;
+    }
+
+    public function getPaymentQuery(): Builder
+    {
+        $query = Payment::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->whereHasMorph('payable', Delivery::class, $queryPartnerId);
 
         $query->orderByDesc('updated_at');
 
@@ -158,9 +180,14 @@ class Queries
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
                     Package::STATUS_REVAMP,
+                    Package::STATUS_PACKING,
+                    Package::STATUS_PACKED,
                     Package::STATUS_ACCEPTED,
                     Package::STATUS_WITH_COURIER,
-                    Package::STATUS_CANCEL
+                    Package::STATUS_CANCEL,
+                    Package::STATUS_MANIFESTED,
+                    Package::STATUS_IN_TRANSIT,
+                    Package::STATUS_DELIVERED,
                 ]));
                 break;
         }

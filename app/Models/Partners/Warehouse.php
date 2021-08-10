@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -41,7 +42,8 @@ class Warehouse extends Model
 {
     use SoftDeletes,
         HashableId,
-        HasFactory;
+        HasFactory,
+        CustomSerializeDate;
 
     /**
      * The table associated with the model.

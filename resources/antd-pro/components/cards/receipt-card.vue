@@ -4,11 +4,11 @@
       <a-col :span="12">
         <receipt-card-partner-info />
       </a-col>
-      <a-col :span="10" class="trawl-text-center">
+      <a-col :span="12" class="trawl-text-center">
         <a-icon
           class="receipt-card--icon"
           :component="TrawlLabelImage"
-          :style="{ 'font-size': '9rem' }"
+          :style="{ 'font-size': '4rem' }"
         ></a-icon>
       </a-col>
     </a-row>
@@ -20,7 +20,7 @@
         <receipt-card-package-qr-code :package="package" />
       </a-col>
     </a-row>
-    <a-divider />
+<!--    <a-divider :style="{ 'margin-top': '0.05rem', 'margin-bottom': '0.05rem'}" />-->
     <receipt-card-item-info :package="package" :item="item" :code="code" />
   </a-card>
 </template>
