@@ -1,7 +1,11 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
-      <order-table :dataSource="items.data" :get-data-function="getItems" />
+      <order-table :dataSource="items.data"
+                   :get-data-function="getItems"
+                   :pagination="pagination"
+                   :change-page="changePage"
+                   :change-size-page="changeSizePage"/>
     </template>
     <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -27,6 +31,7 @@ export default {
       _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = this.trawlbensPagination;
     },
     async getParterInfo() {
       let { data } = await this.$http.get(this.routeUri(this.getRoute()), {
@@ -35,12 +40,22 @@ export default {
         }
       });
       this.partnerInfo = data.data;
+    },
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
+      this.getItems();
     }
   },
   data() {
     return {
       items: this.getDefaultPagination(),
-      partnerInfo: {}
+      partnerInfo: {},
+      pagination:{},
     };
   },
 
