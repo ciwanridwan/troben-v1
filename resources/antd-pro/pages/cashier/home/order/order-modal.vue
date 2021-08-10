@@ -55,7 +55,7 @@
                 <span slot="phone">{{ record.receiver_phone }}</span>
                 <span slot="address">{{ record.receiver_address }}</span>
               </address-component>
-              <order-estimation></order-estimation>
+              <order-estimation v-if="this.record.charge_price_note.notes" :note="this.record.charge_price_note"></order-estimation>
             </a-col>
             <a-col :span="8">
               <a-empty description="" :class="['full-width']"></a-empty>

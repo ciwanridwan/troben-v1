@@ -136,25 +136,26 @@ class Item extends Model implements AttachableContract
 
     public function getWeightBorneAttribute()
     {
+        $handling = $this->getHandling();
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight));
+        }
         return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
     }
 
     public function getWeightBorneTotalAttribute()
     {
-        $handling = ! empty($item->handling) ? array_column($item->handling, 'type') : [];
+        $handling = $this->getHandling();
         return PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
     }
     public function getWeightVolumeAttribute()
     {
-        $handling = ! empty($item->handling) ? array_column($item->handling, 'type') : [];
+        $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            $this->height += $add_dimension;
-            $this->length += $add_dimension;
-            $this->width += $add_dimension;
+            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension));
         }
-        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
-        return $volume;
+        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
     }
     public function getTierPriceAttribute()
     {
@@ -174,5 +175,10 @@ class Item extends Model implements AttachableContract
     public function getCodeableAttribute($value)
     {
         return ['qty' => $this->attributes['qty']];
+    }
+
+    private function getHandling()
+    {
+        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 }

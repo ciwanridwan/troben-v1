@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int                              $origin_district_id
  * @property int                              $destination_id
  * @property string                           $service_code
+ * @property string                           $notes
  * @property float                            $tier_1
  * @property float                            $tier_2
  * @property float                            $tier_3
