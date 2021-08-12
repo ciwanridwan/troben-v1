@@ -3,7 +3,6 @@
 namespace App\Http\Routes\Api\Partner;
 
 use App\Http\Controllers\Api\Partner\PartnerController;
-use App\Http\Controllers\Api\TransporterController;
 use Jalameta\Router\BaseRoute;
 
 class PartnerRoute extends BaseRoute
