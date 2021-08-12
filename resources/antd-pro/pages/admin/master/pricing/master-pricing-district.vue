@@ -3,12 +3,12 @@
     <content-layout>
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
-          <a-col>
+          <!--<a-col>
             <pricing-form :data_extra="data_extra"></pricing-form>
           </a-col>
           <a-col>
             <input-file></input-file>
-          </a-col>
+          </a-col>-->
           <a-col>
             <a-input-search
               v-model="filter.q"
@@ -26,6 +26,7 @@
           @change="handleTableChanged"
           :loading="loading"
           :class="['trawl']"
+          :rowKey="'number'"
         >
           <span slot="number" slot-scope="number">{{ number }}</span>
           <span slot="from_to" slot-scope="record">

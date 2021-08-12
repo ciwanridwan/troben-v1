@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Exceptions\Error;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Geo\SubDistrict;
 use App\Jobs\Price\CreateNewPrice;
@@ -85,6 +86,8 @@ class PricingController extends Controller
             $this->attributes = $request->validate($this->rules);
 
             $this->getResource();
+            $this->query->with('destination.regency');
+            $this->query->orderBy('id');
 
             $data = [
                 'resource' => PriceResource::collection($this->query->paginate(request('per_page', 15))),
