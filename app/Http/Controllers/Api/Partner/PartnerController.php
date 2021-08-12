@@ -8,10 +8,12 @@ use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
 use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PartnerController extends Controller
 {
@@ -32,11 +34,20 @@ class PartnerController extends Controller
      *
      * @return JsonResponse
      */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $partner = Partner::query()->where('type', 'business')
-            ->orWhere('type', 'business')
-            ->get();
+        $this->attributes = Validator::make($request->all(), [
+            'type' => ['required'],
+            'origin' => ['nullable'],
+        ])->validate();
+
+        $partner = Partner::query()
+        ->where('type','=', 'business')
+        ->orWhere('type','=', 'pool')
+        ->whereHas('transporters', function (Builder $query) {
+            $query->where('type', 'like', $this->attributes['type']);
+        })
+        ->get();
 
         return $this->jsonSuccess(PartnerResource::collection($partner));
     }

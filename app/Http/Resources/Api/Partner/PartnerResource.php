@@ -20,9 +20,13 @@ class PartnerResource extends JsonResource
             'hash' => $this->hash,
             'name' => $this->name,
             'code' => $this->code,
+            'type' => $this->type,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'transporter' => $this->transporters,
         ];
+
+
         return $data;
     }
 }
