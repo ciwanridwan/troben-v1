@@ -31,20 +31,7 @@
               <template slot="label">
                 <h4>Kota Asal</h4>
               </template>
-              <a-select
-                show-search
-                option-filter-prop="children"
-                :filter-option="filterOptionMethod"
-                v-model="form.origin_regency_id"
-                @change="assignOriginProvince"
-              >
-                <a-select-option
-                  v-for="regency in data_extra.regencies"
-                  :key="regency.id"
-                  :value="regency.id"
-                  >{{ regency.name }}</a-select-option
-                >
-              </a-select>
+              <a-input :disabled="true" :defaultValue="origin_regency_name"></a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
@@ -55,7 +42,8 @@
               <template slot="label">
                 <h4>Kota Tujuan</h4>
               </template>
-              <a-select
+              <a-input :disabled="true" :defaultValue="destination_regency_name" ></a-input>
+              <!--<a-select
                 show-search
                 option-filter-prop="children"
                 :filter-option="filterOptionMethod"
@@ -65,9 +53,9 @@
                   v-for="regency in data_extra.regencies"
                   :key="regency.id"
                   :value="regency.id"
-                  >{{ regency.name }}</a-select-option
+                >{{ regency.name }}</a-select-option
                 >
-              </a-select>
+              </a-select>-->
             </a-form-model-item>
           </a-col>
           <a-col v-if="data" :span="8">
@@ -78,7 +66,8 @@
               <template slot="label">
                 <h4>Kelurahan Tujuan</h4>
               </template>
-              <a-select
+              <a-input :disabled="true" :defaultValue="destination_name" ></a-input>
+              <!--<a-select
                 show-search
                 option-filter-prop="children"
                 :filter-option="filterOptionMethod"
@@ -89,9 +78,9 @@
                   v-for="sub_district in sub_districts"
                   :key="sub_district.id"
                   :value="sub_district.id"
-                  >{{ sub_district.name }}</a-select-option
+                >{{ sub_district.name }}</a-select-option
                 >
-              </a-select>
+              </a-select>-->
             </a-form-model-item>
           </a-col>
           <a-col v-else :span="8">
@@ -102,7 +91,8 @@
               <template slot="label">
                 <h4>Kecamatan Tujuan</h4>
               </template>
-              <a-select
+              <a-input :disabled="true" :defaultValue="destination_name" ></a-input>
+              <!--<a-select
                 show-search
                 option-filter-prop="children"
                 :filter-option="filterOptionMethod"
@@ -112,9 +102,9 @@
                   v-for="district in districts"
                   :key="district.id"
                   :value="district.id"
-                  >{{ district.name }}</a-select-option
+                >{{ district.name }}</a-select-option
                 >
-              </a-select>
+              </a-select>-->
             </a-form-model-item>
           </a-col>
 
@@ -198,6 +188,22 @@
               <a-input-number v-model="form.tier_6"></a-input-number>
             </a-form-model-item>
           </a-col>
+          <a-col :span="8">
+            <a-form-model-item ref="tier_7" prop="tier_7">
+              <template slot="label">
+                <h4>Tarif > 3.000 Kg</h4>
+              </template>
+              <a-input-number v-model="form.tier_7"></a-input-number>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-model-item ref="tier_8" prop="tier_8">
+              <template slot="label">
+                <h4>Tarif > 5.000 Kg</h4>
+              </template>
+              <a-input-number v-model="form.tier_8"></a-input-number>
+            </a-form-model-item>
+          </a-col>
         </a-row>
       </a-form-model>
     </a-modal>
@@ -223,19 +229,19 @@ export default {
         tier_3: null,
         tier_4: null,
         tier_5: null,
-        tier_6: null
+        tier_6: null,
+        tier_7: null,
+        tier_8: null,
+        notes: null
       },
       rules: {
         origin_regency_id: [{ required: true }]
-      }
+      },
+      visible: false,
     };
   },
   props: {
     data: {},
-    visible: {
-      type: Boolean,
-      default: false
-    },
     loading: {
       type: Boolean,
       default: false
@@ -269,6 +275,21 @@ export default {
       return _.filter(this.data_extra.sub_districts, {
         regency_id: this.form.destination_regency_id
       });
+    },
+    origin_regency_name() {
+      if (this.data !== undefined) {
+        return this.data.hasOwnProperty('origin_regency') ? this.data.origin_regency.name : '';
+      }
+    },
+    destination_regency_name() {
+      if (this.data !== undefined) {
+        return this.data.hasOwnProperty('destination') ? this.data.destination.regency?.name : '';
+      }
+    },
+    destination_name() {
+      if (this.data !== undefined) {
+        return this.data.hasOwnProperty('destination') ? this.data.destination.name : '';
+      }
     }
   },
 
