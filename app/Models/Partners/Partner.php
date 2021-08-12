@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $contact_email
  * @property string $contact_phone
  * @property string $address
+ * @property string $latitude
+ * @property string $longitude
  * @property string $geo_location
  * @property string $type
  * @property \Carbon\Carbon $created_at
@@ -96,6 +98,8 @@ class Partner extends Model
         'geo_district_id',
         'geo_sub_district_id',
         'address',
+        'latitude',
+        'longitude',
         'geo_location',
         'type',
     ];
