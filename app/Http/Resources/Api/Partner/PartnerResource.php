@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Partner;
 
+use App\Models\Geo\Regency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PartnerResource extends JsonResource
@@ -20,6 +21,7 @@ class PartnerResource extends JsonResource
             'hash' => $this->hash,
             'name' => $this->name,
             'code' => $this->code,
+            'regency' => Regency::find($this->geo_regency_id),
             'type' => $this->type,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,

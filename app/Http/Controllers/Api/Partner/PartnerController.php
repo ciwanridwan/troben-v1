@@ -4,17 +4,16 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerResource;
+use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
+use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-<<<<<<< HEAD
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-=======
->>>>>>> 16cf071746731e426e98d1052b699c7a1e3d3185
 
 class PartnerController extends Controller
 {
@@ -42,14 +41,35 @@ class PartnerController extends Controller
             'origin' => ['nullable'],
         ])->validate();
 
-        $partner = Partner::query()
-        ->where('type','=', 'business')
-        ->orWhere('type','=', 'pool')
-        ->whereHas('transporters', function (Builder $query) {
+        $partner = Partner::query()->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);
         })
         ->get();
 
+
+//        ->where('type','=', 'business')
+//        ->orWhere('type','=', 'pool')
+
+
         return $this->jsonSuccess(PartnerResource::collection($partner));
     }
+
+    public function getDeliveriesQuery(): Builder
+    {
+        $query = Partner::query();
+
+        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+            $userable = $this->user->transporters->first();
+            $query->where('userable_id', $userable->pivot->id);
+        } else {
+            $query->where(fn (Builder $builder) => $builder
+                ->orWhere('partner_id', $this->partner->id)
+                ->orWhere('origin_partner_id', $this->partner->id));
+
+            $this->resolveDeliveriesQueryByRole($query);
+        }
+
+        return $query;
+    }
+
 }
