@@ -6,7 +6,7 @@ const laravel = {
     return {
       filter: {
         q: null,
-        per_page: 15
+        per_page: 10
       }
     };
   },

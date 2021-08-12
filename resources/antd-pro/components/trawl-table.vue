@@ -71,12 +71,14 @@
     </a-card>
     <a-pagination
       v-model="current"
-      :total="pagination.total"
-      :defaultPageSize="pagination.per_page"
+      show-size-changer
+      @showSizeChange="changePerPage"
+      :total="pageTotal"
+      :defaultPageSize="pagePer_page"
       show-less-items
       @change="reloadItems"
+      :pageSizeOptions="['10', '15', '25', '40']"
     />
-    <h1>{{ current }}</h1>
   </a-space>
 </template>
 <script>
@@ -100,8 +102,7 @@ export default {
       }
     },
     pagination: {
-      type: Object,
-      default: () => {}
+      type: Object
     }
   },
   computed: {
@@ -113,6 +114,16 @@ export default {
         }
       });
       return Math.floor(spanLeft / this.columns.length);
+    },
+    pageTotal() {
+      return this.pagination
+        ? this.pagination.total
+        : this.getDefaultPagination().total;
+    },
+    pagePer_page() {
+      return this.pagination
+        ? this.pagination.pageSize
+        : this.getDefaultPagination().total;
     }
   },
   mounted() {},
@@ -138,6 +149,9 @@ export default {
     },
     reloadItems() {
       this.$emit("changePage", this.current);
+    },
+    changePerPage(current, size) {
+      this.$emit("changeSizePage", size);
     }
   }
 };

@@ -1,5 +1,9 @@
 <template>
-  <trawl-table :columns="orderColumns" :dataSource="dataSource">
+  <trawl-table :columns="orderColumns"
+               :dataSource="dataSource"
+               :pagination="pagination"
+               @changePage="changePage"
+               @changeSizePage="changeSizePage">
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between" ref="expand">
         <a-col :span="8">
@@ -46,6 +50,18 @@ export default {
       }
     },
     getDataFunction: {
+      type: Function,
+      default: () => {}
+    },
+    pagination: {
+      type: Object,
+      default: () => {}
+    },
+    changePage: {
+      type: Function,
+      default: () => {}
+    },
+    changeSizePage: {
       type: Function,
       default: () => {}
     }
