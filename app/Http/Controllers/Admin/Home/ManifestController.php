@@ -63,7 +63,7 @@ class ManifestController extends Controller
 
     public function paginateWithTransformData()
     {
-        $paginator = $this->query->orderBy('created_at', 'desc')->paginate(50);
+        $paginator = $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15));
         $paginator->getCollection()->transform(function ($item) {
             $item->packages->each(fn ($package) => $package->items->each(fn ($package_item) => $item->weight_borne_total += $package_item->weight_borne));
             return $item;
