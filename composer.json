@@ -23,6 +23,7 @@
         "jalameta/jps-attachments": "dev-master",
         "jalameta/jps-patcher": "^2.0",
         "jalameta/jps-router": "^0.1.6",
+        "kawankoding/laravel-fcm": "^0.2.0",
         "laravel-notification-channels/fcm": "~2.0",
         "laravel/fortify": "^1.7",
         "laravel/framework": "^8.12",
