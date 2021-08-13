@@ -315,7 +315,7 @@ class PricingCalculator
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($price === null || $price->tier_1 == 0, Error::make(Response::RC_OUT_OF_RANGE));
 
         return $price;
     }
