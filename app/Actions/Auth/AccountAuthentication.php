@@ -4,11 +4,13 @@ namespace App\Actions\Auth;
 
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
+use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Models\User;
 use App\Http\Response;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Str;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\Customers\CreateNewCustomer;
@@ -110,6 +112,12 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
+        // TODO: update fcm_token for channel
+        if (is_null($authenticatable->fcm_token) && $authenticatable instanceOf Customer) {
+            $jobUpdate = new UpdateExistingCustomer($authenticatable,['fcm_token' => (string) Str::uuid()]);
+            $this->dispatch($jobUpdate);
+        }
+
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
                 switch ($column) {
@@ -135,10 +143,10 @@ class AccountAuthentication
             }
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
             // TODO: get authenticatable
         }
-
 
         if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
@@ -154,6 +162,7 @@ class AccountAuthentication
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
     }
 
