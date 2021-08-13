@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Service extends Model
 {
+    use CustomSerializeDate;
+
     public const TRAWLPACK_INSTANT = 'tpi';
     public const TRAWLPACK_SAMEDAY = 'tpd';
     public const TRAWLPACK_EXPRESS = 'tpx';
