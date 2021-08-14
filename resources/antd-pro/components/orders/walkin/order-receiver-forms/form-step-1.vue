@@ -47,6 +47,7 @@
                   size="large"
                   v-model="form.sender_name_mitra"
                   placeholder="Nama Mitra"
+                  disabled
                 ></a-input>
               </a-form-model-item>
             </a-col>
@@ -94,6 +95,7 @@
                   size="large"
                   v-model="form.sender_name"
                   placeholder="Nama Pengirim"
+                  disabled
                 ></a-input>
               </a-form-model-item>
             </a-col>
