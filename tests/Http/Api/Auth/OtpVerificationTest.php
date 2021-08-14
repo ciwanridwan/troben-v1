@@ -39,6 +39,7 @@ class OtpVerificationTest extends TestCase
         ]);
         $this->assertSuccessResponse($response);
         $this->assertArrayHasKey('access_token', $response->original['data']);
+        $this->assertArrayHasKey('fcm_token', $response->original['data']);
     }
     /**
      * A basic feature test example.

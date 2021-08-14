@@ -6,13 +6,13 @@ use App\Broadcasting\Customer\PrivateChannel;
 use App\Models\Code;
 use App\Models\Customers\Customer;
 use App\Models\Packages\Package;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
+use Illuminate\Queue\SerializesModels;
 
-class PayByNicepay implements ShouldBroadcast
+class PayByNicepay
 {
-    use Dispatchable;
+    use Dispatchable, SerializesModels;
 
     /** @var Request $params */
     public Request $params;

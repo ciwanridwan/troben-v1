@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Exceptions\Error;
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
@@ -47,7 +48,7 @@ class AccountAuthentication
         $this->attributes = $inputs;
     }
 
-    public static function getAvailableSocialLogin()
+    public static function getAvailableSocialLogin(): array
     {
         return [
             self::CREDENTIAL_FACEBOOK,
@@ -111,12 +112,7 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
-
-        // TODO: update fcm_token for channel
-        if (is_null($authenticatable->fcm_token) && $authenticatable instanceOf Customer) {
-            $jobUpdate = new UpdateExistingCustomer($authenticatable,['fcm_token' => (string) Str::uuid()]);
-            $this->dispatch($jobUpdate);
-        }
+        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
@@ -135,10 +131,17 @@ class AccountAuthentication
                         break;
                 }
             }
+
+            # update fcm_token
+            if ($authenticatable instanceOf Customer) {
+                $authenticatable = $this->validationFcmToken($authenticatable);
+            }
+
             if ($authenticatable->phone_verified_at == null) {
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                    'fcm_token' => $authenticatable->fcm_token ?? null,
                 ]))->json();
             }
             return (new Response(Response::RC_SUCCESS, [
@@ -146,6 +149,11 @@ class AccountAuthentication
                 'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
             // TODO: get authenticatable
+        }
+
+        # update fcm_token
+        if ($authenticatable instanceOf Customer) {
+            $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
         if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
@@ -193,11 +201,18 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
+        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
+
+        # update fcm_token
+        if ($authenticatable instanceOf Customer) {
+            $authenticatable = $this->validationFcmToken($authenticatable);
+        }
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null
             ]))->json();
     }
 
@@ -223,12 +238,18 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
+        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
+        # update fcm_token
+        if ($authenticatable instanceOf Customer) {
+            $authenticatable = $this->validationFcmToken($authenticatable);
+        }
 
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
     }
 
@@ -269,11 +290,11 @@ class AccountAuthentication
     }
 
     /**
-     * Asking for OTP response.
+     * asking for otp response
      *
-     * @param \App\Contracts\HasOtpToken $authenticatable
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @param HasOtpToken $authenticatable
+     * @param string $otp_channel
+     * @return JsonResponse
      */
     protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
     {
@@ -284,5 +305,20 @@ class AccountAuthentication
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
+    }
+
+    /**
+     * @param Customer $customer
+     * @return Customer
+     * @throws ValidationException
+     */
+    public static function validationFcmToken(Customer $customer): Customer
+    {
+        if (is_null($customer->fcm_token)) {
+            $job = new UpdateExistingCustomer($customer,['fcm_token' => (string) Str::uuid()]);
+            dispatch_now($job);
+        }
+
+        return $customer->refresh();
     }
 }
