@@ -6,13 +6,14 @@ use App\Broadcasting\Customer\PrivateChannel;
 use App\Models\Code;
 use App\Models\Customers\Customer;
 use App\Models\Packages\Package;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
 
 class PayByNicepay
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /** @var Request $params */
     public Request $params;
