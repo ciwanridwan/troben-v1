@@ -51,6 +51,6 @@ trait UsingNicepay
      */
     public function validPhone(string $phonenumber)
     {
-        return str_replace(['+','-',' '],'',$phonenumber);
+        return str_replace(['+','-',' '], '', $phonenumber);
     }
 }
