@@ -17,12 +17,12 @@ class AccountInfoTest extends TestCase
      *
      * @return void
      */
-    public function test_on_valid_data_customer()
+    /*public function test_on_valid_data_customer()
     {
         // test using phone number
         $response = $this->get(route('api.me'), $this->getCustomersHeader());
         $this->assertSuccessResponse($response);
-    }
+    }*/
 
     public function test_on_valid_data_user()
     {

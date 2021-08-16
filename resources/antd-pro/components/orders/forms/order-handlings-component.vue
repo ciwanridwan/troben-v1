@@ -64,7 +64,8 @@ export default {
     form: {
       handler: function (value) {
         if (!value.handling) {
-          value.handling_type ? (this.form.handling_type = []) : null;
+          // value.handling_type ? (this.form.handling_type = []) : null;
+          this.value.handling_type = null;
         }
         this.onChange(value);
         this.$emit("input", value);

@@ -4,6 +4,7 @@ namespace App\Jobs\Partners\Warehouse;
 
 use App\Models\Partners\Partner;
 use App\Models\Partners\Warehouse;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Partners\Warehouse\WarehouseCreated;
@@ -16,7 +17,7 @@ class CreateNewWarehouse
      *
      * @var \App\Models\Partners\Warehouse
      */
-    public Warehouse $warehouse;
+    public Model $warehouse;
     /**
      * Instance partner.
      *

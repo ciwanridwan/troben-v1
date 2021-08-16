@@ -2,6 +2,7 @@
 
 namespace App\Models\Partners;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $contact_email
  * @property string $contact_phone
  * @property string $address
+ * @property string $latitude
+ * @property string $longitude
  * @property string $geo_location
  * @property string $type
  * @property \Carbon\Carbon $created_at
@@ -52,7 +55,7 @@ class Partner extends Model
         HasFactory,
         HashableId,
         HasPartnerCode,
-        CanSearch;
+        CanSearch, CustomSerializeDate;
 
     public const TYPE_BUSINESS = 'business'; // bisa order dari application.
     public const TYPE_POOL = 'pool';
@@ -95,6 +98,8 @@ class Partner extends Model
         'geo_district_id',
         'geo_sub_district_id',
         'address',
+        'latitude',
+        'longitude',
         'geo_location',
         'type',
     ];
@@ -209,6 +214,11 @@ class Partner extends Model
     public function deliveries(): Relations\HasMany
     {
         return $this->hasMany(Delivery::class, 'partner_id', 'id');
+    }
+
+    public function outbound(): Relations\HasMany
+    {
+        return $this->hasMany(Delivery::class, 'origin_partner_id', 'id');
     }
 
     public function code_logs()

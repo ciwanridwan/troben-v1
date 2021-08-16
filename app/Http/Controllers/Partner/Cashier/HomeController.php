@@ -49,8 +49,6 @@ class HomeController extends Controller
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }
 
-
-
             $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
 
             $this->attributes = $request->validate($this->rules);

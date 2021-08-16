@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sender_bank
  * @property string $sender_name
  * @property string $sender_account
+ * @property string $payment_content
  * @property string $payment_ref_id
  * @property string $status
  * @property \Carbon\Carbon $expired_at
@@ -65,6 +66,7 @@ class Payment extends Model
         'sender_bank',
         'sender_name',
         'sender_account',
+        'payment_content',
         'payment_ref_id',
         'expired_at',
         'confirmed_by',

@@ -12,34 +12,34 @@ class AccountUpdateTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    // public function test_user_update_on_valid_data()
-    // {
-    //     $this->seed();
+    public function test_user_update_on_valid_data()
+    {
+        $this->seed();
 
-    //     $valid = User::first();
+        $valid = User::first();
 
-    //     $response = $this->json('POST', route('api.auth.login'),[
-    //         'username' => $valid->phone,
-    //         'password' => 'password',
-    //         'device_name' => 'phpunit_test',
-    //     ], [
-    //         'Accept' => 'application/json',
-    //     ]);
+        $response = $this->json('POST', route('api.auth.login'), [
+             'username' => $valid->phone,
+             'password' => 'password',
+             'device_name' => 'phpunit_test',
+         ], [
+             'Accept' => 'application/json',
+         ]);
 
-    //     $this->assertSuccessResponse($response);
+        $this->assertSuccessResponse($response);
 
-    //     $token = $response->original['data']['token'];
+        $token = $response->original['data']['access_token'];
 
-    //     $response = $this->post(route('api.me.update'),[
-    //         'name' => $this->faker->name,
-    //     ],[
-    //         'Accept' => 'application/json',
-    //         'Content-Type' => 'multipart/form-data',
-    //         'Authorization' => "Bearer $token",
-    //     ]);
+        $response = $this->post(route('api.me.update'), [
+             'name' => $this->faker->name,
+         ], [
+             'Accept' => 'application/json',
+             'Content-Type' => 'multipart/form-data',
+             'Authorization' => "Bearer $token",
+         ]);
 
-    //     $this->assertSuccessResponse($response);
-    // }
+        $this->assertSuccessResponse($response);
+    }
 
     public function test_customer_update_on_valid_data()
     {

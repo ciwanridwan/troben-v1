@@ -2,7 +2,7 @@
   <div>
     <div v-if="record.status == 'cancel'">
       <a-badge status="error" text=""></a-badge>
-      <span :class="['trawl-status-error']">Pesaan Dibatalkan</span>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan</span>
     </div>
     <div v-else-if="record.status == 'created'">
       <a-badge status="warning" text=""></a-badge>
@@ -52,10 +52,22 @@
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Telah terassign di manifest</span>
     </div>
+    <div v-else-if="record.status == 'in_transit'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">[transit] Barang sedang di proses mitra</span>
+    </div>
+    <div v-else-if="record.status == 'with_courier'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Barang sedang di antar kurir</span>
+    </div>
+    <div v-else-if="record.status == 'delivered'">
+      <a-badge status="success" text=""></a-badge>
+      <span :class="['trawl-status-success']">Barang sudah diterima{{ record.received_by ? ' oleh ' + record.received_by : '.' }}</span>
+    </div>
     <div v-else>
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']"
-        >[Untracked Status] Please contact developer
+        >[Onprogress Status] Pesanan sedang diproses Mitra
       </span>
     </div>
   </div>

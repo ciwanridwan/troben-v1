@@ -44,4 +44,17 @@ trait UsingNicepay
     {
         return date_format($this->expDate, 'His');
     }
+
+    /**
+     * @param string $phonenumber
+     * @return false|string
+     */
+    public function validPhone(string $phonenumber)
+    {
+        if (str_contains($phonenumber, '+')) {
+            return substr($phonenumber, 1);
+        } else {
+            return $phonenumber;
+        }
+    }
 }

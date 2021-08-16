@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Response;
+use App\Jobs\Customers\CustomerUploadPhoto;
+use App\Models\Attachment;
+use App\Models\Customers\Address;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +16,10 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class AccountController extends Controller
 {
@@ -25,10 +33,11 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
+    public const DISK_CUSTOMER = 'avatar';
+
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
-
         return $account instanceof Customer ? $this->getCustomerInfo($account) : $this->getUserInfo($account);
     }
 
@@ -73,6 +82,33 @@ class AccountController extends Controller
         return $this->jsonSuccess(new UserResource($account));
     }
 
+
+    public function updatePassword(Request $inputs): JsonResponse
+    {
+        $phoneNumber =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($inputs->phone, 'ID'),
+                PhoneNumberFormat::E164
+            );
+
+        $customer = Customer::where('phone', $phoneNumber)
+            ->Where('email', $inputs->email)
+            ->first();
+
+        if ($customer != null) {
+            $job = new UpdateExistingCustomer($customer, $inputs->all());
+            $this->dispatch($job);
+
+            $customer->save();
+
+            return $this->jsonSuccess(new CustomerResource($customer));
+        }
+
+        return (new Response(Response::RC_INVALID_DATA, [
+
+        ]))->json();
+    }
+
     /**
      * @param \App\Models\Customers\Customer                        $customer
      * @param \App\Http\Requests\Api\Account\UpdateAccountRequest   $inputs
@@ -82,10 +118,24 @@ class AccountController extends Controller
      */
     protected function updateCustomer(Customer $customer, UpdateAccountRequest $inputs): Customer
     {
+        if ($inputs->has('photos')) {
+            $attachable = DB::table('attachable')
+                ->where('attachable_id', $customer->id)
+                ->where('attachable_type', 'App\Models\Customers\Customer')
+                ->first();
+            if ($attachable != null) {
+                $attachment = Attachment::where('id', $attachable->attachment_id)->first();
+                Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
+                $attachment->forceDelete();
+            }
+        }
         $job = new UpdateExistingCustomer($customer, $inputs->all());
         $this->dispatch($job);
 
-        return $job->customer->fresh();
+        $uploadJob = new CustomerUploadPhoto($job->customer, $inputs->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        return $job->customer->refresh();
     }
 
     /**
@@ -100,5 +150,42 @@ class AccountController extends Controller
         $this->dispatch($job);
 
         return $job->user->fresh();
+    }
+
+    /**
+     * @param Customer $customer
+     * @param Request $request
+     * @return Customer
+     */
+    protected function storeAddress(Customer $customer, Request $request): Customer
+    {
+        $request->validate([
+            'name' => 'required',
+            'address' => 'required',
+            'geo_province_id' => 'required',
+            'geo_regency_id' => 'required',
+            'geo_district_id' => 'required',
+        ]);
+
+        $address = DB::table('customer_addresses')
+            ->where('customer_id', $customer->id)
+            ->first();
+        if ($address != null) {
+            $address->delete();
+        }
+
+
+        $address = new Address();
+
+        $address->customer_id = $customer->id;
+        $address->name = $request->name;
+        $address->address = $request->address;
+        $address->geo_province_id = $request->geo_province_id;
+        $address->geo_regency_id = $request->geo_regency_id;
+        $address->geo_district_id = $request->geo_district_id;
+        $address->is_default = '1';
+
+        $address->save();
+        return $customer->refresh();
     }
 }

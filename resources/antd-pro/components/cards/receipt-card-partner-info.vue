@@ -1,13 +1,13 @@
 <template>
-  <a-space direction="vertical" :size="1">
+  <a-space direction="vertical" :size=".1">
     <trawl-pack-with-text />
-    <h2 class="trawl-text-bolder">
+    <h2 class="trawl-text-bolder" :style="{ 'font-size': '.65rem' }">
       {{ partnerType }}
     </h2>
-    <p>
-      {{ partnerAddress }}
+    <p class="trawl-text-bolder" :style="{ 'font-size': '.55rem' }">
+      {{ partnerCode }}
     </p>
-    <span class="trawl-text-mute trawl-text-bold">
+    <span class="trawl-text-mute trawl-text-bold" :style="{ 'font-size': '.55rem' }">
       {{ dateSimpleFormat(new Date()) }}
     </span>
   </a-space>
@@ -23,6 +23,9 @@ export default {
     },
     partnerAddress() {
       return this.partner?.address;
+    },
+    partnerCode() {
+      return this.partner?.code;
     },
     partnerType() {
       let partner = getPartnerByType(this.partner?.type);

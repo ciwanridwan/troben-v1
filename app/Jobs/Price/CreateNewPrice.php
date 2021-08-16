@@ -54,6 +54,7 @@ class CreateNewPrice
             'tier_8' => ['nullable','numeric'],
             'tier_9' => ['nullable','numeric'],
             'tier_10' => ['nullable','numeric'],
+            'notes' => ['nullable','string']
         ])->validate();
     }
 

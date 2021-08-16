@@ -21,6 +21,12 @@
 
     <!-- detail -->
     <a-row>
+      <!-- packing -->
+      <a-col :span="16"> Detail Packing </a-col>
+      <a-col :span="8">
+        <b>{{ packing }}</b>
+      </a-col>
+
       <!-- berat -->
       <a-col :span="16"> Berat volume </a-col>
       <a-col :span="8">
@@ -61,15 +67,16 @@
       </a-col>
 
       <!-- asuransi -->
-      <a-col :span="16"> Asuransi </a-col>
-      <a-col :span="8">
-        <b>{{ currency(1000) }}</b>
-      </a-col>
+<!--      <a-col :span="16"> Asuransi </a-col>-->
+<!--      <a-col :span="8">-->
+<!--        <b>{{currency(getInsurancePrice(prices))  }}</b>-->
+<!--      </a-col>-->
     </a-row>
   </a-card>
 </template>
 <script>
 import orderModalEdit from "./order-modal-edit.vue";
+import {getInsurancePrice} from "../../functions/orders";
 export default {
   components: { orderModalEdit },
   props: {
@@ -79,7 +86,6 @@ export default {
     },
     modifiable: {
       type: Boolean,
-      default: true,
     },
     editable: {
       type: Boolean,
@@ -89,6 +95,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    package: {
+      type: Object,
+      default: () => {},
+    }
   },
   data() {
     return {
@@ -127,13 +137,31 @@ export default {
     price() {
       return this.item?.price;
     },
+    prices() {
+      return this.item?.prices;
+    },
+    packing() {
+      let packing = "tanpa packing.";
+      if (this.item?.handling) {
+        let count = this.item?.handling.length;
+        packing = "";
+        this.item?.handling.forEach((h,i) => {
+          packing += `${ h.type === "wood" ? 'kayu' : h.type }${ (count-1) === i ? '.' : ',' } `
+        })
+      }
+      return packing;
+    }
   },
   methods: {
+    getInsurancePrice,
     onEdit(value) {
+      if (!value.handling) {
+        value.handling = [];
+      }
       this.$http
         .patch(
           this.routeUri("partner.cashier.home.updatePackageItem", {
-            package_hash: value?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: value?.hash,
           }),
           value
@@ -142,15 +170,15 @@ export default {
           this.$notification.success({
             message: "Berhasil mengubah item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
     onDelete() {
       this.$http
         .delete(
           this.routeUri("partner.cashier.home.deletePackageItem", {
-            package_hash: this.item?.package?.hash,
+            package_hash: this.package?.hash,
             item_hash: this.item?.hash,
           })
         )
@@ -158,9 +186,9 @@ export default {
           this.$notification.success({
             message: "Berhasil Menghapus item",
           });
+          this.$emit("change");
+          this.$emit("input", this.item);
         });
-      this.$emit("change");
-      this.$emit("input", this.item);
     },
   },
   watch: {

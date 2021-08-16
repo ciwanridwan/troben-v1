@@ -1,19 +1,19 @@
 <template>
   <a-space :direction="direction">
-    <span>
+    <span :style="textStyle">
       Ket Barang: <span class="trawl-text-bolder">{{ desc }}</span>
     </span>
 
     <a-space>
       <a-icon :component="PackageIcon" :style="iconStyle" />
-      <span> Berat :</span>
-      <span class="trawl-text-bolder"> {{ weight_borne_total }} Kg</span>
+      <span :style="textStyle"> Berat :</span>
+      <span class="trawl-text-bolder" :style="textStyle"> {{ weight_borne_total }} Kg</span>
     </a-space>
 
     <a-space>
       <a-icon :component="WeightMachineIcon" :style="iconStyle" />
-      <span> Jumlah Koli :</span>
-      <span class="trawl-text-bolder"> {{ qty }} Kg</span>
+      <span :style="textStyle"> Jumlah Koli :</span>
+      <span class="trawl-text-bolder" :style="textStyle"> {{ qty }} Kg</span>
     </a-space>
   </a-space>
 </template>
@@ -34,7 +34,8 @@ export default {
     return {
       PackageIcon,
       WeightMachineIcon,
-      iconStyle: { "font-size": "1.5rem" },
+      iconStyle: { "font-size": ".55rem" },
+      textStyle: { "font-size": ".55rem" },
     };
   },
   computed: {

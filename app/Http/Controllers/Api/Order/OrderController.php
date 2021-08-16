@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Partners\Partner;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -56,6 +58,7 @@ class OrderController extends Controller
             'attachments',
             'items',
             'items.prices',
+            'tarif',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
@@ -67,6 +70,11 @@ class OrderController extends Controller
     }
 
     /**
+     * Create new order
+     * Route Path       : {API_DOMAIN}/order
+     * Route Method     : POST
+     * Route Name       : api.order.store.
+     *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Validation\ValidationException
@@ -159,6 +167,19 @@ class OrderController extends Controller
     }
 
     /**
+     * @param Package $package
+     * @param Partner $partner
+     * @return JsonResponse
+     */
+    public function orderAssignation(Package $package, Partner $partner): JsonResponse
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
+    }
+
+    /**
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Packages\Package $package
      * @return \Illuminate\Http\JsonResponse
@@ -202,13 +223,24 @@ class OrderController extends Controller
             'code' => __('Code not instance of Package'),
         ]));
 
-        // dd($codeable->deliveries()->get()->pluck('code.content'));
+        $package = $codeable->load(['origin_regency','destination_district','destination_district.regency'])->only([
+            'sender_name',
+            'receiver_name',
+            'origin_regency',
+            'destination_district',
+        ]);
 
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
+        $query->selectRaw('min(status) as status, min(description) as description, min(id) as id, min(created_at) as created_at');
         $query->where('status', '!=', CodeLogable::TYPE_SCAN);
         $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
+        $query->groupBy('status');
+        $query->orderBy('id');
 
-        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+        return (new Response(Response::RC_SUCCESS, [
+            'package' => $package,
+            'track' => $query->get()
+        ]))->json();
     }
 }

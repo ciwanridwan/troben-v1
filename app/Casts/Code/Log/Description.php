@@ -5,6 +5,7 @@ namespace App\Casts\Code\Log;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class Description implements CastsAttributes
@@ -20,6 +21,7 @@ class Description implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
+        // return $attributes['status'] === Package::STATUS_CREATED.'_'.Package::PAYMENT_STATUS_DRAFT ? $value : $value.' pada '.date('d M Y H:i:s', strtotime($attributes['created_at']));
         return $value;
     }
 

@@ -49,6 +49,7 @@ return [
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
+        App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,
@@ -63,6 +64,7 @@ return [
         App\Http\Routes\Api\Partner\Warehouse\DooringRoute::class,
         App\Http\Routes\Api\Payment\NicepayRoute::class,
         App\Http\Routes\Api\PaymentRoute::class,
+        App\Http\Routes\Api\VersionRoute::class,
         /** @inject api **/
     ],
     'admin' => [

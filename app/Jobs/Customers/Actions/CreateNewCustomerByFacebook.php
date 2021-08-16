@@ -39,6 +39,7 @@ class CreateNewCustomerByFacebook
     {
         $this->customer = new Customer();
         $this->attributes = Validator::make($inputs, [
+            'name' => ['required'],
             'facebook_id' => ['required'],
         ])->validate();
     }
@@ -50,12 +51,8 @@ class CreateNewCustomerByFacebook
      */
     public function handle(): bool
     {
-        $this->attributes['name'] = 'Nama Lengkap';
-        $this->attributes['email'] = 'example@gmail.com';
-
         $this->attributes['phone'] = '';
         $this->customer->fill($this->attributes);
-        $this->customer->setAttribute('password', 'password');
 
         if ($this->customer->save()) {
             event(new NewCustomerCreated($this->customer));

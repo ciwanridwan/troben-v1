@@ -11,15 +11,22 @@ import {
   STATUS_CANCEL_SELF_PICKUP,
   STATUS_ESTIMATED,
   STATUS_IN_TRANSIT,
+  STATUS_PACKING,
   STATUS_PACKED,
+  STATUS_MANIFESTED,
+  STATUS_WAITING_FOR_APPROVAL,
   STATUS_REVAMP,
   STATUS_WAITING_FOR_PACKING,
-  STATUS_WITH_COURIER
+  STATUS_WITH_COURIER,
+  STATUS_DELIVERED
 } from "../../packageStatus";
 
 const actions = [
   {
-    status: [STATUS_ESTIMATED, STATUS_REVAMP],
+    status: [
+      STATUS_ESTIMATED,
+      STATUS_REVAMP
+    ],
     payment_status: [PAYMENT_STATUS_DRAFT],
     components: [
       {
@@ -28,19 +35,29 @@ const actions = [
     ]
   },
   {
-    status: [STATUS_ACCEPTED],
+    status: [
+      STATUS_ACCEPTED,
+      STATUS_WAITING_FOR_APPROVAL
+    ],
     payment_status: [PAYMENT_STATUS_PENDING],
     components: [
       {
         component: OrderModal
       }
     ],
-    props: {
-      modifiable: false
-    }
+    // props: {
+    //   modifiable: false
+    // }
   },
   {
-    status: [STATUS_ACCEPTED, STATUS_WAITING_FOR_PACKING],
+    status: [
+      STATUS_ACCEPTED,
+      STATUS_WAITING_FOR_PACKING,
+      STATUS_PACKING,
+      STATUS_PACKED,
+      STATUS_MANIFESTED,
+      STATUS_DELIVERED
+    ],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
       {
@@ -53,8 +70,6 @@ const actions = [
       STATUS_CANCEL,
       STATUS_CANCEL_DELIVERED,
       STATUS_CANCEL_SELF_PICKUP,
-      STATUS_IN_TRANSIT,
-      STATUS_WITH_COURIER
     ],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
@@ -62,9 +77,27 @@ const actions = [
         component: OrderModal
       }
     ],
-    props: {
-      modifiable: false
-    }
+    // props: {
+    //   modifiable: false
+    // }
+  },
+  {
+    status: [
+      STATUS_IN_TRANSIT,
+      STATUS_WITH_COURIER
+    ],
+    payment_status: [PAYMENT_STATUS_PAID],
+    components: [
+      {
+        component: OrderModal
+      },
+      {
+        component: ModalReceiptToPdf
+      }
+    ],
+    // props: {
+    //   modifiable: false
+    // },
   }
 ];
 

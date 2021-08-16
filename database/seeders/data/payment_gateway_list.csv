@@ -1,6 +1,6 @@
 channel,name,admin_charges,is_fixed,is_bank_transfer,account_bank,account_number,account_name,options,auto_approve,is_active
 npmdrva,nicepay payment gateway mandiri va,3300,1,1,,,,,1,1
-npbcava,nicepay payment gateway bca va,3000,1,1,,,,,1,1
+npbcava,nicepay payment gateway bca va,3000,1,1,,,,,1,0
 nppmtva,nicepay payment gateway permata va,3300,1,1,,,,,1,1
 npbriva,nicepay payment gateway bri va,3300,1,1,,,,,1,1
 npbniva,nicepay payment gateway bni va,3300,1,1,,,,,1,1

@@ -1,11 +1,15 @@
 <template>
   <content-layout siderPosition="right">
     <template slot="content">
-      <order-table :dataSource="items.data" :get-data-function="getItems" />
+      <order-table :dataSource="items.data"
+                   :get-data-function="getItems"
+                   :pagination="pagination"
+                   :change-page="changePage"
+                   :change-size-page="changeSizePage"/>
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -17,36 +21,47 @@ export default {
   components: {
     contentLayout,
     OrderTable,
-    TrawlNotification,
+    TrawlNotification
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
 
-      _.forEach(this.items.data, (o) => {
+      _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = this.trawlbensPagination;
     },
     async getParterInfo() {
       let { data } = await this.$http.get(this.routeUri(this.getRoute()), {
         params: {
-          partner: true,
-        },
+          partner: true
+        }
       });
       this.partnerInfo = data.data;
     },
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
+      this.getItems();
+    }
   },
   data() {
     return {
       items: this.getDefaultPagination(),
       partnerInfo: {},
+      pagination:{},
     };
   },
 
   mounted() {
     this.getItems();
     this.getParterInfo();
-  },
+  }
 };
 </script>

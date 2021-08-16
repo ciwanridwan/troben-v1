@@ -1,12 +1,18 @@
 <template>
-  <modal-to-pdf v-show="loaded" :fileName="fileName" :options="options">
+  <modal-to-pdf
+    v-show="loaded"
+    :fileName="fileName"
+    :options="options"
+    :package="package"
+    :items="items"
+  >
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">Print</a-button>
     </template>
     <template slot="content">
       <receipt-card-carousel :package="package" />
     </template>
-    <template slot="pdf-content">
+    <template slot="pdf-content" :style="{ 'height': '150mm' }">
       <template v-for="(item, index) in items">
         <template v-for="(code, codeIndex) in item.codes">
           <section class="pdf-item" :key="`${index}-${codeIndex}`">
@@ -15,6 +21,7 @@
               :package="package"
               :item="item"
               :code="code"
+              :style="{ 'height': '155mm', 'margin-top': '0', 'padding-bottom': '0' }"
             ></receipt-card>
           </section>
           <div
@@ -41,8 +48,12 @@ export default {
   data() {
     return {
       options: {
-        html2canvas: { scale: 1 },
-        jsPDF: { format: "a4", orientation: "portrait" },
+        html2canvas: { scale: 3 },
+        jsPDF: {
+          orientation: "portrait",
+          unit: "mm",
+          format: [100,165],
+        },
         pagebreak: {
           mode: "legacy"
         }

@@ -47,6 +47,18 @@ export default [
     scopedSlots: { customRender: "tier_6" }
   },
   {
+    title: "Tarif > 3.000 Kg",
+    dataIndex: "tier_7",
+    key: "tier_7",
+    scopedSlots: { customRender: "tier_7" }
+  },
+  {
+    title: "Tarif > 5.000 Kg",
+    dataIndex: "tier_8",
+    key: "tier_8",
+    scopedSlots: { customRender: "tier_8" }
+  },
+  {
     title: "Jenis",
     dataIndex: "service.name",
     key: "service",
@@ -54,9 +66,9 @@ export default [
   },
   {
     title: "Catatan",
-    dataIndex: "zip_code",
-    key: "zip_code",
-    scopedSlots: { customRender: "zip_code" }
+    dataIndex: "notes",
+    key: "notes",
+    scopedSlots: { customRender: "notes" }
   },
   {
     title: "Action",

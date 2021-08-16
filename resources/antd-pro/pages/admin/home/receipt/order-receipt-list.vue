@@ -32,11 +32,17 @@
       </a-row>
     </template>
     <template slot="content">
-      <receipt-table :afterAction="getItems" :dataSource="items.data" />
+      <receipt-table
+        :afterAction="getItems"
+        :dataSource="items.data"
+        :pagination="pagination"
+        :change-page="changePage"
+        :change-size-page="changeSizePage"
+      />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -57,11 +63,12 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 15
+        per_page: 10
       },
       loading: false,
       orderModalVisibility: false,
-      orderModalObject: {}
+      orderModalObject: {},
+      pagination: {}
     };
   },
   methods: {
@@ -71,12 +78,22 @@ export default {
       _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = this.trawlbensPagination;
     },
     afterAssign() {
       this.getItems();
     },
     searchById(value) {
       this.filter.q = value;
+      this.getItems();
+    },
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
       this.getItems();
     }
   },

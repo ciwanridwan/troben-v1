@@ -36,7 +36,9 @@ class PriceResource extends JsonResource
             'tier_8' => $this->tier_8,
             'tier_9' => $this->tier_9,
             'tier_10' => $this->tier_10,
-            'service' => ServiceResource::make($this->service),
+            'service' => $this->service,
+//            'service' => ServiceResource::make($this->service),
+            'notes' => $this->notes,
         ];
     }
 }

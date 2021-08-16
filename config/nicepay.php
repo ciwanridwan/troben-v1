@@ -12,6 +12,7 @@ return [
      * endpoint registration.
      */
     'registration_url' => 'registration',
+    'cancel_url' => 'cancel',
 
     /*
      * endpoint inquiry.
@@ -66,6 +67,14 @@ return [
         Payments\Gateway::CHANNEL_NICEPAY_BRI_VA => 'BRIN',
         Payments\Gateway::CHANNEL_NICEPAY_BNI_VA => 'BNIN',
         Payments\Gateway::CHANNEL_NICEPAY_CIMB_VA => 'BNIA',
+    ],
 
-    ]
+    /*
+     * list server nicepay notification
+     */
+    'nicepay_server' => [
+        '103.20.51.0',
+        '103.117.8.0',
+        '103.20.51.34',
+    ],
 ];

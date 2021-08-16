@@ -4,7 +4,6 @@ namespace App\Http\Routes\Api\Auth;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Auth\SocialLoginController;
 
 class AuthRoute extends BaseRoute
 {
@@ -34,20 +33,25 @@ class AuthRoute extends BaseRoute
             'uses' => $this->uses('login'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('login/google'), [
-            'as' => $this->name('login.google'),
-            'uses' => $this->uses('googleCallback', SocialLoginController::class),
-        ])->withoutMiddleware('api');
-
-        $this->router->post($this->prefix('login/facebook'), [
-            'as' => $this->name('login.facebook'),
-            'uses' => $this->uses('facebookCallback', SocialLoginController::class),
-        ])->withoutMiddleware('api');
-
         $this->router->post($this->prefix('register'), [
             'as' => $this->name('register'),
             'uses' => $this->uses('register'),
         ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('forgotbyphone'), [
+            'as' => $this->name('forgotByPhone'),
+            'uses' => $this->uses('forgotByPhone'),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('forgotbyemail'), [
+            'as' => $this->name('forgotByEmail'),
+            'uses' => $this->uses('forgotByEmail'),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('updatesocial'), [
+            'as' => $this->name('updateSocial'),
+            'uses' => $this->uses('updateSocial'),
+        ]);
     }
 
     /**

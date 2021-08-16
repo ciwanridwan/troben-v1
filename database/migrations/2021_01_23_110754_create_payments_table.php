@@ -31,6 +31,7 @@ class CreatePaymentsTable extends Migration
             $table->string('sender_name')->nullable(); // acc sender name
             $table->string('sender_account')->nullable(); // acc sender account
 
+            $table->string('payment_content')->nullable();
             $table->string('payment_ref_id')->nullable();
 
             $table->string('status')->default(Payment::STATUS_PENDING);

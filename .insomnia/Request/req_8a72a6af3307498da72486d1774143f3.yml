@@ -1,32 +1,22 @@
 _id: req_8a72a6af3307498da72486d1774143f3
 type: Request
 parentId: fld_dff509231e04403b8311f8ad217a3c10
-modified: 1625470497374
+modified: 1625804975383
 created: 1624676517311
 url: "{{ _.base_url }}/payment/nicepay/registration/{% response 'body',
-  'req_ff734313e4bb43a59669682e5283966f', 'b64::JC5kYXRhWzFdLmhhc2g=::46b',
+  'req_ff734313e4bb43a59669682e5283966f', 'b64::JC5kYXRhWzJdLmhhc2g=::46b',
   'never', 60 %}/{% response 'body', 'req_55ac973776fb412590a8ea0a508a0df7',
   'b64::JC5kYXRhWzBdLmhhc2g=::46b', 'never', 60 %}"
 name: Registration
-description: |-
-  Request VA account.
-
-  Parameters
-  --
-  - `bank` => possible values: `bca`, `mandiri` => default `bca`
+description: Registration payment to nicepay to get qris/va
 method: POST
-body:
-  mimeType: multipart/form-data
-  params: []
+body: {}
 parameters: []
 headers:
   - name: Accept
     value: application/json
     description: ""
     id: pair_c8270ceea235493aaaad719a2460767c
-  - name: Content-Type
-    value: multipart/form-data
-    id: pair_f99faab5f80e487492d363f2b9aff9d1
 authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',

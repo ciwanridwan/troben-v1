@@ -7,7 +7,7 @@
       <a-row type="flex" justify="end" :gutter="12">
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
-            <a class="ant-dropdown-link" @click="(e) => e.preventDefault()">
+            <a class="ant-dropdown-link" @click="e => e.preventDefault()">
               Click me <a-icon type="down" />
             </a>
           </a-dropdown>
@@ -15,11 +15,17 @@
       </a-row>
     </template>
     <template slot="content">
-      <order-table :dataSource="items.data" :get-data-function="getItems" />
+      <order-table
+        :dataSource="items.data"
+        :get-data-function="getItems"
+        :pagination="pagination"
+        :change-page="changePage"
+        :change-size-page="changeSizePage"
+      />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
@@ -31,7 +37,7 @@ export default {
   components: {
     ContentLayout,
     TrawlNotification,
-    OrderTable,
+    OrderTable
   },
   data: () => {
     return {
@@ -40,20 +46,22 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 15,
+        per_page: 10
       },
       loading: false,
       orderModalVisibility: false,
       orderModalObject: {},
+      pagination: {}
     };
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
-      _.forEach(this.items.data, (o) => {
+      _.forEach(this.items.data, o => {
         o.number = numbering++;
       });
+      this.pagination = this.trawlbensPagination;
     },
     afterAssign() {
       this.getItems();
@@ -62,11 +70,21 @@ export default {
       this.filter.q = value;
       this.getItems();
     },
+    changePage(currentPage) {
+      this.filter.page = currentPage;
+      this.getItems();
+    },
+    changeSizePage(sizePage) {
+      this.filter.page = 1;
+      this.filter.per_page = sizePage;
+      this.getItems();
+    }
   },
+
   mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
-  },
+  }
 };
 </script>
 

@@ -4,8 +4,9 @@
     <template slot="content">
       <a-row type="flex">
         <a-col :span="12">
-          <h3>Armada Penjemputan</h3>
-          <a-space>
+          <h3 v-if="! isWalkin">Walk-in Order</h3>
+          <h3 v-if="isWalkin">Armada Penjemputan</h3>
+          <a-space v-if="isWalkin">
             <a-icon :component="CarIcon" :style="{ 'font-size': '2rem' }" />
             <span class="trawl-text-bolder">{{ transporter_type }}</span>
           </a-space>
@@ -66,6 +67,9 @@ export default {
     totalWeight() {
       return this.package?.total_weight;
     },
+    isWalkin() {
+      return this.package?.transporter_type;
+    }
   },
 };
 </script>

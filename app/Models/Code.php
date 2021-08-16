@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use Carbon\Carbon;
 use App\Models\Packages\Item;
@@ -22,8 +23,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Code extends Model
 {
-    use HasFactory, CanSearch;
-    public const TYPE_RECEIPT = 'RCP';
+    use HasFactory, CanSearch, CustomSerializeDate;
+    public const TYPE_RECEIPT = 'TRB';
     public const TYPE_MANIFEST = 'MNF';
     public const TYPE_ITEM = 'ITM';
 
@@ -39,6 +40,9 @@ class Code extends Model
         'content',
     ];
 
+    protected $appends = [
+        'qty'
+    ];
 
     protected $hidden = [
         'id',
@@ -77,7 +81,7 @@ class Code extends Model
     public function logs()
     {
         $class = CodeLogable::class;
-        $class::$staticMakeVisible = ['status', 'showable', 'description'];
+        $class::$staticMakeVisible = ['status', 'description', 'created_at'];
         return $this->hasMany(CodeLogable::class, 'code_id', 'id');
     }
 
@@ -112,7 +116,6 @@ class Code extends Model
     public static function generateCodeContent($codeable_type)
     {
         $query = self::query();
-
         switch (true) {
             case $codeable_type instanceof Package:
                 $pre = self::TYPE_RECEIPT;
@@ -134,6 +137,15 @@ class Code extends Model
         // assume 100.000/day
         $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
 
+
         return  $pre.$inc_number;
+    }
+
+    public function getQtyAttribute($value)
+    {
+        if ($this->attributes['codeable_type'] === 'App\Models\Packages\Item') {
+            $itemId = $this->attributes['codeable_id'];
+            return (Item::query()->find($itemId))->qty;
+        }
     }
 }

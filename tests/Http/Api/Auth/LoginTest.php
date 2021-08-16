@@ -36,62 +36,57 @@ class LoginTest extends TestCase
         $this->assertSuccessResponse($response);
     }
 
+    /*
+        public function test_google_successful_attempt()
+        {
+            $response = $this->json('POST', route('api.auth.login'), [
 
-    public function test_google_successful_attempt()
-    {
-        /*$this->makeVerifiedCustomer();*/
-        /*$this->assertDatabaseCount('customers', 1);*/
+                'name' => 'M Andre Juliansyah',
+                'email' => 'test@example.com',
+                'google_id' => '1234567890',
+                'device_name' => 'phpunit_test',
 
-        // test using phone number
-        $response = $this->json('POST', route('api.auth.login'), [
+            ], [
+                'Accept' => 'application/json',
+            ]);
+            $this->assertAccountNotVerifiedResponse($response);
 
-            'name' => 'M Andre Juliansyah',
-            'email' => 'test@example.com',
-            'google_id' => '1234567890',
-            'device_name' => 'phpunit_test',
+            // test using email
+            $response = $this->json('POST', route('api.auth.login'), [
+                'name' => 'M Andre Juliansyah',
+                'email' => 'test@example.com',
+                'google_id' => '1234567890',
+                'device_name' => 'phpunit_test',
+            ], [
+                'Accept' => 'application/json',
+            ]);
 
-        ], [
-            'Accept' => 'application/json',
-        ]);
-        $this->assertSuccessResponse($response);
+            $this->assertAccountNotVerifiedResponse($response);
+        }
 
-        // test using email
-        $response = $this->json('POST', route('api.auth.login'), [
-            'name' => 'M Andre Juliansyah',
-            'email' => 'test@example.com',
-            'google_id' => '1234567890',
-            'device_name' => 'phpunit_test',
-        ], [
-            'Accept' => 'application/json',
-        ]);
+        public function test_facebook_successful_attempt()
+        {
+            // test using phone number
+            $response = $this->json('POST', route('api.auth.login'), [
 
-        $this->assertSuccessResponse($response);
-    }
+                'facebook_id' => '1234567890',
+                'name' => 'Tatang Sutarman',
+                'device_name' => 'phpunit_test',
 
-    public function test_facebook_successful_attempt()
-    {
-        /*$this->makeVerifiedCustomer();*/
-        /*$this->assertDatabaseCount('customers', 1);*/
+            ], [
+                'Accept' => 'application/json',
+            ]);
+            $this->assertAccountNotVerifiedResponse($response);
 
-        // test using phone number
-        $response = $this->json('POST', route('api.auth.login'), [
+            // test using email
+            $response = $this->json('POST', route('api.auth.login'), [
+                'facebook_id' => '1234567890',
+                'name' => 'Tatang Sutarman',
+                'device_name' => 'phpunit_test',
+            ], [
+                'Accept' => 'application/json',
+            ]);
 
-            'facebook_id' => '1234567890',
-            'device_name' => 'phpunit_test',
-
-        ], [
-            'Accept' => 'application/json',
-        ]);
-        $this->assertSuccessResponse($response);
-
-        // test using email
-        $response = $this->json('POST', route('api.auth.login'), [
-            'facebook_id' => '1234567890',
-            'device_name' => 'phpunit_test',
-        ], [
-            'Accept' => 'application/json',
-        ]);
-
-        $this->assertSuccessResponse($response);
-    }
+            $this->assertAccountNotVerifiedResponse($response);
+        }*/
 }

@@ -28,7 +28,7 @@ class UserResource extends JsonResource
             $partners = $this->resource->partners;
 
             if ($partners->count() > 0) {
-                $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address']);
+                $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address',  'latitude',  'longitude']);
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();

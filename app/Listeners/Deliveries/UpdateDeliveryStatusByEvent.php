@@ -64,7 +64,7 @@ class UpdateDeliveryStatusByEvent
 
                 /** @var Package $package */
                 $package = $event->package;
-
+                $package->setAttribute('status', Package::STATUS_DELIVERED)->save();
                 $delivery->packages()->where('id', $package->id)->updateExistingPivot($package, ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_PACKAGE]);
 
                 $scan_items = $delivery->code->scan_item_codes->pluck('id');

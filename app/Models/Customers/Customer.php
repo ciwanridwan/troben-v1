@@ -2,8 +2,11 @@
 
 namespace App\Models\Customers;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Contracts\HasOtpToken;
 use App\Models\Packages\Package;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
@@ -28,6 +31,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @property string $name
  * @property string $email
  * @property string $phone
+ * @property string $address
  * @property string $password
  * @property string $google_id
  * @property string $facebook_id
@@ -39,7 +43,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
+class Customer extends Model implements AttachableContract, AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
 {
     use SoftDeletes,
         HashableId,
@@ -50,7 +54,10 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         VerifiableByOtp,
         HasApiTokens,
         HasFactory,
-        Auditable;
+        Auditable,
+        attachable, CustomSerializeDate;
+
+    public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     /**
      * The table associated with the model.
@@ -68,6 +75,7 @@ class Customer extends Model implements AuthenticatableContract, CanResetPasswor
         'name',
         'email',
         'phone',
+        'address',
         'password',
         'google_id',
         'facebook_id',

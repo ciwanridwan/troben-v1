@@ -2,11 +2,14 @@
 
 namespace App\Models\Packages;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Code;
 use App\Concerns\Models\HasCode;
 use App\Casts\Package\Items\Handling;
 use Illuminate\Database\Eloquent\Model;
 use App\Actions\Pricing\PricingCalculator;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,9 +36,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * @property-read \App\Models\Packages\Package $package
  */
-class Item extends Model
+class Item extends Model implements AttachableContract
 {
-    use HashableId, HasCode, HasFactory;
+    use HashableId, HasCode, HasFactory, attachable, CustomSerializeDate;
+
+    public const ATTACHMENT_PACKAGE_ITEM = 'package_item';
 
     /**
      * The table associated with the model.
@@ -57,7 +62,6 @@ class Item extends Model
      */
     protected $fillable = [
         'package_id',
-
         'qty',
         'name',
         'desc',
@@ -98,7 +102,8 @@ class Item extends Model
         'weight_volume',
         'weight_borne',
         'weight_borne_total',
-        'tier_price'
+        'tier_price',
+        'codeable'
     ];
 
     /**
@@ -118,7 +123,7 @@ class Item extends Model
      */
     public function prices(): HasMany
     {
-        return $this->hasMany(Price::class, 'package_item_id', 'id');
+        return $this->hasMany(\App\Models\Packages\Price::class, 'package_item_id', 'id');
     }
 
     /**
@@ -131,19 +136,26 @@ class Item extends Model
 
     public function getWeightBorneAttribute()
     {
-        $weight = PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
-        return $weight;
+        $handling = $this->getHandling();
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight));
+        }
+        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
     }
 
     public function getWeightBorneTotalAttribute()
     {
-        $weight = PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty);
-        return $weight;
+        $handling = $this->getHandling();
+        return PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
     }
     public function getWeightVolumeAttribute()
     {
-        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
-        return $volume;
+        $handling = $this->getHandling();
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            $add_dimension = Handling::ADD_WOOD_DIMENSION;
+            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension));
+        }
+        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
     }
     public function getTierPriceAttribute()
     {
@@ -158,5 +170,15 @@ class Item extends Model
             $tierPrice = 0;
         }
         return $tierPrice;
+    }
+
+    public function getCodeableAttribute($value)
+    {
+        return ['qty' => $this->attributes['qty']];
+    }
+
+    private function getHandling()
+    {
+        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 }

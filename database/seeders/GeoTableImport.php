@@ -84,7 +84,7 @@ class GeoTableImport extends Seeder
 
         $this->progressBar = $this->command->getOutput()->createProgressBar($totalSubDistrict);
 
-        foreach ($iso3166->all() as $item) {
+        foreach ([$iso3166->alpha2('ID')] as $item) {
             $c = new Country(Arr::except($item, 'currency'));
             $c->phone_prefix = PhoneNumberUtil::getInstance()->getCountryCodeForRegion($item['alpha2']);
             $c->save();
