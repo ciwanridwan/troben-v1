@@ -35,6 +35,8 @@
               <a-form-model-item label="Nomor HP Mitra" prop="mitra_phone">
                 <a-input-search
                   size="large"
+                  type="number"
+                  class="no-spin"
                   v-model="form.sender_phone_mitra"
                   placeholder="Nomor HP Mitra"
                   @search="getCustomerByPhoneMitra"
@@ -62,6 +64,9 @@
                   size="large"
                   v-model="form.sender_phone"
                   placeholder="Nomor Hp Pengirim"
+                  type="number"
+                  class="no-spin"
+                  id
                 ></a-input>
               </a-form-model-item>
             </a-col>
@@ -83,6 +88,8 @@
               <a-form-model-item label="Nomor Hp Pengirim" prop="sender_phone">
                 <a-input-search
                   size="large"
+                  type="number"
+                  class="no-spin"
                   v-model="form.sender_phone"
                   placeholder="Nomor Hp Pengirim"
                   @search="getCustomerByPhone"
@@ -110,6 +117,8 @@
             <a-form-model-item label="Nomor Hp Penerima" prop="receiver_phone">
               <a-input
                 size="large"
+                type="number"
+                class="no-spin"
                 v-model="form.receiver_phone"
                 placeholder="Nomor Hp Penerima"
               ></a-input>
@@ -497,3 +506,15 @@ export default {
   }
 };
 </script>
+<style scoped>
+/* Chrome, Safari, Edge, Opera */
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Firefox */
+.no-spin {
+  -moz-appearance: textfield;
+}
+</style>
