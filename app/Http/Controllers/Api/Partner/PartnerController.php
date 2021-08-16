@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerResource;
-use App\Http\Resources\Geo\RegencyResource;
-use App\Models\Geo\Regency;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,7 +46,6 @@ class PartnerController extends Controller
 
     protected function getPartnerData(): JsonResponse
     {
-
         $query = $this->getBasicBuilder(Partner::query());
         $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);
