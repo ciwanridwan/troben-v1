@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Partners\Partner;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -162,6 +164,19 @@ class OrderController extends Controller
         event(new PackageApprovedByCustomer($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
+    }
+
+    /**
+     * @param Package $package
+     * @param Partner $partner
+     * @return JsonResponse
+     */
+    public function orderAssignation(Package $package, Partner $partner): JsonResponse
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
 
     /**

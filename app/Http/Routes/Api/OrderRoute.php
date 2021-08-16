@@ -50,9 +50,14 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('update'),
         ]);
 
-        $this->router->patch($this->prefix('{package_hash}/approve'), [
-            'as' => $this->name('approve'),
-            'uses' => $this->uses('approve'),
+        $this->router->patch($this->prefix('{package_hash}/partner/{partner_hash}/assign'), [
+            'as' => $this->name('orderAssignation'),
+            'uses' => $this->uses('orderAssignation'),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/partner/{partner_hash}'), [
+            'as' => $this->name('fusion'),
+            'uses' => $this->uses('fusion'),
         ]);
 
         $this->router->patch($this->prefix('{package_hash}/cancel'), [

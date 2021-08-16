@@ -34,9 +34,6 @@ class PartnerController extends Controller
     public function list(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-           /* 'type' => ['nullable', Rule::in([
-                'bike'
-            ])],*/
             'type' => 'required',
             'origin' => 'nullable',
         ])->validate();
