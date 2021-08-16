@@ -47,14 +47,10 @@ trait UsingNicepay
 
     /**
      * @param string $phonenumber
-     * @return false|string
+     * @return array|string|string[]
      */
     public function validPhone(string $phonenumber)
     {
-        if (str_contains($phonenumber, '+')) {
-            return substr($phonenumber, 1);
-        } else {
-            return $phonenumber;
-        }
+        return str_replace(['+','-',' '],'',$phonenumber);
     }
 }
