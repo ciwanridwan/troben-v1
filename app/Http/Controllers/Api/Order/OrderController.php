@@ -157,6 +157,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
      */
+    // Approving Order by Customer
     public function approve(Package $package): JsonResponse
     {
         $this->authorize('update', $package);
