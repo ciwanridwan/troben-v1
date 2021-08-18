@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Partner\Cashier;
 
+use App\Http\Controllers\Admin\Master\PricingController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Partner\Cashier\HomeController;
 
@@ -33,6 +34,10 @@ class HomeRoute extends BaseRoute
         $this->router->delete($this->prefix('{package_hash}/{item_hash}'), [
             'as' => $this->name('deletePackageItem'),
             'uses' => $this->uses('deletePackageItem'),
+        ]);
+        $this->router->get($this->prefix('price'), [
+            'as' => $this->name('price'),
+            'uses' => $this->uses('show', PricingController::class)
         ]);
     }
 
