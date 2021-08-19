@@ -72,6 +72,35 @@ class GeoController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function list(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'type' => ['required', Rule::in([
+                'regency', 'district', 'sub_district',
+            ])],
+            'q' => 'string|nullable',
+            'province_id' => 'nullable',
+            'regency_id' => 'nullable',
+            'district_id' => 'nullable',
+            'zip_code' => 'nullable',
+            'id' => 'nullable',
+        ])->validate();
+
+        switch ($this->attributes['type']) {
+            case 'regency':
+                return $this->getRegenciesList();
+            case 'district':
+                return $this->getDistrictsList();
+            case 'sub_district':
+                return $this->getSubDistrictsList();
+        }
+    }
+
+    /**
      * Get list countries.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -159,53 +188,6 @@ class GeoController extends Controller
     }
 
     /**
-     * Get Basic Builder.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $builder
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    private function getBasicBuilder(Builder $builder): Builder
-    {
-        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
-        $builder->when(
-            request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
-        );
-
-        return $builder;
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function list(Request $request): JsonResponse
-    {
-        $this->attributes = Validator::make($request->all(), [
-            'type' => ['required', Rule::in([
-                'regency', 'district', 'sub_district',
-            ])],
-            'q' => 'string|nullable',
-            'province_id' => 'nullable',
-            'regency_id' => 'nullable',
-            'district_id' => 'nullable',
-            'zip_code' => 'nullable',
-            'id' => 'nullable',
-        ])->validate();
-
-        switch ($this->attributes['type']) {
-            case 'regency':
-                return $this->getRegenciesList();
-            case 'district':
-                return $this->getDistrictsList();
-            case 'sub_district':
-                return $this->getSubDistrictsList();
-        }
-    }
-
-    /**
      * Get Regencies.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -265,5 +247,23 @@ class GeoController extends Controller
         $query->when(request()->has('zip_code'), fn ($q) => $q->where('zip_code', 'like', '%'.$this->attributes['zip_code'].'%'));
 
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
+    }
+
+    /**
+     * Get Basic Builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $builder
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources\Geo\Web;
 
-use App\Http\Resources\Geo\CountryResource;
-use App\Http\Resources\Geo\ProvinceResource;
 use App\Http\Resources\Geo\RegencyResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 

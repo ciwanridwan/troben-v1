@@ -2,10 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\Geo\DistrictResource;
-use App\Http\Resources\Geo\ProvinceResource;
-use App\Http\Resources\Geo\RegencyResource;
-use App\Http\Resources\Geo\SubDistrictResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TarifResource extends JsonResource
