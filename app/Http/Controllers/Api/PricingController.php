@@ -116,8 +116,7 @@ class PricingController extends Controller
         $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
             ->where('destination_id', $this->attributes['destination_id'])
             ->where('service_code', $this->attributes['service_code'])
-            ->get();
-
+            ->first();
 
         return (new Response(Response::RC_SUCCESS, $prices))->json();
     }
