@@ -14,8 +14,8 @@ class TarifResource extends JsonResource
      */
     public function toArray($request)
     {
+        /** @var \App\Models\Price $this  */
         return [
-            'hash' => $this->hash,
             'tier_1' => $this->tier_1,
             'tier_2' => $this->tier_2,
             'tier_3' => $this->tier_3,
