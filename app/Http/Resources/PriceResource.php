@@ -18,6 +18,7 @@ class PriceResource extends JsonResource
      */
     public function toArray($request)
     {
+        /** @var \App\Models\Price $this  */
         return [
             'hash' => $this->hash,
             'origin_province' => ProvinceResource::make($this->province),
