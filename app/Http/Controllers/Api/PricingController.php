@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\TarifResource;
 use App\Http\Response;
 use App\Models\Price;
 use Illuminate\Support\Arr;
