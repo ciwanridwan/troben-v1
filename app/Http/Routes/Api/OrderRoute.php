@@ -60,6 +60,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('fusion'),
         ]);
 
+        $this->router->patch($this->prefix('{package_hash}/approve'), [
+            'as' => $this->name('approve'),
+            'uses' => $this->uses('approve'),
+        ]);
+
         $this->router->patch($this->prefix('{package_hash}/cancel'), [
             'as' => $this->name('cancel'),
             'uses' => $this->uses('cancel', CancelController::class),

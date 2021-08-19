@@ -32,6 +32,11 @@ class GeoRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->get($this->prefix('list'), [
+            'as' => $this->name('list'),
+            'uses' => $this->uses('list'),
+        ])->withoutMiddleware('api');
     }
 
     /**

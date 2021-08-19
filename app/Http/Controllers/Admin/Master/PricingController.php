@@ -175,7 +175,18 @@ class PricingController extends Controller
         return $this->jsonSuccess(PriceResource::make($job->price));
     }
 
+    public function show(Request $request)
+    {
+        $this->attributes = $request->validate([
+            'origin_regency_id' => ['required'],
+            'destination_id' => ['required']
+        ]);
 
+        $this->query->where('origin_regency_id', $this->attributes['origin_regency_id']);
+        $this->query->where('destination_id', $this->attributes['destination_id']);
+
+        return $this->jsonSuccess(PriceResource::make($this->query->first()));
+    }
 
 
     public function extraData()

@@ -28,7 +28,7 @@
       <template slot="content">
         <a-space direction="vertical" :size="1">
           <package-address :package="package" type="receiver" />
-          <order-estimation v-if="this.package.charge_price_note.notes" :note="this.package.charge_price_note"/>
+          <order-estimation v-if="this.price" :price="this.price"/>
         </a-space>
       </template>
       <template slot="addon">
@@ -47,6 +47,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    price: {
+      type: Object,
+      default: () => null,
+    }
   },
   data() {
     return {

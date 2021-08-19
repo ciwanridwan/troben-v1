@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\TarifResource;
 use App\Models\Price;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -94,5 +95,25 @@ class PricingController extends Controller
         $query = $query->where('service_code', $this->attributes['service_code']);
 
         return $query;
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function tarif(Request $request): JsonResponse
+    {
+        $this->attributes = $request->validate([
+            'origin_id' => ['filled'],
+            'destination_id' => ['filled'],
+            'service_code' => ['filled'],
+        ]);
+        $prices = Price::query();
+
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+
+        return $this->jsonSuccess(TarifResource::collection($prices->paginate(request('per_page', 15))));
     }
 }
