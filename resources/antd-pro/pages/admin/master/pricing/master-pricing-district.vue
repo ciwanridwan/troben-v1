@@ -3,10 +3,15 @@
     <content-layout>
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
-          <!--<a-col>
-            <pricing-form :data_extra="data_extra"></pricing-form>
+          <a-col>
+            <pricing-bulk-form :title="'Bulk Update Ongkir'" :is-update="true"></pricing-bulk-form>
+<!--            <pricing-form :title="'Bulk Update Ongkir'" :data_extra="data_extra"></pricing-form>-->
           </a-col>
           <a-col>
+            <pricing-bulk-form :title="'Bulk New Ongkir'"></pricing-bulk-form>
+<!--            <pricing-form :title="'Bulk New Ongkir'" :data_extra="data_extra"></pricing-form>-->
+          </a-col>
+          <!--<a-col>
             <input-file></input-file>
           </a-col>-->
           <a-col>
@@ -83,9 +88,11 @@ import pricingColumns from "../../../../config/table/pricing";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import InputFile from "./input-file";
 import PricingForm from "./pricing-form.vue";
+import PricingBulkForm from "./pricing-bulk-form";
 
 export default {
   components: {
+    PricingBulkForm,
     DeleteButton,
     ContentLayout,
     InputFile,
