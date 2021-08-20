@@ -134,11 +134,12 @@ class PricingCalculator
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
+            $handling = Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
             $handling_price += Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
 
             $item['handling'] = collect([
                 'type' => $item['handling'],
-                'price' => $handling_price,
+                'price' => $handling,
             ]);
 
             $item['handling'] = self::checkHandling($item['handling']);
