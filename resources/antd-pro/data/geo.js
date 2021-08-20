@@ -17,7 +17,7 @@ const geo = {
   methods: {
     async getGeo(isOrigin = true, status = "province", params = {}) {
       this.loading = true;
-      this.$http
+      const { data } = await this.$http
         .get(this.routeUri("admin.geo"), {
           params: {
             type: status,
@@ -25,10 +25,8 @@ const geo = {
             ...params
           }
         })
-        .then(({ data }) => {
-          this.putGeoToData(isOrigin, status, data.data);
-        })
-        .finally(() => (this.loading = false));
+      this.putGeoToData(isOrigin, status, data.data)
+      this.loading = false
     },
     putGeoToData(isOrigin = true, status, data) {
       switch (status) {

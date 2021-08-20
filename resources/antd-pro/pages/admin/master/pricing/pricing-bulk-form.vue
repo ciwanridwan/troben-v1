@@ -29,7 +29,6 @@
                 <h4>Kota Asal</h4>
               </template>
               <a-select
-                v-model="form.origin_regency"
                 :auto-focus="true"
                 :allow-clear="true"
                 show-search
@@ -38,6 +37,7 @@
                 style="width: 100%"
                 :filter-option="filterOption"
                 @focus="getGeo(true,'regency',{origin: 1})"
+                @change="originChange"
                 :loading="origin_regencies.length === 0"
               >
                 <a-select-option
@@ -278,7 +278,6 @@ export default {
     return {
       checkAll: true,
       visible: false,
-      loading: false,
       confirmLoading: false,
       rules: {
         origin_regency_id: [
@@ -320,7 +319,7 @@ export default {
       Object.assign(this, {
         checkAll: e.target.checked,
       });
-      this.form.destination_sub_districts = this.checkAll ? [-1] : []
+      this.setAllSubDistricts()
     },
     defaultsAction() {
       this.confirmLoading = false;
@@ -357,19 +356,30 @@ export default {
     setSubDistricts(value) {
       this.form.destination_sub_districts = value.map(x => +x);
     },
-    districtBlur() {
-      this.getGeo(false, 'sub_district', { district_id: this.form.destination_district_id });
-      this.form.destination_sub_districts = this.checkAll ? [-1] : [];
-    },
-    handleFocus() {
-      console.log('focus');
+    async districtBlur() {
+      await this.getGeo(false, 'sub_district', { district_id: this.form.destination_district_id });
+      this.setAllSubDistricts();
     },
     filterOption(input, option) {
       return (
         option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       );
     },
-
+    setAllSubDistricts() {
+      let data = this.destination_sub_districts.map(sub_district => sub_district.id);
+      this.form.destination_sub_districts = this.checkAll ? data : [];
+    },
+    setAllDistricts() {
+      let data = this.origin_regencies.map(regency => regency.id);
+      this.form.origin_regency = this.checkAll ? data : [];
+    },
+    originChange(value) {
+      if (value === -1) {
+        this.setAllDistricts();
+      } else {
+        this.form.origin_regency = value;
+      }
+    }
   },
   computed: {
     hasSlotTrigger() {
