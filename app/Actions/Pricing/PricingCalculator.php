@@ -131,8 +131,17 @@ class PricingCalculator
         }
 
         $discount = $pickup_price;
+        $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
+            $handling = Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
+            $handling_price += Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
+
+            $item['handling'] = collect([
+                'type' => $item['handling'],
+                'price' => $handling,
+            ]);
+
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -149,15 +158,14 @@ class PricingCalculator
         }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
-
         $servicePrice = self::getServicePrice($inputs, $price);
-
         $response = [
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
+                'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
                 'tier' => $tierPrice,
