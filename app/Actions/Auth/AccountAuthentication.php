@@ -135,7 +135,7 @@ class AccountAuthentication
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 ]))->json();
             }
-            
+
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             ]))->json();
@@ -158,13 +158,13 @@ class AccountAuthentication
         }
 
         if ($this->attributes['guard'] === 'user') {
-            $key = "trawlbensJWTSecretK";
+            $key = 'trawlbensJWTSecretK';
 
-            $payload = array(
+            $payload = [
                 'id' => $authenticatable->id,
                 'name' => $authenticatable->name,
                 'email' => $authenticatable->email
-            );
+            ];
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
