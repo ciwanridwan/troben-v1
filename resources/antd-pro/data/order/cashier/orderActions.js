@@ -51,22 +51,6 @@ const actions = [
   },
   {
     status: [
-      STATUS_ACCEPTED,
-      STATUS_WAITING_FOR_PACKING,
-      STATUS_PACKING,
-      STATUS_PACKED,
-      STATUS_MANIFESTED,
-      STATUS_DELIVERED
-    ],
-    payment_status: [PAYMENT_STATUS_PAID],
-    components: [
-      {
-        component: ModalReceiptToPdf
-      }
-    ]
-  },
-  {
-    status: [
       STATUS_CANCEL,
       STATUS_CANCEL_DELIVERED,
       STATUS_CANCEL_SELF_PICKUP,
@@ -83,8 +67,13 @@ const actions = [
   },
   {
     status: [
+      STATUS_WAITING_FOR_PACKING,
+      STATUS_PACKING,
+      STATUS_PACKED,
+      STATUS_MANIFESTED,
       STATUS_IN_TRANSIT,
-      STATUS_WITH_COURIER
+      STATUS_WITH_COURIER,
+      STATUS_DELIVERED
     ],
     payment_status: [PAYMENT_STATUS_PAID],
     components: [
