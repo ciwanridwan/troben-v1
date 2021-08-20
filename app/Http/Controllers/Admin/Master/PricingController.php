@@ -18,6 +18,7 @@ use App\Jobs\Price\DeleteExistingPrice;
 use App\Jobs\Price\UpdateExistingPrice;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class PricingController extends Controller
 {
@@ -188,7 +189,6 @@ class PricingController extends Controller
         return $this->jsonSuccess(PriceResource::make($this->query->first()));
     }
 
-
     public function extraData()
     {
         return [
@@ -197,5 +197,56 @@ class PricingController extends Controller
             'sub_districts' => SubDistrict::all(),
             'services' => Service::all(),
         ];
+    }
+
+    public function bulk(Request $request)
+    {
+        $this->attributes = $request->all();
+        if (is_array($this->attributes['origin_regency'])) {
+            $inputs = [];
+            foreach ($this->attributes['origin_regency'] as $origin_regency) {
+                $inputs = array_merge($inputs,$this->prepareBulkData($origin_regency));
+            }
+        } else {
+            $inputs = $this->prepareBulkData();
+        }
+        // TODO: job bulk update or create
+        Price::query()->upsert($inputs,[
+            'origin_regency_id',
+            'destination_id'
+        ],[
+            'tier_1',
+            'tier_2',
+            'tier_3',
+            'tier_4',
+            'tier_5',
+            'tier_6',
+            'tier_7',
+            'tier_8',
+            'notes',
+        ]);
+        return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    private function prepareBulkData($origin_regency = null)
+    {
+        $origin_regency = is_null($origin_regency) ? $this->attributes['origin_regency'] : $origin_regency;
+        $data = [];
+        foreach ($this->attributes['destination_sub_districts'] as $sub_district) {
+            $data[] = array_merge(Arr::except($this->attributes,[
+                'origin_regency',
+                'destination_sub_districts',
+                'destination_province_id',
+                'destination_regency_id',
+                'destination_district_id',
+            ]),[
+                'destination_id' => $sub_district,
+                'origin_province_id' => Regency::find($origin_regency)->province_id,
+                'origin_regency_id' => $origin_regency,
+                'zip_code' => SubDistrict::find($sub_district)->zip_code,
+            ]);
+        }
+
+        return $data;
     }
 }

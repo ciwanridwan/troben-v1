@@ -7,7 +7,7 @@
 
     <a-modal
       v-model="visible"
-      @ok="handleOk"
+      @ok="handleSubmitForm"
       @cancel="defaultsAction"
       :okText="okText"
       :cancelText="cancelText"
@@ -291,15 +291,14 @@ export default {
         destination_district_id: null,
         destination_sub_districts: [],
         service_code: 'tps',
-        desc: null,
-        tier_1: null,
-        tier_2: null,
-        tier_3: null,
-        tier_4: null,
-        tier_5: null,
-        tier_6: null,
-        tier_7: null,
-        tier_8: null,
+        tier_1: 0,
+        tier_2: 0,
+        tier_3: 0,
+        tier_4: 0,
+        tier_5: 0,
+        tier_6: 0,
+        tier_7: 0,
+        tier_8: 0,
         notes: null
       },
     }
@@ -331,15 +330,14 @@ export default {
         destination_district_id: null,
         destination_sub_districts: [],
         service_code: 'tps',
-        desc: null,
-        tier_1: null,
-        tier_2: null,
-        tier_3: null,
-        tier_4: null,
-        tier_5: null,
-        tier_6: null,
-        tier_7: null,
-        tier_8: null,
+        tier_1: 0,
+        tier_2: 0,
+        tier_3: 0,
+        tier_4: 0,
+        tier_5: 0,
+        tier_6: 0,
+        tier_7: 0,
+        tier_8: 0,
         notes: null
       };
     },
@@ -349,9 +347,45 @@ export default {
         }
         this.visible = true;
     },
-    handleOk() {
-      this.confirmLoading = true;
-      console.log('oke')
+    async handleSubmitForm() {
+      this.actionModalButton();
+      await this.submitForm();
+      this.actionModalButton(false);
+      this.$notification.success({
+        message: "Sukses update ongkir!"
+      });
+      this.visible = false;
+
+    },
+    async submitForm() {
+      let uri = "admin.master.pricing.district.bulk";
+      try {
+        const { data } = await this.$http
+          .post(this.routeUri(uri), this.form)
+        if (data.error) {
+          console.log('error')
+        }
+        this.$emit('update');
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    actionModalButton(isDisabled = true) {
+      Object.assign(this, {
+        confirmLoading: isDisabled,
+        closeable: !isDisabled,
+        maskClosable: !isDisabled,
+        okButtonProps: {
+          props: {
+            disabled: isDisabled,
+          },
+        },
+        cancelButtonProps: {
+          props: {
+            disabled: isDisabled
+          }
+        }
+      });
     },
     setSubDistricts(value) {
       this.form.destination_sub_districts = value.map(x => +x);

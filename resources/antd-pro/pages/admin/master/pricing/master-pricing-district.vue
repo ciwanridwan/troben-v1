@@ -4,12 +4,8 @@
       <template slot="head-tools">
         <a-row type="flex" justify="end" :gutter="10">
           <a-col>
-            <pricing-bulk-form :title="'Bulk Update Ongkir'" :is-update="true"></pricing-bulk-form>
+            <pricing-bulk-form :title="'Bulk Update Ongkir'" :is-update="true" @update="this.getItems"></pricing-bulk-form>
 <!--            <pricing-form :title="'Bulk Update Ongkir'" :data_extra="data_extra"></pricing-form>-->
-          </a-col>
-          <a-col>
-            <pricing-bulk-form :title="'Bulk New Ongkir'"></pricing-bulk-form>
-<!--            <pricing-form :title="'Bulk New Ongkir'" :data_extra="data_extra"></pricing-form>-->
           </a-col>
           <!--<a-col>
             <input-file></input-file>

@@ -39,6 +39,10 @@ class PricingRoute extends BaseRoute
             'as' => $this->name('show'),
             'uses' => $this->uses('show'),
         ]);
+        $this->router->post($this->prefix('bulk'), [
+            'as' => $this->name('bulk'),
+            'uses' => $this->uses('bulk'),
+        ]);
     }
 
     /**
