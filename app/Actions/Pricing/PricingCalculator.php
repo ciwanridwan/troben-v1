@@ -138,7 +138,7 @@ class PricingCalculator
 
         foreach ($inputs['items'] as $index => $item) {
             $handlingResult = [];
-            foreach ($item['handling'] as $packing){
+            foreach ($item['handling'] as $packing) {
                 $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
                 $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
 
