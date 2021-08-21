@@ -133,14 +133,23 @@ class PricingCalculator
         $discount = $pickup_price;
         $handling_price = 0;
 
-        foreach ($inputs['items'] as $index => $item) {
-            $handling = Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
-            $handling_price += Handling::calculator($item['handling'], $item['height'], $item['length'], $item['width'], $item['weight']);
 
-            $item['handling'] = collect([
-                'type' => $item['handling'],
-                'price' => $handling,
-            ]);
+
+
+        foreach ($inputs['items'] as $index => $item) {
+            $handlingResult = [];
+            foreach ($item['handling'] as $packing) {
+                $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+
+                $handlingResult[] = collect([
+                    'type' => $packing,
+                    'price' => $handling,
+                ]);
+                $item['handling'] = $handlingResult;
+            }
+
+
 
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
