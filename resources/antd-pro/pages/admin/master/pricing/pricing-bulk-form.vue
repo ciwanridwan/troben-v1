@@ -6,8 +6,9 @@
     <a-button v-else @click="activateModal">{{ title }}</a-button>
 
     <a-modal
+      v-if="visible"
       v-model="visible"
-      @ok="handleSubmitForm"
+      @ok="showConfirm"
       @cancel="defaultsAction"
       :okText="okText"
       :cancelText="cancelText"
@@ -20,14 +21,16 @@
         <h2>{{ title }}</h2>
       </template>
 
-      <a-form-model layout="vertical">
+      <a-form-model
+        ref="ruleForm"
+        :model="form"
+        :rules="rules"
+        layout="vertical"
+      >
         <!-- Origin -->
         <a-row type="flex" :gutter="[10, 10]">
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Kota Asal</h4>
-              </template>
+            <a-form-model-item label="Kota Asal" prop="origin_regency">
               <a-select
                 :auto-focus="true"
                 :allow-clear="true"
@@ -60,10 +63,7 @@
         <!-- Destination -->
         <a-row type="flex" :gutter="[10, 10]">
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Provinsi Tujuan</h4>
-              </template>
+            <a-form-model-item label="Provinsi Tujuan" prop="destination_province_id">
               <a-select
                 v-model="form.destination_province_id"
                 :width="'100%'"
@@ -74,6 +74,7 @@
                 :filter-option="filterOption"
                 :disabled="!form.origin_regency"
                 @focus="getGeo(false, 'province')"
+                @change="() => {this.form.destination_regency_id = undefined; this.form.destination_district_id = undefined; this.form.destination_sub_districts = []; getGeo(false, 'regency', { province_id: form.destination_province_id });}"
                 :allow-clear="true"
                 :loading="destination_provinces.length === 0"
               >
@@ -88,10 +89,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Kota/kab Tujuan</h4>
-              </template>
+            <a-form-model-item label="Kota/kab Tujuan" prop="destination_regency_id">
               <a-select
                 v-model="form.destination_regency_id"
                 :width="'100%'"
@@ -101,7 +99,7 @@
                 style="width: 100%"
                 :filter-option="filterOption"
                 :disabled="!form.destination_province_id"
-                @focus="getGeo(false, 'regency', { province_id: form.destination_province_id })"
+                @change="() => {this.form.destination_district_id = undefined; this.form.destination_sub_districts = []; getGeo(false, 'district', { regency_id: form.destination_regency_id });}"
                 :allow-clear="true"
                 :loading="destination_regencies.length === 0"
               >
@@ -116,10 +114,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Kecamatan Tujuan</h4>
-              </template>
+            <a-form-model-item label="Kecamatan Tujuan" prop="destination_district_id">
               <a-select
                 v-model="form.destination_district_id"
                 :width="'100%'"
@@ -129,10 +124,9 @@
                 style="width: 100%"
                 :filter-option="filterOption"
                 :disabled="!form.destination_regency_id"
-                @focus="getGeo(false, 'district', { regency_id: form.destination_regency_id })"
                 :allow-clear="true"
                 :loading="destination_districts.length === 0"
-                @blur="districtBlur"
+                @change="districtChange"
               >
                 <a-select-option
                   v-for="(district, index) in destination_districts"
@@ -147,12 +141,9 @@
         </a-row>
 
         <!-- Sub district -->
-        <a-row v-if="form.destination_district_id " type="flex" :gutter="[10, 10]">
+        <a-row v-if="form.destination_district_id" type="flex" :gutter="[10, 10]">
           <a-col :span="16">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Kelurahan Tujuan</h4>
-              </template>
+            <a-form-model-item label="Kelurahan Tujuan" prop="destination_sub_districts">
               <a-space direction="vertical" style="width: 100%">
                 <a-checkbox
                   :checked="checkAll"
@@ -165,7 +156,7 @@
                   mode="tags"
                   placeholder="Pilih Kelurahan Tujuan"
                   style="width: 100%"
-                  @focus="getGeo(false, 'sub_district', { district_id: form.destination_district_id })"
+                  :filter-option="filterOption"
                   @change="setSubDistricts"
                 >
                   <a-select-option
@@ -184,18 +175,12 @@
         <!-- Notes & Service -->
         <a-row v-if="form.destination_sub_districts.length > 0" type="flex" :gutter="[10, 10]">
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Metode Pengiriman</h4>
-              </template>
+            <a-form-model-item label="Metode Pengiriman">
               <a-input placeholder="'Services'" :value="'Trawlpack'" disabled/>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Estimasi</h4>
-              </template>
+            <a-form-model-item label="Estimasi">
               <a-textarea v-model="form.notes"></a-textarea>
             </a-form-model-item>
           </a-col>
@@ -204,66 +189,42 @@
         <!-- Price List -->
         <a-row v-if="form.destination_sub_districts.length > 0" type="flex" :gutter="[10, 10]">
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif 0 - 10 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif 0 - 10 Kg" prop="tier_1">
               <a-input-number v-model="form.tier_1"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif 11 - 30 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif 11 - 30 Kg" prop="tier_2">
               <a-input-number v-model="form.tier_2"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif 31 - 50 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif 31 - 50 Kg" prop="tier_3">
               <a-input-number v-model="form.tier_3"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif 51 - 100 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif 51 - 100 Kg" prop="tier_4">
               <a-input-number v-model="form.tier_4"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif 101 - 1.000 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif 101 - 1.000 Kg" prop="tier_5">
               <a-input-number v-model="form.tier_5"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif > 1.000 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif > 1.000 Kg" prop="tier_6">
               <a-input-number v-model="form.tier_6"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif > 3.000 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif > 3.000 Kg" prop="tier_7">
               <a-input-number v-model="form.tier_7"></a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="8">
-            <a-form-model-item>
-              <template slot="label">
-                <h4>Tarif > 5.000 Kg</h4>
-              </template>
+            <a-form-model-item label="Tarif > 5.000 Kg" prop="tier_8">
               <a-input-number v-model="form.tier_8"></a-input-number>
             </a-form-model-item>
           </a-col>
@@ -280,15 +241,25 @@ export default {
       visible: false,
       confirmLoading: false,
       rules: {
-        origin_regency_id: [
-          { required: true },
-        ]
+        origin_regency: [{ required: true, message: 'Kota asal wajib diisi' }],
+        destination_province_id: [{ required: true, message: 'Provinsi tujuan wajib diisi' }],
+        destination_regency_id: [{ required: true, message: 'Kota tujuan wajib diisi' }],
+        destination_district_id: [{ required: true, message: 'Kecamatan tujuan wajib diisi' }],
+        destination_sub_districts: [{ required: true, message: 'Kelurahan tujuan wajib diisi' }],
+        tier_1: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_2: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_3: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_4: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_5: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_6: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_7: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
+        tier_8: [{ required: true, message: 'Harga tidak boleh kosong' }, {type: 'number', message: 'Mohon kerjasamanya, harus angka.'}],
       },
       form: {
-        origin_regency: null,
-        destination_province_id: null,
-        destination_regency_id: null,
-        destination_district_id: null,
+        origin_regency: undefined,
+        destination_province_id: undefined,
+        destination_regency_id: undefined,
+        destination_district_id: undefined,
         destination_sub_districts: [],
         service_code: 'tps',
         tier_1: 0,
@@ -299,7 +270,7 @@ export default {
         tier_6: 0,
         tier_7: 0,
         tier_8: 0,
-        notes: null
+        notes: undefined
       },
     }
   },
@@ -324,10 +295,10 @@ export default {
       this.confirmLoading = false;
       this.visible = false;
       this.form = {
-        origin_regency: null,
-        destination_province_id: null,
-        destination_regency_id: null,
-        destination_district_id: null,
+        origin_regency: undefined,
+        destination_province_id: undefined,
+        destination_regency_id: undefined,
+        destination_district_id: undefined,
         destination_sub_districts: [],
         service_code: 'tps',
         tier_1: 0,
@@ -338,7 +309,7 @@ export default {
         tier_6: 0,
         tier_7: 0,
         tier_8: 0,
-        notes: null
+        notes: undefined
       };
     },
     activateModal() {
@@ -347,7 +318,23 @@ export default {
         }
         this.visible = true;
     },
-    async handleSubmitForm() {
+    showConfirm() {
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          this.$confirm({
+            title: 'Udah yakin bung?',
+            content: 'Setelah klik tombol "OK", data yang anda input akan disimpan coi.',
+            okText: 'Yakin!',
+            cancelText: 'Cek lagi.',
+            onOk: this.updatePrice,
+            onCancel() {},
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    async updatePrice() {
       this.actionModalButton();
       await this.submitForm();
       this.actionModalButton(false);
@@ -363,11 +350,16 @@ export default {
         const { data } = await this.$http
           .post(this.routeUri(uri), this.form)
         if (data.error) {
-          console.log('error')
+          this.$notification.error({
+            message: `${data.code}`,
+            description: data.message,
+          })
         }
         this.$emit('update');
       } catch (e) {
-        console.log(e)
+        this.$notification.error({
+          message: 'something went wrong'
+        });
       }
     },
     actionModalButton(isDisabled = true) {
@@ -390,7 +382,9 @@ export default {
     setSubDistricts(value) {
       this.form.destination_sub_districts = value.map(x => +x);
     },
-    async districtBlur() {
+    async districtChange() {
+      this.form.destination_sub_districts = [];
+      this.checkAll = true;
       await this.getGeo(false, 'sub_district', { district_id: this.form.destination_district_id });
       this.setAllSubDistricts();
     },
@@ -403,16 +397,21 @@ export default {
       let data = this.destination_sub_districts.map(sub_district => sub_district.id);
       this.form.destination_sub_districts = this.checkAll ? data : [];
     },
-    setAllDistricts() {
+    setAllRegencies() {
       let data = this.origin_regencies.map(regency => regency.id);
       this.form.origin_regency = this.checkAll ? data : [];
     },
     originChange(value) {
+      this.form.destination_province_id = undefined;
+      this.form.destination_regency_id = undefined;
+      this.form.destination_district_id = undefined;
+      this.form.destination_sub_districts = [];
       if (value === -1) {
-        this.setAllDistricts();
+        this.setAllRegencies();
       } else {
         this.form.origin_regency = value;
       }
+      this.getGeo(false, 'province');
     }
   },
   computed: {
@@ -425,6 +424,12 @@ export default {
     cancelText() {
       return 'Batal';
     }
+  },
+  mounted() {
+    this.visible = true;
+    this.$nextTick(() => {
+      this.visible = false;
+    });
   }
 }
 </script>
