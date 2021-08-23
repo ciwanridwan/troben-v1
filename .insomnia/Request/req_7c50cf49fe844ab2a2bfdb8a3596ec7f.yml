@@ -1,16 +1,21 @@
-_id: req_997683a4d5e2486084e50d527e477821
+_id: req_7c50cf49fe844ab2a2bfdb8a3596ec7f
 type: Request
-parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1629711563380
-created: 1628481744202
-url: "{{ _.base_url }}/order/courier/list"
-name: Get list courier
+parentId: fld_b05a80fb85cd4c2cbe35e1aa011ad519
+modified: 1629709712571
+created: 1629709712571
+url: "{{ _.base_url }}/partner/list"
+name: Get list partner
 description: ""
 method: GET
 body: {}
 parameters:
+  - id: pair_ea70b4bd94d947c8af77592ae146c1bf
+    name: type
+    value: pickup
+    description: ""
+    disabled: false
   - id: pair_0b7bdbeea0ee496e80c90bddef168bfb
-    name: regency_id
+    name: origin
     value: "58"
     description: ""
     disabled: true
@@ -23,7 +28,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: 25
+metaSortKey: -1628147505920.5
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true
