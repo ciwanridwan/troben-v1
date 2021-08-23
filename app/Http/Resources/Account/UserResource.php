@@ -21,6 +21,10 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'address' => $this->address,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+            'is_active' => $this->is_active,
         ];
 
         if ($this->resource instanceof User) {
