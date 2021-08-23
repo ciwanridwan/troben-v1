@@ -3,7 +3,6 @@
 namespace App\Jobs\Deliveries\Actions;
 
 use App\Events\Deliveries\Pickup\PackageRejectedByPartner;
-use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\HistoryReject;
 use App\Models\Packages\Package;
