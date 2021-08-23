@@ -381,6 +381,9 @@ export default {
     },
     setSubDistricts(value) {
       this.form.destination_sub_districts = value.map(x => +x);
+      if (this.form.destination_sub_districts.length === this.destination_sub_districts.length) {
+        this.checkAll = true;
+      }
     },
     async districtChange() {
       this.form.destination_sub_districts = [];
