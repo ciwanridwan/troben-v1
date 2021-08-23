@@ -16,7 +16,6 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Symfony\Component\Console\Input\Input;
 
 class PricingCalculator
 {
@@ -136,7 +135,7 @@ class PricingCalculator
 
         foreach ($inputs['items'] as $index => $item) {
             $handlingResult = [];
-            if ($item['handling'] != null){
+            if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
                     $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
