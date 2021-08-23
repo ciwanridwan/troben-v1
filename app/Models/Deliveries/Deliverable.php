@@ -14,6 +14,7 @@ class Deliverable extends MorphPivot
     public const STATUS_LOAD_BY_DRIVER = 'load_by_driver';
     public const STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE = 'unload_by_destination_warehouse';
     public const STATUS_UNLOAD_BY_DESTINATION_PACKAGE = 'unload_by_destination_package';
+    public const STATUS_REJECTED = 'rejected_by_partner';
 
     protected $table = 'deliverables';
 

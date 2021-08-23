@@ -4,6 +4,7 @@ namespace App\Jobs\Deliveries\Actions;
 
 use App\Events\Deliveries\Pickup\PackageRejectedByPartner;
 use App\Models\Deliveries\Delivery;
+use App\Models\HistoryReject;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -51,12 +52,20 @@ class RejectDeliveryFromPartner
     {
         $this->delivery->packages->each(fn (Package $package) => $package->setAttribute('status', Package::STATUS_CREATED)->save());
 
-        $this->delivery->code()->delete();
+        $history = new HistoryReject();
+        $history->delivery_id = $this->delivery->id;
 
+        $history->partner_id = $this->delivery->partner_id;
+        $history->package_id = $this->delivery->packages[0]->id;
+        $history->content = $this->delivery->code()->first()->content;
+        $history->status = Delivery::STATUS_REJECTED;
+
+        $history->save();
+        $this->delivery->code()->delete();
         $this->delivery->delete();
 
         event(new PackageRejectedByPartner($this->delivery));
 
-        return ! $this->delivery->exists;
+        return $this->delivery->exists;
     }
 }

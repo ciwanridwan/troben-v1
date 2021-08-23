@@ -133,24 +133,20 @@ class PricingCalculator
         $discount = $pickup_price;
         $handling_price = 0;
 
-
-
-
         foreach ($inputs['items'] as $index => $item) {
             $handlingResult = [];
-            foreach ($item['handling'] as $packing) {
-                $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
-                $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+            if ($item['handling'] != null) {
+                foreach ($item['handling'] as $packing) {
+                    $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
 
-                $handlingResult[] = collect([
-                    'type' => $packing,
-                    'price' => $handling,
-                ]);
-                $item['handling'] = $handlingResult;
+                    $handlingResult[] = collect([
+                        'type' => $packing,
+                        'price' => $handling,
+                    ]);
+                    $item['handling'] = $handlingResult;
+                }
             }
-
-
-
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -188,7 +184,6 @@ class PricingCalculator
             case 'json':
                 return (new Response(Response::RC_SUCCESS, $response))->json();
                 break;
-
             default:
                 return (new Response(Response::RC_SUCCESS, $response))->json();
                 break;

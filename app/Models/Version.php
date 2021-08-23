@@ -20,6 +20,7 @@ class Version extends Model
         'version',
         'description',
         'is_active',
+        'code',
     ];
 
     /**

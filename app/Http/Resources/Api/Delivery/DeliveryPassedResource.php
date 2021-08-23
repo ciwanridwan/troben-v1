@@ -2,14 +2,15 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
+use App\Models\HistoryReject;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Class DeliveryResource.
  *
- * @property-read  \App\Models\Deliveries\Delivery $resource
+ * @property-read  HistoryReject $resource
  */
-class DeliveryPickupResource extends JsonResource
+class DeliveryPassedResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +22,7 @@ class DeliveryPickupResource extends JsonResource
     {
         if (! $this->resource->relationLoaded('packages')) {
             $this->resource->load([
-                'packages', 'packages.code',
+                'packages.code',
                 'packages.origin_regency',
                 'packages.origin_district',
                 'packages.origin_sub_district',
@@ -31,9 +32,7 @@ class DeliveryPickupResource extends JsonResource
             ]);
         }
 
-
         $package =  $this->resource->packages->first()->toArray();
-        $this->resource->unsetRelations('packages');
 
         $data = parent::toArray($request);
         if (isset($package)) {
