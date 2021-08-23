@@ -61,6 +61,7 @@ class Delivery extends Model
     public const STATUS_LOADING = 'loading';
     public const STATUS_EN_ROUTE = 'en-route';
     public const STATUS_FINISHED = 'finished';
+    public const STATUS_REJECTED = 'rejected';
 
     public const AS_ORIGIN = 'origin';
     public const AS_DESTINATION = 'destination';
@@ -198,8 +199,6 @@ class Delivery extends Model
             ->using(Deliverable::class)
             ->whereHasMorph('codeable', Item::class);
     }
-
-
 
     /**
      * @return MorphOne

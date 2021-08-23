@@ -23,6 +23,16 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('pickup'),
         ]);
 
+        $this->router->get($this->prefix('passed'), [
+            'as' => $this->name('passed'),
+            'uses' => $this->uses('passed'),
+        ]);
+
+        $this->router->get($this->prefix('taken'), [
+            'as' => $this->name('taken'),
+            'uses' => $this->uses('taken'),
+        ]);
+
         $this->router->patch($this->prefix('{delivery_hash}/{userable_hash}/assign'), [
             'as' => $this->name('assign'),
             'uses' => $this->uses('orderAssignation'),

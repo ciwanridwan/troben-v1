@@ -19,6 +19,8 @@ const STATUS_WITH_COURIER = "with_courier";
 const STATUS_DELIVERED = "delivered";
 const STATUS_CANCEL_SELF_PICKUP = "cancel_self_pickup";
 const STATUS_CANCEL_DELIVERED = "cancel_delivered";
+const STATUS_FINISHED = "finished";
+const STATUS_REJECTED = "rejected";
 
 const PAYMENT_STATUS_DRAFT = "draft";
 const PAYMENT_STATUS_PENDING = "pending";
@@ -125,6 +127,16 @@ const statuses = [
     message: "Pesanan telah sampai tujuan"
   },
   {
+    status: STATUS_FINISHED,
+    messageType: "warning",
+    message: "Pesanan telah sampai tujuan"
+  },
+  {
+    status: STATUS_REJECTED,
+    messageType: "warning",
+    message: "Pesanan telah dibatalkan"
+  },
+  {
     status: STATUS_CANCEL_SELF_PICKUP,
     messageType: "warning",
     message: "Pesanan dibatalkan | diambil sendiri"
@@ -186,6 +198,8 @@ export {
   STATUS_IN_TRANSIT,
   STATUS_WITH_COURIER,
   STATUS_DELIVERED,
+  STATUS_FINISHED,
+  STATUS_REJECTED,
   STATUS_CANCEL_SELF_PICKUP,
   STATUS_CANCEL_DELIVERED,
   PAYMENT_STATUS_DRAFT,

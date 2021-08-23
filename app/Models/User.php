@@ -60,6 +60,9 @@ class User extends Authenticatable implements HasOtpToken
         'password',
         'phone',
         'remember_token',
+        'latitude',
+        'longitude',
+        'is_active',
     ];
 
 
