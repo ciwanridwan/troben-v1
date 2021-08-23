@@ -26,14 +26,14 @@ class BulkCreateOrUpdatePrice
     public array $attributes;
 
     /**
-     * Bulk update or create
+     * Bulk update or create.
      * @param array $inputs
      * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(array $inputs)
     {
         $this->query = Price::query();
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             '*.origin_province_id' => ['required','exists:geo_provinces,id'],
             '*.origin_regency_id' => ['required','exists:geo_regencies,id'],
             '*.origin_district_id' => ['nullable','exists:geo_districts,id'],
@@ -56,7 +56,7 @@ class BulkCreateOrUpdatePrice
     }
 
     /**
-     * Execute bulk create or update price
+     * Execute bulk create or update price.
      */
     public function handle(): void
     {
