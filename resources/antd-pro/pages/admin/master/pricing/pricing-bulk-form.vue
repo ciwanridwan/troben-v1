@@ -338,11 +338,10 @@ export default {
       this.actionModalButton();
       await this.submitForm();
       this.actionModalButton(false);
+      this.defaultsAction();
       this.$notification.success({
         message: "Sukses update ongkir!"
       });
-      this.visible = false;
-
     },
     async submitForm() {
       let uri = "admin.master.pricing.district.bulk";
