@@ -35,7 +35,6 @@ class AddFieldAddressInUsersTable extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('address');
             $table->dropColumn('regency_id');
-
         });
     }
 }

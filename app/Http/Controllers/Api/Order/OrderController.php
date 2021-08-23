@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Http\Resources\Account\CourierResource;
-use App\Http\Resources\Account\UserResource;
-use App\Http\Resources\Api\Partner\PartnerResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;

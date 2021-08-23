@@ -31,7 +31,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $phone
  * @property string $latitude
  * @property string $longitude
- * @property boolean $is_active
+ * @property bool $is_active
  * @property string $password
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $remember_token
