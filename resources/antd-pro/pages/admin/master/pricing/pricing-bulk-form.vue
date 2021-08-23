@@ -234,6 +234,7 @@
   </div>
 </template>
 <script>
+const uriBulk = "admin.master.pricing.district.bulk";
 export default {
   data() {
     return {
@@ -341,24 +342,17 @@ export default {
       this.defaultsAction();
     },
     async submitForm() {
-      let uri = "admin.master.pricing.district.bulk";
       try {
-        const { data } = await this.$http
-          .post(this.routeUri(uri), this.form)
-        if (data.error) {
-          this.$notification.error({
-            message: `${data.code}`,
-            description: data.message,
-          })
-        } else {
-          this.$notification.success({
-            message: "Sukses update ongkir!"
-          });
-          this.$emit('update');
-        }
-      } catch (e) {
+        const { data } = await this.$http.post(this.routeUri(uriBulk), this.form);
+        this.$notification.success({
+          message: "Sukses!",
+          description: "Ongkir berhasil terupdate."
+        });
+        this.$emit('update');
+      } catch (err) {
         this.$notification.error({
-          message: 'something went wrong'
+          message: `Error Code: ${(err.response && err.response.data && err.response.data.code) || 'Untracked'}`,
+          description: err.response && err.response.data && err.response.data.message || '',
         });
       }
     },

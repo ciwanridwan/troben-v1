@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Jobs\Price\BulkCreateOrUpdatePrice;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -199,6 +200,16 @@ class PricingController extends Controller
         ];
     }
 
+    /**
+     * Bulking create or update prices.
+     * Route Path       : {APP_URL}/admin/master/pricing/district/bulk
+     * Route Name       : admin.master.pricing.district.bulk
+     * Route Method     : POST.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function bulk(Request $request)
     {
         $this->attributes = $request->all();
@@ -210,25 +221,20 @@ class PricingController extends Controller
         } else {
             $inputs = $this->prepareBulkData();
         }
-        // TODO: job bulk update or create
-        Price::query()->upsert($inputs, [
-            'origin_regency_id',
-            'destination_id'
-        ], [
-            'tier_1',
-            'tier_2',
-            'tier_3',
-            'tier_4',
-            'tier_5',
-            'tier_6',
-            'tier_7',
-            'tier_8',
-            'notes',
-        ]);
+
+        $job = new BulkCreateOrUpdatePrice($inputs);
+        $this->dispatch($job);
+
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
-    private function prepareBulkData($origin_regency = null)
+    /**
+     * Preparing bulk data.
+     *
+     * @param null $origin_regency
+     * @return array
+     */
+    private function prepareBulkData($origin_regency = null): array
     {
         $origin_regency = is_null($origin_regency) ? $this->attributes['origin_regency'] : $origin_regency;
         $data = [];
