@@ -339,9 +339,6 @@ export default {
       await this.submitForm();
       this.actionModalButton(false);
       this.defaultsAction();
-      this.$notification.success({
-        message: "Sukses update ongkir!"
-      });
     },
     async submitForm() {
       let uri = "admin.master.pricing.district.bulk";
@@ -353,8 +350,12 @@ export default {
             message: `${data.code}`,
             description: data.message,
           })
+        } else {
+          this.$notification.success({
+            message: "Sukses update ongkir!"
+          });
+          this.$emit('update');
         }
-        this.$emit('update');
       } catch (e) {
         this.$notification.error({
           message: 'something went wrong'
