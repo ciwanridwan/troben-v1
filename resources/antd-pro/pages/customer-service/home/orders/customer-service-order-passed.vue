@@ -19,7 +19,7 @@
 </template>
 <script>
 import TrawlNotification from "../../../../components/trawl-notification.vue";
-import orderColumns from "../../../../config/table/customer-service/order";
+import orderColumns from "../../../../config/table/customer-service/order-passed";
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import { orders } from "../../../../mock";
 import { NoteIcon } from "../../../../components/icons";
