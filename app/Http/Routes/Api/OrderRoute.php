@@ -35,6 +35,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('findReceipt')
         ]);
 
+        $this->router->get($this->prefix('courier/list'), [
+            'as' => $this->name('courierList'),
+            'uses' => $this->uses('courierList')
+        ]);
+
         $this->router->get($this->prefix('find'), [
             'as' => $this->name('find.public'),
             'uses' => $this->uses('findReceipt')

@@ -47,8 +47,6 @@ class OrderController extends Controller
         'q' => ['nullable'],
     ];
 
-
-
     public function pickup(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
