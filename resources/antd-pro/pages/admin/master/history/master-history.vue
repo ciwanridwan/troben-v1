@@ -3,15 +3,15 @@
     <template slot="head-tools">
       <a-row type="flex" justify="end">
         <a-col>
-          <a-input-search
+          <!-- <a-input-search
             v-model="filter.q"
             @search="getItems"
-          ></a-input-search>
+          ></a-input-search> -->
         </a-col>
       </a-row>
     </template>
     <template slot="content">
-      <order-table :dataSource="items.data" />
+      <!-- <order-table :dataSource="items.data" /> -->
     </template>
   </content-layout>
 </template>
@@ -52,8 +52,8 @@ export default {
     }
   },
   mounted() {
-    this.items = this.getDefaultPagination();
-    this.getItems();
+    // this.items = this.getDefaultPagination();
+    // this.getItems();
   }
 };
 </script>
