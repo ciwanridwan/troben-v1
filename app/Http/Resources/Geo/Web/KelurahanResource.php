@@ -16,10 +16,12 @@ class KelurahanResource extends JsonResource
     public function toArray($request)
     {
         /** @var \App\Models\Geo\SubDistrict $this */
+
         $data = [
-            'id' => $this->id,
-            'name' => $this->name,
-            'zip_code' => $this->zip_code,
+            'regency' => $this->regency,
+            'district' => $this->district,
+            'sub_district' => $this->sub_district,
+            'sub_district_id' => $this->id,
         ];
 
         if ($this->relationLoaded('regency')) {

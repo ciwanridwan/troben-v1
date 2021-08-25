@@ -11,6 +11,7 @@ use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use Illuminate\Http\Request;
 use App\Models\Geo\SubDistrict;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -68,35 +69,6 @@ class GeoController extends Controller
                 return $this->getDistricts();
             case 'sub_district':
                 return $this->getSubDistricts();
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function list(Request $request): JsonResponse
-    {
-        $this->attributes = Validator::make($request->all(), [
-            'type' => ['required', Rule::in([
-                'regency', 'district', 'sub_district',
-            ])],
-            'q' => 'string|nullable',
-            'province_id' => 'nullable',
-            'regency_id' => 'nullable',
-            'district_id' => 'nullable',
-            'zip_code' => 'nullable',
-            'id' => 'nullable',
-        ])->validate();
-
-        switch ($this->attributes['type']) {
-            case 'regency':
-                return $this->getRegenciesList();
-            case 'district':
-                return $this->getDistrictsList();
-            case 'sub_district':
-                return $this->getSubDistrictsList();
         }
     }
 
@@ -187,47 +159,28 @@ class GeoController extends Controller
         return $this->jsonSuccess(SubDistrictResource::collection($query->paginate(request('per_page', 15))));
     }
 
-    /**
-     * Get Regencies.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function getRegenciesList(): JsonResponse
-    {
-        $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
-        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->input('origin') == '1', fn ($q) => $q->where('name', 'Kabupaten Tangerang')
-            ->Orwhere('name', 'Kota Tangerang')
-            ->Orwhere('name', 'Kota Tangerang Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Barat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Pusat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Timur')
-            ->Orwhere('name', 'Kota Adm. Jakarta Utara')
-            ->Orwhere('name', 'Kabupaten Bekasi')
-            ->Orwhere('name', 'Kota Bekasi')
-            ->Orwhere('name', 'Kabupaten Bogor')
-            ->Orwhere('name', 'Kota Bogor')
-            ->Orwhere('name', 'Kota Depok'));
 
-        return $this->jsonSuccess(KotaResource::collection($query->paginate(request('per_page', 15))));
-    }
 
     /**
-     * Get list of districts.
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
-    protected function getDistrictsList(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $query = $this->getBasicBuilder(District::query()->with(['country', 'province', 'regency']));
+        $this->attributes = Validator::make($request->all(), [
+            'type' => ['required', Rule::in([
+                'sub_district',
+            ])],
+            'q' => 'string|nullable',
+            'search' => 'nullable',
+            'id' => 'nullable',
+        ])->validate();
 
-        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
-
-        return $this->jsonSuccess(KecamatanResource::collection($query->paginate(request('per_page', 15))));
+        switch ($this->attributes['type']) {
+            case 'sub_district':
+                return $this->getSubDistrictsList();
+        }
     }
 
     /**
@@ -239,12 +192,25 @@ class GeoController extends Controller
     {
         $query = $this->getBasicBuilder(SubDistrict::query()->with(['country', 'province', 'regency', 'district']));
 
-        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
-        $query->when(request()->has('district_id'), fn ($q) => $q->where('district_id', $this->attributes['district_id']));
+//        $query->when(request()->has('search'), fn ($q) => $q->orWhereHas('province', function (Builder $query) {
+//            $query->Where('name', 'LIKE','%'.$this->attributes['search'].'%');
+//        })->orWhereHas('regency', function (Builder $query) {
+//            $query->Where('name', 'LIKE','%'.$this->attributes['search'].'%');
+//        })->orWhereHas('district', function (Builder $query) {
+//            $query->Where('name', 'LIKE','%'.$this->attributes['search'].'%');
+//        })->orWhere('name', 'LIKE', $this->attributes['search']))->orderBy('geo_regencies.name', 'asc');
 
-        $query->when(request()->has('zip_code'), fn ($q) => $q->where('zip_code', 'like', '%'.$this->attributes['zip_code'].'%'));
+       $query = SubDistrict::query()
+            ->join('geo_regencies', 'geo_sub_districts.regency_id', '=',  'geo_regencies.id')
+            ->join('geo_districts', 'geo_sub_districts.district_id', '=',  'geo_districts.id')
+            ->select('geo_regencies.name as regency', 'geo_districts.name as district', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id')
+
+            ->Where('geo_regencies.name', 'like', '%'.$this->attributes['search'].'%')
+            ->orWhere('geo_districts.name', 'like', '%'.$this->attributes['search'].'%')
+            ->orWhere('geo_sub_districts.name', 'like', '%'.$this->attributes['search'].'%')
+            ->orderBy('geo_regencies.name',"desc");
+
+
 
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
     }
