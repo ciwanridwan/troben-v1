@@ -1,7 +1,7 @@
 _id: req_442a957a3fb843f483c199f61152d624
 type: Request
 parentId: fld_d08d8b5488104d3aaf0e08d1c3d26055
-modified: 1615177339957
+modified: 1626405759330
 created: 1614672381262
 url: "{{ _.base_url }}/partner/asset/transporter"
 name: Create new transporter
@@ -87,7 +87,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1615177061838
+metaSortKey: 0
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

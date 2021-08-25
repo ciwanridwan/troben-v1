@@ -1,9 +1,11 @@
 _id: req_425fc5099bd7457ea75f458b10577975
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1629096971978
+modified: 1629103452453
 created: 1629086946262
-url: "{{ _.base_url }}/order/noWP7ye3/partner/q1MqPyYJ/assign"
+url: "{{ _.base_url }}/order/{% response 'body',
+  'req_b23a54c206b540779dd70547960faf9d', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'no-history', 60 %}/partner//assign"
 name: Order Assignation
 description: ""
 method: PATCH

@@ -1,0 +1,25 @@
+_id: req_58594abdd79043e08e31eb19ea8d7740
+type: Request
+parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
+modified: 1626405759360
+created: 1625834800289
+url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
+  'req_189fd9b5e4504aa89aad540f450f1b97', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'no-history', 60 %}/item/{% response 'body',
+  'req_189fd9b5e4504aa89aad540f450f1b97',
+  'b64::JC5kYXRhLml0ZW1zLjAuaGFzaA==::46b', 'never', 60 %}"
+name: Delete Order Item Photos
+description: ""
+method: DELETE
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: 200
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

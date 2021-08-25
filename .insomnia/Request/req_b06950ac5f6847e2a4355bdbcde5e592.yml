@@ -1,0 +1,21 @@
+_id: req_b06950ac5f6847e2a4355bdbcde5e592
+type: Request
+parentId: fld_c88eeb985d664bf6a0600c9a3a052a84
+modified: 1626405759360
+created: 1626173705538
+url: ""
+name: Package Loaded By Driver
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: 0
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

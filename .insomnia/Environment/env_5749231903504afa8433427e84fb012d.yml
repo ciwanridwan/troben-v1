@@ -1,0 +1,54 @@
+_id: env_5749231903504afa8433427e84fb012d
+type: Environment
+parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
+modified: 1626848980652
+created: 1626848945339
+name: Local Laragon
+data:
+  base_url: http://localhost/api
+  credentials:
+    customer:
+      phone: "+625555555555"
+      email: customer@trawlbens.co.id
+      password: password
+    driver:
+      email: 0-mb-driver-0@trawlbens.co.id
+      password: password
+    warehouse:
+      email: 2-mb-warehouse-0@trawlbens.co.id
+      password: password
+    owner:
+      email: 0-mb-owner@trawlbens.co.id
+      password: password
+    mtm:
+      email: 0-mtm-owner@trawlbens.co.id
+      password: password
+dataPropertyOrder:
+  "&":
+    - base_url
+    - credentials
+  "&~|credentials":
+    - customer
+    - driver
+    - warehouse
+    - owner
+    - mtm
+  "&~|credentials~|customer":
+    - phone
+    - email
+    - password
+  "&~|credentials~|driver":
+    - email
+    - password
+  "&~|credentials~|warehouse":
+    - email
+    - password
+  "&~|credentials~|owner":
+    - email
+    - password
+  "&~|credentials~|mtm":
+    - email
+    - password
+color: "#29ff90"
+isPrivate: false
+metaSortKey: 1

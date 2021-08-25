@@ -1,0 +1,35 @@
+_id: req_6b0ce054a9864f36835b2ae2c17f2197
+type: Request
+parentId: fld_c88eeb985d664bf6a0600c9a3a052a84
+modified: 1626405759360
+created: 1626173717066
+url: ""
+name: Package Unloaded By Driver
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - id: pair_dabe4062affe4663a6f169a3c888e6e5
+      name: received_by
+      value: ""
+      description: ""
+    - id: pair_e8e68817533546f6891b9c94d1fa4c63
+      name: photos[]
+      value: ""
+      description: ""
+      type: file
+parameters: []
+headers:
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_251a9f12a50a42f286d76ce86e5175b1
+authentication: {}
+metaSortKey: 100
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
