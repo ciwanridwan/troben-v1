@@ -47,6 +47,11 @@ class HistoryController extends Controller
         $this->baseBuilder();
     }
 
+    public function index(Request $request)
+    {
+        return view('admin.master.history.index');
+    }
+
     public function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
     {
         if ($request->has('partner')) {
