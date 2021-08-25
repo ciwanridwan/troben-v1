@@ -18,6 +18,10 @@ class HistoryRoute extends BaseRoute
      */
     public function register()
     {
+        $this->router->get($this->path, [
+            'as' => $this->name,
+            'uses' => $this->uses('index'),
+        ]);
         $this->router->patch($this->prefix('{package_hash}'), [
             'as' => $this->name('paymentVerifed'),
             'uses' => $this->uses('paymentVerifed'),
