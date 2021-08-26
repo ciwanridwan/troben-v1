@@ -5,8 +5,11 @@ namespace App\Providers;
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
 use App\Events\Deliveries\PartnerRequested;
+use App\Events\Partners\Balance\NewHistoryCreated;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Listeners\Partners\GenerateBalanceHistory;
+use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
 use App\Listeners\Payments\UpdatePaymentByEvent;
 use Illuminate\Auth\Events\Registered;
@@ -74,6 +77,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryPickup\DriverUnloadedPackageInWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
         DeliveryTransit\DriverArrivedAtOriginWarehouse::class => [
@@ -186,6 +190,9 @@ class EventServiceProvider extends ServiceProvider
         PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
             UpdatePaymentByEvent::class
+        ],
+        NewHistoryCreated::class => [
+            UpdatePartnerBalanceByEvent::class
         ]
     ];
 
