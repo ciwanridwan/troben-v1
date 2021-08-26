@@ -46,6 +46,7 @@ class History extends Model
 
     /**
      * Get all available type on partner balance histories.
+     *
      * @return string[]
      */
     public static function getAvailableType(): array
