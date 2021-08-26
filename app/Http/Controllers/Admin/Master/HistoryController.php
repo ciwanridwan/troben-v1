@@ -69,7 +69,7 @@ class HistoryController extends Controller
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    /*public function pending(Request $request)
+    public function pending(Request $request)
     {
         if ($request->expectsJson()) {
             return $this->getHistoryDataByPackageStatus(
@@ -82,32 +82,15 @@ class HistoryController extends Controller
         }
 
         return view('admin.master.history.pending.index');
-    }*/
+    }
 
-    public function pending(Request $request)
+    public function getSearch(Request $request)
     {
-        if ($request->expectsJson()) {
-            if ($request->has('partner')) {
-                return $this->getPartners($request);
-            }
-
-            $this->getSearch($request);
-
-            // dont show canceled order
-            $this->query->where('status', '!=', Package::STATUS_ACCEPTED)
-                ->where('payment_status', '!=', Package::PAYMENT_STATUS_PENDING)
-                ->where('payment_status', '!=', Package::PAYMENT_STATUS_PENDING);
-            $this->dataRelation($request);
-
-            $this->query->orderBy('created_at', 'desc');
-
-            // $this->query->whereDoesntHave('deliveries');
-
-
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
-        }
-
-        return view('admin.master.history.pending.index');
+        $this->query = $this->query->search($request->q);
+        $this->query->orWhereHas('code', function ($query) use ($request) {
+            $query->search($request->q);
+        });
+        return $this;
     }
 
     public function paid(Request $request)
