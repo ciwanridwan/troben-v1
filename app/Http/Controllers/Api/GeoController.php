@@ -200,14 +200,16 @@ class GeoController extends Controller
 //            $query->Where('name', 'LIKE','%'.$this->attributes['search'].'%');
 //        })->orWhere('name', 'LIKE', $this->attributes['search']))->orderBy('geo_regencies.name', 'asc');
 
+        $caps = ucwords($this->attributes['search']);
+
        $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=',  'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=',  'geo_districts.id')
             ->select('geo_regencies.name as regency', 'geo_districts.name as district', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id')
 
-            ->Where('geo_regencies.name', 'like', '%'.$this->attributes['search'].'%')
-            ->orWhere('geo_districts.name', 'like', '%'.$this->attributes['search'].'%')
-            ->orWhere('geo_sub_districts.name', 'like', '%'.$this->attributes['search'].'%')
+            ->Where('geo_regencies.name', 'like', '%'.$caps.'%')
+            ->orWhere('geo_districts.name', 'like', '%'.$caps.'%')
+            ->orWhere('geo_sub_districts.name', 'like', '%'.$caps.'%')
             ->orderBy('geo_regencies.name',"desc");
 
 

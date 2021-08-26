@@ -53,7 +53,7 @@ const main = {
   history: {
     icon: "history",
     text: "Riwayat",
-    route: "admin.history",
+    route: "admin.history.pending",
     children: {
       pending: {
         title: "All Order",
