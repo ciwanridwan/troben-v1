@@ -63,13 +63,13 @@ class HistoryController extends Controller
 
         $this->query->where($status_condition);
         $this->query->with(['items', 'items.prices', 'deliveries', 'deliveries.partner', 'code']);
-        $this->query->orderBy('status');
+        $this->query->orderBy('created_at', 'desc');
         // $this->query->whereDoesntHave('deliveries');
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    public function pending(Request $request)
+    /*public function pending(Request $request)
     {
         if ($request->expectsJson()) {
             return $this->getHistoryDataByPackageStatus(
@@ -81,6 +81,31 @@ class HistoryController extends Controller
             );
         }
 
+        return view('admin.master.history.pending.index');
+    }*/
+
+    public function pending(Request $request)
+    {
+        if ($request->expectsJson()) {
+            if ($request->has('partner')) {
+                return $this->getPartners($request);
+            }
+
+            $this->getSearch($request);
+
+            // dont show canceled order
+            $this->query->where('status', '!=', Package::STATUS_ACCEPTED)
+                ->where('payment_status', '!=', Package::PAYMENT_STATUS_PENDING)
+                ->where('payment_status', '!=', Package::PAYMENT_STATUS_PENDING);
+            $this->dataRelation($request);
+
+            $this->query->orderBy('created_at', 'desc');
+
+            // $this->query->whereDoesntHave('deliveries');
+
+
+            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+        }
 
         return view('admin.master.history.pending.index');
     }
@@ -120,5 +145,14 @@ class HistoryController extends Controller
         }
 
         return view('admin.master.history.cancel.index');
+    }
+
+
+    public function dataRelation()
+    {
+        $this->query->with(['items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'deliveries', 'deliveries.partner', 'code']);
+        // $this->query->orderBy('status','desc');
+
+        return $this;
     }
 }
