@@ -2,12 +2,24 @@
 
 namespace App\Models\Partners\Balance;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class History extends Model
+/**
+ * History Model.
+ *
+ * @property int $partner_id
+ * @property int $package_id
+ * @property float $balance
+ * @property string $type
+ * @property string $description
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
+class History extends Pivot
 {
-    use HasFactory;
+    use CustomSerializeDate, HasFactory;
 
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAW = 'withdraw';
@@ -19,6 +31,14 @@ class History extends Model
     public const DESCRIPTION_RETURN = 'return';
 
     protected $table = 'partner_balance_histories';
+
+    protected $fillable = [
+        'partner_id',
+        'package_id',
+        'balance',
+        'type',
+        'description',
+    ];
 
     public static function getAvailableType()
     {
