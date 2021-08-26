@@ -2,12 +2,28 @@
 
 namespace App\Models\Partners\Balance;
 
+use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * History Model.
+ *
+ * @property int $partner_id
+ * @property int $package_id
+ * @property float $balance
+ * @property string $type
+ * @property string $description
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ *
+ * @property-read Partner $partner
+ */
 class History extends Model
 {
-    use HasFactory;
+    use CustomSerializeDate, HasFactory;
 
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAW = 'withdraw';
@@ -20,7 +36,19 @@ class History extends Model
 
     protected $table = 'partner_balance_histories';
 
-    public static function getAvailableType()
+    protected $fillable = [
+        'partner_id',
+        'package_id',
+        'balance',
+        'type',
+        'description',
+    ];
+
+    /**
+     * Get all available type on partner balance histories.
+     * @return string[]
+     */
+    public static function getAvailableType(): array
     {
         return [
             self::TYPE_DEPOSIT,
@@ -28,7 +56,12 @@ class History extends Model
         ];
     }
 
-    public static function getAvailableDescription()
+    /**
+     * Get all available description on partner balance histories.
+     *
+     * @return string[]
+     */
+    public static function getAvailableDescription(): array
     {
         return [
             self::DESCRIPTION_SERVICE,
@@ -37,5 +70,15 @@ class History extends Model
             self::DESCRIPTION_INSURANCE,
             self::DESCRIPTION_RETURN,
         ];
+    }
+
+    /**
+     * Define `belongsTo` relationship with Partner model.
+     *
+     * @return BelongsTo
+     */
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
 }
