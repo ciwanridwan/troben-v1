@@ -16,7 +16,6 @@ class KelurahanResource extends JsonResource
     public function toArray($request)
     {
         /** @var \App\Models\Geo\SubDistrict $this */
-
         $data = [
             'regency' => $this->regency,
             'district' => $this->district,
