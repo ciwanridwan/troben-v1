@@ -1,7 +1,7 @@
 _id: req_b23a54c206b540779dd70547960faf9d
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1622867086783
+modified: 1629454563961
 created: 1613462471058
 url: "{{ _.base_url }}/order"
 name: Create Order
@@ -52,13 +52,11 @@ body:
       description: ""
       id: pair_d08da3a43d29435bba7c22e7ff7899fe
     - name: origin_regency_id
-      value: "{% response 'body', 'req_31cd1e868a144b728b7257074fa2a6a0',
-        'b64::JC5kYXRhLjAucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}"
+      value: "60"
       description: ""
       id: pair_18a116269f124e75bb8f500f4a22b0b6
     - name: origin_district_id
-      value: "{% response 'body', 'req_31cd1e868a144b728b7257074fa2a6a0',
-        'b64::JC5kYXRhLjAuaWQ=::46b', 'no-history', 60 %}"
+      value: "730"
       description: ""
       id: pair_51ae004348d346cfa69d67a9139a4414
     - name: origin_sub_district_id
@@ -68,18 +66,15 @@ body:
       id: pair_ad4758a88f5c493bbca95bd444517f19
       disabled: true
     - name: destination_regency_id
-      value: "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90',
-        'b64::JC5kYXRhLjEucmVnZW5jeS5pZA==::46b', 'no-history', 60 %}"
+      value: "1"
       description: ""
       id: pair_b6061e93b38b4513a82e17dfa127bacc
     - name: destination_district_id
-      value: "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90',
-        'b64::JC5kYXRhLjEuZGlzdHJpY3QuaWQ=::46b', 'no-history', 60 %}"
+      value: "1"
       description: ""
       id: pair_45e180beac0a423f85992b75eb42be1e
     - name: destination_sub_district_id
-      value: "{% response 'body', 'req_fdc8139b52744161bfa4a903d042fb90',
-        'b64::JC5kYXRhLjEuaWQ=::46b', 'no-history', 60 %}"
+      value: "10"
       description: ""
       id: pair_4ac96b3a8a97434db4fe77283de84076
     - name: items[0][name]
@@ -111,7 +106,7 @@ body:
       description: ""
       id: pair_3b931c585a2246e896f03a214a2203ee
     - name: items[0][price]
-      value: "859000"
+      value: "100000"
       description: ""
       id: pair_977a034637434810b60600dc125a943b
     - name: items[0][handling][]
@@ -125,20 +120,37 @@ body:
       id: pair_f2622ccb960a469398547bb2d2941d37
       type: file
       fileName: C:\Users\rezky\Pictures\Screenshots\.png
+      disabled: true
     - name: photos[]
       value: ""
       description: ""
       id: pair_9d8e908a18f04be1917d7887b55f0280
       type: file
-      fileName: C:\Users\rezky\Pictures\Screenshots\Screenshot (34).png
-    - name: ""
-      value: ""
+      fileName: C:\Users\HP\Pictures\TrawlBens\logo_TB_k.png
+    - name: sender_way_point
+      value: "1"
       description: ""
       id: pair_9650d1bce9cb41cb9a6c7b79d7de6c62
-    - name: ""
-      value: ""
+    - name: sender_latitude
+      value: "2"
       description: ""
       id: pair_cd62353f687b4ad1a79f075289ad13a4
+    - id: pair_368f988bc54d46b78715ad4583d84c46
+      name: sender_longitude
+      value: "3"
+      description: ""
+    - id: pair_acd96661dc8b4a5389017cff8c9cbb74
+      name: receiver_way_point
+      value: "4"
+      description: ""
+    - id: pair_e6d13e42ee6d403ba154d95c10451edf
+      name: receiver_latitude
+      value: "5"
+      description: ""
+    - id: pair_581092879d1f4abb81375ab37a48ce55
+      name: receiver_longitude
+      value: "6"
+      description: ""
 parameters: []
 headers:
   - name: Accept
@@ -158,7 +170,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1613462471058
+metaSortKey: 300
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

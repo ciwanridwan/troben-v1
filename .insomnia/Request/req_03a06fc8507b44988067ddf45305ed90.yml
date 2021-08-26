@@ -1,7 +1,7 @@
 _id: req_03a06fc8507b44988067ddf45305ed90
 type: Request
 parentId: fld_ab0f3f91c0234108b5ecd4666cf197a4
-modified: 1626679942838
+modified: 1627875825913
 created: 1626676236685
 url: "{{ _.base_url }}/me/password"
 name: Update Password
@@ -23,7 +23,7 @@ body:
   mimeType: multipart/form-data
   params:
     - name: email
-      value: andre@gmail.com
+      value: ridlwanabdurrahman@gmail.com
       description: ""
       id: pair_9101231f196445ca805bd26d1f455a3e
       type: text
@@ -31,7 +31,7 @@ body:
       disabled: false
     - id: pair_0d29cbb60635448c9e73d9a5b668bae3
       name: phone
-      value: "+6287885145866"
+      value: "+6281363578777"
       description: ""
     - name: password
       value: password

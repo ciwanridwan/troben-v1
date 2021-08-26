@@ -40,24 +40,37 @@ const main = {
         title: "Menunggu",
         text: "Menunggu",
         route: "partner.customer_service.order.waiting",
-        children: null
+        children: {
+          pickup: {
+            title: "Menunggu",
+            text: "Menunggu Konfirmasi Pelanggan",
+            route: "partner.customer_service.order.waiting",
+            children: null
+          },
+          taken: {
+            title: "Menunggu",
+            text: "Menunggu Pembayaran",
+            route: "partner.customer_service.order.waiting",
+            children: null
+          }
+        }
       },
       processed: {
         title: "Telah diproses",
         text: "Telah diproses",
-        route: "partner.customer_service.order.processed",
+        route: "partner.customer_service.home.processed",
         children: null
       },
       done: {
         title: "Selesai",
         text: "Selesai",
-        route: "partner.customer_service.order.done",
+        route: "partner.customer_service.home.done",
         children: null
       },
       cancel: {
-        title: "All Delivery Order",
-        text: "Data Delivery Order",
-        route: "partner.customer_service.order.cancel",
+        title: "Cancel",
+        text: "Cancel",
+        route: "partner.customer_service.home.cancel",
         children: null
       }
     },

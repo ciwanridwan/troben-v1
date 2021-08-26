@@ -1,7 +1,7 @@
 _id: req_3b3969fbb832434b969251353766712e
 type: Request
 parentId: fld_4a4fb5354fe44412bbfa37dc8c5d00bf
-modified: 1614315953652
+modified: 1626405759280
 created: 1613723877421
 url: "{{ _.base_url }}/product"
 name: Get Product List
@@ -19,7 +19,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1613723877421
+metaSortKey: 0
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

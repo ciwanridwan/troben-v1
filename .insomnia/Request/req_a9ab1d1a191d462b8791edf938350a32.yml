@@ -1,7 +1,7 @@
 _id: req_a9ab1d1a191d462b8791edf938350a32
 type: Request
 parentId: fld_0000f77ff3a74702ab910fbbaf2cec8f
-modified: 1617566548731
+modified: 1626509144542
 created: 1617566548731
 url: "{{ _.base_url }}/order/{% response 'body',
   'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b',
@@ -11,7 +11,7 @@ description: ""
 method: POST
 body:
   mimeType: application/json
-  text: >
+  text: |
     {
     	"name": "Sennheiser M03",
     	"qty": 1,
@@ -19,7 +19,7 @@ body:
     	"width": 100,
     	"length": 100,
     	"height": 100,
-    	"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjIuaWQ=::46b', 'never', 60 %}"]
+    	"handling": ['plastic']
     }
 parameters: []
 headers:
@@ -36,7 +36,7 @@ headers:
     value: application/json
     id: pair_2c7ae334b0c64c108ed5ed9ab2362437
 authentication: {}
-metaSortKey: -1613330460621.75
+metaSortKey: 0
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

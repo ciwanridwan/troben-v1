@@ -1,7 +1,7 @@
 _id: req_fa3a3fa9515c4b3c9539ad3e2ae509eb
 type: Request
 parentId: fld_639f81271ab94c24bcd1ed88b3c8a617
-modified: 1629346169442
+modified: 1629361742593
 created: 1629344442651
 url: "{{ _.base_url }}/pricing/tarif"
 name: Get Tarif
@@ -17,20 +17,20 @@ method: GET
 body: {}
 parameters:
   - name: origin_id
-    value: "1"
+    value: "62"
     description: ""
     id: pair_c5fe2f35834d492a9c1b76dd891051e4
-    disabled: true
+    disabled: false
   - name: destination_id
-    value: "77"
+    value: "10"
     description: ""
     id: pair_77c4065fc02f4fa2a77c2e5b5a9f7ba3
-    disabled: true
+    disabled: false
   - name: service_code
     value: tps
     description: ""
     id: pair_302a71a691b24faeb72ffae139a343cf
-    disabled: true
+    disabled: false
 headers:
   - name: Accept
     value: application/json
