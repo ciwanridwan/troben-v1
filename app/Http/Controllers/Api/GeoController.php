@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\Geo\Web\KecamatanResource;
 use App\Http\Resources\Geo\Web\KelurahanResource;
-use App\Http\Resources\Geo\Web\KotaResource;
 use App\Models\Geo\Country;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use App\Models\Geo\Province;
 use Illuminate\Http\Request;
 use App\Models\Geo\SubDistrict;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -69,6 +66,30 @@ class GeoController extends Controller
                 return $this->getDistricts();
             case 'sub_district':
                 return $this->getSubDistricts();
+        }
+    }
+
+
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function list(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'type' => ['required', Rule::in([
+                'sub_district',
+            ])],
+            'q' => 'string|nullable',
+            'search' => 'nullable',
+            'id' => 'nullable',
+        ])->validate();
+
+        switch ($this->attributes['type']) {
+            case 'sub_district':
+                return $this->getSubDistrictsList();
         }
     }
 
@@ -159,30 +180,6 @@ class GeoController extends Controller
         return $this->jsonSuccess(SubDistrictResource::collection($query->paginate(request('per_page', 15))));
     }
 
-
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function list(Request $request): JsonResponse
-    {
-        $this->attributes = Validator::make($request->all(), [
-            'type' => ['required', Rule::in([
-                'sub_district',
-            ])],
-            'q' => 'string|nullable',
-            'search' => 'nullable',
-            'id' => 'nullable',
-        ])->validate();
-
-        switch ($this->attributes['type']) {
-            case 'sub_district':
-                return $this->getSubDistrictsList();
-        }
-    }
-
     /**
      * Get list of sub districts.
      *
@@ -200,15 +197,17 @@ class GeoController extends Controller
 //            $query->Where('name', 'LIKE','%'.$this->attributes['search'].'%');
 //        })->orWhere('name', 'LIKE', $this->attributes['search']))->orderBy('geo_regencies.name', 'asc');
 
-       $query = SubDistrict::query()
-            ->join('geo_regencies', 'geo_sub_districts.regency_id', '=',  'geo_regencies.id')
-            ->join('geo_districts', 'geo_sub_districts.district_id', '=',  'geo_districts.id')
+        $caps = ucwords($this->attributes['search']);
+
+        $query = SubDistrict::query()
+            ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
+            ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
             ->select('geo_regencies.name as regency', 'geo_districts.name as district', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id')
 
-            ->Where('geo_regencies.name', 'like', '%'.$this->attributes['search'].'%')
-            ->orWhere('geo_districts.name', 'like', '%'.$this->attributes['search'].'%')
-            ->orWhere('geo_sub_districts.name', 'like', '%'.$this->attributes['search'].'%')
-            ->orderBy('geo_regencies.name',"desc");
+            ->Where('geo_regencies.name', 'like', '%'.$caps.'%')
+            ->orWhere('geo_districts.name', 'like', '%'.$caps.'%')
+            ->orWhere('geo_sub_districts.name', 'like', '%'.$caps.'%')
+            ->orderBy('geo_regencies.name', 'desc');
 
 
 

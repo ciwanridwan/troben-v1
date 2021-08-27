@@ -134,7 +134,7 @@ class HomeController extends Controller
     {
         $this->query = $this->query->where('type', Delivery::TYPE_TRANSIT)
             ->orWhere('type', Delivery::TYPE_PICKUP)
-            ->Where('status','!=', Delivery::STATUS_FINISHED);
+            ->Where('status', '!=', Delivery::STATUS_FINISHED);
         return $this->query;
     }
 

@@ -1,5 +1,5 @@
-@extends('antd::admin-layout')
+@extends('antd::trawl-admin-layout')
 
 @section('content')
-    <master-history></master-history>
+  <order-list></order-list>
 @endsection
