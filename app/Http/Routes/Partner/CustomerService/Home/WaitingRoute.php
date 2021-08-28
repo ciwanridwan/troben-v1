@@ -3,7 +3,6 @@
 namespace App\Http\Routes\Partner\CustomerService\Home;
 
 use App\Http\Controllers\Partner\CustomerService\Home\WaitingController;
-use App\Http\Controllers\Partner\CustomerService\HomeController;
 use Jalameta\Router\BaseRoute;
 
 class WaitingRoute extends BaseRoute

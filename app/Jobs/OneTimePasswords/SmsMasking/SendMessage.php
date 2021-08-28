@@ -64,7 +64,7 @@ class SendMessage
     protected function createOtpMessage(): string
     {
         $this->otpLastMessage = $this->generate_string();
-        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage, $this->otpLastMessage ]);
+        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage, $this->otpLastMessage]);
     }
     protected function createAuth($params): string
     {
@@ -77,7 +77,7 @@ class SendMessage
         $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $input_length = strlen($permitted_chars);
         $random_string = '';
-        for($i = 0; $i < $strength; $i++) {
+        for ($i = 0; $i < $strength; $i++) {
             $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
             $random_string .= $random_character;
         }

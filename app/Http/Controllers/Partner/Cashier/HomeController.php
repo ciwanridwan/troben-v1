@@ -115,9 +115,9 @@ class HomeController extends Controller
             }
 
             $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
-            $this->query->where('status', '!=',Package::STATUS_CANCEL);
-            $this->query->where('status', '!=',Package::STATUS_CREATED);
-            $this->query->where('status', '!=',Package::STATUS_DELIVERED);
+            $this->query->where('status', '!=', Package::STATUS_CANCEL);
+            $this->query->where('status', '!=', Package::STATUS_CREATED);
+            $this->query->where('status', '!=', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
