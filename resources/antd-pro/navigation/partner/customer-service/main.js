@@ -39,18 +39,18 @@ const main = {
       waiting: {
         title: "Menunggu",
         text: "Menunggu",
-        route: "partner.customer_service.order.waiting",
+        route: "partner.customer_service.home.waiting",
         children: {
           pickup: {
             title: "Menunggu",
             text: "Menunggu Konfirmasi Pelanggan",
-            route: "partner.customer_service.order.waiting",
+            route: "partner.customer_service.home.waiting.confirmation",
             children: null
           },
           taken: {
             title: "Menunggu",
             text: "Menunggu Pembayaran",
-            route: "partner.customer_service.order.waiting",
+            route: "partner.customer_service.home.waiting.payment",
             children: null
           }
         }

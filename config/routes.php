@@ -92,6 +92,7 @@ return [
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],
