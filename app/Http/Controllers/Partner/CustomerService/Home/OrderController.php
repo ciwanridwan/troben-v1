@@ -11,6 +11,7 @@ use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
 use App\Models\Deliveries\Delivery;
 use App\Models\HistoryReject;
+use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
