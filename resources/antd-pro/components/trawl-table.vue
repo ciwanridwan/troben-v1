@@ -149,6 +149,7 @@ export default {
     },
     reloadItems() {
       this.$emit("changePage", this.current);
+      window.scrollTo({ behavior: "smooth", top: "0px" });
     },
     changePerPage(current, size) {
       this.$emit("changeSizePage", size);

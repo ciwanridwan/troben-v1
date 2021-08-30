@@ -1,7 +1,7 @@
 _id: req_65b108c77195410ba685d9946ad57e4c
 type: Request
 parentId: fld_3f11be6f70c245f4b820102b10712d2e
-modified: 1618736769128
+modified: 1626405759295
 created: 1618736157603
 url: "{{ _.base_url }}/partner/asset/fusion"
 name: Fusion
@@ -56,7 +56,7 @@ authentication:
   type: bearer
   token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
-metaSortKey: -1615177099173
+metaSortKey: 200
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

@@ -44,6 +44,7 @@ class UpdatePaymentByEvent
                             'sender_account' => $params->vacctNo ?? null,
                             'confirmed_at' => Carbon::now(),
                         ]);
+                    $event->broadcastOn();
                 }
                 break;
         }

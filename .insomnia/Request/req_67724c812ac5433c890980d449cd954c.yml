@@ -1,0 +1,21 @@
+_id: req_67724c812ac5433c890980d449cd954c
+type: Request
+parentId: fld_639df4885f994d349579d3a0613740a6
+modified: 1627871221301
+created: 1627813267639
+url: "{{ _.base_url }}/promo/store"
+name: Insert Promo Data
+description: ""
+method: POST
+body: {}
+parameters: []
+headers: []
+authentication: {}
+metaSortKey: -1627813267639
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

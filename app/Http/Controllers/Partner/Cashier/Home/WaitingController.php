@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Partner\Cashier\Home;
 
 use App\Http\Response;
+use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
@@ -40,11 +41,21 @@ class WaitingController extends Controller
     }
 
 
-    public function customer_view(Request $request)
+    public function customer_view(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
+            if ($request->has('partner')) {
+                return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
+            }
 
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
+            $this->query->where('status', Package::STATUS_WAITING_FOR_APPROVAL);
+
+            $this->query->whereHas('code', function ($query) use ($request) {
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            });
+
+            $this->attributes = $request->validate($this->rules);
             $this->getResource();
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
@@ -53,11 +64,21 @@ class WaitingController extends Controller
         return view('partner.cashier.home.index');
     }
 
-    public function payment_view(Request $request)
+    public function payment_view(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
+            if ($request->has('partner')) {
+                return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
+            }
 
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
+            $this->query->where('status', Package::PAYMENT_STATUS_PENDING);
+
+            $this->query->whereHas('code', function ($query) use ($request) {
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            });
+
+            $this->attributes = $request->validate($this->rules);
             $this->getResource();
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
@@ -66,11 +87,21 @@ class WaitingController extends Controller
         return view('partner.cashier.home.index');
     }
 
-    public function revision_view(Request $request)
+    public function revision_view(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
-            $this->attributes = $request->validate($this->rules);
+            if ($request->has('partner')) {
+                return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
+            }
 
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
+            $this->query->where('status', Package::STATUS_REVAMP);
+
+            $this->query->whereHas('code', function ($query) use ($request) {
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            });
+
+            $this->attributes = $request->validate($this->rules);
             $this->getResource();
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();

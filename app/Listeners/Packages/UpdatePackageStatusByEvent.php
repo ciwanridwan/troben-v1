@@ -6,7 +6,6 @@ use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Payment\Nicepay\Registration;
 use App\Exceptions\Error;
 use App\Http\Response;
-use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;
@@ -118,11 +117,10 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PayByNicepay:
                 $params = $event->params;
+                $package = $event->package;
 
                 throw_if($params->status !== '0', Error::make(Response::RC_PAYMENT_NOT_PAID));
                 if ($params->status === '0') {
-                    /** @var Package $package */
-                    $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
                     $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
                     $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
                     $package->save();

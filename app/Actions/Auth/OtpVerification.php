@@ -31,9 +31,10 @@ class OtpVerification
     }
 
     /**
-     * Verify OTP token.
+     * Verify otp token.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function verify(): JsonResponse
     {
@@ -43,8 +44,11 @@ class OtpVerification
         $job = new VerifyOtpToken($account, $otp, $this->attributes['otp_token']);
         $this->dispatch($job);
 
+        $account = AccountAuthentication::validationFcmToken($account);
+
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $account->createToken($this->attributes['device_name'])->plainTextToken,
+            'fcm_token' => $account->fcm_token ?? null
         ]))->json();
     }
 

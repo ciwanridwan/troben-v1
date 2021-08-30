@@ -60,6 +60,11 @@ return [
             'root' => storage_path('app/avatar'),
         ],
 
+        'cover' => [
+            'driver' => 'local',
+            'root' => storage_path('app/cover'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

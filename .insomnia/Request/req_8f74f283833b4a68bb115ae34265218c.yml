@@ -1,0 +1,41 @@
+_id: req_8f74f283833b4a68bb115ae34265218c
+type: Request
+parentId: fld_5897498c89f34c7ab51caf873d08ddd1
+modified: 1629879749681
+created: 1629879749681
+url: "{{ _.base_url }}/geo"
+name: Get Country
+description: ""
+method: GET
+body:
+  mimeType: multipart/form-data
+  params: []
+parameters:
+  - name: type
+    value: country
+    description: ""
+    id: pair_0eeec42c2fd84e2db23279edac93c95a
+  - name: q
+    value: ""
+    description: ""
+    id: pair_624fc9ef8b0a4b2ab72c7011c52a107f
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_3e18205bde1d4bf28a1eec1f7603ca8b
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_5c8e15b7e2fb4c428d9c8644c5ad02c4
+authentication: {}
+metaSortKey: 0
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

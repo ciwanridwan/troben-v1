@@ -12,7 +12,7 @@ export default {
   props: ["record"],
   computed: {
     currentStatus() {
-      let status = getMessageByStatus(this.record.status);
+      let status = getMessageByStatus(this.record.package.status);
       return status;
     },
   },

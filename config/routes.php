@@ -65,6 +65,7 @@ return [
         App\Http\Routes\Api\Payment\NicepayRoute::class,
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
+        App\Http\Routes\Api\PromoRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -92,6 +93,7 @@ return [
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],

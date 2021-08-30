@@ -1,5 +1,8 @@
 <template>
-  <content-layout siderPosition="right">
+  <content-layout
+    siderPosition="right"
+    :search="{ action: search, placeholder: 'cari id order ...' }"
+  >
     <template slot="content">
       <order-table :dataSource="items.data"
                    :get-data-function="getItems"
@@ -43,6 +46,10 @@ export default {
     },
     changePage(currentPage) {
       this.filter.page = currentPage;
+      this.getItems();
+    },
+    search(value) {
+      this.filter.q = value;
       this.getItems();
     },
     changeSizePage(sizePage) {
