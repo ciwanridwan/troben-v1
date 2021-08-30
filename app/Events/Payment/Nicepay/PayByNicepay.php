@@ -45,7 +45,7 @@ class PayByNicepay
      */
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel($this->customer,[
+        return new PrivateChannel($this->customer, [
             'title' => 'Order '.$this->package->code->content,
             'body' => 'Pembayaran anda sudah diverifikasi',
         ]);

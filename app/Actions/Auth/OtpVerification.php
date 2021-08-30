@@ -31,7 +31,7 @@ class OtpVerification
     }
 
     /**
-     * Verify otp token
+     * Verify otp token.
      *
      * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException

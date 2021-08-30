@@ -134,7 +134,7 @@ class AccountAuthentication
             }
 
             # update fcm_token
-            if ($authenticatable instanceOf Customer) {
+            if ($authenticatable instanceof Customer) {
                 $authenticatable = $this->validationFcmToken($authenticatable);
             }
 
@@ -154,7 +154,7 @@ class AccountAuthentication
         }
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer) {
+        if ($authenticatable instanceof Customer) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -224,7 +224,7 @@ class AccountAuthentication
         throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer) {
+        if ($authenticatable instanceof Customer) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -261,7 +261,7 @@ class AccountAuthentication
         throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer) {
+        if ($authenticatable instanceof Customer) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -271,6 +271,21 @@ class AccountAuthentication
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
+    }
+
+    /**
+     * @param Customer $customer
+     * @return Customer
+     * @throws ValidationException
+     */
+    public static function validationFcmToken(Customer $customer): Customer
+    {
+        if (is_null($customer->fcm_token)) {
+            $job = new UpdateExistingCustomer($customer, ['fcm_token' => (string) Str::uuid()]);
+            dispatch_now($job);
+        }
+
+        return $customer->refresh();
     }
 
     /**
@@ -310,7 +325,7 @@ class AccountAuthentication
     }
 
     /**
-     * asking for otp response
+     * asking for otp response.
      *
      * @param HasOtpToken $authenticatable
      * @param string $otp_channel
@@ -325,20 +340,5 @@ class AccountAuthentication
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
-    }
-
-    /**
-     * @param Customer $customer
-     * @return Customer
-     * @throws ValidationException
-     */
-    public static function validationFcmToken(Customer $customer): Customer
-    {
-        if (is_null($customer->fcm_token)) {
-            $job = new UpdateExistingCustomer($customer,['fcm_token' => (string) Str::uuid()]);
-            dispatch_now($job);
-        }
-
-        return $customer->refresh();
     }
 }
