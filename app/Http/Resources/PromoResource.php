@@ -16,7 +16,6 @@ class PromoResource extends JsonResource
     {
 
         /** @var \App\Models\Promo $this */
-
         $data = [
             'hash' => $this->hash,
             'title' => $this->title,

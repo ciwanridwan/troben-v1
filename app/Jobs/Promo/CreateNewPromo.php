@@ -2,19 +2,10 @@
 
 namespace App\Jobs\Promo;
 
-use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
 use App\Models\Promo;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class CreateNewPromo
@@ -64,7 +55,6 @@ class CreateNewPromo
      */
     public function handle() : bool
     {
-
         $this->promo->fill($this->attributes);
         $this->promo->save();
 

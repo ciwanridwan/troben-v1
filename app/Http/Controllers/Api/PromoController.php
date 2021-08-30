@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PromoController extends Controller
 {
-
     /**
      * Filtered attributes.
      *
@@ -24,7 +23,7 @@ class PromoController extends Controller
     /**
      * Get Type of Promo List
      * Route Path       : {API_DOMAIN}/promo
-     * Route Name       : api.promo
+     * Route Name       : api.promo.
      */
 
     /**

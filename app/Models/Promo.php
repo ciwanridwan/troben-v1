@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
-use App\Concerns\Models\HasCode;
 use Carbon\Carbon;
 use Faker\Provider\Text;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,8 +14,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class Promo
- * @package App\Models
+ * Class Promo.
  *
  * @property string $title
  * @property Text $content
