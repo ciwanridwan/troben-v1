@@ -65,6 +65,7 @@ return [
         App\Http\Routes\Api\Payment\NicepayRoute::class,
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
+        App\Http\Routes\Api\PromoRoute::class,
         /** @inject api **/
     ],
     'admin' => [

@@ -2,16 +2,37 @@
 
 namespace App\Models;
 
+use App\Concerns\Controllers\CustomSerializeDate;
+use App\Concerns\Models\CanSearch;
+use App\Concerns\Models\HasCode;
+use Carbon\Carbon;
+use Faker\Provider\Text;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
+/**
+ * Class Promo
+ * @package App\Models
+ *
+ * @property string $title
+ * @property Text $content
+ * @property string $description
+ * @property string $type
+ * @property bool $is_active
+ *
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon $deleted_at
+ */
 class Promo extends Model implements AttachableContract
 {
-    use HasFactory, Attachable;
+    use SoftDeletes, HashableId, HasFactory, Attachable, CanSearch, CustomSerializeDate;
 
-    public const ATTACHMENT_VIDEO = 'promo_video';
+    public const ATTACHMENT_COVER = 'cover';
 
     protected $table = 'promo';
     /**
@@ -21,6 +42,7 @@ class Promo extends Model implements AttachableContract
      */
     protected $fillable = [
         'title',
+        'content',
         'description',
         'type',
         'is_active',
@@ -41,7 +63,8 @@ class Promo extends Model implements AttachableContract
      * @var array
      */
     protected $casts = [
-        'created_at ' => 'datetime',
-        'updated_at ' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 }
