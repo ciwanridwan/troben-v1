@@ -15,6 +15,8 @@ class CreatePartnerBalanceHistoriesTable extends Migration
     public function up()
     {
         Schema::create('partner_balance_histories', function (Blueprint $table) {
+            $table->id();
+
             $table->unsignedBigInteger('partner_id');
             $table->unsignedBigInteger('package_id');
 
@@ -32,8 +34,6 @@ class CreatePartnerBalanceHistoriesTable extends Migration
             $table->foreign('package_id')
                 ->references('id')
                 ->on('packages');
-
-            $table->primary(['package_id','type']);
         });
     }
 

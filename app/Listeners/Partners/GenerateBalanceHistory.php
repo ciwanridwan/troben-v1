@@ -2,9 +2,12 @@
 
 namespace App\Listeners\Partners;
 
-use App\Events\Deliveries\Pickup;
+use App\Events\Deliveries\Pickup as DeliveryPickup;
+use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
+use App\Models\Packages\Price;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
@@ -44,6 +47,13 @@ class GenerateBalanceHistory
     protected Collection $packages;
 
     /**
+     * Package instance.
+     *
+     * @var Package $package
+     */
+    protected Package $package;
+
+    /**
      * Partner instance.
      * This could be origin partner, destination partner or transporter partner.
      *
@@ -59,6 +69,15 @@ class GenerateBalanceHistory
     protected float $balance;
 
     /**
+     * History attributes;
+     *
+     * @var array $attributes
+     */
+    protected array $attributes;
+
+    protected string $type;
+    protected string $description;
+    /**
      * Handle event to generate partner's balance.
      *
      * @param object|Delivery $event
@@ -69,59 +88,129 @@ class GenerateBalanceHistory
         $this->event = $event;
 
         switch (true) {
-            case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
-                $this->setTransporter();
-                $this->setPackages();
-                $this->setPartner($this->transporter->partner);
+            case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
+                $this->setPackages()
+                    ->setTransporter()
+                    ->setPartner($this->transporter->partner)
+                    ->setPackage($this->packages[0])
+                    ->setBalance($this->getPickupFee())
+                    ->setType(History::TYPE_DEPOSIT)
+                    ->setDescription(History::DESCRIPTION_PICKUP)
+                    ->setAttributes()
+                    ->recordHistory();
+                break;
+            case $event instanceof DeliveryTransit\PackageLoadedByDriver:
+                $this->setDelivery()->setPackages()->setPartner($this->delivery->origin_partner);
 
-                if ($this->noHistory()) {
-                    $inputs = [
-                        'partner_id' => $this->partner->id,
-                        'package_id' => $this->packages[0]->id,
-                        'balance' => $this->getDefaultPrice(),
-                        'type' => History::TYPE_DEPOSIT,
-                        'description' => History::DESCRIPTION_PICKUP,
-                    ];
+                /** @var Package $package */
+                foreach ($this->packages as $package) {
+                    $this->setPackage($package);
+                    $balance_service = $package->total_weight * $this->getDeliveryFee();
+                    $this->setBalance($balance_service)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_SERVICE)
+                        ->setAttributes()
+                        ->recordHistory();
 
-                    $job = new CreateNewBalanceHistory($inputs);
-                    $this->dispatch($job);
+                    $balance_insurance = $this->generateBalances($package->items()->where('is_insured', true)->get(), 'price', 0.0002);
+                    if ($balance_insurance !== 0) $this
+                        ->setBalance($balance_insurance)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_INSURANCE)
+                        ->setAttributes()
+                        ->recordHistory();
+
+                    $balance_handling = $this->generateBalances($package->prices()->where('type', Price::TYPE_HANDLING)->get(), 'amount');
+                    if ($balance_handling !== 0) $this
+                        ->setBalance($balance_handling)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_HANDLING)
+                        ->setAttributes()
+                        ->recordHistory();
                 }
                 break;
         }
     }
 
     /**
-     * Define delivery.
+     * Define Delivery.
+     *
+     * @return $this
      */
-    protected function setDelivery(): void
+    protected function setDelivery(): self
     {
         $this->delivery = $this->event->delivery;
+        return $this;
     }
 
     /**
      * Define transporter by delivery.
+     *
+     * @return $this
      */
-    protected function setTransporter(): void
+    protected function setTransporter(): self
     {
         $this->transporter = $this->event->delivery->transporter;
+        return $this;
     }
 
     /**
      * Define packages by delivery.
+     *
+     * @return $this
      */
-    protected function setPackages(): void
+    protected function setPackages(): self
     {
         $this->packages = $this->event->delivery->packages;
+        return $this;
     }
 
     /**
      * Define partner instance.
      *
      * @param Partner $partner
+     * @return $this
      */
-    protected function setPartner(Partner $partner): void
+    protected function setPartner(Partner $partner): self
     {
         $this->partner = $partner;
+        return $this;
+    }
+
+    protected function setPackage(Package $package): self
+    {
+        $this->package = $package;
+        return $this;
+    }
+
+    protected function setBalance(float $balance): self
+    {
+        $this->balance = $balance;
+        return $this;
+    }
+
+    protected function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    protected function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    protected function setAttributes(): self
+    {
+        $this->attributes = [
+            'partner_id' => $this->partner->id,
+            'package_id' => $this->package->id,
+            'balance' => $this->balance,
+            'type' => $this->type,
+            'description' => $this->description,
+        ];
+        return $this;
     }
 
     /**
@@ -129,10 +218,27 @@ class GenerateBalanceHistory
      *
      * @return int
      */
-    protected function getDefaultPrice(): int
+    protected function getPickupFee(): int
     {
         $generalType = Transporter::getGeneralType($this->transporter->type);
         return Transporter::getAvailableTransporterPrices()[$generalType];
+    }
+
+    /**
+     * @return int
+     */
+    protected function getDeliveryFee(): int
+    {
+        switch ($this->delivery->type) {
+            case Delivery::TYPE_TRANSIT:
+                if ($this->package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() === 1) return Delivery::FEE_MAIN;
+                else return $this->partner->isJabodetabek() ? Delivery::FEE_JABODETABEK : Delivery::FEE_NON_JABODETABEK;
+            case Delivery::TYPE_DOORING:
+                return $this->partner->isJabodetabek() ? Delivery::FEE_JABODETABEK : Delivery::FEE_NON_JABODETABEK;
+            default:
+                // TODO: throw error or sent notification for handle unpredicted condition
+                return 0;
+        }
     }
 
     /**
@@ -142,10 +248,37 @@ class GenerateBalanceHistory
     protected function noHistory(): bool
     {
         $historyQuery = History::query();
-        $historyQuery->where('package_id', $this->packages[0]->id);
-        $historyQuery->where('type', History::TYPE_DEPOSIT);
-        $historyQuery->where('description', History::DESCRIPTION_PICKUP);
+        $historyQuery->where('partner_id', $this->partner->id);
+        $historyQuery->where('package_id', $this->package->id);
+        $historyQuery->where('type', $this->type);
+        $historyQuery->where('description', $this->description);
 
         return is_null($historyQuery->first());
+    }
+
+    /**
+     * Insert partner balance history to database.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function recordHistory(): void
+    {
+        if ($this->noHistory()) $this->dispatch(new CreateNewBalanceHistory($this->attributes));
+    }
+
+    /**
+     * Generate balance by collection.
+     *
+     * @param Collection $collection
+     * @param string $prop
+     * @param null $multiplier
+     * @param int $count
+     * @return float|int
+     */
+    protected function generateBalances(Collection $collection, string $prop, $multiplier = null, int $count = 0)
+    {
+        if (count($collection) === 0) return 0;
+        if ($count + 1 === count($collection)) return $collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier);
+        else return ($collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier)) + $this->generateBalances($collection, $prop, $multiplier, $count + 1);
     }
 }

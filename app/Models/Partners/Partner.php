@@ -277,4 +277,14 @@ class Partner extends Model
         $address .= $this->sub_district ? $this->zip_code : '';
         return $address;
     }
+
+    /**
+     * Validate partner in jabodetabek.
+     *
+     * @return bool
+     */
+    public function isJabodetabek(): bool
+    {
+        return in_array($this->geo_regency_id, Regency::getJabodetabekId());
+    }
 }

@@ -88,6 +88,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\PackageLoadedByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
         DeliveryTransit\DriverArrivedAtDestinationWarehouse::class => [

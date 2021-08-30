@@ -30,7 +30,7 @@ class History extends Model
 
     public const DESCRIPTION_SERVICE = 'service';
     public const DESCRIPTION_PICKUP = 'pickup';
-    public const DESCRIPTION_PACKING = 'packing';
+    public const DESCRIPTION_HANDLING = 'handling';
     public const DESCRIPTION_INSURANCE = 'insurance';
     public const DESCRIPTION_RETURN = 'return';
 
@@ -67,7 +67,7 @@ class History extends Model
         return [
             self::DESCRIPTION_SERVICE,
             self::DESCRIPTION_PICKUP,
-            self::DESCRIPTION_PACKING,
+            self::DESCRIPTION_HANDLING,
             self::DESCRIPTION_INSURANCE,
             self::DESCRIPTION_RETURN,
         ];
