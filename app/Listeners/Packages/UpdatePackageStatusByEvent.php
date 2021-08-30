@@ -118,11 +118,10 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PayByNicepay:
                 $params = $event->params;
+                $package = $event->package;
 
                 throw_if($params->status !== '0', Error::make(Response::RC_PAYMENT_NOT_PAID));
                 if ($params->status === '0') {
-                    /** @var Package $package */
-                    $package = (Code::query()->where('content', $params->referenceNo)->first())->codeable;
                     $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
                     $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
                     $package->save();
