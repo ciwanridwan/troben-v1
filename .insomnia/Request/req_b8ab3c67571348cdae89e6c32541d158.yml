@@ -1,0 +1,70 @@
+_id: req_b8ab3c67571348cdae89e6c32541d158
+type: Request
+parentId: fld_6ff20a8740ff4f5490e992be0c45ea62
+modified: 1629879716458
+created: 1629879716458
+url: "{{ _.base_url }}/partner/warehouse/order/y9XPJpWd/item/3qBQkwd4"
+name: Update Order Item
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: name
+      value: NASI UDUK 1
+      id: pair_a56d87703b7e46bfa7c0f822e9649d51
+    - id: pair_18e932a4ca264d8a868e788d6b8e1397
+      name: qty
+      value: "5"
+      description: ""
+      disabled: false
+    - id: pair_da807caea35a42e7afb54722bf0cc174
+      name: width
+      value: "50"
+      description: ""
+      disabled: true
+    - id: pair_bef596821bce4fd9ba6c16f0f1ca3a52
+      name: length
+      value: "50"
+      description: ""
+      disabled: true
+    - id: pair_4e74f0a2941b4e6e8e22f503c70c659e
+      name: height
+      value: "50"
+      description: ""
+      disabled: true
+    - id: pair_3da599632e8d440db87cf4c05db614bc
+      name: photo[]
+      value: ""
+      description: ""
+      type: text
+      multiline: true
+      disabled: true
+    - id: pair_7f4055fbb50e41cb832188e26ba9eda2
+      name: ""
+      value: ""
+      description: ""
+      disabled: true
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_2c7ae334b0c64c108ed5ed9ab2362437
+authentication: {}
+metaSortKey: 300
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

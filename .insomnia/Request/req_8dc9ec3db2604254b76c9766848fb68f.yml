@@ -1,0 +1,30 @@
+_id: req_8dc9ec3db2604254b76c9766848fb68f
+type: Request
+parentId: fld_71fd5d968a8341278831c32a1d20194d
+modified: 1626948080388
+created: 1626946540451
+url: "{{ _.base_url }}/version/password"
+name: Get Password
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - id: pair_17acdf0f54fd441cb92098fab4d40a99
+      name: id
+      value: "1"
+      description: ""
+parameters: []
+headers:
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_b7b379b607514b598ff7307ff420e91d
+authentication: {}
+metaSortKey: -1626946540452
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

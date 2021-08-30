@@ -1,7 +1,7 @@
 _id: req_88d8f9a95a594968950569b1022bc210
 type: Request
 parentId: fld_e0b469f59e044384b8d3e080b311e8cd
-modified: 1626836366296
+modified: 1629094284261
 created: 1626687648984
 url: "{{ _.base_url }}/auth/updatesocial"
 name: Social Validation
@@ -24,12 +24,14 @@ body:
   params:
     - id: pair_90b968a7916c456f8855ef573c7324e8
       name: email
-      value: andrew@gmail.com
+      value: mandre@gmail.com
       description: ""
+      disabled: true
     - id: pair_404d3b2e7ff7484aa2156debe56055f4
       name: phone
-      value: "+6287885148566"
+      value: "087885145866"
       description: ""
+      disabled: false
 parameters: []
 headers:
   - name: Accept
@@ -41,7 +43,7 @@ headers:
     id: pair_a12e225614614007aa139375c5a9e8b6
 authentication:
   type: bearer
-  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+  token: "{% response 'body', 'req_78df9644bc9e425b94a78d6d118a7581',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
 metaSortKey: 100
 isPrivate: false

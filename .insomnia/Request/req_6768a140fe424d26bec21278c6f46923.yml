@@ -1,7 +1,7 @@
 _id: req_6768a140fe424d26bec21278c6f46923
 type: Request
 parentId: fld_020f9f0248234da1897f927ed5dac9b4
-modified: 1617562032404
+modified: 1627456134275
 created: 1617096284929
 url: "{{ _.base_url }}/partner/owner/order"
 name: List Order
@@ -53,12 +53,18 @@ headers:
     value: application/json
     description: ""
     id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - id: pair_3eca3c93fa164ac1ba120a3dc0d08ed8
+    name: Authorization
+    value: bearer {% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}
+    description: ""
+    disabled: true
 authentication:
   type: bearer
   prefix: ""
   token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
     'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
-metaSortKey: -1613198450173
+metaSortKey: 100
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

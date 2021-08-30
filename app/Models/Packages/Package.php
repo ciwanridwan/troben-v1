@@ -223,7 +223,6 @@ class Package extends Model implements AttachableContract
         'hash',
         'service_price',
         'type',
-        'charge_price_note'
     ];
 
     /**

@@ -33,38 +33,39 @@ class PartnerController extends Controller
     public function list(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'type' => ['required'],
-            'origin' => ['nullable'],
+            'type' => 'required',
+            'origin' => 'nullable',
         ])->validate();
 
-        $partner = Partner::query()->whereHas('transporters', function (Builder $query) {
-            $query->where('type', 'like', $this->attributes['type']);
-        })
-        ->get();
-
-
-//        ->where('type','=', 'business')
-//        ->orWhere('type','=', 'pool')
-
-
-        return $this->jsonSuccess(PartnerResource::collection($partner));
+        return $this->getPartnerData();
     }
 
-    public function getDeliveriesQuery(): Builder
+    protected function getPartnerData(): JsonResponse
     {
-        $query = Partner::query();
+        $query = $this->getBasicBuilder(Partner::query());
+        $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
+            $query->where('type', 'like', $this->attributes['type']);
+        }));
+        $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
 
-        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
-            $userable = $this->user->transporters->first();
-            $query->where('userable_id', $userable->pivot->id);
-        } else {
-            $query->where(fn (Builder $builder) => $builder
-                ->orWhere('partner_id', $this->partner->id)
-                ->orWhere('origin_partner_id', $this->partner->id));
+        return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('per_page', 15))));
+    }
 
-            $this->resolveDeliveriesQueryByRole($query);
-        }
+    /**
+     * Get Basic Builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $builder
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+        );
 
-        return $query;
+        return $builder;
     }
 }

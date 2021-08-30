@@ -47,6 +47,11 @@ class HistoryController extends Controller
         $this->baseBuilder();
     }
 
+    public function index(Request $request)
+    {
+        return view('admin.master.history.index');
+    }
+
     public function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
     {
         if ($request->has('partner')) {
@@ -58,7 +63,7 @@ class HistoryController extends Controller
 
         $this->query->where($status_condition);
         $this->query->with(['items', 'items.prices', 'deliveries', 'deliveries.partner', 'code']);
-        $this->query->orderBy('status');
+        $this->query->orderBy('created_at', 'desc');
         // $this->query->whereDoesntHave('deliveries');
 
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
@@ -76,8 +81,16 @@ class HistoryController extends Controller
             );
         }
 
-
         return view('admin.master.history.pending.index');
+    }
+
+    public function getSearch(Request $request)
+    {
+        $this->query = $this->query->search($request->q);
+        $this->query->orWhereHas('code', function ($query) use ($request) {
+            $query->search($request->q);
+        });
+        return $this;
     }
 
     public function paid(Request $request)
@@ -115,5 +128,14 @@ class HistoryController extends Controller
         }
 
         return view('admin.master.history.cancel.index');
+    }
+
+
+    public function dataRelation()
+    {
+        $this->query->with(['items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'deliveries', 'deliveries.partner', 'code']);
+        // $this->query->orderBy('status','desc');
+
+        return $this;
     }
 }

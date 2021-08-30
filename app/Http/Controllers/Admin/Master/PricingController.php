@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Jobs\Price\BulkCreateOrUpdatePrice;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
@@ -18,6 +19,7 @@ use App\Jobs\Price\DeleteExistingPrice;
 use App\Jobs\Price\UpdateExistingPrice;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class PricingController extends Controller
 {
@@ -175,8 +177,18 @@ class PricingController extends Controller
         return $this->jsonSuccess(PriceResource::make($job->price));
     }
 
+    public function show(Request $request)
+    {
+        $this->attributes = $request->validate([
+            'origin_regency_id' => ['required'],
+            'destination_id' => ['required']
+        ]);
 
+        $this->query->where('origin_regency_id', $this->attributes['origin_regency_id']);
+        $this->query->where('destination_id', $this->attributes['destination_id']);
 
+        return $this->jsonSuccess(PriceResource::make($this->query->first()));
+    }
 
     public function extraData()
     {
@@ -186,5 +198,61 @@ class PricingController extends Controller
             'sub_districts' => SubDistrict::all(),
             'services' => Service::all(),
         ];
+    }
+
+    /**
+     * Bulking create or update prices.
+     * Route Path       : {APP_URL}/admin/master/pricing/district/bulk
+     * Route Name       : admin.master.pricing.district.bulk
+     * Route Method     : POST.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function bulk(Request $request)
+    {
+        $this->attributes = $request->all();
+        if (is_array($this->attributes['origin_regency'])) {
+            $inputs = [];
+            foreach ($this->attributes['origin_regency'] as $origin_regency) {
+                $inputs = array_merge($inputs, $this->prepareBulkData($origin_regency));
+            }
+        } else {
+            $inputs = $this->prepareBulkData();
+        }
+
+        $job = new BulkCreateOrUpdatePrice($inputs);
+        $this->dispatch($job);
+
+        return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    /**
+     * Preparing bulk data.
+     *
+     * @param null $origin_regency
+     * @return array
+     */
+    private function prepareBulkData($origin_regency = null): array
+    {
+        $origin_regency = is_null($origin_regency) ? $this->attributes['origin_regency'] : $origin_regency;
+        $data = [];
+        foreach ($this->attributes['destination_sub_districts'] as $sub_district) {
+            $data[] = array_merge(Arr::except($this->attributes, [
+                'origin_regency',
+                'destination_sub_districts',
+                'destination_province_id',
+                'destination_regency_id',
+                'destination_district_id',
+            ]), [
+                'destination_id' => $sub_district,
+                'origin_province_id' => Regency::find($origin_regency)->province_id,
+                'origin_regency_id' => $origin_regency,
+                'zip_code' => SubDistrict::find($sub_district)->zip_code,
+            ]);
+        }
+
+        return $data;
     }
 }

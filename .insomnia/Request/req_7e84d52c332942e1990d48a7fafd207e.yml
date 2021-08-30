@@ -1,11 +1,9 @@
 _id: req_7e84d52c332942e1990d48a7fafd207e
 type: Request
 parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
-modified: 1625811600316
+modified: 1627108709319
 created: 1617566154161
-url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
-  'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b',
-  'no-history', 60 %}/item"
+url: "{{ _.base_url }}/partner/warehouse/order/y9XPJpWd/item"
 name: Add Order Item
 description: ""
 method: POST
@@ -13,7 +11,7 @@ body:
   mimeType: multipart/form-data
   params:
     - name: name
-      value: Sennheiser M03
+      value: NASI UDUK 1
       id: pair_f99887d4b2ff4663936408d78b0c17c6
     - id: pair_51684e562f4a4aee81a94fb83ca9be6c
       name: qty
@@ -38,6 +36,11 @@ body:
       disabled: false
       type: file
       multiline: null
+      fileName: C:\Users\HP\Pictures\TrawlBens\logo_TB_k.png
+    - id: pair_2f02a826407c446dbf22a2adbd6ddd7b
+      name: weight
+      value: "1"
+      description: ""
 parameters: []
 headers:
   - name: Accept
@@ -53,7 +56,7 @@ headers:
     value: multipart/form-data
     id: pair_2c7ae334b0c64c108ed5ed9ab2362437
 authentication: {}
-metaSortKey: -1613330460621.75
+metaSortKey: 0
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

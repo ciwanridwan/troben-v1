@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Response;
 use App\Models\Price;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -94,5 +95,31 @@ class PricingController extends Controller
         $query = $query->where('service_code', $this->attributes['service_code']);
 
         return $query;
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function tarif(Request $request): JsonResponse
+    {
+        $this->attributes = $request->validate([
+            'origin_id' => ['required'],
+            'destination_id' => ['required'],
+            'service_code' => ['required'],
+        ]);
+        $prices = Price::query();
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+
+        $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
+
+            ->where('destination_id', $this->attributes['destination_id'])
+
+            ->where('service_code', $this->attributes['service_code'])
+            ->first();
+
+        return (new Response(Response::RC_SUCCESS, $prices))->json();
     }
 }

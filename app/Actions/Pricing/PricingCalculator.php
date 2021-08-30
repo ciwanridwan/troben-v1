@@ -131,8 +131,22 @@ class PricingCalculator
         }
 
         $discount = $pickup_price;
+        $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
+            $handlingResult = [];
+            if ($item['handling'] != null) {
+                foreach ($item['handling'] as $packing) {
+                    $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+
+                    $handlingResult[] = collect([
+                        'type' => $packing,
+                        'price' => $handling,
+                    ]);
+                    $item['handling'] = $handlingResult;
+                }
+            }
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -149,15 +163,14 @@ class PricingCalculator
         }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
-
         $servicePrice = self::getServicePrice($inputs, $price);
-
         $response = [
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
+                'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
                 'tier' => $tierPrice,
@@ -171,7 +184,6 @@ class PricingCalculator
             case 'json':
                 return (new Response(Response::RC_SUCCESS, $response))->json();
                 break;
-
             default:
                 return (new Response(Response::RC_SUCCESS, $response))->json();
                 break;

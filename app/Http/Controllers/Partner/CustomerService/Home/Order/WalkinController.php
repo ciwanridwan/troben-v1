@@ -41,12 +41,17 @@ class WalkinController extends Controller
 
     public function store(Request $request, PartnerRepository $partnerRepository)
     {
-        (new CreateWalkinOrder($partnerRepository->getPartner(), $request->all()))->create();
+        $request->validate([
+            'items' => ['required'],
+            'photos' => ['required'],
+            'photos.*' => ['required', 'image']
+        ]);
+        $package = (new CreateWalkinOrder($partnerRepository->getPartner(), $request->all()))->create();
+
+        $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
 
         return (new Response(Response::RC_SUCCESS))->json();
-
-
-
 
         $request->validate([
             'items' => ['required'],
@@ -82,9 +87,6 @@ class WalkinController extends Controller
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
-
-
-
 
         return (new Response(Response::RC_SUCCESS))->json();
     }

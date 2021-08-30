@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateTablePartnerIsActive extends Migration
+class AddFieldCodeInVersionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class UpdateTablePartnerIsActive extends Migration
      */
     public function up()
     {
-        Schema::table('partners', function (Blueprint $table) {
-            $table->string('rute')->after('type')->nullable();
-            $table->string('is_active')->after('rute')->nullable();
+        Schema::table('version', function (Blueprint $table) {
+            $table->integer('code')->after('is_active')->nullable();
         });
     }
 
@@ -26,8 +25,8 @@ class UpdateTablePartnerIsActive extends Migration
      */
     public function down()
     {
-        Schema::table('partners', function (Blueprint $table) {
-            $table->dropColumn('is_active');
+        Schema::table('version', function (Blueprint $table) {
+            $table->dropColumn('code');
         });
     }
 }

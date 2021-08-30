@@ -20,6 +20,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\PhoneNumberFormat;
+use Firebase\JWT\JWT;
 
 class AccountAuthentication
 {
@@ -144,6 +145,7 @@ class AccountAuthentication
                     'fcm_token' => $authenticatable->fcm_token ?? null,
                 ]))->json();
             }
+
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
@@ -166,12 +168,30 @@ class AccountAuthentication
                 ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
         }
 
-        return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
-            : (new Response(Response::RC_SUCCESS, [
+        if ($this->attributes['otp']) {
+            return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel']);
+        }
+
+        if ($this->attributes['guard'] === 'user') {
+            $key = 'trawlbensJWTSecretK';
+
+            $payload = [
+                'id' => $authenticatable->id,
+                'name' => $authenticatable->name,
+                'email' => $authenticatable->email
+            ];
+
+            return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
+                'jwt_token' => JWT::encode($payload, $key)
             ]))->json();
+        }
+
+        return (new Response(Response::RC_SUCCESS, [
+            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            'fcm_token' => $authenticatable->fcm_token ?? null,
+        ]))->json();
     }
 
     /**

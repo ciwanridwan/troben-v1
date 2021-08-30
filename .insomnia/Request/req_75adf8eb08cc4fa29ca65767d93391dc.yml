@@ -1,7 +1,7 @@
 _id: req_75adf8eb08cc4fa29ca65767d93391dc
 type: Request
 parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
-modified: 1612886352031
+modified: 1626668129574
 created: 1612810263586
 url: "{{ _.base_url }}/auth/otp/verify"
 name: Verify
@@ -18,12 +18,14 @@ body:
   mimeType: multipart/form-data
   params:
     - name: otp
-      value: "{% response 'body', 'req_d9b4c80652294a619ad2617d0b08856c',
-        'b64::JC5kYXRhLm90cA==::46b', 'never', 60 %}"
+      value: 93f1d17d-bd2c-4ff1-a5b4-1984ee11634c
       description: ""
       id: pair_1514377da4724ea8b9fe194455356972
+      type: text
+      multiline: false
+      disabled: false
     - name: otp_token
-      value: "1234"
+      value: "123456"
       description: ""
       id: pair_5fe64f606f54453a93c5b2534880bd19
     - name: device_name
@@ -44,7 +46,7 @@ headers:
     value: multipart/form-data
     id: pair_5b80befc5db3489a89e15b41aa5de403
 authentication: {}
-metaSortKey: -1612810263586
+metaSortKey: 100
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

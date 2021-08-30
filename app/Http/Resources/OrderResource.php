@@ -17,8 +17,6 @@ class OrderResource extends JsonResource
     {
         return [
             'customer' => CustomerResource::make($this->customer),
-            // 'sender_name' => $this->sender_name,
-            // 'sender_phone' =>$this->sender_phone,
             'est_payment' => $this->est_payment,
             'total_payment' => $this->total_payment,
             'payment_channel' => $this->payment_channel,

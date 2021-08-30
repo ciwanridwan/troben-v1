@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Http\Resources\Account\CourierResource;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Partners\Partner;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -19,10 +23,18 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
+    /**
+     * Filtered attributes.
+     *
+     * @var array
+     */
+    protected $attributes;
+
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
@@ -155,6 +167,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
      */
+    // Approving Order by Customer
     public function approve(Package $package): JsonResponse
     {
         $this->authorize('update', $package);
@@ -162,6 +175,19 @@ class OrderController extends Controller
         event(new PackageApprovedByCustomer($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
+    }
+
+    /**
+     * @param Package $package
+     * @param Partner $partner
+     * @return JsonResponse
+     */
+    public function orderAssignation(Package $package, Partner $partner): JsonResponse
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
 
     /**
@@ -227,5 +253,45 @@ class OrderController extends Controller
             'package' => $package,
             'track' => $query->get()
         ]))->json();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function courierList(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'regency_id' => 'nullable',
+        ])->validate();
+
+        $query = $this->getBasicBuilder(User::query());
+        $query->where('is_active', true);
+        $query->whereNotNull('latitude');
+        $query->whereNotNull('longitude');
+
+        $query->whereHas('role', function (Builder $query) {
+            $query->where('role', 'driver');
+            $query->where('userable_type', 'App\Models\Partners\Transporter');
+        });
+        $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
+
+        return $this->jsonSuccess(CourierResource::collection($query->paginate(request('per_page', 15))));
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 }

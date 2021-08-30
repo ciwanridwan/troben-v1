@@ -1,11 +1,9 @@
 _id: req_dc137ed07b9e42c48481a95752c77b2f
 type: Request
 parentId: fld_e25d5ee71505426f9268b98cda449dfa
-modified: 1617566222879
+modified: 1629450136329
 created: 1615631414257
-url: "{{ _.base_url }}/order/{% response 'body',
-  'req_55ac973776fb412590a8ea0a508a0df7', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
-  'no-history', 60 %}"
+url: "{{ _.base_url }}/order/GkoEwZ3P"
 name: Show Order
 description: ""
 method: GET
@@ -22,7 +20,7 @@ headers:
     description: ""
     id: pair_c20cd03e13e54cd9aa04e9432c2460b6
 authentication: {}
-metaSortKey: -1613145646011
+metaSortKey: 600
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

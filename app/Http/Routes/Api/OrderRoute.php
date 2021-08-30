@@ -35,6 +35,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('findReceipt')
         ]);
 
+        $this->router->get($this->prefix('courier/list'), [
+            'as' => $this->name('courierList'),
+            'uses' => $this->uses('courierList')
+        ]);
+
         $this->router->get($this->prefix('find'), [
             'as' => $this->name('find.public'),
             'uses' => $this->uses('findReceipt')
@@ -48,6 +53,16 @@ class OrderRoute extends BaseRoute
         $this->router->put($this->prefix('{package_hash}'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/partner/{partner_hash}/assign'), [
+            'as' => $this->name('orderAssignation'),
+            'uses' => $this->uses('orderAssignation'),
+        ]);
+
+        $this->router->patch($this->prefix('{package_hash}/partner/{partner_hash}'), [
+            'as' => $this->name('fusion'),
+            'uses' => $this->uses('fusion'),
         ]);
 
         $this->router->patch($this->prefix('{package_hash}/approve'), [

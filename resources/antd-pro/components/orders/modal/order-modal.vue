@@ -22,7 +22,7 @@
         </span>
       </template>
 
-      <order-modal-address :package="package" />
+      <order-modal-address :package="package" :price="price"/>
 
       <a-space direction="vertical" size="middle">
         <order-modal-items
@@ -33,7 +33,7 @@
           :deletable="deletable"
           :package="package"/>
 
-        <order-modal-estimations :package="package" />
+        <order-modal-estimations :package="package" :price="price"/>
 
         <order-modal-delivery :package="package" />
       </a-space>
@@ -102,6 +102,7 @@ export default {
       DeliveryIcon,
       CarIcon,
       footer: undefined,
+      price: null,
     };
   },
   methods: {
@@ -124,6 +125,18 @@ export default {
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;
     },
+    getSinglePrice(origin_regency_id, destination_id) {
+      let uriName = this.roles().length === 0 ? 'admin.master.pricing.district.show' : 'partner.cashier.home.price';
+      this.$http
+        .get(this.routeUri(uriName)+`?origin_regency_id=${ origin_regency_id }&destination_id=${ destination_id }`)
+        .then(res => this.onSuccessResponse(res.data))
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    onSuccessResponse(res) {
+      this.price = res.data
+    }
   },
   watch: {
     visible: function (value) {
@@ -136,6 +149,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
+      this.getSinglePrice(this.package.origin_regency.id,this.package.destination_sub_district.id)
       this.setFooter();
     });
   },

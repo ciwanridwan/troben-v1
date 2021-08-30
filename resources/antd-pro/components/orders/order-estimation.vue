@@ -9,7 +9,7 @@ import { DeliveryIcon } from "../icons";
 import { services } from "../../data/services";
 export default {
   components: { DeliveryIcon },
-  props: ['note'],
+  props: ['price'],
   data () {
     return {
       services,
@@ -17,10 +17,10 @@ export default {
   },
   computed: {
     service() {
-      return (this.services.find(service => service.code === this.note.service_code)).title || ''
+      return (this.services.find(service => service.code === this.price.service.code)).title || ''
     },
     notes() {
-      return this.note.notes;
+      return this.price?.notes;
     }
   }
 };

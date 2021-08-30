@@ -86,19 +86,19 @@ class Handling implements CastsAttributes
         switch ($type) {
             case self::TYPE_BUBBLE_WRAP:
                 $min_price = 10000;
-                $base_price = 350;
+                $base_price = 150;
                 $price = ($height + $length + $width) / 3 * $base_price;
 
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_PLASTIC:
                 $min_price = 3000;
-                $base_price = 125;
+                $base_price = 85;
                 $price = ($height + $length + $width) / 3 * $base_price;
 
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_CARDBOARD:
                 $min_price = 10000;
-                $base_price = 350;
+                $base_price = 150;
                 $price = ($height + $length + $width) / 3 * $base_price;
 
                 return $price < $min_price ? $min_price : $price;
@@ -122,7 +122,7 @@ class Handling implements CastsAttributes
             case self::TYPE_WOOD:
                 $min_price = 50000;
                 $add_dimension = self::ADD_WOOD_DIMENSION;
-                $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.8);
+                $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.4);
 
                 return $price < $min_price ? $min_price : $price;
             default:

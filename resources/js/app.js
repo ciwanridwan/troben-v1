@@ -2,6 +2,7 @@ import Vue from "vue";
 import Clipboard from "v-clipboard";
 import qs from "qs";
 import Laravel from "../antd-pro/laravel";
+import Geo from "../antd-pro/data/geo";
 import VueQrcode from "vue-qrcode";
 import moment from "moment";
 import { isPromise } from "../antd-pro/functions/general";
@@ -80,5 +81,6 @@ Vue.mixin({
 });
 
 Vue.mixin(Laravel);
+Vue.mixin(Geo);
 
 new Vue({}).$mount("#app");

@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories\PartnerRepository;
 
+use App\Models\HistoryReject;
 use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Models\Packages\Package;
@@ -40,6 +41,16 @@ class Queries
 
             $this->resolveDeliveriesQueryByRole($query);
         }
+
+        return $query;
+    }
+
+    public function getHistoryRejectedQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('partner_id', $this->partner->id));
 
         return $query;
     }

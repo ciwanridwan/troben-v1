@@ -31,6 +31,7 @@ class DeliveryPickupResource extends JsonResource
             ]);
         }
 
+
         $package =  $this->resource->packages->first()->toArray();
         $this->resource->unsetRelations('packages');
 

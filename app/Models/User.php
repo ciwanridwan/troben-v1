@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Models\CanSearch;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
@@ -28,6 +29,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $username
  * @property string $email
  * @property string $phone
+ * @property string $latitude
+ * @property string $longitude
+ * @property bool $is_active
  * @property string $password
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $remember_token
@@ -60,6 +64,9 @@ class User extends Authenticatable implements HasOtpToken
         'password',
         'phone',
         'remember_token',
+        'latitude',
+        'longitude',
+        'is_active',
     ];
 
 
@@ -115,6 +122,10 @@ class User extends Authenticatable implements HasOtpToken
             ->withPivot('id', 'role')
             ->withTimestamps()
             ->using(UserablePivot::class);
+    }
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(UserablePivot::class, 'id', );
     }
 
     public function transporters(): Relations\MorphToMany

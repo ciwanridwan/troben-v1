@@ -65,6 +65,7 @@ return [
         App\Http\Routes\Api\Payment\NicepayRoute::class,
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
+        App\Http\Routes\Api\PromoRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -81,6 +82,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\PendingRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         App\Http\Routes\Admin\Home\ManifestRoute::class,
+        App\Http\Routes\Admin\GeoRoute::class,
         /** @inject admin **/
     ],
     'cashier' => [
@@ -91,6 +93,7 @@ return [
     'customer_service' => [
         App\Http\Routes\Partner\CustomerService\HomeRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
+        App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],

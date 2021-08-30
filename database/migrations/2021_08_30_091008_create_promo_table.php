@@ -15,7 +15,13 @@ class CreatePromoTable extends Migration
     {
         Schema::create('promo', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('content');
+            $table->text('description')->nullable();
+            $table->string('type')->nullable();
+            $table->boolean('is_active')->nullable()->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
