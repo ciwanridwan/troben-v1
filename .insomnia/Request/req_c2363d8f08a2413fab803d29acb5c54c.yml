@@ -1,7 +1,7 @@
 _id: req_c2363d8f08a2413fab803d29acb5c54c
 type: Request
 parentId: fld_0c4f64831d4244ff89da8931295c6ece
-modified: 1629350457837
+modified: 1629864552924
 created: 1629344426979
 url: "{{ _.base_url }}/geo/list"
 name: Get List Geo
@@ -20,29 +20,14 @@ parameters:
     description: ""
     id: pair_0eeec42c2fd84e2db23279edac93c95a
   - id: pair_be47cad36cff4e2b90cff8d880260bc8
-    name: province_id
-    value: ""
+    name: search
+    value: Sukmajaya
     description: ""
-    disabled: true
-  - name: regency_id
-    value: ""
-    description: ""
-    id: pair_23128e83473541d399b69324fc32bfa9
-    disabled: true
-  - name: district_id
-    value: ""
-    description: ""
-    id: pair_5b182e925cff4fa3962aefb552133a00
-    disabled: true
+    disabled: false
   - name: q
     value: ""
     description: ""
     id: pair_1238de1bb63d4989b784437527c3c50f
-    disabled: true
-  - name: zip_code
-    value: "60213"
-    description: ""
-    id: pair_6e942e5900064e55bbb0a3dcfb0fc407
     disabled: true
 headers:
   - name: Accept

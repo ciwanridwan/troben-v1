@@ -1,7 +1,7 @@
 _id: req_702cca71a2fa4c0cbf5367fa4573bd8e
 type: Request
 parentId: fld_0c4f64831d4244ff89da8931295c6ece
-modified: 1612851612787
+modified: 1629085439926
 created: 1612839890960
 url: "{{ _.base_url }}/geo"
 name: Get Regency
@@ -21,14 +21,19 @@ parameters:
     id: pair_9efbb5dde735430f97ccf94bff5b7889
     disabled: true
   - name: province_id
-    value: ""
+    value: "1095"
     description: ""
     id: pair_8a21e489df3047ce972bdd3fb4f966f5
-    disabled: true
+    disabled: false
   - name: q
     value: ""
     description: ""
     id: pair_479580467c504efeafb2da2d02d8d56b
+    disabled: true
+  - id: pair_e8d1eba8582f42c38080d771b977afd5
+    name: origin
+    value: "1"
+    description: ""
     disabled: true
 headers:
   - name: Accept
@@ -41,7 +46,7 @@ headers:
     description: ""
     id: pair_5c8e15b7e2fb4c428d9c8644c5ad02c4
 authentication: {}
-metaSortKey: -1612413719691.5
+metaSortKey: 300
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

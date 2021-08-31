@@ -51,7 +51,7 @@ class UpdateExistingCustomer
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,'.$customer->id.',id,deleted_at,NULL'],
             'address' => ['filled'],
             'password' => ['filled', 'min:8', 'alpha_num'],
-            'fcm_token' => ['nullable'],
+            'fcm_token' => ['nullable','unique:customers,fcm_token,'.$customer->id.',id,deleted_at,NULL'],
             'facebook_id' => ['nullable'],
             'google_id' => ['nullable'],
         ])->validate();

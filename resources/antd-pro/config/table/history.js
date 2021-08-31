@@ -8,22 +8,23 @@ export default [
     scopedSlots: { customRender: "number" }
   },
   {
-    title: "Id Order",
-    key: "order",
-    dataIndex: "barcode",
-    scopedSlots: { customRender: "order" }
+    title: "ID Order",
+    scopedSlots: { customRender: "id_order" },
+    colspan: 5,
+    classes: ["trawl-text-left"]
   },
   {
     title: "Customer",
-    dataIndex: "customer.name",
-    key: "customer",
-    scopedSlots: { customRender: "customer" }
+    dataIndex: "sender_name",
+    key: "sender_name",
+    colspan: 4,
+    scopedSlots: { customRender: "sender_name" }
   },
   {
-    title: "Tujuan",
-    dataIndex: "receiver_address",
-    key: "destination",
-    scopedSlots: { customRender: "destination" }
+    title: "Lokasi Pengiriman",
+    key: "address",
+    colspan: 5,
+    scopedSlots: { customRender: "address" }
   },
   {
     title: "Harga / Kg",
@@ -39,24 +40,20 @@ export default [
     align: "center",
     scopedSlots: { customRender: "payment" }
   },
+  // {
+  //   title: "Nilai Barang",
+  //   key: "package_item_price",
+  //   dataIndex: "package_item_price",
+  //   align: "center",
+  //   scopedSlots: { customRender: "package_price" }
+  // },
   {
-    title: "Nilai Barang",
-    key: "package_item_price",
-    dataIndex: "package_item_price",
-    align: "center",
-    scopedSlots: { customRender: "package_price" }
-  },
-  {
-    title: "Tanggal",
-    key: "created_at",
-    // dataIndex: "created_at",
-    customRender: (text, row, index) => {
-      return {
-        attrs: {
-          colSpan: 2
-        },
-        children: moment(text).format("ddd, DD MMM YYYY HH:mm:ss")
-      };
+    title: "Tanggal Order",
+    dataIndex: "created_at",
+    colspan: 4,
+    classes: ["trawl-text-center"],
+    customRender(text, row, index) {
+      return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
     }
   }
 ];

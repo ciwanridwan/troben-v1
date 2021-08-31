@@ -1,0 +1,56 @@
+_id: req_b8862f6b728541da9d336427a55e706b
+type: Request
+parentId: fld_5897498c89f34c7ab51caf873d08ddd1
+modified: 1629879749685
+created: 1629879749685
+url: "{{ _.base_url }}/geo"
+name: Get Regency
+description: ""
+method: GET
+body:
+  mimeType: multipart/form-data
+  params: []
+parameters:
+  - name: type
+    value: regency
+    description: ""
+    id: pair_0eeec42c2fd84e2db23279edac93c95a
+  - name: country_id
+    value: ""
+    description: ""
+    id: pair_9efbb5dde735430f97ccf94bff5b7889
+    disabled: true
+  - name: province_id
+    value: "1096"
+    description: ""
+    id: pair_8a21e489df3047ce972bdd3fb4f966f5
+    disabled: false
+  - name: q
+    value: ""
+    description: ""
+    id: pair_479580467c504efeafb2da2d02d8d56b
+    disabled: true
+  - id: pair_e8d1eba8582f42c38080d771b977afd5
+    name: origin
+    value: "1"
+    description: ""
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_3e18205bde1d4bf28a1eec1f7603ca8b
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_5c8e15b7e2fb4c428d9c8644c5ad02c4
+authentication: {}
+metaSortKey: 300
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -1,7 +1,7 @@
 _id: req_d8e44461acf94028be6a782d80e085c6
 type: Request
 parentId: fld_3df6b97e3658454ab6b0d42b8d81de38
-modified: 1612886329873
+modified: 1626405759297
 created: 1612866735523
 url: "{{ _.base_url }}/auth/otp/resend"
 name: Resend
@@ -39,7 +39,7 @@ headers:
     value: multipart/form-data
     id: pair_5b80befc5db3489a89e15b41aa5de403
 authentication: {}
-metaSortKey: -1612706333205.5
+metaSortKey: 0
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

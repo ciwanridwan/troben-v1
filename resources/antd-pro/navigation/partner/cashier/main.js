@@ -38,19 +38,19 @@ const main = {
       processed: {
         title: "Telah Diproses",
         text: "Telah Diproses",
-        route: "partner.cashier.processed",
+        route: "partner.cashier.home.processed",
         children: null
       },
       done: {
         title: "Selesai",
         text: "Selesai",
-        route: "partner.cashier.done",
+        route: "partner.cashier.home.done",
         children: null
       },
       cancel: {
-        title: "Selesai",
-        text: "Selesai",
-        route: "partner.cashier.cancel",
+        title: "Cancel",
+        text: "Cancel",
+        route: "partner.cashier.home.cancel",
         children: null
       }
     },
