@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerResource;
+use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,7 +34,7 @@ class PartnerController extends Controller
     public function list(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'type' => 'required',
+            'type' => 'nullable',
             'origin' => 'nullable',
         ])->validate();
 
@@ -43,10 +44,18 @@ class PartnerController extends Controller
     protected function getPartnerData(): JsonResponse
     {
         $query = $this->getBasicBuilder(Partner::query());
+
+        // MITRA MB
+        $query->where('type', 'business');
+
         $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);
         }));
         $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
+
+        if ($query->first() == null){
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
 
         return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('per_page', 15))));
     }

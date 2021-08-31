@@ -64,8 +64,6 @@ class PromoController extends Controller
         return $this->jsonSuccess(PromoResource::make($job->promo));
     }
 
-
-
     /**
      * Get Basic Builder.
      *
