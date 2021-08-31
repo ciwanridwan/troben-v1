@@ -28,7 +28,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class Promo extends Model implements AttachableContract
 {
-    use SoftDeletes, HashableId, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
     public const ATTACHMENT_COVER = 'cover';
 
