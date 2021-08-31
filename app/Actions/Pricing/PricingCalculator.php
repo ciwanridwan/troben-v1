@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pricing;
 
+use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
@@ -14,6 +15,7 @@ use App\Http\Resources\PriceResource;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
+use App\Models\Partners\Price as PartnerPrice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -332,7 +334,37 @@ class PricingCalculator
         return $price;
     }
 
-    public static function getTier(Price $price, float $weight = 0)
+    /**
+     * Get partner price.
+     *
+     * @param Partner $partner
+     * @param $origin_regency_id
+     * @param $destination_id
+     * @return PartnerPrice
+     * @throws \Throwable
+     */
+    public static function getPartnerPrice(Partner $partner, $origin_regency_id, $destination_id): PartnerPrice
+    {
+        /** @var PartnerPrice $price */
+        $price = PartnerPrice::query()
+            ->where('partner_id', $partner->id)
+            ->where('origin_regency_id', $origin_regency_id)
+            ->where('destination_id', $destination_id)
+            ->first();
+
+        throw_if($price === null || $price->tier_1 == 0, Error::make(Response::RC_OUT_OF_RANGE));
+
+        return $price;
+    }
+
+    /**
+     * Get price by tier.
+     *
+     * @param object|\App\Models\Price|\App\Models\Partners\Price $price
+     * @param float|int $weight
+     * @return mixed
+     */
+    public static function getTier(object $price, float $weight = 0)
     {
         if ($weight <= Price::TIER_1) {
             return $price->tier_1;

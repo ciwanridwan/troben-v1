@@ -33,6 +33,7 @@ class History extends Model
     public const DESCRIPTION_HANDLING = 'handling';
     public const DESCRIPTION_INSURANCE = 'insurance';
     public const DESCRIPTION_RETURN = 'return';
+    public const DESCRIPTION_TRANSIT = 'transit';
 
     protected $table = 'partner_balance_histories';
 
@@ -70,6 +71,7 @@ class History extends Model
             self::DESCRIPTION_HANDLING,
             self::DESCRIPTION_INSURANCE,
             self::DESCRIPTION_RETURN,
+            self::DESCRIPTION_TRANSIT,
         ];
     }
 

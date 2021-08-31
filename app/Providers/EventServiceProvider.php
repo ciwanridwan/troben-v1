@@ -97,6 +97,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
         WarehouseIsEstimatingPackage::class => [

@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Partners;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Broadcasting\User\PrivateChannel;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
@@ -80,11 +81,13 @@ class GenerateBalanceHistory
 
     protected string $type;
     protected string $description;
+
     /**
      * Handle event to generate partner's balance.
      *
      * @param object|Delivery $event
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     public function handle(object $event)
     {
@@ -132,6 +135,25 @@ class GenerateBalanceHistory
                         ->recordHistory();
                 }
                 break;
+            case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
+                $this->setDelivery()
+                    ->setPackages()
+                    ->setTransporter()
+                    ->setPartner($this->transporter->partner);
+
+                /** @var Package $package */
+                foreach ($this->packages as $package) {
+                    if ($package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() > 1) {
+                        $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
+                        $price = PricingCalculator::getTier($partner_price, $package->total_weight);
+                        $this->setPackage($package)
+                            ->setBalance($package->total_weight * $price)
+                            ->setType(History::TYPE_DEPOSIT)
+                            ->setDescription(History::DESCRIPTION_TRANSIT)
+                            ->setAttributes()
+                            ->recordHistory();
+                    }
+                }
         }
         $this->pushNotificationToOwner();
     }
@@ -181,30 +203,59 @@ class GenerateBalanceHistory
         return $this;
     }
 
+    /**
+     * Define package instance.
+     *
+     * @param Package $package
+     * @return $this
+     */
     protected function setPackage(Package $package): self
     {
         $this->package = $package;
         return $this;
     }
 
+    /**
+     * Define balance.
+     *
+     * @param float $balance
+     * @return $this
+     */
     protected function setBalance(float $balance): self
     {
         $this->balance = $balance;
         return $this;
     }
 
+    /**
+     * Define type.
+     *
+     * @param string $type
+     * @return $this
+     */
     protected function setType(string $type): self
     {
         $this->type = $type;
         return $this;
     }
 
+    /**
+     * Define Description.
+     *
+     * @param string $description
+     * @return $this
+     */
     protected function setDescription(string $description): self
     {
         $this->description = $description;
         return $this;
     }
 
+    /**
+     * Set attributes of history.
+     *
+     * @return $this
+     */
     protected function setAttributes(): self
     {
         $this->attributes = [
@@ -229,6 +280,8 @@ class GenerateBalanceHistory
     }
 
     /**
+     * Get fee by delivery.
+     *
      * @return int
      */
     protected function getDeliveryFee(): int
@@ -236,13 +289,23 @@ class GenerateBalanceHistory
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
                 if ($this->package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() === 1) return Delivery::FEE_MAIN;
-                else return $this->partner->isJabodetabek() ? Delivery::FEE_JABODETABEK : Delivery::FEE_NON_JABODETABEK;
+                else return $this->getFeeByAreal();
             case Delivery::TYPE_DOORING:
-                return $this->partner->isJabodetabek() ? Delivery::FEE_JABODETABEK : Delivery::FEE_NON_JABODETABEK;
+                return $this->getFeeByAreal();
             default:
                 // TODO: throw error or sent notification for handle unpredicted condition
                 return 0;
         }
+    }
+
+    /**
+     * Validate fee by area.
+     *
+     * @return int
+     */
+    protected function getFeeByAreal(): int
+    {
+        return $this->partner->isJabodetabek() ? Delivery::FEE_JABODETABEK : Delivery::FEE_NON_JABODETABEK;
     }
 
     /**
