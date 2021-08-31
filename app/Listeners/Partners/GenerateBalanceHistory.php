@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Partners;
 
+use App\Broadcasting\User\PrivateChannel;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
@@ -10,7 +11,9 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
@@ -130,6 +133,7 @@ class GenerateBalanceHistory
                 }
                 break;
         }
+        $this->pushNotificationToOwner();
     }
 
     /**
@@ -280,5 +284,17 @@ class GenerateBalanceHistory
         if (count($collection) === 0) return 0;
         if ($count + 1 === count($collection)) return $collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier);
         else return ($collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier)) + $this->generateBalances($collection, $prop, $multiplier, $count + 1);
+    }
+
+    /**
+     * Push notification to owner.
+     *
+     * @return PrivateChannel|void
+     */
+    protected function pushNotificationToOwner()
+    {
+        /** @var User $owner */
+        $owner = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_OWNER)->first();
+        if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
     }
 }
