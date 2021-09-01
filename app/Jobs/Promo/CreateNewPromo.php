@@ -40,11 +40,14 @@ class CreateNewPromo
     public function __construct($inputs = [])
     {
         $this->attributes = Validator::make($inputs, [
-            'title' => ['required'],
-            'content' => ['required'],
+            'title' => ['nullable'],
+            'content' => ['nullable'],
             'description' => ['nullable'],
             'type' => ['nullable'],
             'is_active' => ['nullable'],
+            'source' => ['nullable'],
+            'author' => ['nullable'],
+            'image' => ['nullable'],
         ])->validate();
 
         $this->promo = new Promo();

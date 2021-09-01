@@ -34,11 +34,11 @@ class PromoController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'type' => 'nullable',
+            'type' => 'required',
         ])->validate();
 
         $query = $this->getBasicBuilder(Promo::query());
-
+        $query->where('is_active', true);
         $query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
 
         return $this->jsonSuccess(PromoResource::collection($query->paginate(request('per_page', 15))));
@@ -50,16 +50,19 @@ class PromoController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'cover' => 'required',
+            'title' => 'nullable',
+            'content' => 'nullable',
+            'type' => 'nullable',
+            'source' => 'nullable',
+            'author' => 'nullable',
+            'image' => 'nullable',
         ]);
-
         $inputs = $request->all();
-
         $job = new CreateNewPromo($inputs);
         $this->dispatchNow($job);
 
-        $job = new UploadFilePromo($job->promo, $request->file('cover') ?? []);
-        $this->dispatchNow($job);
+        /*$job = new UploadFilePromo($job->promo, $request->file('cover') ?? []);
+        $this->dispatchNow($job);*/
 
         return $this->jsonSuccess(PromoResource::make($job->promo));
     }
