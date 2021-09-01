@@ -174,6 +174,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryDooring\DriverUnloadedPackageInDooringPoint::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
+            GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
         DriverAssigned::class => [

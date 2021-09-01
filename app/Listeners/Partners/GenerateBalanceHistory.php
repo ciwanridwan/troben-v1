@@ -122,7 +122,7 @@ class GenerateBalanceHistory
 
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance insurance > record insurance fee
-                        $balance_insurance = $this->generateBalances($this->package->items()->where('is_insured', true)->get(), 'price', 0.0002);
+                        $balance_insurance = $this->generateBalances($this->package->items()->where('is_insured', true)->get(), 'price', PricingCalculator::INSURANCE_MUL_PARTNER);
                         if ($balance_insurance !== 0) $this
                             ->setBalance($balance_insurance)
                             ->setType(History::TYPE_DEPOSIT)
@@ -176,6 +176,22 @@ class GenerateBalanceHistory
                     # total balance service > record service balance
                     $this->saveServiceFee();
                 }
+                break;
+            case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
+                $this
+                    ->setDelivery()
+                    ->setTransporter()
+                    ->setPartner($this->transporter->partner)
+                    ->setPackage($event->package);
+
+                $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
+                $price = PricingCalculator::getTier($partner_price, $this->package->total_weight);
+                $this
+                    ->setBalance($this->package->total_weight * $price)
+                    ->setType(History::TYPE_DEPOSIT)
+                    ->setDescription(History::DESCRIPTION_DOORING)
+                    ->setAttributes()
+                    ->recordHistory();
                 break;
         }
         $this->pushNotificationToOwner();

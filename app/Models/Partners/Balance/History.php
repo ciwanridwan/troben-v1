@@ -32,8 +32,9 @@ class History extends Model
     public const DESCRIPTION_PICKUP = 'pickup';
     public const DESCRIPTION_HANDLING = 'handling';
     public const DESCRIPTION_INSURANCE = 'insurance';
-    public const DESCRIPTION_RETURN = 'return';
     public const DESCRIPTION_TRANSIT = 'transit';
+    public const DESCRIPTION_DOORING = 'dooring';
+    public const DESCRIPTION_RETURN = 'return';
 
     protected $table = 'partner_balance_histories';
 
