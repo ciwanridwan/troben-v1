@@ -4,6 +4,7 @@ namespace App\Listeners\Partners;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Broadcasting\User\PrivateChannel;
+use App\Events\Deliveries\Dooring as DeliveryDooring;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
@@ -95,7 +96,8 @@ class GenerateBalanceHistory
 
         switch (true) {
             case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
-                $this->setPackages()
+                $this
+                    ->setPackages()
                     ->setTransporter()
                     ->setPartner($this->transporter->partner)
                     ->setPackage($this->packages[0])
@@ -106,54 +108,75 @@ class GenerateBalanceHistory
                     ->recordHistory();
                 break;
             case $event instanceof DeliveryTransit\PackageLoadedByDriver:
-                $this->setDelivery()->setPackages()->setPartner($this->delivery->origin_partner);
+                $this
+                    ->setDelivery()
+                    ->setPackages()
+                    ->setPartner($this->delivery->origin_partner);
 
                 /** @var Package $package */
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
-                    $balance_service = $package->total_weight * $this->getDeliveryFee();
-                    $this->setBalance($balance_service)
-                        ->setType(History::TYPE_DEPOSIT)
-                        ->setDescription(History::DESCRIPTION_SERVICE)
-                        ->setAttributes()
-                        ->recordHistory();
 
-                    $balance_insurance = $this->generateBalances($package->items()->where('is_insured', true)->get(), 'price', 0.0002);
-                    if ($balance_insurance !== 0) $this
-                        ->setBalance($balance_insurance)
-                        ->setType(History::TYPE_DEPOSIT)
-                        ->setDescription(History::DESCRIPTION_INSURANCE)
-                        ->setAttributes()
-                        ->recordHistory();
+                    # total balance service > record service balance
+                    $this->saveServiceFee();
 
-                    $balance_handling = $this->generateBalances($package->prices()->where('type', Price::TYPE_HANDLING)->get(), 'amount');
-                    if ($balance_handling !== 0) $this
-                        ->setBalance($balance_handling)
-                        ->setType(History::TYPE_DEPOSIT)
-                        ->setDescription(History::DESCRIPTION_HANDLING)
-                        ->setAttributes()
-                        ->recordHistory();
+                    if ($this->countDeliveryTransitOfPackage() === 1) {
+                        # total balance insurance > record insurance fee
+                        $balance_insurance = $this->generateBalances($this->package->items()->where('is_insured', true)->get(), 'price', 0.0002);
+                        if ($balance_insurance !== 0) $this
+                            ->setBalance($balance_insurance)
+                            ->setType(History::TYPE_DEPOSIT)
+                            ->setDescription(History::DESCRIPTION_INSURANCE)
+                            ->setAttributes()
+                            ->recordHistory();
+
+                        # total balance handling > record handling fee
+                        $balance_handling = $this->generateBalances($this->package->prices()->where('type', Price::TYPE_HANDLING)->get(), 'amount');
+                        if ($balance_handling !== 0) $this
+                            ->setBalance($balance_handling)
+                            ->setType(History::TYPE_DEPOSIT)
+                            ->setDescription(History::DESCRIPTION_HANDLING)
+                            ->setAttributes()
+                            ->recordHistory();
+                    }
                 }
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
-                $this->setDelivery()
+                $this
+                    ->setDelivery()
                     ->setPackages()
                     ->setTransporter()
                     ->setPartner($this->transporter->partner);
 
                 /** @var Package $package */
                 foreach ($this->packages as $package) {
-                    if ($package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() > 1) {
+                    $this->setPackage($package);
+                    if ($this->countDeliveryTransitOfPackage() > 1) {
                         $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-                        $price = PricingCalculator::getTier($partner_price, $package->total_weight);
-                        $this->setPackage($package)
-                            ->setBalance($package->total_weight * $price)
+                        $price = PricingCalculator::getTier($partner_price, $this->package->total_weight);
+                        $this
+                            ->setBalance($this->package->total_weight * $price)
                             ->setType(History::TYPE_DEPOSIT)
                             ->setDescription(History::DESCRIPTION_TRANSIT)
                             ->setAttributes()
                             ->recordHistory();
                     }
                 }
+                break;
+            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
+                $this
+                    ->setDelivery()
+                    ->setPackages()
+                    ->setTransporter()
+                    ->setPartner($this->transporter->partner);
+
+                foreach ($this->packages as $package) {
+                    $this->setPackage($package);
+
+                    # total balance service > record service balance
+                    $this->saveServiceFee();
+                }
+                break;
         }
         $this->pushNotificationToOwner();
     }
@@ -288,7 +311,7 @@ class GenerateBalanceHistory
     {
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
-                if ($this->package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() === 1) return Delivery::FEE_MAIN;
+                if ($this->countDeliveryTransitOfPackage() === 1) return Delivery::FEE_MAIN;
                 else return $this->getFeeByAreal();
             case Delivery::TYPE_DOORING:
                 return $this->getFeeByAreal();
@@ -359,5 +382,31 @@ class GenerateBalanceHistory
         /** @var User $owner */
         $owner = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_OWNER)->first();
         if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
+    }
+
+    /**
+     * Retrieve "count" result of delivery transit by package.
+     *
+     * @return int
+     */
+    protected function countDeliveryTransitOfPackage(): int
+    {
+        return $this->package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count();
+    }
+
+    /**
+     * Save service fee for partner balance.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function saveServiceFee()
+    {
+        $balance_service = $this->package->total_weight * $this->getDeliveryFee();
+        $this
+            ->setBalance($balance_service)
+            ->setType(History::TYPE_DEPOSIT)
+            ->setDescription(History::DESCRIPTION_SERVICE)
+            ->setAttributes()
+            ->recordHistory();
     }
 }
