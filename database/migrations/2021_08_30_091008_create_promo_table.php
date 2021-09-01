@@ -19,6 +19,9 @@ class CreatePromoTable extends Migration
             $table->text('content');
             $table->text('description')->nullable();
             $table->string('type')->nullable();
+            $table->string('author');
+            $table->string('image');
+            $table->string('source')->nullable();
             $table->boolean('is_active')->nullable()->default(false);
             $table->timestamps();
             $table->softDeletes();

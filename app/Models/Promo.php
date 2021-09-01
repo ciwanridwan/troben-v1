@@ -21,6 +21,9 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $description
  * @property string $type
  * @property bool $is_active
+ * @property string author
+ * @property string source
+ * @property string image
  *
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -44,6 +47,9 @@ class Promo extends Model implements AttachableContract
         'description',
         'type',
         'is_active',
+        'author',
+        'source',
+        'image',
     ];
 
     /**

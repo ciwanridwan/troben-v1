@@ -22,7 +22,10 @@ class PromoResource extends JsonResource
             'content' => $this->content,
             'type' => $this->type,
             'is_active' => $this->is_active,
-            'attachment' => $this->attachments()->first()->uri ?? null,
+            'author' => $this->author,
+            'source' => $this->source,
+            'attachment' => $this->image,
+            /*'attachment' => $this->attachments()->first()->uri ?? null,*/
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
             'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];
