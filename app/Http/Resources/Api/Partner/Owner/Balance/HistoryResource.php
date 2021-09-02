@@ -15,10 +15,11 @@ class HistoryResource extends JsonResource
     {
         /** @var History $this */
         return [
-            'type' => $this->type,
             'amount' => $this->balance,
-            'package_code' => $this->package->code->content,
             'date' => $this->created_at->format('Y-m-d H:i:s'),
+            'description' => $this->description,
+            'package_code' => $this->package->code->content,
+            'type' => $this->type,
         ];
     }
 }
