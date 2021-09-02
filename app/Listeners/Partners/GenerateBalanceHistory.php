@@ -122,7 +122,7 @@ class GenerateBalanceHistory
 
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance insurance > record insurance fee
-                        $balance_insurance = $this->generateBalances($this->package->items()->where('is_insured', true)->get(), 'price', PricingCalculator::INSURANCE_MUL_PARTNER);
+                        $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) { return $item->price * PricingCalculator::INSURANCE_MUL_PARTNER; });
                         if ($balance_insurance !== 0) $this
                             ->setBalance($balance_insurance)
                             ->setType(History::TYPE_DEPOSIT)
@@ -131,8 +131,8 @@ class GenerateBalanceHistory
                             ->recordHistory();
 
                         # total balance handling > record handling fee
-                        $balance_handling = $this->generateBalances($this->package->prices()->where('type', Price::TYPE_HANDLING)->get(), 'amount');
-                        if ($balance_handling !== 0) $this
+                        $balance_handling = (float) $package->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+                        if ($balance_handling !== 0.0) $this
                             ->setBalance($balance_handling)
                             ->setType(History::TYPE_DEPOSIT)
                             ->setDescription(History::DESCRIPTION_HANDLING)
@@ -152,12 +152,14 @@ class GenerateBalanceHistory
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() > 1) {
+                        $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
                         $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-                        $price = PricingCalculator::getTier($partner_price, $this->package->total_weight);
+                        $price = PricingCalculator::getTier($partner_price, $weight);
+                        // TODO: change $price to actual price
                         $this
-                            ->setBalance($this->package->total_weight * $price)
+                            ->setBalance($weight * 1000)
                             ->setType(History::TYPE_DEPOSIT)
-                            ->setDescription(History::DESCRIPTION_TRANSIT)
+                            ->setDescription(History::DESCRIPTION_DELIVERY)
                             ->setAttributes()
                             ->recordHistory();
                     }
@@ -184,10 +186,12 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-                $price = PricingCalculator::getTier($partner_price, $this->package->total_weight);
+                $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
+                $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
+                $price = PricingCalculator::getTier($partner_price, $weight);
+                // TODO: change $price to actual price
                 $this
-                    ->setBalance($this->package->total_weight * $price)
+                    ->setBalance($weight * 500)
                     ->setType(History::TYPE_DEPOSIT)
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
@@ -370,22 +374,6 @@ class GenerateBalanceHistory
     protected function recordHistory(): void
     {
         if ($this->noHistory()) $this->dispatch(new CreateNewBalanceHistory($this->attributes));
-    }
-
-    /**
-     * Generate balance by collection.
-     *
-     * @param Collection $collection
-     * @param string $prop
-     * @param null $multiplier
-     * @param int $count
-     * @return float|int
-     */
-    protected function generateBalances(Collection $collection, string $prop, $multiplier = null, int $count = 0)
-    {
-        if (count($collection) === 0) return 0;
-        if ($count + 1 === count($collection)) return $collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier);
-        else return ($collection[$count]->$prop * (is_null($multiplier) ? 1 : $multiplier)) + $this->generateBalances($collection, $prop, $multiplier, $count + 1);
     }
 
     /**
