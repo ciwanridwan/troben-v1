@@ -35,6 +35,10 @@ use ReflectionClass;
  * @property int destination_regency_id
  * @property int destination_district_id
  * @property int destination_sub_district_id
+ * @property string sender_latitude
+ * @property string sender_longitude
+ * @property string receiver_latitude
+ * @property string receiver_longitude
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
  * @property \Illuminate\Database\Eloquent\Collection item_codes

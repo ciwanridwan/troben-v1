@@ -66,6 +66,11 @@ return [
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
         App\Http\Routes\Api\PromoRoute::class,
+        App\Http\Routes\Api\Kurir\ManifestRoute::class,
+        App\Http\Routes\Api\Kurir\OrderRoute::class,
+        App\Http\Routes\Api\Kurir\Transition\PickupRoute::class,
+
+
         /** @inject api **/
     ],
     'admin' => [
