@@ -80,7 +80,7 @@ const main = {
   payment: {
     icon: "wallet",
     text: "Pembayaran",
-    route: "admin.payment",
+    route: "admin.payment.income",
     children: {
       income: {
         text: "Pendapatan Mitra",
