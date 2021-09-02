@@ -3,10 +3,15 @@
 namespace App\Models\Partners\Balance;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Code;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * History Model.
@@ -20,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $updated_at
  *
  * @property-read Partner $partner
+ * @property-read Package $package
  */
 class History extends Model
 {
@@ -44,6 +50,10 @@ class History extends Model
         'balance',
         'type',
         'description',
+    ];
+
+    protected $casts = [
+        'balance' => 'float'
     ];
 
     /**
@@ -84,5 +94,13 @@ class History extends Model
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class, 'package_id', 'id');
     }
 }

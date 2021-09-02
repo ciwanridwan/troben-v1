@@ -4,6 +4,7 @@ namespace App\Models\Partners;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
+use App\Models\Partners\Balance\History;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
@@ -265,6 +266,16 @@ class Partner extends Model
     public function sub_district(): BelongsTo
     {
         return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
+    }
+
+    /**
+     * Define 'hasMay' relationship with partner balance history model.
+     *
+     * @return Relations\HasMany
+     */
+    public function balance_history(): Relations\HasMany
+    {
+        return $this->hasMany(History::class, 'partner_id', 'id');
     }
 
     public function getGeoAddressAttribute()
