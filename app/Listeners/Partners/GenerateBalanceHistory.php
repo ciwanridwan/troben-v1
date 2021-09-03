@@ -153,8 +153,8 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() > 1) {
                         $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
-                        $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-                        $price = PricingCalculator::getTier($partner_price, $weight);
+                        // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
+                        // $price = PricingCalculator::getTier($partner_price, $weight);
                         // TODO: change $price to actual price
                         $this
                             ->setBalance($weight * 1000)
@@ -187,8 +187,8 @@ class GenerateBalanceHistory
                     ->setPackage($event->package);
 
                 $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
-                $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
-                $price = PricingCalculator::getTier($partner_price, $weight);
+                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
+                // $price = PricingCalculator::getTier($partner_price, $weight);
                 // TODO: change $price to actual price
                 $this
                     ->setBalance($weight * 500)
