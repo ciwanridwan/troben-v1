@@ -40,6 +40,7 @@ use ReflectionClass;
  * @property \Illuminate\Database\Eloquent\Collection item_codes
  * @property-read string|null as
  * @property int|null userable_id
+ * @property-read Partner $origin_partner
  */
 class Delivery extends Model
 {
@@ -65,6 +66,10 @@ class Delivery extends Model
 
     public const AS_ORIGIN = 'origin';
     public const AS_DESTINATION = 'destination';
+
+    public const FEE_MAIN = 500;
+    public const FEE_JABODETABEK = 200;
+    public const FEE_NON_JABODETABEK = 250;
 
     protected string $codeType = 'MNF';
 

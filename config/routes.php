@@ -66,6 +66,7 @@ return [
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
         App\Http\Routes\Api\PromoRoute::class,
+        App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
         /** @inject api **/
     ],
     'admin' => [
