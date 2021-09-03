@@ -232,7 +232,8 @@ export default {
         tier_6: null,
         tier_7: null,
         tier_8: null,
-        notes: null
+        notes: null,
+        username: this.$laravel.user.username
       },
       rules: {
         origin_regency_id: [{ required: true }]
@@ -349,12 +350,14 @@ export default {
     },
     updatePricing() {
       let url = this.routeUri(this.getRoute()) + "/" + this.data.hash;
+      this.form.username = this.$laravel.user.username;
       this.$http
         .patch(url, this.form)
         .then(resp => this.onSuccessUpdate(resp))
         .catch(err => this.onErrorValidation(err));
     },
     storePricing() {
+      this.form.username = this.$laravel.user.username;
       this.$http
         .post(this.routeUri(this.getRoute()), this.form)
         .then(resp => this.onSuccessStore(resp))
