@@ -312,7 +312,7 @@ class AccountAuthentication
     }
 
     /**
-     * asking for otp response
+     * asking for otp response.
      *
      * @param HasOtpToken $authenticatable
      * @param string $otp_channel

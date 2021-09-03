@@ -6,7 +6,6 @@ use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Payment\Nicepay\Registration;
 use App\Exceptions\Error;
 use App\Http\Response;
-use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Events\Deliveries\Pickup;
 use App\Models\Deliveries\Delivery;

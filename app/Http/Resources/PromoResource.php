@@ -14,18 +14,22 @@ class PromoResource extends JsonResource
      */
     public function toArray($request)
     {
-
         /** @var \App\Models\Promo $this */
+
         $data = [
             'hash' => $this->hash,
             'title' => $this->title,
             'content' => $this->content,
             'type' => $this->type,
             'is_active' => $this->is_active,
-            'attachment' => $this->attachments()->first()->uri ?? null,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->type,
+            'author' => $this->author,
+            'source' => $this->source,
+            'attachment' => $this->image,
+            /*'attachment' => $this->attachments()->first()->uri ?? null,*/
+            'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
+            'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];
+
 
         return $data;
     }

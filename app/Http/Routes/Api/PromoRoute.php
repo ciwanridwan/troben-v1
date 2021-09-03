@@ -29,9 +29,9 @@ class PromoRoute extends BaseRoute
     public function register()
     {
         $this->router->get($this->prefix(), [
-            'as' => $this->name(),
+            'as' => $this->name,
             'uses' => $this->uses('index'),
-        ])->withoutMiddleware('api');
+        ]);
 
         $this->router->post($this->prefix(), [
             'as' => $this->name('store'),
