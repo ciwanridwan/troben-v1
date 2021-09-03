@@ -115,7 +115,6 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
@@ -223,7 +222,6 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
         if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
@@ -260,7 +258,6 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
         if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
