@@ -26,6 +26,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Regency extends Model
 {
+    public const JABODETABEK = [
+            'Kota Tangerang',
+            'Kota Tangerang Selatan',
+            'Kota Adm. Jakarta Barat',
+            'Kota Adm. Jakarta Pusat',
+            'Kota Adm. Jakarta Selatan',
+            'Kota Adm. Jakarta Timur',
+            'Kota Adm. Jakarta Utara',
+            'Kabupaten Bekasi',
+            'Kota Bekasi',
+            'Kabupaten Bogor',
+            'Kota Bogor',
+            'Kota Depok',
+    ];
+
     use CustomSerializeDate;
     /**
      * The table associated with the model.
@@ -85,5 +100,15 @@ class Regency extends Model
     public function sub_districts(): HasMany
     {
         return $this->hasMany(SubDistrict::class, 'city_id', 'id');
+    }
+
+    /**
+     * Get data jabodetabek.
+     *
+     * @return array
+     */
+    public static function getJabodetabekId(): array
+    {
+        return Regency::query()->whereIn('name', self::JABODETABEK)->get('id')->pluck('id')->toArray();
     }
 }

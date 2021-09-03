@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $package_id
  * @property int $qty
  * @property string $name
+ * @property float $price
  * @property string $desc
  * @property int $weight
  * @property int $height

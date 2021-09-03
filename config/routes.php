@@ -69,8 +69,7 @@ return [
         App\Http\Routes\Api\Kurir\ManifestRoute::class,
         App\Http\Routes\Api\Kurir\OrderRoute::class,
         App\Http\Routes\Api\Kurir\Transition\PickupRoute::class,
-
-
+        App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
         /** @inject api **/
     ],
     'admin' => [

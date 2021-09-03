@@ -35,6 +35,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $password
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $remember_token
+ * @property string $fcm_token
  * @property \Carbon\Carbon|null $verified_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
