@@ -23,6 +23,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('pickup'),
         ]);
 
+        $this->router->get($this->prefix('assignCourier'), [
+            'as' => $this->name('assignCourier'),
+            'uses' => $this->uses('assignCourier'),
+        ]);
+
         $this->router->get($this->prefix('passed'), [
             'as' => $this->name('passed'),
             'uses' => $this->uses('passed'),

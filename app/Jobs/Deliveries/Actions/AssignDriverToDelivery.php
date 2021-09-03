@@ -29,7 +29,7 @@ class AssignDriverToDelivery
      */
     private UserablePivot $userablePivot;
 
-    public function __construct(Delivery $delivery, UserablePivot $userablePivot)
+    public function __construct(Delivery $delivery, $userablePivot)
     {
         $this->delivery = $delivery;
         $this->userablePivot = $userablePivot;

@@ -1,0 +1,39 @@
+_id: req_d851e164906745c6a26ed638763fbdbd
+type: Request
+parentId: fld_53f40229492b418fbe1cc255497e4471
+modified: 1629879716470
+created: 1629879716470
+url: "{{ _.base_url }}/partner/warehouse/manifest/assignable/partner"
+name: List Target Partner
+description: |-
+  Accepted Queries
+
+  |name|type|description|
+  |----|----|-----------|
+  | type | string/array | enum: business(mb), pool(mpw), space(ms) |
+method: GET
+body: {}
+parameters:
+  - name: type
+    value: business
+    description: ""
+    id: pair_310298694e474d958e43194fd6f7ae81
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: 100
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

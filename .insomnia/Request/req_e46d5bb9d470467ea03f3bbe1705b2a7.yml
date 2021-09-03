@@ -1,0 +1,30 @@
+_id: req_e46d5bb9d470467ea03f3bbe1705b2a7
+type: Request
+parentId: fld_b70a2d48dc194160a1bd5a81704e8ae0
+modified: 1629879716483
+created: 1629879716483
+url: "{{ _.base_url }}/partner/warehouse/manifest/assignation/{% response
+  'body', 'req_42889da8db2d4e81a6a5368182c358a8',
+  'b64::JC5kYXRhLjAuaGFzaA==::46b', 'never', 60 %}/partner"
+name: Request Transporter
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_15390fa9fdb24726888d67e2fb3ff79a
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: 300
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

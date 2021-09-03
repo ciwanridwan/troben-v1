@@ -62,6 +62,9 @@ class Response implements Responsable
     public const RC_DATABASE_ERROR = '0902';
     public const RC_OTHER = '0999';
 
+    // data not found
+    public const RC_DATA_NOT_FOUND = '0404';
+
     /**
      * Response Code.
      *
@@ -112,6 +115,7 @@ class Response implements Responsable
             LaravelResponse::HTTP_NOT_FOUND => [
                 self::RC_RESOURCE_NOT_FOUND,
                 self::RC_ROUTE_NOT_FOUND,
+                self::RC_DATA_NOT_FOUND
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
@@ -120,7 +124,7 @@ class Response implements Responsable
                 self::RC_TOKEN_MISMATCH,
                 self::RC_TOKEN_WAS_CLAIMED,
                 self::RC_OUT_OF_RANGE,
-                self::RC_PARTNER_GEO_UNAVAILABLE
+                self::RC_PARTNER_GEO_UNAVAILABLE,
             ],
             LaravelResponse::HTTP_FORBIDDEN => [
                 self::RC_PAYMENT_HAS_PAID,

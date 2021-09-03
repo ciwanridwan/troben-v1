@@ -1,7 +1,7 @@
 _id: req_255ee6f5fbb94b8db5c81538bd12e7f0
 type: Request
 parentId: fld_698665bd05ce4007bcebb511c9edefe5
-modified: 1617096325588
+modified: 1628844759306
 created: 1617096259780
 url: "{{ _.base_url }}/auth/login"
 name: Login Request
@@ -25,12 +25,14 @@ body:
       id: pair_d54f524f8c154349a851278dd8262252
       disabled: false
     - name: username
-      value: "{{ _.credentials.owner.email }}"
+      value: mpw-owner
       description: ""
       id: pair_5be2ffdcb7aa49ee980c90e16b4d908b
       disabled: false
+      type: text
+      multiline: false
     - name: password
-      value: "{{ _.credentials.owner.password }}"
+      value: password
       description: ""
       id: pair_88be9e4a15444fd393cbfb5cea5e2345
       disabled: false
@@ -53,7 +55,7 @@ headers:
     value: multipart/form-data
     id: pair_a12e225614614007aa139375c5a9e8b6
 authentication: {}
-metaSortKey: -1613198450210.5
+metaSortKey: 100
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

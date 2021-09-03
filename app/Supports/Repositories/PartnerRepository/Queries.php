@@ -3,6 +3,7 @@
 namespace App\Supports\Repositories\PartnerRepository;
 
 use App\Models\HistoryReject;
+use App\Models\Partners\Balance\History;
 use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Models\Packages\Package;
@@ -123,6 +124,18 @@ class Queries
         );
 
         $query->with('userable', 'user');
+
+        return $query;
+    }
+
+    /**
+     * @return Builder
+     */
+    public function getPartnerBalanceHistoryQuery(): Builder
+    {
+        $query = History::query();
+
+        $query->where('partner_id', $this->partner->id);
 
         return $query;
     }

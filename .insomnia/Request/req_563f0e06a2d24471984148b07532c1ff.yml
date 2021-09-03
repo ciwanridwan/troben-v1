@@ -1,7 +1,7 @@
 _id: req_563f0e06a2d24471984148b07532c1ff
 type: Request
 parentId: fld_639f81271ab94c24bcd1ed88b3c8a617
-modified: 1626404398389
+modified: 1629729652915
 created: 1613537990638
 url: "{{ _.base_url }}/pricing/calculator"
 name: Get Pricing Calculator
@@ -19,21 +19,32 @@ body:
   text: |-
     
     {
-    	"origin_province_id" : 1 ,
-    	"origin_regency_id" : 1,
-    	"destination_id": 66,
+    	"origin_province_id" : 1084,
+    	"origin_regency_id" : 60,
+    	"destination_id": 11,
     	"fleet_name": "bike",
     	"items" : [
     		{
-    			"description": "asd",
-    			"handling": null,
-    			"height": 12,
+    			"description": "Barang 1",
+    			"handling": [],
+    			"height": 10,
     			"insurance": false,
-    			"length": 12,
+    			"length": 10,
     			"price": 12,
     			"qty": 3,
-    			"weight": 12,
-    			"width": 12
+    			"weight": 10,
+    			"width": 10
+    		},
+    		{
+    			"description": "Barang 2",
+    			"handling": [],
+    			"height": 10,
+    			"insurance": true,
+    			"length": 10,
+    			"price": 130000,
+    			"qty": 3,
+    			"weight": 10,
+    			"width": 10
     		}
     	]
     }
@@ -53,7 +64,7 @@ headers:
     value: application/json
     id: pair_31b4de30e960473aacd0719f7d1eede6
 authentication: {}
-metaSortKey: -1612948839185
+metaSortKey: 100
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

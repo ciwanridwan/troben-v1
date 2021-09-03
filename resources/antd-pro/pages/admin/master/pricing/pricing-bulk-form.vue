@@ -271,7 +271,8 @@ export default {
         tier_6: 0,
         tier_7: 0,
         tier_8: 0,
-        notes: undefined
+        notes: undefined,
+        username: this.$laravel.user.username
       },
     }
   },
@@ -310,7 +311,8 @@ export default {
         tier_6: 0,
         tier_7: 0,
         tier_8: 0,
-        notes: undefined
+        notes: undefined,
+        username: this.$laravel.user.username
       };
     },
     activateModal() {
@@ -343,6 +345,7 @@ export default {
     },
     async submitForm() {
       try {
+        this.form.username = this.$laravel.user.username;
         const { data } = await this.$http.post(this.routeUri(uriBulk), this.form);
         this.$notification.success({
           message: "Sukses!",
@@ -412,6 +415,9 @@ export default {
     }
   },
   computed: {
+    username() {
+      return this.$laravel.user.username;
+    },
     hasSlotTrigger() {
       return !!this.$slots.trigger;
     },

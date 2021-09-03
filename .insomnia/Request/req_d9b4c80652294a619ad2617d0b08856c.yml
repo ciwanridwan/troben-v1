@@ -1,7 +1,7 @@
 _id: req_d9b4c80652294a619ad2617d0b08856c
 type: Request
 parentId: fld_6f6156d826694b62b2aa426135a6d093
-modified: 1612886325280
+modified: 1629790182943
 created: 1612514779446
 url: "{{ _.base_url }}/auth/register"
 name: Register Request
@@ -28,37 +28,47 @@ body:
       id: pair_d54f524f8c154349a851278dd8262252
       disabled: true
     - name: name
-      value: "{{ _.credentials.customer.name }}"
+      value: M Andre Juliansyah
       description: ""
       id: pair_9101231f196445ca805bd26d1f455a3e
       type: text
       multiline: false
+      disabled: false
     - name: password
-      value: "{{ _.credentials.customer.password }}"
+      value: Trawlbens123
       description: ""
       id: pair_88be9e4a15444fd393cbfb5cea5e2345
       disabled: false
     - name: email
-      value: "{{ _.credentials.customer.email }}"
+      value: TESTANDRE@gmail.com
       description: ""
       id: pair_44855922107b4094a4106c4997fe5689
       disabled: false
     - name: phone
-      value: "{{ _.credentials.customer.phone }}"
+      value: "087885145866"
       description: ""
       id: pair_6e0c9039598848da803bf1b669bf55b4
+      disabled: false
     - name: fcm_token
       value: ""
       description: ""
       id: pair_2f1ed84fcfa445e7b5bc7e82b5496c46
+      disabled: true
     - name: facebook_id
-      value: ""
+      value: "1234567890123"
       description: ""
       id: pair_d31d1601e47d413498c19a12799e228c
+      disabled: true
     - name: google_id
       value: ""
       description: ""
       id: pair_86fb070bfc284e71b10d09df731fbfc6
+      disabled: true
+    - id: pair_5bab667d6c9b402fbe41ae7a8e9b2097
+      name: name
+      value: M Andre Juliansyah
+      description: ""
+      disabled: true
 parameters: []
 headers:
   - name: Accept
@@ -69,7 +79,7 @@ headers:
     value: multipart/form-data
     id: pair_a12e225614614007aa139375c5a9e8b6
 authentication: {}
-metaSortKey: -1611917828772.5
+metaSortKey: 500
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

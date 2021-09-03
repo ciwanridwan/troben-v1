@@ -114,7 +114,9 @@ class PricingController extends Controller
         ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
+
             ->where('destination_id', $this->attributes['destination_id'])
+
             ->where('service_code', $this->attributes['service_code'])
             ->first();
 

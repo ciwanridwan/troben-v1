@@ -20,9 +20,11 @@ class SendMessage
     public OneTimePassword $otp;
 
     public string $destination_number;
-    public string $otpPreMessage  = 'Segera masukkan angka berikut ini';
+    public string $otpPreMessage  = '(Trawlbens.id) Kode verifikasi anda adalah';
     public string $otpContentMessage = '';
-    public string $otpPostMessage = 'ke dalam Applikasi Trawlbens ';
+    public string $otpPostMessage = 'Awas penipuan! Jangan berikan kode ini ke siapapun! valid ref_id ';
+    public string $otpLastMessage = '';
+
 
     /**
      * @param OneTimePassword $otp
@@ -61,11 +63,25 @@ class SendMessage
 
     protected function createOtpMessage(): string
     {
-        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage]);
+        $this->otpLastMessage = $this->generate_string();
+        return implode(' ', [$this->otpPreMessage, $this->otpContentMessage.$this->otp->token, $this->otpPostMessage, $this->otpLastMessage]);
     }
     protected function createAuth($params): string
     {
         $content = self::SMS_MASKING_USERNAME.self::SMS_MASKING_PASSWORD.$params['mobile'];
         return hash('md5', $content);
+    }
+
+    protected function generate_string($strength = 16): string
+    {
+        $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $input_length = strlen($permitted_chars);
+        $random_string = '';
+        for ($i = 0; $i < $strength; $i++) {
+            $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+            $random_string .= $random_character;
+        }
+
+        return $random_string;
     }
 }

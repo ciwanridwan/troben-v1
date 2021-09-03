@@ -1,13 +1,9 @@
 _id: req_063b5d1a73d145c6b06dc736d1b534f7
 type: Request
 parentId: fld_6e6b8bc4b3c346d4afcaaac5e69c1191
-modified: 1625811682941
+modified: 1627270720630
 created: 1615631468717
-url: "{{ _.base_url }}/partner/warehouse/order/{% response 'body',
-  'req_189fd9b5e4504aa89aad540f450f1b97', 'b64::JC5kYXRhLmhhc2g=::46b',
-  'no-history', 60 %}/item/{% response 'body',
-  'req_189fd9b5e4504aa89aad540f450f1b97',
-  'b64::JC5kYXRhLml0ZW1zLjAuaGFzaA==::46b', 'never', 60 %}"
+url: "{{ _.base_url }}/partner/warehouse/order/y9XPJpWd/item/3qBQkwd4"
 name: Update Order Item
 description: ""
 method: POST
@@ -15,30 +11,40 @@ body:
   mimeType: multipart/form-data
   params:
     - name: name
-      value: Manhattan 200 Series
+      value: NASI UDUK 1
       id: pair_a56d87703b7e46bfa7c0f822e9649d51
     - id: pair_18e932a4ca264d8a868e788d6b8e1397
       name: qty
       value: "5"
       description: ""
+      disabled: false
     - id: pair_da807caea35a42e7afb54722bf0cc174
       name: width
       value: "50"
       description: ""
+      disabled: true
     - id: pair_bef596821bce4fd9ba6c16f0f1ca3a52
       name: length
       value: "50"
       description: ""
+      disabled: true
     - id: pair_4e74f0a2941b4e6e8e22f503c70c659e
       name: height
       value: "50"
       description: ""
+      disabled: true
     - id: pair_3da599632e8d440db87cf4c05db614bc
       name: photo[]
       value: ""
       description: ""
       type: text
       multiline: true
+      disabled: true
+    - id: pair_7f4055fbb50e41cb832188e26ba9eda2
+      name: ""
+      value: ""
+      description: ""
+      disabled: true
 parameters: []
 headers:
   - name: Accept
@@ -54,7 +60,7 @@ headers:
     value: multipart/form-data
     id: pair_2c7ae334b0c64c108ed5ed9ab2362437
 authentication: {}
-metaSortKey: -1613356862709
+metaSortKey: 300
 isPrivate: false
 settingStoreCookies: true
 settingSendCookies: true

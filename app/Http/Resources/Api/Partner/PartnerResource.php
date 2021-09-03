@@ -25,6 +25,7 @@ class PartnerResource extends JsonResource
             'type' => $this->type,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'address' => $this->address,
             'transporter' => $this->transporters,
         ];
 

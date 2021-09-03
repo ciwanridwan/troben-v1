@@ -164,6 +164,8 @@ class AssetController extends Controller
     public function deleteEmployee($hash): JsonResponse
     {
         $user = User::byHashOrFail($hash);
+
+
         $job = new DeleteExistingUser($user);
         $this->dispatch($job);
         $this->employee = $job->user;

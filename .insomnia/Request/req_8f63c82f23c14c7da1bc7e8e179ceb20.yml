@@ -1,0 +1,25 @@
+_id: req_8f63c82f23c14c7da1bc7e8e179ceb20
+type: Request
+parentId: fld_e25d5ee71505426f9268b98cda449dfa
+modified: 1627353915489
+created: 1627353869489
+url: "{{ _.base_url }}/order/find"
+name: Find Receipt
+description: ""
+method: GET
+body: {}
+parameters:
+  - id: pair_2a9410919ce64d06a44dc5458f5b0971
+    name: code
+    value: RCP22072100062
+    description: ""
+headers: []
+authentication: {}
+metaSortKey: 50
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

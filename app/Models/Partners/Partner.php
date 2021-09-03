@@ -4,6 +4,7 @@ namespace App\Models\Partners;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
+use App\Models\Partners\Balance\History;
 use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use App\Concerns\Models\HasPartnerCode;
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $longitude
  * @property string $geo_location
  * @property string $type
+ * @property float $balance
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -266,6 +268,16 @@ class Partner extends Model
         return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
     }
 
+    /**
+     * Define 'hasMay' relationship with partner balance history model.
+     *
+     * @return Relations\HasMany
+     */
+    public function balance_history(): Relations\HasMany
+    {
+        return $this->hasMany(History::class, 'partner_id', 'id');
+    }
+
     public function getGeoAddressAttribute()
     {
         $sub_district = $this->sub_district ? $this->sub_district->name : '';
@@ -275,5 +287,15 @@ class Partner extends Model
         $address = "$this->address, $sub_district $district $regency $province";
         $address .= $this->sub_district ? $this->zip_code : '';
         return $address;
+    }
+
+    /**
+     * Validate partner in jabodetabek.
+     *
+     * @return bool
+     */
+    public function isJabodetabek(): bool
+    {
+        return in_array($this->geo_regency_id, Regency::getJabodetabekId());
     }
 }

@@ -7,7 +7,7 @@
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between" ref="expand">
         <a-col :span="8">
-          <package-status :record="record" />
+          <package-status-cashier :record="record" />
         </a-col>
         <a-col :span="6" style="text-align: center">
           <a-space>
@@ -21,7 +21,7 @@
 <script>
 import ModalAssignTransporter from "../../modals/modal-assign-transporter.vue";
 import ModalRejectPickup from "../../modals/modal-reject-pickup.vue";
-import packageStatus from "../../package-status.vue";
+import packageStatus from "../../package-status-cashier.vue";
 import orderColumns from "../../../config/table/cashier/order";
 import OrderModal from "../../orders/modal/order-modal.vue";
 import CashierOrderActions from "../../orders/actions/cashier-order-actions.vue";

@@ -28,6 +28,21 @@ class HomeRoute extends BaseRoute
             'as' => $this->name,
             'uses' => fn () => redirect(route('partner.customer_service.home.order.pickup'))
         ]);
+
+        $this->router->get($this->prefix('done'), [
+            'as' => $this->name('done'),
+            'uses' => $this->uses('done'),
+        ]);
+
+        $this->router->get($this->prefix('processed'), [
+            'as' => $this->name('processed'),
+            'uses' => $this->uses('processed'),
+        ]);
+
+        $this->router->get($this->prefix('cancel'), [
+            'as' => $this->name('cancel'),
+            'uses' => $this->uses('cancel'),
+        ]);
     }
 
     /**
