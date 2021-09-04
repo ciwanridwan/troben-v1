@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTableReview extends Migration
+class AddFieldPortalInPromoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateTableReview extends Migration
      */
     public function up()
     {
-        Schema::create('table_review', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('promo', function (Blueprint $table) {
+            $table->string('portal')->after('author')->nullable();
         });
     }
 
@@ -26,6 +25,8 @@ class CreateTableReview extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('table_review');
+        Schema::table('promo', function (Blueprint $table) {
+            $table->dropColumn('portal');
+        });
     }
 }
