@@ -15,7 +15,6 @@ class PromoResource extends JsonResource
     public function toArray($request)
     {
         /** @var \App\Models\Promo $this */
-
         $data = [
             'hash' => $this->hash,
             'title' => $this->title,

@@ -44,14 +44,13 @@ class CancelController extends Controller
 
     public function cancelBefore(Package $package): JsonResponse
     {
-        if ($package->status == 'pending' && $package->payment_status == 'draft' || $package->status == 'created' && $package->payment_status == 'draft' ){
+        if ($package->status == 'pending' && $package->payment_status == 'draft' || $package->status == 'created' && $package->payment_status == 'draft') {
             $this->authorize('update', $package);
 
             event(new PackageCanceledByCustomer($package));
 
             return $this->jsonSuccess(PackageResource::make($package->fresh()));
-        }
-        else{
+        } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
     }

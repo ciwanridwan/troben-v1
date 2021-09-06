@@ -3,8 +3,6 @@
 namespace App\Http\Routes\Api\Kurir;
 
 use App\Http\Controllers\Api\Kurir\ManifestController;
-use App\Http\Controllers\Api\Kurir\OrderController;
-use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
 use Jalameta\Router\BaseRoute;
 
 class ManifestRoute extends BaseRoute

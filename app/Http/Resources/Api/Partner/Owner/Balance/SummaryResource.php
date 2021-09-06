@@ -17,8 +17,8 @@ class SummaryResource extends JsonResource
     {
         $deposit = $this->getTotalBalance(History::TYPE_DEPOSIT);
         $withdraw = $this->getTotalBalance(History::TYPE_WITHDRAW);
-        $deposit_today = $this->getTotalBalance(History::TYPE_DEPOSIT,true);
-        $withdraw_today = $this->getTotalBalance(History::TYPE_WITHDRAW,true);
+        $deposit_today = $this->getTotalBalance(History::TYPE_DEPOSIT, true);
+        $withdraw_today = $this->getTotalBalance(History::TYPE_WITHDRAW, true);
 
         return [
             'current_balance' => $deposit - $withdraw,
@@ -36,7 +36,7 @@ class SummaryResource extends JsonResource
     public function getTotalBalance($type, bool $isToday = false)
     {
         /** @var Collection|History[] $this */
-        return !$isToday ? $this->where('type', $type)->sum('balance')
+        return ! $isToday ? $this->where('type', $type)->sum('balance')
             : $this
                 ->where('type', $type)
                 ->where('created_at', '>', Carbon::today())

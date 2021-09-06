@@ -53,7 +53,7 @@ class PartnerController extends Controller
         }));
         $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
 
-        if ($query->first() == null){
+        if ($query->first() == null) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
 
