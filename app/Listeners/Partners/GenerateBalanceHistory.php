@@ -9,6 +9,7 @@ use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Models\Deliveries\Delivery;
+use App\Models\Notifications\Notification;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Balance\History;
@@ -381,11 +382,14 @@ class GenerateBalanceHistory
      *
      * @return PrivateChannel|void
      */
-    protected function pushNotificationToOwner()
+    public function pushNotificationToOwner()
     {
         /** @var User $owner */
         $owner = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_OWNER)->first();
-        if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
+
+        /** @var Notification $notification */
+        $notification = Notification::query()->firstWhere('type','=',Notification::TYPE_PARTNER_BALANCE_UPDATED);
+        if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, $notification);
     }
 
     /**

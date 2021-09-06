@@ -2,22 +2,50 @@
 
 namespace App\Broadcasting\User;
 
+use App\Abstracts\TrawlNotification;
+use App\Models\Notifications\Notification;
 use App\Models\User;
 
-class PrivateChannel
+class PrivateChannel extends TrawlNotification
 {
     /**
      * Create a new channel instance.
      *
      * @return void
      */
-    public function __construct(User $user, $title, $body)
+    public function __construct(User $user, Notification $notification, $data = [])
+    {
+        $this->user = $user;
+        $this->notification = $notification;
+        $this->data = $data;
+
+        $this
+            ->recordLog()
+            ->validateData()
+            ->push();
+    }
+
+    /**
+     * Store notification to notifiables table on database.
+     *
+     * @return $this
+     */
+    public function recordLog(): self
+    {
+        $this->notification->users()->attach($this->user->id);
+        return $this;
+    }
+
+    /**
+     * Push notification to user.
+     */
+    public function push(): void
     {
         fcm()
-            ->toTopic($user->fcm_token) // $topic must an string (topic name)
-            ->priority('normal')
+            ->toTopic($this->user->fcm_token)
+            ->priority($this->notification->priority)
             ->timeToLive(0)
-            ->notification(['title' => $title, 'body' => $body])
+            ->notification($this->template)
             ->send();
     }
 }
