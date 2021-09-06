@@ -1,0 +1,40 @@
+_id: req_8466e81790f545d0ae1feb18a9a3246f
+type: Request
+parentId: fld_0d46af082f0d4ab9a8d942dcec33ba75
+modified: 1630564422819
+created: 1630557682093
+url: "{{ _.base_url }}/wms/warehouse/order/{% response 'body',
+  'req_189fd9b5e4504aa89aad540f450f1b97', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}"
+name: Update Order
+description: "almost all of properties can be updated through this resource, for
+  more detail you can see at create new order on cusutomer "
+method: PUT
+body:
+  mimeType: application/json
+  text: >-
+    {
+    	"handling": ["{% response 'body', 'req_8190fe87fc4243119c3dd0b7c71c2f2c', 'b64::JC5kYXRhLjMuaWQ=::46b', 'no-history', 60 %}"]
+    }
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_901ed71888ea4e69b465bb777571e67f
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450163.625
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

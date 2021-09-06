@@ -1,0 +1,33 @@
+_id: req_22b2425613374bf1b0f1ce67dd67fd64
+type: Request
+parentId: fld_088957bffdec4baab6328d832cafd0f2
+modified: 1630564443067
+created: 1630557682056
+url: "{{ _.base_url }}/wms/warehouse/manifest/assignation/{% response 'body',
+  'req_42889da8db2d4e81a6a5368182c358a8', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}/driver/{% response 'body',
+  'req_20f52df997bb41b4b1350c4ed47f57c9', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Assign Transporter
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450167.5312
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

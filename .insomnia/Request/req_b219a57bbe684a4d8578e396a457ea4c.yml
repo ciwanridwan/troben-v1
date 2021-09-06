@@ -1,0 +1,42 @@
+_id: req_b219a57bbe684a4d8578e396a457ea4c
+type: Request
+parentId: fld_04259b4b49a64a8ab6098f1fd4eeec44
+modified: 1630564452569
+created: 1630557682047
+url: "{{ _.base_url }}/wms/warehouse/manifest/assignable/driver"
+name: List Transporter/Driver
+description: >-
+  Accepted Queries
+
+
+  |name|type|description|
+
+  |----|----|-----------|
+
+  | transporter_type | string/array | [enum see here](https://github.com/Trawlbens-Dev/trawlbens.core/blob/master/app/Models/Partners/Transporter.php#L41) |
+method: GET
+body: {}
+parameters:
+  - name: transporter_type
+    value: pickup
+    description: ""
+    id: pair_310298694e474d958e43194fd6f7ae81
+    disabled: false
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450168.7031
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

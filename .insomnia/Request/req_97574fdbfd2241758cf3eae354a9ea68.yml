@@ -1,0 +1,45 @@
+_id: req_97574fdbfd2241758cf3eae354a9ea68
+type: Request
+parentId: fld_6a01d61a71e14f94a42da33814ff870f
+modified: 1630557682076
+created: 1630557682076
+url: "{{ _.base_url }}/partner/warehouse/manifest"
+name: Create New Manifest Transit
+description: |-
+  Accepted inputs 
+
+  |name|type|description|
+  |---|---|---|
+  |target_partner_hash|string|get from other request|
+  |destination_regency_id|int|get from geo api|
+  |destination_district_id|int|get from geo api|
+  |destination_sub_district_id|int|get from geo api|
+method: POST
+body:
+  mimeType: application/json
+  text: >-
+    {
+    	"target_partner_hash": "{% response 'body', 'req_75ce972db11544b49e7bee876bf8099b', 'b64::JC5kYXRhLjAuaGFzaA==::46b', 'never', 60 %}"
+    }
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_16223dda19084e67b5eb7ec27a55cc69
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450168.3125
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
