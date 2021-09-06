@@ -21,6 +21,10 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $description
  * @property string $type
  * @property bool $is_active
+ * @property string author
+ * @property string portal
+ * @property string source
+ * @property string image
  *
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -28,7 +32,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  */
 class Promo extends Model implements AttachableContract
 {
-    use SoftDeletes, HashableId, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
     public const ATTACHMENT_COVER = 'cover';
 
@@ -44,6 +48,10 @@ class Promo extends Model implements AttachableContract
         'description',
         'type',
         'is_active',
+        'author',
+        'portal',
+        'source',
+        'image',
     ];
 
     /**

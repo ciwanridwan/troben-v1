@@ -44,6 +44,13 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
+        if ($this->resource->type === Delivery::TYPE_PICKUP) {
+            if (! $this->resource->relationLoaded('partner')) {
+                $this->resource->load('partner');
+            }
+            $this->resource->load('origin_partner');
+        }
+
         if ($this->resource->type === Delivery::TYPE_DOORING) {
             if (! $this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
