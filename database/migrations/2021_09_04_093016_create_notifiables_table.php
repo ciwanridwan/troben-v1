@@ -17,7 +17,7 @@ class CreateNotifiablesTable extends Migration
             $table
                 ->foreignIdFor(\App\Models\Notifications\Notification::class)
                 ->constrained()
-                ->nullOnDelete();
+                ->cascadeOnDelete();
             $table->morphs('notifiable');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
