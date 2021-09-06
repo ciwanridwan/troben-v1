@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Balance\HistoryResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\SummaryResource;
-use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;

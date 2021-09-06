@@ -10,7 +10,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PickupController extends Controller
 {

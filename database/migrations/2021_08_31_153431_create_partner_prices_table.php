@@ -14,7 +14,7 @@ class CreatePartnerPricesTable extends Migration
     public function up()
     {
         Schema::create('partner_prices', function (Blueprint $table) {
-            $table->foreignIdFor(\App\Models\Partners\Partner::class,'partner_id')
+            $table->foreignIdFor(\App\Models\Partners\Partner::class, 'partner_id')
                 ->constrained()
                 ->nullOnDelete();
 

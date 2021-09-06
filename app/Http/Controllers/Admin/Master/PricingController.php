@@ -9,7 +9,6 @@ use App\Models\Service;
 use App\Exceptions\Error;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Geo\SubDistrict;
@@ -152,17 +151,15 @@ class PricingController extends Controller
      */
     public function destroy(Request $request)
     {
-        if ($request->username == 'developer'){
+        if ($request->username == 'developer') {
             $price = (new Price())->byHashOrFail($request->hash);
             $job = new DeleteExistingPrice($price);
             $this->dispatch($job);
 
             return $this->jsonSuccess(PriceResource::make($job->price));
-        }
-        else{
+        } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
-
     }
 
     /**
@@ -177,14 +174,13 @@ class PricingController extends Controller
      */
     public function update(Request $request)
     {
-        if ($request->username == 'developer'){
+        if ($request->username == 'developer') {
             $price = (new Price())->byHashOrFail($request->hash);
             $job = new UpdateExistingPrice($price, $request->all());
             $this->dispatch($job);
 
             return $this->jsonSuccess(PriceResource::make($job->price));
-        }
-        else{
+        } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
     }
@@ -224,7 +220,7 @@ class PricingController extends Controller
      */
     public function bulk(Request $request)
     {
-        if ($request->username == 'developer'){
+        if ($request->username == 'developer') {
             $this->attributes = $request->all();
             if (is_array($this->attributes['origin_regency'])) {
                 $inputs = [];
@@ -239,8 +235,7 @@ class PricingController extends Controller
             $this->dispatch($job);
 
             return (new Response(Response::RC_SUCCESS))->json();
-        }
-        else{
+        } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
     }

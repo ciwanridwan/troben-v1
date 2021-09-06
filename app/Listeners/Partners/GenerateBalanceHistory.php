@@ -74,7 +74,7 @@ class GenerateBalanceHistory
     protected float $balance;
 
     /**
-     * History attributes;
+     * History attributes;.
      *
      * @var array $attributes
      */
@@ -122,22 +122,28 @@ class GenerateBalanceHistory
 
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance insurance > record insurance fee
-                        $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) { return $item->price * PricingCalculator::INSURANCE_MUL_PARTNER; });
-                        if ($balance_insurance !== 0) $this
+                        $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
+                            return $item->price * PricingCalculator::INSURANCE_MUL_PARTNER;
+                        });
+                        if ($balance_insurance !== 0) {
+                            $this
                             ->setBalance($balance_insurance)
                             ->setType(History::TYPE_DEPOSIT)
                             ->setDescription(History::DESCRIPTION_INSURANCE)
                             ->setAttributes()
                             ->recordHistory();
+                        }
 
                         # total balance handling > record handling fee
                         $balance_handling = (float) $package->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
-                        if ($balance_handling !== 0.0) $this
+                        if ($balance_handling !== 0.0) {
+                            $this
                             ->setBalance($balance_handling)
                             ->setType(History::TYPE_DEPOSIT)
                             ->setDescription(History::DESCRIPTION_HANDLING)
                             ->setAttributes()
                             ->recordHistory();
+                        }
                     }
                 }
                 break;
@@ -152,7 +158,9 @@ class GenerateBalanceHistory
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
+                        $weight = $this->package->items->sum(function ($item) {
+                            return $item->weight_borne_total;
+                        });
                         // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
                         // $price = PricingCalculator::getTier($partner_price, $weight);
                         // TODO: change $price to actual price
@@ -186,7 +194,9 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                $weight = $this->package->items->sum(function ($item) { return $item->weight_borne_total; });
+                $weight = $this->package->items->sum(function ($item) {
+                    return $item->weight_borne_total;
+                });
                 // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
                 // $price = PricingCalculator::getTier($partner_price, $weight);
                 // TODO: change $price to actual price
@@ -312,7 +322,7 @@ class GenerateBalanceHistory
     }
 
     /**
-     * Get default price
+     * Get default price.
      *
      * @return int
      */
@@ -331,8 +341,11 @@ class GenerateBalanceHistory
     {
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
-                if ($this->countDeliveryTransitOfPackage() === 1) return Delivery::FEE_MAIN;
-                else return $this->getFeeByAreal();
+                if ($this->countDeliveryTransitOfPackage() === 1) {
+                    return Delivery::FEE_MAIN;
+                } else {
+                    return $this->getFeeByAreal();
+                }
             case Delivery::TYPE_DOORING:
                 return $this->getFeeByAreal();
             default:
@@ -352,7 +365,7 @@ class GenerateBalanceHistory
     }
 
     /**
-     * Check history recorded
+     * Check history recorded.
      * @return bool
      */
     protected function noHistory(): bool
@@ -373,7 +386,9 @@ class GenerateBalanceHistory
      */
     protected function recordHistory(): void
     {
-        if ($this->noHistory()) $this->dispatch(new CreateNewBalanceHistory($this->attributes));
+        if ($this->noHistory()) {
+            $this->dispatch(new CreateNewBalanceHistory($this->attributes));
+        }
     }
 
     /**
@@ -384,8 +399,10 @@ class GenerateBalanceHistory
     protected function pushNotificationToOwner()
     {
         /** @var User $owner */
-        $owner = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_OWNER)->first();
-        if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
+        $owner = $this->partner->users()->wherePivot('role', UserablePivot::ROLE_OWNER)->first();
+        if (! is_null($owner->fcm_token)) {
+            return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
+        }
     }
 
     /**

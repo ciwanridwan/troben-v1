@@ -12,7 +12,6 @@ use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
 use App\Models\Deliveries\Delivery;
 use App\Models\HistoryReject;
 use App\Models\Packages\Package;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
@@ -143,19 +142,18 @@ class OrderController extends Controller
             'type' => 'nullable',
         ])->validate();
 
-        if ($request->type == 'independent'){
+        if ($request->type == 'independent') {
             $user = $delivery->packages->first();
             $data = User::query()
-                ->select("users.*"
-                    ,DB::raw("6371 * acos(cos(radians(" . $user->sender_latitude . "))
+                ->select('users.*', DB::raw('6371 * acos(cos(radians('.$user->sender_latitude.'))
             * cos(radians(users.latitude))
-            * cos(radians(users.longitude) - radians(" . $user->sender_longitude . "))
-            + sin(radians(" .$user->sender_latitude. "))
-            * sin(radians(users.latitude))) AS distance"))
-                ->groupBy("users.id")
+            * cos(radians(users.longitude) - radians('.$user->sender_longitude.'))
+            + sin(radians('.$user->sender_latitude.'))
+            * sin(radians(users.latitude))) AS distance'))
+                ->groupBy('users.id')
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->orderby("distance")
+                ->orderby('distance')
                 ->first();
         }
 
