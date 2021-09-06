@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Actions\Auth\AccountAuthentication;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -52,6 +55,24 @@ class FortifyServiceProvider extends ServiceProvider
 
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        });
+
+        Fortify::authenticateUsing(function (Request $request) {
+            /** @var User $user */
+            $user = User::query()
+                ->where('email', $request->username)
+                ->orWhere('username', $request->username)
+                ->first();
+
+            if ($user &&
+                Hash::check($request->password, $user->password)) {
+
+                if (empty($user->fcm_token)) {
+                    AccountAuthentication::validationFcmToken($user);
+                }
+
+                return $user;
+            }
         });
     }
 }
