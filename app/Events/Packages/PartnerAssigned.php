@@ -2,10 +2,12 @@
 
 namespace App\Events\Packages;
 
+use App\Broadcasting\User\PrivateChannel;
+use App\Models\Notifications\Notification;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
@@ -30,12 +32,18 @@ class PartnerAssigned
     }
 
     /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * Broadcast to customer service
      */
-    public function broadcastOn()
+    public function broadcastToCustomerService(): void
     {
-        return new PrivateChannel('channel-name');
+        $cs = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_CS)->get();
+        $notification = Notification::where('type', Notification::TYPE_CS_GET_NEW_ORDER)->first();
+        $package = $this->package;
+        $cs->each(function ($cs) use ($notification, $package): void {
+            new PrivateChannel($cs, $notification, [
+                    'package_code' => $package->code->content,
+                ]
+            );
+        });
     }
 }

@@ -29,6 +29,14 @@ class NotificationTableSeeder extends Seeder
                 'body' => 'Saldomu sudah terupdate. Ayo cek sekarang!',
             ],
             'priority' => 'normal',
+        ],[
+            'type' => Notification::TYPE_CS_GET_NEW_ORDER,
+            'data' => [
+                'title' => 'Order baru!',
+                'body' => 'Ada orderan baru dengan nomor :package_code',
+                'variable' => ['package_code'],
+            ],
+            'priority' => 'normal',
         ]];
 
         collect($data)->each(fn ($v) => Notification::create($v));

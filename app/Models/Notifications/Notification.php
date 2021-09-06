@@ -26,6 +26,7 @@ class Notification extends Model
 
     public const TYPE_CUSTOMER_HAS_PAID = 'customer_has_paid';
     public const TYPE_PARTNER_BALANCE_UPDATED = 'partner_balance_updated';
+    public const TYPE_CS_GET_NEW_ORDER = 'cs_get_new_order';
 
     protected $table = 'notifications';
 
