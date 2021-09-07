@@ -96,16 +96,19 @@ class GenerateBalanceHistory
 
         switch (true) {
             case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
-                $this
-                    ->setPackages()
-                    ->setTransporter()
-                    ->setPartner($this->transporter->partner)
-                    ->setPackage($this->packages[0])
-                    ->setBalance($this->getPickupFee())
-                    ->setType(History::TYPE_DEPOSIT)
-                    ->setDescription(History::DESCRIPTION_PICKUP)
-                    ->setAttributes()
-                    ->recordHistory();
+                if ($this->event->delivery->transporter) {
+                    $this
+                        ->setPackages()
+                        ->setTransporter()
+                        ->setPartner($this->transporter->partner)
+                        ->setPackage($this->packages[0])
+                        ->setBalance($this->getPickupFee())
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_PICKUP)
+                        ->setAttributes()
+                        ->recordHistory();
+                    $this->pushNotificationToOwner();
+                }
                 break;
             case $event instanceof DeliveryTransit\PackageLoadedByDriver:
                 $this
@@ -146,6 +149,7 @@ class GenerateBalanceHistory
                         }
                     }
                 }
+                $this->pushNotificationToOwner();
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
                 $this
@@ -172,6 +176,7 @@ class GenerateBalanceHistory
                             ->recordHistory();
                     }
                 }
+                $this->pushNotificationToOwner();
                 break;
             case $event instanceof DeliveryDooring\PackageLoadedByDriver:
                 $this
@@ -186,6 +191,7 @@ class GenerateBalanceHistory
                     # total balance service > record service balance
                     $this->saveServiceFee();
                 }
+                $this->pushNotificationToOwner();
                 break;
             case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
                 $this
@@ -206,9 +212,9 @@ class GenerateBalanceHistory
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
                     ->recordHistory();
+                $this->pushNotificationToOwner();
                 break;
         }
-        $this->pushNotificationToOwner();
     }
 
     /**
