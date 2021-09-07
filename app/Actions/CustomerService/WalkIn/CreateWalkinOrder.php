@@ -51,8 +51,8 @@ class CreateWalkinOrder
         ]);
 
         $this->partner = $partner;
-
         $this->inputs = $inputs;
+
     }
 
     public function create()
@@ -73,11 +73,12 @@ class CreateWalkinOrder
 
         event(new DriverUnloadedPackageInWarehouse($delivery));
 
-        $package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
+        $package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
 
-        event(new PackageCheckedByCashier($package));
+//        event(new PackageCheckedByCashier($package));
+//
+//        event(new PackageApprovedByCustomer($package));
 
-        // event(new PackageApprovedByCustomer($package));
 
         return $package;
     }
