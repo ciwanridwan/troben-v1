@@ -7,13 +7,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\HistoryReject;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Validation\ValidationException;
 
 class KurirRejectDelivery
