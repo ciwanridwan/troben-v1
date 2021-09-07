@@ -236,7 +236,7 @@ class PricingController extends Controller
 
             return (new Response(Response::RC_SUCCESS))->json();
         } else {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
     }
 
