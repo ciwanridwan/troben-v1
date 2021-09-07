@@ -52,7 +52,6 @@ class CreateWalkinOrder
 
         $this->partner = $partner;
         $this->inputs = $inputs;
-
     }
 
     public function create()
