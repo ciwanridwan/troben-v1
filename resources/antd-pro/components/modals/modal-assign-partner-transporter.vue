@@ -27,7 +27,7 @@
 
       <template slot="rightContent">
 
-        <div>
+<!--        <div>
           <a-radio-group v-model="value" @change="onChange">
             <a-radio-button value="a">
               Hangzhou
@@ -36,7 +36,7 @@
               Shanghai
             </a-radio-button>
           </a-radio-group>
-        </div>
+        </div>-->
 
         <a-icon v-if="loading" type="loading" />
         <a-empty v-else-if="partners.length < 1" />

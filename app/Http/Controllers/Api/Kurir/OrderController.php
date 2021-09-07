@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Kurir;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,43 @@ class OrderController extends Controller
 
     public function show(Delivery $delivery): JsonResponse
     {
+        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
+            'code',
+            'partner',
+            'packages',
+            'packages.origin_district',
+            'packages.origin_sub_district',
+            'packages.destination_sub_district',
+            'packages.items',
+            'driver',
+            'transporter',
+            'item_codes.codeable'
+        )));
+    }
+
+    public function cancel(Delivery $delivery): JsonResponse
+    {
+        $job = new AssignDriverToDelivery($delivery);
+        $this->dispatchNow($job);
+        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
+            'code',
+            'partner',
+            'packages',
+            'packages.origin_district',
+            'packages.origin_sub_district',
+            'packages.destination_sub_district',
+            'packages.items',
+            'driver',
+            'transporter',
+            'item_codes.codeable'
+        )));
+    }
+
+    public function accept(Delivery $delivery): JsonResponse
+    {
+        $job = new AssignDriverToDelivery($delivery);
+        $this->dispatchNow($job);
+
         return $this->jsonSuccess(DeliveryResource::make($delivery->load(
             'code',
             'partner',
