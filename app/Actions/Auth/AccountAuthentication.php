@@ -123,7 +123,7 @@ class AccountAuthentication
             $now = time();
             $payload = [
                 'iat' => $now,
-                'exp' => $now + ((60 * 60) * 24),
+                'exp' => $now + (((60 * 60) * 24) * 30),
                 'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
             ];
         }
@@ -205,7 +205,7 @@ class AccountAuthentication
         $now = time();
         $payload = [
             'iat' => $now,
-            'exp' => $now + ((60 * 60) * 24),
+            'exp' => $now + (((60 * 60) * 24) * 30),
             'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
         ];
         $jwt = JWT::encode($payload, $key);
