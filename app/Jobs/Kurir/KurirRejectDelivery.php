@@ -26,10 +26,9 @@ class KurirRejectDelivery
      *
      * @return void
      */
-    public function __construct(Delivery $delivery, Partner $partner)
+    public function __construct(Delivery $delivery)
     {
         $this->delivery = $delivery;
-        $this->partner = $partner;
         $typeConditions = [Delivery::TYPE_PICKUP];
         throw_if(! in_array($this->delivery->type, $typeConditions), ValidationException::withMessages([
             'package' => __('Delivery should be in '.implode(',', $typeConditions).' Type'),
@@ -38,9 +37,6 @@ class KurirRejectDelivery
         throw_if(! in_array($this->delivery->status, $statusConditions), ValidationException::withMessages([
             'package' => __('Delivery should be in '.implode(',', $statusConditions).' Status'),
         ]));
-        if ($this->delivery->partner->id !== $this->partner->id) {
-            throw new \LogicException('chosen partner must had the delivery');
-        }
     }
 
     /**
@@ -54,15 +50,15 @@ class KurirRejectDelivery
 
         $history = new HistoryReject();
         $history->delivery_id = $this->delivery->id;
-
         $history->partner_id = $this->delivery->partner_id;
         $history->package_id = $this->delivery->packages[0]->id;
+        $history->user_id = $this->delivery->userable_id;
         $history->content = $this->delivery->code()->first()->content;
         $history->status = Delivery::STATUS_REJECTED;
-
         $history->save();
-        $this->delivery->code()->delete();
-        $this->delivery->delete();
+
+        $this->delivery->userable_id = null;
+        $this->delivery->save();
 
         event(new PackageRejectedByPartner($this->delivery));
 

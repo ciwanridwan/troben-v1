@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Api\Kurir;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
+use App\Jobs\Kurir\KurirRejectDelivery;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -44,40 +48,19 @@ class OrderController extends Controller
         )));
     }
 
-    public function cancel(Delivery $delivery): JsonResponse
+    public function reject(Delivery $delivery): JsonResponse
     {
-        $job = new AssignDriverToDelivery($delivery);
+        $job = new KurirRejectDelivery($delivery);
         $this->dispatchNow($job);
-        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
-            'code',
-            'partner',
-            'packages',
-            'packages.origin_district',
-            'packages.origin_sub_district',
-            'packages.destination_sub_district',
-            'packages.items',
-            'driver',
-            'transporter',
-            'item_codes.codeable'
-        )));
+
+        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 
     public function accept(Delivery $delivery): JsonResponse
     {
-        $job = new AssignDriverToDelivery($delivery);
-        $this->dispatchNow($job);
+        $delivery->status = Delivery::STATUS_ACCEPTED;
+        $delivery->save();
 
-        return $this->jsonSuccess(DeliveryResource::make($delivery->load(
-            'code',
-            'partner',
-            'packages',
-            'packages.origin_district',
-            'packages.origin_sub_district',
-            'packages.destination_sub_district',
-            'packages.items',
-            'driver',
-            'transporter',
-            'item_codes.codeable'
-        )));
+        return (new Response(Response::RC_SUCCESS, $delivery))->json();
     }
 }
