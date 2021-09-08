@@ -54,6 +54,7 @@ class UpdateExistingUser
             'password' => ['filled', 'confirmed'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
+            'fcm_token' => ['nullable','unique:users,fcm_token,'.$user->id.',id,deleted_at,NULL'],
             'verified_at' => ['nullable'],
         ])->validate();
     }
@@ -61,9 +62,9 @@ class UpdateExistingUser
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
      */
-    public function handle()
+    public function handle(): bool
     {
         collect($this->attributes)->each(fn ($v, $k) => $this->user->{$k} = $v);
 

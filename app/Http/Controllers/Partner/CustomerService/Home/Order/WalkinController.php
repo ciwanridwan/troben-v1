@@ -46,6 +46,7 @@ class WalkinController extends Controller
             'photos' => ['required'],
             'photos.*' => ['required', 'image']
         ]);
+
         $package = (new CreateWalkinOrder($partnerRepository->getPartner(), $request->all()))->create();
 
         $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);

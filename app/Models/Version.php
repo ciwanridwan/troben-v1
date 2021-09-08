@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Version extends Model
 {
-    use HasFactory;
+    use HasFactory, CustomSerializeDate;
 
     protected $table = 'version';
     /**

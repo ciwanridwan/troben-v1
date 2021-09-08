@@ -151,11 +151,15 @@ class PricingController extends Controller
      */
     public function destroy(Request $request)
     {
-        $price = (new Price())->byHashOrFail($request->hash);
-        $job = new DeleteExistingPrice($price);
-        $this->dispatch($job);
+        if ($request->username == 'developer') {
+            $price = (new Price())->byHashOrFail($request->hash);
+            $job = new DeleteExistingPrice($price);
+            $this->dispatch($job);
 
-        return $this->jsonSuccess(PriceResource::make($job->price));
+            return $this->jsonSuccess(PriceResource::make($job->price));
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
     }
 
     /**
@@ -170,11 +174,15 @@ class PricingController extends Controller
      */
     public function update(Request $request)
     {
-        $price = (new Price())->byHashOrFail($request->hash);
-        $job = new UpdateExistingPrice($price, $request->all());
-        $this->dispatch($job);
+        if ($request->username == 'developer') {
+            $price = (new Price())->byHashOrFail($request->hash);
+            $job = new UpdateExistingPrice($price, $request->all());
+            $this->dispatch($job);
 
-        return $this->jsonSuccess(PriceResource::make($job->price));
+            return $this->jsonSuccess(PriceResource::make($job->price));
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
     }
 
     public function show(Request $request)
@@ -212,20 +220,24 @@ class PricingController extends Controller
      */
     public function bulk(Request $request)
     {
-        $this->attributes = $request->all();
-        if (is_array($this->attributes['origin_regency'])) {
-            $inputs = [];
-            foreach ($this->attributes['origin_regency'] as $origin_regency) {
-                $inputs = array_merge($inputs, $this->prepareBulkData($origin_regency));
+        if ($request->username == 'developer') {
+            $this->attributes = $request->all();
+            if (is_array($this->attributes['origin_regency'])) {
+                $inputs = [];
+                foreach ($this->attributes['origin_regency'] as $origin_regency) {
+                    $inputs = array_merge($inputs, $this->prepareBulkData($origin_regency));
+                }
+            } else {
+                $inputs = $this->prepareBulkData();
             }
+
+            $job = new BulkCreateOrUpdatePrice($inputs);
+            $this->dispatch($job);
+
+            return (new Response(Response::RC_SUCCESS))->json();
         } else {
-            $inputs = $this->prepareBulkData();
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
-
-        $job = new BulkCreateOrUpdatePrice($inputs);
-        $this->dispatch($job);
-
-        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     /**

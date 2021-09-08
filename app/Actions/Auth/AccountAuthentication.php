@@ -2,10 +2,10 @@
 
 namespace App\Actions\Auth;
 
-use App\Exceptions\Error;
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
+use App\Jobs\Users\UpdateExistingUser;
 use App\Models\User;
 use App\Http\Response;
 use App\Contracts\HasOtpToken;
@@ -113,7 +113,6 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
@@ -134,7 +133,7 @@ class AccountAuthentication
             }
 
             # update fcm_token
-            if ($authenticatable instanceof Customer) {
+            if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
                 $authenticatable = $this->validationFcmToken($authenticatable);
             }
 
@@ -154,7 +153,7 @@ class AccountAuthentication
         }
 
         # update fcm_token
-        if ($authenticatable instanceof Customer) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -221,10 +220,9 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceof Customer) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -258,10 +256,9 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceof Customer) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -274,18 +271,26 @@ class AccountAuthentication
     }
 
     /**
-     * @param Customer $customer
-     * @return Customer
+     * Validate fcm token.
+     *
+     * @param object|Customer|User $authenticatable
+     * @return object
      * @throws ValidationException
      */
-    public static function validationFcmToken(Customer $customer): Customer
+    public static function validationFcmToken(object $authenticatable): object
     {
-        if (is_null($customer->fcm_token)) {
-            $job = new UpdateExistingCustomer($customer, ['fcm_token' => (string) Str::uuid()]);
+        if (is_null($authenticatable->fcm_token)) {
+            $input = ['fcm_token' => (string) Str::uuid()];
+            if ($authenticatable instanceof Customer) {
+                $job = new UpdateExistingCustomer($authenticatable, $input);
+            } else {
+                $input['fcm_token'] = 'usr-'.$input['fcm_token'];
+                $job = new UpdateExistingUser($authenticatable, $input);
+            }
             dispatch_now($job);
         }
 
-        return $customer->refresh();
+        return $authenticatable->refresh();
     }
 
     /**

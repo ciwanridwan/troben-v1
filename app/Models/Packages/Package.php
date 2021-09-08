@@ -126,9 +126,6 @@ class Package extends Model implements AttachableContract
     public const TYPE_WALKIN = 'walkin';
     public const TYPE_APP = 'app';
 
-
-
-
     /**
      * Phone number column.
      *
