@@ -117,15 +117,15 @@ class AccountAuthentication
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
         $key = 'trawlbensJWTSecretK';
-        $payload = array();
+        $payload = [];
 
         if ($authenticatable) {
             $now = time();
-            $payload = array(
+            $payload = [
                 'iat' => $now,
                 'exp' => $now + (((60 * 60) * 24) * 30),
                 'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-            );
+            ];
         }
 
         if (in_array($column, self::getAvailableSocialLogin())) {
@@ -203,11 +203,11 @@ class AccountAuthentication
         //     ]))->json();
         // }
         $now = time();
-        $payload = array(
+        $payload = [
             'iat' => $now,
             'exp' => $now + (((60 * 60) * 24) * 30),
             'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-        );
+        ];
         $jwt = JWT::encode($payload, $key);
 
         return (new Response(Response::RC_SUCCESS, [
