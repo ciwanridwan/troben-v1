@@ -117,6 +117,16 @@ class AccountAuthentication
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
         $key = 'trawlbensJWTSecretK';
+        $payload = array();
+
+        if ($authenticatable) {
+            $now = time();
+            $payload = array(
+                'iat' => $now,
+                'exp' => $now + ((60 * 60) * 24),
+                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+            );
+        }
 
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
@@ -141,23 +151,19 @@ class AccountAuthentication
                 $authenticatable = $this->validationFcmToken($authenticatable);
             }
 
-            $customerPayload = new JWTCustomerResource($authenticatable);
-            $customerPayload['id'] = $authenticatable->id;
-            $jwtCustomer = JWT::encode($customerPayload, $key);
-
             if ($authenticatable->phone_verified_at == null) {
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
-                    'jwt_token' => $jwtCustomer
+                    'jwt_token' => JWT::encode($payload, $key)
                 ]))->json();
             }
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => $jwtCustomer
+                'jwt_token' => JWT::encode($payload, $key)
             ]))->json();
             // TODO: get authenticatable
         }
@@ -196,9 +202,12 @@ class AccountAuthentication
         //         'jwt_token' => JWT::encode($payload, $key)
         //     ]))->json();
         // }
-        $payload = [];
-        $payload = $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable);
-        $payload['id'] = $authenticatable->id;
+        $now = time();
+        $payload = array(
+            'iat' => $now,
+            'exp' => $now + ((60 * 60) * 24),
+            'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+        );
         $jwt = JWT::encode($payload, $key);
 
         return (new Response(Response::RC_SUCCESS, [
