@@ -8,6 +8,8 @@ use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
 use App\Models\User;
 use App\Http\Response;
+use App\Http\Resources\Account\JWTCustomerResource;
+use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
@@ -114,6 +116,8 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
+        $key = 'trawlbensJWTSecretK';
+
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
                 switch ($column) {
@@ -137,17 +141,23 @@ class AccountAuthentication
                 $authenticatable = $this->validationFcmToken($authenticatable);
             }
 
+            $customerPayload = new JWTCustomerResource($authenticatable);
+            $customerPayload['id'] = $authenticatable->id;
+            $jwtCustomer = JWT::encode($customerPayload, $key);
+
             if ($authenticatable->phone_verified_at == null) {
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
+                    'jwt_token' => $jwtCustomer
                 ]))->json();
             }
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
+                'jwt_token' => $jwtCustomer
             ]))->json();
             // TODO: get authenticatable
         }
@@ -171,25 +181,30 @@ class AccountAuthentication
             return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel']);
         }
 
-        if ($this->attributes['guard'] === 'user') {
-            $key = 'trawlbensJWTSecretK';
+        // if ($this->attributes['guard'] === 'user') {
+        //     $key = 'trawlbensJWTSecretK';
 
-            $payload = [
-                'id' => $authenticatable->id,
-                'name' => $authenticatable->name,
-                'email' => $authenticatable->email
-            ];
+        //     $payload = [
+        //         'id' => $authenticatable->id,
+        //         'name' => $authenticatable->name,
+        //         'email' => $authenticatable->email
+        //     ];
 
-            return (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
-                'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => JWT::encode($payload, $key)
-            ]))->json();
-        }
+        //     return (new Response(Response::RC_SUCCESS, [
+        //         'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+        //         'fcm_token' => $authenticatable->fcm_token ?? null,
+        //         'jwt_token' => JWT::encode($payload, $key)
+        //     ]))->json();
+        // }
+        $payload = [];
+        $payload = $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable);
+        $payload['id'] = $authenticatable->id;
+        $jwt = JWT::encode($payload, $key);
 
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             'fcm_token' => $authenticatable->fcm_token ?? null,
+            'jwt_token' => $jwt
         ]))->json();
     }
 
