@@ -50,17 +50,17 @@
           <a-col :span="12">
             <a-row type="flex" justify="space-between" align="middle">
               <a-col :span="4">
-                <h4>Jml Order</h4>
+                <h4>Jml. Manifest</h4>
                 <span><b>150</b></span>
               </a-col>
               <a-col :span="4">
-                <h4>Jml Debit:</h4>
+                <h4>Jml. Pendapatan:</h4>
                 <span
                   ><b>{{ currency(150) }}</b></span
                 >
               </a-col>
               <a-col :span="4">
-                <h4>Jml Kredit:</h4>
+                <h4>Jml. Berat:</h4>
                 <span
                   ><b>{{ currency(150) }}</b></span
                 >

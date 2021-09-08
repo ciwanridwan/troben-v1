@@ -80,12 +80,38 @@ const main = {
   payment: {
     icon: "wallet",
     text: "Pembayaran",
-    route: "admin.payment",
+    route: "admin.payment.income",
     children: {
       income: {
-        text: "Pendapatan Mitra",
+        title: "All Income",
+        text: "Pendapatan",
         route: "admin.payment.income",
-        children: null,
+        children: {
+          mitraBusiness: {
+            title: "MB Income",
+            text: "Mitra Business",
+            route: "admin.payment.income",
+            children: null
+          },
+          MTAK: {
+            title: "MTAK Income",
+            text: "MTAK",
+            route: "admin.payment.mtak",
+            children: null
+          },
+          MTAKab: {
+            title: "MTAKab Income",
+            text: "MTAKab",
+            route: "admin.payment.mtakab",
+            children: null
+          },
+          MPW: {
+            title: "MPW Income",
+            text: "MPW",
+            route: "admin.payment.mpw",
+            children: null
+          }
+        },
         shortKey: ["ctrl", "alt", "i"]
       },
       withdraw: {
@@ -93,7 +119,7 @@ const main = {
         route: "admin.payment.withdraw",
         children: {
           request: {
-            text: "Request Pencairan",
+            text: "Daftar Request",
             route: "admin.payment.withdraw.request",
             children: null
           },

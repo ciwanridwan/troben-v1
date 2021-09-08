@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Api\Kurir;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Http\Response;
+use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
+use App\Jobs\Kurir\KurirRejectDelivery;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -41,5 +46,21 @@ class OrderController extends Controller
             'transporter',
             'item_codes.codeable'
         )));
+    }
+
+    public function reject(Delivery $delivery): JsonResponse
+    {
+        $job = new KurirRejectDelivery($delivery);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+    }
+
+    public function accept(Delivery $delivery): JsonResponse
+    {
+        $delivery->status = Delivery::STATUS_ACCEPTED;
+        $delivery->save();
+
+        return (new Response(Response::RC_SUCCESS, $delivery))->json();
     }
 }

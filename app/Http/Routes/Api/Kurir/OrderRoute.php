@@ -34,6 +34,15 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('show'),
             'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
+        $this->router->patch($this->prefix('{delivery_hash}/reject'), [
+            'as' => $this->name('reject'),
+            'uses' => $this->uses('reject'),
+        ]);
+
+        $this->router->patch($this->prefix('{delivery_hash}/accept'), [
+            'as' => $this->name('accept'),
+            'uses' => $this->uses('accept'),
+        ]);
     }
 
     /**
