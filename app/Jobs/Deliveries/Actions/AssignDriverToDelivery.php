@@ -29,10 +29,13 @@ class AssignDriverToDelivery
      */
     private UserablePivot $userablePivot;
 
-    public function __construct(Delivery $delivery, $userablePivot)
+    private $method;
+
+    public function __construct(Delivery $delivery, $userablePivot, $method)
     {
         $this->delivery = $delivery;
         $this->userablePivot = $userablePivot;
+        $this->method = $method;
 
         if (! $userablePivot->userable instanceof Transporter) {
             throw new \LogicException('chosen userable must be one that morph '.Transporter::class.' model');
@@ -47,7 +50,10 @@ class AssignDriverToDelivery
         $this->delivery->assigned_to()->associate($this->userablePivot);
         if ($this->delivery->driver->partners->first()->type === Partner::TYPE_TRANSPORTER) {
             $this->delivery->status = Delivery::STATUS_WAITING_TRANSPORTER;
-        } else {
+        }elseif ($this->method == 'independent'){
+            $this->delivery->status = Delivery::STATUS_PENDING;
+        }
+        else {
             $this->delivery->status = Delivery::STATUS_ACCEPTED;
         }
         $this->delivery->save();

@@ -26,6 +26,7 @@ class HistoryReject extends Model
         'delivery_id',
         'partner_id',
         'packages_id',
+        'user_id',
         'content',
         'description',
         'status',

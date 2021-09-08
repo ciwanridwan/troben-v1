@@ -42,6 +42,12 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('assign'),
             'uses' => $this->uses('orderAssignation'),
         ]);
+
+        $this->router->patch($this->prefix('{delivery_hash}/courier'), [
+            'as' => $this->name('courier'),
+            'uses' => $this->uses('courierAssignation'),
+        ]);
+
         $this->router->patch($this->prefix('{delivery_hash}/reject'), [
             'as' => $this->name('reject'),
             'uses' => $this->uses('orderReject'),
