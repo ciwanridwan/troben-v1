@@ -6,6 +6,7 @@ import Geo from "../antd-pro/data/geo";
 import VueQrcode from "vue-qrcode";
 import moment from "moment";
 import { isPromise } from "../antd-pro/functions/general";
+import Firebase from "./firebase";
 
 require("./bootstrap");
 Vue.component("vue-qrcode", VueQrcode);
@@ -82,5 +83,6 @@ Vue.mixin({
 
 Vue.mixin(Laravel);
 Vue.mixin(Geo);
+Vue.mixin(Firebase);
 
 new Vue({}).$mount("#app");
