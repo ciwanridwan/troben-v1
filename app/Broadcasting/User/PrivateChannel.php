@@ -9,20 +9,22 @@ use App\Models\User;
 class PrivateChannel extends TrawlNotification
 {
     /**
-     * Create a new channel instance.
+     * User's private channel constructs.
      *
-     * @return void
+     * @param User $user
+     * @param Notification $notification
+     * @param array $data
      */
-    public function __construct(User $user, Notification $notification, $data = [])
+    public function __construct(User $user, Notification $notification, array $data = [])
     {
         $this->user = $user;
         $this->notification = $notification;
         $this->data = $data;
 
-        $this
-            ->recordLog()
-            ->validateData()
-            ->push();
+        if ($this->user->fcm_token) $this
+                ->recordLog()
+                ->validateData()
+                ->push();
     }
 
     /**
