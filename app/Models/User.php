@@ -68,6 +68,7 @@ class User extends Authenticatable implements HasOtpToken
         'latitude',
         'longitude',
         'is_active',
+        'fcm_token',
     ];
 
 

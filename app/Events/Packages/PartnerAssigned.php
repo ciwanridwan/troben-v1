@@ -36,7 +36,7 @@ class PartnerAssigned
      */
     public function broadcastToCustomerService(): void
     {
-        $cs = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_CS)->get();
+        $cs = $this->partner->users()->wherePivotIn('role',[UserablePivot::ROLE_CS,UserablePivot::ROLE_OWNER])->get();
         $notification = Notification::where('type', Notification::TYPE_CS_GET_NEW_ORDER)->first();
         $package = $this->package;
         $cs->each(function ($cs) use ($notification, $package): void {
