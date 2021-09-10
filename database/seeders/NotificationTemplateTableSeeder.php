@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Notifications\Notification;
+use App\Models\Notifications\Template;
 use Illuminate\Database\Seeder;
 
-class NotificationTableSeeder extends Seeder
+class NotificationTemplateTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,7 +15,7 @@ class NotificationTableSeeder extends Seeder
     public function run()
     {
         $data = [[
-            'type' => Notification::TYPE_CUSTOMER_HAS_PAID,
+            'type' => Template::TYPE_CUSTOMER_HAS_PAID,
             'data' => [
                 'title' => 'Order :package_code',
                 'body' => 'Pembayaran anda sudah diverifikasi.',
@@ -23,14 +23,14 @@ class NotificationTableSeeder extends Seeder
             ],
             'priority' => 'normal',
         ],[
-            'type' => Notification::TYPE_PARTNER_BALANCE_UPDATED,
+            'type' => Template::TYPE_PARTNER_BALANCE_UPDATED,
             'data' => [
                 'title' => 'Cek Saldomu!',
                 'body' => 'Saldomu sudah terupdate. Ayo cek sekarang!',
             ],
             'priority' => 'normal',
         ],[
-            'type' => Notification::TYPE_CS_GET_NEW_ORDER,
+            'type' => Template::TYPE_CS_GET_NEW_ORDER,
             'data' => [
                 'title' => 'Order baru!',
                 'body' => 'Ada orderan baru dengan nomor :package_code',
@@ -39,6 +39,6 @@ class NotificationTableSeeder extends Seeder
             'priority' => 'normal',
         ]];
 
-        collect($data)->each(fn ($v) => Notification::create($v));
+        collect($data)->each(fn ($v) => Template::create($v));
     }
 }

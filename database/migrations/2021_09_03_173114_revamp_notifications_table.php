@@ -15,10 +15,11 @@ class RevampNotificationsTable extends Migration
     {
         Schema::dropIfExists('notifications');
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->string('type')->unique();
+            $table->uuid('id')->primary();
+            $table->string('type')->nullable();
+            $table->morphs('notifiable');
             $table->json('data');
-            $table->string('priority')->default('normal');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

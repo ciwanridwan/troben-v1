@@ -4,6 +4,7 @@ namespace App\Broadcasting\User;
 
 use App\Abstracts\TrawlNotification;
 use App\Models\Notifications\Notification;
+use App\Models\Notifications\Template;
 use App\Models\User;
 
 class PrivateChannel extends TrawlNotification
@@ -12,18 +13,18 @@ class PrivateChannel extends TrawlNotification
      * User's private channel constructs.
      *
      * @param User $user
-     * @param Notification $notification
+     * @param Template $notification
      * @param array $data
      */
-    public function __construct(User $user, Notification $notification, array $data = [])
+    public function __construct(User $user, Template $notification, array $data = [])
     {
         $this->user = $user;
         $this->notification = $notification;
         $this->data = $data;
 
         if ($this->user->fcm_token) $this
-                ->recordLog()
                 ->validateData()
+                ->recordLog()
                 ->push();
     }
 
@@ -34,7 +35,7 @@ class PrivateChannel extends TrawlNotification
      */
     public function recordLog(): self
     {
-        $this->notification->users()->attach($this->user->id);
+        $this->user->notifications()->save((new Notification())->setAttribute('data',$this->template));
         return $this;
     }
 

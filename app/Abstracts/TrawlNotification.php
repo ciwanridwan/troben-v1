@@ -4,7 +4,7 @@ namespace App\Abstracts;
 
 use App\Contracts\TrawlNotificationContracts;
 use App\Models\Customers\Customer;
-use App\Models\Notifications\Notification;
+use App\Models\Notifications\Template;
 use App\Models\User;
 
 abstract class TrawlNotification implements TrawlNotificationContracts
@@ -20,9 +20,9 @@ abstract class TrawlNotification implements TrawlNotificationContracts
     protected User $user;
 
     /**
-     * @var Notification $notification
+     * @var Template $notification
      */
-    protected Notification $notification;
+    protected Template $notification;
 
     /**
      * @var array|string[] $template

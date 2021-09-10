@@ -3,7 +3,7 @@
 namespace App\Events\Packages;
 
 use App\Broadcasting\User\PrivateChannel;
-use App\Models\Notifications\Notification;
+use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -37,7 +37,7 @@ class PartnerAssigned
     public function broadcastToCustomerService(): void
     {
         $cs = $this->partner->users()->wherePivotIn('role',[UserablePivot::ROLE_CS,UserablePivot::ROLE_OWNER])->get();
-        $notification = Notification::where('type', Notification::TYPE_CS_GET_NEW_ORDER)->first();
+        $notification = Template::where('type', Template::TYPE_CS_GET_NEW_ORDER)->first();
         $package = $this->package;
         $cs->each(function ($cs) use ($notification, $package): void {
             new PrivateChannel($cs, $notification, [

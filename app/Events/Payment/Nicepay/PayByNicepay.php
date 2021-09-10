@@ -5,7 +5,7 @@ namespace App\Events\Payment\Nicepay;
 use App\Broadcasting\Customer\PrivateChannel;
 use App\Models\Code;
 use App\Models\Customers\Customer;
-use App\Models\Notifications\Notification;
+use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -25,8 +25,8 @@ class PayByNicepay
     /** @var Package $package */
     public Package $package;
 
-    /** @var Notification $notification */
-    public Notification $notification;
+    /** @var Template $notification */
+    public Template $notification;
 
     /**
      * PayByNicepay constructor.
@@ -41,8 +41,8 @@ class PayByNicepay
 
         $this->customer = $this->package->customer;
 
-        /** @var Notification $notification */
-        $this->notification = Notification::where('type', Notification::TYPE_CUSTOMER_HAS_PAID)
+        /** @var Template $notification */
+        $this->notification = Template::where('type', Template::TYPE_CUSTOMER_HAS_PAID)
             ->first();
     }
 
