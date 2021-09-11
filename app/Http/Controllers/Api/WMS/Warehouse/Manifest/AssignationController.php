@@ -26,7 +26,8 @@ class AssignationController extends Controller
      */
     public function driver(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
-        $job = new AssignDriverToDelivery($delivery, $userablePivot);
+        $method = 'assign_driver';
+        $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
 
         $this->dispatchNow($job);
 

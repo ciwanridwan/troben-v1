@@ -138,7 +138,7 @@ class OrderController extends Controller
 
     public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot ): JsonResponse
     {
-        $method = 'driver';
+        $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
         $this->dispatchNow($job);
 
