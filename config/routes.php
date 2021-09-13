@@ -21,6 +21,10 @@ return [
             'middleware' => ['web', 'auth', 'is.admin'],
             'prefix' => 'admin',
         ],
+        'partner' => [
+            'middleware' => ['web', 'auth', 'partner.role:cashier,customer-service', 'partner.scope.role:cashier,customer-service'],
+            'prefix' => 'partner',
+        ],
         'cashier' => [
             'middleware' => ['web', 'auth', 'partner.role:cashier', 'partner.scope.role:cashier'],
             'prefix' => 'partner/cashier',
@@ -29,7 +33,6 @@ return [
             'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:customer-service'],
             'prefix' => 'partner/customer-service',
         ]
-
     ],
 
     'web' => [
@@ -87,6 +90,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
+        App\Http\Routes\Admin\AdminRoute::class,
         /** @inject admin **/
     ],
     'cashier' => [
@@ -101,5 +105,8 @@ return [
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],
-
+    'partner' => [
+        App\Http\Routes\Partner\PartnerRoute::class,
+        /** @inject partner **/
+    ]
 ];

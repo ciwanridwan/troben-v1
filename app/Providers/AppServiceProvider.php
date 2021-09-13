@@ -53,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
                         'routes' => $collection,
                         'current_route' => empty(request()->route()) ? '' : request()->route()->getName(),
                         'request' => request()->all(),
+                        'fcm' => [
+                            'cloud_messaging' => config('trawl-firebase'),
+                            'service_worker_url' => mix("/js/trawl-sw.js")->toHtml(),
+                        ],
                     ]);
                 }
             });
