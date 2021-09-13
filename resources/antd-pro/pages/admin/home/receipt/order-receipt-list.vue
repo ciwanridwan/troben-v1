@@ -40,9 +40,9 @@
         :change-size-page="changeSizePage"
       />
     </template>
-    <!-- <template slot="sider">
+    <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template> -->
+    </template>
   </content-layout>
 </template>
 <script>

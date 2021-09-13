@@ -3,6 +3,7 @@ import Clipboard from "v-clipboard";
 import qs from "qs";
 import Laravel from "../antd-pro/laravel";
 import Geo from "../antd-pro/data/geo";
+import TrawlNotification from "../antd-pro/data/trawlNotification";
 import VueQrcode from "vue-qrcode";
 import moment from "moment";
 import { isPromise } from "../antd-pro/functions/general";
@@ -19,6 +20,13 @@ Vue.use(Clipboard);
 Vue.prototype.$http = window.axios.create();
 Vue.prototype.$laravel = window.Laravel;
 Vue.prototype.$qs = qs;
+
+// prepare global data for notification watcher.
+const trawlNotificationData = Vue.observable({ data: {} });
+Object.defineProperty(Vue.prototype, '$trawlNotificationData', {
+  get() { return trawlNotificationData.data },
+  set(value) { trawlNotificationData.data = value; }
+})
 
 // automatic component registration.
 const files = require.context("../antd-pro", true, /\.vue$/i);
@@ -83,6 +91,7 @@ Vue.mixin({
 
 Vue.mixin(Laravel);
 Vue.mixin(Geo);
+Vue.mixin(TrawlNotification);
 Vue.mixin(Firebase);
 
 new Vue({}).$mount("#app");

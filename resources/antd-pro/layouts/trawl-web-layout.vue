@@ -105,6 +105,7 @@ export default {
     this.init();
     this.setMessaging();
     this.runServiceWorker();
+    this.getNotification();
   },
 };
 </script>

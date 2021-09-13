@@ -59,12 +59,13 @@ const firebase = {
     },
     receiveMessage() {
       try {
-        this.messaging.onMessage((payload) => {
+        this.messaging.onMessage(async (payload) => {
           this.$notification.info({
             message: payload.notification.title,
             description: payload.notification.body,
           })
           this.audioNotification();
+          await this.getNotification();
         });
       } catch (e) {
         console.log(e);

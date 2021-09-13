@@ -107,6 +107,9 @@ const laravel = {
     user() {
       return this.$laravel.user;
     },
+    isAdmin() {
+      return this.$laravel.user?.is_admin;
+    },
     initial(v) {
       return v
         .match(/(^\S\S?|\b\S)?/g)
