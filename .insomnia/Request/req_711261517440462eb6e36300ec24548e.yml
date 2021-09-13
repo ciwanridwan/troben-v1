@@ -1,0 +1,32 @@
+_id: req_711261517440462eb6e36300ec24548e
+type: Request
+parentId: fld_46c5a860df1d42e683de0a28f9234879
+modified: 1631093067644
+created: 1631092691608
+url: "{{ _.base_url }}/kurir/order/{% response 'body',
+  'req_5cd37dafd70248d4bc33aa95e43b6b5f', 'b64::JC5kYXRhLmhhc2g=::46b', 'never',
+  60 %}/reject"
+name: Reject Order
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_d7e1947748e14e4e9393ebca62d0a875',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+authentication: {}
+metaSortKey: -1619062162830.0625
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

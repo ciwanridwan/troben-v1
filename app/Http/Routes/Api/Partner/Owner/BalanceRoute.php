@@ -28,7 +28,7 @@ class BalanceRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->get($this->prefix('summary'),[
+        $this->router->get($this->prefix('summary'), [
             'as' => $this->name('summary'),
             'uses' => $this->uses('summary'),
         ]);

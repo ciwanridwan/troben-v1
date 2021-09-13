@@ -23,6 +23,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('pickup'),
         ]);
 
+        $this->router->get($this->prefix('assignCourier'), [
+            'as' => $this->name('assignCourier'),
+            'uses' => $this->uses('assignCourier'),
+        ]);
+
         $this->router->get($this->prefix('passed'), [
             'as' => $this->name('passed'),
             'uses' => $this->uses('passed'),
@@ -37,6 +42,12 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('assign'),
             'uses' => $this->uses('orderAssignation'),
         ]);
+
+        $this->router->patch($this->prefix('{delivery_hash}/courier'), [
+            'as' => $this->name('courier'),
+            'uses' => $this->uses('courierAssignation'),
+        ]);
+
         $this->router->patch($this->prefix('{delivery_hash}/reject'), [
             'as' => $this->name('reject'),
             'uses' => $this->uses('orderReject'),

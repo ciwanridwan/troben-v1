@@ -1,0 +1,54 @@
+_id: env_6806b74231544307ab34a67daed565d9
+type: Environment
+parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
+modified: 1630465441949
+created: 1630311980468
+name: Production
+data:
+  base_url: https://trawlbens.com/api
+  credentials:
+    customer:
+      phone: "+625555555555"
+      email: customer@trawlbens.co.id
+      password: password
+    driver:
+      email: 0-mb-driver-0@trawlbens.co.id
+      password: password
+    warehouse:
+      email: 2-mb-warehouse-0@trawlbens.co.id
+      password: password
+    owner:
+      email: 0-mb-owner@trawlbens.co.id
+      password: password
+    mtm:
+      email: 0-mtm-owner@trawlbens.co.id
+      password: password
+dataPropertyOrder:
+  "&":
+    - base_url
+    - credentials
+  "&~|credentials":
+    - customer
+    - driver
+    - warehouse
+    - owner
+    - mtm
+  "&~|credentials~|customer":
+    - phone
+    - email
+    - password
+  "&~|credentials~|driver":
+    - email
+    - password
+  "&~|credentials~|warehouse":
+    - email
+    - password
+  "&~|credentials~|owner":
+    - email
+    - password
+  "&~|credentials~|mtm":
+    - email
+    - password
+color: "#ff0000"
+isPrivate: false
+metaSortKey: 1630311980468

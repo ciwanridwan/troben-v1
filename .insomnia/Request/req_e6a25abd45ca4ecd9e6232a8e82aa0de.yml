@@ -1,0 +1,31 @@
+_id: req_e6a25abd45ca4ecd9e6232a8e82aa0de
+type: Request
+parentId: fld_0d46af082f0d4ab9a8d942dcec33ba75
+modified: 1630564419308
+created: 1630557682095
+url: "{{ _.base_url }}/wms/warehouse/order/{% response 'body',
+  'req_651b3de0b62a4e9198a27d5ec7fce3a2', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Detail Order
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450165.1875
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

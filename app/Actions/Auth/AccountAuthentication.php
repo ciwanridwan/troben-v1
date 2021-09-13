@@ -2,15 +2,15 @@
 
 namespace App\Actions\Auth;
 
-use App\Exceptions\Error;
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
 use App\Models\User;
 use App\Http\Response;
+use App\Http\Resources\Account\JWTCustomerResource;
+use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use Illuminate\Support\Str;
@@ -115,7 +115,18 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
+
+        $key = 'trawlbensJWTSecretK';
+        $payload = [];
+
+        if ($authenticatable) {
+            $now = time();
+            $payload = [
+                'iat' => $now,
+                'exp' => $now + (((60 * 60) * 24) * 30),
+                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+            ];
+        }
 
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
@@ -136,7 +147,7 @@ class AccountAuthentication
             }
 
             # update fcm_token
-            if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
+            if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
                 $authenticatable = $this->validationFcmToken($authenticatable);
             }
 
@@ -145,18 +156,20 @@ class AccountAuthentication
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
+                    'jwt_token' => JWT::encode($payload, $key)
                 ]))->json();
             }
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
+                'jwt_token' => JWT::encode($payload, $key)
             ]))->json();
             // TODO: get authenticatable
         }
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -174,25 +187,33 @@ class AccountAuthentication
             return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel']);
         }
 
-        if ($this->attributes['guard'] === 'user') {
-            $key = 'trawlbensJWTSecretK';
+        // if ($this->attributes['guard'] === 'user') {
+        //     $key = 'trawlbensJWTSecretK';
 
-            $payload = [
-                'id' => $authenticatable->id,
-                'name' => $authenticatable->name,
-                'email' => $authenticatable->email
-            ];
+        //     $payload = [
+        //         'id' => $authenticatable->id,
+        //         'name' => $authenticatable->name,
+        //         'email' => $authenticatable->email
+        //     ];
 
-            return (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
-                'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => JWT::encode($payload, $key)
-            ]))->json();
-        }
+        //     return (new Response(Response::RC_SUCCESS, [
+        //         'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+        //         'fcm_token' => $authenticatable->fcm_token ?? null,
+        //         'jwt_token' => JWT::encode($payload, $key)
+        //     ]))->json();
+        // }
+        $now = time();
+        $payload = [
+            'iat' => $now,
+            'exp' => $now + (((60 * 60) * 24) * 30),
+            'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+        ];
+        $jwt = JWT::encode($payload, $key);
 
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             'fcm_token' => $authenticatable->fcm_token ?? null,
+            'jwt_token' => $jwt
         ]))->json();
     }
 
@@ -223,10 +244,9 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -260,10 +280,9 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
-        throw_if(is_null($authenticatable), new Error(Response::RC_INVALID_DATA));
 
         # update fcm_token
-        if ($authenticatable instanceOf Customer || $authenticatable instanceof User) {
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
@@ -273,6 +292,29 @@ class AccountAuthentication
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
+    }
+
+    /**
+     * Validate fcm token.
+     *
+     * @param object|Customer|User $authenticatable
+     * @return object
+     * @throws ValidationException
+     */
+    public static function validationFcmToken(object $authenticatable): object
+    {
+        if (is_null($authenticatable->fcm_token)) {
+            $input = ['fcm_token' => (string) Str::uuid()];
+            if ($authenticatable instanceof Customer) {
+                $job = new UpdateExistingCustomer($authenticatable, $input);
+            } else {
+                $input['fcm_token'] = 'usr-'.$input['fcm_token'];
+                $job = new UpdateExistingUser($authenticatable, $input);
+            }
+            dispatch_now($job);
+        }
+
+        return $authenticatable->refresh();
     }
 
     /**
@@ -327,28 +369,5 @@ class AccountAuthentication
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
-    }
-
-    /**
-     * Validate fcm token.
-     *
-     * @param object|Customer|User $authenticatable
-     * @return object
-     * @throws ValidationException
-     */
-    public static function validationFcmToken(object $authenticatable): object
-    {
-        if (is_null($authenticatable->fcm_token)) {
-            $input = ['fcm_token' => (string) Str::uuid()];
-            if ($authenticatable instanceof Customer) {
-                $job = new UpdateExistingCustomer($authenticatable, $input);
-            } else {
-                $input['fcm_token'] = 'usr-'.$input['fcm_token'];
-                $job = new UpdateExistingUser($authenticatable, $input);
-            }
-            dispatch_now($job);
-        }
-
-        return $authenticatable->refresh();
     }
 }

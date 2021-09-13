@@ -49,9 +49,9 @@ class UserablePivot extends Relations\MorphPivot
      */
     protected $hidden = [
         'id',
-        'userable_id',
+       /* 'userable_id',
         'userable_type',
-        'user_id',
+        'user_id',*/
         'created_at',
         'updated_at',
     ];

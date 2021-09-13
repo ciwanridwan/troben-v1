@@ -57,6 +57,7 @@ const laravel = {
       let uri = this.routeUri(this.getRoute());
       let { hash } = record;
       uri = uri + "/" + hash;
+      this.form.username = this.$laravel.user.username;
       this.$http
         .delete(uri)
         .then(() => {

@@ -1,0 +1,31 @@
+_id: req_fb92a8671e8f4035824d8c1fc212d753
+type: Request
+parentId: fld_5fc875a502724a17a974d1f0f1cb9cd3
+modified: 1631092995849
+created: 1630478956084
+url: "{{ _.base_url }}/kurir/transition/pickup/{% response 'body',
+  'req_51493f0b649d43bebb9f3a9772866ff2', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'no-history', 60 %}/unloaded"
+name: Package Unloaded by Driver
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_d7e1947748e14e4e9393ebca62d0a875',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613148946271.9062
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

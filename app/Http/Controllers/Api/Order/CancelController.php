@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Order;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Response;
 use App\Jobs\Packages\SelectCancelPickupMethod;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -39,5 +40,18 @@ class CancelController extends Controller
         $this->dispatch($job);
 
         return $this->jsonSuccess(PackageResource::make($job->package));
+    }
+
+    public function cancelBefore(Package $package): JsonResponse
+    {
+        if ($package->status == 'pending' && $package->payment_status == 'draft' || $package->status == 'created' && $package->payment_status == 'draft') {
+            $this->authorize('update', $package);
+
+            event(new PackageCanceledByCustomer($package));
+
+            return $this->jsonSuccess(PackageResource::make($package->fresh()));
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
     }
 }

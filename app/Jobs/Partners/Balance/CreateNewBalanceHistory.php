@@ -34,7 +34,7 @@ class CreateNewBalanceHistory
      */
     public function __construct(array $inputs)
     {
-        $this->attributes = Validator::make($inputs,[
+        $this->attributes = Validator::make($inputs, [
             'partner_id' => ['required', 'exists:partners,id'],
             'package_id' => ['required', 'exists:packages,id'],
             'balance' => ['required','numeric'],
@@ -45,7 +45,7 @@ class CreateNewBalanceHistory
     }
 
     /**
-     * Create new partner's balance history
+     * Create new partner's balance history.
      *
      * @return bool
      */

@@ -128,7 +128,7 @@ class User extends Authenticatable implements HasOtpToken
     }
     public function role(): BelongsTo
     {
-        return $this->belongsTo(UserablePivot::class, 'id', );
+        return $this->belongsTo(UserablePivot::class, 'user_id', 'id');
     }
 
     public function transporters(): Relations\MorphToMany

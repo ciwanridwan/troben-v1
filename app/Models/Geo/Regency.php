@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Regency extends Model
 {
+    use CustomSerializeDate;
     public const JABODETABEK = [
             'Kota Tangerang',
             'Kota Tangerang Selatan',
@@ -40,8 +41,6 @@ class Regency extends Model
             'Kota Bogor',
             'Kota Depok',
     ];
-
-    use CustomSerializeDate;
     /**
      * The table associated with the model.
      *
@@ -109,6 +108,6 @@ class Regency extends Model
      */
     public static function getJabodetabekId(): array
     {
-        return Regency::query()->whereIn('name', self::JABODETABEK)->get('id')->pluck('id')->toArray();
+        return self::query()->whereIn('name', self::JABODETABEK)->get('id')->pluck('id')->toArray();
     }
 }
