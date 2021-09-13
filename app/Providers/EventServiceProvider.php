@@ -212,7 +212,7 @@ class EventServiceProvider extends ServiceProvider
         // Package::observe(CodeObserver::class);
 
         Event::listen(function (PartnerAssigned $event) {
-            $event->broadcastToCustomerService();
+            $event->broadcast();
         });
     }
 }

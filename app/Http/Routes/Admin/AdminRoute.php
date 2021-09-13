@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Routes\Partner;
+namespace App\Http\Routes\Admin;
 
 use App\Http\Controllers\Partner\NotificationController;
 use Jalameta\Router\BaseRoute;
 
-class PartnerRoute extends BaseRoute
+class AdminRoute extends BaseRoute
 {
-    protected $name = 'partner';
+    protected $name = 'admin';
 
     /**
      * Register routes handled by this class.

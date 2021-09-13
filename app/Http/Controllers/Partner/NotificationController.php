@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Notifications\NotificationResource;
+use App\Models\Notifications\Notification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,9 @@ class NotificationController extends Controller
      */
     protected function getBasicBuilder(Builder $builder): Builder
     {
-        $builder->when(request()->has('read'), fn ($q) => $q->whereNull('read_at'));
+
+        if (request()->input('read', false)) $builder->whereNotNull('read_at');
+        else $builder->whereNull('read_at');
 
         return $builder;
     }
@@ -58,5 +61,21 @@ class NotificationController extends Controller
         $builder->orderBy('created_at', 'desc');
 
         return $builder;
+    }
+
+    /**
+     * Update read notification.
+     * Route Path       : {DOMAIN}/partner/notification/{notification_id}
+     * Route Name       : partner.notification.read
+     * Route Method     : PATCH.
+     *
+     * @param Notification $notification
+     * @return JsonResponse
+     */
+    public function read(Notification $notification): JsonResponse
+    {
+        $notification->setAttribute('read_at', \Carbon\Carbon::now())->save();
+
+        return $this->jsonSuccess();
     }
 }
