@@ -33,8 +33,8 @@ class AssignTransporterToDeliveryTest extends TestCase
 
         /** @var User $driver */
         $driver = $transporter->drivers->first();
-
-        $job = new AssignDriverToDelivery($delivery, $driver->pivot);
+        $method = 'partner';
+        $job = new AssignDriverToDelivery($delivery, $driver->pivot, $method);
 
         dispatch_now($job);
 
