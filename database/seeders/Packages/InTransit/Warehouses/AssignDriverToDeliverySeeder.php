@@ -36,7 +36,9 @@ class AssignDriverToDeliverySeeder extends Seeder
             /** @var Transporter $transporter */
             $transporter = $driver->transporters->first();
 
-            $job = new AssignDriverToDelivery($delivery, $transporter->pivot);
+            $method = 'partner';
+
+            $job = new AssignDriverToDelivery($delivery, $transporter->pivot, $method);
             $this->dispatch($job);
         });
     }
