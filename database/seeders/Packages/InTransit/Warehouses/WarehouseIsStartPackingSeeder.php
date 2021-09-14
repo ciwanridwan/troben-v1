@@ -9,7 +9,6 @@ use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Database\Seeders\Packages\PostPayment\PostPaymentSeeder;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Event;
 
 class WarehouseIsStartPackingSeeder extends Seeder
 {
