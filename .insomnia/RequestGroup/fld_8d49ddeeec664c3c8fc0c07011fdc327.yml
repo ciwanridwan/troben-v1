@@ -3,7 +3,7 @@ type: RequestGroup
 parentId: wrk_1e397ee573584606a034d6ff98a9acdf
 modified: 1630659046563
 created: 1630478956064
-name: Kurir
+name: Courier
 description: ""
 environment: {}
 environmentPropertyOrder: null

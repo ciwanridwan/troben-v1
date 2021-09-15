@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Kurir\Transition;
+namespace App\Http\Controllers\Api\Courier\Transition;
 
 use App\Events\Deliveries\Kurir\Pickup\CustomerPackageApproved;
 use App\Events\Deliveries\Kurir\Pickup\WaitingCustomerConfirmation;

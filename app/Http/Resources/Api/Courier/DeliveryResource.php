@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Resources\Api\Delivery;
+namespace App\Http\Resources\Api\Courier;
 
+use App\Http\Resources\Api\Package\PackageResource;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -58,10 +59,10 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
-        // if ($this->resource->relationLoaded('packages')) {
-        //     $packages = PackageResource::collection($this->resource->packages->load('items'));
-        //     $this->resource->unsetRelation('packages');
-        // }
+        if ($this->resource->relationLoaded('packages')) {
+            $packages = PackageResource::collection($this->resource->packages->load('items'));
+            $this->resource->unsetRelation('packages');
+        }
 
         $this->resource->append('as');
         if (! $this->resource->relationLoaded('item_codes')) {
@@ -76,9 +77,9 @@ class DeliveryResource extends JsonResource
         $this->resource->load('driver');
 
         $data = parent::toArray($request);
-        // if (isset($packages)) {
-        //     $data['packages'] = $packages;
-        // }
+        if (isset($packages)) {
+            $data['packages'] = $packages;
+        }
 
         return $data;
     }

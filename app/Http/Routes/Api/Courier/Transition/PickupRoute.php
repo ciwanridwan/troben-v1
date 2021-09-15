@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Routes\Api\Kurir\Transition;
+namespace App\Http\Routes\Api\Courier\Transition;
 
-use App\Http\Controllers\Api\Kurir\Transition\PickupController;
+use App\Http\Controllers\Api\Courier\Transition\PickupController;
 use Jalameta\Router\BaseRoute;
 
 class PickupRoute extends BaseRoute
 {
-    protected $prefix = 'kurir/transition/pickup/{delivery_hash}';
+    protected $prefix = 'courier/transition/pickup/{delivery_hash}';
 
-    protected $name = 'api.kurir.transition.pickup';
+    protected $name = 'api.courier.transition.pickup';
 
     protected $middleware = [
         'partner.type:business,transporter',

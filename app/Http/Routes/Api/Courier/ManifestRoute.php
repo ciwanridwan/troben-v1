@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Routes\Api\Kurir;
+namespace App\Http\Routes\Api\Courier;
 
-use App\Http\Controllers\Api\Kurir\ManifestController;
+use App\Http\Controllers\Api\Courier\ManifestController;
 use Jalameta\Router\BaseRoute;
 
 class ManifestRoute extends BaseRoute
 {
-    protected $prefix = 'kurir/manifest';
+    protected $prefix = 'courier/manifest';
 
-    protected $name = 'api.kurir.manifest';
+    protected $name = 'api.courier.manifest';
 
     protected $middleware = [
         'partner.type:business,transporter',

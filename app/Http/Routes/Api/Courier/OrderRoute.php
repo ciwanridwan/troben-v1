@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Routes\Api\Kurir;
+namespace App\Http\Routes\Api\Courier;
 
-use App\Http\Controllers\Api\Kurir\OrderController;
-use App\Http\Controllers\Api\Kurir\ManifestController as PartnerManifestController;
+use App\Http\Controllers\Api\Courier\OrderController;
+use App\Http\Controllers\Api\Courier\ManifestController as PartnerManifestController;
 use Jalameta\Router\BaseRoute;
 
 class OrderRoute extends BaseRoute
 {
-    protected $prefix = 'kurir/order';
+    protected $prefix = 'courier/order';
 
-    protected $name = 'api.kurir.order';
+    protected $name = 'api.courier.order';
 
     protected $middleware = [
         'partner.type:business,transporter',
