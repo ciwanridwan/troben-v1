@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Courier;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Http\Resources\Api\Courier\DeliveryResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
