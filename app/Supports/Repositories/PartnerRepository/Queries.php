@@ -46,12 +46,42 @@ class Queries
         return $query;
     }
 
+    public function getDeliveriesCourierQuery(): Builder
+    {
+        $query = Delivery::query();
+
+        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+            $userable = $this->user->transporters->first();
+            $query->where('userable_id', $userable->pivot->id);
+        } else {
+            $query->where(fn (Builder $builder) => $builder
+                ->orWhere('partner_id', $this->partner->id)
+                ->orWhere('origin_partner_id', $this->partner->id));
+            $query->where('status', '!=', Delivery::STATUS_WAITING_ASSIGN_PACKAGE); // where not equal to
+            $query->where('status', '!=', Delivery::STATUS_WAITING_ASSIGN_PARTNER); // where not equal to
+
+            $this->resolveDeliveriesQueryByRole($query);
+        }
+
+        return $query;
+    }
+
     public function getHistoryRejectedQuery(): Builder
     {
         $query = HistoryReject::query();
 
         $query->where(fn (Builder $builder) => $builder
             ->orWhere('partner_id', $this->partner->id));
+
+        return $query;
+    }
+
+    public function getHistoryRejectedKurirQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('userable_id', $this->user->id));
 
         return $query;
     }
