@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\WMS;
 
+use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -20,7 +21,7 @@ class ManifestController extends Controller
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
         $partner = $repository->getPartner();
-        $query = $repository->queries()->getDeliveriesQuery();
+        $query = $repository->queries()->getDeliveriesCourierQuery();
         $request->whenHas('arrival', function (bool $value) use ($query, $partner) {
             if ($value) {
                 $query->where('partner_id', $partner->id);
@@ -63,7 +64,18 @@ class ManifestController extends Controller
         ]));
         $this->dispatchNow($job);
 
-        return $this->jsonSuccess();
+        dd($job);
+
+        if ($job == 'package ada yg manifested'){
+            $delivery = Delivery::find($job->delivery->id);
+            $delivery->forceDelete();
+
+            return (new Response(Response::RC_BAD_REQUEST, $job))->json();
+        }
+
+
+        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+
     }
 
     public function show(Delivery $delivery): JsonResponse

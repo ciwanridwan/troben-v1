@@ -3,6 +3,7 @@
 namespace App\Jobs\Deliveries\Actions;
 
 use App\Events\CodeScanned;
+use App\Http\Response;
 use App\Models\Code;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,7 @@ use App\Events\Packages\PackageAttachedToDelivery;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Collection;
+use function PHPUnit\Framework\isEmpty;
 
 class ProcessFromCodeToDelivery
 {
@@ -58,41 +60,67 @@ class ProcessFromCodeToDelivery
         $this->role = $inputs['role'];
     }
 
-    public function handle(): void
+    public function handle()
     {
-        if ($this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE && $this->delivery->userable_id === null) {
-            $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER);
-            $this->delivery->save();
+        $array_fail = [];
+//        $this->codes->each(function (Code $code) use ($array_fail) {
+//            $valid = $this->assignToDelivery($code);
+//            if (!$valid['status']) {
+//                $array_fail[] = $valid['code'];
+//            }
+//        });
+
+        foreach ($this->codes as $code){
+            $valid = $this->assignToDelivery($code);
+            if (!$valid['status']) {
+                $array_fail[] = $valid['code'];
+            }
         }
 
-        $this->codes->each(function (Code $code) {
-            $this->assignToDelivery($code);
-        });
+        if (!isEmpty($array_fail)){
+            if ($this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE && $this->delivery->userable_id === null) {
+                $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER);
+                $this->delivery->save();
+            }
+        }else{
+            return $array_fail;
+        }
     }
 
     public function assignToDelivery(Code $code)
     {
+        $status = [
+            'status' => true,
+            'code' => ''
+        ];
+
         $this->code = $code;
 
         /** @var Package $package */
         $package = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
-        $this->checkAndAttachPackageToDelivery($package);
+        if ($package->status != Package::STATUS_MANIFESTED){
+            $this->checkAndAttachPackageToDelivery($package);
 
-        if ($this->code->codeable instanceof Item && $this->status) {
-            $this->delivery->item_codes()->syncWithoutDetaching($code->id);
+            if ($this->code->codeable instanceof Item && $this->status) {
+                $this->delivery->item_codes()->syncWithoutDetaching($code->id);
 
-            $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
-                'status' => $this->status,
-                'is_onboard' => Deliverable::isShouldOnBoard($this->status),
-            ]);
+                $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
+                    'status' => $this->status,
+                    'is_onboard' => Deliverable::isShouldOnBoard($this->status),
+                ]);
 
-            /** @var Code $code */
-            $code = $this->delivery->item_codes()->find($this->code->id);
+                /** @var Code $code */
+                $code = $this->delivery->item_codes()->find($this->code->id);
 
-            event(new DeliverableItemCodeUpdate($code->pivot));
-            event(new CodeScanned($this->delivery, $this->code, $this->role));
+                event(new DeliverableItemCodeUpdate($code->pivot));
+                event(new CodeScanned($this->delivery, $this->code, $this->role));
+            }
+        }else{
+            $status['status'] = false;
+            $status['code'] = $package->code->content;
         }
+        return $status;
     }
     public function checkAndAttachPackageToDelivery($package)
     {

@@ -47,35 +47,4 @@ class AssignationController extends Controller
         return $this->jsonSuccess();
     }
 
-    /**
-     * @param Delivery $delivery
-     * @param Partner $partner
-     * @return JsonResponse
-     */
-    public function partner(Delivery $delivery, Partner $partner): JsonResponse
-    {
-        $job = new AssignPartnerToDelivery($delivery, $partner);
-
-        $this->dispatchNow($job);
-
-        return $this->jsonSuccess();
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Deliveries\Delivery $delivery
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function package(Request $request, Delivery $delivery): JsonResponse
-    {
-        $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
-            'status' => Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE,
-            'role' => UserablePivot::ROLE_WAREHOUSE
-        ]));
-
-        $this->dispatchNow($job);
-
-        return $this->jsonSuccess();
-    }
 }
