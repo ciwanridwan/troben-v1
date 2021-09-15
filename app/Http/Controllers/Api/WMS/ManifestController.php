@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\WMS;
 
+use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Models\Code;
@@ -16,7 +17,6 @@ use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Deliveries\Actions\CreateNewManifest;
-use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 
 class ManifestController extends Controller

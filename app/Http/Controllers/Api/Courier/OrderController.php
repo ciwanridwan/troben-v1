@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Kurir;
+namespace App\Http\Controllers\Api\Courier;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;

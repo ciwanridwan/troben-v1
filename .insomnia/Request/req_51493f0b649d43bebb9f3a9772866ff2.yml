@@ -3,7 +3,7 @@ type: Request
 parentId: fld_5fc875a502724a17a974d1f0f1cb9cd3
 modified: 1631092981895
 created: 1630478956082
-url: "{{ _.base_url }}/kurir/transition/pickup/{% response 'body',
+url: "{{ _.base_url }}/courier/transition/pickup/{% response 'body',
   'req_fd4f8e8fe9174125a1dc8c2941b4a3d6', 'b64::JC5kYXRhLmhhc2g=::46b',
   'no-history', 60 %}/finished"
 name: Driver Arrived at Warehouse

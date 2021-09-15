@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\Kurir;
+namespace App\Http\Controllers\Api\Courier;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Http\Resources\Api\Courier\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use App\Jobs\Deliveries\Actions\CreateNewManifest;
 use App\Models\Deliveries\Delivery;

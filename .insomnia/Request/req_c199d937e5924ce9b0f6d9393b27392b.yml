@@ -3,7 +3,7 @@ type: Request
 parentId: fld_46c5a860df1d42e683de0a28f9234879
 modified: 1631092814366
 created: 1630478956110
-url: "{{ _.base_url }}/kurir/order"
+url: "{{ _.base_url }}/courier/order"
 name: List Order
 description: ""
 method: GET

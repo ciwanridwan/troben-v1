@@ -69,9 +69,9 @@ return [
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
         App\Http\Routes\Api\PromoRoute::class,
-        App\Http\Routes\Api\Kurir\ManifestRoute::class,
-        App\Http\Routes\Api\Kurir\OrderRoute::class,
-        App\Http\Routes\Api\Kurir\Transition\PickupRoute::class,
+        App\Http\Routes\Api\Courier\ManifestRoute::class,
+        App\Http\Routes\Api\Courier\OrderRoute::class,
+        App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
 
         App\Http\Routes\Api\WMS\Warehouse\Manifest\TransitRoute::class,

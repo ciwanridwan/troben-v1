@@ -3,7 +3,7 @@ type: Request
 parentId: fld_46c5a860df1d42e683de0a28f9234879
 modified: 1631092825846
 created: 1630478956112
-url: "{{ _.base_url }}/kurir/order/{% response 'body',
+url: "{{ _.base_url }}/courier/order/{% response 'body',
   'req_c199d937e5924ce9b0f6d9393b27392b', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
   'never', 60 %}"
 name: Detail Order

@@ -3,7 +3,7 @@ type: Request
 parentId: fld_5fc875a502724a17a974d1f0f1cb9cd3
 modified: 1631092995849
 created: 1630478956084
-url: "{{ _.base_url }}/kurir/transition/pickup/{% response 'body',
+url: "{{ _.base_url }}/courier/transition/pickup/{% response 'body',
   'req_51493f0b649d43bebb9f3a9772866ff2', 'b64::JC5kYXRhLmhhc2g=::46b',
   'no-history', 60 %}/unloaded"
 name: Package Unloaded by Driver
