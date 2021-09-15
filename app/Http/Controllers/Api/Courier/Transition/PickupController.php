@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Api\Courier\Transition;
 
-use App\Events\Deliveries\Kurir\Pickup\CustomerPackageApproved;
-use App\Events\Deliveries\Kurir\Pickup\WaitingCustomerConfirmation;
-use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
-use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
+use App\Events\Deliveries\Kurir\Pickup\DriverArrivedAtPickupPoint;
+use App\Events\Deliveries\Kurir\Pickup\DriverArrivedAtWarehouse;
+use App\Events\Deliveries\Kurir\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Deliveries\Kurir\Pickup\PackageLoadedByDriver;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PickupController extends Controller
 {
@@ -22,16 +21,9 @@ class PickupController extends Controller
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 
-    public function confirmationProcess(Delivery $delivery): JsonResponse
+    public function loaded(Delivery $delivery): JsonResponse
     {
-        event(new WaitingCustomerConfirmation($delivery));
-
-        return $this->jsonSuccess(DeliveryResource::make($delivery));
-    }
-
-    public function customerApproved(Delivery $delivery): JsonResponse
-    {
-        event(new CustomerPackageApproved($delivery));
+        event(new PackageLoadedByDriver($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
@@ -39,6 +31,13 @@ class PickupController extends Controller
     public function finished(Delivery $delivery): JsonResponse
     {
         event(new DriverArrivedAtWarehouse($delivery));
+
+        return $this->jsonSuccess(DeliveryResource::make($delivery));
+    }
+
+    public function unloaded(Delivery $delivery): JsonResponse
+    {
+        event(new DriverUnloadedPackageInWarehouse($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
