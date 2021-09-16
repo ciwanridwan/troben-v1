@@ -94,6 +94,15 @@ class CreateNewPackage
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
 
+        $items = [];
+        foreach ($this->items as $item){
+            $item['weight'] = ceil($item['weight']);
+            $item['height'] = ceil($item['height']);
+            $item['length'] = ceil($item['length']);
+            $item['width'] = ceil($item['width']);
+            array_push($items, $item);
+        }
+        $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
     }
