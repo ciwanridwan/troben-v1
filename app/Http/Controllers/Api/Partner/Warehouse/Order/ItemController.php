@@ -54,7 +54,7 @@ class ItemController extends Controller
 
         $this->dispatchNow($job);
 
-        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+        $uploadJob = new WarehouseUploadItem($package, $job->item, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
 
@@ -90,7 +90,7 @@ class ItemController extends Controller
 
         $this->dispatchNow($job);
 
-        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+        $uploadJob = new WarehouseUploadItem($package, $job->item, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
 
