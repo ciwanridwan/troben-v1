@@ -30,10 +30,16 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
+        $this->router->get($this->prefix('rejected'), [
+            'as' => $this->name('rejectHistory'),
+            'uses' => $this->uses('rejectHistory'),
+        ]);
+
         $this->router->get($this->prefix('{delivery_hash}'), [
             'as' => $this->name('show'),
             'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
+
         $this->router->patch($this->prefix('{delivery_hash}/reject'), [
             'as' => $this->name('reject'),
             'uses' => $this->uses('reject'),

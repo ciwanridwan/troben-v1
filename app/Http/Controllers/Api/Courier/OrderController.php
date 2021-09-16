@@ -2,21 +2,53 @@
 
 namespace App\Http\Controllers\Api\Courier;
 
+use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Courier\DeliveryResource;
+use App\Http\Resources\Api\Delivery\DeliveryPassedResource;
+use App\Http\Resources\PromoResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
 use App\Jobs\Kurir\KurirRejectDelivery;
 use App\Models\Deliveries\Delivery;
+use App\Models\HistoryReject;
+use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\Promo;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
+    use HasResource;
+
+    /**
+     * @var array
+     */
+    protected array $attributes;
+
+    /**
+     * @var Builder
+     */
+    protected Builder $query;
+
+    /**
+     * @var string
+     */
+    protected string $model = Package::class;
+
+
+    /**
+     * @var array
+     */
+    protected array $rules = [
+        'q' => ['nullable'],
+    ];
+
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
         $query = $repository->queries()->getDeliveriesQuery();
@@ -47,13 +79,36 @@ class OrderController extends Controller
             'item_codes.codeable'
         )));
     }
+//
+//    public function rejectHistory(Request $request): JsonResponse
+//    {
+//        $this->attributes = Validator::make($request->all(), [
+//            'type' => 'nullable',
+//        ])->validate();
+//
+//        $query = $this->getBasicBuilder(HistoryReject::query());
+//        $query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
+//
+//        return $this->jsonSuccess(DeliveryPassedResource::collection($query->paginate(request('per_page', 15))));
+//    }
+
+    public function rejectHistory(Request $request, PartnerRepository $repository): JsonResponse
+    {
+        $query = $repository->queries()->getDeliveriesRejectCourierQuery();
+
+        $query->with(['packages.origin_district', 'packages.origin_sub_district', 'packages.destination_sub_district', 'packages.code']);
+
+        $query->orderByDesc('created_at');
+
+        return $this->jsonSuccess(DeliveryPassedResource::collection($query->paginate($request->input('per_page', 15))));
+    }
 
     public function reject(Delivery $delivery): JsonResponse
     {
         $job = new KurirRejectDelivery($delivery);
         $this->dispatchNow($job);
 
-        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+        return (new Response(Response::RC_SUCCESS, $job->rejected))->json();
     }
 
     public function accept(Delivery $delivery): JsonResponse
@@ -62,5 +117,23 @@ class OrderController extends Controller
         $delivery->save();
 
         return (new Response(Response::RC_SUCCESS, $delivery))->json();
+    }
+
+    /**
+     * Get Basic Builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $builder
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 }

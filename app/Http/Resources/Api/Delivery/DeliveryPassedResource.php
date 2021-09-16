@@ -36,7 +36,7 @@ class DeliveryPassedResource extends JsonResource
 
         $data = parent::toArray($request);
         if (isset($package)) {
-            $data['package'] = $package;
+            $data['packages'] = $package;
         }
         return $data;
     }
