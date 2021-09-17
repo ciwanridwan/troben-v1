@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
@@ -49,9 +51,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read  \Illuminate\Database\Eloquent\Collection|Relations\MorphMany notifications
  * @method static  Builder partnerRole($types, $roles)
  */
-class User extends Authenticatable implements HasOtpToken
+class User extends Authenticatable implements HasOtpToken, AttachableContract
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes, HashableId, CanSearch;
+    use HasFactory,
+        Notifiable,
+        HasApiTokens,
+        HasPhoneNumber,
+        VerifiableByOtp,
+        SoftDeletes,
+        HashableId,
+        attachable,
+        CanSearch;
+
+    public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     protected $table = 'users';
 

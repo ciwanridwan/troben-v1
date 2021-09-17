@@ -55,7 +55,8 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         HasApiTokens,
         HasFactory,
         Auditable,
-        attachable, CustomSerializeDate;
+        attachable,
+        CustomSerializeDate;
 
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
