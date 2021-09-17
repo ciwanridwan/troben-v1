@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -136,7 +135,7 @@ class OrderController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 
-    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot ): JsonResponse
+    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);

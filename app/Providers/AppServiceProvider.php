@@ -55,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
                         'request' => request()->all(),
                         'fcm' => [
                             'cloud_messaging' => config('trawl-firebase'),
-                            'service_worker_url' => mix("/js/trawl-sw.js")->toHtml(),
+                            'service_worker_url' => mix('/js/trawl-sw.js')->toHtml(),
                         ],
                     ]);
                 }

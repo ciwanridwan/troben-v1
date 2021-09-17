@@ -2,7 +2,7 @@
 
 return [
     /**
-     * server key for authorize HTTP request firebase cloud messaging
+     * server key for authorize HTTP request firebase cloud messaging.
      *
      * ref:
      * https://firebase.google.com/docs/cloud-messaging/auth-server#migrate-legacy-server-keys
@@ -11,7 +11,7 @@ return [
 
     'web_app' => [
         /**
-         * firebase configuration for Trawlbens Web apps
+         * firebase configuration for Trawlbens Web apps.
          */
         'firebaseConfig' => [
             'apiKey' => env('FCM_WEB_API_KEY'),
@@ -24,7 +24,7 @@ return [
         ],
 
         /**
-         * vapid key for fcm web interface credentials
+         * vapid key for fcm web interface credentials.
          *
          * ref:
          * https://firebase.google.com/docs/cloud-messaging/js/client#generate_a_new_key_pair

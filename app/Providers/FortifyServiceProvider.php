@@ -66,7 +66,6 @@ class FortifyServiceProvider extends ServiceProvider
 
             if ($user &&
                 Hash::check($request->password, $user->password)) {
-
                 if (empty($user->fcm_token)) {
                     AccountAuthentication::validationFcmToken($user);
                 }

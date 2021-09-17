@@ -36,7 +36,7 @@ class PartnerAssigned
     }
 
     /**
-     * Broadcast to all
+     * Broadcast to all.
      */
     public function broadcast(): void
     {
@@ -45,15 +45,18 @@ class PartnerAssigned
     }
 
     /**
-     * Broadcast to customer service
+     * Broadcast to customer service.
      */
     public function broadcastToCustomerService(): void
     {
-        $cs = $this->partner->users()->wherePivotIn('role',[UserablePivot::ROLE_CS,UserablePivot::ROLE_OWNER])->get();
+        $cs = $this->partner->users()->wherePivotIn('role', [UserablePivot::ROLE_CS,UserablePivot::ROLE_OWNER])->get();
         $package = $this->package;
         $notification = $this->notification;
         $cs->each(function ($cs) use ($notification, $package): void {
-            new PrivateChannel($cs, $notification, [
+            new PrivateChannel(
+                $cs,
+                $notification,
+                [
                     'package_code' => $package->code->content,
                 ]
             );
@@ -61,7 +64,7 @@ class PartnerAssigned
     }
 
     /**
-     * Broadcast to admin
+     * Broadcast to admin.
      */
     public function broadcastToAdmin(): void
     {
@@ -72,7 +75,7 @@ class PartnerAssigned
     }
 
     /**
-     * Set notification property
+     * Set notification property.
      */
     protected function setNotification(): void
     {

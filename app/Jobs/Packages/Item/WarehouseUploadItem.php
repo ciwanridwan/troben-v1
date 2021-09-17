@@ -28,7 +28,6 @@ class WarehouseUploadItem implements ShouldQueue
         $this->item = $item;
         $this->package = $package;
         $this->photos = collect($photos);
-
     }
 
     public function handle()

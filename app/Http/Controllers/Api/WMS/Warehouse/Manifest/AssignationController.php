@@ -3,16 +3,11 @@
 namespace App\Http\Controllers\Api\WMS\Warehouse\Manifest;
 
 use App\Jobs\Deliveries\Actions\RequestPartnerToDelivery;
-use App\Models\Partners\Partner;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
 use App\Http\Controllers\Controller;
-use App\Models\Deliveries\Deliverable;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
-use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
-use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 
 /**
  * Class AssignationController.
@@ -46,5 +41,4 @@ class AssignationController extends Controller
 
         return $this->jsonSuccess();
     }
-
 }

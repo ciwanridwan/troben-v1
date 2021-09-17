@@ -4,9 +4,7 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
-use App\Events\Deliveries\Kurir\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Deliveries\PartnerRequested;
-use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewHistoryCreated;
 use App\Events\Payment\Nicepay\Registration;
