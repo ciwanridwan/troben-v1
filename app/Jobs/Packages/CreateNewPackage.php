@@ -3,6 +3,7 @@
 namespace App\Jobs\Packages;
 
 use App\Models\Packages\Item;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -15,13 +16,14 @@ class CreateNewPackage
 {
     use Dispatchable;
 
+    public const MIN_TOL = .3;
+
     /**
      * Package instance.
      *
      * @var \App\Models\Packages\Package
      */
     public Package $package;
-
     /**
      * Package attributes.
      *
@@ -94,6 +96,18 @@ class CreateNewPackage
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
 
+        $items = [];
+        foreach ($this->items as $item) {
+            $item['height'] = ceil($item['height']);
+            $item['length'] = ceil($item['length']);
+            $item['width'] = ceil($item['width']);
+
+            $item['weight'] = $this->ceilByTolerance($item['weight']);
+
+
+            array_push($items, $item);
+        }
+        $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
     }
@@ -123,5 +137,21 @@ class CreateNewPackage
         }
 
         return $this->package->exists;
+    }
+
+
+    public static function ceilByTolerance(float $weight = 0)
+    {
+        // decimal tolerance .3
+        $whole = $weight;
+        $maj = (int) $whole; //get major
+        $min = $whole - $maj; //get after point
+
+        // check with tolerance
+        $min = (int) ($min >= self::MIN_TOL ? 1 : 0);
+
+        $weight = $maj + $min;
+
+        return $weight;
     }
 }

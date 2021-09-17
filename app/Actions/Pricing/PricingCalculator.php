@@ -146,7 +146,7 @@ class PricingCalculator
 
                     $handlingResult[] = collect([
                         'type' => $packing,
-                        'price' => $handling,
+                        'price' => ceil($handling),
                     ]);
                     $item['handling'] = $handlingResult;
                 }

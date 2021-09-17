@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Routes\Api\Partner\Warehouse\Order;
+namespace App\Http\Routes\Api\WMS\Warehouse\Order;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Warehouse\Order\ItemController;

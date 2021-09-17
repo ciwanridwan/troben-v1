@@ -8,6 +8,7 @@ use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Partners\Partner;
 use App\Models\User;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -67,6 +68,7 @@ class OrderController extends Controller
             'prices',
             'attachments',
             'items',
+            'items.attachments',
             'items.prices',
             'tarif',
             'deliveries.partner',
