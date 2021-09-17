@@ -101,4 +101,12 @@ class ManifestController extends Controller
             'transporter',
         )));
     }
+
+    public function updateManifest(){
+
+    }
+
+    public function deletePackage(){
+
+    }
 }
