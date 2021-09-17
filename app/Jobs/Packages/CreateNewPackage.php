@@ -3,6 +3,7 @@
 namespace App\Jobs\Packages;
 
 use App\Models\Packages\Item;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
