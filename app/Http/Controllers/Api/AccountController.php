@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Response;
 use App\Jobs\Customers\CustomerUploadPhoto;
+use App\Jobs\Users\UserUploadPhoto;
 use App\Models\Attachment;
 use App\Models\Customers\Address;
 use App\Models\User;
@@ -146,10 +147,24 @@ class AccountController extends Controller
      */
     protected function updateUser(User $user, UpdateAccountRequest $inputs): User
     {
+        if ($inputs->has('photos')) {
+            $attachable = DB::table('attachable')
+                ->where('attachable_id', $user->id)
+                ->where('attachable_type', 'App\Models\Customers\Customer')
+                ->first();
+            if ($attachable != null) {
+                $attachment = Attachment::where('id', $attachable->attachment_id)->first();
+                Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
+                $attachment->forceDelete();
+            }
+        }
         $job = new UpdateExistingUser($user, $inputs->all());
         $this->dispatch($job);
 
-        return $job->user->fresh();
+        $uploadJob = new UserUploadPhoto($job->user, $inputs->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        return $job->user->refresh();
     }
 
     /**

@@ -120,7 +120,7 @@ class UpdatePackageStatusByEvent
                 $package = $event->package;
 
                 throw_if($params->status !== '0', Error::make(Response::RC_PAYMENT_NOT_PAID));
-                if ($params->status === '0') {
+                if ($params->status === '0' && $package->payment_status !== Package::PAYMENT_STATUS_PAID) {
                     $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
                     $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
                     $package->save();
