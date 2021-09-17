@@ -1,0 +1,29 @@
+_id: req_79eb281c16744ba0a27f6c628941f6ce
+type: Request
+parentId: fld_6a01d61a71e14f94a42da33814ff870f
+modified: 1630557682080
+created: 1630557682080
+url: "{{ _.base_url }}/partner/warehouse/dooring"
+name: Create New Manifest Delivery Order (Dooring)
+description: ""
+method: POST
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450168.8984
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

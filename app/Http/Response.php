@@ -64,6 +64,8 @@ class Response implements Responsable
 
     // data not found
     public const RC_DATA_NOT_FOUND = '0404';
+    // bad request
+    public const RC_BAD_REQUEST = '0400';
 
     /**
      * Response Code.
@@ -116,6 +118,9 @@ class Response implements Responsable
                 self::RC_RESOURCE_NOT_FOUND,
                 self::RC_ROUTE_NOT_FOUND,
                 self::RC_DATA_NOT_FOUND
+            ],
+            LaravelResponse::HTTP_BAD_REQUEST => [
+                self::RC_BAD_REQUEST
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,

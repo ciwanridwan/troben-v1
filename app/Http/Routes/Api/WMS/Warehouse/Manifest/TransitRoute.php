@@ -2,7 +2,7 @@
 
 namespace App\Http\Routes\Api\WMS\Warehouse\Manifest;
 
-use App\Http\Controllers\Api\Partner\Warehouse\Manifest\TransitController;
+use App\Http\Controllers\Api\WMS\Warehouse\Manifest\TransitController;
 use Jalameta\Router\BaseRoute;
 
 class TransitRoute extends BaseRoute

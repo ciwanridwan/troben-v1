@@ -46,12 +46,32 @@ class Queries
         return $query;
     }
 
+    public function getDeliveriesRejectCourierQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('user_id', $this->user->id));
+
+        return $query;
+    }
+
     public function getHistoryRejectedQuery(): Builder
     {
         $query = HistoryReject::query();
 
         $query->where(fn (Builder $builder) => $builder
             ->orWhere('partner_id', $this->partner->id));
+
+        return $query;
+    }
+
+    public function getHistoryRejectedKurirQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('userable_id', $this->user->id));
 
         return $query;
     }

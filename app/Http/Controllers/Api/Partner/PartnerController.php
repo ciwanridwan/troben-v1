@@ -57,7 +57,7 @@ class PartnerController extends Controller
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
 
-        return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('per_page', 15))));
+        return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('per_page', 30))));
     }
 
     /**

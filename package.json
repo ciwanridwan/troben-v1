@@ -29,6 +29,7 @@
         "vue-template-compiler": "^2.6.12"
     },
     "dependencies": {
+        "firebase": "^8.10.0",
         "jspdf": "^2.3.1",
         "node-sass": "^5.0.0",
         "qrcode": "^1.4.4",

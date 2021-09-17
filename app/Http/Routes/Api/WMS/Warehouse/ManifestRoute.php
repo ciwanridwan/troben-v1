@@ -2,10 +2,10 @@
 
 namespace App\Http\Routes\Api\WMS\Warehouse;
 
-use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
+use App\Http\Controllers\Api\WMS\ManifestController;
+use App\Http\Controllers\Api\WMS\ManifestController as PartnerManifestController;
+use App\Http\Controllers\Api\WMS\Warehouse\Manifest;
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Api\Partner\Warehouse\Manifest;
-use App\Http\Controllers\Api\Partner\Warehouse\ManifestController;
 
 class ManifestRoute extends BaseRoute
 {
@@ -58,7 +58,7 @@ class ManifestRoute extends BaseRoute
 
         $this->router->patch($this->prefix('assignation/{delivery_hash}/driver/{userable_hash}'), [
             'as' => $this->name('assignation.driver'),
-            'uses' => $this->uses('driver', Manifest\AssignationController::class),
+            'uses' => $this->uses('driver', Manifest\AssignableController::class),
         ]);
 
         $this->router->patch($this->prefix('assignation/{delivery_hash}/package'), [

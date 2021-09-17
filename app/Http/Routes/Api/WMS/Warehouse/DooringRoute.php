@@ -2,7 +2,7 @@
 
 namespace App\Http\Routes\Api\WMS\Warehouse;
 
-use App\Http\Controllers\Api\Partner\Warehouse\DooringController;
+use App\Http\Controllers\Api\WMS\Warehouse\DooringController;
 use Jalameta\Router\BaseRoute;
 
 class DooringRoute extends BaseRoute

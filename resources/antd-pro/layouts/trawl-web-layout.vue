@@ -100,6 +100,12 @@ export default {
     toggleCollapse() {
       this.config.layout.toggleCollapse();
     }
-  }
+  },
+  created() {
+    this.init();
+    this.setMessaging();
+    this.runServiceWorker();
+    this.getNotification();
+  },
 };
 </script>
