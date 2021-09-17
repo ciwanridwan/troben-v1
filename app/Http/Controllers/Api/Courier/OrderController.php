@@ -79,18 +79,6 @@ class OrderController extends Controller
             'item_codes.codeable'
         )));
     }
-//
-//    public function rejectHistory(Request $request): JsonResponse
-//    {
-//        $this->attributes = Validator::make($request->all(), [
-//            'type' => 'nullable',
-//        ])->validate();
-//
-//        $query = $this->getBasicBuilder(HistoryReject::query());
-//        $query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
-//
-//        return $this->jsonSuccess(DeliveryPassedResource::collection($query->paginate(request('per_page', 15))));
-//    }
 
     public function rejectHistory(Request $request, PartnerRepository $repository): JsonResponse
     {

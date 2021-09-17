@@ -22,6 +22,7 @@ class CreateNewPackage
      */
     public Package $package;
 
+    public const MIN_TOL = .3;
     /**
      * Package attributes.
      *
@@ -96,10 +97,13 @@ class CreateNewPackage
 
         $items = [];
         foreach ($this->items as $item){
-            $item['weight'] = ceil($item['weight']);
             $item['height'] = ceil($item['height']);
             $item['length'] = ceil($item['length']);
             $item['width'] = ceil($item['width']);
+
+            $item['weight'] = $this->ceilByTolerance($item['weight']);
+
+
             array_push($items, $item);
         }
         $this->items = $items;
@@ -132,5 +136,21 @@ class CreateNewPackage
         }
 
         return $this->package->exists;
+    }
+
+
+    public static function ceilByTolerance(float $weight = 0)
+    {
+        // decimal tolerance .3
+        $whole = $weight;
+        $maj = (int) $whole; //get major
+        $min = $whole - $maj; //get after point
+
+        // check with tolerance
+        $min = (int) ($min >= self::MIN_TOL ? 1 : 0);
+
+        $weight = $maj + $min;
+
+        return $weight;
     }
 }
