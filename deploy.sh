@@ -6,8 +6,8 @@ echo "Deploying application ..."
 # Enter maintenance mode
 (php artisan down) || true
     # Update codebase
-    git fetch origin master
-    git pull origin master
+#    git fetch origin master
+#    git pull origin master
 
     sudo chmod -R 777 storage
     sudo chmod -R 777 bootstrap/cache
