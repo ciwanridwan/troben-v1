@@ -16,12 +16,12 @@ class AdminRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('notification'),[
+        $this->router->get($this->prefix('notification'), [
             'as' => $this->name('notification'),
             'uses' => $this->uses('index', NotificationController::class),
         ]);
 
-        $this->router->patch($this->prefix('notification/{notification_id}'),[
+        $this->router->patch($this->prefix('notification/{notification_id}'), [
             'as' => $this->name('notification.read'),
             'uses' => $this->uses('read', NotificationController::class),
         ]);

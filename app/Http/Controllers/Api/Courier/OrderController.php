@@ -6,21 +6,14 @@ use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Courier\DeliveryResource;
 use App\Http\Resources\Api\Delivery\DeliveryPassedResource;
-use App\Http\Resources\PromoResource;
 use App\Http\Response;
-use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
-use App\Jobs\Deliveries\Actions\RejectDeliveryFromPartner;
 use App\Jobs\Kurir\KurirRejectDelivery;
 use App\Models\Deliveries\Delivery;
-use App\Models\HistoryReject;
 use App\Models\Packages\Package;
-use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\Promo;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {

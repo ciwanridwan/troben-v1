@@ -32,7 +32,7 @@ class PrivateChannel extends TrawlNotification
      */
     public function recordLog(): self
     {
-        $this->customer->notifications()->save((new Notification())->setAttribute('data',$this->template));
+        $this->customer->notifications()->save((new Notification())->setAttribute('data', $this->template));
         return $this;
     }
 
@@ -48,5 +48,4 @@ class PrivateChannel extends TrawlNotification
             ->notification($this->template)
             ->send();
     }
-
 }

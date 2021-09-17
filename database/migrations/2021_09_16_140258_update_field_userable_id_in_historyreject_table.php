@@ -29,7 +29,6 @@ class UpdateFieldUserableIdInHistoryrejectTable extends Migration
         Schema::table('history_reject', function (Blueprint $table) {
             $table->foreignId('userable_id')->nullable()->constrained('userables')->nullOnDelete();
             $table->dropColumn('user_id');
-
         });
     }
 }

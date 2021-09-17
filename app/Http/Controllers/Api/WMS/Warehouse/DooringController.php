@@ -33,7 +33,7 @@ class DooringController extends Controller
                 array_push($manifested_code['existed'], $code->content);
             }
         }
-        if (empty($manifested_code['existed'])){
+        if (empty($manifested_code['existed'])) {
             $job = new CreateNewDooring($repository->getPartner());
             $this->dispatchNow($job);
 
@@ -42,7 +42,7 @@ class DooringController extends Controller
                 'role' => UserablePivot::ROLE_WAREHOUSE
             ]));
             $this->dispatchNow($job);
-        }else{
+        } else {
             return (new Response(Response::RC_BAD_REQUEST, $manifested_code))->json();
         }
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();

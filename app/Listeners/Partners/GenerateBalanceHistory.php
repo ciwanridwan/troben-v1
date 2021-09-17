@@ -219,6 +219,23 @@ class GenerateBalanceHistory
     }
 
     /**
+     * Push notification to owner.
+     *
+     * @return PrivateChannel|void
+     */
+    public function pushNotificationToOwner()
+    {
+        /** @var User $owner */
+        $owner = $this->partner->users()->wherePivot('role', UserablePivot::ROLE_OWNER)->first();
+
+        /** @var Template $notification */
+        $notification = Template::query()->firstWhere('type', '=', Template::TYPE_PARTNER_BALANCE_UPDATED);
+        if (! is_null($owner->fcm_token)) {
+            return new PrivateChannel($owner, $notification);
+        }
+    }
+
+    /**
      * Define Delivery.
      *
      * @return $this
@@ -396,22 +413,6 @@ class GenerateBalanceHistory
         if ($this->noHistory()) {
             $this->dispatch(new CreateNewBalanceHistory($this->attributes));
         }
-    }
-
-    /**
-     * Push notification to owner.
-     *
-     * @return PrivateChannel|void
-     */
-    public function pushNotificationToOwner()
-    {
-        /** @var User $owner */
-
-        $owner = $this->partner->users()->wherePivot('role',UserablePivot::ROLE_OWNER)->first();
-
-        /** @var Template $notification */
-        $notification = Template::query()->firstWhere('type','=',Template::TYPE_PARTNER_BALANCE_UPDATED);
-        if (!is_null($owner->fcm_token)) return new PrivateChannel($owner, $notification);
     }
 
     /**

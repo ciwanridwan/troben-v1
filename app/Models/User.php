@@ -196,6 +196,6 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
      */
     public function notifications(): Relations\MorphMany
     {
-        return $this->morphMany(Notification::class,'notifiable');
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

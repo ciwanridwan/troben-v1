@@ -38,7 +38,7 @@ class ManifestController extends Controller
                 $query->where('origin_partner_id', $partner->id);
             }
         });
-        if ($request->to == null){
+        if ($request->to == null) {
             $request->to = Carbon::now();
         }
         $query->when(request()->has('regency_id'), fn ($q) => $q->where('destination_regency_id', $request->regency_id));
@@ -74,7 +74,7 @@ class ManifestController extends Controller
             }
         }
 
-        if (empty($manifested_code['existed'])){
+        if (empty($manifested_code['existed'])) {
             $order = new CreateNewManifest($repository->getPartner(), $request->all());
             $this->dispatchNow($order);
 
@@ -83,8 +83,7 @@ class ManifestController extends Controller
                 'role' => UserablePivot::ROLE_WAREHOUSE
             ]));
             $this->dispatchNow($job);
-        }
-        else{
+        } else {
             return (new Response(Response::RC_BAD_REQUEST, $manifested_code))->json();
         }
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();

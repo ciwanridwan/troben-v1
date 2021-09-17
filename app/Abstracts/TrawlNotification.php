@@ -50,7 +50,7 @@ abstract class TrawlNotification implements TrawlNotificationContracts
             }
 
             foreach ($this->template as $dataKey => $data) {
-                $this->template[$dataKey] = __($this->notification->data[$dataKey],$variables);
+                $this->template[$dataKey] = __($this->notification->data[$dataKey], $variables);
             }
         } else {
             collect($this->template)->each(fn ($v, $k) => $this->template[$k] = $this->notification->data[$k]);

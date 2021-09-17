@@ -50,10 +50,9 @@ class AssignDriverToDelivery
         $this->delivery->assigned_to()->associate($this->userablePivot);
         if ($this->delivery->driver->partners->first()->type === Partner::TYPE_TRANSPORTER) {
             $this->delivery->status = Delivery::STATUS_WAITING_TRANSPORTER;
-        }elseif ($this->method == 'independent'){
+        } elseif ($this->method == 'independent') {
             $this->delivery->status = Delivery::STATUS_PENDING;
-        }
-        else {
+        } else {
             $this->delivery->status = Delivery::STATUS_ACCEPTED;
         }
         $this->delivery->save();

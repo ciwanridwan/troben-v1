@@ -15,14 +15,14 @@ class CreateNewPackage
 {
     use Dispatchable;
 
+    public const MIN_TOL = .3;
+
     /**
      * Package instance.
      *
      * @var \App\Models\Packages\Package
      */
     public Package $package;
-
-    public const MIN_TOL = .3;
     /**
      * Package attributes.
      *
@@ -96,7 +96,7 @@ class CreateNewPackage
         ])->validate();
 
         $items = [];
-        foreach ($this->items as $item){
+        foreach ($this->items as $item) {
             $item['height'] = ceil($item['height']);
             $item['length'] = ceil($item['length']);
             $item['width'] = ceil($item['width']);

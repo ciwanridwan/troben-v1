@@ -44,26 +44,6 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param Builder $builder
-     * @return Builder
-     */
-    protected function getBasicBuilder(Builder $builder): Builder
-    {
-
-        if (request()->input('read', false)) $builder->whereNotNull('read_at');
-        else $builder->whereNull('read_at');
-
-        return $builder;
-    }
-
-    protected function getFinalBuilder(Builder $builder): Builder
-    {
-        $builder->orderBy('created_at', 'desc');
-
-        return $builder;
-    }
-
-    /**
      * Update read notification.
      * Route Path       : {DOMAIN}/partner/notification/{notification_id}
      * Route Name       : partner.notification.read
@@ -77,5 +57,27 @@ class NotificationController extends Controller
         $notification->setAttribute('read_at', \Carbon\Carbon::now())->save();
 
         return $this->jsonSuccess();
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     */
+    protected function getBasicBuilder(Builder $builder): Builder
+    {
+        if (request()->input('read', false)) {
+            $builder->whereNotNull('read_at');
+        } else {
+            $builder->whereNull('read_at');
+        }
+
+        return $builder;
+    }
+
+    protected function getFinalBuilder(Builder $builder): Builder
+    {
+        $builder->orderBy('created_at', 'desc');
+
+        return $builder;
     }
 }
