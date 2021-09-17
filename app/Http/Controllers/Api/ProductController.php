@@ -21,7 +21,8 @@ class ProductController extends Controller
      */
     public function list(): JsonResponse
     {
-        return $this->jsonSuccess(ProductResource::collection(Product::all()));
+
+        return $this->jsonSuccess(ProductResource::collection(Product::query()->orderBy('id')->get()));
     }
 
     public function store(Request $request)
