@@ -102,11 +102,11 @@ class ManifestController extends Controller
         )));
     }
 
-    public function updateManifest(){
-
+    public function updateManifest()
+    {
     }
 
-    public function deletePackage(){
-
+    public function deletePackage()
+    {
     }
 }
