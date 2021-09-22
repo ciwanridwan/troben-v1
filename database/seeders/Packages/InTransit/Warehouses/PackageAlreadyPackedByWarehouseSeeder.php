@@ -8,7 +8,6 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Event;
 
 class PackageAlreadyPackedByWarehouseSeeder extends Seeder
 {
