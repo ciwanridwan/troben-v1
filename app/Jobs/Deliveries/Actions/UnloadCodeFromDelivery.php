@@ -87,6 +87,6 @@ class UnloadCodeFromDelivery
             // /** @var Code $code */
             // $code = $this->delivery->item_codes()->find($this->code->id);
         }
-        event(new WarehouseUnloadedPackage($this->delivery, $package));
+        event(new WarehouseUnloadedPackage($this->delivery, $package, $this->role));
     }
 }

@@ -76,6 +76,6 @@ class UpdateExistingPackage
 
         $this->package->save();
 
-        event(new PackageUpdated($this->package));
+        event(new PackageUpdated($this->package->refresh()));
     }
 }

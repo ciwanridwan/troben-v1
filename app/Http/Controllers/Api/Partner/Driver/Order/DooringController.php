@@ -21,6 +21,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class DooringController extends Controller
 {
@@ -68,7 +69,10 @@ class DooringController extends Controller
     /**
      * @param Delivery $delivery
      * @param Package $package
+     * @param Request $request
      * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     public function unloaded(Delivery $delivery, Package $package, Request $request): JsonResponse
     {
@@ -77,18 +81,16 @@ class DooringController extends Controller
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
-        $request->merge([
+        $inputs = array_merge($request->only(['received_by', 'photos']),[
             'received_at' => Carbon::now(),
+            'status' => Package::STATUS_DELIVERED,
         ]);
-        $inputs = $request->all();
-
-
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
-        $job = new UpdateExistingPackage($package, $inputs);
+        $job = new UpdateExistingPackage($package, Arr::only($inputs,['received_by','received_at','status']));
         $this->dispatchNow($job);
         $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);

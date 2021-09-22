@@ -306,6 +306,12 @@ class Delivery extends Model
                 'description' => ':driver_name sedang dalam perjalanan ke :partner [:partner_code]',
                 'variable' => ['driver_name', 'partner', 'partner_code']
             ],
+            [
+                'type' => [self::TYPE_PICKUP],
+                'status' => [self::STATUS_EN_ROUTE],
+                'description' => ':driver_name telah mengambil barang dari customer dan sedang dalam perjalanan ke :partner [:partner_code]',
+                'variable' => ['driver_name', 'partner', 'partner_code']
+            ],
         ];
     }
 }

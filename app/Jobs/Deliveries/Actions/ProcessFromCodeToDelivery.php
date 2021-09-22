@@ -80,7 +80,7 @@ class ProcessFromCodeToDelivery
         $this->checkAndAttachPackageToDelivery($package);
 
         if ($this->code->codeable instanceof Item && $this->status) {
-            $this->delivery->item_codes()->syncWithoutDetaching($code->id);
+            $this->delivery->item_codes()->syncWithoutDetaching([$code->id]);
 
             $this->delivery->item_codes()->updateExistingPivot($this->code->id, [
                 'status' => $this->status,
@@ -112,6 +112,14 @@ class ProcessFromCodeToDelivery
 
             event(new PackageAttachedToDelivery($package, $this->delivery));
             event(new CodeScanned($this->delivery, $package->code, $this->role));
+        } else {
+            if ($this->status) {
+                $this->delivery->packages()->updateExistingPivot($package->id, [
+                    'status' => $this->status,
+                    'is_onboard' => Deliverable::isShouldOnBoard($this->status),
+                ]);
+            }
         }
+
     }
 }

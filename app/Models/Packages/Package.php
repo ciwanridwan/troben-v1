@@ -514,8 +514,8 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_CREATED],
-                'description' => 'pesanan diterima pada :updated_at',
-                'variable' => ['updated_at']
+                'description' => 'Pesanan dibuat.',
+                'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
@@ -550,13 +550,13 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATING],
-                'description' => 'Paket sedang di ukur dan ditimbang oleh :partner_code',
+                'description' => 'Paket sedang di ukur dan timbang oleh :partner_code',
                 'variable' => ['partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATED],
-                'description' => 'Paket telah di ukur dan di timbang oleh :partner_code',
+                'description' => 'Paket telah di ukur dan timbang oleh :partner_code',
                 'variable' => ['partner_code']
             ],
             [
@@ -580,7 +580,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_WAITING_FOR_PACKING],
-                'description' => 'Menunggu proses packing',
+                'description' => 'Pembayaran sudah diverifikasi dan menunggu proses packing',
                 'variable' => []
             ],
             [
@@ -592,19 +592,19 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKED],
-                'description' => 'Paket telah siap diantar menuju :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket telah dipacking dan siap diantar',
+                'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_MANIFESTED],
-                'description' => 'Paket sedang menuju :partner_code (:partner_regency_name)',
+                'description' => 'Paket sedang menuju :partner_code :partner_regency_name',
                 'variable' => ['partner_code', 'partner_regency_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_IN_TRANSIT],
-                'description' => 'Paket telah diterima oleh :partner_code (:partner_regency_name)',
+                'description' => 'Paket telah diterima oleh :partner_code :partner_regency_name',
                 'variable' => ['partner_code', 'partner_regency_name']
             ],
             [
@@ -616,8 +616,8 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_DELIVERED],
-                'description' => 'Paket diterima oleh :received_by pada :received_at',
-                'variable' => ['received_by', 'received_at']
+                'description' => 'Paket diterima oleh :received_by',
+                'variable' => ['received_by']
             ],
 
         ];
