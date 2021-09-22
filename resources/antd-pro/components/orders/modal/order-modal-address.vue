@@ -32,7 +32,8 @@
         </a-space>
       </template>
       <template slot="addon">
-        <a-empty :description="null" />
+        <a-empty v-if="package.attachments[0] == null" />
+        <enlargeable-image v-else :src="URIImage" />
       </template>
     </order-modal-row-layout>
   </div>
@@ -40,8 +41,12 @@
 <script>
 import { TrawlRedIcon, SendIcon, ReceiveIcon } from "../../icons";
 import packageAddress from "../../packages/package-address.vue";
+import EnlargeableImage from '@diracleo/vue-enlargeable-image';
 export default {
-  components: { packageAddress },
+  components: {
+    EnlargeableImage,
+    packageAddress
+  },
   props: {
     package: {
       type: Object,
@@ -57,6 +62,8 @@ export default {
       TrawlRedIcon,
       SendIcon,
       ReceiveIcon,
+      EnlargeableImage,
+      URIImage
     };
   },
   computed: {
@@ -64,8 +71,16 @@ export default {
       return this.package?.code?.content;
     },
     created_at() {
+      if (this.package?.attachments[0] == null){
+        this.URIImage = null
+      }else{
+        this.URIImage = this.package?.attachments[0].uri
+      }
       return this.package?.created_at;
     },
+    imagePacking(){
+      return this.package?.attachments[0]
+    }
   },
 };
 </script>

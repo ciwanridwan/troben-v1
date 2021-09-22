@@ -147,7 +147,7 @@ export default {
           formdata.append(k, JSON.stringify(this.preparedData[k]));
         }
       });
-      this.preparedData?.photos?.forEach(o => formdata.append("photos", o));
+      this.preparedData?.photos?.forEach(o => formdata.append('photos[]', o.originFileObj));
       return formdata;
     },
 
