@@ -514,7 +514,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_CREATED],
-                'description' => 'Pesanan dibuat.',
+                'description' => 'Pesanan diinput',
                 'variable' => []
             ],
             [
@@ -538,7 +538,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_WAITING_FOR_APPROVAL],
-                'description' => 'Menunggu Konfirmasi Customer',
+                'description' => 'Menunggu konfirmasi customer',
                 'variable' => []
             ],
             [
@@ -568,19 +568,19 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_CANCEL],
-                'description' => 'Pesanan dibatalkan (:updated_at)',
-                'variable' => ['updated_at']
+                'description' => 'Pesanan dibatalkan',
+                'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PENDING],
                 'status' => [self::STATUS_ACCEPTED],
-                'description' => 'Pesanan telah diterima oleh :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Menunggu pembayaran customer',
+                'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_WAITING_FOR_PACKING],
-                'description' => 'Pembayaran sudah diverifikasi dan menunggu proses packing',
+                'description' => 'Pembayaran sudah diverifikasi dan menuju gudang transit',
                 'variable' => []
             ],
             [
@@ -598,14 +598,14 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_MANIFESTED],
-                'description' => 'Paket sedang menuju :partner_code :partner_regency_name',
-                'variable' => ['partner_code', 'partner_regency_name']
+                'description' => 'Paket diantar ke :partner_code',
+                'variable' => ['partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_IN_TRANSIT],
-                'description' => 'Paket telah diterima oleh :partner_code :partner_regency_name',
-                'variable' => ['partner_code', 'partner_regency_name']
+                'description' => 'Paket sudah sampai di :partner_code',
+                'variable' => ['partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],

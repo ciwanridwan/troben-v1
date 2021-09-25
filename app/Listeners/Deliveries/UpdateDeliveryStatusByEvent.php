@@ -71,7 +71,7 @@ class UpdateDeliveryStatusByEvent
                 ]);
 
                 $item_codes = $package->item_codes->pluck('id');
-                $scan_items = $delivery->code->scan_item_codes()->wherePivot('status','driver')->pluck('codes.id');
+                $scan_items = $delivery->code->scan_item_codes()->wherePivot('status','driver_dooring_load')->pluck('codes.id');
 
                 $delivery->item_codes
                     ->whereIn('id', $scan_items)

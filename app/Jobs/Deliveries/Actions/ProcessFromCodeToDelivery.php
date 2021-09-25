@@ -4,6 +4,7 @@ namespace App\Jobs\Deliveries\Actions;
 
 use App\Events\CodeScanned;
 use App\Models\Code;
+use App\Models\CodeLogable;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
@@ -22,6 +23,7 @@ class ProcessFromCodeToDelivery
     private Collection $codes;
     private Code $code;
     private ?string $role;
+    private bool $logging;
 
     /**
      * @var mixed
@@ -48,7 +50,10 @@ class ProcessFromCodeToDelivery
                 ]),
             ],
             'status' => ['nullable', Rule::in(Deliverable::getStatuses())],
-            'role' => ['nullable', Rule::in(UserablePivot::getAvailableRoles())],
+            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(),[
+                CodeLogable::STATUS_DRIVER_LOAD,
+                CodeLogable::STATUS_DRIVER_DOORING_LOAD
+            ]))],
         ])->validate();
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
@@ -96,6 +101,7 @@ class ProcessFromCodeToDelivery
     }
     public function checkAndAttachPackageToDelivery($package)
     {
+        $this->mustLogging($package);
         if ($this->delivery->packages()->where('id', $package->id)->doesntExist()) {
             $this->delivery->packages()->attach($package);
 
@@ -111,7 +117,6 @@ class ProcessFromCodeToDelivery
             // $this->delivery->item_codes()->syncWithoutDetaching($itemCodes->map->id->toArray());
 
             event(new PackageAttachedToDelivery($package, $this->delivery));
-            event(new CodeScanned($this->delivery, $package->code, $this->role));
         } else {
             if ($this->status) {
                 $this->delivery->packages()->updateExistingPivot($package->id, [
@@ -120,6 +125,11 @@ class ProcessFromCodeToDelivery
                 ]);
             }
         }
+        if ($this->logging || $this->role === CodeLogable::STATUS_WAREHOUSE) event(new CodeScanned($this->delivery, $package->code, $this->role));
+    }
 
+    private function mustLogging (Package $package): void {
+        $this->logging = $package->deliveries()->where('type',Delivery::TYPE_TRANSIT)->count() > 1
+            || $this->delivery->type === Delivery::TYPE_DOORING;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Jobs\Deliveries\Actions;
 
 use App\Models\Code;
+use App\Models\CodeLogable;
 use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
@@ -49,7 +50,7 @@ class UnloadCodeFromDelivery
                 ]),
             ],
             'status' => ['nullable', Rule::in(Deliverable::getStatuses())],
-            'role' => ['nullable', Rule::in(UserablePivot::getAvailableRoles())],
+            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(),[CodeLogable::STATUS_WAREHOUSE_UNLOAD]))],
         ])->validate();
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */

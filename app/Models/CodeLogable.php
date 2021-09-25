@@ -31,6 +31,32 @@ class CodeLogable extends MorphPivot
         self::SHOW_PARTNER,
         self::SHOW_ADMIN
     ];
+
+    public const STATUS_CREATED_DRAFT = 'created_draft';
+    public const STATUS_PICKUP_WAITING_ASSIGN_PACKAGE = 'pickup_waiting_assign_package';
+    public const STATUS_PICKUP_EN_ROUTE = 'pickup_en-route';
+    public const STATUS_ESTIMATED_DRAFT = 'estimated_draft';
+    public const STATUS_ESTIMATING_DRAFT = 'estimating_draft';
+    public const STATUS_REVAMP_DRAFT = 'revamp_draft';
+    public const STATUS_WAITING_FOR_APPROVAL_DRAFT = 'waiting_for_approval_draft';
+    public const STATUS_WAITING_FOR_APPROVAL_PAID = 'waiting_for_approval_paid';
+    public const STATUS_REVAMP_PENDING = 'revamp_pending';
+    public const STATUS_ACCEPTED_PENDING = 'accepted_pending';
+    public const STATUS_WAITING_FOR_PACKING_PAID = 'waiting_for_packing_paid';
+    public const STATUS_PACKING_PAID = 'packing_paid';
+    public const STATUS_PACKED_PAID = 'packed_paid';
+    public const STATUS_WAREHOUSE = 'warehouse';
+    public const STATUS_WAREHOUSE_UNLOAD = 'warehouse_unload';
+    public const STATUS_TRANSIT_EN_ROUTE = 'transit_en-route';
+    public const STATUS_TRANSIT_FINISHED = 'transit_finished';
+    public const STATUS_IN_TRANSIT_PAID = 'in_transit_paid';
+    public const STATUS_DRIVER = 'driver';
+    public const STATUS_DRIVER_LOAD = 'driver_load';
+    public const STATUS_DRIVER_DOORING_LOAD = 'driver_dooring_load';
+    public const STATUS_WITH_COURIER_PAID = 'with_courier_paid';
+    public const STATUS_DELIVERED_PAID = 'delivered_paid';
+    public const STATUS_CANCEL_DRAFT = 'cancel_draft';
+
     public static $staticMakeVisible;
     protected $table = 'code_logables';
 
@@ -114,7 +140,13 @@ class CodeLogable extends MorphPivot
 
     public static function getAvailableStatusCode()
     {
-        return array_flip(array_merge(self::getLogPackageStatusAvailables(), self::getLogDeliveryStatusAvailables(), [UserablePivot::ROLE_DRIVER, UserablePivot::ROLE_WAREHOUSE]));
+        return array_flip(array_merge(self::getLogPackageStatusAvailables(), self::getLogDeliveryStatusAvailables(), [
+            UserablePivot::ROLE_DRIVER,
+            UserablePivot::ROLE_WAREHOUSE,
+            self::STATUS_WAREHOUSE_UNLOAD,
+            self::STATUS_DRIVER_LOAD,
+            self::STATUS_DRIVER_DOORING_LOAD
+        ]));
     }
 
     /**
