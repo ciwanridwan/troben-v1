@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
  * @property-read  User[]|\Illuminate\Database\Eloquent\Collection $users
  * @property  UserablePivot pivot
+ * @property  int geo_province_id
  * @property  int geo_regency_id
  * @property  int geo_district_id
  * @property  int geo_sub_district_id

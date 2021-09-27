@@ -5,6 +5,8 @@ namespace App\Jobs\Codes\Logs;
 use App\Events\Codes\Logs\CodeLogged;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\Customers\Customer;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +22,7 @@ class CreateNewLog
     public Code $code;
 
     /**
-     * @var Model
+     * @var Model|User|Customer
      */
     public Model $actedBy;
 
