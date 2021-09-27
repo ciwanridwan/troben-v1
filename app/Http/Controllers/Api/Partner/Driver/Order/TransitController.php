@@ -12,7 +12,6 @@ use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

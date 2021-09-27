@@ -85,7 +85,9 @@ class WriteCodeLog
                 $package = $event->package;
                 $package->refresh();
 
-                if ($package->status !== Package::STATUS_WAITING_FOR_PACKING && $package->payment_status === Package::PAYMENT_STATUS_PAID) break;
+                if ($package->status !== Package::STATUS_WAITING_FOR_PACKING && $package->payment_status === Package::PAYMENT_STATUS_PAID) {
+                    break;
+                }
 
                 $user = auth()->user();
                 if (! $user) {
@@ -125,7 +127,9 @@ class WriteCodeLog
                     'log_type' => CodeLogable::TYPE_SCAN,
                     'log_status' => $role
                 ];
-                if ($delivery->type === Delivery::TYPE_DOORING) $inputs['log_description'] = 'Paket sedang dikirim ke penerima';
+                if ($delivery->type === Delivery::TYPE_DOORING) {
+                    $inputs['log_description'] = 'Paket sedang dikirim ke penerima';
+                }
                 $this->packageLog($delivery->code, $package, $code, $inputs);
                 break;
             case $event instanceof DeliveryPickup\PackageLoadedByDriver || $event instanceof DeliveryTransit\PackageLoadedByDriver:
@@ -200,12 +204,12 @@ class WriteCodeLog
             'description' => $logDescription
         ];
 
-        if (!$this->checkLogged($code, $model, $inputs)) {
+        if (! $this->checkLogged($code, $model, $inputs)) {
             if ($logType === CodeLogable::TYPE_SCAN) {
                 // if (! $model->code_logs()->getQuery()->whereJsonContains('showable', $inputs['showable'])->firstWhere(Arr::except($inputs, 'showable'))) {
-                    $job = new CreateNewLog($code, $model, $inputs);
-                    $this->dispatch($job);
-                // }
+                $job = new CreateNewLog($code, $model, $inputs);
+                $this->dispatch($job);
+            // }
             } else {
                 $job = new CreateNewLog($code, $model, $inputs);
                 $this->dispatch($job);
@@ -268,8 +272,10 @@ class WriteCodeLog
     protected function checkLogged(Code $code, Model $model, $inputs): bool
     {
         $log = $model->code_logs()->where(array_merge(Arr::except($inputs, 'showable'), ['code_id' => $code->id]))->first();
-        if (!is_null($log)) $log->touch();
-        return !is_null($log);
+        if (! is_null($log)) {
+            $log->touch();
+        }
+        return ! is_null($log);
     }
 
     /**
@@ -281,7 +287,7 @@ class WriteCodeLog
     protected function getLogShowableByStatus(string $status): array
     {
         switch ($status):
-            case in_array($status,[
+            case in_array($status, [
                     CodeLogable::STATUS_CREATED_DRAFT,
                     CodeLogable::STATUS_WAITING_FOR_APPROVAL_DRAFT,
                     CodeLogable::STATUS_ACCEPTED_PENDING,
@@ -292,7 +298,7 @@ class WriteCodeLog
                     CodeLogable::STATUS_DELIVERED_PAID
                 ]):
                 return CodeLogable::SHOW_ALL;
-            default:
+        default:
                 return [
                     CodeLogable::SHOW_ADMIN,
                     CodeLogable::SHOW_PARTNER

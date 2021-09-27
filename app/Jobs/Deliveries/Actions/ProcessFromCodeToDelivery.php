@@ -50,7 +50,7 @@ class ProcessFromCodeToDelivery
                 ]),
             ],
             'status' => ['nullable', Rule::in(Deliverable::getStatuses())],
-            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(),[
+            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(), [
                 CodeLogable::STATUS_DRIVER_LOAD,
                 CodeLogable::STATUS_DRIVER_DOORING_LOAD
             ]))],
@@ -125,11 +125,14 @@ class ProcessFromCodeToDelivery
                 ]);
             }
         }
-        if ($this->logging || $this->role === CodeLogable::STATUS_WAREHOUSE) event(new CodeScanned($this->delivery, $package->code, $this->role));
+        if ($this->logging || $this->role === CodeLogable::STATUS_WAREHOUSE) {
+            event(new CodeScanned($this->delivery, $package->code, $this->role));
+        }
     }
 
-    private function mustLogging (Package $package): void {
-        $this->logging = $package->deliveries()->where('type',Delivery::TYPE_TRANSIT)->count() > 1
+    private function mustLogging(Package $package): void
+    {
+        $this->logging = $package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() > 1
             || $this->delivery->type === Delivery::TYPE_DOORING;
     }
 }

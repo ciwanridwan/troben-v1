@@ -87,7 +87,7 @@ class DooringController extends Controller
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
-        $inputs = array_merge($request->only(['received_by', 'photos']),[
+        $inputs = array_merge($request->only(['received_by', 'photos']), [
             'received_at' => Carbon::now(),
         ]);
 
@@ -98,7 +98,7 @@ class DooringController extends Controller
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
-        $job = new UpdateExistingPackage($package, Arr::only($inputs,['received_by','received_at']));
+        $job = new UpdateExistingPackage($package, Arr::only($inputs, ['received_by','received_at']));
         $this->dispatchNow($job);
         $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);

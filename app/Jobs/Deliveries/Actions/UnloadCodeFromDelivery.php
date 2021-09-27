@@ -50,7 +50,7 @@ class UnloadCodeFromDelivery
                 ]),
             ],
             'status' => ['nullable', Rule::in(Deliverable::getStatuses())],
-            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(),[CodeLogable::STATUS_WAREHOUSE_UNLOAD]))],
+            'role' => ['nullable', Rule::in(array_merge(UserablePivot::getAvailableRoles(), [CodeLogable::STATUS_WAREHOUSE_UNLOAD]))],
         ])->validate();
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
