@@ -17,15 +17,20 @@ class WarehouseUnloadedPackage
 
     public Package $package;
 
+    public string $role;
+
     /**
-     * Create a new event instance.
+     * Event when warehouse unloaded package.
      *
-     * @return void
+     * @param Delivery $delivery
+     * @param Package $package
+     * @param string $role
      */
-    public function __construct(Delivery $delivery, Package $package)
+    public function __construct(Delivery $delivery, Package $package, string $role)
     {
         $this->delivery = $delivery;
         $this->package = $package;
+        $this->role = $role;
     }
 
     /**

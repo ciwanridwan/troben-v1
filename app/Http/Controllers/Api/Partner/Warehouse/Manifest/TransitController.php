@@ -6,15 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\UnloadCodeFromDelivery;
+use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Request;
 
 class TransitController extends Controller
 {
+    /**
+     * @param Request $request
+     * @param Delivery $delivery
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function unload(Request $request, Delivery $delivery)
     {
-        $job = new UnloadCodeFromDelivery($delivery, array_merge($request->only('code'), ['status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE]));
+        $job = new UnloadCodeFromDelivery($delivery, array_merge($request->only('code'), [
+            'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
+            'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
+        ]));
 
         $this->dispatch($job);
 

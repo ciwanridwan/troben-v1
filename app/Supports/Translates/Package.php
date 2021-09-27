@@ -110,7 +110,7 @@ class Package implements HasCodeLog
                 /** @var Regency $partner */
                 $regency = $partner->regency;
 
-                return $regency->name ?? '';
+                return "($regency->name)" ?? '';
             case 'packager_name':
                 /** @var User $packager */
                 $packager = $this->package->packager()->first();
