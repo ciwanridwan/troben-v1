@@ -14,13 +14,14 @@ use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Jobs\Packages\CheckDeliveredStatus;
 use App\Jobs\Packages\DriverUploadReceiver;
 use App\Jobs\Packages\UpdateExistingPackage;
+use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use App\Models\Partners\Pivot\UserablePivot;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class DooringController extends Controller
 {
@@ -36,15 +37,21 @@ class DooringController extends Controller
     }
 
     /**
+     * Driver loading package for dooring.
+     * Route Path       : {API_DOMAIN}/partner/driver/order/dooring/{delivery_hash}/loaded
+     * Route Name       : api.partner.driver.order.dooring.loaded
+     * Route Method     : PATCH.
+     *
      * @param Request $request
      * @param Delivery $delivery
      * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function loaded(Request $request, Delivery $delivery): JsonResponse
     {
         $job = new ProcessFromCodeToDelivery($delivery, array_merge($request->only(['code']), [
             'status' => Deliverable::STATUS_LOAD_BY_DRIVER,
-            'role' => UserablePivot::ROLE_DRIVER
+            'role' => CodeLogable::STATUS_DRIVER_DOORING_LOAD
         ]));
 
         $this->dispatchNow($job);
@@ -68,7 +75,10 @@ class DooringController extends Controller
     /**
      * @param Delivery $delivery
      * @param Package $package
+     * @param Request $request
      * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
      */
     public function unloaded(Delivery $delivery, Package $package, Request $request): JsonResponse
     {
@@ -77,18 +87,18 @@ class DooringController extends Controller
             'photos' => 'required',
             'photos.*' => 'required', 'image'
         ]);
-        $request->merge([
+        $inputs = array_merge($request->only(['received_by', 'photos']), [
             'received_at' => Carbon::now(),
         ]);
-        $inputs = $request->all();
 
-
+        // update status package
+        $package->setAttribute('status', Package::STATUS_DELIVERED)->save();
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
-        $job = new UpdateExistingPackage($package, $inputs);
+        $job = new UpdateExistingPackage($package, Arr::only($inputs, ['received_by','received_at']));
         $this->dispatchNow($job);
         $uploadJob = new DriverUploadReceiver($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);

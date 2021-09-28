@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
+use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewHistoryCreated;
@@ -102,7 +103,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         DeliveryTransit\DriverArrivedAtOriginWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
+            // UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryTransit\PackageLoadedByDriver::class => [
@@ -117,7 +118,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
-            GenerateBalanceHistory::class,
+            // GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
         WarehouseIsEstimatingPackage::class => [
@@ -213,10 +214,14 @@ class EventServiceProvider extends ServiceProvider
         ],
         PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
-            UpdatePaymentByEvent::class
+            UpdatePaymentByEvent::class,
+            WriteCodeLog::class,
         ],
         NewHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
+        ],
+        DeliveryLoadedPackages::class => [
+            WriteCodeLog::class,
         ]
     ];
 
