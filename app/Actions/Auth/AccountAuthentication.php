@@ -305,6 +305,7 @@ class AccountAuthentication
     {
         if (is_null($authenticatable->fcm_token)) {
             $input = ['fcm_token' => (string) Str::uuid()];
+            if (config('app.env') !== 'production') $input['fcm_token'] = config('app.env','staging').'-'.$input['fcm_token'];
             if ($authenticatable instanceof Customer) {
                 $job = new UpdateExistingCustomer($authenticatable, $input);
             } else {
