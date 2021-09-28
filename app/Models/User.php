@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Concerns\Models\CanSearch;
+use App\Models\Notifications\Notification;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
+use Jalameta\Attachments\Concerns\Attachable;
+use Jalameta\Attachments\Contracts\AttachableContract;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
@@ -45,11 +48,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read  bool $is_admin
  * @property-read  \Illuminate\Database\Eloquent\Collection transporters
  * @property-read  \Illuminate\Database\Eloquent\Collection deliveries
+ * @property-read  \Illuminate\Database\Eloquent\Collection|Relations\MorphMany notifications
  * @method static  Builder partnerRole($types, $roles)
  */
-class User extends Authenticatable implements HasOtpToken
+class User extends Authenticatable implements HasOtpToken, AttachableContract
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPhoneNumber, VerifiableByOtp, SoftDeletes, HashableId, CanSearch;
+    use HasFactory,
+        Notifiable,
+        HasApiTokens,
+        HasPhoneNumber,
+        VerifiableByOtp,
+        SoftDeletes,
+        HashableId,
+        attachable,
+        CanSearch;
+
+    public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     protected $table = 'users';
 
@@ -68,6 +82,7 @@ class User extends Authenticatable implements HasOtpToken
         'latitude',
         'longitude',
         'is_active',
+        'fcm_token',
     ];
 
 
@@ -82,7 +97,6 @@ class User extends Authenticatable implements HasOtpToken
         'password',
         'remember_token',
         'deleted_at',
-        'is_admin',
         'phone_verified_at',
         'email_verified_at',
         'verified_at',
@@ -126,7 +140,7 @@ class User extends Authenticatable implements HasOtpToken
     }
     public function role(): BelongsTo
     {
-        return $this->belongsTo(UserablePivot::class, 'id', );
+        return $this->belongsTo(UserablePivot::class, 'user_id', 'id');
     }
 
     public function transporters(): Relations\MorphToMany
@@ -173,5 +187,15 @@ class User extends Authenticatable implements HasOtpToken
         }
 
         return $this->partners->some(fn (Partner $partner) => in_array($partner->pivot->role, Arr::wrap($roles), true));
+    }
+
+    /**
+     * Define 'MorphMany' relations with notification.
+     *
+     * @return Relations\MorphMany
+     */
+    public function notifications(): Relations\MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

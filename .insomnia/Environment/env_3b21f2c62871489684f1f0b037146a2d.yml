@@ -1,0 +1,54 @@
+_id: env_3b21f2c62871489684f1f0b037146a2d
+type: Environment
+parentId: env_31a8a0834a09701809f6454caec059e72acb3a57
+modified: 1630306975895
+created: 1630306853600
+name: Localhost
+data:
+  base_url: http://127.0.0.1:8000/api
+  credentials:
+    customer:
+      phone: "+625555555555"
+      email: customer@trawlbens.co.id
+      password: password
+    driver:
+      email: 0-mb-driver-0@trawlbens.co.id
+      password: password
+    warehouse:
+      email: 2-mb-warehouse-0@trawlbens.co.id
+      password: password
+    owner:
+      email: 0-mb-owner@trawlbens.co.id
+      password: password
+    mtm:
+      email: 0-mtm-owner@trawlbens.co.id
+      password: password
+dataPropertyOrder:
+  "&":
+    - base_url
+    - credentials
+  "&~|credentials":
+    - customer
+    - driver
+    - warehouse
+    - owner
+    - mtm
+  "&~|credentials~|customer":
+    - phone
+    - email
+    - password
+  "&~|credentials~|driver":
+    - email
+    - password
+  "&~|credentials~|warehouse":
+    - email
+    - password
+  "&~|credentials~|owner":
+    - email
+    - password
+  "&~|credentials~|mtm":
+    - email
+    - password
+color: null
+isPrivate: false
+metaSortKey: 1630306853600

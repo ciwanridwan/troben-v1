@@ -6,6 +6,7 @@ use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
 use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
+use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewHistoryCreated;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
@@ -22,6 +23,7 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
+use App\Events\Deliveries\Kurir\Pickup as CourierPickup;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
@@ -41,6 +43,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -64,6 +67,23 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
+        CourierPickup\DriverArrivedAtPickupPoint::class => [
+            //
+        ],
+        CourierPickup\PackageLoadedByDriver::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        CourierPickup\DriverArrivedAtWarehouse::class => [
+            //
+        ],
+        CourierPickup\DriverUnloadedPackageInWarehouse::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [
             //
         ],
@@ -213,5 +233,9 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         // Package::observe(CodeObserver::class);
+
+        Event::listen(function (PartnerAssigned $event) {
+            $event->broadcast();
+        });
     }
 }

@@ -55,8 +55,8 @@ class AssignedPackagesSeeder extends Seeder
 
                     /** @var Transporter $transporter */
                     $transporter = $matchedTransporters->get($index % $matchedTransporters->count());
-
-                    return new AssignDriverToDelivery($delivery, $transporter->drivers->first()->pivot);
+                    $method = 'partner';
+                    return new AssignDriverToDelivery($delivery, $transporter->drivers->first()->pivot, $method);
                 })
                 ->each(fn (AssignDriverToDelivery $job) => dispatch_now($job))
                 ->each(fn (AssignDriverToDelivery $job) => $this->command

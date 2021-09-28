@@ -5,6 +5,7 @@ namespace App\Events\Payment\Nicepay;
 use App\Broadcasting\Customer\PrivateChannel;
 use App\Models\Code;
 use App\Models\Customers\Customer;
+use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -24,6 +25,9 @@ class PayByNicepay
     /** @var Package $package */
     public Package $package;
 
+    /** @var Template $notification */
+    public Template $notification;
+
     /**
      * PayByNicepay constructor.
      * @param Request $request
@@ -36,6 +40,10 @@ class PayByNicepay
         $this->package = (Code::query()->where('content', $this->params->referenceNo)->first())->codeable;
 
         $this->customer = $this->package->customer;
+
+        /** @var Template $notification */
+        $this->notification = Template::where('type', Template::TYPE_CUSTOMER_HAS_PAID)
+            ->first();
     }
 
     /**
@@ -45,9 +53,6 @@ class PayByNicepay
      */
     public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel($this->customer, [
-            'title' => 'Order '.$this->package->code->content,
-            'body' => 'Pembayaran anda sudah diverifikasi',
-        ]);
+        return new PrivateChannel($this->customer, $this->notification, ['package_code' => $this->package->code->content]);
     }
 }

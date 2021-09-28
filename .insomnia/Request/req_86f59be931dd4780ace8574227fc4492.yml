@@ -1,0 +1,33 @@
+_id: req_86f59be931dd4780ace8574227fc4492
+type: Request
+parentId: fld_b5fd7e8c32554e47a8526d0d6cbe8c09
+modified: 1630660321373
+created: 1630379460992
+url: "{{ _.base_url }}/promo"
+name: Get list of Promo
+description: ""
+method: GET
+body: {}
+parameters:
+  - id: pair_4d26dfe5a6e744fab5c95797bda80308
+    name: type
+    value: news
+    description: ""
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1630307419004.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

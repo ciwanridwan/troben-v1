@@ -526,7 +526,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_WAITING_FOR_PICKUP],
-                'description' => 'Kurir menuju customer',
+                'description' => 'Courier menuju customer',
                 'variable' => []
             ],
             [

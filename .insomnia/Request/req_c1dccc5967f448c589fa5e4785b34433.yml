@@ -1,0 +1,39 @@
+_id: req_c1dccc5967f448c589fa5e4785b34433
+type: Request
+parentId: fld_088957bffdec4baab6328d832cafd0f2
+modified: 1630564447313
+created: 1630557682058
+url: "{{ _.base_url }}/wms/warehouse/manifest/assignation/{% response 'body',
+  'req_42889da8db2d4e81a6a5368182c358a8', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}/package"
+name: Assign Package
+description: ""
+method: PATCH
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"code": "RCP17042100041"
+    }
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Content-Type
+    value: application/json
+    id: pair_e613af8d4a75430cb65bb4d5c9167bad
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450167.1406
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

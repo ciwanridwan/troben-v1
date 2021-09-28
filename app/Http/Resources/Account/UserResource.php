@@ -21,10 +21,12 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'username' => $this->username,
             'address' => $this->address,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'is_active' => $this->is_active,
+            'avatar' => $this->attachments()->first()->uri ?? null,
         ];
 
         if ($this->resource instanceof User) {
@@ -36,6 +38,12 @@ class UserResource extends JsonResource
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
+            }
+
+            $transporters = $this->resource->transporters;
+
+            if ($transporters->count() > 0) {
+                $data['vehicle'] = $transporters->first()->only(['type', 'registration_name', 'registration_number', 'registration_year']);
             }
         }
 

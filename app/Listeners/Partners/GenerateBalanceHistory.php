@@ -9,6 +9,7 @@ use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Models\Deliveries\Delivery;
+use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Balance\History;
@@ -218,6 +219,23 @@ class GenerateBalanceHistory
     }
 
     /**
+     * Push notification to owner.
+     *
+     * @return PrivateChannel|void
+     */
+    public function pushNotificationToOwner()
+    {
+        /** @var User $owner */
+        $owner = $this->partner->users()->wherePivot('role', UserablePivot::ROLE_OWNER)->first();
+
+        /** @var Template $notification */
+        $notification = Template::query()->firstWhere('type', '=', Template::TYPE_PARTNER_BALANCE_UPDATED);
+        if (! is_null($owner->fcm_token)) {
+            return new PrivateChannel($owner, $notification);
+        }
+    }
+
+    /**
      * Define Delivery.
      *
      * @return $this
@@ -394,20 +412,6 @@ class GenerateBalanceHistory
     {
         if ($this->noHistory()) {
             $this->dispatch(new CreateNewBalanceHistory($this->attributes));
-        }
-    }
-
-    /**
-     * Push notification to owner.
-     *
-     * @return PrivateChannel|void
-     */
-    protected function pushNotificationToOwner()
-    {
-        /** @var User $owner */
-        $owner = $this->partner->users()->wherePivot('role', UserablePivot::ROLE_OWNER)->first();
-        if (! is_null($owner->fcm_token)) {
-            return new PrivateChannel($owner, 'Saldo bertambah!', 'Ayo cek saldomu.');
         }
     }
 

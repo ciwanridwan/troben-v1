@@ -1,0 +1,39 @@
+_id: req_146dea8bef8b4dedbdcc9ae636b99168
+type: Request
+parentId: fld_6a01d61a71e14f94a42da33814ff870f
+modified: 1630564459426
+created: 1630557682073
+url: "{{ _.base_url }}/wms/warehouse/manifest"
+name: List Manifest
+description: ""
+method: GET
+body: {}
+parameters:
+  - name: arrival
+    value: "true"
+    description: ""
+    id: pair_9289819fa90840a8b6ad1013b02e5b3c
+    disabled: true
+  - name: departure
+    value: "false"
+    description: ""
+    id: pair_626ce990a9c243fdbd97f847555dbe87
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450169.875
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
