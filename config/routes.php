@@ -73,6 +73,7 @@ return [
         App\Http\Routes\Api\Kurir\OrderRoute::class,
         App\Http\Routes\Api\Kurir\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
+        App\Http\Routes\Api\NotificationRoute::class,
         /** @inject api **/
     ],
     'admin' => [

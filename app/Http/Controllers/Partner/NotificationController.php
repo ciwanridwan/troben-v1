@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Partner;
 
+use App\Contracts\HasOtpToken;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Notifications\NotificationResource;
 use App\Models\Notifications\Notification;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,9 +15,9 @@ class NotificationController extends Controller
     /**
      * instance User.
      *
-     * @var User $user
+     * @var HasOtpToken $user
      */
-    protected User $user;
+    protected HasOtpToken $user;
 
     /**
      * instance builder.
