@@ -33,8 +33,12 @@ class Queries
         $query = Delivery::query();
 
         if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
-            $userable = $this->user->transporters->first();
-            $query->where('userable_id', $userable->pivot->id);
+            $userables = $this->user->transporters;
+            $ids = [];
+            foreach ($userables as $userable) {
+                $ids[] = $userable->pivot->id;
+            }
+            $query->whereIn('userable_id', $ids);
         } else {
             $query->where(fn (Builder $builder) => $builder
                 ->orWhere('partner_id', $this->partner->id)

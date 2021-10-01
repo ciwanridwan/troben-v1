@@ -160,8 +160,8 @@ class PricingCalculator
                 $item['insurance_price'] = 0;
                 $item['insurance_price_total'] = 0;
             } else {
-                $item['insurance_price'] = self::getInsurancePrice($item['price']);
-                $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+                $item['insurance_price'] = ceil(self::getInsurancePrice($item['price']));
+                $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price'] * $item['qty']));
             }
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
