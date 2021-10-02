@@ -24,6 +24,8 @@ use libphonenumber\PhoneNumberUtil;
 
 class AccountController extends Controller
 {
+    public const DISK_CUSTOMER = 'avatar';
+
     /**
      * Get Account Information
      * Route Path       : {API_DOMAIN}/me
@@ -34,8 +36,6 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
-    public const DISK_CUSTOMER = 'avatar';
-
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
