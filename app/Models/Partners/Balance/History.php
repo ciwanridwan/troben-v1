@@ -30,10 +30,11 @@ class History extends Model
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAW = 'withdraw';
 
-    public const DESCRIPTION_SERVICE = 'service'; // service fee get order and transit
+    public const DESCRIPTION_SERVICE = 'service'; // service fee get order
     public const DESCRIPTION_PICKUP = 'pickup'; // pickup fee by transporter
     public const DESCRIPTION_HANDLING = 'handling'; // handling fee (packing)
     public const DESCRIPTION_INSURANCE = 'insurance'; // insurance fee
+    public const DESCRIPTION_TRANSIT = 'transit'; // transit items
     public const DESCRIPTION_DELIVERY = 'delivery'; // delivery fee for transit items (transporter)
     public const DESCRIPTION_DOORING = 'dooring'; // dooring fee to end user (transporter)
     public const DESCRIPTION_RETURN = 'return'; // return fee (transporter)
@@ -78,6 +79,7 @@ class History extends Model
             self::DESCRIPTION_HANDLING,
             self::DESCRIPTION_INSURANCE,
             self::DESCRIPTION_RETURN,
+            self::DESCRIPTION_TRANSIT,
             self::DESCRIPTION_DELIVERY,
             self::DESCRIPTION_DOORING,
         ];
