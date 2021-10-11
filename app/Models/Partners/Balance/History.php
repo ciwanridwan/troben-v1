@@ -29,6 +29,7 @@ class History extends Model
 
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAW = 'withdraw';
+    public const TYPE_CHARGE = 'charge';
 
     public const DESCRIPTION_SERVICE = 'service'; // service fee get order
     public const DESCRIPTION_PICKUP = 'pickup'; // pickup fee by transporter
@@ -63,6 +64,7 @@ class History extends Model
         return [
             self::TYPE_DEPOSIT,
             self::TYPE_WITHDRAW,
+            self::TYPE_CHARGE,
         ];
     }
 

@@ -24,7 +24,7 @@ class RebuildPartnerBalanceHistoriesTable extends Migration
             $table->decimal('balance', 16, 2)->default(0);
 
             $table->enum('type', History::getAvailableType());
-            $table->enum('category', History::getAvailableDescription());
+            $table->enum('description', History::getAvailableDescription());
 
             $table->timestamps();
 

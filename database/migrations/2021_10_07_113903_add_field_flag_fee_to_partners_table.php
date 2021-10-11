@@ -22,6 +22,7 @@ class AddFieldFlagFeeToPartnersTable extends Migration
     {
         Schema::table('partners', function (Blueprint $table) {
             foreach ($this->descriptions as $description) $table->boolean($description)->default(false);
+            $table->boolean('get_charge_delivery')->default(false);
         });
     }
 
