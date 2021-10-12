@@ -48,12 +48,12 @@ class CreateViewPaymentReport extends Migration
             pbh.created_at
         from
             partner_balance_histories pbh
-        join codes c on
+        left join codes c on
             pbh.package_id = c.codeable_id
             and c.codeable_type like '%Package'
         join partners p on
             pbh.partner_id = p.id
-        join geo_regencies gr on
+        left join geo_regencies gr on
             p.geo_regency_id = gr.id
         SQL;
     }
