@@ -30,6 +30,7 @@ class CreateViewPaymentReport extends Migration
         return <<<SQL
         create or replace view view_payment_report as
         select
+            pbh.id,
             pbh.partner_id,
             p.code as partner_code,
             p.name as partner_name,
@@ -55,6 +56,7 @@ class CreateViewPaymentReport extends Migration
             pbh.partner_id = p.id
         left join geo_regencies gr on
             p.geo_regency_id = gr.id
+        order by pbh.id desc;
         SQL;
     }
 
