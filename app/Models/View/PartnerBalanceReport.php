@@ -36,9 +36,9 @@ use Illuminate\Database\Eloquent\Relations;
  * @property-read Regency|null          $regency
  * @property-read Collection|History[]  $balanceHistories
  */
-class PaymentReport extends Model
+class PartnerBalanceReport extends Model
 {
-    protected $table = 'view_payment_report';
+    protected $table = 'view_partner_balance_report';
 
     protected $casts = [
         'balance' => 'int'

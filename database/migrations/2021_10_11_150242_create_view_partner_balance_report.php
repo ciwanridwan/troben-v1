@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class CreateViewPaymentReport extends Migration
+class CreateViewPartnerBalanceReport extends Migration
 {
     /**
      * Run the migrations.
@@ -28,7 +28,7 @@ class CreateViewPaymentReport extends Migration
     private function createView(): string
     {
         return <<<SQL
-        create or replace view view_payment_report as
+        create or replace view view_partner_balance_report as
         select
             pbh.id,
             pbh.partner_id,
@@ -63,7 +63,7 @@ class CreateViewPaymentReport extends Migration
     private function dropView(): string
     {
         return <<<SQL
-        drop view if exists view_payment_report;
+        drop view if exists view_partner_balance_report;
         SQL;
     }
 }
