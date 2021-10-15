@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations;
  * @property string                     $partner_geo_regency
  * @property int|null                   $package_id
  * @property string                     $package_code
+ * @property \Carbon\Carbon             $package_created_at
  * @property int|null                   $disbursement_id
  * @property float                      $balance
  * @property string                     $type
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations;
  * @property int                        $created_at_day
  * @property int                        $created_at_month
  * @property int                        $created_at_year
- * @property \Carbon\Carbon             $created_at
+ * @property \Carbon\Carbon             $history_created_at
  *
  * @property-read Partner               $partner
  * @property-read Package|null          $package

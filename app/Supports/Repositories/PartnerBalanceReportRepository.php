@@ -39,9 +39,11 @@ class PartnerBalanceReportRepository
                 'created_at_day',
                 'partner_code',
                 'partner_type',
-                'package_code',
                 'partner_geo_regency',
                 'partner_name',
+                'package_id',
+                'package_code',
+                'package_created_at',
             ])],
             'sortBy' => ['nullable', Rule::in([
                 'created_at_day',
@@ -56,7 +58,11 @@ class PartnerBalanceReportRepository
             'month' => 'int|nullable',
             'year' => 'int|nullable',
             'partner_type' => ['string','nullable', Rule::in(Partner::getAvailableTypes())],
-            'detail' => 'boolean|nullable'
+            'partner_id' => 'int|nullable',
+            'detail' => 'boolean|nullable',
+            'is_package_created' => 'boolean',
+            'start_date' => 'nullable',
+            'end_date' => 'nullable',
         ])->validate();
     }
 
@@ -91,6 +97,18 @@ class PartnerBalanceReportRepository
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_type'), fn ($q) => $q
             ->where('partner_type',$this->attributes['partner_type']));
 
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_id'), fn ($q) => $q
+            ->where('partner_id',$this->attributes['partner_id']));
+
+        $this->partnerBalanceReportQuery->when(
+            (Arr::has($this->attributes,'start_date') &&
+            Arr::has($this->attributes,'end_date')), function ($q) {
+                $column = Arr::get($this->attributes, 'is_package_created', false) ? 'package_created_at' : 'history_created_at';
+                $q
+                    ->where($column, '>=', Carbon::parse($this->attributes['start_date'])->startOfDay()->format('Y-m-d H:i:s'))
+                    ->where($column, '<', Carbon::parse($this->attributes['end_date'])->endOfDay()->format('Y-m-d H:i:s'));
+            });
+
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'group'), fn ($q) => $q
             ->groupBy($this->attributes['group']));
 
@@ -105,9 +123,11 @@ class PartnerBalanceReportRepository
      */
     public function selectColumnByDetail(): void
     {
-        if (Arr::get($this->attributes,'detail',false)) $this->partnerBalanceReportQuery
-            ->select(['partner_code','partner_name','partner_geo_regency'])
+        if (Arr::get($this->attributes, 'detail', false)) $this->partnerBalanceReportQuery
+            ->select(['partner_code', 'partner_name', 'partner_geo_regency'])
             ->selectRaw('sum(balance) as balance');
+        elseif (!Arr::has($this->attributes, 'group')) $this->partnerBalanceReportQuery
+            ->select();
         else $this->partnerBalanceReportQuery
             ->select($this->attributes['group'])
             ->selectRaw('sum(balance) as balance');

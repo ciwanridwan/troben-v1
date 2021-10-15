@@ -38,6 +38,7 @@ class CreateViewPartnerBalanceReport extends Migration
             p.geo_regency_id as partner_geo_regency_id,
             gr.name as partner_geo_regency,
             pbh.package_id,
+            pc.created_at as "package_created_at",
             c."content" as package_code,
             pbh.disbursement_id,
             pbh.balance,
@@ -46,7 +47,7 @@ class CreateViewPartnerBalanceReport extends Migration
             extract(day from pbh.created_at)::int as "created_at_day",
             extract(month from pbh.created_at)::int as "created_at_month",
             extract(year from pbh.created_at)::int as "created_at_year",
-            pbh.created_at
+            pbh.created_at as "history_created_at"
         from
             partner_balance_histories pbh
         left join codes c on
@@ -56,6 +57,8 @@ class CreateViewPartnerBalanceReport extends Migration
             pbh.partner_id = p.id
         left join geo_regencies gr on
             p.geo_regency_id = gr.id
+        left join packages pc on
+            pbh.package_id = pc.id
         order by pbh.id desc;
         SQL;
     }
