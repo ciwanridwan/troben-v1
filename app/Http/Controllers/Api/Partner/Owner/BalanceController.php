@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Partner\Owner\Balance\DetailResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\ReportResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\SummaryResource;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
@@ -37,7 +38,7 @@ class BalanceController extends Controller
 
         $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id',$repository->getPartner()->id));
 
-        return $this->jsonSuccess(ReportResource::collection($this->query->paginate($request->input('per_page', 10))));
+        return $this->jsonSuccess(ReportResource::collection($this->query->paginate($request->input('per_page',10))));
     }
 
     /**
@@ -50,5 +51,22 @@ class BalanceController extends Controller
         $this->query = $repository->queries()->getPartnerBalanceReportQuery();
 
         return $this->jsonSuccess(SummaryResource::make($this->query->get()));
+    }
+
+    /**
+     * @param Request $request
+     * @param PartnerRepository $repository
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function detail(Request $request, PartnerRepository $repository): JsonResponse
+    {
+        $inputs = array_merge($request->all(), [
+            'partner_id' => $repository->getPartner()->id,
+        ]);
+
+        $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
+
+        return $this->jsonSuccess(DetailResource::make($this->query->paginate($request->input('per_page',10))));
     }
 }
