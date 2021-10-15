@@ -1,7 +1,7 @@
 _id: req_f148ea5d50d8430d87ef4844f14966cb
 type: Request
 parentId: fld_52a7dc537b7d4cc291f28b0fcd5816b3
-modified: 1634265434057
+modified: 1634268111972
 created: 1630571506608
 url: "{{ _.base_url }}/partner/owner/balance"
 name: Get Partner Balance History
@@ -10,7 +10,8 @@ description: |-
 
   Optional Parameters
   --
-  - `type` => possible values: `deposit`, `withdraw`
+  - `start_date` => not required | date {% now 'millis', '' %}
+  - `end_date` => not required | date {% now 'millis', '' %}
 method: GET
 body: {}
 parameters:

@@ -1,16 +1,23 @@
 _id: req_9f81f619d75146ada56cff2e253b60e3
 type: Request
 parentId: fld_52a7dc537b7d4cc291f28b0fcd5816b3
-modified: 1634265655200
+modified: 1634268081792
 created: 1634263750840
 url: "{{ _.base_url }}/partner/owner/balance/detail"
 name: Get Partner Balance Detail
-description: |-
+description: >-
   Get list balance history data.
 
+
   Optional Parameters
+
   --
-  - `type` => possible values: `deposit`, `withdraw`
+
+  - `description` => not required | possible values: `pickup`, `service`, `handling`, `insurance`, `delivery`, `transit`, `dooring`, `return`
+
+  - `start_date` => not required | date {% now 'millis', '' %}
+
+  - `end_date` => not required | date {% now 'millis', '' %}
 method: GET
 body: {}
 parameters:
