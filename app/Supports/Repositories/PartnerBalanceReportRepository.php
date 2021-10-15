@@ -60,7 +60,7 @@ class PartnerBalanceReportRepository
             'partner_type' => ['string','nullable', Rule::in(Partner::getAvailableTypes())],
             'partner_id' => 'int|nullable',
             'detail' => 'boolean|nullable',
-            'is_package_created' => 'boolean',
+            'is_package_created' => 'boolean|nullable',
             'start_date' => 'nullable',
             'end_date' => 'nullable',
             'description' => 'string|nullable',
