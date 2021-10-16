@@ -80,37 +80,49 @@ const main = {
   payment: {
     icon: "wallet",
     text: "Pembayaran",
-    route: "admin.payment.income",
+    route: "admin.payment.home",
     children: {
+      home: {
+        title: "Home",
+        text: "Beranda",
+        route: "admin.payment.home",
+        children: null
+      },
       income: {
         title: "All Income",
         text: "Pendapatan",
         route: "admin.payment.income",
         children: {
           mitraBusiness: {
-            title: "MB Income",
+            title: "Mitra Bisnis",
             text: "Mitra Business",
             route: "admin.payment.income",
             children: null
           },
+          MS: {
+            title: "Mitra Space",
+            text: "Mitra Space",
+            route: "admin.payment.ms",
+            children: null
+          },
+          MPW: {
+            title: "MPW",
+            text: "MPW",
+            route: "admin.payment.mpw",
+            children: null
+          },
           MTAK: {
-            title: "MTAK Income",
+            title: "MTAK",
             text: "MTAK",
             route: "admin.payment.mtak",
             children: null
           },
           MTAKab: {
-            title: "MTAKab Income",
+            title: "MTAKab",
             text: "MTAKab",
             route: "admin.payment.mtakab",
             children: null
           },
-          MPW: {
-            title: "MPW Income",
-            text: "MPW",
-            route: "admin.payment.mpw",
-            children: null
-          }
         },
         shortKey: ["ctrl", "alt", "i"]
       },
