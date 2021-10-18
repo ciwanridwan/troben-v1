@@ -18,7 +18,7 @@ class IsNicepay
      */
     public function handle(Request $request, Closure $next)
     {
-        throw_if(! in_array($request->ip(), config('nicepay.nicepay_server')), new Error(Response::RC_UNAUTHORIZED));
+        throw_if($request->header('user-agent') !== config('nicepay.nicepay_headers.user-agent'), new Error(Response::RC_UNAUTHORIZED));
 
         return $next($request);
     }
