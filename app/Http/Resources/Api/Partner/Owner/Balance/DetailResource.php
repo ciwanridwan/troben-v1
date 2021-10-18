@@ -15,8 +15,8 @@ class DetailResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'total_amount' => $this->resource->getCollection()->sum(fn ($collect) => $collect->balance),
-            'detail' => HistoryResource::collection($this->resource->getCollection()),
+            'total_amount' => (float) $this->resource['total_amount'],
+            'detail' => HistoryResource::collection($this->resource['data']->getCollection()),
         ];
     }
 }

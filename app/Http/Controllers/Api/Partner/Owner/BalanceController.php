@@ -66,7 +66,10 @@ class BalanceController extends Controller
         ]);
 
         $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
+        $sumQuery = (new PartnerBalanceReportRepository(['partner_id' => $repository->getPartner()->id]))->getQuery();
 
-        return $this->jsonSuccess(DetailResource::make($this->query->paginate($request->input('per_page',10))));
+        return $this->jsonSuccess(DetailResource::make([
+            'data' => $this->query->paginate($request->input('per_page',10)),
+            'total_amount' => $sumQuery->sum('balance')]));
     }
 }
