@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Response;
 use App\Exceptions\Error;
@@ -108,6 +109,7 @@ class OrderController extends Controller
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        $price = PricingCalculator::getPrice($request->get('origin_province_id'), $request->get('origin_regency_id'), $request->get('destination_sub_district_id'));
 
         $inputs['customer_id'] = $user->id;
 
