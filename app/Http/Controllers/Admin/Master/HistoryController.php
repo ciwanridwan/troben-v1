@@ -62,7 +62,6 @@ class HistoryController extends Controller
         });
 
         $this->query->where($status_condition);
-        $this->query->with(['items', 'items.prices', 'deliveries', 'deliveries.partner', 'code']);
         $this->query->with(['items', 'items.prices', 'deliveries', 'deliveries.partner', 'code', 'attachments']);
         $this->query->orderBy('created_at', 'desc');
         // $this->query->whereDoesntHave('deliveries');
