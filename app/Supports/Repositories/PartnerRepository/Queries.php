@@ -10,6 +10,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
+use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -172,6 +173,19 @@ class Queries
         $query->where('partner_id', $this->partner->id);
 
         return $query;
+    }
+
+    /**
+     * @return Builder
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function getPartnerBalanceReportQuery(): Builder
+    {
+        $repository = new PartnerBalanceReportRepository([
+            'partner_id' => $this->partner->id,
+        ]);
+
+        return $repository->getQuery();
     }
 
     protected function resolveDeliveriesQueryByRole(Builder $deliveriesQueryBuilder): void
