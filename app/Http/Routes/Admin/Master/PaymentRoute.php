@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Admin\Master;
 
+use App\Http\Controllers\Admin\Master\Payment\ReportController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Admin\Master\PaymentController;
 
@@ -51,6 +52,11 @@ class PaymentRoute extends BaseRoute
         $this->router->get($this->prefix('/ms'), [
             'as' => $this->name('ms'),
             'uses' => $this->uses('getIncomeSpace'),
+        ]);
+
+        $this->router->get($this->prefix('data'), [
+            'as' => $this->name('data'),
+            'uses' => $this->uses('data', ReportController::class),
         ]);
     }
 
