@@ -57,10 +57,10 @@ class CreateViewPartnerBalanceReport extends Migration
             and c.codeable_type like '%Package'
         join partners p on
             pbh.partner_id = p.id
-        left join geo_provinces gp on
-            gr.geo_province_id = gp.id
         left join geo_regencies gr on
             p.geo_regency_id = gr.id
+        left join geo_provinces gp on
+            gr.province_id = gp.id
         left join packages pc on
             pbh.package_id = pc.id
         order by pbh.id desc;

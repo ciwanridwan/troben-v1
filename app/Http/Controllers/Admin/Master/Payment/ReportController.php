@@ -186,7 +186,7 @@ class ReportController extends Controller
     protected function getDetailData()
     {
         $inputsData = [
-            'group' => ['partner_code','partner_name','partner_geo_regency'],
+            'group' => ['partner_code','partner_name','partner_geo_regency','partner_geo_province'],
             'detail' => true,
         ];
 
