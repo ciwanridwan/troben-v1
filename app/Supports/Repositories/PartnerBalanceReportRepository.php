@@ -54,6 +54,9 @@ class PartnerBalanceReportRepository
             ])],
             'q' => 'string|nullable',
             'is_today' => 'boolean|nullable',
+            'is_yesterday' => 'boolean|nullable',
+            'is_this_month' => 'boolean|nullable',
+            'is_sub_month' => 'boolean|nullable',
             'day' => 'int|nullable',
             'month' => 'int|nullable',
             'year' => 'int|nullable',
@@ -64,6 +67,7 @@ class PartnerBalanceReportRepository
             'start_date' => 'nullable',
             'end_date' => 'nullable',
             'description' => 'string|nullable',
+            'partner_geo_regency_id' => 'int|nullable',
         ])->validate();
     }
 
@@ -92,8 +96,35 @@ class PartnerBalanceReportRepository
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'day'), fn ($q) => $q
             ->where('created_at_day',$this->attributes['day']));
 
-        $this->partnerBalanceReportQuery->when(Arr::get($this->attributes,'is_today',false), fn ($q) => $q
-            ->where('created_at_day',Carbon::today()->day));
+        $this->partnerBalanceReportQuery->when(Arr::get($this->attributes,'is_today',false), function ($q) {
+            $today = Carbon::today();
+            $q
+                ->where('created_at_day',$today->day)
+                ->where('created_at_month',$today->month)
+                ->where('created_at_year',$today->year);
+        });
+
+        $this->partnerBalanceReportQuery->when(Arr::get($this->attributes,'is_yesterday',false), function ($q) {
+            $yesterday = Carbon::yesterday();
+            $q
+                ->where('created_at_day',$yesterday->day)
+                ->where('created_at_month',$yesterday->month)
+                ->where('created_at_year',$yesterday->year);
+        });
+
+        $this->partnerBalanceReportQuery->when(Arr::get($this->attributes,'is_this_month',false), function ($q) {
+            $today = Carbon::today();
+            $q
+                ->where('created_at_month',$today->month)
+                ->where('created_at_year',$today->year);
+        });
+
+        $this->partnerBalanceReportQuery->when(Arr::get($this->attributes,'is_sub_month',false), function ($q) {
+            $subMonth = Carbon::today()->subMonth();
+            $q
+                ->where('created_at_month',$subMonth->month)
+                ->where('created_at_year',$subMonth->year);
+        });
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_type'), fn ($q) => $q
             ->where('partner_type',$this->attributes['partner_type']));
