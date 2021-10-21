@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations;
  * @property string                     $partner_code
  * @property string                     $partner_name
  * @property string                     $partner_type
+ * @property int                        $partner_geo_province_id
+ * @property string                     $partner_geo_province
  * @property int                        $partner_geo_regency_id
  * @property string                     $partner_geo_regency
  * @property int|null                   $package_id

@@ -35,6 +35,8 @@ class CreateViewPartnerBalanceReport extends Migration
             p.code as partner_code,
             p.name as partner_name,
             p."type" as partner_type,
+            gp.id as partner_geo_province_id,
+            gp.name as partner_geo_province,
             p.geo_regency_id as partner_geo_regency_id,
             gr.name as partner_geo_regency,
             pbh.package_id,
@@ -55,6 +57,8 @@ class CreateViewPartnerBalanceReport extends Migration
             and c.codeable_type like '%Package'
         join partners p on
             pbh.partner_id = p.id
+        left join geo_provinces gp on
+            gr.geo_province_id = gp.id
         left join geo_regencies gr on
             p.geo_regency_id = gr.id
         left join packages pc on

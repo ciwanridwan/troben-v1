@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\Master\Payment\Report\GraphResource;
 use App\Http\Resources\Admin\Master\Payment\Report\PartnerBalanceDetailResource;
 use App\Http\Resources\Admin\Master\Payment\Report\PartnerSummaryResource;
+use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +24,10 @@ class ReportController extends Controller
     private const SUMMARY_DAILY = 'daily';
     private const SUMMARY_MONTHLY = 'monthly';
 
+    private const DETAIL_SORT_BALANCE = 'balance';
+    private const DETAIL_SORT_REGENCY = 'partner_geo_regency';
+    private const DETAIL_SORT_PROVINCE = 'partner_geo_province';
+
     /**
      * Possible value for handle validation request.
      *
@@ -32,6 +37,12 @@ class ReportController extends Controller
         self::DATA_TYPE_GRAPH,
         self::DATA_TYPE_SUMMARY,
         self::DATA_TYPE_DETAIL,
+    ];
+
+    protected array $possibleDetailSortData = [
+        self::DETAIL_SORT_BALANCE,
+        self::DETAIL_SORT_PROVINCE,
+        self::DETAIL_SORT_REGENCY,
     ];
 
     /**
@@ -65,17 +76,17 @@ class ReportController extends Controller
                 self::SUMMARY_DAILY,
                 self::SUMMARY_MONTHLY,
             ])],
-            'regency_id' => [Rule::when($this->type === self::DATA_TYPE_GRAPH, 'nullable|int')]
+            'regency_id' => [Rule::when($this->type === self::DATA_TYPE_GRAPH, 'nullable|int')],
+            'partner_type' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['required','string', Rule::in(Partner::getAvailableTypes())])],
+            'q' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['nullable','string'])],
+            'sortBy' => [Rule::when($this->type === self::DATA_TYPE_DETAIL,['nullable','string',Rule::in($this->possibleDetailSortData)])],
+            'sort' => [Rule::when($this->type === self::DATA_TYPE_DETAIL,['nullable','string',Rule::in(['asc','desc'])])],
         ])->validate();
 
-        $query = (new PartnerBalanceReportRepository($request->except('type')))->getQuery();
-        $data = $query->get();
-
         if ($this->type === self::DATA_TYPE_SUMMARY) return $this->jsonSuccess(PartnerSummaryResource::make($this->getSummaryData()));
-        #TODO: make resource detail (partner type, q, date, sortby income)
-        if ($this->type === self::DATA_TYPE_DETAIL) return $this->jsonSuccess(PartnerBalanceDetailResource::collection($data));
 
-        #TODO: make resource graph (year/month/day)
+        if ($this->type === self::DATA_TYPE_DETAIL) return $this->jsonSuccess(PartnerBalanceDetailResource::collection($this->getDetailData()));
+
         return $this->jsonSuccess(GraphResource::make($this->getGraphData()));
     }
 
@@ -166,5 +177,28 @@ class ReportController extends Controller
             'date' => $this->attributes['date'],
             'data' => $data,
         ];
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function getDetailData()
+    {
+        $inputsData = [
+            'group' => ['partner_code','partner_name','partner_geo_regency'],
+            'detail' => true,
+        ];
+
+        if (empty($this->attributes['date'])) {
+            $inputsData = Arr::prepend($inputsData,true,'is_today');
+        } else {
+            $date = Carbon::parse($this->attributes['date']);
+            $inputsData = Arr::prepend($inputsData, $date->day, 'day');
+            $inputsData = Arr::prepend($inputsData, $date->month, 'month');
+            $inputsData = Arr::prepend($inputsData, $date->year, 'year');
+        }
+
+        return (new PartnerBalanceReportRepository(array_merge(Arr::except($this->attributes,'date'),$inputsData)))->getQuery()->get();
     }
 }

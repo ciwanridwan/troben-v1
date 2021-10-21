@@ -39,6 +39,7 @@ class PartnerBalanceReportRepository
                 'created_at_day',
                 'partner_code',
                 'partner_type',
+                'partner_geo_province',
                 'partner_geo_regency',
                 'partner_name',
                 'package_id',
@@ -46,6 +47,8 @@ class PartnerBalanceReportRepository
                 'package_created_at',
             ])],
             'sortBy' => ['nullable', Rule::in([
+                'partner_geo_province',
+                'partner_geo_regency',
                 'created_at_day',
                 'balance',
             ])],
@@ -82,7 +85,8 @@ class PartnerBalanceReportRepository
         $this->selectColumnByDetail();
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'q'), fn ($q) => $q
-            ->where('partner_geo_regency','ilike','%'.$this->attributes['q'].'%')
+            ->where('partner_geo_province','ilike','%'.$this->attributes['q'].'%')
+            ->orWhere('partner_geo_regency','ilike','%'.$this->attributes['q'].'%')
             ->orWhere('partner_code','ilike','%'.$this->attributes['q'].'%')
             ->orWhere('partner_name','ilike','%'.$this->attributes['q'].'%')
         );
