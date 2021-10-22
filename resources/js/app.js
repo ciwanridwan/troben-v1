@@ -93,5 +93,53 @@ Vue.mixin(Laravel);
 Vue.mixin(Geo);
 Vue.mixin(TrawlNotification);
 Vue.mixin(Firebase);
+Vue.mixin({
+  methods: {
+  //   consumeNotif() {
+  //     let consumer = new WebSocket(
+  //       "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-chat-notification/notification"
+  //     );
+
+  //     consumer.onopen = function(e) {
+  //       console.log("notif isOpen", consumer);
+  //     };
+
+  //     consumer.onmessage = function(event) {
+  //       console.log("onmessage notif", event);
+  //       this.$notification.info("")
+  //     };
+
+  //     consumer.onclose = function(event) {
+  //       console.log("on close.... notif", event);
+  //       if (event.wasClean) {
+  //         // alert(
+  //         //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+  //         // );
+  //         console.log(
+  //           `notif [close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+  //         );
+  //       } else {
+  //         // e.g. server process killed or network down
+  //         // event.code is usually 1006 in this case
+  //         // alert("[close] Connection consumer died");
+  //         console.log("notif [close] Connection died");
+  //       }
+  //     };
+
+  //     consumer.onerror = function(error) {
+  //       // alert(`[error] ${error.message}`);
+  //       console.log("consumer error notif", error.message);
+  //     };
+
+  //     consumer.connect;
+  //   }
+  },
+  mounted() {
+    // this.consumeNotif()
+  },
+  watch: {
+    // $route: "consumeNotif"
+  }
+})
 
 new Vue({}).$mount("#app");
