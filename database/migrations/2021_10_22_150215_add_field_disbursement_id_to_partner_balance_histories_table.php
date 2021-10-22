@@ -16,7 +16,7 @@ class AddFieldDisbursementIdToPartnerBalanceHistoriesTable extends Migration
         Schema::table('partner_balance_histories', function (Blueprint $table) {
             $table->foreign('disbursement_id')
                 ->references('id')
-                ->on('partner_balance_disbursements');
+                ->on('partner_balance_disbursement');
         });
     }
 
