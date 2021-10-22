@@ -39,6 +39,7 @@ class PartnerBalanceReportRepository
                 'created_at_day',
                 'partner_code',
                 'partner_type',
+                'partner_geo_province',
                 'partner_geo_regency',
                 'partner_name',
                 'package_id',
@@ -46,6 +47,8 @@ class PartnerBalanceReportRepository
                 'package_created_at',
             ])],
             'sortBy' => ['nullable', Rule::in([
+                'partner_geo_province',
+                'partner_geo_regency',
                 'created_at_day',
                 'balance',
             ])],
@@ -67,6 +70,7 @@ class PartnerBalanceReportRepository
             'start_date' => 'nullable',
             'end_date' => 'nullable',
             'description' => 'string|nullable',
+            'partner_geo_province_id' => 'int|nullable',
             'partner_geo_regency_id' => 'int|nullable',
         ])->validate();
     }
@@ -82,9 +86,13 @@ class PartnerBalanceReportRepository
         $this->selectColumnByDetail();
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'q'), fn ($q) => $q
-            ->where('partner_geo_regency','ilike','%'.$this->attributes['q'].'%')
-            ->orWhere('partner_code','ilike','%'.$this->attributes['q'].'%')
-            ->orWhere('partner_name','ilike','%'.$this->attributes['q'].'%')
+            ->where(function ($query) {
+                return $query
+                    ->where('partner_geo_province','ilike','%'.$this->attributes['q'].'%')
+                    ->orWhere('partner_geo_regency','ilike','%'.$this->attributes['q'].'%')
+                    ->orWhere('partner_code','ilike','%'.$this->attributes['q'].'%')
+                    ->orWhere('partner_name','ilike','%'.$this->attributes['q'].'%');
+            })
         );
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'year'), fn ($q) => $q
@@ -144,6 +152,12 @@ class PartnerBalanceReportRepository
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'description'), fn ($q) => $q
             ->where('description',$this->attributes['description']));
 
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_geo_province_id'), fn ($q) => $q
+            ->where('partner_geo_province_id',$this->attributes['partner_geo_province_id']));
+
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_geo_regency_id'), fn ($q) => $q
+            ->where('partner_geo_regency_id',$this->attributes['partner_geo_regency_id']));
+
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'group'), fn ($q) => $q
             ->groupBy($this->attributes['group']));
 
@@ -159,7 +173,7 @@ class PartnerBalanceReportRepository
     public function selectColumnByDetail(): void
     {
         if (Arr::get($this->attributes, 'detail', false)) $this->partnerBalanceReportQuery
-            ->select(['partner_code', 'partner_name', 'partner_geo_regency'])
+            ->select(['partner_code', 'partner_name', 'partner_geo_regency','partner_geo_province'])
             ->selectRaw('sum(balance) as balance');
         elseif (!Arr::has($this->attributes, 'group')) $this->partnerBalanceReportQuery
             ->select();
