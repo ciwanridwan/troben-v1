@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\Account\CustomerInfoResource;
 use App\Http\Response;
 use App\Jobs\Customers\CustomerUploadPhoto;
 use App\Jobs\Users\UserUploadPhoto;
@@ -71,7 +72,7 @@ class AccountController extends Controller
      */
     public function getCustomerInfo(Customer $account): JsonResponse
     {
-        return $this->jsonSuccess(new CustomerResource($account));
+        return $this->jsonSuccess(new CustomerInfoResource($account));
     }
     /**
      * @param User $account
