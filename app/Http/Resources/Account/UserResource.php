@@ -18,6 +18,7 @@ class UserResource extends JsonResource
     {
         /** @var \App\Models\User|\App\Models\Customers\Customer $this */
         $data = [
+            'hash' => (string) $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
