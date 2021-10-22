@@ -70,6 +70,7 @@ class PartnerBalanceReportRepository
             'start_date' => 'nullable',
             'end_date' => 'nullable',
             'description' => 'string|nullable',
+            'partner_geo_province_id' => 'int|nullable',
             'partner_geo_regency_id' => 'int|nullable',
         ])->validate();
     }
@@ -150,6 +151,12 @@ class PartnerBalanceReportRepository
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'description'), fn ($q) => $q
             ->where('description',$this->attributes['description']));
+
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_geo_province_id'), fn ($q) => $q
+            ->where('partner_geo_province_id',$this->attributes['partner_geo_province_id']));
+
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_geo_regency_id'), fn ($q) => $q
+            ->where('partner_geo_regency_id',$this->attributes['partner_geo_regency_id']));
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'group'), fn ($q) => $q
             ->groupBy($this->attributes['group']));

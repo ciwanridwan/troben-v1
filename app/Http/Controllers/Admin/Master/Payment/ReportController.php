@@ -76,6 +76,7 @@ class ReportController extends Controller
                 self::SUMMARY_DAILY,
                 self::SUMMARY_MONTHLY,
             ])],
+            'province_id' => [Rule::when($this->type === self::DATA_TYPE_GRAPH, 'nullable|int')],
             'regency_id' => [Rule::when($this->type === self::DATA_TYPE_GRAPH, 'nullable|int')],
             'partner_type' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['required','string', Rule::in(Partner::getAvailableTypes())])],
             'q' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['nullable','string'])],
@@ -169,12 +170,13 @@ class ReportController extends Controller
             $inputsData = Arr::prepend($inputsData, $date->year, 'year');
         }
 
+        if (! empty($this->attributes['province_id'])) $inputsData = Arr::prepend($inputsData, $this->attributes['province_id'], 'partner_geo_province_id');
         if (! empty($this->attributes['regency_id'])) $inputsData = Arr::prepend($inputsData, $this->attributes['regency_id'], 'partner_geo_regency_id');
 
         $data = (new PartnerBalanceReportRepository($inputsData))->getQuery()->get();
 
         return [
-            'date' => $this->attributes['date'],
+            'date' => $this->attributes['date'] ?? Carbon::now()->format('Y-m-d'),
             'data' => $data,
         ];
     }
