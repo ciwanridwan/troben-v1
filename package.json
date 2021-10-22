@@ -29,8 +29,9 @@
         "vue-template-compiler": "^2.6.12"
     },
     "dependencies": {
-        "firebase": "^8.10.0",
         "@diracleo/vue-enlargeable-image": "0.0.7",
+        "chart.js": "^2.9.4",
+        "firebase": "^8.10.0",
         "jspdf": "^2.3.1",
         "node-sass": "^5.0.0",
         "qrcode": "^1.4.4",

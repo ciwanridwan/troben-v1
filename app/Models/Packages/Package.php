@@ -5,6 +5,8 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -364,6 +366,31 @@ class Package extends Model implements AttachableContract
                 'id'
             )
             ->where('codes.codeable_type', Item::class);
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id');
+    }
+
+    public function historyPool(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_POOL);
+    }
+
+    public function historyBusiness(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_BUSINESS);
+    }
+
+    public function historyTransporter(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_TRANSPORTER);
+    }
+
+    public function historySpace(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_SPACE);
     }
 
     /**
