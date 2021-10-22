@@ -55,6 +55,7 @@ class AssignFirstPartnerToPackage
             $this->package->status = Package::STATUS_PENDING;
             $this->package->save();
 
+            event(new PartnerAssigned($this->package, $this->partner));
             return;
         }
 
