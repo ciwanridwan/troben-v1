@@ -35,10 +35,6 @@ class RebuildPartnerBalanceHistoriesTable extends Migration
             $table->foreign('package_id')
                 ->references('id')
                 ->on('packages');
-
-            //$table->foreign('disbursement_id')
-            //    ->references('id')
-            //    ->on('partner_balance_disbursements');
         });
     }
 

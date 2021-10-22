@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class CreateViewPartnerBalanceReport extends Migration
+class AddDisbursementIdColumnViewPartnerBalanceReport extends Migration
 {
     /**
      * Run the migrations.
@@ -42,7 +42,7 @@ class CreateViewPartnerBalanceReport extends Migration
             pbh.package_id,
             pc.created_at as "package_created_at",
             c."content" as package_code,
-            --pbh.disbursement_id,
+            pbh.disbursement_id,
             pbh.balance,
             pbh."type",
             pbh.description,
