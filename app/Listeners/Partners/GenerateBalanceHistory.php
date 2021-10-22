@@ -3,8 +3,8 @@
 namespace App\Listeners\Partners;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
-use App\Events\Deliveries\Dooring as DeliveryDooring;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
@@ -99,16 +99,17 @@ class GenerateBalanceHistory
             case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
                 if ($this->event->delivery->transporter) {
                     $this
+                        ->setDelivery()
                         ->setPackages()
                         ->setTransporter()
-                        ->setPartner($this->transporter->partner)
+                        ->setPartner($this->transporter->partner);
+                    if ($this->partner->get_fee_pickup) $this
                         ->setPackage($this->packages[0])
                         ->setBalance($this->getPickupFee())
                         ->setType(History::TYPE_DEPOSIT)
                         ->setDescription(History::DESCRIPTION_PICKUP)
                         ->setAttributes()
                         ->recordHistory();
-//                    $this->pushNotificationToOwner();
                 }
                 break;
             case $event instanceof DeliveryTransit\PackageLoadedByDriver:
@@ -122,99 +123,137 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
 
                     # total balance service > record service balance
-                    $this->saveServiceFee();
-
-                    if ($this->countDeliveryTransitOfPackage() === 1) {
-                        # total balance insurance > record insurance fee
-                        $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
-                            return $item->price * PricingCalculator::INSURANCE_MUL_PARTNER;
-                        });
-                        if ($balance_insurance !== 0) {
-                            $this
-                            ->setBalance($balance_insurance)
-                            ->setType(History::TYPE_DEPOSIT)
-                            ->setDescription(History::DESCRIPTION_INSURANCE)
-                            ->setAttributes()
-                            ->recordHistory();
-                        }
-
-                        # total balance handling > record handling fee
-                        $balance_handling = (float) $package->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
-                        if ($balance_handling !== 0.0) {
-                            $this
-                            ->setBalance($balance_handling)
-                            ->setType(History::TYPE_DEPOSIT)
-                            ->setDescription(History::DESCRIPTION_HANDLING)
-                            ->setAttributes()
-                            ->recordHistory();
-                        }
-                    }
+                    if ($this->partner->get_fee_transit && $this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
                 }
-//                $this->pushNotificationToOwner();
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
                 $this
                     ->setDelivery()
                     ->setPackages()
-                    ->setTransporter()
-                    ->setPartner($this->transporter->partner);
+                    ->setPartner($this->delivery->origin_partner)
+                    ->setTransporter();
 
-                /** @var Package $package */
+                # fee MB/MS/MPW
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
-                    if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $weight = $this->package->items->sum(function ($item) {
-                            return $item->weight_borne_total;
-                        });
-                        // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-                        // $price = PricingCalculator::getTier($partner_price, $weight);
-                        // TODO: change $price to actual price
-                        $this
-                            ->setBalance($weight * 1000)
-                            ->setType(History::TYPE_DEPOSIT)
-                            ->setDescription(History::DESCRIPTION_DELIVERY)
-                            ->setAttributes()
-                            ->recordHistory();
+
+                    if ($this->countDeliveryTransitOfPackage() === 1) {
+                        # total balance service > record service balance
+                        if ($this->partner->get_fee_service) $this->saveServiceFee();
+                        # total balance insurance > record insurance fee
+                        if ($this->partner->get_fee_insurance) {
+                            $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
+                                return $item->price * PricingCalculator::INSURANCE_MUL_PARTNER;
+                            });
+                            if ($balance_insurance !== 0) {
+                                $this
+                                    ->setBalance($balance_insurance)
+                                    ->setType(History::TYPE_DEPOSIT)
+                                    ->setDescription(History::DESCRIPTION_INSURANCE)
+                                    ->setAttributes()
+                                    ->recordHistory();
+                            }
+                        }
+
+                        # total balance handling > record handling fee
+                        if ($this->partner->get_fee_handling) {
+                            $balance_handling = (float)$package->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+                            if ($balance_handling !== 0.0) {
+                                $this
+                                    ->setBalance($balance_handling)
+                                    ->setType(History::TYPE_DEPOSIT)
+                                    ->setDescription(History::DESCRIPTION_HANDLING)
+                                    ->setAttributes()
+                                    ->recordHistory();
+                            }
+                        }
                     }
                 }
-//                $this->pushNotificationToOwner();
-                break;
-            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
-                $this
-                    ->setDelivery()
-                    ->setPackages()
-                    ->setTransporter()
-                    ->setPartner($this->transporter->partner);
 
-                foreach ($this->packages as $package) {
-                    $this->setPackage($package);
+                # fee transporter
+                if ($this->partner->code !== $this->transporter->partner->code) {
+//                dd($this->partner->code, $this->transporter->partner->code);
+                    $this->setPartner($this->transporter->partner);
+                    /** @var Package $package */
+                    foreach ($this->packages as $package) {
+                        $this->setPackage($package);
+                        switch ($this->partner->get_fee_delivery) {
+//                            case $this->countDeliveryTransitOfPackage() > 1:
+//                                $weight = $this->package->items->sum(function ($item) {
+//                                    return $item->weight_borne_total;
+//                                });
+//                                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
+//                                // $price = PricingCalculator::getTier($partner_price, $weight);
+//                                // TODO: change $price to actual price
+//                                $this
+//                                    ->setBalance($weight * 1000)
+//                                    ->setType(History::TYPE_DEPOSIT)
+//                                    ->setDescription(History::DESCRIPTION_DELIVERY)
+//                                    ->setAttributes()
+//                                    ->recordHistory();
+//                                break;
+                            case $this->countDeliveryTransitOfPackage() === 1:
+                                if ($this->partner->get_fee_delivery) {
+                                    $balance = ShippingCalculator::getDeliveryFeeByDistance($this->delivery,false);
+                                    if ($balance > 0) {
+                                        $this
+                                            ->setBalance($balance)
+                                            ->setType(History::TYPE_DEPOSIT)
+                                            ->setDescription(History::DESCRIPTION_DELIVERY)
+                                            ->setAttributes()
+                                            ->recordHistory();
 
-                    # total balance service > record service balance
-                    $this->saveServiceFee();
+                                        # charge partner origin
+                                        $this->setPartner($this->delivery->origin_partner);
+                                        if ($this->partner->get_charge_delivery) $this
+                                            ->setBalance($balance)
+                                            ->setType(History::TYPE_CHARGE)
+                                            ->setDescription(History::DESCRIPTION_DELIVERY)
+                                            ->setAttributes()
+                                            ->recordHistory();
+                                    }
+                                }
+                                break;
+                        }
+                    }
                 }
-//                $this->pushNotificationToOwner();
                 break;
-            case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
-                $this
-                    ->setDelivery()
-                    ->setTransporter()
-                    ->setPartner($this->transporter->partner)
-                    ->setPackage($event->package);
-
-                $weight = $this->package->items->sum(function ($item) {
-                    return $item->weight_borne_total;
-                });
-                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
-                // $price = PricingCalculator::getTier($partner_price, $weight);
-                // TODO: change $price to actual price
-                $this
-                    ->setBalance($weight * 500)
-                    ->setType(History::TYPE_DEPOSIT)
-                    ->setDescription(History::DESCRIPTION_DOORING)
-                    ->setAttributes()
-                    ->recordHistory();
-//                $this->pushNotificationToOwner();
-                break;
+//            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
+//                $this
+//                    ->setDelivery()
+//                    ->setPackages()
+//                    ->setTransporter()
+//                    ->setPartner($this->transporter->partner);
+//
+//                foreach ($this->packages as $package) {
+//                    $this->setPackage($package);
+//
+//                    # total balance service > record service balance
+//                    $this->saveServiceFee();
+//                }
+////                $this->pushNotificationToOwner();
+//                break;
+//            case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
+//                $this
+//                    ->setDelivery()
+//                    ->setTransporter()
+//                    ->setPartner($this->transporter->partner)
+//                    ->setPackage($event->package);
+//
+//                $weight = $this->package->items->sum(function ($item) {
+//                    return $item->weight_borne_total;
+//                });
+//                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
+//                // $price = PricingCalculator::getTier($partner_price, $weight);
+//                // TODO: change $price to actual price
+//                $this
+//                    ->setBalance($weight * 500)
+//                    ->setType(History::TYPE_DEPOSIT)
+//                    ->setDescription(History::DESCRIPTION_DOORING)
+//                    ->setAttributes()
+//                    ->recordHistory();
+////                $this->pushNotificationToOwner();
+//                break;
         }
     }
 
@@ -346,14 +385,19 @@ class GenerateBalanceHistory
     }
 
     /**
-     * Get default price.
+     * Get default fee.
      *
      * @return int
+     * @throws \Throwable
      */
     protected function getPickupFee(): int
     {
         $generalType = Transporter::getGeneralType($this->transporter->type);
-        return Transporter::getAvailableTransporterPrices()[$generalType];
+        $maxPrice = Transporter::getAvailableTransporterPrices()[$generalType];
+
+        $priceByDistance = ShippingCalculator::getDeliveryFeeByDistance($this->delivery);
+
+        return $maxPrice >= $priceByDistance ? $priceByDistance : $maxPrice;
     }
 
     /**
@@ -361,7 +405,7 @@ class GenerateBalanceHistory
      *
      * @return int
      */
-    protected function getDeliveryFee(): int
+    protected function getServiceFee(): int
     {
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
@@ -430,13 +474,13 @@ class GenerateBalanceHistory
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function saveServiceFee()
+    protected function saveServiceFee(bool $isTransit = false)
     {
-        $balance_service = $this->package->total_weight * $this->getDeliveryFee();
+        $balance_service = $this->package->total_weight * $this->getServiceFee();
         $this
             ->setBalance($balance_service)
             ->setType(History::TYPE_DEPOSIT)
-            ->setDescription(History::DESCRIPTION_SERVICE)
+            ->setDescription($isTransit ? History::DESCRIPTION_TRANSIT : History::DESCRIPTION_SERVICE)
             ->setAttributes()
             ->recordHistory();
     }
