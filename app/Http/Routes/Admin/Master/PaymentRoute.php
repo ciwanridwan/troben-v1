@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Admin\Master;
 
+use App\Http\Controllers\Admin\Master\Payment\ReportController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Admin\Master\PaymentController;
 
@@ -24,9 +25,38 @@ class PaymentRoute extends BaseRoute
      */
     public function register()
     {
+        $this->router->get($this->prefix('/home'), [
+            'as' => $this->name('home'),
+            'uses' => $this->uses('home'),
+        ]);
         $this->router->get($this->prefix('/income'), [
             'as' => $this->name('income'),
             'uses' => $this->uses('index'),
+        ]);
+
+        $this->router->get($this->prefix('/mtak'), [
+            'as' => $this->name('mtak'),
+            'uses' => $this->uses('getIncomeMTAK'),
+        ]);
+
+        $this->router->get($this->prefix('/mtakab'), [
+            'as' => $this->name('mtakab'),
+            'uses' => $this->uses('getIncomeMTAKab'),
+        ]);
+
+        $this->router->get($this->prefix('/mpw'), [
+            'as' => $this->name('mpw'),
+            'uses' => $this->uses('getIncomeMPW'),
+        ]);
+
+        $this->router->get($this->prefix('/ms'), [
+            'as' => $this->name('ms'),
+            'uses' => $this->uses('getIncomeSpace'),
+        ]);
+
+        $this->router->get($this->prefix('data'), [
+            'as' => $this->name('data'),
+            'uses' => $this->uses('data', ReportController::class),
         ]);
     }
 

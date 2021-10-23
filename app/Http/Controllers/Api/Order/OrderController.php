@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Geo\Regency;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -108,6 +110,9 @@ class OrderController extends Controller
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        /** @var Regency $regency */
+        $regency = Regency::query()->find($request->get('origin_regency_id'));
+        $price = PricingCalculator::getPrice($regency->province_id, $request->get('origin_regency_id'), $request->get('destination_sub_district_id'));
 
         $inputs['customer_id'] = $user->id;
 

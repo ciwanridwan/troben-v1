@@ -59,7 +59,7 @@ export default {
       return this.package?.destination_sub_district?.zip_code;
     },
     receiver_address() {
-      return this.package?.receiver_address + getDestinationAddress(this.package);
+      return this.package?.receiver_address + ", Kota: " + getDestinationAddress(this.package);
     },
     receiver_phone() {
       return this.package?.receiver_phone;

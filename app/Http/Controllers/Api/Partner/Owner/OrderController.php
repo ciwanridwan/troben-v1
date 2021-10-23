@@ -97,9 +97,9 @@ class OrderController extends Controller
             ->whereIn('payment_status', [Package::PAYMENT_STATUS_PENDING, Package::PAYMENT_STATUS_DRAFT])
             ->count();
 
-        $depositAmount = $repository->queries()->getPaymentQuery()
-            ->where('service_type', Payment::SERVICE_TYPE_DEPOSIT)
-            ->sum('total_payment');
+//        $depositAmount = $repository->queries()->getPaymentQuery()
+//            ->where('service_type', Payment::SERVICE_TYPE_DEPOSIT)
+//            ->sum('total_payment');
 
         return $this->jsonSuccess(DashboardResource::make([
             'incoming_order' => $incomingOrder,
@@ -108,7 +108,8 @@ class OrderController extends Controller
             'outbound_manifest' => $outboundManifest,
             'paid_order' => $paidOrder,
             'unpaid_order' => $unpaidOrder,
-            'deposit_amount' => (float) $depositAmount,
+//            'deposit_amount' => (float) $depositAmount,
+            'deposit_amount' => (float) 0,
         ]));
     }
 }

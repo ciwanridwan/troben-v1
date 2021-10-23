@@ -32,6 +32,11 @@ class BalanceRoute extends BaseRoute
             'as' => $this->name('summary'),
             'uses' => $this->uses('summary'),
         ]);
+
+        $this->router->get($this->prefix('detail'), [
+            'as' => $this->name('detail'),
+            'uses' => $this->uses('detail'),
+        ]);
     }
 
     /**

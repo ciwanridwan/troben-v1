@@ -58,10 +58,13 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
-        // if ($this->resource->relationLoaded('packages')) {
+        if ($this->resource->relationLoaded('packages')) {
         //     $packages = PackageResource::collection($this->resource->packages->load('items'));
         //     $this->resource->unsetRelation('packages');
-        // }
+             foreach ($this->resource->packages as $key =>$package) {
+                 $this->resource->packages[$key]->customer_hash = (string) $package->customer_id;
+             }
+        }
 
         $this->resource->append('as');
         if (! $this->resource->relationLoaded('item_codes')) {

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Concerns\Models\CanSearch;
 use App\Models\Notifications\Notification;
+use App\Models\Payments\Bank;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
@@ -154,6 +156,11 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
     public function deliveries(): Relations\HasManyThrough
     {
         return $this->hasManyThrough(Delivery::class, UserablePivot::class, 'user_id', 'userable_id', 'id', 'id');
+    }
+
+    public function banks(): Relations\HasMany
+    {
+        return $this->hasMany(Bank::class, 'user_id', 'id');
     }
 
     public function code_logs()

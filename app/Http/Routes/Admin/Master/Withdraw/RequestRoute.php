@@ -22,6 +22,14 @@ class RequestRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+        $this->router->patch($this->prefix('confirmation/{withdrawal_hash}'), [
+            'as' => $this->name('confirmation'),
+            'uses' => $this->uses('confirmation'),
+        ]);
+        $this->router->patch($this->prefix('rejection/{withdrawal_hash}'), [
+            'as' => $this->name('rejection'),
+            'uses' => $this->uses('rejection'),
+        ]);
     }
 
     /**
