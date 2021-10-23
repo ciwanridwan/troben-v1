@@ -6,7 +6,7 @@
         <a-list-item
           slot="renderItem"
           slot-scope="item, index"
-          :class="[fals ? 'trawl-bg-gray' : '']"
+          :class="[roomId == item.room_id ? 'trawl-bg-gray' : '']"
           style="padding-left: 10px;"
         >
           <a-list-item-meta :description="description(item)">
@@ -19,7 +19,7 @@
               {{ item.customer.name }}
             </div>
             <!-- </button> -->
-            <a-badge :dot="fals" slot="avatar"
+            <a-badge :dot="item.is_online" slot="avatar"
               ><a-avatar
                 :src="
                   'https://ui-avatars.com/api/?name=' + `${item.customer.name}`
@@ -298,23 +298,23 @@ export default {
         callback(getData);
       };
 
-      consumer.onclose = function(event) {
-        console.log("on close....", event);
-        if (event.wasClean) {
-          // alert(
-          //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          // );
-          console.log(
-            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          );
-        } else {
-          // e.g. server process killed or network down
-          // event.code is usually 1006 in this case
-          // alert("[close] Connection consumer died");
-          console.log("[close] Connection consumer died");
-          callback("reconnect");
-        }
-      };
+      // consumer.onclose = function(event) {
+      //   console.log("on close....", event);
+      //   if (event.wasClean) {
+      //     // alert(
+      //     //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+      //     // );
+      //     console.log(
+      //       `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+      //     );
+      //   } else {
+      //     // e.g. server process killed or network down
+      //     // event.code is usually 1006 in this case
+      //     // alert("[close] Connection consumer died");
+      //     console.log("[close] Connection consumer died");
+      //     callback("reconnect");
+      //   }
+      // };
 
       consumer.onerror = function(error) {
         // alert(`[error] ${error.message}`);
@@ -330,20 +330,21 @@ export default {
         `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
       );
       consumer.onclose = function(event) {
-        console.log("on close....", event);
+        console.log("listchat on close....", event);
         if (event.wasClean) {
           console.log(
-            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+            `listchat [close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
           );
         } else {
           // e.g. server process killed or network down
           // event.code is usually 1006 in this case
-          console.log("[close] Connection list chat died");
+          console.log("listchat [close] Connection list chat died");
+          listChat(item, callback);
         }
       };
 
       consumer.onopen = function(e) {
-        console.log("isOpenChat", consumer);
+        console.log("list chat isOpenChat", consumer);
 
         fetch(
           `https://staging-chat.trawlbens.com/chat/list/admin/room/${item.room_id}`,
@@ -356,10 +357,10 @@ export default {
           }
         )
           .then(response => {
-            console.log("success", response);
+            console.log("list chat success", response);
           })
           .catch(err => {
-            console.error("failure error", err);
+            console.error("list chat failure error", err);
           });
       };
 
@@ -524,7 +525,7 @@ export default {
     // this.consumeNotif();
   },
   watch: {
-    $route: "consumeSocket",
+    // $route: "consumeSocket",
     $route: "listChat"
     // $route: "consumeNotif"
   },
