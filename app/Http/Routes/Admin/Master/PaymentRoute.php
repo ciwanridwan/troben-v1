@@ -3,6 +3,7 @@
 namespace App\Http\Routes\Admin\Master;
 
 use App\Http\Controllers\Admin\Master\Payment\ReportController;
+use App\Http\Controllers\Api\GeoController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Admin\Master\PaymentController;
 
@@ -57,6 +58,10 @@ class PaymentRoute extends BaseRoute
         $this->router->get($this->prefix('data'), [
             'as' => $this->name('data'),
             'uses' => $this->uses('data', ReportController::class),
+        ]);
+        $this->router->get($this->prefix('geo'), [
+            'as' => $this->name('geo'),
+            'uses' => $this->uses('index', GeoController::class)
         ]);
     }
 
