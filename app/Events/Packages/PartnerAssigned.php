@@ -68,10 +68,14 @@ class PartnerAssigned
      */
     public function broadcastToAdmin(): void
     {
-        $admin = User::where('is_admin', true)->first();
-        new PrivateChannel($admin, $this->notification, [
-            'package_code' => $this->package->code->content,
-        ]);
+        $admins = User::where('is_admin', true)->get();
+        $package = $this->package;
+        $notification = $this->notification;
+        $admins->each(function ($admin) use ($notification, $package): void {
+            new PrivateChannel($admin, $notification, [
+                'package_code' => $package->code->content,
+            ]);
+        });
     }
 
     /**
