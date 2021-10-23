@@ -137,6 +137,7 @@ export default {
   mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
+    console.log('asik', this.items.data);
   }
 };
 </script>

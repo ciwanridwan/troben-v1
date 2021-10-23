@@ -80,8 +80,10 @@ class WithdrawalController extends Controller
     {
         $request->validate([
             'amount' => 'required',
+            'amount' => 'required',
         ]);
         $withdrawal = $this->storeWithdrawal($request);
+
 
         return $this->jsonSuccess(new WithdrawalResource($withdrawal));
     }
@@ -130,6 +132,9 @@ class WithdrawalController extends Controller
         $withdrawal->amount = $request->input('amount');
         $withdrawal->last_balance = 0;
         $withdrawal->status = Withdrawal::STATUS_CREATED;
+        $withdrawal->bank_id = $request->bank_id;
+        $withdrawal->account_name = $request->account_name;
+        $withdrawal->account_number = $request->account_number;
         if ($request->account_bank_id != null){
             $withdrawal->account_bank_id = $request->account_bank_id;
         }
@@ -140,13 +145,12 @@ class WithdrawalController extends Controller
             $bank = $this->storeBank($request);
             $withdrawal->account_bank_id = $bank->id;
         }
-        elseif ($request->option == '1') {
-            $withdrawal->bank_id = $request->bank_id;
-            $withdrawal->account_name = $request->account_name;
-            $withdrawal->account_number = $request->account_number;
-        }
-
         $withdrawal->save();
         return $withdrawal;
+    }
+
+    public function balanceReduction (){
+
+
     }
 }

@@ -128,6 +128,9 @@ class PaymentController extends Controller
             }
             $this->query->has('historyBusiness');
             $this->query->has('histories');
+
+            // PartnerBalanceReportRepository get data sum penghasilan
+
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
 
