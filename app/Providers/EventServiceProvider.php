@@ -8,6 +8,10 @@ use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewHistoryCreated;
+use App\Events\Partners\Balance\WithdrawalConfirmed;
+use App\Events\Partners\Balance\WithdrawalRejected;
+use App\Events\Partners\Balance\WithdrawalRequested;
+use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Listeners\Partners\GenerateBalanceHistory;
@@ -220,9 +224,18 @@ class EventServiceProvider extends ServiceProvider
         NewHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
         ],
-        DeliveryLoadedPackages::class => [
-            WriteCodeLog::class,
-        ]
+        WithdrawalRequested::class => [
+            GenerateBalanceHistory::class,
+        ],
+        WithdrawalConfirmed::class => [
+            GenerateBalanceHistory::class,
+        ],
+        WithdrawalRejected::class => [
+            GenerateBalanceHistory::class,
+        ],
+        WithdrawalSuccess::class => [
+            GenerateBalanceHistory::class,
+        ],
     ];
 
     /**

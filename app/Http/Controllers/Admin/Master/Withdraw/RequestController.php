@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin\Master\Withdraw;
 
 use App\Concerns\Controllers\HasResource;
-use App\Events\Withdrawal\WithdrawalConfirmed;
-use App\Events\Withdrawal\WithdrawalRejected;
+use App\Events\Partners\Balance\WithdrawalConfirmed;
+use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;

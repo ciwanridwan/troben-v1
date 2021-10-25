@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Master\Withdraw;
 
 use App\Concerns\Controllers\HasResource;
+use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Http\Response;
 use App\Models\Payments\Withdrawal;
 use Illuminate\Database\Eloquent\Builder;
@@ -72,6 +73,7 @@ class PendingController extends Controller
         $withdrawal->status = Withdrawal::STATUS_SUCCESS;
         $withdrawal->save();
 
+        event(new WithdrawalSuccess($withdrawal));
 
         return (new Response(Response::RC_SUCCESS))->json();
     }

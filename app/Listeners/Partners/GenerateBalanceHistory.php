@@ -7,6 +7,10 @@ use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
+use App\Events\Partners\Balance\WithdrawalConfirmed;
+use App\Events\Partners\Balance\WithdrawalRejected;
+use App\Events\Partners\Balance\WithdrawalRequested;
+use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Models\Deliveries\Delivery;
 use App\Models\Notifications\Template;
@@ -16,9 +20,11 @@ use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
+use App\Models\Payments\Withdrawal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Arr;
 
 class GenerateBalanceHistory
 {
@@ -81,6 +87,8 @@ class GenerateBalanceHistory
      */
     protected array $attributes;
 
+    protected Withdrawal $withdrawal;
+
     protected string $type;
     protected string $description;
 
@@ -96,6 +104,15 @@ class GenerateBalanceHistory
         $this->event = $event;
 
         switch (true) {
+            case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
+                $this
+                    ->setWithdrawal($this->event->withdrawal)
+                    ->setBalance($this->withdrawal->amount)
+                    ->setType(History::TYPE_WITHDRAW)
+                    ->setDescription($this->getDescriptionByTypeWithdrawal())
+                    ->setAttributes()
+                    ->recordHistory();
+                break;
             case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
                 if ($this->event->delivery->transporter) {
                     $this
@@ -376,12 +393,32 @@ class GenerateBalanceHistory
     {
         $this->attributes = [
             'partner_id' => $this->partner->id,
-            'package_id' => $this->package->id,
             'balance' => $this->balance,
             'type' => $this->type,
             'description' => $this->description,
         ];
+
+        $this->attributes = $this->type === History::TYPE_WITHDRAW
+            ? Arr::prepend($this->attributes,$this->withdrawal->id,'disbursement_id')
+            : Arr::prepend($this->attributes,$this->package->id,'package_id');
         return $this;
+    }
+
+    protected function setWithdrawal(Withdrawal $withdrawal): self
+    {
+        $this->withdrawal = $withdrawal;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDescriptionByTypeWithdrawal(): string
+    {
+        if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) return History::DESCRIPTION_WITHDRAW_REQUEST;
+        if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) return History::DESCRIPTION_WITHDRAW_CONFIRMED;
+        if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) return History::DESCRIPTION_WITHDRAW_REJECT;
+        return History::DESCRIPTION_WITHDRAW_SUCCESS;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Concerns\Controllers\HasResource;
+use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Resources\Account\UserBankResource;
@@ -83,7 +84,7 @@ class WithdrawalController extends Controller
             'account_number' => 'required',
         ]);
         $withdrawal = $this->storeWithdrawal($request);
-
+        event(new WithdrawalRequested($withdrawal));
 
         return $this->jsonSuccess(new WithdrawalResource($withdrawal));
     }
@@ -146,7 +147,6 @@ class WithdrawalController extends Controller
             $withdrawal->account_bank_id = $bank->id;
         }
         $withdrawal->save();
-        $this->balanceReduction($withdrawal);
         return $withdrawal;
     }
 }

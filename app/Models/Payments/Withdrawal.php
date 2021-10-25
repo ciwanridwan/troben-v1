@@ -3,7 +3,6 @@
 namespace App\Models\Payments;
 
 use App\Concerns\Controllers\CustomSerializeDate;
-use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Carbon\Carbon;
@@ -16,6 +15,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * Class Withdrawal
  * @package App\Models\Payments
  *
+ * @property int $id
  * @property int $partner_id
  * @property int $account_bank_id
  * @property double $first_balance
