@@ -77,8 +77,7 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository) : JsonResponse
     {
-        $account = $request->user();
-        if ($account->partners[0]->balance < $request->amount){
+        if ($repository->getPartner()->balance < $request->amount){
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
         $request['status'] = Withdrawal::STATUS_CREATED;
