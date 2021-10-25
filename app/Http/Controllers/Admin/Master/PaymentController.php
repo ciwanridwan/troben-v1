@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Partner;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
@@ -29,6 +32,7 @@ class PaymentController extends Controller
      */
     protected string $model = Package::class;
     protected string $delivery = Delivery::class;
+    protected string $partner = Partner::class;
 
     /**
      * @var array
@@ -243,5 +247,20 @@ class PaymentController extends Controller
         }
 
         return view('admin.master.payment.partner.space');
+    }
+    public function getPartnerList(Request $request)
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'type' => 'required',
+        ])->validate();
+
+        if ($request->expectsJson()) {
+            $this->query = $this->partner::query();
+            $this->query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
+
+            return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
+        }
+
+        return view('admin.master.payment.partner.data.index');
     }
 }

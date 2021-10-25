@@ -11,6 +11,7 @@ use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
+use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -74,13 +75,14 @@ class WithdrawalController extends Controller
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    public function store(Request $request) : JsonResponse
+    public function store(Request $request, PartnerRepository $repository) : JsonResponse
     {
         $account = $request->user();
         if ($account->partners[0]->balance < $request->amount){
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
-        $job = new CreateNewBalanceDisbursement($account, $request->all());
+        $request['status'] = Withdrawal::STATUS_CREATED;
+        $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
         $this->dispatch($job);
 
         return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));

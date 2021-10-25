@@ -5,7 +5,7 @@ namespace App\Jobs\Partners;
 use App\Events\Partners\NewBalanceDisbursementCreated;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
-use App\Models\User;
+use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,11 +17,12 @@ class CreateNewBalanceDisbursement
      * @var Withdrawal
      */
     public Withdrawal $withdrawal;
+    public PartnerRepository $repository;
 
     /**
-     * @var User
+     * @var Partner
      */
-    public User $user;
+    public Partner $partner;
 
     /**
      * filtered attributes.
@@ -34,16 +35,17 @@ class CreateNewBalanceDisbursement
      *
      * @return void
      */
-    public function __construct(User $user, $inputs = [])
+    public function __construct(Partner $partner, $inputs = [])
     {
         $this->attributes = Validator::make($inputs, [
+            'status' => ['nullable', 'max:255'],
             'amount' => ['required', 'max:255'],
             'bank_id' => ['required','max:255'],
             'account_name' => ['required','max:255'],
             'account_number' => ['required', 'max:255'],
         ])->validate();
         $this->withdrawal = new Withdrawal();
-        $this->user = $user;
+        $this->partner = $partner;
     }
 
     /**
@@ -54,10 +56,8 @@ class CreateNewBalanceDisbursement
     public function handle(): bool
     {
         $this->withdrawal->fill($this->attributes);
-        $this->withdrawal->partner_id = $this->user->partners[0]->id;
-        $this->withdrawal->first_balance = $this->user->partners[0]->balance;
-        $this->withdrawal->last_balance = 0;
-        $this->withdrawal->status = Withdrawal::STATUS_CREATED;
+        $this->withdrawal->partner_id = $this->partner->id;
+        $this->withdrawal->first_balance = $this->partner->balance;
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
