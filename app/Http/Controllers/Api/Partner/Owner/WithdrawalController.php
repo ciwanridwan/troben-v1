@@ -18,6 +18,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Psy\Util\Json;
 
 class WithdrawalController extends Controller
 {
@@ -82,8 +83,11 @@ class WithdrawalController extends Controller
             'amount' => 'required',
             'account_number' => 'required',
         ]);
+        $account = $request->user();
+        if ($account->partners[0]->balance < $request->amount){
+            return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
+        }
         $withdrawal = $this->storeWithdrawal($request);
-
 
         return $this->jsonSuccess(new WithdrawalResource($withdrawal));
     }
@@ -135,18 +139,7 @@ class WithdrawalController extends Controller
         $withdrawal->bank_id = $request->bank_id;
         $withdrawal->account_name = $request->account_name;
         $withdrawal->account_number = $request->account_number;
-        if ($request->account_bank_id != null){
-            $withdrawal->account_bank_id = $request->account_bank_id;
-        }
-        elseif ($withdrawal->first_balance < $withdrawal->amount){
-            return (new Response(Response::RC_BAD_REQUEST))->json();
-        }
-        elseif ($request->option == '1' && $request->save == '1') {
-            $bank = $this->storeBank($request);
-            $withdrawal->account_bank_id = $bank->id;
-        }
         $withdrawal->save();
-        $this->balanceReduction($withdrawal);
         return $withdrawal;
     }
 }
