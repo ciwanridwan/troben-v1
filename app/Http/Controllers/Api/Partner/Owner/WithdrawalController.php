@@ -80,7 +80,7 @@ class WithdrawalController extends Controller
     {
         $request->validate([
             'amount' => 'required',
-            'amount' => 'required',
+            'account_number' => 'required',
         ]);
         $withdrawal = $this->storeWithdrawal($request);
 
@@ -146,11 +146,7 @@ class WithdrawalController extends Controller
             $withdrawal->account_bank_id = $bank->id;
         }
         $withdrawal->save();
+        $this->balanceReduction($withdrawal);
         return $withdrawal;
-    }
-
-    public function balanceReduction (){
-
-
     }
 }
