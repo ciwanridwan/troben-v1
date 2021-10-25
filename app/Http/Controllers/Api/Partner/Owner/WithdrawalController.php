@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 use App\Concerns\Controllers\HasResource;
 use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Account\CustomerResource;
 use App\Http\Resources\Account\UserBankResource;
 use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
 use App\Http\Response;
+use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
+use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class WithdrawalController extends Controller
 {
@@ -77,16 +76,18 @@ class WithdrawalController extends Controller
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    public function store(Request $request) : JsonResponse
+    public function store(Request $request, PartnerRepository $repository) : JsonResponse
     {
-        $request->validate([
-            'amount' => 'required',
-            'account_number' => 'required',
-        ]);
-        $withdrawal = $this->storeWithdrawal($request);
-        event(new WithdrawalRequested($withdrawal));
+        if ($repository->getPartner()->balance < $request->amount){
+            return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
+        }
+        $request['status'] = Withdrawal::STATUS_CREATED;
+        $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
+        $this->dispatch($job);
 
-        return $this->jsonSuccess(new WithdrawalResource($withdrawal));
+        event(new WithdrawalRequested($job->withdrawal));
+
+        return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
     }
 
     /**
@@ -110,43 +111,5 @@ class WithdrawalController extends Controller
         $bank  = Bank::where('is_active', true)->get();
 
         return (new Response(Response::RC_SUCCESS, $bank))->json();
-    }
-
-    public function storeBank(Request $request): BankAccount
-    {
-        $account = $request->user();
-        $bank = new BankAccount();
-        $bank->user_id = $account->id;
-        $bank->bank_id = $request->bank_id;
-        $bank->account_name = $request->account_name;
-        $bank->account_number = $request->account_number;
-        $bank->save();
-        return $bank;
-    }
-
-    public function storeWithdrawal(Request $request)
-    {
-        $account = $request->user();
-        $withdrawal = new Withdrawal();
-        $withdrawal->partner_id = $account->partners[0]->id;
-        $withdrawal->first_balance = $account->partners[0]->balance;
-        $withdrawal->amount = $request->input('amount');
-        $withdrawal->last_balance = 0;
-        $withdrawal->status = Withdrawal::STATUS_CREATED;
-        $withdrawal->bank_id = $request->bank_id;
-        $withdrawal->account_name = $request->account_name;
-        $withdrawal->account_number = $request->account_number;
-        if ($request->account_bank_id != null){
-            $withdrawal->account_bank_id = $request->account_bank_id;
-        }
-        elseif ($withdrawal->first_balance < $withdrawal->amount){
-            return (new Response(Response::RC_BAD_REQUEST))->json();
-        }
-        elseif ($request->option == '1' && $request->save == '1') {
-            $bank = $this->storeBank($request);
-            $withdrawal->account_bank_id = $bank->id;
-        }
-        $withdrawal->save();
-        return $withdrawal;
     }
 }
