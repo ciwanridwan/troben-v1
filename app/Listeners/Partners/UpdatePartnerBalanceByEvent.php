@@ -18,7 +18,8 @@ class UpdatePartnerBalanceByEvent
     {
         $this->history = $event->history;
         if (! ($this->history->type === History::TYPE_WITHDRAW
-            && $this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS)) $this
+            && ($this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS ||
+            $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) $this
             ->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
     }
 
