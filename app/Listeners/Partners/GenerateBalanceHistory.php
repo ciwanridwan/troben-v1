@@ -107,6 +107,7 @@ class GenerateBalanceHistory
             case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
                 $this
                     ->setWithdrawal($this->event->withdrawal)
+                    ->setPartner($this->withdrawal->partner)
                     ->setBalance($this->withdrawal->amount)
                     ->setType(History::TYPE_WITHDRAW)
                     ->setDescription($this->getDescriptionByTypeWithdrawal())
@@ -398,9 +399,8 @@ class GenerateBalanceHistory
             'description' => $this->description,
         ];
 
-        $this->attributes = $this->type === History::TYPE_WITHDRAW
-            ? Arr::prepend($this->attributes,$this->withdrawal->id,'disbursement_id')
-            : Arr::prepend($this->attributes,$this->package->id,'package_id');
+        if ($this->type === History::TYPE_WITHDRAW) $this->attributes['disbursement_id'] = $this->withdrawal->id;
+        else $this->attributes['package_id'] = $this->package->id;
         return $this;
     }
 
@@ -477,9 +477,11 @@ class GenerateBalanceHistory
     {
         $historyQuery = History::query();
         $historyQuery->where('partner_id', $this->partner->id);
-        $historyQuery->where('package_id', $this->package->id);
         $historyQuery->where('type', $this->type);
         $historyQuery->where('description', $this->description);
+
+        if ($this->type === History::TYPE_WITHDRAW) $historyQuery->where('disbursement_id', $this->withdrawal->id);
+        else $historyQuery->where('package_id', $this->package->id);
 
         return is_null($historyQuery->first());
     }
