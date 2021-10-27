@@ -78,7 +78,7 @@ class HomeController extends Controller
             $this->getSearch($request);
 
             // dont show canceled order
-            $this->query->where('status', '!=', Package::STATUS_CANCEL);
+            // $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->dataRelation($request);
             $this->query->orderBy('created_at', 'desc');
             // $this->query->whereDoesntHave('deliveries');
