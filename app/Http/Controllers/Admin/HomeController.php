@@ -99,6 +99,7 @@ class HomeController extends Controller
             $this->getSearch($request);
             $this->dataRelation($request);
             $this->query->with(['code.logs']);
+            $this->query->orderBy('created_at', 'desc');
             // $this->query->whereDoesntHave('deliveries');
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
