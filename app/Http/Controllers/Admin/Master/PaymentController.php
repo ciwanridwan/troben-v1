@@ -250,13 +250,10 @@ class PaymentController extends Controller
     }
     public function getPartnerList(Request $request)
     {
-        $this->attributes = Validator::make($request->all(), [
-            'type' => 'required',
-        ])->validate();
-
         if ($request->expectsJson()) {
             $this->query = $this->partner::query();
             $this->query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
+            $this->query->when(request()->has('q'), fn ($q) => $q->where('code', $request->q));
 
             return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
         }
