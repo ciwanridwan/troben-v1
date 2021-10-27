@@ -2,7 +2,7 @@
   <content-layout title="Finance Dashboard">
     <template slot="content">
       <a-card style="height:50vh; width:74vw">
-        <h3>Pendapatan Mitra Oktober 2020</h3>
+        <h2 style="text-align: center">Pendapatan Mitra {{ filterChart.date }}</h2>
         <a-list :grid="{ gutter: 30, column: 2 }">
           <a-list-item style="padding: 8px">
             <div>
@@ -97,7 +97,7 @@
                   <br/>
                   <a-row type="flex" style="vertical-align: bottom" >
                     <a-col>
-                      <h3>Pendapatan hari sebelumnya xx</h3>
+                      <h4>Pendapatan hari sebelumnya</h4>
                       <h3>{{  currency(itemsDaily.data.income_sub) }}</h3>
                     </a-col>
                   </a-row>
@@ -134,19 +134,21 @@
                     </a-card>
                   </a-row>
                   <a-row style="padding:5px">
-                    <a-card>
-                      <a-row :gutter="16">
-                        <a-col :span="10">
-                          <h3>MPW</h3>
-                          <h5>M.Warehouse</h5>
-                        </a-col>
-                        <a-col :span="14">
-                          <h4 align="middle" style="color: green; margin-top: 10px;">
-                            {{  currency(itemsDaily.data.pool.total_income) }}
-                          </h4>
-                        </a-col>
-                      </a-row>
-                    </a-card>
+                    <a v-bind:href="'/admin/payment/partner/?type=' + this.type_pool">
+                      <a-card  style="cursor: pointer; ">
+                        <a-row :gutter="16">
+                          <a-col :span="10">
+                            <h3 style="user-select: none">MPW</h3>
+                            <h5 style="user-select: none">M.Warehouse</h5>
+                          </a-col>
+                          <a-col :span="14">
+                            <h4 align="middle" style="color: green; margin-top: 10px; user-select: none">
+                              {{  currency(itemsDaily.data.pool.total_income) }}
+                            </h4>
+                          </a-col>
+                        </a-row>
+                      </a-card>
+                    </a>
                   </a-row>
 
                   <a-row style="padding:5px">
@@ -196,7 +198,7 @@
                   <br/>
                   <a-row type="flex" style="vertical-align: bottom" >
                     <a-col>
-                      <h3>Pendapatan hari sebelumnya xx</h3>
+                      <h4>Pendapatan bulan sebelumnya</h4>
                       <h3>{{  currency(itemsMonthly.data.income_sub) }}</h3>
                     </a-col>
                   </a-row>
@@ -311,6 +313,10 @@ export default {
       regency_id: null,
     },
     size: 'large',
+    type_business: 'business',
+    type_space: 'space',
+    type_transporter: 'transporter',
+    type_pool: 'pool',
   }),
   methods: {
     onSuccessResponseDaily(response) {
@@ -337,6 +343,17 @@ export default {
     searchById(value) {
       this.filter.q = value;
       this.getFinanceDataDaily();
+    },
+    navPartner() {
+      this.$http
+        .get(
+          this.routeUri("admin.payment.partner"),
+          {
+            params: {
+              type: this.type_pool
+            }
+          }
+        )
     },
     filterOption(input, option) {
       return (
