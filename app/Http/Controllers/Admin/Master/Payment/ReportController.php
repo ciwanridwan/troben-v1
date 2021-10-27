@@ -98,8 +98,12 @@ class ReportController extends Controller
      */
     protected function getSummaryData(): array
     {
-        $inputsNow = array();
-        $inputsLast = array();
+        $inputsNow = [
+            'type' => History::TYPE_DEPOSIT,
+        ];
+        $inputsLast = [
+            'type' => History::TYPE_DEPOSIT,
+        ];
         $inputsData = [
             'type' => History::TYPE_DEPOSIT,
             'group' => ['partner_type']
