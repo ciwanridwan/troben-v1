@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\Master\Payment\Report\GraphResource;
 use App\Http\Resources\Admin\Master\Payment\Report\PartnerBalanceDetailResource;
 use App\Http\Resources\Admin\Master\Payment\Report\PartnerSummaryResource;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Carbon\Carbon;
@@ -97,9 +98,14 @@ class ReportController extends Controller
      */
     protected function getSummaryData(): array
     {
-        $inputsNow = array();
-        $inputsLast = array();
+        $inputsNow = [
+            'type' => History::TYPE_DEPOSIT,
+        ];
+        $inputsLast = [
+            'type' => History::TYPE_DEPOSIT,
+        ];
         $inputsData = [
+            'type' => History::TYPE_DEPOSIT,
             'group' => ['partner_type']
         ];
 
@@ -161,7 +167,10 @@ class ReportController extends Controller
      */
     protected function getGraphData(): array
     {
-        $inputsData = ['group' => ['created_at_day']];
+        $inputsData = [
+            'type' => History::TYPE_DEPOSIT,
+            'group' => ['created_at_day']
+        ];
 
         if (empty($this->attributes['date'])) $inputsData = Arr::prepend($inputsData,true,'is_this_month');
         else {
@@ -188,6 +197,7 @@ class ReportController extends Controller
     protected function getDetailData()
     {
         $inputsData = [
+            'type' => History::TYPE_DEPOSIT,
             'group' => ['partner_code','partner_name','partner_geo_regency','partner_geo_province'],
             'detail' => true,
         ];

@@ -36,7 +36,8 @@ class CreateNewBalanceHistory
     {
         $this->attributes = Validator::make($inputs, [
             'partner_id' => ['required', 'exists:partners,id'],
-            'package_id' => ['required', 'exists:packages,id'],
+            'package_id' => ['nullable', 'exists:packages,id'],
+            'disbursement_id' => ['nullable', 'exists:partner_balance_disbursement,id'],
             'balance' => ['required','numeric'],
             'type' => ['required', Rule::in(History::getAvailableType())],
             'description' => ['required', Rule::in(History::getAvailableDescription())],

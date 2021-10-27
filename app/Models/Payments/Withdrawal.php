@@ -28,6 +28,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $notes
  * @property Carbon                      $created_at
  * @property Carbon                      $updated_at
+ *
+ * @property-read Partner $partner
  */
 class Withdrawal extends Model
 {

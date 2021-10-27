@@ -2,6 +2,7 @@
 
 namespace App\Supports\Repositories;
 
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\View\PartnerBalanceReport;
 use Carbon\Carbon;
@@ -72,6 +73,7 @@ class PartnerBalanceReportRepository
             'description' => 'string|nullable',
             'partner_geo_province_id' => 'int|nullable',
             'partner_geo_regency_id' => 'int|nullable',
+            'type' => ['nullable', Rule::in(History::getAvailableType())]
         ])->validate();
     }
 
@@ -157,6 +159,9 @@ class PartnerBalanceReportRepository
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'partner_geo_regency_id'), fn ($q) => $q
             ->where('partner_geo_regency_id',$this->attributes['partner_geo_regency_id']));
+
+        $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'type'), fn ($q) => $q
+            ->where('type',$this->attributes['type']));
 
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes,'group'), fn ($q) => $q
             ->groupBy($this->attributes['group']));
