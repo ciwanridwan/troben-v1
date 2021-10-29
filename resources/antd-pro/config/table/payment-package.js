@@ -28,7 +28,7 @@ export default [
   {
     title: "Keterangan",
     key: "detail",
-    colspan: 5,
+    colspan: 4,
     scopedSlots: { customRender: "detail" }
   },
   {
@@ -36,15 +36,14 @@ export default [
     key: "balance",
     scopedSlots: { customRender: "balance" },
     sorter: true,
-    colspan: 2
+    colspan: 3
   },
   {
     title: "Tanggal Order",
     dataIndex: "created_at",
-    colspan: 5,
     key: "created_at",
     scopedSlots: { customRender: "created_at" },
-    classes: ["trawl-text-center"],
+    colspan: 5,
     customRender(text, row, index) {
       return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
     }

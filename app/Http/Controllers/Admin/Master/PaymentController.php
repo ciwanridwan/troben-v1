@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
+use App\Http\Controllers\Admin\Master\Payment\ReportController;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
@@ -248,16 +249,20 @@ class PaymentController extends Controller
 
         return view('admin.master.payment.partner.space');
     }
-    public function getPartnerList(Request $request)
+    public function getPartnerBusiness()
     {
-        if ($request->expectsJson()) {
-            $this->query = $this->partner::query();
-            $this->query->when(request()->has('type'), fn ($q) => $q->where('type', $this->attributes['type']));
-            $this->query->when(request()->has('q'), fn ($q) => $q->where('code', $request->q));
-
-            return $this->jsonSuccess(PartnerResource::collection($this->query->paginate($request->input('per_page', 15))));
-        }
-
-        return view('admin.master.payment.partner.data.index');
+        return view('admin.master.payment.partner.data.business');
+    }
+    public function getPartnerSpace()
+    {
+        return view('admin.master.payment.partner.data.space');
+    }
+    public function getPartnerPool()
+    {
+        return view('admin.master.payment.partner.data.pool');
+    }
+    public function getPartnerTransporter()
+    {
+        return view('admin.master.payment.partner.data.transporter');
     }
 }

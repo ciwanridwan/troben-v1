@@ -64,6 +64,14 @@ const laravel = {
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
+    getDataPartner() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterPartner })
+        .then(res => this.onSuccessResponsePartner(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
     getRegency() {
       this.loading = true;
       this.$http

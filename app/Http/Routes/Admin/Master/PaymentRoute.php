@@ -64,9 +64,24 @@ class PaymentRoute extends BaseRoute
             'uses' => $this->uses('index', GeoController::class)
         ]);
 
-        $this->router->get($this->prefix('/partner'), [
-            'as' => $this->name('partner'),
-            'uses' => $this->uses('getPartnerList'),
+        $this->router->get($this->prefix('partner/business'), [
+            'as' => $this->name('partner.business'),
+            'uses' => $this->uses('getPartnerBusiness'),
+        ]);
+
+        $this->router->get($this->prefix('partner/space'), [
+            'as' => $this->name('partner.space'),
+            'uses' => $this->uses('getPartnerSpace'),
+        ]);
+
+        $this->router->get($this->prefix('partner/pool'), [
+            'as' => $this->name('partner.pool'),
+            'uses' => $this->uses('getPartnerPool'),
+        ]);
+
+        $this->router->get($this->prefix('partner/transporter'), [
+            'as' => $this->name('partner.transporter'),
+            'uses' => $this->uses('getPartnerTransporter'),
         ]);
     }
 

@@ -12,7 +12,6 @@ export default {
   props: ['itemsChart'],
   mounted() {
     this.$nextTick(function () {
-      console.log('masukkkkkkkk')
       const ctx = document.getElementById('planet-chart');
       this.myChart = new Chart(ctx, planetChartData(this.itemsChart.data));
     })
