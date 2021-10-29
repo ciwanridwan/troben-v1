@@ -85,6 +85,7 @@ class ReportController extends Controller
             'sort' => [Rule::when($this->type === self::DATA_TYPE_DETAIL,['nullable','string',Rule::in(['asc','desc'])])],
         ])->validate();
 
+
         if ($this->type === self::DATA_TYPE_SUMMARY) return $this->jsonSuccess(PartnerSummaryResource::make($this->getSummaryData()));
 
         if ($this->type === self::DATA_TYPE_DETAIL) return $this->jsonSuccess(PartnerBalanceDetailResource::collection($this->getDetailData()));

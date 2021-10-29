@@ -1,5 +1,5 @@
 @extends('antd::trawl-admin-layout')
 
 @section('content')
-  <partner-data></partner-data>
+  <business-data></business-data>
 @endsection

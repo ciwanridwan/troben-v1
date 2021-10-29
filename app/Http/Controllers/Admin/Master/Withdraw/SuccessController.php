@@ -54,7 +54,7 @@ class SuccessController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query->where('status', Withdrawal::STATUS_SUCCESS);
-            $this->query->orWhere('status', Withdrawal::STATUS_CANCELLED);
+            $this->query->orWhere('status', Withdrawal::STATUS_REJECTED);
             $this->query->with(['partner'])->has('partner');
 
             if ($request->q != null){

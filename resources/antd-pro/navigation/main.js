@@ -89,8 +89,35 @@ const main = {
         children: null
       },
       income: {
-        title: "All Income",
         text: "Pendapatan",
+        route: "admin.payment.partner",
+        children: {
+          dataBusiness: {
+            text: "Mitra Business",
+            route: "admin.payment.partner.business",
+            children: null
+          },
+          dataPool: {
+            text: "Mitra Pool",
+            route: "admin.payment.partner.pool",
+            children: null
+          },
+          dataSpace: {
+            text: "Mitra Space",
+            route: "admin.payment.partner.space",
+            children: null
+          },
+          dataTransporter: {
+            text: "Mitra Transporter",
+            route: "admin.payment.partner.transporter",
+            children: null
+          }
+        },
+        shortKey: ["ctrl", "alt", "i"]
+      },
+      summary: {
+        title: "All Income",
+        text: "Summary Order",
         route: "admin.payment.income",
         children: {
           mitraBusiness: {

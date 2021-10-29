@@ -4,8 +4,7 @@
     :dataSource="dataSource"
     :pagination="pagination"
     @changePage="changePage"
-    @changeSizePage="changeSizePage"
-  >
+    @changeSizePage="changeSizePage">
     <template slot="id_order" slot-scope="{ record }">
       <order-modal :package="record">
         <span slot="trigger">
@@ -30,6 +29,7 @@
     <template slot="detail" slot-scope="{ record }">
       <span class="trawl-text-bolder">Full Customer Payment</span>
       <br/>
+      <br/>
       <span>
         <li v-for="item in record.history_business" :key="item.message">
           {{ item.description.charAt(0).toUpperCase() + item.description.substring(1) }}
@@ -40,7 +40,7 @@
     <template slot="balance" slot-scope="{ record }">
       <span class="trawl-text-bolder">{{ currency(record.total_amount) }}</span>
       <br/>
-
+      <br/>
       <span>
           <li v-for="item in record.history_business" :key="item.message">
             {{ currency(item.balance) }}
@@ -49,16 +49,25 @@
     </template>
 
     <template slot="created_at" slot-scope="{ record }">
-      <span class="trawl-text-center trawl-text-bolder">{{ record.created_at }}</span>
+      <span class="trawl-text-center trawl-text-bolder">{{ moment(record.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}</span>
       <br/>
-
+      <br/>
       <span>
           <li v-for="item in record.history_business" :key="item.message">
-            {{ item.created_at }}
+            {{ moment(item.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
           </li>
       </span>
     </template>
-
+    <span slot="expandedRowRender" slot-scope="{ record }">
+      <a-row type="flex" justify="space-between">
+        <a-col :span="8">
+          <order-status :record="record"></order-status>
+        </a-col>
+        <a-col :span="12" class="trawl-text-right" v-if="record.status">
+          <admin-order-actions :package="record" @change="getDataFunction" />
+        </a-col>
+      </a-row>
+    </span>
   </trawl-table>
 </template>
 <script>

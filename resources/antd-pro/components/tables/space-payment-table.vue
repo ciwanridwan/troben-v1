@@ -30,6 +30,7 @@
     <template slot="detail" slot-scope="{ record }">
       <span class="trawl-text-bolder">Full Customer Payment</span>
       <br/>
+      <br/>
       <span>
         <li v-for="item in record.history_space" :key="item.message">
           {{ item.description.charAt(0).toUpperCase() + item.description.substring(1) }}
@@ -38,12 +39,22 @@
     </template>
 
     <template slot="balance" slot-scope="{ record }">
-      <span class="trawl-text-bolder">{{ currency(record.total_amount) }}</span>
+      <span class="trawl-text-bolder trawl-text-center">{{ currency(record.total_amount) }}</span>
       <br/>
-
+      <br/>
       <span>
           <li v-for="item in record.history_space" :key="item.message">
             {{ currency(item.balance) }}
+          </li>
+      </span>
+    </template>
+    <template slot="created_at" slot-scope="{ record }">
+      <span class="trawl-text-center trawl-text-bolder">{{ moment(record.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}</span>
+      <br/>
+      <br/>
+      <span>
+          <li v-for="item in record.history_space" :key="item.message">
+            {{ moment(item.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
           </li>
       </span>
     </template>

@@ -28,7 +28,7 @@ export default [
   {
     title: "Keterangan",
     key: "detail",
-    colspan: 5,
+    colspan: 4,
     scopedSlots: { customRender: "detail" }
   },
   {
@@ -36,7 +36,7 @@ export default [
     key: "balance",
     scopedSlots: { customRender: "balance" },
     sorter: true,
-    colspan: 2
+    colspan: 3
   },
   {
     title: "Tanggal Order",

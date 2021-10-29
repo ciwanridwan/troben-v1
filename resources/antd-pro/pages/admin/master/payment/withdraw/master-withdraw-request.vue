@@ -23,22 +23,22 @@
               <b>{{ items.total }} Request Pencairan</b>
             </h2>
           </a-col>
-          <a-col :span="12">
-            <a-row type="flex" justify="space-between" >
-              <a-col :span="6">
-                <h4>Saldo:</h4>
-                <span
-                ><b>{{ currency(150000) }}</b></span
-                >
-              </a-col>
-              <a-col :span="6">
-                <h4>Saldo:</h4>
-                <span
-                ><b>{{ currency(150000) }}</b></span
-                >
-              </a-col>
-            </a-row>
-          </a-col>
+<!--          <a-col :span="12">-->
+<!--            <a-row type="flex" justify="space-between" >-->
+<!--              <a-col :span="6">-->
+<!--                <h4>Saldo:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150000) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--              <a-col :span="6">-->
+<!--                <h4>Saldo:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150000) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--            </a-row>-->
+<!--          </a-col>-->
         </a-row>
       </a-card>
       <a-table

@@ -59,6 +59,16 @@
           </li>
       </span>
     </template>
+    <template slot="created_at" slot-scope="{ record }">
+      <span class="trawl-text-center trawl-text-bolder">{{ moment(record.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}</span>
+      <br/>
+      <br/>
+      <span>
+          <li v-for="item in record.history_pool" :key="item.message">
+            {{ moment(item.created_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
+          </li>
+      </span>
+    </template>
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between">
         <a-col :span="8">

@@ -3,7 +3,8 @@ export const planetChartData = (data) => {
   return ({
     type: "line",
     data: {
-      labels: Object.keys(data).map(k => `Day ${k}`),
+      // labels: Object.keys(data).map(k => `Day ${k}`),
+      labels: Object.keys(data),
       datasets: [
         {
           label: "Jumlah Pendapatan",
@@ -31,7 +32,8 @@ export const planetChartData = (data) => {
           {
             ticks: {
               beginAtZero: true,
-              padding: 25
+              padding: 25,
+              autoSkip: false
             }
           }
         ]
