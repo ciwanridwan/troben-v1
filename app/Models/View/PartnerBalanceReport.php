@@ -54,7 +54,7 @@ class PartnerBalanceReport extends Model
      */
     public function partner(): Relations\BelongsTo
     {
-        return $this->belongsTo(Partner::class,'partner_id','id');
+        return $this->belongsTo(Partner::class,'partner_code','code');
     }
 
     /**

@@ -175,7 +175,13 @@ class GenerateBalanceHistory
 
                         # total balance handling > record handling fee
                         if ($this->partner->get_fee_handling) {
-                            $balance_handling = (float)$package->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+                            $balance_handling = 0;
+                            $package_prices = $package->prices()->where('type', Price::TYPE_HANDLING)->get();
+                            foreach ($package_prices as $price) {
+                                $handling_price = $price->amount;
+                                $item_qty = $price->item->qty;
+                                $balance_handling += ($handling_price * $item_qty);
+                            }
                             if ($balance_handling !== 0.0) {
                                 $this
                                     ->setBalance($balance_handling)
