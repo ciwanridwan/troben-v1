@@ -24,22 +24,22 @@
               <b>Berhasil &amp; Gagal</b>
             </h2>
           </a-col>
-          <a-col :span="12">
-            <a-row type="flex" justify="space-between" align="middle">
-              <a-col :span="4">
-                <h4>Jml. Pendapatan:</h4>
-                <span
-                ><b>{{ currency(150) }}</b></span
-                >
-              </a-col>
-              <a-col :span="4">
-                <h4>Jml. Berat:</h4>
-                <span
-                ><b>{{ currency(150) }}</b></span
-                >
-              </a-col>
-            </a-row>
-          </a-col>
+<!--          <a-col :span="12">-->
+<!--            <a-row type="flex" justify="space-between" align="middle">-->
+<!--              <a-col :span="4">-->
+<!--                <h4>Jml. Pendapatan:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--              <a-col :span="4">-->
+<!--                <h4>Jml. Berat:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--            </a-row>-->
+<!--          </a-col>-->
         </a-row>
       </a-card>
       <a-table
