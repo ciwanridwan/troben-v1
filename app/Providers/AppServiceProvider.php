@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Jalameta\Attachments\JPSAttachment;
 use App\Database\Schema\Grammars\PostgresGrammar;
+use App\Http\Resources\Account\JWTUserResource;
+use Firebase\JWT\JWT;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +51,13 @@ class AppServiceProvider extends ServiceProvider
                 if (! array_key_exists('laravelJs', $view->getData())) {
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
+                        'jwt_token' => auth()->user() 
+                            ? JWT::encode([
+                                'iat' => time(),
+                                'exp' => time() + (((60 * 60) * 24) * 30),
+                                'data' => new JWTUserResource(auth()->user())
+                            ], 'trawlbensJWTSecretK') 
+                            : null,
                         'user' => auth()->user(),
                         'routes' => $collection,
                         'current_route' => empty(request()->route()) ? '' : request()->route()->getName(),

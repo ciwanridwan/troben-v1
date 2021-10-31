@@ -40,6 +40,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
+ * flag property
+ * @property bool get_fee_pickup
+ * @property bool get_fee_service
+ * @property bool get_fee_handling
+ * @property bool get_fee_insurance
+ * @property bool get_fee_transit
+ * @property bool get_fee_delivery
+ * @property bool get_fee_dooring
+ * @property bool get_fee_return
+ * @property bool get_charge_delivery
+ *
  * @property-read Warehouse[]|\Illuminate\Database\Eloquent\Collection $warehouses
  * @property-read \App\Models\Geo\Regency|null  $regency
  * @property-read Transporter[]|\Illuminate\Database\Eloquent\Collection $transporters
@@ -105,6 +116,15 @@ class Partner extends Model
         'longitude',
         'geo_location',
         'type',
+        'get_fee_pickup',
+        'get_fee_service',
+        'get_fee_handling',
+        'get_fee_insurance',
+        'get_fee_transit',
+        'get_fee_delivery',
+        'get_fee_dooring',
+        'get_fee_return',
+
     ];
 
     /**

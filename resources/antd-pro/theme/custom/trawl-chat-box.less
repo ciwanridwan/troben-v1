@@ -1,0 +1,56 @@
+.trawl-chat {
+  &--buttonSideBar{
+  // border: none;
+  // color: none;
+  // padding: 0 !important;
+  // text-align: center;
+  // text-decoration: none;
+  // margin: 0;
+  cursor: pointer;
+  }
+  &--list {
+    flex: 0 0 20vw !important;
+    max-width: 20vw !important;
+    width: 20vw !important;
+    overflow: scroll;
+    margin-bottom: 5vh;
+  }
+  &--first {
+    margin: 20px 0;
+  }
+  &--next {
+    margin-bottom: 20px;
+  }
+  &--avatar {
+    margin: 0 20px;
+  }
+  &--body {
+    padding: 20px;
+    overflow: scroll;
+    margin-bottom: 5vh;
+  }
+  &-message {
+    padding: 30px;
+    &--receive {
+      color: white;
+      border-radius: 1rem 1rem 0 1rem;
+    }
+    &--send {
+      border-radius: 1rem 1rem 1rem 0;
+    }
+  }
+  &-header {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 2;
+  }
+  &-send {
+    position: sticky;
+    position: -webkit-sticky;
+    bottom: 0;
+    padding: 20px;
+    width: 100%;
+    z-index: 2;
+  }
+}
