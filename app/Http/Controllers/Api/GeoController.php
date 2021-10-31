@@ -196,7 +196,7 @@ class GeoController extends Controller
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
-            ->select('geo_regencies.name as regency', 'geo_districts.name as district', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id')
+            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code')
 
             ->Where('geo_regencies.name', 'like', '%'.$caps.'%')
             ->orWhere('geo_districts.name', 'like', '%'.$caps.'%')
