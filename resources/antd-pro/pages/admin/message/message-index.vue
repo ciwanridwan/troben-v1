@@ -51,7 +51,10 @@
           type="flex"
           :justify="data.customer_chat ? 'end' : 'start'"
           align="bottom"
-          class="trawl-chat--next"
+          :class="[
+            'trawl-chat--next',
+            index == dataChat.length - 1 ? 'scrollingContainer' : ''
+          ]"
           :style="data.customer_chat ? 'padding-left: 15px' : ''"
         >
           <a-col v-if="data.user_chat" :md="1">
@@ -129,6 +132,10 @@
               @click="producerSocket"
               >Send</a-button
             >
+            <!-- <a-button @click="scrollToElement({ behavior: 'smooth' })"
+              >test scroll down from top</a-button
+            >
+            <a-button @click="loading">test loading</a-button> -->
           </a-col>
         </a-row>
       </div>
@@ -214,13 +221,22 @@ export default {
       descriptionText: "",
       roomId: null,
       newMessage: [],
-      selectedFile: null
+      selectedFile: null,
+      jwt_token: "",
+      activeLoading: 0
     };
   },
   methods: {
     loading() {
-      const hide = this.$message.loading("Action in progress..", 0);
-      setTimeout(hide, 2500);
+      this.$message.loading("Action in rogress...", this.activeLoading);
+      // setTimeout(hide, 3000);
+    },
+
+    scrollToElement(options) {
+      const el = this.$el.getElementsByClassName("scrollingContainer")[0];
+      if (el) {
+        el.scrollIntoView(options);
+      }
     },
 
     onFileSelected(event) {
@@ -255,14 +271,18 @@ export default {
       if (value === "reconnect") return this.consumeSocket(this.getListRoom);
       this.roomChat = value;
       console.log("onmessage", this.roomChat);
+      this.activeLoading = 1;
     },
 
     getListChat(value) {
       console.log("masuk pak ekooo", value);
       this.dataChat = value;
+      this.scrollToElement({ behavior: "smooth" });
     },
 
     consumeSocket(callback) {
+      this.loading();
+      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
         "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin/room"
       );
@@ -273,8 +293,7 @@ export default {
         fetch("https://staging-chat.trawlbens.com/chat/list/admin/room", {
           method: "GET",
           headers: {
-            Authorization:
-              "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
+            Authorization: `bearer ${jwtToken}`
           }
         })
           .then(response => {
@@ -326,6 +345,7 @@ export default {
 
     listChat(item, callback) {
       this.roomId = item.room_id;
+      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
         `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
       );
@@ -351,8 +371,7 @@ export default {
           {
             method: "GET",
             headers: {
-              Authorization:
-                "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
+              Authorization: `bearer ${jwtToken}`
             }
           }
         )
@@ -366,10 +385,7 @@ export default {
 
       consumer.onmessage = function(event) {
         var myHeaders = new Headers();
-        myHeaders.append(
-          "Authorization",
-          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-        );
+        myHeaders.append("Authorization", `bearer ${jwtToken}`);
 
         var requestOptions = {
           method: "PATCH",
@@ -425,11 +441,35 @@ export default {
     producerSocket() {
       console.log("produce", this.roomId, this.textInput);
 
+      // var myHeaders = new Headers();
+      // myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
+
+      // var formdata = new FormData();
+      // formdata.append("room_id", this.roomId);
+      // formdata.append("message", this.textInput);
+      // if (this.selectedFile) {
+      //   console.log("masuk upload file", this.selectedFile.name);
+      //   formdata.append("attachments", this.selectedFile);
+      // }
+      // // formdata.append("attachments", fileInput.files[0]);
+
+      // var requestOptions = {
+      //   method: "POST",
+      //   headers: myHeaders,
+      //   body: formdata,
+      //   redirect: "follow"
+      // };
+
+      // fetch(
+      //   "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
+      //   requestOptions
+      // )
+      //   .then(response => response.text())
+      //   .then(result => console.log(result))
+      //   .catch(error => console.log("error", error));
+
       var myHeaders = new Headers();
-      myHeaders.append(
-        "Authorization",
-        "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-      );
+      myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
 
       var formdata = new FormData();
       formdata.append("room_id", this.roomId);
@@ -521,6 +561,7 @@ export default {
     // }
   },
   created() {
+    this.jwt_token = this.$laravel.jwt_token;
     this.consumeSocket(this.getListRoom);
     // this.consumeNotif();
   },
@@ -531,7 +572,6 @@ export default {
   },
   mounted() {
     console.log("user", this.$laravel.user);
-    console.log("token", this.$laravel.jwt_token);
   }
 };
 </script>

@@ -141,7 +141,7 @@ Vue.mixin({
     }
   },
   mounted() {
-    this.consumeNotif(this.alertNotif)
+    // this.consumeNotif(this.alertNotif)
   },
   watch: {
     // $route: "consumeNotif"
