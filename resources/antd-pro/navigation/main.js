@@ -144,12 +144,12 @@ const main = {
             route: "admin.payment.mtak",
             children: null
           },
-          MTAKab: {
-            title: "MTAKab",
-            text: "MTAKab",
-            route: "admin.payment.mtakab",
-            children: null
-          },
+          // MTAKab: {
+          //   title: "MTAKab",
+          //   text: "MTAKab",
+          //   route: "admin.payment.mtakab",
+          //   children: null
+          // },
         },
         shortKey: ["ctrl", "alt", "i"]
       },
