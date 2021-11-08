@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Response;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Models\Customers\Customer;
-use App\Models\ForgotPassword;
 use Illuminate\Http\Request;
 use App\Models\OneTimePassword;
 use Illuminate\Validation\Rule;
@@ -148,27 +147,6 @@ class AuthController extends Controller
         }
 
         return (new AccountAuthentication($inputs))->requestPassword();
-    }
-    public function verificationByEmail(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => 'required|email|exists:customers',
-            'password' => 'required|string|min:6|confirmed',
-            'password_confirmation' => 'required'
-        ]);
-
-        $check = ForgotPassword::where('email', $request->email)
-            ->Where('token', $request->token)
-            ->first();
-        if (!$check) {
-            return (new Response(Response::RC_INVALID_DATA, ['Invalid token!']))->json();
-        }
-
-        $customer = Customer::where('id', $check->customer_id)->first();
-        $job = new UpdatePasswordCustomer($customer, $request);
-        $this->dispatch($job);
-
-        return (new Response(Response::RC_SUCCESS, null))->json();
     }
 
     /**
