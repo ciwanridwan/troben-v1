@@ -6,6 +6,7 @@ use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
+use App\Mail\SendMailOTP;
 use App\Models\User;
 use App\Http\Response;
 use App\Http\Resources\Account\JWTCustomerResource;
@@ -13,6 +14,7 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
@@ -258,6 +260,43 @@ class AccountAuthentication
             ]))->json();
     }
 
+    public function requestPassword(): JsonResponse
+    {
+        switch (true) {
+            case Arr::has($this->attributes, self::CREDENTIAL_PHONE):
+                $column = self::CREDENTIAL_PHONE;
+                $this->attributes['otp_channel'] = self::CREDENTIAL_PHONE;
+                $this->attributes['phone'] = PhoneNumberUtil::getInstance()->format(
+                    PhoneNumberUtil::getInstance()->parse($this->attributes['phone'], 'ID'),
+                    PhoneNumberFormat::E164
+                );
+                break;
+            case Arr::has($this->attributes, self::CREDENTIAL_EMAIL):
+                $column = self::CREDENTIAL_EMAIL;
+                $this->attributes['otp_channel'] = self::CREDENTIAL_EMAIL;
+                break;
+            default:
+                $column = $this->attributes['guard'] == 'customer' ? self::CREDENTIAL_EMAIL : self::CREDENTIAL_USERNAME;
+                break;
+        }
+
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+
+        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['phone'] ?? $this->attributes['email'])->first();
+
+        # update fcm_token
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
+            $authenticatable = $this->validationFcmToken($authenticatable);
+        }
+        return $this->attributes['otp']
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
+            : (new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null
+            ]))->json();
+    }
+
 
     public function sendOTP(): JsonResponse
     {
@@ -361,11 +400,15 @@ class AccountAuthentication
      * @param string $otp_channel
      * @return JsonResponse
      */
-    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel, Customer $customer, string $column): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
-        $job = new SendMessage($otp, $authenticatable->phone);
-        $this->dispatch($job);
+        if ($column == self::CREDENTIAL_EMAIL){
+            Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
+        }else{
+            $job = new SendMessage($otp, $authenticatable->phone);
+            $this->dispatch($job);
+        }
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
