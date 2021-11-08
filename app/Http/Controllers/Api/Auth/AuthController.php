@@ -143,7 +143,7 @@ class AuthController extends Controller
 
         $customer = Customer::where('phone', $phoneNumber)->orWhere('email', $request->email)->first();
         if ($customer == null) {
-            return (new Response(Response::RC_INVALID_DATA, []))->json();
+            return (new Response(Response::RC_DATA_NOT_FOUND, []))->json();
         }
 
         return (new AccountAuthentication($inputs))->requestPassword();
