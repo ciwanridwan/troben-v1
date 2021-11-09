@@ -75,7 +75,7 @@ class AccountAuthentication
             ? $this->customerRegistration()
             : $this->userRegistration();
 
-        return $this->askingOtpResponse($account, $this->attributes['otp_channel']);
+        return $this->askingOtpResponse($account, $this->attributes['otp_channel'], $account, $account);
     }
 
     /**
@@ -186,7 +186,7 @@ class AccountAuthentication
         }
 
         if ($this->attributes['otp']) {
-            return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel']);
+            return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column);
         }
 
         // if ($this->attributes['guard'] === 'user') {
@@ -253,7 +253,7 @@ class AccountAuthentication
         }
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null
@@ -326,7 +326,7 @@ class AccountAuthentication
         }
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
