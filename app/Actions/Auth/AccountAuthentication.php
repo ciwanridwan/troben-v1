@@ -34,6 +34,7 @@ class AccountAuthentication
     public const CREDENTIAL_PHONE = 'phone';
     public const CREDENTIAL_USERNAME = 'username';
 
+    public const JWT_KEY = 'trawlbensJWTSecretK';
     /**
      * Accepted attributes.
      *
@@ -116,7 +117,6 @@ class AccountAuthentication
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        $key = 'trawlbensJWTSecretK';
         $payload = [];
 
         if ($authenticatable) {
@@ -156,14 +156,14 @@ class AccountAuthentication
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
-                    'jwt_token' => JWT::encode($payload, $key)
+                    'jwt_token' => JWT::encode($payload, self::JWT_KEY)
                 ]))->json();
             }
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => JWT::encode($payload, $key)
+                'jwt_token' => JWT::encode($payload, self::JWT_KEY)
             ]))->json();
             // TODO: get authenticatable
         }
@@ -188,7 +188,7 @@ class AccountAuthentication
         }
 
         // if ($this->attributes['guard'] === 'user') {
-        //     $key = 'trawlbensJWTSecretK';
+        //     $key = self::self::JWT_KEY;
 
         //     $payload = [
         //         'id' => $authenticatable->id,
@@ -208,7 +208,7 @@ class AccountAuthentication
             'exp' => $now + (((60 * 60) * 24) * 30),
             'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
         ];
-        $jwt = JWT::encode($payload, $key);
+        $jwt = JWT::encode($payload, self::JWT_KEY);
 
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
@@ -380,9 +380,8 @@ class AccountAuthentication
     {
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
         $column = $this->attributes['guard'] === 'customer' ? AccountAuthentication::CREDENTIAL_PHONE : AccountAuthentication::CREDENTIAL_USERNAME;
-        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+        $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
 
-        $key = 'trawlbensJWTSecretK';
         $payload = [];
 
         if ($authenticatable) {
@@ -396,7 +395,7 @@ class AccountAuthentication
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
             'fcm_token' => $authenticatable->fcm_token ?? null,
-            'jwt_token' => JWT::encode($payload, $key)
+            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
         ]))->json();
     }
 }

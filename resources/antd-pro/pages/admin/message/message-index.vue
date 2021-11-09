@@ -521,7 +521,7 @@ export default {
     // }
   },
   created() {
-    this.consumeSocket(this.getListRoom);
+    // this.consumeSocket(this.getListRoom);
     // this.consumeNotif();
   },
   watch: {
@@ -530,8 +530,8 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("user", this.$laravel.user);
-    console.log("token", this.$laravel.jwt_token);
+    // console.log("user", this.$laravel.user);
+    // console.log("token", this.$laravel.jwt_token);
   }
 };
 </script>

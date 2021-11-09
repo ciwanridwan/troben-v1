@@ -113,7 +113,6 @@ Vue.mixin({
       consumer.onmessage = function(event) {
         callback()
         console.log("onmessage notif", event);
-        
       };
 
       consumer.onclose = function(event) {
@@ -141,7 +140,7 @@ Vue.mixin({
     }
   },
   mounted() {
-    this.consumeNotif(this.alertNotif)
+    // this.consumeNotif(this.alertNotif)
   },
   watch: {
     // $route: "consumeNotif"

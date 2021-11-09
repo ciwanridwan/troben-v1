@@ -137,7 +137,7 @@ class HomeController extends Controller
     }
     public function paymentConfirm(Package $package)
     {
-        event(new PackagePaymentVerified($package));
+        // event(new PackagePaymentVerified($package));
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
     }
 

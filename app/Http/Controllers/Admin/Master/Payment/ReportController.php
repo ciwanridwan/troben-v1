@@ -121,14 +121,14 @@ class ReportController extends Controller
                 $inputsNow = Arr::prepend($inputsNow, $date->month, 'month');
                 $inputsNow = Arr::prepend($inputsNow, $date->year, 'year');
 
+                $inputsData = Arr::prepend($inputsData, $date->day, 'day');
+                $inputsData = Arr::prepend($inputsData, $date->month, 'month');
+                $inputsData = Arr::prepend($inputsData, $date->year, 'year');
+
                 $subDate = $date->subDay();
                 $inputsLast = Arr::prepend($inputsLast, $subDate->day, 'day');
                 $inputsLast = Arr::prepend($inputsLast, $subDate->month, 'month');
                 $inputsLast = Arr::prepend($inputsLast, $subDate->year, 'year');
-
-                $inputsData = Arr::prepend($inputsData, $date->day, 'day');
-                $inputsData = Arr::prepend($inputsData, $date->month, 'month');
-                $inputsData = Arr::prepend($inputsData, $date->year, 'year');
             }
         } else {
             if (empty($this->attributes['date'])) {
@@ -140,12 +140,12 @@ class ReportController extends Controller
                 $inputsNow = Arr::prepend($inputsNow, $date->month, 'month');
                 $inputsNow = Arr::prepend($inputsNow, $date->year, 'year');
 
+                $inputsData = Arr::prepend($inputsData, $date->month, 'month');
+                $inputsData = Arr::prepend($inputsData, $date->year, 'year');
+
                 $subMonth = $date->subMonth();
                 $inputsLast = Arr::prepend($inputsLast, $subMonth->month, 'month');
                 $inputsLast = Arr::prepend($inputsLast, $subMonth->year, 'year');
-
-                $inputsData = Arr::prepend($inputsData, $date->month, 'month');
-                $inputsData = Arr::prepend($inputsData, $date->year, 'year');
             }
         }
 
