@@ -112,7 +112,7 @@ class OrderController extends Controller
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->find($request->get('origin_regency_id'));
-        $price = PricingCalculator::getPrice($regency->province_id, $request->get('origin_regency_id'), $request->get('destination_sub_district_id'));
+        PricingCalculator::calculate(array_merge($request->toArray(),['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]),'array');
 
         $inputs['customer_id'] = $user->id;
 
