@@ -29,6 +29,10 @@ class ManifestRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index')
         ]);
+        $this->router->get($this->prefix('request/transporter'), [
+            'as' => $this->name('request.transporter'),
+            'uses' => $this->uses('requestTransporter')
+        ]);
         $this->router->patch($this->prefix('{delivery_hash}/{partner_hash}'), [
             'as' => $this->name('partner.transporter.assign'),
             'uses' => $this->uses('assign')

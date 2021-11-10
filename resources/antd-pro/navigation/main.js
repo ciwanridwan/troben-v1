@@ -27,16 +27,16 @@ const main = {
             route: "admin.home.manifest",
             children: null
           },
-          tracking: {
-            title: "Tracking Manifest",
-            text: "Tracking Manifest",
-            route: "admin.home.manifest.tracking",
-            children: null
-          },
+          // tracking: {
+          //   title: "Tracking Manifest",
+          //   text: "Tracking Manifest",
+          //   route: "admin.home.manifest.tracking",
+          //   children: null
+          // },
           request: {
             title: "Request Transporter",
             text: "Request Transporter",
-            route: "admin.home.manifest.request",
+            route: "admin.home.manifest.request.transporter",
             children: null
           }
         }
