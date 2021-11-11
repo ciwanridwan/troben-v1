@@ -75,7 +75,7 @@ const laravel = {
     getRegency() {
       this.loading = true;
       this.$http
-        .get(this.routeUri(uriDataFinance), { params: this.filter })
+        .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
         .then(res => this.onSuccessResponse(res.data))
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
@@ -83,7 +83,7 @@ const laravel = {
     getProvince() {
       this.loading = true;
       this.$http
-        .get(this.routeUri(uriDataFinance), { params: this.filter })
+        .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
         .then(res => this.onSuccessResponse(res.data))
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));

@@ -1,7 +1,7 @@
 const geo = {
   data() {
     return {
-      filter: {
+      filterGeo: {
         per_page: -1
       },
       origin_provinces: [],
