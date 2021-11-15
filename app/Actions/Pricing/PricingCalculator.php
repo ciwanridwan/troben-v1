@@ -169,7 +169,6 @@ class PricingCalculator
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
         $servicePrice = self::getServicePrice($inputs, $price);
-        throw_if($servicePrice == 0, Error::make(Response::RC_OUT_OF_RANGE));
         $response = [
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
