@@ -2,7 +2,8 @@
 
 namespace App\Http\Routes\Api;
 
-use App\Http\Controllers\Api\PromoController;
+use App\Http\Controllers\Api\Promote\PromoController;
+use App\Http\Controllers\Api\Promote\PromotionController;
 use Jalameta\Router\BaseRoute;
 
 class PromoRoute extends BaseRoute
@@ -36,6 +37,17 @@ class PromoRoute extends BaseRoute
         $this->router->post($this->prefix(), [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
+        ])->withoutMiddleware('api');
+
+
+        $this->router->get($this->prefix('promotion/list'), [
+            'as' => $this->name('promotion.list'),
+            'uses' => $this->uses('index', PromotionController::class),
+        ]);
+
+        $this->router->post($this->prefix('promotion/store'), [
+            'as' => $this->name('promotion.store'),
+            'uses' => $this->uses('store',PromotionController::class),
         ])->withoutMiddleware('api');
     }
 

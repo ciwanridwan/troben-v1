@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Promote;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromoResource extends JsonResource
@@ -9,7 +10,7 @@ class PromoResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
@@ -30,7 +31,6 @@ class PromoResource extends JsonResource
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
             'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];
-
 
         return $data;
     }
