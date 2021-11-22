@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePromotionTable extends Migration
+class CreatePromotionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,15 @@ class CreatePromotionTable extends Migration
      */
     public function up()
     {
-        Schema::create('promotion', function (Blueprint $table) {
+        Schema::create('promotions', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('code');
             $table->string('type')->nullable();
             $table->text('terms_and_conditions');
+            $table->string('transporter_type')->nullable();
+            $table->unsignedBigInteger('destination_regency_id')->nullable();
             $table->decimal('min_payment', 14, 2)->default(0);
-            $table->decimal('max_payment', 14, 2)->default(0);
             $table->decimal('min_weight', 14, 2)->default(0);
             $table->decimal('max_weight', 14, 2)->default(0);
             $table->boolean('is_active')->nullable()->default(false);
@@ -27,6 +29,12 @@ class CreatePromotionTable extends Migration
             $table->dateTime('end_date');
             $table->timestamps();
             $table->softDeletes();
+
+            $table
+                ->foreign('destination_regency_id')
+                ->references('id')
+                ->on('geo_regencies')
+                ->onDelete('set null');
         });
     }
 
@@ -37,6 +45,6 @@ class CreatePromotionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('promotion');
+        Schema::dropIfExists('promotions');
     }
 }

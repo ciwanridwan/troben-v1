@@ -3,7 +3,7 @@
 namespace App\Jobs\Promo;
 
 use App\Models\Packages\Package;
-use App\Models\Promo;
+use App\Models\Promos\Promo;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;

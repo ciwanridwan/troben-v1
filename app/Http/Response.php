@@ -30,6 +30,7 @@ class Response implements Responsable
     public const RC_INVALID_PHONE_NUMBER = '0103';
     public const RC_OUT_OF_RANGE = '0104';
     public const RC_INSUFFICIENT_BALANCE = '0105';
+    public const RC_NOT_ELIGIBLE_FOR_PROMOTION = '0106';
 
     // authentication / authorization related. 0200 - 0299
     public const RC_UNAUTHENTICATED = '0200';
@@ -132,6 +133,7 @@ class Response implements Responsable
                 self::RC_OUT_OF_RANGE,
                 self::RC_PARTNER_GEO_UNAVAILABLE,
                 self::RC_INSUFFICIENT_BALANCE,
+                self::RC_NOT_ELIGIBLE_FOR_PROMOTION
             ],
             LaravelResponse::HTTP_FORBIDDEN => [
                 self::RC_PAYMENT_HAS_PAID,

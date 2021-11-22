@@ -2,7 +2,8 @@
 
 namespace App\Http\Resources\Promote;
 
-use App\Models\Promotion;
+use App\Http\Resources\Geo\RegencyResource;
+use App\Models\Promos\Promotion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,8 +23,9 @@ class PromotionResource extends JsonResource
             'title' => $this->title,
             'type' => $this->type,
             'terms_and_conditions' => $this->terms_and_conditions,
+            'transporter_type' => $this->transporter_type,
+            'destination_regency' => $this->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
             'min_payment' => $this->min_payment,
-            'max_payment' => $this->max_payment,
             'min_weight' => $this->min_weight,
             'max_weight' => $this->max_weight,
             'attachment' => $this->attachments()->first()->uri ?? null,

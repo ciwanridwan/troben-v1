@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Promo;
 
-use App\Models\Promotion;
+use App\Models\Promos\Promotion;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -36,8 +36,9 @@ class CreateNewPromotion
             'title' => ['required'],
             'type' => ['nullable'],
             'terms_and_conditions' => ['required'],
+            'transporter_type' => ['nullable'],
+            'destination_regency_id' => ['required'],
             'min_payment' => ['required'],
-            'max_payment' => ['required'],
             'min_weight' => ['required'],
             'max_weight' => ['required'],
             'start_date' => ['required'],

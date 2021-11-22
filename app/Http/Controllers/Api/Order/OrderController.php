@@ -7,9 +7,12 @@ use App\Http\Resources\Account\CourierResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
 use App\Models\Partners\Partner;
+use App\Models\Promos\Promotion;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -58,9 +61,9 @@ class OrderController extends Controller
     }
 
     /**
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function show(Package $package): JsonResponse
     {
@@ -90,7 +93,7 @@ class OrderController extends Controller
      * Route Name       : api.order.store.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */
@@ -139,8 +142,8 @@ class OrderController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
+     * @param Package $package
+     * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */
@@ -171,15 +174,24 @@ class OrderController extends Controller
     }
 
     /**
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
+     * @param Request $request
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
+     * @throws \Throwable
      */
     // Approving Order by Customer
-    public function approve(Package $package): JsonResponse
+    public function approve(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-
+        $request->validate([
+            'promotion_hash' => ['nullable']
+        ]);
+        if ($request->promotion_hash != null){
+            $promotion = Promotion::byHashOrFail($request->promotion_hash);
+            $job = new ClaimExistingPromo($promotion, $package);
+            $this->dispatchNow($job);
+        }
         event(new PackageApprovedByCustomer($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
@@ -200,9 +212,9 @@ class OrderController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function receipt(Request $request, Package $package): JsonResponse
     {

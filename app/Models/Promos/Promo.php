@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Promos;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
@@ -13,33 +13,30 @@ use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
-
 /**
  * Class Promo.
  *
  * @property string $title
+ * @property Text $content
+ * @property string $description
  * @property string $type
- * @property Text $terms_and_conditions
- * @property float $min_payment
- * @property float $max_payment
- * @property float $min_weight
- * @property float $max_weight
- *
  * @property bool $is_active
- * @property Carbon $start_date
- * @property Carbon $end_date
+ * @property string author
+ * @property string portal
+ * @property string source
+ * @property string image
+ *
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
  */
-
-class Promotion extends Model implements AttachableContract
+class Promo extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
-    public const ATTACHMENT_COVER = 'promotion';
+    public const ATTACHMENT_COVER = 'cover';
 
-    protected $table = 'promotion';
+    protected $table = 'promo';
     /**
      * The attributes that are mass assignable.
      *
@@ -47,15 +44,14 @@ class Promotion extends Model implements AttachableContract
      */
     protected $fillable = [
         'title',
+        'content',
+        'description',
         'type',
-        'terms_and_conditions',
-        'min_payment',
-        'max_payment',
-        'min_weight',
-        'max_weight',
         'is_active',
-        'start_date',
-        'end_date',
+        'author',
+        'portal',
+        'source',
+        'image',
     ];
 
     /**
@@ -73,8 +69,6 @@ class Promotion extends Model implements AttachableContract
      * @var array
      */
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

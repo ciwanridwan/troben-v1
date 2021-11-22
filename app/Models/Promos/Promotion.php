@@ -1,42 +1,51 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Promos;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
+use App\Models\Geo\Regency;
 use Carbon\Carbon;
 use Faker\Provider\Text;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
+
 /**
- * Class Promo.
+ * Class Promotion.
  *
+ * @property int $id
  * @property string $title
- * @property Text $content
- * @property string $description
  * @property string $type
- * @property bool $is_active
- * @property string author
- * @property string portal
- * @property string source
- * @property string image
+ * @property Text $terms_and_conditions
+ * @property string $transporter_type
+ * @property int $destination_regency_id
+ * @property float $min_payment
+ * @property float $min_weight
+ * @property float $max_weight
  *
+ * @property bool $is_active
+ * @property Carbon $start_date
+ * @property Carbon $end_date
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
+ * @property int $is_available
+ *
+ *
+ * @property-read Regency|null $destination_regency
  */
-class Promo extends Model implements AttachableContract
+
+class Promotion extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
-    public const ATTACHMENT_COVER = 'cover';
-
-    protected $table = 'promo';
+    protected $table = 'promotions';
     /**
      * The attributes that are mass assignable.
      *
@@ -44,14 +53,17 @@ class Promo extends Model implements AttachableContract
      */
     protected $fillable = [
         'title',
-        'content',
-        'description',
         'type',
+        'terms_and_conditions',
+        'transporter_type',
+        'destination_regency_id',
+        'min_payment',
+        'min_weight',
+        'max_weight',
         'is_active',
-        'author',
-        'portal',
-        'source',
-        'image',
+        'start_date',
+        'end_date',
+        'is_available',
     ];
 
     /**
@@ -60,7 +72,8 @@ class Promo extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id'
+        'id',
+        'is_active'
     ];
 
     /**
@@ -69,8 +82,20 @@ class Promo extends Model implements AttachableContract
      * @var array
      */
     protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Define `belongsTo` relationship with Regency model.
+     *
+     * @return BelongsTo
+     */
+    public function destination_regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class, 'destination_regency_id', 'id');
+    }
 }

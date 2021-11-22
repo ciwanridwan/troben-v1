@@ -14,6 +14,7 @@ use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Events\Promo\PromotionClaimed;
 use App\Listeners\Partners\GenerateBalanceHistory;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
@@ -69,6 +70,10 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePrices::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        PromotionClaimed::class => [
+            GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
         CourierPickup\DriverArrivedAtPickupPoint::class => [

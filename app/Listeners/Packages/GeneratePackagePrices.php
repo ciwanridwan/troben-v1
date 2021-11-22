@@ -106,6 +106,17 @@ class GeneratePackagePrices
 
             $this->dispatch($job);
 
+            // generate discount if using promotion code
+            if($package->relationLoaded('claimed_promotion')){
+                // TOLONG BUATIN RUMUS NYA DI AMOUNT ANDRE DI MASA DEPAN HEIE
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_DISCOUNT,
+                    'description' => Price::TYPE_SERVICE,
+                    'amount' => 44 // JUMLAH DISKON ( RUMUS NYA BIKIN DIMANA YAK ),
+                ]);
+            }
+
+            $this->dispatch($job);
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 

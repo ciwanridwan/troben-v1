@@ -3,7 +3,7 @@
 namespace App\Jobs\Promo;
 
 use App\Concerns\Jobs\AttachmentCreator;
-use App\Models\Promotion;
+use App\Models\Promos\Promotion;
 use Illuminate\Http\UploadedFile;
 
 class UploadFilePromotion
