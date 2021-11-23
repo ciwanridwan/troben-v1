@@ -16,7 +16,6 @@ class CreatePromotionsTable extends Migration
         Schema::create('promotions', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('code');
             $table->string('type')->nullable();
             $table->text('terms_and_conditions');
             $table->string('transporter_type')->nullable();
