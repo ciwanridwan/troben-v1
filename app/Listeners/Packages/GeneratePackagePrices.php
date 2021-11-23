@@ -105,18 +105,24 @@ class GeneratePackagePrices
             ]);
 
             $this->dispatch($job);
-
             // generate discount if using promotion code
-            if($package->relationLoaded('claimed_promotion')){
-                // TOLONG BUATIN RUMUS NYA DI AMOUNT ANDRE DI MASA DEPAN HEIE
+            if(! $package->relationLoaded('claimed_promotion')){
+                $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
+                if ($package->total_weight < $package->claimed_promotion->promotion->min_weight)
+                {
+                    $discount_amount = $service->amount;
+                }
+                else{
+                    $discount_amount = $service->amount - ($package->tier_price * $package->claimed_promotion->promotion->min_weight);
+                }
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_DISCOUNT,
                     'description' => Price::TYPE_SERVICE,
-                    'amount' => 44 // JUMLAH DISKON ( RUMUS NYA BIKIN DIMANA YAK ),
+                    'amount' => $discount_amount,
                 ]);
+                $this->dispatch($job);
             }
-
-            $this->dispatch($job);
+            dd('gg');
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Promote;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\PriceResource;
+use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Resources\Promote\PromotionResource;
 use App\Http\Response;
 use App\Jobs\Promo\CreateNewPromotion;
@@ -16,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotionController extends Controller
 {
@@ -108,38 +111,47 @@ class PromotionController extends Controller
 
     public function calculate(Request $request, Package $package): JsonResponse
     {
+        $request->validate([
+            'promotion_hash' => ['nullable']
+        ]);
         $this->authorize('view', $package);
         $check = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
-        if($check->updated_at < $check->updated_at->addDays(1)){ // error if greater than ( > )
-            $request->validate([
-                'promotion_hash' => ['nullable']
-            ]);
-            if ($request->promotion_hash != null){
-                $promotion = Promotion::byHashOrFail($request->promotion_hash);
-                $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
-                // RUMUS NYA TOLONG DIBUAT ANDRE DI MASADEPAN
-                if ($package->total_weight < $promotion->min_weight){
-                    $discount = $service * 0;
-                }else{
-                    $discount = $service - ($package->tier_price * $promotion->min_weight);
+        switch ($check){
+            case null :
+                $data = $this->calculation($request->promotion_hash, $package);
+                $collection = collect($data);
+                $collection->push($package);
+
+
+                return $this->jsonSuccess(DataDiscountResource::make(array_merge($data,$package->toArray())));
+
+            default:
+                if ($request->promotion_hash != null){
+                    if ($check->updated_at < $check->updated_at->addDays(1)){
+
+                        $data = $this->calculation($request->promotion_hash, $package);
+                        return (new Response(Response::RC_SUCCESS, $data))->json();
+                    }
                 }
-
-            }
-
-            return $this->jsonSuccess(new PackageResource($package->load(
-                'prices',
-                'attachments',
-                'items',
-                'items.attachments',
-                'items.prices',
-                'deliveries.partner',
-                'deliveries.assigned_to.userable',
-                'deliveries.assigned_to.user',
-                'origin_regency',
-                'destination_regency',
-                'destination_district',
-                'destination_sub_district'
-            )));
         }
-        return (new Response(Response::RC_SUCCESS, 'Harap tunggu dalam kurung waktu 24 jam untuk menggunakan promo lagi'))->json();    }
+        return (new Response(Response::RC_BAD_REQUEST))->json();
+    }
+
+    public function calculation($promotion_hash, Package $package)
+    {
+        $promotion = Promotion::byHashOrFail($promotion_hash);
+        $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
+        if ($package->total_weight < $promotion->min_weight){
+            $discount = $service->amount * 0;
+        }else{
+            $discount = $service->amount - ($package->tier_price * $promotion->min_weight);
+        }
+        $data = [
+                'service_price' => $service->amount,
+                'discount' => $discount,
+                'total_payment' => $package->total_amount - $discount
+        ];
+
+        return $data;
+    }
 }
