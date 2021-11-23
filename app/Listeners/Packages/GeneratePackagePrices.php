@@ -122,7 +122,6 @@ class GeneratePackagePrices
                 ]);
                 $this->dispatch($job);
             }
-            dd('gg');
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
 
