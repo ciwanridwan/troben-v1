@@ -45,6 +45,8 @@ class Promotion extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
+    public const ATTACHMENT_COVER = 'promotion';
+
     protected $table = 'promotions';
     /**
      * The attributes that are mass assignable.
