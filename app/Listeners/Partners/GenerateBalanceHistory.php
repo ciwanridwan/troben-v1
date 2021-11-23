@@ -11,11 +11,13 @@ use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
+use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Models\Deliveries\Delivery;
 use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -24,7 +26,7 @@ use App\Models\Payments\Withdrawal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Arr;
+use App\Models\Partners\Price as PartnerPrice;
 
 class GenerateBalanceHistory
 {
@@ -196,8 +198,47 @@ class GenerateBalanceHistory
 
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
-//                dd($this->partner->code, $this->transporter->partner->code);
                     $this->setPartner($this->transporter->partner);
+
+                    if ($this->countDeliveryTransitOfPackage() > 1) {
+                        $package_count = $this->delivery->packages->count();
+                        $manifest_weight = 0;
+                        foreach ($this->packages as $package) {
+                            $manifest_weight += $package->items->sum(function ($item) {
+                                return $item->weight_borne_total;
+                            });
+                        }
+                        if ($manifest_weight < 10) $manifest_weight = 10;
+
+                        /** @var \App\Models\Partners\Price $price */
+                        $price = PartnerPrice::query()
+                            ->where('partner_id', $this->transporter->partner->id)
+                            ->where('origin_regency_id', $this->delivery->origin_regency_id)
+                            ->where('destination_id', $this->delivery->destination_regency_id)
+                            ->first();
+                        if (!$price) break;
+
+                        if ($package_count > 1) {
+                            $tierPrice = PricingCalculator::getTier($price,$manifest_weight);
+                            dd($price,$tierPrice);
+                            if ($tierPrice == 0) break;
+                            $this
+                                ->setBalance($manifest_weight * $tierPrice)
+                                ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                                ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                                ->setAttributes(false)
+                                ->recordHistory(false);
+                        } else {
+                            $this
+                                ->setBalance($manifest_weight * $price->flat)
+                                ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                                ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                                ->setAttributes(false)
+                                ->recordHistory(false);
+                        }
+                        break;
+                    }
+
                     /** @var Package $package */
                     foreach ($this->packages as $package) {
                         $this->setPackage($package);
@@ -396,7 +437,7 @@ class GenerateBalanceHistory
      *
      * @return $this
      */
-    protected function setAttributes(): self
+    protected function setAttributes($is_package = true): self
     {
         $this->attributes = [
             'partner_id' => $this->partner->id,
@@ -405,8 +446,12 @@ class GenerateBalanceHistory
             'description' => $this->description,
         ];
 
-        if ($this->type === History::TYPE_WITHDRAW) $this->attributes['disbursement_id'] = $this->withdrawal->id;
-        else $this->attributes['package_id'] = $this->package->id;
+        if ($this->type === History::TYPE_WITHDRAW) {
+            $this->attributes['disbursement_id'] = $this->withdrawal->id;
+        } else {
+            if ($is_package) $this->attributes['package_id'] = $this->package->id;
+            else $this->attributes['delivery_id'] = $this->delivery->id;
+        }
         return $this;
     }
 
@@ -477,30 +522,37 @@ class GenerateBalanceHistory
 
     /**
      * Check history recorded.
+     * @param bool $is_package
      * @return bool
      */
-    protected function noHistory(): bool
+    protected function noHistory(bool $is_package = true): bool
     {
-        $historyQuery = History::query();
+        $historyQuery = $is_package ? History::query() : DeliveryHistory::query();
         $historyQuery->where('partner_id', $this->partner->id);
         $historyQuery->where('type', $this->type);
         $historyQuery->where('description', $this->description);
 
-        if ($this->type === History::TYPE_WITHDRAW) $historyQuery->where('disbursement_id', $this->withdrawal->id);
-        else $historyQuery->where('package_id', $this->package->id);
+        if ($this->type === History::TYPE_WITHDRAW) {
+            $historyQuery->where('disbursement_id', $this->withdrawal->id);
+        } else {
+            if ($is_package) $historyQuery->where('package_id', $this->package->id);
+            else $historyQuery->where('delivery_id', $this->delivery->id);
+        }
 
         return is_null($historyQuery->first());
     }
 
     /**
      * Insert partner balance history to database.
-     *
+     * @param bool $is_package
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function recordHistory(): void
+    protected function recordHistory(bool $is_package = true): void
     {
-        if ($this->noHistory()) {
-            $this->dispatch(new CreateNewBalanceHistory($this->attributes));
+        if ($this->noHistory($is_package)) {
+            if ($is_package) $this->dispatch(new CreateNewBalanceHistory($this->attributes));
+            #TODO: job create delivery history
+            else $this->dispatch(new CreateNewBalanceDeliveryHistory($this->attributes));
         }
     }
 

@@ -7,6 +7,7 @@ use App\Events\CodeScanned;
 use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
+use App\Events\Partners\Balance\NewDeliveryHistoryCreated;
 use App\Events\Partners\Balance\NewHistoryCreated;
 use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
@@ -222,6 +223,9 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class,
         ],
         NewHistoryCreated::class => [
+            UpdatePartnerBalanceByEvent::class
+        ],
+        NewDeliveryHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
         ],
         WithdrawalRequested::class => [
