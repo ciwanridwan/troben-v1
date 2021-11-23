@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
+use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
+use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
+use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -65,9 +68,17 @@ class OrderController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function show(Package $package): JsonResponse
+    public function show(Request $request, Package $package): JsonResponse
     {
         $this->authorize('view', $package);
+        $request->validate([
+            'promotion_hash' => ['nullable']
+        ]);
+        if ($request->promotion_hash){
+            $promo = $this->check($request->promotion_hash, $package);
+
+            return $this->jsonSuccess(DataDiscountResource::make(array_merge($promo,$package->toArray())));
+        }
 
         return $this->jsonSuccess(new PackageResource($package->load(
             'prices',
@@ -84,6 +95,48 @@ class OrderController extends Controller
             'destination_district',
             'destination_sub_district'
         )));
+    }
+
+    public function check($promotion_hash, Package $package){
+
+        $check = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
+        switch ($check){
+            case null :
+                return $this->calculation($promotion_hash, $package);
+            default:
+                if ($promotion_hash != null){
+                    if ($check->updated_at < $check->updated_at->addDays(1)){
+
+                        $data = $this->calculation($promotion_hash, $package);
+                        return $data;
+                    }
+                }
+        }
+    }
+
+    public function calculation($promotion_hash, Package $package)
+    {
+        $promotion = Promotion::byHashOrFail($promotion_hash);
+        $prices = $package->prices()->get();
+        $service = $prices->where('type', Price::TYPE_SERVICE)->first();
+        $insurance = $prices->where('type', Price::TYPE_INSURANCE)->first();
+        $handling = $prices->where('type', Price::TYPE_HANDLING)->first();
+        $pickup = $prices->where('type', Price::TYPE_DELIVERY)->first();
+        if ($package->total_weight < $promotion->min_weight){
+            $discount = $service->amount * 0;
+        }else{
+            $discount = $service->amount - ($package->tier_price * $promotion->min_weight);
+        }
+        $data = [
+            'promo' => [
+                'pickup_price' => $pickup->amount ?? 0,
+                'insurance_price' => $insurance->amount ?? 0,
+                'handling_price' => $handling->amount ?? 0,
+                'service_price' => $package->total_amount - $discount
+            ]
+        ];
+
+        return $data;
     }
 
     /**
