@@ -138,6 +138,7 @@ class PricingCalculator
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
+            if (! Arr::has($item,'handling')) $item['handling'] = [];
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -159,8 +160,8 @@ class PricingCalculator
                 $item['insurance_price'] = 0;
                 $item['insurance_price_total'] = 0;
             } else {
-                $item['insurance_price'] = self::getInsurancePrice($item['price']);
-                $item['insurance_price_total'] = self::getInsurancePrice($item['price'] * $item['qty']);
+                $item['insurance_price'] = ceil(self::getInsurancePrice($item['price']));
+                $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price'] * $item['qty']));
             }
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
@@ -250,7 +251,8 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            if (! empty($items['handling'])) {
+            if (! Arr::has($item,'handling')) $item['handling'] = [];
+            if (! empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -331,7 +333,7 @@ class PricingCalculator
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
-        throw_if($price === null || $price->tier_1 == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
 
         return $price;
     }

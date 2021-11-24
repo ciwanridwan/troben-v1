@@ -6,6 +6,16 @@
     @changePage="changePage"
     @changeSizePage="changeSizePage"
   >
+    <template slot="id_order" slot-scope="{ record }">
+      <order-modal :package="record">
+        <span slot="trigger">
+          <span class="trawl-text-bolder trawl-text-underline trawl-click">{{
+              record.code.content
+            }}</span>
+        </span>
+      </order-modal>
+      <package-table-detail :package="record" />
+    </template>
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
         <a-timeline-item color="green">
@@ -45,6 +55,8 @@ import receiptColumns from "../../config/table/home/trawl-receipt";
 import OrderStatus from "../order-status.vue";
 import OrderAction from "../order-action.vue";
 import TrawlReceiptManualTracking from "../trawl-receipt-manual-tracking.vue";
+import OrderModal from "../../components/orders/modal/order-modal";
+import PackageTableDetail from "../packages/package-table-detail.vue";
 
 export default {
   data() {
@@ -80,6 +92,8 @@ export default {
     trawlTable,
     OrderAction,
     OrderStatus,
+    OrderModal,
+    PackageTableDetail,
     TrawlReceiptManualTracking
   }
 };

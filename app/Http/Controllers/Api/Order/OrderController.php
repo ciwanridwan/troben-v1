@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Models\Geo\Regency;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Illuminate\Support\Arr;
@@ -77,7 +79,7 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district'
-        )));
+        )->append('transporter_detail')));
     }
 
     /**
@@ -95,8 +97,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'items' => ['required'],
-            'photos' => ['required'],
-            'photos.*' => ['required', 'image']
+            'photos' => ['nullable'],
+            'photos.*' => ['nullable', 'image']
         ]);
 
         $inputs = $request->except('items');
@@ -107,6 +109,10 @@ class OrderController extends Controller
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        /** @var Regency $regency */
+        $regency = Regency::query()->find($request->get('origin_regency_id'));
+        $tempData = PricingCalculator::calculate(array_merge($request->toArray(),['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]),'array');
+        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;
 

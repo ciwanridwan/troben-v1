@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\Account\CustomerInfoResource;
 use App\Http\Response;
 use App\Jobs\Customers\CustomerUploadPhoto;
+use App\Jobs\Users\UserUploadPhoto;
 use App\Models\Attachment;
 use App\Models\Customers\Address;
 use App\Models\User;
@@ -23,6 +25,8 @@ use libphonenumber\PhoneNumberUtil;
 
 class AccountController extends Controller
 {
+    public const DISK_CUSTOMER = 'avatar';
+
     /**
      * Get Account Information
      * Route Path       : {API_DOMAIN}/me
@@ -33,8 +37,6 @@ class AccountController extends Controller
      *
      * @return JsonResponse
      */
-    public const DISK_CUSTOMER = 'avatar';
-
     public function index(Request $request): JsonResponse
     {
         $account = $request->user();
@@ -70,7 +72,7 @@ class AccountController extends Controller
      */
     public function getCustomerInfo(Customer $account): JsonResponse
     {
-        return $this->jsonSuccess(new CustomerResource($account));
+        return $this->jsonSuccess(new CustomerInfoResource($account));
     }
     /**
      * @param User $account
@@ -146,10 +148,24 @@ class AccountController extends Controller
      */
     protected function updateUser(User $user, UpdateAccountRequest $inputs): User
     {
+        if ($inputs->has('photos')) {
+            $attachable = DB::table('attachable')
+                ->where('attachable_id', $user->id)
+                ->where('attachable_type', 'App\Models\Customers\Customer')
+                ->first();
+            if ($attachable != null) {
+                $attachment = Attachment::where('id', $attachable->attachment_id)->first();
+                Storage::disk(self::DISK_CUSTOMER)->delete($attachment->path);
+                $attachment->forceDelete();
+            }
+        }
         $job = new UpdateExistingUser($user, $inputs->all());
         $this->dispatch($job);
 
-        return $job->user->fresh();
+        $uploadJob = new UserUploadPhoto($job->user, $inputs->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        return $job->user->refresh();
     }
 
     /**

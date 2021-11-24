@@ -1,0 +1,29 @@
+_id: req_80e77530e9434adfb473655e32a5802f
+type: Request
+parentId: fld_0d46af082f0d4ab9a8d942dcec33ba75
+modified: 1630564415810
+created: 1630557682108
+url: "{{ _.base_url }}/wms/warehouse/order/dashboard"
+name: Summary Dashboard
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450172.2188
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

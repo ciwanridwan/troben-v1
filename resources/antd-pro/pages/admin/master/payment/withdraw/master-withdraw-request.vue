@@ -1,5 +1,5 @@
 <template>
-  <content-layout>
+  <content-layout title="Data Pencairan Request">
     <template slot="head-tools">
       <a-row type="flex" justify="end" :gutter="[10, 10]">
         <a-col :span="8">
@@ -11,38 +11,90 @@
       </a-row>
     </template>
     <template slot="content">
+      <a-card>
+        <a-row
+          type="flex"
+          justify="space-between"
+          :gutter="[64, 10]"
+        >
+          <a-col :class="['trawl-border-right']" :span="12">
+            <h3>Jumlah Request</h3>
+            <h2>
+              <b>{{ items.total }} Request Pencairan</b>
+            </h2>
+          </a-col>
+<!--          <a-col :span="12">-->
+<!--            <a-row type="flex" justify="space-between" >-->
+<!--              <a-col :span="6">-->
+<!--                <h4>Saldo:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150000) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--              <a-col :span="6">-->
+<!--                <h4>Saldo:</h4>-->
+<!--                <span-->
+<!--                ><b>{{ currency(150000) }}</b></span-->
+<!--                >-->
+<!--              </a-col>-->
+<!--            </a-row>-->
+<!--          </a-col>-->
+        </a-row>
+      </a-card>
       <a-table
         :columns="requestColumns"
-        :data-source="payments.data"
+        :dataSource="items.data"
         :pagination="trawlbensPagination"
         @change="handleTableChanged"
         :loading="loading"
         :class="['trawl']"
+        :row-selection="{
+          onChange: onChangeSelected
+        }"
       >
         <span slot="number" slot-scope="number">{{ number }}</span>
-        <span slot="balance" slot-scope="balance">{{
-          currency(10000000)
-        }}</span>
-        <span slot="withdraw_balance" slot-scope="withdraw_balance">{{
-          currency(10000000)
-        }}</span>
         <span slot="action" slot-scope="record">
-          <a-space>
-            <a-button type="primary" size="small">Konfirmasi</a-button>
-            <a-button type="danger" ghost size="small">Tolak</a-button>
+          <a-space v-if="record.status">
+
+            <modal-reject-withdrawal :afterConfirm="afterAction" :record="record" />
+            <modal-confirm-withdrawal :afterConfirm="afterAction" :record="record" />
           </a-space>
         </span>
       </a-table>
+    </template>
+    <template slot="footer">
+      <a-layout-footer
+        v-show="selections.length > 0"
+        :class="['trawl-content-footer']"
+      >
+        <a-row type="flex" justify="end" >
+          <a-col :span="10">
+            <a-space>
+              <span>{{ selections.length }} Item terpilih</span>
+
+              <a-button type="primary" @click="showConfirm">Selesai</a-button>
+              <a-button type="danger">Cancel</a-button>
+            </a-space>
+          </a-col>
+        </a-row>
+      </a-layout-footer>
     </template>
   </content-layout>
 </template>
 <script>
 import requestColumns from "../../../../../config/table/withdraw/request";
 import ContentLayout from "../../../../../layouts/content-layout.vue";
-import { payments } from "../../../../../mock/index";
+import AdminOrderActions from "../../../../../components/orders/actions/admin-order-actions.vue";
+import ModalRejectWithdrawal from "../../../../../components/modal-finance/modal-reject-withdrawal";
+import ModalConfirmWithdrawal from "../../../../../components/modal-finance/modal-confirm-withdrawal";
 
 export default {
-  components: { ContentLayout },
+  components: {
+    ContentLayout,
+    AdminOrderActions,
+    ModalRejectWithdrawal,
+    ModalConfirmWithdrawal,
+  },
   data: () => ({
     recordNumber: 0,
     items: {},
@@ -53,7 +105,7 @@ export default {
     },
     loading: false,
     requestColumns,
-    payments
+    selections: [],
   }),
   methods: {
     onSuccessResponse(response) {
@@ -62,7 +114,20 @@ export default {
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
       });
-    }
+    },
+    onChangeSelected(selections) {
+      this.selections = selections;
+    },
+  },
+  props: {
+    record: {
+      type: Object,
+      default: () => {},
+    },
+    afterAction: {
+      type: Function,
+      default: () => {},
+    },
   },
   created() {
     this.items = this.getDefaultPagination();

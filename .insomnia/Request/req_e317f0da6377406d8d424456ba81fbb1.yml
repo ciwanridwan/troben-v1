@@ -1,0 +1,33 @@
+_id: req_e317f0da6377406d8d424456ba81fbb1
+type: Request
+parentId: fld_04259b4b49a64a8ab6098f1fd4eeec44
+modified: 1630564454965
+created: 1630557682051
+url: "{{ _.base_url }}/wms/warehouse/manifest/assignable/package"
+name: List Package
+description: |-
+  this resource is pre filter with condition 
+
+  status : packed
+  deliveries : doesn't have delivery that has type transit, dooring or return 
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1613198450168.5078
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

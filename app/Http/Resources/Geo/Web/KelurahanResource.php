@@ -20,6 +20,9 @@ class KelurahanResource extends JsonResource
             'regency' => $this->regency,
             'district' => $this->district,
             'sub_district' => $this->sub_district,
+            'zip_code' => $this->zip_code,
+            'regency_id' => $this->regency_id,
+            'district_id' => $this->district_id,
             'sub_district_id' => $this->id,
         ];
 

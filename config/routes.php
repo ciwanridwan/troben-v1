@@ -21,6 +21,10 @@ return [
             'middleware' => ['web', 'auth', 'is.admin'],
             'prefix' => 'admin',
         ],
+        'partner' => [
+            'middleware' => ['web', 'auth', 'partner.role:cashier,customer-service', 'partner.scope.role:cashier,customer-service'],
+            'prefix' => 'partner',
+        ],
         'cashier' => [
             'middleware' => ['web', 'auth', 'partner.role:cashier', 'partner.scope.role:cashier'],
             'prefix' => 'partner/cashier',
@@ -29,7 +33,6 @@ return [
             'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:customer-service'],
             'prefix' => 'partner/customer-service',
         ]
-
     ],
 
     'web' => [
@@ -56,6 +59,7 @@ return [
         App\Http\Routes\Api\Partner\Driver\OrderRoute::class,
         App\Http\Routes\Api\Partner\Driver\Order\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\OrderRoute::class,
+        App\Http\Routes\Api\Partner\Owner\WithdrawalRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\Order\ItemRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\ManifestRoute::class,
         App\Http\Routes\Api\Partner\Driver\Order\TransitRoute::class,
@@ -66,10 +70,16 @@ return [
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
         App\Http\Routes\Api\PromoRoute::class,
-        App\Http\Routes\Api\Kurir\ManifestRoute::class,
-        App\Http\Routes\Api\Kurir\OrderRoute::class,
-        App\Http\Routes\Api\Kurir\Transition\PickupRoute::class,
+        App\Http\Routes\Api\Courier\ManifestRoute::class,
+        App\Http\Routes\Api\Courier\OrderRoute::class,
+        App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
+        App\Http\Routes\Api\WMS\Warehouse\Manifest\TransitRoute::class,
+        App\Http\Routes\Api\WMS\Warehouse\Order\ItemRoute::class,
+        App\Http\Routes\Api\WMS\Warehouse\DooringRoute::class,
+        App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
+        App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
+        App\Http\Routes\Api\NotificationRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -87,6 +97,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
+        App\Http\Routes\Admin\AdminRoute::class,
         /** @inject admin **/
     ],
     'cashier' => [
@@ -101,5 +112,8 @@ return [
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
         /** @inject customer_service **/
     ],
-
+    'partner' => [
+        App\Http\Routes\Partner\PartnerRoute::class,
+        /** @inject partner **/
+    ]
 ];

@@ -10,6 +10,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
+use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -33,8 +34,12 @@ class Queries
         $query = Delivery::query();
 
         if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
-            $userable = $this->user->transporters->first();
-            $query->where('userable_id', $userable->pivot->id);
+            $userables = $this->user->transporters;
+            $ids = [];
+            foreach ($userables as $userable) {
+                $ids[] = $userable->pivot->id;
+            }
+            $query->whereIn('userable_id', $ids);
         } else {
             $query->where(fn (Builder $builder) => $builder
                 ->orWhere('partner_id', $this->partner->id)
@@ -42,6 +47,16 @@ class Queries
 
             $this->resolveDeliveriesQueryByRole($query);
         }
+
+        return $query;
+    }
+
+    public function getDeliveriesRejectCourierQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('user_id', $this->user->id));
 
         return $query;
     }
@@ -56,11 +71,31 @@ class Queries
         return $query;
     }
 
+    public function getHistoryRejectedKurirQuery(): Builder
+    {
+        $query = HistoryReject::query();
+
+        $query->where(fn (Builder $builder) => $builder
+            ->orWhere('userable_id', $this->user->id));
+
+        return $query;
+    }
+
     public function getDeliveriesByUserableQuery(): Builder
     {
         $query = Delivery::query();
 
-        $query->whereIn('userable_id', $this->partner->users->pluck('pivot.id')->toArray());
+        $transporters = [];
+        foreach ($this->partner->users()->where('role',UserablePivot::ROLE_DRIVER)->get() as $driver) {
+            if ($driver->transporters) {
+                foreach ($driver->transporters as $transporter) $transporters[] = $transporter->pivot->id;
+            }
+        }
+
+        $query->whereIn('userable_id', array_merge(
+            [$this->partner->users()->where('role',UserablePivot::ROLE_OWNER)->first()->pivot->id],
+            $transporters
+        ));
         $query->with([
             'packages',
             'origin_partner',
@@ -138,6 +173,19 @@ class Queries
         $query->where('partner_id', $this->partner->id);
 
         return $query;
+    }
+
+    /**
+     * @return Builder
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function getPartnerBalanceReportQuery(): Builder
+    {
+        $repository = new PartnerBalanceReportRepository([
+            'partner_id' => $this->partner->id,
+        ]);
+
+        return $repository->getQuery();
     }
 
     protected function resolveDeliveriesQueryByRole(Builder $deliveriesQueryBuilder): void

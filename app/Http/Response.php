@@ -29,6 +29,7 @@ class Response implements Responsable
     public const RC_ROUTE_NOT_FOUND = '0102';
     public const RC_INVALID_PHONE_NUMBER = '0103';
     public const RC_OUT_OF_RANGE = '0104';
+    public const RC_INSUFFICIENT_BALANCE = '0105';
 
     // authentication / authorization related. 0200 - 0299
     public const RC_UNAUTHENTICATED = '0200';
@@ -64,6 +65,8 @@ class Response implements Responsable
 
     // data not found
     public const RC_DATA_NOT_FOUND = '0404';
+    // bad request
+    public const RC_BAD_REQUEST = '0400';
 
     /**
      * Response Code.
@@ -117,6 +120,9 @@ class Response implements Responsable
                 self::RC_ROUTE_NOT_FOUND,
                 self::RC_DATA_NOT_FOUND
             ],
+            LaravelResponse::HTTP_BAD_REQUEST => [
+                self::RC_BAD_REQUEST
+            ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
                 self::RC_INVALID_PHONE_NUMBER,
@@ -125,6 +131,7 @@ class Response implements Responsable
                 self::RC_TOKEN_WAS_CLAIMED,
                 self::RC_OUT_OF_RANGE,
                 self::RC_PARTNER_GEO_UNAVAILABLE,
+                self::RC_INSUFFICIENT_BALANCE,
             ],
             LaravelResponse::HTTP_FORBIDDEN => [
                 self::RC_PAYMENT_HAS_PAID,

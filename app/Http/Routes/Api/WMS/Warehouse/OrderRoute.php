@@ -3,7 +3,7 @@
 namespace App\Http\Routes\Api\WMS\Warehouse;
 
 use Jalameta\Router\BaseRoute;
-use App\Http\Controllers\Api\Partner\Warehouse\OrderController;
+use App\Http\Controllers\Api\WMS\Warehouse\OrderController;
 
 class OrderRoute extends BaseRoute
 {

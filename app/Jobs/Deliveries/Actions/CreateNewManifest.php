@@ -13,6 +13,7 @@ class CreateNewManifest
 {
     use Dispatchable;
 
+    public Delivery $delivery;
     private array $attributes;
 
     /**
@@ -72,5 +73,7 @@ class CreateNewManifest
             $job->delivery->origin_partner()->associate($this->originPartner);
             $job->delivery->save();
         }
+
+        $this->delivery = $job->delivery;
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Routes;
 
 use App\Models\Code;
 use App\Models\Customers\Customer;
+use App\Models\Notifications\Notification;
 use App\Models\Packages\Item;
 use App\Models\Payments\Gateway;
+use App\Models\Payments\Withdrawal;
 use Jalameta\Router\BaseRoute;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -28,8 +30,10 @@ class VariableBindingRoute extends BaseRoute
         $this->router->bind('userable_hash', fn ($hash) => UserablePivot::byHashOrFail($hash));
         $this->router->bind('item_hash', fn ($hash) => Item::byHashOrFail($hash));
         $this->router->bind('partner_hash', fn ($hash) => Partner::byHashOrFail($hash));
+        $this->router->bind('withdrawal_hash', fn ($hash) => Withdrawal::byHashOrFail($hash));
         $this->router->bind('code_content', fn ($code) => Code::where('content', $code)->firstOrFail());
         $this->router->bind('gateway_hash', fn ($hash) => Gateway::byHashOrFail($hash));
         $this->router->bind('customer_hash', fn ($hash) => Customer::byHashOrFail($hash));
+        $this->router->bind('notification_id', fn ($id) => Notification::where('id', $id)->firstOrFail());
     }
 }

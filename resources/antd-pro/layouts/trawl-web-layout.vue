@@ -11,6 +11,7 @@
       >
         <a-layout style="position: relative">
           <trawl-main-menu-detail
+            v-if="this.currentRouteHasChildren()"
             ref="mainMenuDetail"
             :style="{ width: sideMenuWidth }"
             :navigation="navigation"
@@ -65,7 +66,7 @@ export default {
       return this.config.layout.aside.fixed;
     },
     sideMenuWidth() {
-      return "200px";
+      return this.currentRouteHasChildren() ? "200px" : "0px";
     },
     theme() {
       return this.config.layout.theme;
@@ -99,7 +100,22 @@ export default {
   methods: {
     toggleCollapse() {
       this.config.layout.toggleCollapse();
-    }
-  }
+    },
+    currentRouteHasChildren() {
+      let currentRoute = this.getRoute();
+      let splitRoute = currentRoute.split('.');
+      if (splitRoute[0] === 'admin') {
+        return this.navigation[splitRoute[1]].children !== null;
+      } else {
+        return true;
+      }
+    },
+  },
+  created() {
+    this.init();
+    this.setMessaging();
+    this.runServiceWorker();
+    this.getNotification();
+  },
 };
 </script>

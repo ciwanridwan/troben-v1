@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -136,28 +135,33 @@ class OrderController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 
-    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot, Request $request): JsonResponse
+    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
-        $this->attributes = Validator::make($request->all(), [
-            'type' => 'nullable',
-        ])->validate();
+        $method = 'partner';
+        $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
+        $this->dispatchNow($job);
 
-        if ($request->type == 'independent') {
-            $user = $delivery->packages->first();
-            $data = User::query()
-                ->select('users.*', DB::raw('6371 * acos(cos(radians('.$user->sender_latitude.'))
-            * cos(radians(users.latitude))
-            * cos(radians(users.longitude) - radians('.$user->sender_longitude.'))
-            + sin(radians('.$user->sender_latitude.'))
-            * sin(radians(users.latitude))) AS distance'))
-                ->groupBy('users.id')
-                ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->orderby('distance')
-                ->first();
-        }
+        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+    }
 
-        $job = new AssignDriverToDelivery($delivery, $userablePivot);
+    public function courierAssignation(Delivery $delivery): JsonResponse
+    {
+        $user = $delivery->packages->first();
+        $data = User::query()
+            ->select('users.*', DB::raw('6371 * acos(cos(radians('.$user->sender_latitude.'))
+        * cos(radians(users.latitude))
+        * cos(radians(users.longitude) - radians('.$user->sender_longitude.'))
+        + sin(radians('.$user->sender_latitude.'))
+        * sin(radians(users.latitude))) AS distance'))
+            ->groupBy('users.id')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderby('distance')
+            ->first();
+        $userablePivot = UserablePivot::where('user_id', '=', $data->id)->firstOrFail();
+        $method = 'independent';
+
+        $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();

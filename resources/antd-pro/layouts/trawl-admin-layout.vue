@@ -18,7 +18,6 @@ export default {
   },
   computed: {
     slotKeys() {
-      console.log("slots", this.$slots);
       return Object.keys(this.$slots);
     }
   }

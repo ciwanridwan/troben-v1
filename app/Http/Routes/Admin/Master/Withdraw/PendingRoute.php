@@ -28,6 +28,16 @@ class PendingRoute extends BaseRoute
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
+
+        $this->router->patch($this->prefix('success/{withdrawal_hash}'), [
+            'as' => $this->name('success'),
+            'uses' => $this->uses('success'),
+        ]);
+
+        $this->router->patch($this->prefix('cancelled/{withdrawal_hash}'), [
+            'as' => $this->name('rejection'),
+            'uses' => $this->uses('rejection'),
+        ]);
     }
 
     /**

@@ -5,6 +5,9 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -17,6 +20,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Jalameta\Attachments\Concerns\Attachable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -341,7 +345,6 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
-
     /**
      * Define `hasMany` relationship with Item model.
      *
@@ -364,6 +367,31 @@ class Package extends Model implements AttachableContract
                 'id'
             )
             ->where('codes.codeable_type', Item::class);
+    }
+
+    public function histories(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id');
+    }
+
+    public function historyPool(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_POOL);
+    }
+
+    public function historyBusiness(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_BUSINESS);
+    }
+
+    public function historyTransporter(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_TRANSPORTER);
+    }
+
+    public function historySpace(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_SPACE);
     }
 
     /**
@@ -526,7 +554,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_WAITING_FOR_PICKUP],
-                'description' => 'Kurir menuju customer',
+                'description' => 'Courier menuju customer',
                 'variable' => []
             ],
             [
@@ -621,5 +649,18 @@ class Package extends Model implements AttachableContract
             ],
 
         ];
+    }
+
+    /**
+     * get detail transporter.
+     * @return array
+     */
+    public function getTransporterDetailAttribute(): array
+    {
+        $transporterType = $this->transporter_type;
+        return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
+            if ($transporter['name'] === $transporterType) return $transporter;
+            else return [];
+        }, []);
     }
 }

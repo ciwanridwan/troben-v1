@@ -1,0 +1,44 @@
+_id: req_4c97b22937cf4337a1aa07fa7cdaaf90
+type: Request
+parentId: fld_b5fd7e8c32554e47a8526d0d6cbe8c09
+modified: 1630307456424
+created: 1630307423372
+url: "{{ _.base_url }}/promo"
+name: Insert Promo
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - id: pair_bd7f2eea511b4e37b0814988d7ca448a
+      name: title
+      value: ""
+      description: ""
+    - id: pair_0e7c8b5a71f2466b99d9a81403d68028
+      name: content
+      value: ""
+      description: ""
+    - id: pair_f1d17cbc75e0400cb6ab9f29da9af4a6
+      name: description
+      value: ""
+      description: ""
+    - id: pair_cca4c12932fa413196576255884e9f42
+      name: cover
+      value: ""
+      description: ""
+      type: file
+      multiline: null
+parameters: []
+headers:
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_417a459d76cc4240b5029e5ca33de5e9
+authentication: {}
+metaSortKey: -1630307423373
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

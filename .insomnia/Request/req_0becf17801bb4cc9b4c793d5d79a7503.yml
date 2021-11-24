@@ -1,0 +1,30 @@
+_id: req_0becf17801bb4cc9b4c793d5d79a7503
+type: Request
+parentId: fld_088957bffdec4baab6328d832cafd0f2
+modified: 1630564440884
+created: 1630557682060
+url: "{{ _.base_url }}/wms/warehouse/manifest/assignation/{% response 'body',
+  'req_42889da8db2d4e81a6a5368182c358a8', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}/partner"
+name: Request Transporter
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_15390fa9fdb24726888d67e2fb3ff79a
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1623311603785
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

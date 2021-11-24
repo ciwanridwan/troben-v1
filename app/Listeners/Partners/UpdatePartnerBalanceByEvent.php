@@ -17,7 +17,10 @@ class UpdatePartnerBalanceByEvent
     public function handle(object $event)
     {
         $this->history = $event->history;
-        $this->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
+        if (! ($this->history->type === History::TYPE_WITHDRAW
+            && ($this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS ||
+            $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) $this
+            ->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
     }
 
     /**
@@ -27,7 +30,11 @@ class UpdatePartnerBalanceByEvent
      */
     protected function getUpdatedPartnerBalance(): float
     {
-        return ($this->history->type === History::TYPE_DEPOSIT)
+        return (
+            $this->history->type === History::TYPE_DEPOSIT
+            || ($this->history->type === History::TYPE_WITHDRAW
+                && $this->history->description === History::DESCRIPTION_WITHDRAW_REJECT
+            ))
             ? $this->history->partner->balance + $this->history->balance
             : $this->history->partner->balance - $this->history->balance;
     }

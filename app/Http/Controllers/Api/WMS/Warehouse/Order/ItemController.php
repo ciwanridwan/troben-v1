@@ -51,11 +51,9 @@ class ItemController extends Controller
         throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new CreateNewItemFromExistingPackage($package, $inputs);
-
         $this->dispatchNow($job);
 
-        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
-
+        $uploadJob = new WarehouseUploadItem($package, $job->item, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
 
         return $this->jsonSuccess(new JsonResource($job->item));
@@ -90,7 +88,7 @@ class ItemController extends Controller
 
         $this->dispatchNow($job);
 
-        $uploadJob = new WarehouseUploadItem($job->item, $request->file('photos') ?? []);
+        $uploadJob = new WarehouseUploadItem($package, $job->item, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
 

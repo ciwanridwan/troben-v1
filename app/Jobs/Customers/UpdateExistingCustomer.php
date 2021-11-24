@@ -50,7 +50,7 @@ class UpdateExistingCustomer
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,'.$customer->id.',id,deleted_at,NULL'],
             'address' => ['filled'],
-            'password' => ['filled', 'min:8', 'alpha_num'],
+            'password' => ['filled', 'min:8'],
             'fcm_token' => ['nullable','unique:customers,fcm_token,'.$customer->id.',id,deleted_at,NULL'],
             'facebook_id' => ['nullable'],
             'google_id' => ['nullable'],

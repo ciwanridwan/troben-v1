@@ -1,0 +1,63 @@
+_id: req_3c561dee3b6644a4be53337b371289cf
+type: Request
+parentId: fld_524b14dbe4434de8afb206bd148440f4
+modified: 1630564473938
+created: 1630557682037
+url: "{{ _.base_url }}/wms/warehouse/order/{% response 'body',
+  'req_dc137ed07b9e42c48481a95752c77b2f', 'b64::JC5kYXRhLmhhc2g=::46b',
+  'no-history', 60 %}/item"
+name: Add Order Item
+description: ""
+method: POST
+body:
+  mimeType: multipart/form-data
+  params:
+    - name: name
+      value: Sennheiser M03
+      id: pair_f99887d4b2ff4663936408d78b0c17c6
+    - id: pair_51684e562f4a4aee81a94fb83ca9be6c
+      name: qty
+      value: "1"
+      description: ""
+    - id: pair_961b3da3141b4e0789175c2ca14ef2ae
+      name: width
+      value: "4"
+      description: ""
+    - id: pair_32b133c7fdfa433fa0cf313512382be8
+      name: length
+      value: "100"
+      description: ""
+    - id: pair_6761a38f0a3f401d875347dea6914f5f
+      name: height
+      value: "100"
+      description: ""
+    - id: pair_19c8e84a5cd74e0382c2f0215adc9c77
+      name: photo[]
+      value: ""
+      description: ""
+      disabled: false
+      type: file
+      multiline: null
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+  - name: Authorization
+    value: Bearer {% response 'body', 'req_e446946056b24772906f3512ba0b5b29',
+      'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}
+    description: ""
+    id: pair_c20cd03e13e54cd9aa04e9432c2460b6
+  - name: Content-Type
+    value: multipart/form-data
+    id: pair_2c7ae334b0c64c108ed5ed9ab2362437
+authentication: {}
+metaSortKey: -1613330460621.75
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

@@ -202,7 +202,12 @@ class Transporter extends Model
         ];
     }
 
-    public static function getAvailableTransporterPrices()
+    /**
+     * get transporter price by general type on promo.
+     *
+     * @return int[]
+     */
+    public static function getAvailableTransporterPrices(): array
     {
         return [
             self::GENERAL_TYPE_BIKE => 10000,
@@ -220,9 +225,9 @@ class Transporter extends Model
         return [
             [
                 'name' => self::TYPE_BIKE,
-                'length' => 40,
-                'width' => 35,
-                'height' => 55,
+                'length' => 55,
+                'width' => 40,
+                'height' => 35,
                 'weight' => 40,
                 'path_icons' => '',
             ],
@@ -238,7 +243,7 @@ class Transporter extends Model
                 'name' => self::TYPE_PICKUP,
                 'length' => 210,
                 'width' => 150,
-                'height' => 120,
+                'height' => 150,
                 'weight' => 700,
                 'path_icons' => '',
             ],
@@ -252,15 +257,15 @@ class Transporter extends Model
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BOX,
-                'length' => 459,
+                'length' => 370,
                 'width' => 169,
-                'height' => 212,
+                'height' => 200,
                 'weight' => 2500,
                 'path_icons' => '',
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BAK,
-                'length' => 459,
+                'length' => 370,
                 'width' => 169,
                 'height' => 212,
                 'weight' => 2500,
@@ -268,28 +273,28 @@ class Transporter extends Model
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BAK,
-                'length' => 670,
+                'length' => 530,
+                'width' => 200,
+                'height' => 200,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDD_DOUBLE_BOX,
+                'length' => 530,
                 'width' => 200,
                 'height' => 220,
                 'weight' => 5000,
                 'path_icons' => '',
             ],
             [
-                'name' => self::TYPE_CDD_DOUBLE_BOX,
-                'length' => 670,
-                'width' => 200,
-                'height' => 220,
+                'name' => self::TYPE_FUSO_BAK,
+                'length' => 630,
+                'width' => 210,
+                'height' => 200,
                 'weight' => 5000,
                 'path_icons' => '',
             ],
-            // [
-            //     'name' => self::TYPE_FUSO_BAK,
-            //     'length' => 550,
-            //     'width' => 220,
-            //     'height' => 220,
-            //     'weight' => 8000,
-            //     'path_icons' => '',
-            // ],
             // [
             //     'name' => self::TYPE_VAN,
             //     'length' => 220,
@@ -306,6 +311,62 @@ class Transporter extends Model
             //     'weight' => 10000,
             //     'path_icons' => '',
             // ],
+        ];
+    }
+
+    /**
+     * get rates available by type.
+     *
+     * @return int[][]
+     */
+    public static function getAvailableRatesByType(): array
+    {
+        return [
+            self::TYPE_BIKE => [
+                'start_price' => 10000,
+                'rate_price' => 2500,
+                'start_rate' => 5,
+            ],
+            self::TYPE_MPV => [
+                'start_price' => 25000,
+                'rate_price' => 5000,
+                'start_rate' => 5,
+            ],
+            self::TYPE_PICKUP => [
+                'start_price' => 50000,
+                'rate_price' => 7000,
+                'start_rate' => 5,
+            ],
+            self::TYPE_PICKUP_BOX => [
+                'start_price' => 75000,
+                'rate_price' => 7500,
+                'start_rate' => 5,
+            ],
+            self::TYPE_CDE_ENGKEL_BOX => [
+                'start_price' => 250000,
+                'rate_price' => 7500,
+                'start_rate' => 5,
+            ],
+            self::TYPE_CDE_ENGKEL_BAK => [
+                'start_price' => 250000,
+                'rate_price' => 7500,
+                'start_rate' => 5,
+            ],
+            self::TYPE_CDD_DOUBLE_BAK => [
+                'start_price' => 500000,
+                'rate_price' => 7500,
+                'start_rate' => 5,
+            ],
+            self::TYPE_CDD_DOUBLE_BOX => [
+                'start_price' => 500000,
+                'rate_price' => 10000,
+                'start_rate' => 5,
+            ],
+            self::TYPE_FUSO_BAK => [
+                'start_price' => 850000,
+                'rate_price' => 15000,
+                'start_rate' => 5,
+            ],
         ];
     }
 

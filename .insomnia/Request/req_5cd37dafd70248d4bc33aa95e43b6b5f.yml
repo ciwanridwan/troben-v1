@@ -1,0 +1,31 @@
+_id: req_5cd37dafd70248d4bc33aa95e43b6b5f
+type: Request
+parentId: fld_46c5a860df1d42e683de0a28f9234879
+modified: 1631092825846
+created: 1630478956112
+url: "{{ _.base_url }}/courier/order/{% response 'body',
+  'req_c199d937e5924ce9b0f6d9393b27392b', 'b64::JC5kYXRhLjAuaGFzaA==::46b',
+  'never', 60 %}"
+name: Detail Order
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_5f99e95fdd864182bec8fe456019ac4c
+authentication:
+  type: bearer
+  prefix: ""
+  token: "{% response 'body', 'req_d7e1947748e14e4e9393ebca62d0a875',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'always', 60 %}"
+metaSortKey: -1615058937004.75
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
