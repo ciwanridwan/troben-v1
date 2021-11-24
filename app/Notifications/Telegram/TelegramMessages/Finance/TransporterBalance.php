@@ -36,6 +36,7 @@ class TransporterBalance extends Notification
             "*Harga mitra transporter tidak ditemukan*\n".
             "Mitra code: *$notifiable[partner_code]*\n".
             "Kode manifest: *$notifiable[manifest_code]*\n".
+            "Jumlah resi: *$notifiable[package_count]*\n".
             "Berat manifest terhitung: *$notifiable[manifest_weight] Kg*\n";
 
         return TelegramMessage::create()

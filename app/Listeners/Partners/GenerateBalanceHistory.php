@@ -202,7 +202,7 @@ class GenerateBalanceHistory
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
 
-                    if ($this->countDeliveryTransitOfPackage() > 1) {
+                    if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
                         foreach ($this->packages as $package) {
@@ -223,6 +223,7 @@ class GenerateBalanceHistory
                                 'data' => [
                                     'manifest_code' => $this->delivery->code->content,
                                     'manifest_weight' => $manifest_weight,
+                                    'package_count' => $package_count,
                                     'partner_code' => $this->partner->code
                                 ]], new TransporterBalance());
                             break;
@@ -235,24 +236,20 @@ class GenerateBalanceHistory
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
+                                        'package_count' => $package_count,
                                         'partner_code' => $this->partner->code
                                     ]], new TransporterBalance());
                                 break;
                             }
-                            $this
-                                ->setBalance($manifest_weight * $tierPrice)
-                                ->setType(DeliveryHistory::TYPE_DEPOSIT)
-                                ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                                ->setAttributes(false)
-                                ->recordHistory(false);
+                            $this->setBalance($manifest_weight * $tierPrice);
                         } else {
-                            $this
-                                ->setBalance($manifest_weight * $price->flat)
-                                ->setType(DeliveryHistory::TYPE_DEPOSIT)
-                                ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                                ->setAttributes(false)
-                                ->recordHistory(false);
+                            $this->setBalance($manifest_weight * $price->flat);
                         }
+                        $this
+                            ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                            ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                            ->setAttributes(false)
+                            ->recordHistory(false);
                         break;
                     }
 
