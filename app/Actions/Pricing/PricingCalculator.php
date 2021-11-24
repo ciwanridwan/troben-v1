@@ -138,7 +138,9 @@ class PricingCalculator
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
-            if (! Arr::has($item,'handling')) $item['handling'] = [];
+            if (! Arr::has($item, 'handling')) {
+                $item['handling'] = [];
+            }
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -251,7 +253,9 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            if (! Arr::has($item,'handling')) $item['handling'] = [];
+            if (! Arr::has($item, 'handling')) {
+                $item['handling'] = [];
+            }
             if (! empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }

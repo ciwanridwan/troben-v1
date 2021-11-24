@@ -82,6 +82,6 @@ return [
      * header lists
      */
     'nicepay_headers' => [
-        'user-agent' => "Jakarta Commons-HttpClient/3.1"
+        'user-agent' => 'Jakarta Commons-HttpClient/3.1'
     ],
 ];

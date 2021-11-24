@@ -70,7 +70,7 @@ class WithdrawalController extends Controller
         }
         $this->query->when(request()->has('from'), fn ($q) => $q->whereBetween('created_at', [$request->from, $request->to]));
 
-        if ($request->q != null){
+        if ($request->q != null) {
             $this->getSearch($request);
         }
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
@@ -78,7 +78,7 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository) : JsonResponse
     {
-        if ($repository->getPartner()->balance < $request->amount){
+        if ($repository->getPartner()->balance < $request->amount) {
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
         $request['status'] = Withdrawal::STATUS_CREATED;

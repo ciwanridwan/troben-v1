@@ -11,7 +11,7 @@ class WithdrawalSuccess
     use Dispatchable, SerializesModels;
 
     /**
-     * instance of Withdrawal / partner balance disbursement
+     * instance of Withdrawal / partner balance disbursement.
      *
      * @var Withdrawal $withdrawal
      */

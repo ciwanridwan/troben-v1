@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
-use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewHistoryCreated;

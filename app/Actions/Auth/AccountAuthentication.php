@@ -305,7 +305,9 @@ class AccountAuthentication
     {
         if (is_null($authenticatable->fcm_token)) {
             $input = ['fcm_token' => (string) Str::uuid()];
-            if (config('app.env') !== 'production') $input['fcm_token'] = config('app.env','staging').'-'.$input['fcm_token'];
+            if (config('app.env') !== 'production') {
+                $input['fcm_token'] = config('app.env', 'staging').'-'.$input['fcm_token'];
+            }
             if ($authenticatable instanceof Customer) {
                 $job = new UpdateExistingCustomer($authenticatable, $input);
             } else {
@@ -316,6 +318,33 @@ class AccountAuthentication
         }
 
         return $authenticatable->refresh();
+    }
+
+    /**
+     * Super login.
+     * @return JsonResponse
+     */
+    public function superAttempt(): JsonResponse
+    {
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+        $column = $this->attributes['guard'] === 'customer' ? self::CREDENTIAL_PHONE : self::CREDENTIAL_USERNAME;
+        $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
+
+        $payload = [];
+
+        if ($authenticatable) {
+            $now = time();
+            $payload = [
+                'iat' => $now,
+                'exp' => $now + (((60 * 60) * 24) * 30),
+                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+            ];
+        }
+        return (new Response(Response::RC_SUCCESS, [
+            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            'fcm_token' => $authenticatable->fcm_token ?? null,
+            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
+        ]))->json();
     }
 
     /**
@@ -369,33 +398,6 @@ class AccountAuthentication
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
-        ]))->json();
-    }
-
-    /**
-     * Super login
-     * @return JsonResponse
-     */
-    public function superAttempt(): JsonResponse
-    {
-        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
-        $column = $this->attributes['guard'] === 'customer' ? AccountAuthentication::CREDENTIAL_PHONE : AccountAuthentication::CREDENTIAL_USERNAME;
-        $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
-
-        $payload = [];
-
-        if ($authenticatable) {
-            $now = time();
-            $payload = [
-                'iat' => $now,
-                'exp' => $now + (((60 * 60) * 24) * 30),
-                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-            ];
-        }
-        return (new Response(Response::RC_SUCCESS, [
-            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
-            'fcm_token' => $authenticatable->fcm_token ?? null,
-            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
         ]))->json();
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Actions\Transporter;
 
-use App\Exceptions\Error;
-use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -16,7 +14,7 @@ class ShippingCalculator
     /**
      * Calculates the great-circle distance between two points, with
      * the Vincenty formula.
-     * ref: https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php
+     * ref: https://stackoverflow.com/questions/10053358/measuring-the-distance-between-two-coordinates-in-php.
      *
      * @param array $originPoint Array of latitude and longitude of start point in [deg decimal]
      * @param array $destinationPoint Array of latitude and longitude of destination point in [deg decimal]
@@ -50,7 +48,9 @@ class ShippingCalculator
      */
     public static function getDeliveryFeeByDistance(Delivery $delivery, bool $isFromCustomer = true): int
     {
-        if (!in_array($delivery->type, [Delivery::TYPE_TRANSIT,Delivery::TYPE_PICKUP]) || is_null($delivery->partner_id) || is_null($delivery->userable_id)) return 0;
+        if (! in_array($delivery->type, [Delivery::TYPE_TRANSIT,Delivery::TYPE_PICKUP]) || is_null($delivery->partner_id) || is_null($delivery->userable_id)) {
+            return 0;
+        }
 
         if ($isFromCustomer) {
             /** @var Package $package */
@@ -64,8 +64,10 @@ class ShippingCalculator
         $destination = $delivery->partner;
         $destinationPoint = [$destination->latitude,$destination->longitude];
 
-        if (in_array(null, $originPoint) || in_array(null, $destinationPoint)) return 0;
-        $distance = self::calculateDistance($originPoint,$destinationPoint);
+        if (in_array(null, $originPoint) || in_array(null, $destinationPoint)) {
+            return 0;
+        }
+        $distance = self::calculateDistance($originPoint, $destinationPoint);
 
         $transporter = $delivery->transporter;
         $rateByType = Transporter::getAvailableRatesByType()[$transporter->type];

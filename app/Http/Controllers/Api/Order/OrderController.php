@@ -111,7 +111,7 @@ class OrderController extends Controller
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->find($request->get('origin_regency_id'));
-        $tempData = PricingCalculator::calculate(array_merge($request->toArray(),['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]),'array');
+        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]), 'array');
         throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;

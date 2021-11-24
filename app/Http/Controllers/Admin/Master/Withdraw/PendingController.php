@@ -57,7 +57,7 @@ class PendingController extends Controller
             $this->query->where('status', Withdrawal::STATUS_CREATED);
             $this->query->with(['partner'])->has('partner');
 
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearch($request);
             }
 

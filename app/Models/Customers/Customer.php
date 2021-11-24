@@ -158,6 +158,6 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
      */
     public function notifications(): MorphMany
     {
-        return $this->morphMany(Notification::class,'notifiable');
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

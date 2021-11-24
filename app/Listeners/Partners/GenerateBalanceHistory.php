@@ -24,7 +24,6 @@ use App\Models\Payments\Withdrawal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Arr;
 
 class GenerateBalanceHistory
 {
@@ -121,13 +120,15 @@ class GenerateBalanceHistory
                         ->setPackages()
                         ->setTransporter()
                         ->setPartner($this->transporter->partner);
-                    if ($this->partner->get_fee_pickup) $this
+                    if ($this->partner->get_fee_pickup) {
+                        $this
                         ->setPackage($this->packages[0])
                         ->setBalance($this->getPickupFee())
                         ->setType(History::TYPE_DEPOSIT)
                         ->setDescription(History::DESCRIPTION_PICKUP)
                         ->setAttributes()
                         ->recordHistory();
+                    }
                 }
                 break;
             case $event instanceof DeliveryTransit\PackageLoadedByDriver:
@@ -141,7 +142,9 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
 
                     # total balance service > record service balance
-                    if ($this->partner->get_fee_transit && $this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
+                    if ($this->partner->get_fee_transit && $this->countDeliveryTransitOfPackage() > 1) {
+                        $this->saveServiceFee(true);
+                    }
                 }
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
@@ -157,7 +160,9 @@ class GenerateBalanceHistory
 
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance service > record service balance
-                        if ($this->partner->get_fee_service) $this->saveServiceFee();
+                        if ($this->partner->get_fee_service) {
+                            $this->saveServiceFee();
+                        }
                         # total balance insurance > record insurance fee
                         if ($this->partner->get_fee_insurance) {
                             $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
@@ -218,7 +223,7 @@ class GenerateBalanceHistory
 //                                break;
                             case $this->countDeliveryTransitOfPackage() === 1:
                                 if ($this->partner->get_fee_delivery) {
-                                    $balance = ShippingCalculator::getDeliveryFeeByDistance($this->delivery,false);
+                                    $balance = ShippingCalculator::getDeliveryFeeByDistance($this->delivery, false);
                                     if ($balance > 0) {
                                         $this
                                             ->setBalance($balance)
@@ -229,12 +234,14 @@ class GenerateBalanceHistory
 
                                         # charge partner origin
                                         $this->setPartner($this->delivery->origin_partner);
-                                        if ($this->partner->get_charge_delivery) $this
+                                        if ($this->partner->get_charge_delivery) {
+                                            $this
                                             ->setBalance($balance)
                                             ->setType(History::TYPE_CHARGE)
                                             ->setDescription(History::DESCRIPTION_DELIVERY)
                                             ->setAttributes()
                                             ->recordHistory();
+                                        }
                                     }
                                 }
                                 break;
@@ -405,8 +412,11 @@ class GenerateBalanceHistory
             'description' => $this->description,
         ];
 
-        if ($this->type === History::TYPE_WITHDRAW) $this->attributes['disbursement_id'] = $this->withdrawal->id;
-        else $this->attributes['package_id'] = $this->package->id;
+        if ($this->type === History::TYPE_WITHDRAW) {
+            $this->attributes['disbursement_id'] = $this->withdrawal->id;
+        } else {
+            $this->attributes['package_id'] = $this->package->id;
+        }
         return $this;
     }
 
@@ -421,9 +431,15 @@ class GenerateBalanceHistory
      */
     protected function getDescriptionByTypeWithdrawal(): string
     {
-        if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) return History::DESCRIPTION_WITHDRAW_REQUEST;
-        if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) return History::DESCRIPTION_WITHDRAW_CONFIRMED;
-        if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) return History::DESCRIPTION_WITHDRAW_REJECT;
+        if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) {
+            return History::DESCRIPTION_WITHDRAW_REQUEST;
+        }
+        if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) {
+            return History::DESCRIPTION_WITHDRAW_CONFIRMED;
+        }
+        if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) {
+            return History::DESCRIPTION_WITHDRAW_REJECT;
+        }
         return History::DESCRIPTION_WITHDRAW_SUCCESS;
     }
 
@@ -486,8 +502,11 @@ class GenerateBalanceHistory
         $historyQuery->where('type', $this->type);
         $historyQuery->where('description', $this->description);
 
-        if ($this->type === History::TYPE_WITHDRAW) $historyQuery->where('disbursement_id', $this->withdrawal->id);
-        else $historyQuery->where('package_id', $this->package->id);
+        if ($this->type === History::TYPE_WITHDRAW) {
+            $historyQuery->where('disbursement_id', $this->withdrawal->id);
+        } else {
+            $historyQuery->where('package_id', $this->package->id);
+        }
 
         return is_null($historyQuery->first());
     }
