@@ -31,7 +31,7 @@ class PromotionResource extends JsonResource
             'max_weight' => $this->max_weight,
             'attachment' => $this->attachments()->first()->uri ?? null,
             'start_at' => date('Y-m-d h:i:s', strtotime($this->start_date)),
-            'end_at' => date('Y-m-d h:i:s', strtotime($this->end_date)),
+            'expired_at' => date('Y-m-d h:i:s', strtotime($this->end_date)),
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
             'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
