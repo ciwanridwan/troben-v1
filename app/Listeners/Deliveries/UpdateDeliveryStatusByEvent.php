@@ -4,7 +4,7 @@ namespace App\Listeners\Deliveries;
 
 use App\Events\Deliveries\Dooring;
 use App\Events\Deliveries\Pickup;
-use App\Events\Deliveries\Kurir\Pickup as CourierPickup;
+use App\Events\Deliveries\Courier\Pickup as CourierPickup;
 use App\Events\Deliveries\Transit;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;

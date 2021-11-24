@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
-use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewDeliveryHistoryCreated;
@@ -28,7 +27,7 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
-use App\Events\Deliveries\Kurir\Pickup as CourierPickup;
+use App\Events\Deliveries\Courier\Pickup as CourierPickup;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;

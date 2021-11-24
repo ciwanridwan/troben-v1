@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Routes\Admin\Master\Withdraw;
+namespace App\Http\Routes\Admin\Payment;
 
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Admin\Master\Withdraw\PendingController;
 
-class PendingRoute extends BaseRoute
+class MTAKRouter extends BaseRoute
 {
     /**
      * @var string
