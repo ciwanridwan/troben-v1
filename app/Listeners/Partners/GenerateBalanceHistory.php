@@ -24,9 +24,11 @@ use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\Payments\Withdrawal;
 use App\Models\User;
+use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Models\Partners\Price as PartnerPrice;
+use Illuminate\Support\Facades\Notification;
 
 class GenerateBalanceHistory
 {
@@ -216,12 +218,27 @@ class GenerateBalanceHistory
                             ->where('origin_regency_id', $this->delivery->origin_regency_id)
                             ->where('destination_id', $this->delivery->destination_regency_id)
                             ->first();
-                        if (!$price) break;
+                        if (!$price) {
+                            Notification::send([
+                                'data' => [
+                                    'manifest_code' => $this->delivery->code->content,
+                                    'manifest_weight' => $manifest_weight,
+                                    'partner_code' => $this->partner->code
+                                ]], new TransporterBalance());
+                            break;
+                        }
 
                         if ($package_count > 1) {
                             $tierPrice = PricingCalculator::getTier($price,$manifest_weight);
-                            dd($price,$tierPrice);
-                            if ($tierPrice == 0) break;
+                            if ($tierPrice == 0) {
+                                Notification::send([
+                                    'data' => [
+                                        'manifest_code' => $this->delivery->code->content,
+                                        'manifest_weight' => $manifest_weight,
+                                        'partner_code' => $this->partner->code
+                                    ]], new TransporterBalance());
+                                break;
+                            }
                             $this
                                 ->setBalance($manifest_weight * $tierPrice)
                                 ->setType(DeliveryHistory::TYPE_DEPOSIT)

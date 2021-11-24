@@ -46,6 +46,7 @@ use ReflectionClass;
  * @property int|null userable_id
  * @property-read Partner $origin_partner
  * @property-read Transporter $transporter
+ * @property-read Code $code
  */
 class Delivery extends Model
 {
