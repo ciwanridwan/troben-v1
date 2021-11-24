@@ -76,6 +76,20 @@ class OrderController extends Controller
         ]);
         if ($request->promotion_hash){
             $promo = $this->check($request->promotion_hash, $package);
+            $package->load(
+                'prices',
+                'attachments',
+                'items',
+                'items.attachments',
+                'items.prices',
+                'deliveries.partner',
+                'deliveries.assigned_to.userable',
+                'deliveries.assigned_to.user',
+                'origin_regency',
+                'destination_regency',
+                'destination_district',
+                'destination_sub_district'
+            );
 
             return $this->jsonSuccess(DataDiscountResource::make(array_merge($promo,$package->toArray())));
         }
@@ -86,7 +100,6 @@ class OrderController extends Controller
             'items',
             'items.attachments',
             'items.prices',
-            'tarif',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
