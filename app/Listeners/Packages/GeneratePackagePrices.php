@@ -6,6 +6,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
@@ -97,12 +98,12 @@ class GeneratePackagePrices
 
             $this->dispatch($job);
 
-            // generate pickup price discount
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                 'type' => Price::TYPE_DISCOUNT,
                 'description' => Delivery::TYPE_PICKUP,
                 'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
             ]);
+            // generate pickup price discount
 
             $this->dispatch($job);
             // generate discount if using promotion code
@@ -115,6 +116,7 @@ class GeneratePackagePrices
                 else{
                     $discount_amount = $service->amount - ($package->tier_price * $package->claimed_promotion->promotion->min_weight);
                 }
+
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_DISCOUNT,
                     'description' => Price::TYPE_SERVICE,

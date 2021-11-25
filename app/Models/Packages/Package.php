@@ -319,7 +319,14 @@ class Package extends Model implements AttachableContract
     public function getServicePriceAttribute()
     {
         try {
-            $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_SERVICE)
+                ->first()->amount;
+            if ($discount != null){
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
+            }else{
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            }
             return $service_price;
         } catch (\Throwable $th) {
             return 0;

@@ -2,12 +2,15 @@
 
 namespace App\Actions\Pricing;
 
+use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
 use App\Exceptions\Error;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
@@ -21,6 +24,8 @@ use Illuminate\Validation\Rule;
 
 class PricingCalculator
 {
+    use DispatchesJobs;
+
     public const INSURANCE_MIN = 1000;
 
     public const INSURANCE_MUL = 0.2 / 100;
@@ -78,7 +83,9 @@ class PricingCalculator
         if (! $package->relationLoaded('prices')) {
             $package->load('prices');
         }
-
+        if ($package->relationLoaded('claimed_promotion')) {
+            $promo = $package->load('claimed_promotion');
+        }
         // get handling and insurance prices
         $handling_price = 0;
         $insurance_price = 0;
@@ -93,6 +100,16 @@ class PricingCalculator
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
         $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+
+        if ($total_amount < $promo->claimed_promotion->promotion->min_payment){
+            $total_amount = $promo->claimed_promotion->promotion->min_payment;
+            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                'type' => PackagePrice::TYPE_SERVICE,
+                'description' => PackagePrice::TYPE_ADDITIONAL,
+                'amount' => $package->claimed_promotion->min_payment - $total_amount,
+            ]);
+            dispatch($job);
+        }
 
         return $total_amount;
     }
