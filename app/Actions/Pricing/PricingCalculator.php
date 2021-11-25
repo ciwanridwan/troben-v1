@@ -83,9 +83,6 @@ class PricingCalculator
         if (! $package->relationLoaded('prices')) {
             $package->load('prices');
         }
-        if ($package->relationLoaded('claimed_promotion')) {
-            $promo = $package->load('claimed_promotion');
-        }
         // get handling and insurance prices
         $handling_price = 0;
         $insurance_price = 0;
@@ -101,14 +98,18 @@ class PricingCalculator
 
         $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
 
-        if ($total_amount < $promo->claimed_promotion->promotion->min_payment){
-            $total_amount = $promo->claimed_promotion->promotion->min_payment;
-            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                'type' => PackagePrice::TYPE_SERVICE,
-                'description' => PackagePrice::TYPE_ADDITIONAL,
-                'amount' => $package->claimed_promotion->min_payment - $total_amount,
-            ]);
-            dispatch($job);
+        if ($package->claimed_promotion != null) {
+            $promo = $package->load('claimed_promotion');
+            if ($total_amount < $promo->claimed_promotion->promotion->min_payment){
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => PackagePrice::TYPE_SERVICE,
+                    'description' => PackagePrice::TYPE_ADDITIONAL,
+                    'amount' => $promo->claimed_promotion->promotion->min_payment - $total_amount,
+                ]);
+                dispatch($job);
+                $total_amount = $promo->claimed_promotion->promotion->min_payment;
+
+            }
         }
 
         return $total_amount;

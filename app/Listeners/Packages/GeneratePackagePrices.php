@@ -107,7 +107,7 @@ class GeneratePackagePrices
 
             $this->dispatch($job);
             // generate discount if using promotion code
-            if(! $package->relationLoaded('claimed_promotion')){
+            if($package->claimed_promotion != null){
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
                 if ($package->total_weight < $package->claimed_promotion->promotion->min_weight)
                 {
