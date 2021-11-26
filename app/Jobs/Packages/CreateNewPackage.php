@@ -90,7 +90,6 @@ class CreateNewPackage
             '*.height' => ['required', 'numeric'],
             '*.length' => ['required', 'numeric'],
             '*.width' => ['required', 'numeric'],
-            '*.insurance' => ['nullable'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
