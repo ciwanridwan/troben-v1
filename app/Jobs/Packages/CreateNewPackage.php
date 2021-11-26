@@ -124,9 +124,6 @@ class CreateNewPackage
         if ($this->package->exists) {
             foreach ($this->items as $attributes) {
                 $item = new Item();
-                if ($attributes['insurance'] == '1'){
-                    $attributes['is_insured'] = true;
-                }
                 $attributes['package_id'] = $this->package->id;
 
                 $item->fill($attributes);

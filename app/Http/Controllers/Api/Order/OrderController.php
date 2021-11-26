@@ -166,6 +166,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'items' => ['required'],
+            'items.*.is_insured' => ['nullable'],
             'photos' => ['nullable'],
             'photos.*' => ['nullable', 'image']
         ]);
@@ -186,7 +187,11 @@ class OrderController extends Controller
         $inputs['customer_id'] = $user->id;
 
         $items = $request->input('items') ?? [];
-
+        foreach ($items as $key=>$item){
+            if ($item['insurance'] == '1'){
+                $items[$key]['is_insured'] = true;
+            }
+        }
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
