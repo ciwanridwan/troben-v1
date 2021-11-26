@@ -118,7 +118,6 @@ class OrderController extends Controller
             default:
                 if ($promotion_hash != null){
                     if ($check->updated_at < $check->updated_at->addDays(1)){
-
                         $data = $this->calculation($promotion_hash, $package);
                         return $data;
                     }
@@ -144,7 +143,7 @@ class OrderController extends Controller
                 'pickup_price' => $pickup->amount ?? 0,
                 'insurance_price' => $insurance->amount ?? 0,
                 'handling_price' => $handling->amount ?? 0,
-                'service_price' => $package->total_amount - $discount
+                'service_price' => $discount
             ]
         ];
 
