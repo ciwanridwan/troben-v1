@@ -16,7 +16,6 @@ use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -107,7 +106,7 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district'
-        )));
+        )->append('transporter_detail')));
     }
 
     public function check($promotion_hash, Package $package){

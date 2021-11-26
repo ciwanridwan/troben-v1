@@ -90,20 +90,18 @@ class CreateNewPackage
             '*.height' => ['required', 'numeric'],
             '*.length' => ['required', 'numeric'],
             '*.width' => ['required', 'numeric'],
+            '*.insurance' => ['nullable', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
-
         $items = [];
         foreach ($this->items as $item) {
             $item['height'] = ceil($item['height']);
             $item['length'] = ceil($item['length']);
             $item['width'] = ceil($item['width']);
-
             $item['weight'] = $this->ceilByTolerance($item['weight']);
-
 
             array_push($items, $item);
         }
@@ -126,7 +124,9 @@ class CreateNewPackage
         if ($this->package->exists) {
             foreach ($this->items as $attributes) {
                 $item = new Item();
-
+                if ($attributes['insurance'] == '1'){
+                    $attributes['is_insured'] = true;
+                }
                 $attributes['package_id'] = $this->package->id;
 
                 $item->fill($attributes);

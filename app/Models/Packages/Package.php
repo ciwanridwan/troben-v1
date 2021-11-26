@@ -8,6 +8,7 @@ use App\Models\Code;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Promos\ClaimedPromotion;
+use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -21,6 +22,7 @@ use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Jalameta\Attachments\Concerns\Attachable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -353,7 +355,6 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
-
     /**
      * Define `hasMany` relationship with Item model.
      *
@@ -663,5 +664,18 @@ class Package extends Model implements AttachableContract
             ],
 
         ];
+    }
+
+    /**
+     * get detail transporter.
+     * @return array
+     */
+    public function getTransporterDetailAttribute(): array
+    {
+        $transporterType = $this->transporter_type;
+        return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
+            if ($transporter['name'] === $transporterType) return $transporter;
+            else return [];
+        }, []);
     }
 }
