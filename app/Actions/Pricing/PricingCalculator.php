@@ -468,7 +468,7 @@ class PricingCalculator
     public static function getDetailPricingPackage(Package $package){
 
         $handling_price = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount');
-        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $pickup_price = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->get()->sum('amount');
         $insurance_price = $package->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount');
 
