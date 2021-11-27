@@ -73,27 +73,40 @@ class OrderController extends Controller
         $request->validate([
             'promotion_hash' => ['nullable']
         ]);
+
+        $handling_price = $package->prices()->where('type', Price::TYPE_HANDLING)->get()->sum('amount');
+        $service_price = $package->prices()->where('type', Price::TYPE_SERVICE)->get()->sum('amount');
+        $pickup_price = $package->prices()->where('type', Price::TYPE_DELIVERY)->get()->sum('amount');
+        $insurance_price = $package->prices()->where('type', Price::TYPE_INSURANCE)->get()->sum('amount');
+
+        $discount = $package->prices()->where('type', Price::TYPE_DISCOUNT);
+        $handling_discount = $discount->where('description', Price::TYPE_HANDLING)->get()->sum();
+        $insurance_discount = $discount->where('description', Price::TYPE_INSURANCE)->get()->sum();
+        $pickup_discount = $discount->where('description', Price::TYPE_DELIVERY)->get()->sum();
+        $service_discount = $discount->where('description', Price::TYPE_SERVICE)->get()->sum();
+
         if ($request->promotion_hash){
             $promo = $this->check($request->promotion_hash, $package);
-            $package->load(
-                'prices',
-                'attachments',
-                'items',
-                'items.attachments',
-                'items.prices',
-                'deliveries.partner',
-                'deliveries.assigned_to.userable',
-                'deliveries.assigned_to.user',
-                'origin_regency',
-                'destination_regency',
-                'destination_district',
-                'destination_sub_district'
-            );
-
-            return $this->jsonSuccess(DataDiscountResource::make(array_merge($promo,$package->toArray())));
+            $service_fee = $promo['service_fee'];
+            $service_discount = $promo['service_discount'];
         }
 
-        return $this->jsonSuccess(new PackageResource($package->load(
+        $data = [
+            'service_price' => $service_price ?? 0,
+            'service_price_fee' => $service_fee ?? 0,
+            'service_price_discount' => $service_discount ?? 0,
+
+            'insurance_price' => $insurance_price ?? 0,
+            'insurance_price_discount' => $insurance_discount ?? 0,
+
+            'packing_price' => $handling_price ?? 0,
+            'packing_price_discount' => $handling_discount ?? 0,
+
+            'pickup_price' => $pickup_price ?? 0,
+            'pickup_price_discount' => $pickup_discount ?? 0,
+        ];
+
+        $package->load(
             'prices',
             'attachments',
             'items',
@@ -106,20 +119,21 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district'
-        )->append('transporter_detail')));
+        )->append('transporter_detail');
+
+        return $this->jsonSuccess(DataDiscountResource::make(array_merge($data, $package->toArray())));
     }
 
-    public function check($promotion_hash, Package $package){
-
-        $check = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
-        switch ($check){
+    public function check($promotion_hash, Package $package)
+    {
+        $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
+        switch ($promotion){
             case null :
                 return $this->calculation($promotion_hash, $package);
             default:
                 if ($promotion_hash != null){
-                    if ($check->updated_at < $check->updated_at->addDays(1)){
-                        $data = $this->calculation($promotion_hash, $package);
-                        return $data;
+                    if ($promotion->updated_at < $promotion->updated_at->addDays(1)){
+                        return $this->calculation($promotion_hash, $package);
                     }
                 }
         }
@@ -130,24 +144,19 @@ class OrderController extends Controller
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $prices = $package->prices()->get();
         $service = $prices->where('type', Price::TYPE_SERVICE)->first();
-        $insurance = $prices->where('type', Price::TYPE_INSURANCE)->first();
-        $handling = $prices->where('type', Price::TYPE_HANDLING)->first();
-        $pickup = $prices->where('type', Price::TYPE_DELIVERY)->first();
-        if ($package->total_weight < $promotion->min_weight){
-            $discount = $service->amount * 0;
+        if ($package->total_weight <= $promotion->min_weight){
+            $service_discount = $service->amount;
         }else{
-            $discount = $service->amount - ($package->tier_price * $promotion->min_weight);
+            $service_discount = $package->tier_price * $promotion->min_weight;
         }
-        $data = [
-            'promo' => [
-                'pickup_price' => $pickup->amount ?? 0,
-                'insurance_price' => $insurance->amount ?? 0,
-                'handling_price' => $handling->amount ?? 0,
-                'service_price' => $discount
-            ]
+        $total_payment = $package->total_amount - $service_discount;
+        if ($total_payment <= $promotion->min_payment){
+            $service_fee = $promotion->min_payment - $total_payment;
+        }
+        return [
+            'service_fee' => $service_fee ?? 0,
+            'service_discount' => $service_discount ?? 0,
         ];
-
-        return $data;
     }
 
     /**
