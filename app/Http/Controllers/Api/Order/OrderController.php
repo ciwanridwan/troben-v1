@@ -78,7 +78,6 @@ class OrderController extends Controller
         $service_price = $package->prices()->where('type', Price::TYPE_SERVICE)->get()->sum('amount');
         $pickup_price = $package->prices()->where('type', Price::TYPE_DELIVERY)->get()->sum('amount');
         $insurance_price = $package->prices()->where('type', Price::TYPE_INSURANCE)->get()->sum('amount');
-
         $discount = $package->prices()->where('type', Price::TYPE_DISCOUNT);
         $handling_discount = $discount->where('description', Price::TYPE_HANDLING)->get()->sum();
         $insurance_discount = $discount->where('description', Price::TYPE_INSURANCE)->get()->sum();
@@ -90,21 +89,6 @@ class OrderController extends Controller
             $service_fee = $promo['service_fee'];
             $service_discount = $promo['service_discount'];
         }
-
-        $data = [
-            'service_price' => $service_price ?? 0,
-            'service_price_fee' => $service_fee ?? 0,
-            'service_price_discount' => $service_discount ?? 0,
-
-            'insurance_price' => $insurance_price ?? 0,
-            'insurance_price_discount' => $insurance_discount ?? 0,
-
-            'packing_price' => $handling_price ?? 0,
-            'packing_price_discount' => $handling_discount ?? 0,
-
-            'pickup_price' => $pickup_price ?? 0,
-            'pickup_price_discount' => $pickup_discount ?? 0,
-        ];
 
         $package->load(
             'prices',
@@ -121,7 +105,22 @@ class OrderController extends Controller
             'destination_sub_district'
         )->append('transporter_detail');
 
-        return $this->jsonSuccess(DataDiscountResource::make(array_merge($data, $package->toArray())));
+        $data = [
+            'service_price' => $service_price ,
+            'service_price_fee' => $service_fee ?? 0,
+            'service_price_discount' => $service_discount ?? 0,
+
+            'insurance_price' => $insurance_price ?? 0,
+            'insurance_price_discount' => $insurance_discount ?? 0,
+
+            'packing_price' => $handling_price ?? 0,
+            'packing_price_discount' => $handling_discount ?? 0,
+
+            'pickup_price' => $pickup_price ?? 0,
+            'pickup_price_discount' => $pickup_discount ?? 0,
+        ];
+
+        return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data )));
     }
 
     public function check($promotion_hash, Package $package)
