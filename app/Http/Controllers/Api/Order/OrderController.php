@@ -11,6 +11,7 @@ use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Price;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
@@ -74,20 +75,13 @@ class OrderController extends Controller
             'promotion_hash' => ['nullable']
         ]);
 
-        $handling_price = $package->prices()->where('type', Price::TYPE_HANDLING)->get()->sum('amount');
-        $service_price = $package->prices()->where('type', Price::TYPE_SERVICE)->get()->sum('amount');
-        $pickup_price = $package->prices()->where('type', Price::TYPE_DELIVERY)->get()->sum('amount');
-        $insurance_price = $package->prices()->where('type', Price::TYPE_INSURANCE)->get()->sum('amount');
-        $discount = $package->prices()->where('type', Price::TYPE_DISCOUNT);
-        $handling_discount = $discount->where('description', Price::TYPE_HANDLING)->get()->sum();
-        $insurance_discount = $discount->where('description', Price::TYPE_INSURANCE)->get()->sum();
-        $pickup_discount = $discount->where('description', Price::TYPE_DELIVERY)->get()->sum();
-        $service_discount = $discount->where('description', Price::TYPE_SERVICE)->get()->sum();
+        $prices = PricingCalculator::getDetailPricingPackage($package);
+        $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
-        if ($request->promotion_hash){
+        if ($request->promotion_hash && $service_discount == 0){
             $promo = $this->check($request->promotion_hash, $package);
-            $service_fee = $promo['service_fee'];
-            $service_discount = $promo['service_discount'];
+            $prices['service_price_fee'] = $promo['service_price_fee'];
+            $prices['service_price_discount'] = $promo['service_price_discount'];
         }
 
         $package->load(
@@ -106,56 +100,33 @@ class OrderController extends Controller
         )->append('transporter_detail');
 
         $data = [
-            'service_price' => $service_price ,
-            'service_price_fee' => $service_fee ?? 0,
-            'service_price_discount' => $service_discount ?? 0,
-
-            'insurance_price' => $insurance_price ?? 0,
-            'insurance_price_discount' => $insurance_discount ?? 0,
-
-            'packing_price' => $handling_price ?? 0,
-            'packing_price_discount' => $handling_discount ?? 0,
-
-            'pickup_price' => $pickup_price ?? 0,
-            'pickup_price_discount' => $pickup_discount ?? 0,
+            'service_price' => $prices['service_price'] ,
+            'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            'service_price_discount' => $prices['service_price_discount'] ?? 0,
+            'insurance_price' => $prices['insurance_price'] ?? 0,
+            'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
+            'packing_price' => $prices['packing_price'] ?? 0,
+            'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
+            'pickup_price' => $prices['pickup_price'] ?? 0,
+            'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data )));
     }
 
-    public function check($promotion_hash, Package $package)
+    public function check($promotion_hash, Package $package): array
     {
         $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
         switch ($promotion){
             case null :
-                return $this->calculation($promotion_hash, $package);
+                return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
             default:
                 if ($promotion_hash != null){
                     if ($promotion->updated_at < $promotion->updated_at->addDays(1)){
-                        return $this->calculation($promotion_hash, $package);
+                        return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
                     }
                 }
         }
-    }
-
-    public function calculation($promotion_hash, Package $package)
-    {
-        $promotion = Promotion::byHashOrFail($promotion_hash);
-        $prices = $package->prices()->get();
-        $service = $prices->where('type', Price::TYPE_SERVICE)->first();
-        if ($package->total_weight <= $promotion->min_weight){
-            $service_discount = $service->amount;
-        }else{
-            $service_discount = $package->tier_price * $promotion->min_weight;
-        }
-        $total_payment = $package->total_amount - $service_discount;
-        if ($total_payment <= $promotion->min_payment){
-            $service_fee = $promotion->min_payment - $total_payment;
-        }
-        return [
-            'service_fee' => $service_fee ?? 0,
-            'service_discount' => $service_discount ?? 0,
-        ];
     }
 
     /**
