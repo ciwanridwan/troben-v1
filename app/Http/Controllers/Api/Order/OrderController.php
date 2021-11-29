@@ -85,6 +85,7 @@ class OrderController extends Controller
         }
 
         $package->load(
+            'code',
             'prices',
             'attachments',
             'items',

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api\Promote;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Http\Resources\PriceResource;
 use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Resources\Promote\PromotionResource;
 use App\Http\Response;
@@ -14,11 +12,9 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class PromotionController extends Controller
 {
@@ -141,10 +137,10 @@ class PromotionController extends Controller
     {
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
-        if ($package->total_weight < $promotion->min_weight){
+        if ($package->total_weight < $promotion->max_weight){
             $discount = $service->amount * 0;
         }else{
-            $discount = $service->amount - ($package->tier_price * $promotion->min_weight);
+            $discount = $service->amount - ($package->tier_price * $promotion->max_weight);
         }
         $data = [
                 'service_price' => $service->amount,

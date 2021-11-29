@@ -497,10 +497,10 @@ class PricingCalculator
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $prices = $package->prices()->get();
         $service = $prices->where('type', PackagePrice::TYPE_SERVICE)->first();
-        if ($package->total_weight <= $promotion->min_weight){
+        if ($package->total_weight <= $promotion->max_weight){
             $service_discount = $service->amount;
         }else{
-            $service_discount = $package->tier_price * $promotion->min_weight;
+            $service_discount = $package->tier_price * $promotion->max_weight;
         }
         $total_payment = $package->total_amount - $service_discount;
         if ($total_payment <= $promotion->min_payment){
