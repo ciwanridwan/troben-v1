@@ -12,6 +12,7 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,16 +48,21 @@ class PromotionController extends Controller
     public function show(Promotion $promotion, Package $package) :JsonResponse
     {
         if ($package->transporter_type == $promotion->transporter_type){
-            $is_insured = 0;
-            foreach ($package->items as $item){
-                if ($item->is_insured == true){
-                    $is_insured++;
+            $check = ClaimedPromotion::where('customer_id', $package->customer_id)
+                ->where('claimed_at', Carbon::now())
+                ->first();
+            if ($check == null){
+                $is_insured = 0;
+                foreach ($package->items as $item){
+                    if ($item->is_insured == true){
+                        $is_insured++;
+                    }
                 }
-            }
-            if ($is_insured == count($package->items)){
-                if($package->destination_regency_id == $promotion->destination_regency_id){
-                    $promotion->is_available = true;
-                    return (new Response(Response::RC_SUCCESS, $promotion))->json();
+                if ($is_insured == count($package->items)){
+                    if($package->destination_regency_id == $promotion->destination_regency_id){
+                        $promotion->is_available = true;
+                        return (new Response(Response::RC_SUCCESS, $promotion))->json();
+                    }
                 }
             }
         }
@@ -137,7 +143,7 @@ class PromotionController extends Controller
     {
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
-        if ($package->total_weight < $promotion->max_weight){
+        if ($package->total_weight <= $promotion->max_weight){
             $discount = $service->amount * 0;
         }else{
             $discount = $service->amount - ($package->tier_price * $promotion->max_weight);
