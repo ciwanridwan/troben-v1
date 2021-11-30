@@ -94,15 +94,12 @@ class CreateNewPackage
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
-
         $items = [];
         foreach ($this->items as $item) {
             $item['height'] = ceil($item['height']);
             $item['length'] = ceil($item['length']);
             $item['width'] = ceil($item['width']);
-
             $item['weight'] = $this->ceilByTolerance($item['weight']);
-
 
             array_push($items, $item);
         }
@@ -125,7 +122,6 @@ class CreateNewPackage
         if ($this->package->exists) {
             foreach ($this->items as $attributes) {
                 $item = new Item();
-
                 $attributes['package_id'] = $this->package->id;
 
                 $item->fill($attributes);

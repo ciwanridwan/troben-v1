@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Promote;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PromoResource;
+use App\Http\Resources\Promote\PromoResource;
 use App\Jobs\Promo\CreateNewPromo;
-use App\Jobs\Promo\UploadFilePromo;
-use App\Models\Promo;
+use App\Models\Promos\Promo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

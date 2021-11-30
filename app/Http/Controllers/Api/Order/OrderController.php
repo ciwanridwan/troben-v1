@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
+use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
+use App\Models\Promos\ClaimedPromotion;
+use App\Models\Promos\Promotion;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -57,21 +63,33 @@ class OrderController extends Controller
     }
 
     /**
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
-    public function show(Package $package): JsonResponse
+    public function show(Request $request, Package $package): JsonResponse
     {
         $this->authorize('view', $package);
+        $request->validate([
+            'promotion_hash' => ['nullable']
+        ]);
 
-        return $this->jsonSuccess(new PackageResource($package->load(
+        $prices = PricingCalculator::getDetailPricingPackage($package);
+        $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+
+        if ($request->promotion_hash && $service_discount == 0){
+            $promo = $this->check($request->promotion_hash, $package);
+            $prices['service_price_fee'] = $promo['service_price_fee'];
+            $prices['service_price_discount'] = $promo['service_price_discount'];
+        }
+
+        $package->load(
+            'code',
             'prices',
             'attachments',
             'items',
             'items.attachments',
             'items.prices',
-            'tarif',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
@@ -79,7 +97,36 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district'
-        )->append('transporter_detail')));
+        )->append('transporter_detail');
+
+        $data = [
+            'service_price' => $prices['service_price'] ,
+            'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            'service_price_discount' => $prices['service_price_discount'] ?? 0,
+            'insurance_price' => $prices['insurance_price'] ?? 0,
+            'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
+            'packing_price' => $prices['packing_price'] ?? 0,
+            'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
+            'pickup_price' => $prices['pickup_price'] ?? 0,
+            'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
+        ];
+
+        return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data )));
+    }
+
+    public function check($promotion_hash, Package $package): array
+    {
+        $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
+        switch ($promotion){
+            case null :
+                return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
+            default:
+                if ($promotion_hash != null){
+                    if ($promotion->updated_at < $promotion->updated_at->addDays(1)){
+                        return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
+                    }
+                }
+        }
     }
 
     /**
@@ -89,7 +136,7 @@ class OrderController extends Controller
      * Route Name       : api.order.store.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */
@@ -97,6 +144,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'items' => ['required'],
+            'items.*.is_insured' => ['nullable'],
             'photos' => ['nullable'],
             'photos.*' => ['nullable', 'image']
         ]);
@@ -117,7 +165,11 @@ class OrderController extends Controller
         $inputs['customer_id'] = $user->id;
 
         $items = $request->input('items') ?? [];
-
+        foreach ($items as $key=>$item){
+            if ($item['insurance'] == '1'){
+                $items[$key]['is_insured'] = true;
+            }
+        }
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
@@ -138,8 +190,8 @@ class OrderController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
+     * @param Package $package
+     * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Throwable
      */
@@ -170,15 +222,24 @@ class OrderController extends Controller
     }
 
     /**
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
+     * @param Request $request
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
+     * @throws \Throwable
      */
     // Approving Order by Customer
-    public function approve(Package $package): JsonResponse
+    public function approve(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-
+        $request->validate([
+            'promotion_hash' => ['nullable']
+        ]);
+        if ($request->promotion_hash != null){
+            $promotion = Promotion::byHashOrFail($request->promotion_hash);
+            $job = new ClaimExistingPromo($promotion, $package);
+            $this->dispatchNow($job);
+        }
         event(new PackageApprovedByCustomer($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
@@ -199,9 +260,9 @@ class OrderController extends Controller
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Packages\Package $package
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @param Package $package
+     * @return JsonResponse
+     * @throws AuthorizationException
      */
     public function receipt(Request $request, Package $package): JsonResponse
     {
