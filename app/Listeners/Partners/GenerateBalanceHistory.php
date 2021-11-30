@@ -212,26 +212,17 @@ class GenerateBalanceHistory
                         }
                         if ($manifest_weight < 10) $manifest_weight = 10;
 
-                        /** @var \App\Models\Partners\Price $price */
-                        $price = PartnerPrice::query()
-                            ->where('partner_id', $this->transporter->partner->id)
-                            ->where('origin_regency_id', $this->delivery->origin_regency_id)
-                            ->where('destination_id', $this->delivery->destination_regency_id)
-                            ->first();
-                        if (!$price) {
-                            Notification::send([
-                                'data' => [
-                                    'manifest_code' => $this->delivery->code->content,
-                                    'manifest_weight' => $manifest_weight,
-                                    'package_count' => $package_count,
-                                    'partner_code' => $this->partner->code
-                                ]], new TransporterBalance());
-                            break;
-                        }
-
                         if ($package_count > 1) {
-                            $tierPrice = PricingCalculator::getTier($price,$manifest_weight);
-                            if ($tierPrice == 0) {
+                            $tier = PricingCalculator::getTierType($manifest_weight);
+                            /** @var \App\Models\Partners\Price $price */
+                            $price = PartnerPrice::query()
+                                ->where('partner_id', $this->transporter->partner->id)
+                                ->where('origin_regency_id', $this->delivery->origin_regency_id)
+                                ->where('destination_id', $this->delivery->destination_regency_id)
+                                ->where('type', $tier)
+                                ->first();
+
+                            if (!$price || $price->value == 0) {
                                 Notification::send([
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
@@ -241,9 +232,26 @@ class GenerateBalanceHistory
                                     ]], new TransporterBalance());
                                 break;
                             }
-                            $this->setBalance($manifest_weight * $tierPrice);
+                            $this->setBalance($manifest_weight * $price);
                         } else {
-                            $this->setBalance($manifest_weight * $price->flat);
+                            /** @var \App\Models\Partners\Price $price */
+                            $price = PartnerPrice::query()
+                                ->where('partner_id', $this->transporter->partner->id)
+                                ->where('origin_regency_id', $this->delivery->origin_regency_id)
+                                ->where('destination_id', $this->delivery->destination_regency_id)
+                                ->where('type', PartnerPrice::TYPE_FLAT)
+                                ->first();
+                            if (!$price) {
+                                Notification::send([
+                                    'data' => [
+                                        'manifest_code' => $this->delivery->code->content,
+                                        'manifest_weight' => $manifest_weight,
+                                        'package_count' => $package_count,
+                                        'partner_code' => $this->partner->code
+                                    ]], new TransporterBalance());
+                                break;
+                            }
+                            $this->setBalance($manifest_weight * $price->value);
                         }
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
@@ -257,20 +265,6 @@ class GenerateBalanceHistory
                     foreach ($this->packages as $package) {
                         $this->setPackage($package);
                         switch ($this->partner->get_fee_delivery) {
-//                            case $this->countDeliveryTransitOfPackage() > 1:
-//                                $weight = $this->package->items->sum(function ($item) {
-//                                    return $item->weight_borne_total;
-//                                });
-//                                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->delivery->origin_regency_id, $this->delivery->destination_sub_district_id);
-//                                // $price = PricingCalculator::getTier($partner_price, $weight);
-//                                // TODO: change $price to actual price
-//                                $this
-//                                    ->setBalance($weight * 1000)
-//                                    ->setType(History::TYPE_DEPOSIT)
-//                                    ->setDescription(History::DESCRIPTION_DELIVERY)
-//                                    ->setAttributes()
-//                                    ->recordHistory();
-//                                break;
                             case $this->countDeliveryTransitOfPackage() === 1:
                                 if ($this->partner->get_fee_delivery) {
                                     $balance = ShippingCalculator::getDeliveryFeeByDistance($this->delivery,false);

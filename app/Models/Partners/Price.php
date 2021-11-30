@@ -12,23 +12,25 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int                $partner_id
  * @property int                $origin_regency_id
  * @property int                $destination_id
- * @property float              $flat
- * @property float              $tier_1
- * @property float              $tier_2
- * @property float              $tier_3
- * @property float              $tier_4
- * @property float              $tier_5
- * @property float              $tier_6
- * @property float              $tier_7
- * @property float              $tier_8
- * @property float              $tier_9
- * @property float              $tier_10
+ * @property int                $type
+ * @property int                $value
  * @property \Carbon\Carbon     $created_at
  * @property \Carbon\Carbon     $updated_at
  */
 class Price extends Pivot
 {
     use HasFactory;
+
+    public const TYPE_SLA = 1;
+    public const TYPE_FLAT = 2;
+    public const TYPE_TIER_1 = 3;
+    public const TYPE_TIER_2 = 4;
+    public const TYPE_TIER_3 = 5;
+    public const TYPE_TIER_4 = 6;
+    public const TYPE_TIER_5 = 7;
+    public const TYPE_TIER_6 = 8;
+    public const TYPE_TIER_7 = 9;
+    public const TYPE_TIER_8 = 10;
 
     protected $table = 'partner_prices';
 
@@ -37,18 +39,7 @@ class Price extends Pivot
      *
      * @var array
      */
-    protected $casts = [
-        'tier_1' => 'float',
-        'tier_2' => 'float',
-        'tier_3' => 'float',
-        'tier_4' => 'float',
-        'tier_5' => 'float',
-        'tier_6' => 'float',
-        'tier_7' => 'float',
-        'tier_8' => 'float',
-        'tier_9' => 'float',
-        'tier_10' => 'float',
-    ];
+    protected $casts = [];
 
     /**
      * define belongs to with partners.
