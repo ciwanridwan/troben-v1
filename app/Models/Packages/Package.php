@@ -668,17 +668,15 @@ class Package extends Model implements AttachableContract
 
     /**
      * get detail transporter.
-     * @return array
+     * @return mixed
      */
-    public function getTransporterDetailAttribute(): array
+    public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
+        if (!$transporterType) return null;
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
-            if ($transporter['name'] === $transporterType) {
-                return $transporter;
-            } else {
-                return [];
-            }
-        }, []);
+            if ($transporter['name'] === $transporterType) return $transporter;
+            else return null;
+        });
     }
 }

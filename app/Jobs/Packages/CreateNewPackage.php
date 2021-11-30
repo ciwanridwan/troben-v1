@@ -3,6 +3,7 @@
 namespace App\Jobs\Packages;
 
 use App\Models\Packages\Item;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
@@ -80,6 +81,7 @@ class CreateNewPackage
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ])->validate();
+        Log::info('validate package success', [$this->attributes['sender_name']]);
 
         $this->items = Validator::make($items, [
             '*.qty' => ['required', 'numeric'],
@@ -94,6 +96,8 @@ class CreateNewPackage
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
+        Log::info('validate package items success', [$this->attributes['sender_name']]);
+
         $items = [];
         foreach ($this->items as $item) {
             $item['height'] = ceil($item['height']);
@@ -106,6 +110,7 @@ class CreateNewPackage
         $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
+        Log::info('prepared finished. ', [$this->attributes['sender_name']]);
     }
 
     /**
@@ -115,9 +120,12 @@ class CreateNewPackage
      */
     public function handle(): bool
     {
+        Log::info('Running job. ', [$this->attributes['sender_name']]);
+
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
         $this->package->save();
+        Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
 
         if ($this->package->exists) {
             foreach ($this->items as $attributes) {
@@ -127,7 +135,9 @@ class CreateNewPackage
                 $item->fill($attributes);
                 $item->save();
             }
+            Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
 
+            Log::info('triggering event. ', [$this->attributes['sender_name']]);
             event(new PackageCreated($this->package));
         }
 
