@@ -37,6 +37,8 @@ class Response implements Responsable
     public const RC_MISSING_AUTHENTICATION_HEADER = '0202';
     public const RC_ACCOUNT_NOT_VERIFIED = '0203';
     public const RC_UNAUTHORIZED = '0204';
+    public const RC_JWT_EXPIRED = '0205';
+    public const RC_JWT_ERROR_DECODING = '0206';
 
     // one time password 0300 - 0399
     public const RC_MISMATCH_TOKEN_OWNERSHIP = '0301';
@@ -121,7 +123,9 @@ class Response implements Responsable
                 self::RC_DATA_NOT_FOUND
             ],
             LaravelResponse::HTTP_BAD_REQUEST => [
-                self::RC_BAD_REQUEST
+                self::RC_BAD_REQUEST,
+                self::RC_JWT_EXPIRED,
+                self::RC_JWT_ERROR_DECODING
             ],
             LaravelResponse::HTTP_UNPROCESSABLE_ENTITY => [
                 self::RC_INVALID_DATA,
@@ -209,7 +213,7 @@ class Response implements Responsable
             $responseData['data_extra'] = Arr::except($this->data, 'resource');
         } else {
             if ($responseData['code'] === self::RC_INVALID_DATA) {
-                foreach ($this->data as $key => $value) {
+                if ($this->data) foreach ($this->data as $key => $value) {
                     if (is_array($value)) {
                         $this->data[$key] = Arr::first($value);
                     }

@@ -32,6 +32,11 @@ return [
         'customer_service' => [
             'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:customer-service'],
             'prefix' => 'partner/customer-service',
+        ],
+        'self_service' => [
+            'middleware' => ['jwt'],
+            'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
+            'domain' => env('API_DOMAIN')
         ]
     ],
 
@@ -115,5 +120,8 @@ return [
     'partner' => [
         App\Http\Routes\Partner\PartnerRoute::class,
         /** @inject partner **/
-    ]
+    ],
+    'self_service' => [
+        App\Http\Routes\Api\V\SelfRoute::class,
+    ],
 ];
