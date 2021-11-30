@@ -47,19 +47,19 @@ class PromotionController extends Controller
 
     public function show(Promotion $promotion, Package $package) :JsonResponse
     {
-        if ($package->transporter_type == $promotion->transporter_type){
+        if ($package->transporter_type == $promotion->transporter_type) {
             $check = ClaimedPromotion::where('customer_id', $package->customer_id)
                 ->whereDate('claimed_at', Carbon::today())
                 ->first();
-            if ($check == null){
+            if ($check == null) {
                 $is_insured = 0;
-                foreach ($package->items as $item){
-                    if ($item->is_insured == true){
+                foreach ($package->items as $item) {
+                    if ($item->is_insured == true) {
                         $is_insured++;
                     }
                 }
-                if ($is_insured == count($package->items)){
-                    if($package->destination_regency_id == $promotion->destination_regency_id){
+                if ($is_insured == count($package->items)) {
+                    if ($package->destination_regency_id == $promotion->destination_regency_id) {
                         $promotion->is_available = true;
                         return (new Response(Response::RC_SUCCESS, $promotion))->json();
                     }
@@ -68,21 +68,6 @@ class PromotionController extends Controller
         }
         $promotion->is_available = false;
         return (new Response(Response::RC_SUCCESS, $promotion))->json();
-    }
-
-    /**
-     * @param Builder $builder
-     * @return Builder
-     */
-    private function getBasicBuilder(Builder $builder): Builder
-    {
-        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
-        $builder->when(
-            request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('title', 'like', '%'.$this->attributes['q'].'%')
-        );
-
-        return $builder;
     }
 
     /**
@@ -118,19 +103,18 @@ class PromotionController extends Controller
         ]);
         $this->authorize('view', $package);
         $check = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
-        switch ($check){
+        switch ($check) {
             case null :
                 $data = $this->calculation($request->promotion_hash, $package);
                 $collection = collect($data);
                 $collection->push($package);
 
 
-                return $this->jsonSuccess(DataDiscountResource::make(array_merge($data,$package->toArray())));
+                return $this->jsonSuccess(DataDiscountResource::make(array_merge($data, $package->toArray())));
 
             default:
-                if ($request->promotion_hash != null){
-                    if ($check->updated_at < $check->updated_at->addDays(1)){
-
+                if ($request->promotion_hash != null) {
+                    if ($check->updated_at < $check->updated_at->addDays(1)) {
                         $data = $this->calculation($request->promotion_hash, $package);
                         return (new Response(Response::RC_SUCCESS, $data))->json();
                     }
@@ -143,9 +127,9 @@ class PromotionController extends Controller
     {
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
-        if ($package->total_weight <= $promotion->max_weight){
+        if ($package->total_weight <= $promotion->max_weight) {
             $discount = $service->amount * 0;
-        }else{
+        } else {
             $discount = $service->amount - ($package->tier_price * $promotion->max_weight);
         }
         $data = [
@@ -155,5 +139,20 @@ class PromotionController extends Controller
         ];
 
         return $data;
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('title', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 }

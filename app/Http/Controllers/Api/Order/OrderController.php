@@ -77,7 +77,7 @@ class OrderController extends Controller
         $prices = PricingCalculator::getDetailPricingPackage($package);
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
-        if ($request->promotion_hash && $service_discount == 0){
+        if ($request->promotion_hash && $service_discount == 0) {
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
@@ -111,18 +111,18 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
         ];
 
-        return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data )));
+        return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
     }
 
     public function check($promotion_hash, Package $package): array
     {
         $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
-        switch ($promotion){
+        switch ($promotion) {
             case null :
                 return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
             default:
-                if ($promotion_hash != null){
-                    if ($promotion->updated_at < $promotion->updated_at->addDays(1)){
+                if ($promotion_hash != null) {
+                    if ($promotion->updated_at < $promotion->updated_at->addDays(1)) {
                         return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
                     }
                 }
@@ -165,8 +165,8 @@ class OrderController extends Controller
         $inputs['customer_id'] = $user->id;
 
         $items = $request->input('items') ?? [];
-        foreach ($items as $key=>$item){
-            if ($item['insurance'] == '1'){
+        foreach ($items as $key=>$item) {
+            if ($item['insurance'] == '1') {
                 $items[$key]['is_insured'] = true;
             }
         }
@@ -235,7 +235,7 @@ class OrderController extends Controller
         $request->validate([
             'promotion_hash' => ['nullable']
         ]);
-        if ($request->promotion_hash != null){
+        if ($request->promotion_hash != null) {
             $promotion = Promotion::byHashOrFail($request->promotion_hash);
             $job = new ClaimExistingPromo($promotion, $package);
             $this->dispatchNow($job);

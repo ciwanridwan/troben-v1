@@ -56,7 +56,7 @@ class PromoRoute extends BaseRoute
 
         $this->router->post($this->prefix('promotion/store'), [
             'as' => $this->name('promotion.store'),
-            'uses' => $this->uses('store',PromotionController::class),
+            'uses' => $this->uses('store', PromotionController::class),
         ])->withoutMiddleware('api');
     }
 

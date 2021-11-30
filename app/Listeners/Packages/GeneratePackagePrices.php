@@ -6,7 +6,6 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
@@ -106,13 +105,11 @@ class GeneratePackagePrices
             $this->dispatch($job);
 
             // generate discount if using promotion code
-            if($package->claimed_promotion != null){
+            if ($package->claimed_promotion != null) {
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
-                if ($package->total_weight <= $package->claimed_promotion->promotion->max_weight)
-                {
+                if ($package->total_weight <= $package->claimed_promotion->promotion->max_weight) {
                     $discount_amount = $service->amount;
-                }
-                else{
+                } else {
                     $discount_amount = $package->tier_price * $package->claimed_promotion->promotion->max_weight;
                 }
 

@@ -324,9 +324,9 @@ class Package extends Model implements AttachableContract
             $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
                 ->where('description', Price::TYPE_SERVICE)
                 ->first()->amount;
-            if ($discount != null){
+            if ($discount != null) {
                 $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
-            }else{
+            } else {
                 $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
             }
             return $service_price;

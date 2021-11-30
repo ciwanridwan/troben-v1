@@ -101,7 +101,7 @@ class PricingCalculator
 
         if ($package->claimed_promotion != null) {
             $promo = $package->load('claimed_promotion');
-            if ($total_amount < $promo->claimed_promotion->promotion->min_payment){
+            if ($total_amount < $promo->claimed_promotion->promotion->min_payment) {
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => PackagePrice::TYPE_SERVICE,
                     'description' => PackagePrice::TYPE_ADDITIONAL,
@@ -109,7 +109,6 @@ class PricingCalculator
                 ]);
                 dispatch($job);
                 $total_amount = $promo->claimed_promotion->promotion->min_payment;
-
             }
         }
 
@@ -455,22 +454,9 @@ class PricingCalculator
         return $volume > 1 ? $volume : 1;
     }
 
-    private static function checkHandling($handling = [])
+
+    public static function getDetailPricingPackage(Package $package)
     {
-        $handling = Arr::wrap($handling);
-
-        if ($handling !== []) {
-            if (Arr::has($handling, 'type')) {
-                $handling = array_column($handling, 'type');
-            }
-        }
-
-        return $handling;
-    }
-
-
-    public static function getDetailPricingPackage(Package $package){
-
         $handling_price = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount');
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $pickup_price = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->get()->sum('amount');
@@ -501,13 +487,13 @@ class PricingCalculator
         $promotion = Promotion::byHashOrFail($promotion_hash);
         $prices = $package->prices()->get();
         $service = $prices->where('type', PackagePrice::TYPE_SERVICE)->first();
-        if ($package->total_weight <= $promotion->max_weight){
+        if ($package->total_weight <= $promotion->max_weight) {
             $service_discount = $service->amount;
-        }else{
+        } else {
             $service_discount = $package->tier_price * $promotion->max_weight;
         }
         $total_payment = $package->total_amount - $service_discount;
-        if ($total_payment <= $promotion->min_payment){
+        if ($total_payment <= $promotion->min_payment) {
             $service_fee = $promotion->min_payment - $total_payment;
         }
         return [
@@ -516,4 +502,16 @@ class PricingCalculator
         ];
     }
 
+    private static function checkHandling($handling = [])
+    {
+        $handling = Arr::wrap($handling);
+
+        if ($handling !== []) {
+            if (Arr::has($handling, 'type')) {
+                $handling = array_column($handling, 'type');
+            }
+        }
+
+        return $handling;
+    }
 }

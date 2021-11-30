@@ -15,7 +15,6 @@ use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
-
 /**
  * Class Promotion.
  *
@@ -40,7 +39,6 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  *
  * @property-read Regency|null $destination_regency
  */
-
 class Promotion extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;

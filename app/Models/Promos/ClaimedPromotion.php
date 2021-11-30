@@ -15,8 +15,7 @@ use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class ClaimedPromotion
- * @package App\Models\Promos
+ * Class ClaimedPromotion.
  *
  * @property int $id
  * @property int package_id
@@ -73,7 +72,6 @@ class ClaimedPromotion extends Model implements AttachableContract
      *
      * @return BelongsTo
      */
-
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
