@@ -49,7 +49,7 @@ class PromotionController extends Controller
     {
         if ($package->transporter_type == $promotion->transporter_type){
             $check = ClaimedPromotion::where('customer_id', $package->customer_id)
-                ->where('claimed_at', Carbon::now())
+                ->whereDate('claimed_at', Carbon::today())
                 ->first();
             if ($check == null){
                 $is_insured = 0;

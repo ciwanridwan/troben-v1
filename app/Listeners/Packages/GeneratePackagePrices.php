@@ -95,7 +95,6 @@ class GeneratePackagePrices
                 'description' => Delivery::TYPE_PICKUP,
                 'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
             ]);
-
             $this->dispatch($job);
 
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
@@ -104,8 +103,8 @@ class GeneratePackagePrices
                 'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
             ]);
             // generate pickup price discount
-
             $this->dispatch($job);
+
             // generate discount if using promotion code
             if($package->claimed_promotion != null){
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
@@ -114,7 +113,7 @@ class GeneratePackagePrices
                     $discount_amount = $service->amount;
                 }
                 else{
-                    $discount_amount = $service->amount - ($package->tier_price * $package->claimed_promotion->promotion->max_weight);
+                    $discount_amount = $package->tier_price * $package->claimed_promotion->promotion->max_weight;
                 }
 
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [

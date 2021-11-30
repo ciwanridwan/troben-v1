@@ -10,7 +10,6 @@ use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
-use App\Models\Packages\Price;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Models\Promos\ClaimedPromotion;
