@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Packages;
 
+use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -62,8 +63,8 @@ class CreateNewPackage
             'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
-            'sender_address' => ['required'],
-            'sender_way_point' => ['nullable'],
+            'sender_address' => ['nullable'],
+            'sender_way_point' => ['required'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
 
@@ -121,6 +122,11 @@ class CreateNewPackage
     public function handle(): bool
     {
         Log::info('Running job. ', [$this->attributes['sender_name']]);
+        if (is_null($this->attributes['sender_address'])) {
+            /** @var Regency $regency */
+            $regency = Regency::query()->find($this->attributes['origin_regency_id']);
+            $this->attributes['sender_address'] = $regency->name.', '.$regency->province->name;
+        }
 
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
