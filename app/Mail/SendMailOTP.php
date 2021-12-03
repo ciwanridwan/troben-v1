@@ -14,6 +14,9 @@ class SendMailOTP extends Mailable
 
     public OneTimePassword $otp;
     public Customer $customer;
+
+    public $subject;
+    public $purpose;
     /**
      * Create a new message instance.
      *
@@ -23,6 +26,7 @@ class SendMailOTP extends Mailable
     {
         $this->otp = $otp;
         $this->customer = $customer;
+        $this->subject = 'Trawlbens - Token OTP Verifikasi Data Akun';
     }
     /**
      * Build the message.
@@ -32,10 +36,10 @@ class SendMailOTP extends Mailable
     public function build()
     {
         return $this->view('mail.forgotpassword')
-            ->subject('Trawlbens - Token Verifikasi Lupa Password')
+            ->subject($this->subject)
             ->with([
                 'data' => $this->customer,
-                'token' => $this->otp
+                'token' => $this->otp,
             ]);
     }
 }
