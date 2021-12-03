@@ -435,8 +435,13 @@ class AccountAuthentication
         if ($column == self::CREDENTIAL_EMAIL) {
             Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
         } else {
-            $job = new SendMessage($otp, $authenticatable->phone);
-            $this->dispatch($job);
+            try {
+                $job = new SendMessage($otp, $authenticatable->phone);
+                $this->dispatch($job);
+            }
+            catch (\Exception $ex){
+                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
+            }
         }
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
