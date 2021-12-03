@@ -432,9 +432,9 @@ class AccountAuthentication
     protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel, Customer $customer, string $column): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
-        if ($column == self::CREDENTIAL_EMAIL){
+        if ($column == self::CREDENTIAL_EMAIL) {
             Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
-        }else{
+        } else {
             $job = new SendMessage($otp, $authenticatable->phone);
             $this->dispatch($job);
         }
