@@ -438,8 +438,7 @@ class AccountAuthentication
             try {
                 $job = new SendMessage($otp, $authenticatable->phone);
                 $this->dispatch($job);
-            }
-            catch (\Exception $ex){
+            } catch (\Exception $ex) {
                 Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             }
         }
