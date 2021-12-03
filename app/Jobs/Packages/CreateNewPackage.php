@@ -64,7 +64,7 @@ class CreateNewPackage
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['nullable'],
-            'sender_way_point' => ['required'],
+            'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
 
