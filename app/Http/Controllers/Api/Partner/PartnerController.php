@@ -52,7 +52,7 @@ class PartnerController extends Controller
         }));
         $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
 
-        return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('page', 30))));
+        return $this->jsonSuccess(PartnerResource::collection($query->get()));
     }
 
     /**
