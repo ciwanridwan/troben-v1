@@ -118,6 +118,11 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
+        if ($authenticatable == null){
+            $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+            $authenticatable = $query->where('email','=', $this->attributes['email'])
+                ->where('name','=', $this->attributes['name'])->first();
+        }
 
         $payload = [];
 
