@@ -118,10 +118,11 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
-        if ($authenticatable == null){
+        if ($column == self::CREDENTIAL_FACEBOOK || $column == self::CREDENTIAL_GOOGLE && $authenticatable == null){
             $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
-            $authenticatable = $query->where('email','=', $this->attributes['email'])
-                ->where('name','=', $this->attributes['name'])->first();
+            $query->where('email', $this->attributes['email'])
+                ->update([$column => $this->attributes['username']]);
+            $authenticatable = $query->where($column, $this->attributes['username'])->first();
         }
 
         $payload = [];
