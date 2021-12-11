@@ -43,12 +43,12 @@ class OfficeRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ])->middleware(['role:super-admin']);
 
-        $this->router->delete($this->prefix('{office_hash}'), [
-            'as' => $this->name('delete'),
+        $this->router->post($this->prefix('destroy'), [
+            'as' => $this->name('destroy'),
             'uses' => $this->uses('destroy'),
         ])->middleware(['role:super-admin']);
 
-        $this->router->delete($this->prefix('{office_hash}'), [
+        $this->router->post($this->prefix('{office_hash}'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ])->middleware(['role:super-admin']);

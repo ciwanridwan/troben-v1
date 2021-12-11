@@ -51,12 +51,9 @@ class Office extends Authenticatable implements AuthenticatableContact
         'email',
         'password',
         'phone',
-        'remember_token',
+        'address',
         'is_active',
-        'fcm_token',
     ];
-
-
 
     /**
      * The attributes that should be hidden for arrays.
@@ -66,14 +63,9 @@ class Office extends Authenticatable implements AuthenticatableContact
     protected $hidden = [
         'id',
         'password',
-        'remember_token',
         'deleted_at',
-        'phone_verified_at',
-        'email_verified_at',
-        'verified_at',
         'created_at',
         'updated_at',
-        'laravel_through_key',
     ];
 
     /**
@@ -82,9 +74,16 @@ class Office extends Authenticatable implements AuthenticatableContact
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'hash',
     ];
 
 

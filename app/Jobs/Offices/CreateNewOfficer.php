@@ -45,9 +45,12 @@ class CreateNewOfficer
 
         $this->attributes = Validator::make($inputs, [
             'name' => ['required'],
-            'email' => ['required', 'email', 'unique:customers,email,NULL,id,deleted_at,NULL'],
-            'phone' => ['required', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,NULL,id,deleted_at,NULL'],
+            'username' => ['required'],
+            'phone' => ['required', 'numeric', 'phone:AUTO,ID', 'unique:offices,phone,NULL,id,deleted_at,NULL'],
+            'email' => ['required', 'email', 'unique:offices,email,NULL,id,deleted_at,NULL'],
             'password' => ['required', 'min:8', 'alpha_num'],
+            'address' => ['required'],
+            'is_active' => ['nullable', 'boolean'],
         ])->validate();
     }
 
@@ -58,6 +61,7 @@ class CreateNewOfficer
      */
     public function handle(): bool
     {
+        $this->attributes['is_active'] = true;
         $this->office->fill($this->attributes);
 
         if ($this->office->save()) {

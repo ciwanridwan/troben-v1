@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Offices;
 
+use App\Events\Customers\CustomerDeleted;
+use App\Events\Offices\OfficerDeleted;
 use App\Models\Offices\Office;
 use Illuminate\Bus\Batchable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,7 +50,7 @@ class DeleteExistingOfficer
     {
         (bool) $result = $this->softDelete ? $this->office->delete() : $this->office->forceDelete();
 
-        event(new CustomerDeleted($this->office));
+        event(new OfficerDeleted($this->office));
 
         return $result;
     }
