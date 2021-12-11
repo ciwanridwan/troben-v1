@@ -5,11 +5,13 @@ namespace App\Http\Middleware;
 use App\Actions\Auth\AccountAuthentication;
 use App\Exceptions\Error;
 use App\Http\Response;
+use App\Models\Offices\Office;
 use App\Models\User;
 use Closure;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class JwtMiddleware
 {
@@ -34,10 +36,12 @@ class JwtMiddleware
         } catch(\Exception $e) {
             throw new Error(Response::RC_JWT_ERROR_DECODING);
         }
-
         $user = User::find($credentials->data->id);
+        if (property_exists($credentials->data, 'guard')){
+            $user = Office::find($credentials->data->id);
+        }
         // Now let's put the user in the request class so that you can grab it from there
-        $request->auth = $user;
+        Auth::setUser($user);
         return $next($request);
     }
 }

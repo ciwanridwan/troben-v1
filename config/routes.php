@@ -123,5 +123,6 @@ return [
     ],
     'self_service' => [
         App\Http\Routes\Api\V\SelfRoute::class,
+        App\Http\Routes\Api\V\OfficeRoute::class,
     ],
 ];
