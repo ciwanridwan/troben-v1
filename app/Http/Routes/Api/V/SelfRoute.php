@@ -31,27 +31,27 @@ class SelfRoute extends BaseRoute
         $this->router->patch($this->prefix('package/{content}/update'), [
             'as' => $this->name('package.update'),
             'uses' => $this->uses('packageUpdate'),
-        ]);
+        ])->middleware(['role:super-admin|operation']);
 
         $this->router->patch($this->prefix('package/{content}/cancel'), [
             'as' => $this->name('package.cancel'),
             'uses' => $this->uses('packageCancel'),
-        ]);
+        ])->middleware(['role:super-admin|operation']);
 
         $this->router->patch($this->prefix('{account}/verify'), [
             'as' => $this->name('account.verify'),
             'uses' => $this->uses('accountVerify'),
-        ]);
+        ])->middleware(['role:super-admin|operation']);
 
         $this->router->patch($this->prefix('delivery/{delivery_code}/destination/update'), [
             'as' => $this->name('delivery.destination.update'),
             'uses' => $this->uses('deliveryDestinationUpdate'),
-        ]);
+        ])->middleware(['role:super-admin|tracking']);
 
         $this->router->patch($this->prefix('delivery/{delivery_code}/package/append'), [
             'as' => $this->name('delivery.package.append'),
             'uses' => $this->uses('deliveryPackageAppend'),
-        ]);
+        ])->middleware(['role:super-admin|tracking']);
     }
 
     /**

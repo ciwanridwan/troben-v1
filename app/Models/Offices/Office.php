@@ -5,12 +5,10 @@ namespace App\Models\Offices;
 use App\Concerns\Models\CanSearch;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Jalameta\Attachments\Concerns\Attachable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use \Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContact;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
@@ -31,21 +29,17 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property \Carbon\Carbon $updated_at
  * @property-read  \Illuminate\Database\Eloquent\Collection|MorphMany notifications
  */
-class Office extends Model
+class Office extends Authenticatable implements AuthenticatableContact
 {
     use HasFactory,
         HasPermissions,
         HasRoles,
-        Notifiable,
-        HasApiTokens,
-        HasPhoneNumber,
         SoftDeletes,
         HashableId,
-        attachable,
         CanSearch;
 
     protected $table = 'offices';
-    protected string $guard_name = 'web';
+    protected string $guard_name = 'jwt';
     /**
      * The attributes that are mass assignable.
      *

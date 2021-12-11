@@ -5,6 +5,7 @@ namespace App\Http\Routes;
 use App\Models\Code;
 use App\Models\Customers\Customer;
 use App\Models\Notifications\Notification;
+use App\Models\Offices\Office;
 use App\Models\Packages\Item;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Withdrawal;
@@ -34,6 +35,7 @@ class VariableBindingRoute extends BaseRoute
         $this->router->bind('code_content', fn ($code) => Code::where('content', $code)->firstOrFail());
         $this->router->bind('gateway_hash', fn ($hash) => Gateway::byHashOrFail($hash));
         $this->router->bind('customer_hash', fn ($hash) => Customer::byHashOrFail($hash));
+        $this->router->bind('office_hash', fn ($hash) => Office::byHashOrFail($hash));
         $this->router->bind('notification_id', fn ($id) => Notification::where('id', $id)->firstOrFail());
     }
 }
