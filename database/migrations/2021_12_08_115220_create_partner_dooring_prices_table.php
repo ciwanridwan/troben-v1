@@ -1,11 +1,10 @@
 <?php
-include_once "2021_08_31_153431_create_partner_prices_table.php";
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RevampPartnerPricesTable extends Migration
+class CreatePartnerDooringPricesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,17 +13,15 @@ class RevampPartnerPricesTable extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('partner_prices');
-        Schema::create('partner_transit_prices', function (Blueprint $table) {
+        Schema::create('partner_dooring_prices', function (Blueprint $table) {
             $table->foreignIdFor(\App\Models\Partners\Partner::class, 'partner_id')
                 ->constrained()
                 ->nullOnDelete();
 
             $table->unsignedBigInteger('origin_regency_id');
-            $table->unsignedBigInteger('destination_regency_id');
+            $table->unsignedBigInteger('destination_sub_district_id');
             $table->unsignedSmallInteger('type',false,true)->comment($this->typeComment());
             $table->unsignedInteger('value');
-            $table->unsignedSmallInteger('shipment_type')->comment($this->shipmentTypeComment());
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
@@ -36,12 +33,12 @@ class RevampPartnerPricesTable extends Migration
                 ->cascadeOnDelete();
 
             $table
-                ->foreign('destination_regency_id')
+                ->foreign('destination_sub_district_id')
                 ->references('id')
-                ->on('geo_regencies')
+                ->on('geo_sub_districts')
                 ->cascadeOnDelete();
 
-            $table->primary(['partner_id', 'origin_regency_id', 'destination_regency_id','type','shipment_type']);
+            $table->primary(['partner_id', 'origin_regency_id', 'destination_sub_district_id','type']);
         });
     }
 
@@ -52,8 +49,7 @@ class RevampPartnerPricesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('partner_transit_prices');
-        (new CreatePartnerPricesTable())->up();
+        Schema::dropIfExists('partner_dooring_prices');
     }
 
     /**
@@ -62,7 +58,7 @@ class RevampPartnerPricesTable extends Migration
     private function typeComment(): string
     {
         return "
-            1: SLA (hours)
+            1: SLA
             2: Flat
             3: tier 1
             4: tier 2
@@ -74,18 +70,6 @@ class RevampPartnerPricesTable extends Migration
             10: tier 8
             11: tier 9
             12: tier 10
-        ";
-    }
-
-    /**
-     * @return string
-     */
-    private function shipmentTypeComment(): string
-    {
-        return "
-            1: Land
-            2: Sea
-            3: Airway
         ";
     }
 }

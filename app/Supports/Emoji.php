@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class Emoji
 {
     public const EMOJI_RED_FLAG = '\xF0\x9F\x9A\xA9';
+    public const EMOJI_MEGAPHONE = '\xF0\x9F\x93\xA3';
 
     /**
      * @param string $utf8Byte
