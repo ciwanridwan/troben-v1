@@ -39,7 +39,7 @@ class Office extends Authenticatable implements AuthenticatableContact
         CanSearch;
 
     protected $table = 'offices';
-    protected string $guard_name = 'jwt';
+    protected string $guard_name = 'web';
     /**
      * The attributes that are mass assignable.
      *
