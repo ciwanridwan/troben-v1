@@ -6,25 +6,19 @@ use App\Actions\Auth\AccountAuthentication;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OfficeResource;
 use App\Http\Response;
-use App\Jobs\Customers\CreateNewCustomer;
-use App\Jobs\Customers\DeleteExistingCustomer;
-use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Offices\CreateNewOfficer;
 use App\Jobs\Offices\DeleteExistingOfficer;
 use App\Jobs\Offices\UpdateExistingOfficer;
 use App\Models\Offices\Office;
 use App\Models\OneTimePassword;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class OfficeController extends Controller
 {
-
     /**
      * Filtered attributes.
      *
