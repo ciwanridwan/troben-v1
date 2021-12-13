@@ -2,7 +2,6 @@
 
 namespace App\Actions\Pricing;
 
-use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
@@ -15,7 +14,7 @@ use App\Http\Resources\PriceResource;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
-use App\Models\Partners\Price as PartnerPrice;
+use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -341,11 +340,11 @@ class PricingCalculator
     /**
      * Get price by tier.
      *
-     * @param object|\App\Models\Price|\App\Models\Partners\Price $price
-     * @param float|int $weight
+     * @param object $price
+     * @param float $weight
      * @return mixed
      */
-    public static function getTier(object $price, float $weight = 0)
+    public static function getTier(object $price, float $weight = 0.0)
     {
         if ($weight <= Price::TIER_1) {
             return $price->tier_1;

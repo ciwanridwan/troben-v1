@@ -19,7 +19,7 @@ class UpdateExistingPartner
     /**
      * Partner instance.
      *
-     * @var App\Models\Partners\Partner
+     * @var \App\Models\Partners\Partner
      */
     public Partner $partner;
 
@@ -31,7 +31,7 @@ class UpdateExistingPartner
     protected array $attributes;
 
     /**
-     * @param App\Models\Partners\Partner $partner
+     * @param \App\Models\Partners\Partner $partner
      * @param array                       $inputs
      *
      * @throws \Illuminate\Validation\ValidationException

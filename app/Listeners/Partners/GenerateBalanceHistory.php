@@ -7,6 +7,7 @@ use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
+use App\Events\Deliveries\Dooring as DeliveryDooring;
 use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
@@ -21,13 +22,15 @@ use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\Partners\Prices\Dooring;
+use App\Models\Partners\Prices\Transit as PartnerTransitPrice;
 use App\Models\Partners\Transporter;
 use App\Models\Payments\Withdrawal;
 use App\Models\User;
 use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Models\Partners\Price as PartnerPrice;
+use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use Illuminate\Support\Facades\Notification;
 
 class GenerateBalanceHistory
@@ -214,11 +217,11 @@ class GenerateBalanceHistory
 
                         if ($package_count > 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
-                            /** @var \App\Models\Partners\Price $price */
-                            $price = PartnerPrice::query()
+                            /** @var \App\Models\Partners\Prices\Transit $price */
+                            $price = PartnerTransitPrice::query()
                                 ->where('partner_id', $this->transporter->partner->id)
                                 ->where('origin_regency_id', $this->delivery->origin_regency_id)
-                                ->where('destination_id', $this->delivery->destination_regency_id)
+                                ->where('destination_regency_id', $this->delivery->destination_regency_id)
                                 ->where('type', $tier)
                                 ->first();
 
@@ -228,17 +231,18 @@ class GenerateBalanceHistory
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
                                         'package_count' => $package_count,
-                                        'partner_code' => $this->partner->code
+                                        'partner_code' => $this->partner->code,
+                                        'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
                                     ]], new TransporterBalance());
                                 break;
                             }
                             $this->setBalance($manifest_weight * $price);
                         } else {
-                            /** @var \App\Models\Partners\Price $price */
-                            $price = PartnerPrice::query()
+                            /** @var \App\Models\Partners\Prices\Transit $price */
+                            $price = PartnerTransitPrice::query()
                                 ->where('partner_id', $this->transporter->partner->id)
                                 ->where('origin_regency_id', $this->delivery->origin_regency_id)
-                                ->where('destination_id', $this->delivery->destination_regency_id)
+                                ->where('destination_regency_id', $this->delivery->destination_regency_id)
                                 ->where('type', PartnerPrice::TYPE_FLAT)
                                 ->first();
                             if (!$price) {
@@ -247,7 +251,8 @@ class GenerateBalanceHistory
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
                                         'package_count' => $package_count,
-                                        'partner_code' => $this->partner->code
+                                        'partner_code' => $this->partner->code,
+                                        'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
                                     ]], new TransporterBalance());
                                 break;
                             }
@@ -306,27 +311,42 @@ class GenerateBalanceHistory
 //                }
 ////                $this->pushNotificationToOwner();
 //                break;
-//            case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
-//                $this
-//                    ->setDelivery()
-//                    ->setTransporter()
-//                    ->setPartner($this->transporter->partner)
-//                    ->setPackage($event->package);
-//
-//                $weight = $this->package->items->sum(function ($item) {
-//                    return $item->weight_borne_total;
-//                });
-//                // $partner_price = PricingCalculator::getPartnerPrice($this->partner, $this->partner->geo_regency_id, $this->package->destination_sub_district_id);
-//                // $price = PricingCalculator::getTier($partner_price, $weight);
-//                // TODO: change $price to actual price
-//                $this
-//                    ->setBalance($weight * 500)
-//                    ->setType(History::TYPE_DEPOSIT)
-//                    ->setDescription(History::DESCRIPTION_DOORING)
-//                    ->setAttributes()
-//                    ->recordHistory();
-////                $this->pushNotificationToOwner();
-//                break;
+            case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
+                $this
+                    ->setDelivery()
+                    ->setTransporter()
+                    ->setPartner($this->transporter->partner)
+                    ->setPackage($event->package);
+
+                $weight = $this->package->items->sum(function ($item) {
+                    return $item->weight_borne_total;
+                });
+
+                $tier = PricingCalculator::getTierType($weight);
+                $price = Dooring::query()
+                    ->where('partner_id',$this->partner->id)
+                    ->where('origin_regency_id',$this->partner->geo_regency_id)
+                    ->where('destination_sub_district_id',$this->package->destination_sub_district_id)
+                    ->where('type',$tier)
+                    ->first();
+                if (!$price) {
+                    Notification::send([
+                        'data' => [
+                            'package_code' => $this->delivery->code->content,
+                            'package_weight' => $weight,
+                            'partner_code' => $this->partner->code,
+                            'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
+                        ]], new TransporterBalance());
+                    break;
+                }
+                $this
+                    ->setBalance($weight * $price)
+                    ->setType(History::TYPE_DEPOSIT)
+                    ->setDescription(History::DESCRIPTION_DOORING)
+                    ->setAttributes()
+                    ->recordHistory();
+//                $this->pushNotificationToOwner();
+                break;
         }
     }
 
