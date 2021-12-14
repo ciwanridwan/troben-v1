@@ -221,7 +221,7 @@ class BulkDataPrice extends Command
             foreach ($data_per_origin as $data_partner) {
                 foreach ($data_partner as $data) {
                     $this->newLine();
-                    $this->info('destination '.$data['destination_district_id']);
+                    $this->info($key.' destination '.$data['destination_district_id']);
                     $availables = new Collection();
                     $notAvailables = new Collection();
 
@@ -231,12 +231,12 @@ class BulkDataPrice extends Command
                     $subDistricts = SubDistrict::query()->where('district_id',$data['destination_district_id'])->get(['id']);
                     $subBar = $this->getOutput()->createProgressBar($subDistricts->count());
                     foreach ($subDistricts as $subDistrict) {
-                        foreach ($tempData as $key => $value) {
+                        foreach ($tempData as $keyTemp => $value) {
                             $item = array_merge(
                                 Arr::only($data, ['partner_id', 'origin_regency_id']),
                                 [
                                     'destination_sub_district_id' => $subDistrict->id,
-                                    'type' => $this->getConstTypeByColumn($key),
+                                    'type' => $this->getConstTypeByColumn($keyTemp),
                                     'value' => $value
                                 ]
                             );
