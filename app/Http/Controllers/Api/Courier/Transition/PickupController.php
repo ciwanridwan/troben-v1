@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Courier\Transition;
 
-use App\Events\Deliveries\Kurir\Pickup\DriverArrivedAtPickupPoint;
-use App\Events\Deliveries\Kurir\Pickup\DriverArrivedAtWarehouse;
-use App\Events\Deliveries\Kurir\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Deliveries\Kurir\Pickup\PackageLoadedByDriver;
+use App\Events\Deliveries\Courier\Pickup\DriverArrivedAtPickupPoint;
+use App\Events\Deliveries\Courier\Pickup\DriverArrivedAtWarehouse;
+use App\Events\Deliveries\Courier\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Deliveries\Courier\Pickup\PackageLoadedByDriver;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Models\Deliveries\Delivery;

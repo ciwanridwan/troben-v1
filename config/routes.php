@@ -98,6 +98,9 @@ return [
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
+        App\Http\Routes\Admin\Payment\MPWRouter::class,
+        App\Http\Routes\Admin\Payment\MTAKabRouter::class,
+        App\Http\Routes\Admin\Payment\MTAKRouter::class,
         /** @inject admin **/
     ],
     'cashier' => [
