@@ -12,6 +12,7 @@ use App\Jobs\Promo\ClaimExistingPromo;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
+use App\Models\Price;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
 use App\Models\User;
@@ -100,7 +101,13 @@ class OrderController extends Controller
             'destination_sub_district'
         )->append('transporter_detail');
 
+        $price = Price::query()
+            ->where('origin_regency_id', $package->origin_regency_id)
+            ->where('destination_id', $package->destination_sub_district_id)
+            ->first();
+
         $data = [
+            'notes' => $price->notes,
             'service_price' => $prices['service_price'] ,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
