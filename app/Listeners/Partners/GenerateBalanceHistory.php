@@ -318,6 +318,8 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
+                if (!$this->partner->get_fee_dooring) break;
+
                 $weight = $this->package->items->sum(function ($item) {
                     return $item->weight_borne_total;
                 });
