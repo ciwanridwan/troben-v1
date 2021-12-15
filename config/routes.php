@@ -80,6 +80,7 @@ return [
         App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
         App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
+        App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         /** @inject api **/
     ],
     'admin' => [
