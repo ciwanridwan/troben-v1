@@ -327,9 +327,10 @@ class GenerateBalanceHistory
 
                 if (!$this->partner->get_fee_dooring) break;
 
-                $weight = $this->package->items->sum(function ($item) {
-                    return $item->weight_borne_total;
-                });
+//                $weight = $this->package->items->sum(function ($item) {
+//                    return $item->weight_borne_total;
+//                });
+                $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
                 /** @var Dooring $price */
@@ -342,12 +343,14 @@ class GenerateBalanceHistory
                 if (!$price) {
                     Notification::send([
                         'data' => [
-                            'package_code' => $this->delivery->code->content,
+                            'manifest_code' => $this->delivery->code->content,
+                            'package_code' => $this->package->code->content,
+                            'origin' => $this->partner->regency->name,
+                            'destination' => $this->package->destination_regency->name.", ".$this->package->destination_district->name.", ".$this->package->destination_sub_district->name,
                             'package_weight' => $weight,
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
                         ]], new TransporterBalance());
-                    break;
                 }
                 $this
                     ->setBalance($weight * $price->value)
