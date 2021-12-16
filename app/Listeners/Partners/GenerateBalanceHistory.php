@@ -137,7 +137,7 @@ class GenerateBalanceHistory
                         ->recordHistory();
                 }
                 break;
-            case $event instanceof DeliveryTransit\PackageLoadedByDriver:
+            case $event instanceof DeliveryTransit\PackageLoadedByDriver || $event instanceof DeliveryDooring\PackageLoadedByDriver:
                 $this
                     ->setDelivery()
                     ->setPackages()
@@ -149,6 +149,7 @@ class GenerateBalanceHistory
 
                     # total balance service > record service balance
                     if ($this->partner->get_fee_transit && $this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
+                    if ($this->delivery->type === Delivery::TYPE_DOORING) $this->saveServiceFee(true);
                 }
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
@@ -325,9 +326,10 @@ class GenerateBalanceHistory
                 });
 
                 $tier = PricingCalculator::getTierType($weight);
+                /** @var Dooring $price */
                 $price = Dooring::query()
                     ->where('partner_id',$this->partner->id)
-                    ->where('origin_regency_id',$this->partner->geo_regency_id)
+                    ->where('origin_regency_id',$this->delivery->origin_partner->geo_regency_id)
                     ->where('destination_sub_district_id',$this->package->destination_sub_district_id)
                     ->where('type',$tier)
                     ->first();
@@ -342,7 +344,7 @@ class GenerateBalanceHistory
                     break;
                 }
                 $this
-                    ->setBalance($weight * $price)
+                    ->setBalance($weight * $price->value)
                     ->setType(History::TYPE_DEPOSIT)
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
