@@ -16,8 +16,6 @@ class CreateScheduleTransportationsTable extends Migration
         Schema::create('schedule_transportations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('partner_id')->constrained('partners')->nullOnDelete();
-            $table->string('name');
-            $table->string('vehicle_type');
             $table->unsignedBigInteger('origin_regency_id');
             $table->unsignedBigInteger('destination_regency_id');
             $table->date('departed_at');

@@ -20,8 +20,6 @@ class ScheduleTransportationResource extends JsonResource
         /** @var ScheduleTransportation $this */
         $data = [
             'id' => $this->id,
-            'name' => $this->name,
-            'vehicle_type' => $this->vehicle_type,
             'origin_regency' => Regency::find($this->origin_regency_id),
             'destination_regency' => Regency::find($this->destination_regency_id),
             'departure_at' => $this->departed_at->format('Y-m-d H:i:s'),
