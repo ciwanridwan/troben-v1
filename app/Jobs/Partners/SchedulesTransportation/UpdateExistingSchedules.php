@@ -41,8 +41,6 @@ class UpdateExistingSchedules
     {
 
         $this->attributes = Validator::make($request, [
-            'name' => ['filled'],
-            'vehicle_type' => ['filled'],
             'origin_regency_id' => ['filled'],
             'destination_regency_id' => ['filled'],
             'departed_at' => ['filled'],

@@ -18,8 +18,6 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  *
  * @property int $id
  * @property int $partner_id
- * @property string $name
- * @property string $vehicle_type
  * @property int $origin_regency_id
  * @property int $destination_regency_id
  * @property Carbon $departed_at
@@ -41,8 +39,6 @@ class ScheduleTransportation extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'vehicle_type',
         'partner_id',
         'origin_regency_id',
         'destination_regency_id',
