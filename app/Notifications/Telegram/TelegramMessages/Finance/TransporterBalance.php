@@ -83,6 +83,9 @@ class TransporterBalance extends Notification
         return Emoji::generateEmoji(Emoji::EMOJI_RED_FLAG). "* KOMISI MITRA!*\n".
             "*Harga dooring mitra transporter tidak ditemukan*\n".
             "Mitra code: *".$this->attributes['partner_code']."*\n".
+            "Manifest code: *".$this->attributes['manifest_code']."*\n".
+            "Origin regency: *".$this->attributes['origin']."*\n".
+            "Destination: *".$this->attributes['destination']."*\n".
             "Kode resi: *".$this->attributes['package_code']."*\n".
             "Berat resi terhitung: *".$this->attributes['package_weight']." Kg*\n";
     }
