@@ -24,6 +24,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
+ * @property-read \App\Models\Geo\Regency|null $origin_regency
+ * @property-read \App\Models\Geo\Regency|null $destination_regency
  * @property-read Partner partner
  *
  */

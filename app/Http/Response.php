@@ -89,7 +89,7 @@ class Response implements Responsable
      * @param string $code
      * @param $data
      */
-    public function __construct(string $code, $data = [])
+    public function __construct(string $code, $data = null)
     {
         $this->code = $code;
         $this->data = $data;
@@ -210,7 +210,7 @@ class Response implements Responsable
             $responseData['data'] = $this->data['resource']->toArray($request);
             $responseData['data_extra'] = Arr::except($this->data, 'resource');
         } else {
-            if ($responseData['code'] === self::RC_INVALID_DATA) {
+            if ($responseData['code'] === self::RC_INVALID_DATA && $this->data) {
                 foreach ($this->data as $key => $value) {
                     if (is_array($value)) {
                         $this->data[$key] = Arr::first($value);

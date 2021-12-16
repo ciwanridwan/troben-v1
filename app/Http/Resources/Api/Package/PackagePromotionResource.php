@@ -14,7 +14,6 @@ class PackagePromotionResource extends JsonResource
      */
     public function toArray($request)
     {
-        dd($this->sender_name);
         return parent::toArray($request);
     }
 }
