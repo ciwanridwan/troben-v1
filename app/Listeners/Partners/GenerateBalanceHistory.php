@@ -345,6 +345,7 @@ class GenerateBalanceHistory
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
                         ]], new TransporterBalance());
+                    break;
                 }
                 $this
                     ->setBalance($weight * $price->value)
