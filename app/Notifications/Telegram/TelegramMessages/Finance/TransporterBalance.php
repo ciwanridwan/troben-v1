@@ -49,13 +49,11 @@ class TransporterBalance extends Notification
     public function toTelegram($notifiable)
     {
         $this->attributes = $notifiable;
-        $telegramResponseText = $this->attributes['type'] == self::MESSAGE_TYPE_DELIVERY
-            ? $this->deliveryResponseText()
-            : (
-                $this->attributes['type'] == self::MESSAGE_TYPE_PACKAGE
-                    ? $this->packageResponseText()
-                    : false
-            );
+        $telegramResponseText = match ($this->attributes['type']) {
+            self::MESSAGE_TYPE_DELIVERY => $this->deliveryResponseText(),
+            self::MESSAGE_TYPE_PACKAGE => $this->packageResponseText(),
+            default => false,
+        };
 
         if (!$telegramResponseText) {
             Log::warning('telegram response text not available',['attributes' => $this->attributes]);
