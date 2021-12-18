@@ -2,11 +2,10 @@
 
 namespace App\Actions\Transporter;
 
-use App\Exceptions\Error;
-use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
+use Illuminate\Support\Facades\Log;
 
 class ShippingCalculator
 {
@@ -20,10 +19,10 @@ class ShippingCalculator
      *
      * @param array $originPoint Array of latitude and longitude of start point in [deg decimal]
      * @param array $destinationPoint Array of latitude and longitude of destination point in [deg decimal]
-     * @param float $earthRadius Mean earth radius in [km]
+     * @param int $earthRadius Mean earth radius in [km]
      * @return float Distance between points in [km] (same as earthRadius)
      */
-    public static function calculateDistance(array $originPoint, array $destinationPoint, $earthRadius = self::EARTH_RADIUS)
+    public static function calculateDistance(array $originPoint, array $destinationPoint, int $earthRadius = self::EARTH_RADIUS): float
     {
         // convert from degrees to radians
         $latFrom = deg2rad($originPoint[0]);
@@ -76,6 +75,13 @@ class ShippingCalculator
         } else {
             $price = $rateByType['start_price'];
         }
+        Log::info("Shipping Calculator, delivery fee by distance: ",[
+            'delivery' => $delivery->toArray(),
+            'distance' => $distance,
+            'type' => $transporter->type,
+            'rate' => $rateByType,
+            'price' => $price
+        ]);
         return $price;
     }
 }
