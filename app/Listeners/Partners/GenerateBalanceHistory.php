@@ -150,7 +150,8 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
 
                     # total balance service > record service balance
-                    if ($this->partner->get_fee_transit && $this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
+                    if (!$this->partner->get_fee_transit) break;
+                    if ($this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
                     if ($this->delivery->type === Delivery::TYPE_DOORING) $this->saveServiceFee(true);
                 }
                 break;
@@ -241,7 +242,6 @@ class GenerateBalanceHistory
                                     ]], new TransporterBalance());
                                 break;
                             }
-                            $this->setBalance($manifest_weight * $price);
                         } else {
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $price = PartnerTransitPrice::query()
@@ -261,8 +261,8 @@ class GenerateBalanceHistory
                                     ]], new TransporterBalance());
                                 break;
                             }
-                            $this->setBalance($manifest_weight * $price->value);
                         }
+                        $this->setBalance($manifest_weight * $price->value);
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
@@ -351,6 +351,7 @@ class GenerateBalanceHistory
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
                         ]], new TransporterBalance());
+                    break;
                 }
                 $this
                     ->setBalance($weight * $price->value)
