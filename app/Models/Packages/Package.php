@@ -90,6 +90,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
+ * @property-read \App\Models\Partners\Performances\Package|null $partner_performance
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
@@ -683,5 +684,13 @@ class Package extends Model implements AttachableContract
                 return null;
             }
         });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function partner_performance(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class,'package_id','id')->orderBy('created_at','desc');
     }
 }
