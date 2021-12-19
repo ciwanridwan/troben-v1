@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
 use App\Events\Deliveries\PartnerRequested;
+use App\Events\Packages\PackagesAttachedToDelivery;
 use App\Events\Packages\PartnerAssigned;
 use App\Events\Partners\Balance\NewDeliveryHistoryCreated;
 use App\Events\Partners\Balance\NewHistoryCreated;
@@ -14,7 +15,9 @@ use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Listeners\Partners\DeadlineCreatedByEvent;
 use App\Listeners\Partners\GenerateBalanceHistory;
+use App\Listeners\Partners\PartnerPerformanceEvaluatedByEvent;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
 use App\Listeners\Payments\UpdatePaymentByEvent;
@@ -123,6 +126,8 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
+            PartnerPerformanceEvaluatedByEvent::class,
+            DeadlineCreatedByEvent::class,
             WriteCodeLog::class
         ],
         WarehouseIsEstimatingPackage::class => [
@@ -170,6 +175,9 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
         ],
+        PackagesAttachedToDelivery::class => [
+            DeadlineCreatedByEvent::class
+        ],
         DeliverableItemCodeUpdate::class => [
             WriteCodeLog::class
         ],
@@ -177,6 +185,9 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageStatusByEvent::class,
             UpdateDeliveryStatusByEvent::class,
             WriteCodeLog::class
+        ],
+        DeliveryTransit\WarehouseUnloadedPackages::class => [
+            PartnerPerformanceEvaluatedByEvent::class,
         ],
         CodeCreated::class => [
             // UpdateOrCreateScannedCode::class
@@ -219,6 +230,7 @@ class EventServiceProvider extends ServiceProvider
         PayByNicepay::class => [
             UpdatePackageStatusByEvent::class,
             UpdatePaymentByEvent::class,
+            DeadlineCreatedByEvent::class,
             WriteCodeLog::class,
         ],
         NewHistoryCreated::class => [
