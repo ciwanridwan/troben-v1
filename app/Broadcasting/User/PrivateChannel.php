@@ -24,7 +24,9 @@ class PrivateChannel extends TrawlNotification
         $this->validateData()
             ->recordLog();
 
-        if ($this->user->fcm_token) $this->push();
+        if ($this->user->fcm_token) {
+            $this->push();
+        }
     }
 
     /**

@@ -86,14 +86,16 @@ class Queries
         $query = Delivery::query();
 
         $transporters = [];
-        foreach ($this->partner->users()->where('role',UserablePivot::ROLE_DRIVER)->get() as $driver) {
+        foreach ($this->partner->users()->where('role', UserablePivot::ROLE_DRIVER)->get() as $driver) {
             if ($driver->transporters) {
-                foreach ($driver->transporters as $transporter) $transporters[] = $transporter->pivot->id;
+                foreach ($driver->transporters as $transporter) {
+                    $transporters[] = $transporter->pivot->id;
+                }
             }
         }
 
         $query->whereIn('userable_id', array_merge(
-            [$this->partner->users()->where('role',UserablePivot::ROLE_OWNER)->first()->pivot->id],
+            [$this->partner->users()->where('role', UserablePivot::ROLE_OWNER)->first()->pivot->id],
             $transporters
         ));
         $query->with([

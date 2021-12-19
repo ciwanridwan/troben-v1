@@ -1,0 +1,24 @@
+_id: req_b3928967c1b24950b0e6c32b38aefabd
+type: Request
+parentId: fld_52a7dc537b7d4cc291f28b0fcd5816b3
+modified: 1630574201769
+created: 1630573571621
+url: "{{ _.base_url }}/partner/owner/balance/summary"
+name: Get Partner Balance Summary
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1630573571621
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

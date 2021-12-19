@@ -1,0 +1,28 @@
+_id: req_31322b3aadac41eb944793fbeeb940e8
+type: Request
+parentId: fld_6d17b468753a47c59c0653505ac7f5fe
+modified: 1632903879110
+created: 1632903696503
+url: "{{ _.base_url }}/notification"
+name: Get notification list
+description: ""
+method: GET
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_e5a732021e9e431a8e84bc9bd1986967
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1632903696503
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

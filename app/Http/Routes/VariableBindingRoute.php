@@ -8,6 +8,7 @@ use App\Models\Notifications\Notification;
 use App\Models\Packages\Item;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Withdrawal;
+use App\Models\Promos\Promotion;
 use Jalameta\Router\BaseRoute;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -34,6 +35,7 @@ class VariableBindingRoute extends BaseRoute
         $this->router->bind('code_content', fn ($code) => Code::where('content', $code)->firstOrFail());
         $this->router->bind('gateway_hash', fn ($hash) => Gateway::byHashOrFail($hash));
         $this->router->bind('customer_hash', fn ($hash) => Customer::byHashOrFail($hash));
+        $this->router->bind('promotion_hash', fn ($hash) => Promotion::byHashOrFail($hash));
         $this->router->bind('notification_id', fn ($id) => Notification::where('id', $id)->firstOrFail());
     }
 }

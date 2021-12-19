@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerResource;
-use App\Http\Response;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,17 +17,17 @@ class PartnerController extends Controller
      *
      * @var array
      */
-    protected $attributes;
+    protected array $attributes;
 
     /**
      * Get Type of Transporter List
-     * Route Path       : {API_DOMAIN}/partner
-     * Route Name       : api.partner
+     * Route Path       : {API_DOMAIN}/partner/list
+     * Route Name       : api.partner.list
      * Route Method     : GET.
      *
      * @param Request $request
-     *
      * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function list(Request $request): JsonResponse
     {
@@ -46,18 +44,15 @@ class PartnerController extends Controller
         $query = $this->getBasicBuilder(Partner::query());
 
         // MITRA MB
-        $query->where('type', 'business');
+        $query->where('type', Partner::TYPE_BUSINESS);
+        $query->whereNotNull(['latitude','longitude']);
 
         $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);
         }));
         $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
 
-        if ($query->first() == null) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
-        }
-
-        return $this->jsonSuccess(PartnerResource::collection($query->paginate(request('per_page', 30))));
+        return $this->jsonSuccess(PartnerResource::collection($query->get()));
     }
 
     /**
