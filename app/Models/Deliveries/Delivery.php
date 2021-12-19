@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Payments\Payment;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -47,6 +48,7 @@ use ReflectionClass;
  * @property-read Partner $origin_partner
  * @property-read Transporter $transporter
  * @property-read Code $code
+ * @property-read \App\Models\Partners\Performances\Delivery|null $partner_performance
  */
 class Delivery extends Model
 {
@@ -315,5 +317,13 @@ class Delivery extends Model
                 'variable' => ['driver_name', 'partner', 'partner_code']
             ],
         ];
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function partner_performance(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class,'delivery_id','id')->orderBy('created_at','desc');
     }
 }

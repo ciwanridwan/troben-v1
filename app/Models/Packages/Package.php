@@ -19,6 +19,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -87,6 +88,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
+ * @property-read \App\Models\Partners\Performances\Package|null $partner_performance
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
@@ -662,5 +664,13 @@ class Package extends Model implements AttachableContract
             if ($transporter['name'] === $transporterType) return $transporter;
             else return [];
         }, []);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function partner_performance(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class,'package_id','id')->orderBy('created_at','desc');
     }
 }
