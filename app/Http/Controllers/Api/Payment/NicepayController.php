@@ -30,7 +30,7 @@ class NicepayController extends Controller
     {
         throw_if($this->checkPaymentHasPaid($package), Error::make(Response::RC_PAYMENT_HAS_PAID));
 
-        Log::debug('NicepayController: ',['package_code' => $package->code->content, 'channel' => $gateway->channel]);
+        Log::debug('NicepayController: ', ['package_code' => $package->code->content, 'channel' => $gateway->channel]);
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
                 $resource = (new CheckPayment($package, $gateway))->vaRegistration();

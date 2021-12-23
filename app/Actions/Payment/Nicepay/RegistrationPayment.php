@@ -90,11 +90,11 @@ class RegistrationPayment
             'vacctValidTm' => $this->validTime(),
         ]);
 
-        Log::debug('Registration body va: ',['body' => $this->attributes]);
+        Log::debug('Registration body va: ', ['body' => $this->attributes]);
         $job = new Registration($this->package, $this->attributes);
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
 
-        Log::debug('Nicepay response va: ',['response' => $job->response]);
+        Log::debug('Nicepay response va: ', ['response' => $job->response]);
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
 
         return [
@@ -118,11 +118,11 @@ class RegistrationPayment
             'mitraCd' => config('nicepay.mitra_code'),
             'shopId' => config('nicepay.shop_id'),
         ]);
-        Log::debug('Registration body qr: ',['body' => $this->attributes]);
+        Log::debug('Registration body qr: ', ['body' => $this->attributes]);
         $job = new Registration($this->package, $this->attributes);
 
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
-        Log::debug('Nicepay response qr: ',['response' => $job->response]);
+        Log::debug('Nicepay response qr: ', ['response' => $job->response]);
         event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
 
         return [
