@@ -23,7 +23,7 @@ class Error extends Exception implements Responsable
      * @param array           $data
      * @param \Throwable|null $previous
      */
-    public function __construct($code, $data = [], Throwable $previous = null)
+    public function __construct($code, $data = null, Throwable $previous = null)
     {
         $this->response = new Response($code, $data);
 
@@ -44,7 +44,7 @@ class Error extends Exception implements Responsable
      *
      * @return static
      */
-    public static function make(string $code, $data = []): self
+    public static function make(string $code, $data = null): self
     {
         return new static($code, $data);
     }

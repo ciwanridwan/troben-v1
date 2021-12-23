@@ -27,16 +27,16 @@ const main = {
             route: "admin.home.manifest",
             children: null
           },
-          tracking: {
-            title: "Tracking Manifest",
-            text: "Tracking Manifest",
-            route: "admin.home.manifest.tracking",
-            children: null
-          },
+          // tracking: {
+          //   title: "Tracking Manifest",
+          //   text: "Tracking Manifest",
+          //   route: "admin.home.manifest.tracking",
+          //   children: null
+          // },
           request: {
             title: "Request Transporter",
             text: "Request Transporter",
-            route: "admin.home.manifest.request",
+            route: "admin.home.manifest.request.transporter",
             children: null
           }
         }
@@ -80,37 +80,76 @@ const main = {
   payment: {
     icon: "wallet",
     text: "Pembayaran",
-    route: "admin.payment.income",
+    route: "admin.payment.home",
     children: {
+      home: {
+        title: "Home",
+        text: "Beranda",
+        route: "admin.payment.home",
+        children: null
+      },
       income: {
-        title: "All Income",
         text: "Pendapatan",
+        route: "admin.payment.partner",
+        children: {
+          dataBusiness: {
+            text: "Mitra Business",
+            route: "admin.payment.partner.business",
+            children: null
+          },
+          dataPool: {
+            text: "Mitra Pool",
+            route: "admin.payment.partner.pool",
+            children: null
+          },
+          dataSpace: {
+            text: "Mitra Space",
+            route: "admin.payment.partner.space",
+            children: null
+          },
+          dataTransporter: {
+            text: "Mitra Transporter",
+            route: "admin.payment.partner.transporter",
+            children: null
+          }
+        },
+        shortKey: ["ctrl", "alt", "i"]
+      },
+      summary: {
+        title: "All Income",
+        text: "Summary Order",
         route: "admin.payment.income",
         children: {
           mitraBusiness: {
-            title: "MB Income",
+            title: "Mitra Bisnis",
             text: "Mitra Business",
             route: "admin.payment.income",
             children: null
           },
+          MS: {
+            title: "Mitra Space",
+            text: "Mitra Space",
+            route: "admin.payment.ms",
+            children: null
+          },
+          MPW: {
+            title: "MPW",
+            text: "MPW",
+            route: "admin.payment.mpw",
+            children: null
+          },
           MTAK: {
-            title: "MTAK Income",
+            title: "MTAK",
             text: "MTAK",
             route: "admin.payment.mtak",
             children: null
           },
-          MTAKab: {
-            title: "MTAKab Income",
-            text: "MTAKab",
-            route: "admin.payment.mtakab",
-            children: null
-          },
-          MPW: {
-            title: "MPW Income",
-            text: "MPW",
-            route: "admin.payment.mpw",
-            children: null
-          }
+          // MTAKab: {
+          //   title: "MTAKab",
+          //   text: "MTAKab",
+          //   route: "admin.payment.mtakab",
+          //   children: null
+          // },
         },
         shortKey: ["ctrl", "alt", "i"]
       },

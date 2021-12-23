@@ -33,6 +33,11 @@ class AuthRoute extends BaseRoute
             'uses' => $this->uses('login'),
         ])->withoutMiddleware('api');
 
+        $this->router->post('/super/auth/login', [
+            'as' => $this->name('super'),
+            'uses' => $this->uses('super'),
+        ])->withoutMiddleware('api');
+
         $this->router->post($this->prefix('register'), [
             'as' => $this->name('register'),
             'uses' => $this->uses('register'),
@@ -43,9 +48,9 @@ class AuthRoute extends BaseRoute
             'uses' => $this->uses('forgotByPhone'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('forgotbyemail'), [
-            'as' => $this->name('forgotByEmail'),
-            'uses' => $this->uses('forgotByEmail'),
+        $this->router->post($this->prefix('forgotpassword'), [
+            'as' => $this->name('forgotPassword'),
+            'uses' => $this->uses('forgotPassword'),
         ])->withoutMiddleware('api');
 
         $this->router->post($this->prefix('updatesocial'), [

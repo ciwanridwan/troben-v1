@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             PriceTableSimpleSeeder::class,
             // PriceTableSimpleSeeder::class,
             ProductsTableSeeder::class,
+            BankTableSeeder::class,
         ]);
     }
 }

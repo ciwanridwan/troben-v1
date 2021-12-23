@@ -1,6 +1,7 @@
 import config from "./config";
 import moment from "moment";
 
+const uriDataFinance = "admin.payment.data";
 const laravel = {
   data() {
     return {
@@ -35,6 +36,54 @@ const laravel = {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), { params: this.filter })
+        .then(res => this.onSuccessResponse(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getFinanceDataDaily() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterDaily })
+        .then(res => this.onSuccessResponseDaily(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getFinanceDataMonthly() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterMonthly })
+        .then(res => this.onSuccessResponseMonthly(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getFinanceDataChart() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterChart })
+        .then(res => this.onSuccessResponseChart(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getDataPartner() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterPartner })
+        .then(res => this.onSuccessResponsePartner(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getRegency() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
+        .then(res => this.onSuccessResponse(res.data))
+        .catch(err => this.onErrorResponse(err))
+        .finally(() => (this.loading = false));
+    },
+    getProvince() {
+      this.loading = true;
+      this.$http
+        .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
         .then(res => this.onSuccessResponse(res.data))
         .catch(err => this.onErrorResponse(err))
         .finally(() => (this.loading = false));

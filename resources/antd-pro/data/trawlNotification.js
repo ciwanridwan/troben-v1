@@ -1,7 +1,7 @@
 const trawlNotification = {
   data() {
     return {
-      filter: {
+      filterNotification: {
         per_page: -1
       },
     }
@@ -12,7 +12,7 @@ const trawlNotification = {
         .get(this.routeUri(`${ this.getRouteBase() }notification`), {
           params: {
             type: status,
-            ...this.filter,
+            ...this.filterNotification,
             ...params
           }
         })

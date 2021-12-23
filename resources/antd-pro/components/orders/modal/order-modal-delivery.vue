@@ -16,7 +16,7 @@
             <a-col :span="12">
               <span>Biaya Penjemputan</span>
             </a-col>
-            <a-col :span="12"> Rp. {{ currency(0) }} </a-col>
+            <a-col :span="12">{{ currency(0) }} </a-col>
           </a-row>
           <a-divider />
           <a-row type="flex">

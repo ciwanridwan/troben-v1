@@ -1,7 +1,27 @@
 <template>
-  <content-layout>
+  <content-layout title="Data Pencairan Pending">
     <template slot="head-tools">
-      <a-row type="flex" justify="end" :gutter="[10, 10]">
+      <a-row type="flex" justify="space-between" :gutter="[10, 10]">
+        <a-col :span="8">
+
+        </a-col>
+        <a-col :span="8" style="text-align:center">
+          <a-row
+            type="flex"
+            justify="space-between"
+            :gutter="[10, 10]"
+          >
+            <a-col :span="10">
+              <a-date-picker></a-date-picker>
+            </a-col>
+            <a-col :span="4">
+              <span>s/d</span>
+            </a-col>
+            <a-col :span="10">
+              <a-date-picker></a-date-picker>
+            </a-col>
+          </a-row>
+        </a-col>
         <a-col :span="8">
           <a-input-search
             v-model="filter.q"
@@ -13,7 +33,7 @@
     <template slot="content">
       <a-table
         :columns="pendingColumns"
-        :data-source="payments.data"
+        :dataSource="items.data"
         :pagination="trawlbensPagination"
         @change="handleTableChanged"
         :loading="loading"
@@ -23,16 +43,11 @@
         }"
       >
         <span slot="number" slot-scope="number">{{ number }}</span>
-        <span slot="balance" slot-scope="balance">{{
-          currency(10000000)
-        }}</span>
-        <span slot="withdraw_balance" slot-scope="withdraw_balance">{{
-          currency(10000000)
-        }}</span>
+
         <span slot="action" slot-scope="record">
           <a-space>
-            <a-button type="primary" size="small">Selesai</a-button>
-            <a-button type="danger" ghost size="small">Cancel</a-button>
+            <modal-cancel-withdrawal :afterConfirm="afterAction" :record="record" />
+            <modal-done-withdrawal :afterConfirm="afterAction" :record="record" />
           </a-space>
         </span>
       </a-table>
@@ -47,8 +62,8 @@
             <a-space>
               <span>{{ selections.length }} Item terpilih</span>
 
-              <a-button type="primary">Selesai</a-button>
-              <a-button type="danger" ghost>Cancel</a-button>
+              <a-button type="primary" @click="showConfirm">Selesai</a-button>
+              <a-button type="danger">Cancel</a-button>
             </a-space>
           </a-col>
         </a-row>
@@ -59,10 +74,17 @@
 <script>
 import pendingColumns from "../../../../../config/table/withdraw/pending";
 import ContentLayout from "../../../../../layouts/content-layout.vue";
-import { payments } from "../../../../../mock/index";
+import ModalCancelWithdrawal from "../../../../../components/modal-finance/modal-cancel-withdrawal";
+import ModalDoneWithdrawal from "../../../../../components/modal-finance/modal-done-withdrawal";
+import AdminOrderActions from "../../../../../components/orders/actions/admin-order-actions";
 
 export default {
-  components: { ContentLayout },
+  components: {
+    ContentLayout,
+    AdminOrderActions,
+    ModalCancelWithdrawal,
+    ModalDoneWithdrawal,
+  },
   data: () => ({
     recordNumber: 0,
     items: {},
@@ -74,7 +96,6 @@ export default {
     loading: false,
     selections: [],
     pendingColumns,
-    payments
   }),
   methods: {
     onSuccessResponse(response) {
@@ -86,7 +107,43 @@ export default {
     },
     onChangeSelected(selections) {
       this.selections = selections;
+    },
+    showConfirm() {
+      this.$confirm({
+        title: 'Apakah anda yakin untuk mengkonfirmasi pencairan dana?',
+        content: 'Some descriptions',
+        onOk() {
+          console.log('OK');
+        },
+        onCancel() {
+          console.log('Cancel');
+        },
+        class: 'test',
+      });
+    },
+    showRejectConfirm() {
+      this.$confirm({
+        title: 'Apakah anda yakin untuk menolak pencairan dana?',
+        content: 'Some descriptions',
+        onOk() {
+          console.log('OK');
+        },
+        onCancel() {
+          console.log('Cancel');
+        },
+        class: 'test',
+      });
     }
+  },
+  props: {
+    record: {
+      type: Object,
+      default: () => {},
+    },
+    afterAction: {
+      type: Function,
+      default: () => {},
+    },
   },
   created() {
     this.items = this.getDefaultPagination();

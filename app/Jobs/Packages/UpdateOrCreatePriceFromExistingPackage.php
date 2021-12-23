@@ -64,6 +64,7 @@ class UpdateOrCreatePriceFromExistingPackage
         /** @var Price $price */
         $price = $this->package->prices()->updateOrCreate([
             'type' => $this->attributes['type'],
+            'description' => $this->attributes['description'],
         ], $this->attributes);
 
         $this->price = $price;

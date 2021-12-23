@@ -5,6 +5,10 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
+use App\Models\Promos\ClaimedPromotion;
+use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
@@ -16,7 +20,9 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Jalameta\Attachments\Concerns\Attachable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -54,6 +60,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property bool $is_separate_item
  * @property float $total_amount
  * @property float $total_weight
+ * @property float $tier_price
  * @property string $payment_status
  * @property int $origin_regency_id
  * @property int $origin_district_id
@@ -314,7 +321,14 @@ class Package extends Model implements AttachableContract
     public function getServicePriceAttribute()
     {
         try {
-            $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_SERVICE)
+                ->first()->amount;
+            if ($discount != null) {
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
+            } else {
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            }
             return $service_price;
         } catch (\Throwable $th) {
             return 0;
@@ -341,7 +355,6 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
-
     /**
      * Define `hasMany` relationship with Item model.
      *
@@ -366,6 +379,31 @@ class Package extends Model implements AttachableContract
             ->where('codes.codeable_type', Item::class);
     }
 
+    public function histories(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id');
+    }
+
+    public function historyPool(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_POOL);
+    }
+
+    public function historyBusiness(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_BUSINESS);
+    }
+
+    public function historyTransporter(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_TRANSPORTER);
+    }
+
+    public function historySpace(): HasMany
+    {
+        return $this->hasMany(History::class, 'package_id', 'id')->whereRelation('partner', 'type', Partner::TYPE_SPACE);
+    }
+
     /**
      * Define `hasMany` relationship with Price model.
      *
@@ -384,6 +422,11 @@ class Package extends Model implements AttachableContract
     public function picked_up_by()
     {
         return $this->deliveries()->orderByPivot('created_at')->with('partner');
+    }
+
+    public function claimed_promotion(): HasOne
+    {
+        return $this->hasOne(ClaimedPromotion::class, 'package_id', 'id');
     }
 
     public function deliveries(): MorphToMany
@@ -621,5 +664,24 @@ class Package extends Model implements AttachableContract
             ],
 
         ];
+    }
+
+    /**
+     * get detail transporter.
+     * @return mixed
+     */
+    public function getTransporterDetailAttribute(): ?array
+    {
+        $transporterType = $this->transporter_type;
+        if (! $transporterType) {
+            return null;
+        }
+        return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
+            if ($transporter['name'] === $transporterType) {
+                return $transporter;
+            } else {
+                return null;
+            }
+        });
     }
 }

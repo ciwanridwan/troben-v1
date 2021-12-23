@@ -20,16 +20,16 @@ export default [
   },
   {
     title: "Saldo",
-    key: "balance",
-    dataIndex: "balance",
-    scopedSlots: { customRender: "balance" }
+    key: "first_balance",
+    dataIndex: "first_balance",
+    scopedSlots: { customRender: "first_balance" }
   },
   {
     title: "Jumlah Pencairan",
-    dataIndex: "withdraw_balance",
-    key: "withdraw_balance",
+    dataIndex: "amount",
+    key: "amount",
     align: "center",
-    scopedSlots: { customRender: "withdraw_balance" }
+    scopedSlots: { customRender: "amount" }
   },
   {
     title: "Tanggal",

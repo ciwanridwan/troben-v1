@@ -113,7 +113,6 @@ Vue.mixin({
       consumer.onmessage = function(event) {
         callback()
         console.log("onmessage notif", event);
-        
       };
 
       consumer.onclose = function(event) {

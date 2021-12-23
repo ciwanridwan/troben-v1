@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Promos;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;

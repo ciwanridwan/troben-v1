@@ -4,7 +4,9 @@ namespace App\Models\Customers;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Contracts\HasOtpToken;
+use App\Models\Notifications\Notification;
 use App\Models\Packages\Package;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Laravel\Sanctum\HasApiTokens;
@@ -147,5 +149,15 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     public function packages(): HasMany
     {
         return $this->hasMany(Package::class, 'customer_id', 'id');
+    }
+
+    /**
+     * Define 'MorphMany' relations with notification.
+     *
+     * @return MorphMany
+     */
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

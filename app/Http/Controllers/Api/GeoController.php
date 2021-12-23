@@ -93,7 +93,7 @@ class GeoController extends Controller
             case 'sub_district':
                 return $this->getSubDistrictsList();
             case 'regency':
-                return $this->getRegenciesList();
+                return $this->getRegencies(false);
         }
     }
 
@@ -127,26 +127,16 @@ class GeoController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function getRegencies(): JsonResponse
+    protected function getRegencies(bool $is_apps = true): JsonResponse
     {
         $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->input('origin') == '1', fn ($q) => $q->where('name', 'Kabupaten Tangerang')
-            ->Orwhere('name', 'Kota Tangerang')
-            ->Orwhere('name', 'Kota Tangerang Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Barat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Pusat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Timur')
-            ->Orwhere('name', 'Kota Adm. Jakarta Utara')
-            ->Orwhere('name', 'Kabupaten Bekasi')
-            ->Orwhere('name', 'Kota Bekasi')
-            ->Orwhere('name', 'Kabupaten Bogor')
-            ->Orwhere('name', 'Kota Bogor')
-            ->Orwhere('name', 'Kota Depok'));
+        $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365]));
 
-        return $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))));
+        return $is_apps
+            ? $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))))
+            : $this->jsonSuccess(KotaResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**
@@ -196,37 +186,14 @@ class GeoController extends Controller
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
-            ->select('geo_regencies.name as regency', 'geo_districts.name as district', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id')
+            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code')
 
             ->Where('geo_regencies.name', 'like', '%'.$caps.'%')
             ->orWhere('geo_districts.name', 'like', '%'.$caps.'%')
             ->orWhere('geo_sub_districts.name', 'like', '%'.$caps.'%')
             ->orderBy('geo_regencies.name', 'desc');
 
-
-
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
-    }
-    protected function getRegenciesList(): JsonResponse
-    {
-        $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
-        $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
-        $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->input('origin') == '1', fn ($q) => $q->where('name', 'Kabupaten Tangerang')
-            ->Orwhere('name', 'Kota Tangerang')
-            ->Orwhere('name', 'Kota Tangerang Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Barat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Pusat')
-            ->Orwhere('name', 'Kota Adm. Jakarta Selatan')
-            ->Orwhere('name', 'Kota Adm. Jakarta Timur')
-            ->Orwhere('name', 'Kota Adm. Jakarta Utara')
-            ->Orwhere('name', 'Kabupaten Bekasi')
-            ->Orwhere('name', 'Kota Bekasi')
-            ->Orwhere('name', 'Kabupaten Bogor')
-            ->Orwhere('name', 'Kota Bogor')
-            ->Orwhere('name', 'Kota Depok'));
-
-        return $this->jsonSuccess(KotaResource::collection($query->paginate(request('per_page', 15))));
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
+use App\Mail\SendMailOTP;
 use App\Models\User;
 use App\Http\Response;
 use App\Http\Resources\Account\JWTCustomerResource;
@@ -13,6 +14,7 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +36,7 @@ class AccountAuthentication
     public const CREDENTIAL_PHONE = 'phone';
     public const CREDENTIAL_USERNAME = 'username';
 
+    public const JWT_KEY = 'trawlbensJWTSecretK';
     /**
      * Accepted attributes.
      *
@@ -73,7 +76,7 @@ class AccountAuthentication
             ? $this->customerRegistration()
             : $this->userRegistration();
 
-        return $this->askingOtpResponse($account, $this->attributes['otp_channel']);
+        return $this->askingOtpResponse($account, $this->attributes['otp_channel'], $account, $account);
     }
 
     /**
@@ -115,8 +118,13 @@ class AccountAuthentication
 
         /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
+        if ($column == self::CREDENTIAL_FACEBOOK || $column == self::CREDENTIAL_GOOGLE && $authenticatable == null) {
+            $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+            $query->where('email', $this->attributes['email'])
+                ->update([$column => $this->attributes['username']]);
+            $authenticatable = $query->where($column, $this->attributes['username'])->first();
+        }
 
-        $key = 'trawlbensJWTSecretK';
         $payload = [];
 
         if ($authenticatable) {
@@ -156,14 +164,14 @@ class AccountAuthentication
                     'message' => 'Harap lengkapi data anda!',
                     'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
-                    'jwt_token' => JWT::encode($payload, $key)
+                    'jwt_token' => JWT::encode($payload, self::JWT_KEY)
                 ]))->json();
             }
 
             return (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => JWT::encode($payload, $key)
+                'jwt_token' => JWT::encode($payload, self::JWT_KEY)
             ]))->json();
             // TODO: get authenticatable
         }
@@ -184,11 +192,11 @@ class AccountAuthentication
         }
 
         if ($this->attributes['otp']) {
-            return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel']);
+            return $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column);
         }
 
         // if ($this->attributes['guard'] === 'user') {
-        //     $key = 'trawlbensJWTSecretK';
+        //     $key = self::self::JWT_KEY;
 
         //     $payload = [
         //         'id' => $authenticatable->id,
@@ -208,7 +216,7 @@ class AccountAuthentication
             'exp' => $now + (((60 * 60) * 24) * 30),
             'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
         ];
-        $jwt = JWT::encode($payload, $key);
+        $jwt = JWT::encode($payload, self::JWT_KEY);
 
         return (new Response(Response::RC_SUCCESS, [
             'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
@@ -251,7 +259,44 @@ class AccountAuthentication
         }
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
+            : (new Response(Response::RC_SUCCESS, [
+                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'fcm_token' => $authenticatable->fcm_token ?? null
+            ]))->json();
+    }
+
+    public function requestPassword(): JsonResponse
+    {
+        switch (true) {
+            case Arr::has($this->attributes, self::CREDENTIAL_PHONE):
+                $column = self::CREDENTIAL_PHONE;
+                $this->attributes['otp_channel'] = self::CREDENTIAL_PHONE;
+                $this->attributes['phone'] = PhoneNumberUtil::getInstance()->format(
+                    PhoneNumberUtil::getInstance()->parse($this->attributes['phone'], 'ID'),
+                    PhoneNumberFormat::E164
+                );
+                break;
+            case Arr::has($this->attributes, self::CREDENTIAL_EMAIL):
+                $column = self::CREDENTIAL_EMAIL;
+                $this->attributes['otp_channel'] = self::CREDENTIAL_EMAIL;
+                break;
+            default:
+                $column = $this->attributes['guard'] == 'customer' ? self::CREDENTIAL_EMAIL : self::CREDENTIAL_USERNAME;
+                break;
+        }
+
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+
+        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['phone'] ?? $this->attributes['email'])->first();
+
+        # update fcm_token
+        if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
+            $authenticatable = $this->validationFcmToken($authenticatable);
+        }
+        return $this->attributes['otp']
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null
@@ -287,7 +332,7 @@ class AccountAuthentication
         }
 
         return $this->attributes['otp']
-            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'])
+            ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
                 'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
@@ -305,6 +350,9 @@ class AccountAuthentication
     {
         if (is_null($authenticatable->fcm_token)) {
             $input = ['fcm_token' => (string) Str::uuid()];
+            if (config('app.env') !== 'production') {
+                $input['fcm_token'] = config('app.env', 'staging').'-'.$input['fcm_token'];
+            }
             if ($authenticatable instanceof Customer) {
                 $job = new UpdateExistingCustomer($authenticatable, $input);
             } else {
@@ -315,6 +363,33 @@ class AccountAuthentication
         }
 
         return $authenticatable->refresh();
+    }
+
+    /**
+     * Super login.
+     * @return JsonResponse
+     */
+    public function superAttempt(): JsonResponse
+    {
+        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
+        $column = $this->attributes['guard'] === 'customer' ? self::CREDENTIAL_PHONE : self::CREDENTIAL_USERNAME;
+        $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
+
+        $payload = [];
+
+        if ($authenticatable) {
+            $now = time();
+            $payload = [
+                'iat' => $now,
+                'exp' => $now + (((60 * 60) * 24) * 30),
+                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
+            ];
+        }
+        return (new Response(Response::RC_SUCCESS, [
+            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            'fcm_token' => $authenticatable->fcm_token ?? null,
+            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
+        ]))->json();
     }
 
     /**
@@ -360,11 +435,19 @@ class AccountAuthentication
      * @param string $otp_channel
      * @return JsonResponse
      */
-    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    protected function askingOtpResponse(HasOtpToken $authenticatable, string $otp_channel, Customer $customer, string $column): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
-        $job = new SendMessage($otp, $authenticatable->phone);
-        $this->dispatch($job);
+        if ($column == self::CREDENTIAL_EMAIL) {
+            Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
+        } else {
+            try {
+                $job = new SendMessage($otp, $authenticatable->phone);
+                $this->dispatch($job);
+            } catch (\Exception $ex) {
+                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
+            }
+        }
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,

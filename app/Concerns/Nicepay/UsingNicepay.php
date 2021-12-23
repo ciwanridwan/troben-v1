@@ -51,6 +51,16 @@ trait UsingNicepay
      */
     public function validPhone(string $phonenumber)
     {
-        return str_replace(['+','-',' '], '', $phonenumber);
+        return substr(str_replace(['+','-',' '], '', $this->validatePhoneCountryCode($phonenumber)), 0, 12);
+    }
+
+    /**
+     * Change +62 to 0.
+     * @param $phonenumber
+     * @return array|string|string[]
+     */
+    protected function validatePhoneCountryCode($phonenumber)
+    {
+        return str_replace(['+62'], '0', $phonenumber);
     }
 }

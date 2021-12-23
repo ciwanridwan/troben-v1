@@ -86,6 +86,21 @@ class ManifestController extends Controller
         return view('admin.home.manifest.index');
     }
 
+    public function requestTransporter(Request $request)
+    {
+        if ($request->expectsJson()) {
+            if ($request->partner) {
+                return $this->getPartnerTransporter($request);
+            }
+            $this->query->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
+            $this->getSearch($request);
+            $this->dataRelation();
+
+            return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
+        }
+        return view('admin.home.manifest.index');
+    }
+
     public function assign(Delivery $delivery, Partner $partner)
     {
         $job = new AssignPartnerToDelivery($delivery, $partner);

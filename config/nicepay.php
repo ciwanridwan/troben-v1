@@ -77,4 +77,11 @@ return [
         '103.117.8.0',
         '103.20.51.34',
     ],
+
+    /*
+     * header lists
+     */
+    'nicepay_headers' => [
+        'user-agent' => 'Jakarta Commons-HttpClient/3.1'
+    ],
 ];

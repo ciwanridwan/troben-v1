@@ -7,7 +7,7 @@
           slot="renderItem"
           slot-scope="item, index"
           :class="[roomId == item.room_id ? 'trawl-bg-gray' : '']"
-          style="padding-left: 10px;"
+          style="padding-left: 10px"
         >
           <a-list-item-meta :description="description(item)">
             <!-- <button class="trawl-chat--buttonSideBar"> -->
@@ -53,7 +53,7 @@
           align="bottom"
           :class="[
             'trawl-chat--next',
-            index == dataChat.length - 1 ? 'scrollingContainer' : ''
+            index == dataChat.length - 1 ? 'scrollingContainer' : '',
           ]"
           :style="data.customer_chat ? 'padding-left: 15px' : ''"
         >
@@ -66,7 +66,7 @@
               'trawl-chat trawl-chat-message',
               data.customer_chat
                 ? 'trawl-chat-message--receive trawl-bg-green--darken'
-                : 'trawl-chat-message--send trawl-bg-white'
+                : 'trawl-chat-message--send trawl-bg-white',
             ]"
           >
             <a
@@ -80,7 +80,7 @@
             >
               <img
                 v-if="data.attachments.length"
-                style="width: 403px;"
+                style="width: 403px"
                 :src="
                   data.attachments[0].customer_file
                     ? data.attachments[0].customer_file
@@ -117,17 +117,17 @@
               ref="fileInput"
             />
             <button
-              style="border: none; background: none; margin: 0; padding: 0;"
+              style="border: none; background: none; margin: 0; padding: 0"
               @click="$refs.fileInput.click()"
             >
               <img
-                style="width: 24px;"
+                style="width: 24px"
                 src="/assets/paperclip.png"
                 alt="paperclip"
               />
             </button>
             <a-button
-              style="margin: 0; padding: 0px 10px;"
+              style="margin: 0; padding: 0px 10px"
               type="primary"
               @click="producerSocket"
               >Send</a-button
@@ -156,57 +156,57 @@ const data2 = [
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: true
+    is_online: true,
   },
   {
     titl: "Ant Design Title 2",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: true,
-    is_online: true
+    is_online: true,
   },
   {
     titl: "Ant Design Title 3",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
+    is_online: false,
   },
   {
     titl: "Ant Design Title 4",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
+    is_online: false,
   },
   {
     titl: "Ant Design Title 4",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
+    is_online: false,
   },
   {
     titl: "Ant Design Title 4",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
+    is_online: false,
   },
   {
     titl: "Ant Design Title 4",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
+    is_online: false,
   },
   {
     titl: "Ant Design Title 4",
     descriptio:
       "Ant Design, a design language for background applications, is refined by Ant UED Team",
     is_active: false,
-    is_online: false
-  }
+    is_online: false,
+  },
 ];
 export default {
   components: { ContentChatLayout },
@@ -223,7 +223,7 @@ export default {
       newMessage: [],
       selectedFile: null,
       jwt_token: "",
-      activeLoading: 0
+      activeLoading: 0,
     };
   },
   methods: {
@@ -287,30 +287,30 @@ export default {
         "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin/room"
       );
 
-      consumer.onopen = function(e) {
+      consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
         fetch("https://staging-chat.trawlbens.com/chat/list/admin/room", {
           method: "GET",
           headers: {
-            Authorization: `bearer ${jwtToken}`
-          }
+            Authorization: `bearer ${jwtToken}`,
+          },
         })
-          .then(response => {
+          .then((response) => {
             console.log("success", response);
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("failure error", err);
           });
       };
 
-      consumer.onmessage = function(event) {
+      consumer.onmessage = function (event) {
         let getData = null;
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
 
         getData = JSON.parse(payload);
-        getData.forEach(element => {
+        getData.forEach((element) => {
           element.is_active = false;
           element.is_online = false;
         });
@@ -335,7 +335,7 @@ export default {
       //   }
       // };
 
-      consumer.onerror = function(error) {
+      consumer.onerror = function (error) {
         // alert(`[error] ${error.message}`);
         console.log("consumer error", error.message);
       };
@@ -349,7 +349,7 @@ export default {
       let consumer = new WebSocket(
         `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
       );
-      consumer.onclose = function(event) {
+      consumer.onclose = function (event) {
         console.log("listchat on close....", event);
         if (event.wasClean) {
           console.log(
@@ -363,7 +363,7 @@ export default {
         }
       };
 
-      consumer.onopen = function(e) {
+      consumer.onopen = function (e) {
         console.log("list chat isOpenChat", consumer);
 
         fetch(
@@ -371,35 +371,35 @@ export default {
           {
             method: "GET",
             headers: {
-              Authorization: `bearer ${jwtToken}`
-            }
+              Authorization: `bearer ${jwtToken}`,
+            },
           }
         )
-          .then(response => {
+          .then((response) => {
             console.log("list chat success", response);
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("list chat failure error", err);
           });
       };
 
-      consumer.onmessage = function(event) {
+      consumer.onmessage = function (event) {
         var myHeaders = new Headers();
         myHeaders.append("Authorization", `bearer ${jwtToken}`);
 
         var requestOptions = {
           method: "PATCH",
           headers: myHeaders,
-          redirect: "follow"
+          redirect: "follow",
         };
 
         fetch(
           `https://staging-chat.trawlbens.com/chat/admin/read/trawlbens/room/${item.room_id}`,
           requestOptions
         )
-          .then(response => response.text())
-          .then(result => console.log("patch", result))
-          .catch(error => console.log("error patch", error));
+          .then((response) => response.text())
+          .then((result) => console.log("patch", result))
+          .catch((error) => console.log("error patch", error));
 
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
@@ -409,7 +409,7 @@ export default {
 
       this.nickname = item.customer.name;
 
-      consumer.onerror = function(error) {
+      consumer.onerror = function (error) {
         console.log("error", error.message);
       };
 
@@ -482,7 +482,7 @@ export default {
       var requestOptions = {
         method: "POST",
         headers: myHeaders,
-        body: formdata
+        body: formdata,
         // redirect: "follow"
       };
 
@@ -490,14 +490,14 @@ export default {
         "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
         requestOptions
       )
-        .then(response => response.text())
-        .then(result => {
+        .then((response) => response.text())
+        .then((result) => {
           this.textInput = "";
           this.selectedFile = null;
           console.log("success produce", result);
         })
-        .catch(error => console.log("error", error));
-    }
+        .catch((error) => console.log("error", error));
+    },
 
     // consumeNotif() {
     //   let consumer = new WebSocket(
@@ -563,15 +563,15 @@ export default {
   created() {
     this.jwt_token = this.$laravel.jwt_token;
     this.consumeSocket(this.getListRoom);
-    // this.consumeNotif();
   },
   watch: {
     // $route: "consumeSocket",
-    $route: "listChat"
+    $route: "listChat",
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("user", this.$laravel.user);
-  }
+    // console.log("user", this.$laravel.user);
+    // console.log("token", this.$laravel.jwt_token);
+  },
 };
 </script>

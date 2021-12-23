@@ -49,7 +49,7 @@ class PackageResource extends JsonResource
         ]);
 
         if (isset($pickedUpPartner)) {
-            $data['picked_up_by'] = PartnerResource::make($pickedUpPartner->partner);
+            $data['picked_up_by'] = $pickedUpPartner->partner ? PartnerResource::make($pickedUpPartner->partner) : null;
         }
 
         if (isset($items)) {

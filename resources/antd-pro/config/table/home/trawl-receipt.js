@@ -10,8 +10,9 @@ export default [
   {
     title: "Nomor Resi",
     dataIndex: "code.content",
+    scopedSlots: { customRender: "id_order" },
     colspan: 5,
-    classes: ["trawl-text-center"]
+    classes: [""]
   },
   {
     title: "Mitra Penerima",
