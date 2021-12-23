@@ -110,6 +110,7 @@ return [
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
+        App\Http\Routes\Partner\CustomerService\CustomerServiceRoute::class,
         /** @inject customer_service **/
     ],
     'partner' => [

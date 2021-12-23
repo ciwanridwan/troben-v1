@@ -106,6 +106,8 @@ export default {
       let splitRoute = currentRoute.split('.');
       if (splitRoute[0] === 'admin') {
         return this.navigation[splitRoute[1]].children !== null;
+      } else if (splitRoute[0] === 'partner' && splitRoute[1] === 'customer_service') {
+        return this.navigation[splitRoute[2]].children !== null
       } else {
         return true;
       }

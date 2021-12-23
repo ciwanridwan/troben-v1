@@ -75,6 +75,13 @@ const main = {
       }
     },
     shortKey: ["ctrl", "alt", "d"]
+  },
+  message: {
+    icon: "mail",
+    text: "Pesan",
+    route: "partner.customer_service.message",
+    children: null,
+    shortKey: ["ctrl", "alt", "c"]
   }
 };
 
