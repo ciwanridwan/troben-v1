@@ -14,6 +14,7 @@ use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class NicepayController extends Controller
 {
@@ -29,6 +30,7 @@ class NicepayController extends Controller
     {
         throw_if($this->checkPaymentHasPaid($package), Error::make(Response::RC_PAYMENT_HAS_PAID));
 
+        Log::debug('NicepayController: ',['package_code' => $package->code->content, 'channel' => $gateway->channel]);
         switch (Gateway::convertChannel($gateway->channel)['type']):
             case 'va':
                 $resource = (new CheckPayment($package, $gateway))->vaRegistration();
