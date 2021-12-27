@@ -7,6 +7,7 @@ use App\Concerns\Models\CanSearch;
 use App\Models\Code;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Performances\PerformanceModel;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Partners\Transporter;
 use App\Models\User;
@@ -691,6 +692,8 @@ class Package extends Model implements AttachableContract
      */
     public function partner_performance(): HasOne
     {
-        return $this->hasOne(\App\Models\Partners\Performances\Package::class,'package_id','id')->orderBy('created_at','desc');
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class,'package_id','id')
+            ->where('status', PerformanceModel::STATUS_ON_PROCESS)
+            ->orderBy('created_at','desc');
     }
 }

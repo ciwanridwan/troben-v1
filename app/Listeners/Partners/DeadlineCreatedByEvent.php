@@ -5,6 +5,7 @@ namespace App\Listeners\Partners;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackagesAttachedToDelivery;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
 use App\Models\Partners\Performances\Package as PartnerPackagePerformance;
 use Carbon\Carbon;
@@ -37,6 +38,7 @@ class DeadlineCreatedByEvent
                 break;
             case $event instanceof PackagesAttachedToDelivery:
                 $delivery = $event->delivery;
+                if ($delivery->status === Delivery::STATUS_ACCEPTED) break;
                 $partnerOrigin = $delivery->origin_partner;
 
                 $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
