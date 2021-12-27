@@ -369,7 +369,7 @@ export default {
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/partner/read/trawlbens/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/partner/read/partner/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
