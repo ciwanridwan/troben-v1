@@ -1,0 +1,30 @@
+_id: req_a0e21a3a0d6649b5a3c3ce6462fdd183
+type: Request
+parentId: fld_6d17b468753a47c59c0653505ac7f5fe
+modified: 1632904451455
+created: 1632904409315
+url: "{{ _.base_url }}/notification/{% response 'body',
+  'req_31322b3aadac41eb944793fbeeb940e8', 'b64::JC5kYXRhWzBdLmtleQ==::46b',
+  'never', 60 %}"
+name: Read notification
+description: ""
+method: PATCH
+body: {}
+parameters: []
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_e5a732021e9e431a8e84bc9bd1986967
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_c2d8e7613eac469a963cf99e66300ad9',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1631738634062
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

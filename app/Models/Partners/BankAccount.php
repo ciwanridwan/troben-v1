@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Class BankAccount
- * @package App\Models\Partners
+ * Class BankAccount.
  *
  * @property int $id
  * @property int $user_id

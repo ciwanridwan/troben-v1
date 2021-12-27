@@ -36,9 +36,9 @@ class BalanceController extends Controller
 
         $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
 
-        $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id',$repository->getPartner()->id));
+        $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id', $repository->getPartner()->id));
 
-        return $this->jsonSuccess(ReportResource::collection($this->query->paginate($request->input('per_page',10))));
+        return $this->jsonSuccess(ReportResource::collection($this->query->paginate($request->input('per_page', 10))));
     }
 
     /**
@@ -69,7 +69,7 @@ class BalanceController extends Controller
         $sumQuery = (new PartnerBalanceReportRepository(['partner_id' => $repository->getPartner()->id]))->getQuery();
 
         return $this->jsonSuccess(DetailResource::make([
-            'data' => $this->query->paginate($request->input('per_page',10)),
+            'data' => $this->query->paginate($request->input('per_page', 10)),
             'total_amount' => $sumQuery->sum('balance')]));
     }
 }

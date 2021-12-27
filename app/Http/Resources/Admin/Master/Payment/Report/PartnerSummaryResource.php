@@ -15,9 +15,9 @@ class PartnerSummaryResource extends JsonResource
      */
     public function toArray($request)
     {
-        $data = array();
+        $data = [];
         foreach (Partner::getAvailableTypes() as $type) {
-            $record = $this->resource['data']->firstWhere('partner_type',$type);
+            $record = $this->resource['data']->firstWhere('partner_type', $type);
             $total_income = ! is_null($record) ? $record['balance'] : 0;
             $data[$type] = [
                 'total_income' => $total_income
@@ -28,6 +28,6 @@ class PartnerSummaryResource extends JsonResource
             'income_now' => $this->resource['income_now'],
             'income_sub' => $this->resource['income_sub'],
             'income_difference' => $this->resource['income_now'] - $this->resource['income_sub'],
-        ],$data);
+        ], $data);
     }
 }

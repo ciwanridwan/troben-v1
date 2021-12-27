@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Class Bank
- * @package App\Models\Payments
+ * Class Bank.
  *
  * @property int id
  * @property string name

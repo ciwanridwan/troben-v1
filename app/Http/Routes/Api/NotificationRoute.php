@@ -18,12 +18,12 @@ class NotificationRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix,[
+        $this->router->get($this->prefix, [
             'as' => $this->name,
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->patch($this->prefix('{notification_id}'),[
+        $this->router->patch($this->prefix('{notification_id}'), [
             'as' => $this->name('read'),
             'uses' => $this->uses('read'),
         ]);

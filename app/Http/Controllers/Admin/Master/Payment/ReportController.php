@@ -67,11 +67,11 @@ class ReportController extends Controller
      */
     public function data(Request $request): JsonResponse
     {
-        $this->type = Arr::get(Validator::make($request->only('type'),[
+        $this->type = Arr::get(Validator::make($request->only('type'), [
             'type' => ['nullable','string',Rule::in($this->possibleTypeData)],
-        ])->validate(),'type',self::DATA_TYPE_GRAPH);
+        ])->validate(), 'type', self::DATA_TYPE_GRAPH);
 
-        $this->attributes = Validator::make($request->all(),[
+        $this->attributes = Validator::make($request->all(), [
             'date' => ['nullable'],
             'summary_type' => [Rule::requiredIf($this->type === self::DATA_TYPE_SUMMARY), Rule::in([
                 self::SUMMARY_DAILY,
@@ -81,14 +81,18 @@ class ReportController extends Controller
             'regency_id' => [Rule::when($this->type === self::DATA_TYPE_GRAPH, 'nullable|int')],
             'partner_type' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['required','string', Rule::in(Partner::getAvailableTypes())])],
             'q' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['nullable','string'])],
-            'sortBy' => [Rule::when($this->type === self::DATA_TYPE_DETAIL,['nullable','string',Rule::in($this->possibleDetailSortData)])],
-            'sort' => [Rule::when($this->type === self::DATA_TYPE_DETAIL,['nullable','string',Rule::in(['asc','desc'])])],
+            'sortBy' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['nullable','string',Rule::in($this->possibleDetailSortData)])],
+            'sort' => [Rule::when($this->type === self::DATA_TYPE_DETAIL, ['nullable','string',Rule::in(['asc','desc'])])],
         ])->validate();
 
 
-        if ($this->type === self::DATA_TYPE_SUMMARY) return $this->jsonSuccess(PartnerSummaryResource::make($this->getSummaryData()));
+        if ($this->type === self::DATA_TYPE_SUMMARY) {
+            return $this->jsonSuccess(PartnerSummaryResource::make($this->getSummaryData()));
+        }
 
-        if ($this->type === self::DATA_TYPE_DETAIL) return $this->jsonSuccess(PartnerBalanceDetailResource::collection($this->getDetailData()));
+        if ($this->type === self::DATA_TYPE_DETAIL) {
+            return $this->jsonSuccess(PartnerBalanceDetailResource::collection($this->getDetailData()));
+        }
 
         return $this->jsonSuccess(GraphResource::make($this->getGraphData()));
     }
@@ -114,7 +118,7 @@ class ReportController extends Controller
             if (empty($this->attributes['date'])) {
                 $inputsNow = Arr::prepend($inputsNow, true, 'is_today');
                 $inputsLast = Arr::prepend($inputsLast, true, 'is_yesterday');
-                $inputsData = Arr::prepend($inputsData,true,'is_today');
+                $inputsData = Arr::prepend($inputsData, true, 'is_today');
             } else {
                 $date = Carbon::parse($this->attributes['date']);
                 $inputsNow = Arr::prepend($inputsNow, $date->day, 'day');
@@ -173,15 +177,20 @@ class ReportController extends Controller
             'group' => ['created_at_day']
         ];
 
-        if (empty($this->attributes['date'])) $inputsData = Arr::prepend($inputsData,true,'is_this_month');
-        else {
+        if (empty($this->attributes['date'])) {
+            $inputsData = Arr::prepend($inputsData, true, 'is_this_month');
+        } else {
             $date = Carbon::parse($this->attributes['date']);
             $inputsData = Arr::prepend($inputsData, $date->month, 'month');
             $inputsData = Arr::prepend($inputsData, $date->year, 'year');
         }
 
-        if (! empty($this->attributes['province_id'])) $inputsData = Arr::prepend($inputsData, $this->attributes['province_id'], 'partner_geo_province_id');
-        if (! empty($this->attributes['regency_id'])) $inputsData = Arr::prepend($inputsData, $this->attributes['regency_id'], 'partner_geo_regency_id');
+        if (! empty($this->attributes['province_id'])) {
+            $inputsData = Arr::prepend($inputsData, $this->attributes['province_id'], 'partner_geo_province_id');
+        }
+        if (! empty($this->attributes['regency_id'])) {
+            $inputsData = Arr::prepend($inputsData, $this->attributes['regency_id'], 'partner_geo_regency_id');
+        }
 
         $data = (new PartnerBalanceReportRepository($inputsData))->getQuery()->get();
 
@@ -204,7 +213,7 @@ class ReportController extends Controller
         ];
 
         if (empty($this->attributes['date'])) {
-            $inputsData = Arr::prepend($inputsData,true,'is_today');
+            $inputsData = Arr::prepend($inputsData, true, 'is_today');
         } else {
             $date = Carbon::parse($this->attributes['date']);
             $inputsData = Arr::prepend($inputsData, $date->day, 'day');
@@ -212,6 +221,6 @@ class ReportController extends Controller
             $inputsData = Arr::prepend($inputsData, $date->year, 'year');
         }
 
-        return (new PartnerBalanceReportRepository(array_merge(Arr::except($this->attributes,'date'),$inputsData)))->getQuery()->get();
+        return (new PartnerBalanceReportRepository(array_merge(Arr::except($this->attributes, 'date'), $inputsData)))->getQuery()->get();
     }
 }

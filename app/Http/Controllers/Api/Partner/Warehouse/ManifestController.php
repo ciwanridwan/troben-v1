@@ -35,6 +35,15 @@ class ManifestController extends Controller
                 $query->with('packages');
             }
         });
+        $request->whenHas('status', function (array $value) use ($query) {
+            $value = Arr::wrap($value);
+            $query->whereIn('status', $value);
+            if (in_array(Delivery::TYPE_DOORING, $value)) {
+                $query->with('packages');
+            }
+        });
+
+
 
         $query->with(['partner','transporter','item_codes.codeable','code.scan_item_codes.codeable','code.scan_receipt_codes','packages','partner_performance']);
 

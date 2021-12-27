@@ -57,7 +57,7 @@ class SuccessController extends Controller
             $this->query->orWhere('status', Withdrawal::STATUS_REJECTED);
             $this->query->with(['partner'])->has('partner');
 
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearch($request);
             }
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();

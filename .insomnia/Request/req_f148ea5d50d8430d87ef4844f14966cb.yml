@@ -1,0 +1,44 @@
+_id: req_f148ea5d50d8430d87ef4844f14966cb
+type: Request
+parentId: fld_52a7dc537b7d4cc291f28b0fcd5816b3
+modified: 1634268111972
+created: 1630571506608
+url: "{{ _.base_url }}/partner/owner/balance"
+name: Get Partner Balance History
+description: |-
+  Get list balance history data.
+
+  Optional Parameters
+  --
+  - `start_date` => not required | date {% now 'millis', '' %}
+  - `end_date` => not required | date {% now 'millis', '' %}
+method: GET
+body: {}
+parameters:
+  - name: end_date
+    value: 2021-10-01
+    description: ""
+    id: pair_f68e8fff3da445b49c4ee26b3faeaedf
+    disabled: true
+  - name: start_date
+    value: 2021-09-28
+    description: ""
+    id: pair_07bd2470657c4b7c98eb16715cddb9da
+    disabled: true
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_1963767f7a1943e5ae20dd45ce9a26a8
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1630571506608
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

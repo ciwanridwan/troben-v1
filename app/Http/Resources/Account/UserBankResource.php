@@ -4,7 +4,6 @@ namespace App\Http\Resources\Account;
 
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
-use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserBankResource extends JsonResource
