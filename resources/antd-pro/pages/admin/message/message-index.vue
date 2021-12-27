@@ -51,10 +51,7 @@
           type="flex"
           :justify="data.customer_chat ? 'end' : 'start'"
           align="bottom"
-          :class="[
-            'trawl-chat--next',
-            index == dataChat.length - 1 ? 'scrollingContainer' : '',
-          ]"
+          class="trawl-chat--next"
           :style="data.customer_chat ? 'padding-left: 15px' : ''"
         >
           <a-col v-if="data.user_chat" :md="1">
@@ -132,10 +129,6 @@
               @click="producerSocket"
               >Send</a-button
             >
-            <!-- <a-button @click="scrollToElement({ behavior: 'smooth' })"
-              >test scroll down from top</a-button
-            >
-            <a-button @click="loading">test loading</a-button> -->
           </a-col>
         </a-row>
       </div>
@@ -222,21 +215,12 @@ export default {
       roomId: null,
       newMessage: [],
       selectedFile: null,
-      jwt_token: "",
-      activeLoading: 0,
     };
   },
   methods: {
     loading() {
-      this.$message.loading("Action in rogress...", this.activeLoading);
-      // setTimeout(hide, 3000);
-    },
-
-    scrollToElement(options) {
-      const el = this.$el.getElementsByClassName("scrollingContainer")[0];
-      if (el) {
-        el.scrollIntoView(options);
-      }
+      const hide = this.$message.loading("Action in progress..", 0);
+      setTimeout(hide, 2500);
     },
 
     onFileSelected(event) {
@@ -271,29 +255,27 @@ export default {
       if (value === "reconnect") return this.consumeSocket(this.getListRoom);
       this.roomChat = value;
       console.log("onmessage", this.roomChat);
-      this.activeLoading = 1;
     },
 
     getListChat(value) {
       console.log("masuk pak ekooo", value);
       this.dataChat = value;
-      this.scrollToElement({ behavior: "smooth" });
     },
 
     consumeSocket(callback) {
-      this.loading();
-      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin/room"
+        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/90-partner/room"
+        // "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/(Account id yg login)-partner/room"
       );
 
       consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
-        fetch("https://staging-chat.trawlbens.com/chat/list/admin/room", {
+        fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
           method: "GET",
           headers: {
-            Authorization: `bearer ${jwtToken}`,
+            Authorization:
+              "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NDAzMzY2NjQsImV4cCI6MTY0MjkyODY2NCwiZGF0YSI6eyJpZCI6OTAsIm5hbWUiOiJ3aWR5YSIsImVtYWlsIjoidWlfdG9oYUB5YWhvby5jby5pZCIsInBob25lIjoiKzYyODEyODgxNzgwMDEiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJTYWxhZGluIFdpcmF0YW1hIiwiY29kZSI6Ik1CLUpLVC0wMDAyIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsiY2FzaGllciIsImN1c3RvbWVyLXNlcnZpY2UiXX19fQ.a-XFpnu_-VZfSAgQ4KQG2bTGXcuXRwpjwQK4QrDF_qI",
           },
         })
           .then((response) => {
@@ -345,9 +327,8 @@ export default {
 
     listChat(item, callback) {
       this.roomId = item.room_id;
-      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
+        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/90-partner-room-${item.room_id}/chat`
       );
       consumer.onclose = function (event) {
         console.log("listchat on close....", event);
@@ -367,11 +348,12 @@ export default {
         console.log("list chat isOpenChat", consumer);
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/list/admin/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
           {
             method: "GET",
             headers: {
-              Authorization: `bearer ${jwtToken}`,
+              Authorization:
+                "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NDAzMzY2NjQsImV4cCI6MTY0MjkyODY2NCwiZGF0YSI6eyJpZCI6OTAsIm5hbWUiOiJ3aWR5YSIsImVtYWlsIjoidWlfdG9oYUB5YWhvby5jby5pZCIsInBob25lIjoiKzYyODEyODgxNzgwMDEiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJTYWxhZGluIFdpcmF0YW1hIiwiY29kZSI6Ik1CLUpLVC0wMDAyIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsiY2FzaGllciIsImN1c3RvbWVyLXNlcnZpY2UiXX19fQ.a-XFpnu_-VZfSAgQ4KQG2bTGXcuXRwpjwQK4QrDF_qI",
             },
           }
         )
@@ -385,7 +367,10 @@ export default {
 
       consumer.onmessage = function (event) {
         var myHeaders = new Headers();
-        myHeaders.append("Authorization", `bearer ${jwtToken}`);
+        myHeaders.append(
+          "Authorization",
+          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NDAzMzY2NjQsImV4cCI6MTY0MjkyODY2NCwiZGF0YSI6eyJpZCI6OTAsIm5hbWUiOiJ3aWR5YSIsImVtYWlsIjoidWlfdG9oYUB5YWhvby5jby5pZCIsInBob25lIjoiKzYyODEyODgxNzgwMDEiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJTYWxhZGluIFdpcmF0YW1hIiwiY29kZSI6Ik1CLUpLVC0wMDAyIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsiY2FzaGllciIsImN1c3RvbWVyLXNlcnZpY2UiXX19fQ.a-XFpnu_-VZfSAgQ4KQG2bTGXcuXRwpjwQK4QrDF_qI"
+        );
 
         var requestOptions = {
           method: "PATCH",
@@ -394,7 +379,7 @@ export default {
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/admin/read/trawlbens/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/partner/read/trawlbens/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
@@ -441,35 +426,11 @@ export default {
     producerSocket() {
       console.log("produce", this.roomId, this.textInput);
 
-      // var myHeaders = new Headers();
-      // myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
-
-      // var formdata = new FormData();
-      // formdata.append("room_id", this.roomId);
-      // formdata.append("message", this.textInput);
-      // if (this.selectedFile) {
-      //   console.log("masuk upload file", this.selectedFile.name);
-      //   formdata.append("attachments", this.selectedFile);
-      // }
-      // // formdata.append("attachments", fileInput.files[0]);
-
-      // var requestOptions = {
-      //   method: "POST",
-      //   headers: myHeaders,
-      //   body: formdata,
-      //   redirect: "follow"
-      // };
-
-      // fetch(
-      //   "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
-      //   requestOptions
-      // )
-      //   .then(response => response.text())
-      //   .then(result => console.log(result))
-      //   .catch(error => console.log("error", error));
-
       var myHeaders = new Headers();
-      myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
+      myHeaders.append(
+        "Authorization",
+        "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NDAzMzY2NjQsImV4cCI6MTY0MjkyODY2NCwiZGF0YSI6eyJpZCI6OTAsIm5hbWUiOiJ3aWR5YSIsImVtYWlsIjoidWlfdG9oYUB5YWhvby5jby5pZCIsInBob25lIjoiKzYyODEyODgxNzgwMDEiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJTYWxhZGluIFdpcmF0YW1hIiwiY29kZSI6Ik1CLUpLVC0wMDAyIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsiY2FzaGllciIsImN1c3RvbWVyLXNlcnZpY2UiXX19fQ.a-XFpnu_-VZfSAgQ4KQG2bTGXcuXRwpjwQK4QrDF_qI"
+      );
 
       var formdata = new FormData();
       formdata.append("room_id", this.roomId);
@@ -561,8 +522,8 @@ export default {
     // }
   },
   created() {
-    this.jwt_token = this.$laravel.jwt_token;
-    this.consumeSocket(this.getListRoom);
+    // this.consumeSocket(this.getListRoom);
+    // this.consumeNotif();
   },
   watch: {
     // $route: "consumeSocket",

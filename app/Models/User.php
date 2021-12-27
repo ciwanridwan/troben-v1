@@ -94,7 +94,6 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'password',
         'remember_token',
         'deleted_at',

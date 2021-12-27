@@ -20,8 +20,8 @@
             </div>
             <!-- </button> -->
             <a-badge :dot="item.is_online" slot="avatar"
-            ><a-avatar
-              :src="
+              ><a-avatar
+                :src="
                   'https://ui-avatars.com/api/?name=' + `${item.customer.name}`
                 "
             /></a-badge>
@@ -35,7 +35,7 @@
         <a-list-item-meta :description="'active now'">
           <a slot="title">{{ nickname }}</a>
           <a-badge dot slot="avatar"
-          ><a-avatar :src="`https://ui-avatars.com/api/?name=${nickname}`"
+            ><a-avatar :src="`https://ui-avatars.com/api/?name=${nickname}`"
           /></a-badge>
         </a-list-item-meta>
       </a-list-item>
@@ -44,7 +44,7 @@
     <!-- chat box -->
     <template slot="content">
       <!-- chat body -->
-      <div v-if="nickname">
+      <div v-if="nickname" style="position: relative">
         <a-row
           v-for="(data, index) in dataChat"
           :key="index"
@@ -90,6 +90,23 @@
               />
             </a>
             {{ data.customer_chat ? data.customer_chat : data.user_chat }}
+            <a-space
+              align="baseline"
+              style="position: absolute; bottom: 0px; right: 0px"
+            >
+              <img
+                v-if="data.user_chat"
+                :src="
+                  data.customer_read_at && data.user_chat
+                    ? '/assets/Check_Double_Blue.png'
+                    : !data.customer_read_at && data.user_chat
+                    ? '/assets/Check_Double_White.png'
+                    : '/assets/Clock_Pending.png'
+                "
+                alt="logo"
+              />
+              <p>{{ moment(data.created_at).format("LT") }}</p>
+            </a-space>
           </a-col>
           <a-col v-if="data.customer_chat" :md="1" style="margin-left: 20px">
             <a-avatar
@@ -101,6 +118,7 @@
 
       <!-- chat send -->
       <div v-if="nickname" class="trawl-chat-send trawl-bg-white">
+        <img v-if="selectedFile" id="blah" src="#" alt="image" />
         <a-row>
           <a-col :md="20">
             <a-input
@@ -130,7 +148,7 @@
               style="margin: 0; padding: 0px 10px"
               type="primary"
               @click="producerSocket"
-            >Send</a-button
+              >Send</a-button
             >
             <!-- <a-button @click="scrollToElement({ behavior: 'smooth' })"
               >test scroll down from top</a-button
@@ -150,69 +168,10 @@
 <script>
 import ContentChatLayout from "../../../layouts/content-chat-layout";
 
-const data2 = [
-  {
-    titl: "Ant Design Title 1",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: true,
-  },
-  {
-    titl: "Ant Design Title 2",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: true,
-    is_online: true,
-  },
-  {
-    titl: "Ant Design Title 3",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false,
-  },
-];
 export default {
   components: { ContentChatLayout },
   data() {
     return {
-      data2,
       fals: false,
       roomChat: null,
       dataChat: null,
@@ -227,8 +186,17 @@ export default {
     };
   },
   methods: {
+    status() {
+      if (this.dataChat.customer_read_at && this.dataChat.user_chat) {
+        return "/assets/Check_Double_Blue.png";
+      }
+      if (!this.dataChat.customer_read_at && this.dataChat.user_chat) {
+        return "/assets/Check_Double_White.png";
+      } else return "/assets/Clock_Pending.png";
+    },
+
     loading() {
-      this.$message.loading("Action in rogress...", this.activeLoading);
+      // this.$message.loading("Action in rogress...", this.activeLoading);
       // setTimeout(hide, 3000);
     },
 
@@ -241,6 +209,9 @@ export default {
 
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
+      if (this.selectedFile) {
+        console.log("gambar masuk");
+      }
       console.log("upload", event);
       console.log("uploadData", event.target.files[0]);
     },
@@ -284,13 +255,15 @@ export default {
       this.loading();
       let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin/room"
+        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+          this.user().id
+        }-partner/room`
       );
 
       consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
-        fetch("https://staging-chat.trawlbens.com/chat/list/admin/room", {
+        fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
           method: "GET",
           headers: {
             Authorization: `bearer ${jwtToken}`,
@@ -347,7 +320,9 @@ export default {
       this.roomId = item.room_id;
       let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
+        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+          this.user().id
+        }-partner-room-${item.room_id}/chat`
       );
       consumer.onclose = function (event) {
         console.log("listchat on close....", event);
@@ -367,7 +342,7 @@ export default {
         console.log("list chat isOpenChat", consumer);
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/list/admin/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
           {
             method: "GET",
             headers: {
@@ -394,7 +369,7 @@ export default {
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/admin/read/trawlbens/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/partner/read/trawlbens/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
@@ -476,6 +451,13 @@ export default {
       formdata.append("message", this.textInput);
       if (this.selectedFile) {
         console.log("masuk upload file", this.selectedFile.name);
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          $("#blah").attr("src", e.target.result).width(150).height(200);
+        };
+
+        reader.readAsDataURL(input.files[0]);
         formdata.append("attachments", this.selectedFile);
       }
 
@@ -570,8 +552,9 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    // console.log("user", this.$laravel.user);
-    // console.log("token", this.$laravel.jwt_token);
+    console.log("tes");
+    console.log("user", this.user());
+    console.log("token", this.$laravel.jwt_token);
   },
 };
 </script>
