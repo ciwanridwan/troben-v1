@@ -28,10 +28,14 @@ class CreatePartnerPerformancesTable extends Migration
             Schema::create($key, function (Blueprint $table) use ($newTable) {
                 $table->unsignedBigInteger('partner_id');
                 $table->unsignedBigInteger($newTable['field']);
-                $table->unsignedSmallInteger('level')->default(1);
+                $table->unsignedSmallInteger('level')
+                    ->default(1)
+                    ->comment($this->levelComment());
                 $table->timestamp('reached_at')->nullable();
                 $table->timestamp('deadline');
-                $table->unsignedSmallInteger('status')->default(\App\Models\Partners\Performances\PerformanceModel::STATUS_ON_PROCESS);
+                $table->unsignedSmallInteger('status')
+                    ->default(\App\Models\Partners\Performances\PerformanceModel::STATUS_ON_PROCESS)
+                    ->comment($this->statusComment());
                 $table->timestamp('created_at')->useCurrent();
                 $table->timestamp('updated_at')->useCurrentOnUpdate()->useCurrent();
 
@@ -58,5 +62,28 @@ class CreatePartnerPerformancesTable extends Migration
         foreach ($this->newTables as $key => $newTable) {
             Schema::dropIfExists($key);
         }
+    }
+
+    private function levelComment(): string
+    {
+        return "
+            1: alert 1
+            2: alert 2
+            3: last alert (shown for quality control dashboard)
+            maximum level is 3.
+        ";
+    }
+
+    /**
+     * Reference on status const @\App\Models\Partners\Performances\PerformanceModel
+     * @return string
+     */
+    private function statusComment(): string
+    {
+        return "
+            1: on process
+            5: reached
+            10: failed
+        ";
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models\Deliveries;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Code;
+use App\Models\Partners\Performances\PerformanceModel;
 use App\Models\User;
 use App\Models\Packages\Item;
 use App\Concerns\Models\HasCode;
@@ -324,6 +325,8 @@ class Delivery extends Model
      */
     public function partner_performance(): HasOne
     {
-        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class,'delivery_id','id')->orderBy('created_at','desc');
+        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class,'delivery_id','id')
+            ->where('status',PerformanceModel::STATUS_ON_PROCESS)
+            ->orderBy('created_at','desc');
     }
 }

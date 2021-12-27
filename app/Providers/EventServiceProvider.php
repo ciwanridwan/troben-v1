@@ -213,6 +213,9 @@ class EventServiceProvider extends ServiceProvider
             GenerateBalanceHistory::class,
             WriteCodeLog::class
         ],
+        DeliveryDooring\DriverDooringFinished::class => [
+            PartnerPerformanceEvaluatedByEvent::class
+        ],
         DriverAssigned::class => [
             PaymentCreatedByEvent::class
         ],
