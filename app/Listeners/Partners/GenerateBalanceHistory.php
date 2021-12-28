@@ -14,11 +14,13 @@ use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
+use App\Jobs\Partners\Balance\CreateNewFailedBalanceHistory;
 use App\Models\Deliveries\Delivery;
 use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Balance\DeliveryHistory;
+use App\Models\Partners\Balance\FailedHistory;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -206,7 +208,6 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
-
                     if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
@@ -216,8 +217,8 @@ class GenerateBalanceHistory
                             });
                         }
                         if ($manifest_weight < 10) $manifest_weight = 10;
+                        if ($package_count == 1) {
 
-                        if ($package_count > 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $price = PartnerTransitPrice::query()
@@ -228,6 +229,9 @@ class GenerateBalanceHistory
                                 ->first();
 
                             if (!$price || $price->value == 0) {
+                                $package_id = 0;
+                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $package_id);
+                                $this->dispatchNow($job);
                                 Notification::send([
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
@@ -247,6 +251,9 @@ class GenerateBalanceHistory
                                 ->where('type', PartnerPrice::TYPE_FLAT)
                                 ->first();
                             if (!$price) {
+                                $package_id = 0;
+                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $package_id);
+                                $this->dispatchNow($job);
                                 Notification::send([
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
@@ -335,6 +342,8 @@ class GenerateBalanceHistory
                     ->where('type',$tier)
                     ->first();
                 if (!$price) {
+                    $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package->id);
+                    $this->dispatchNow($job);
                     Notification::send([
                         'data' => [
                             'manifest_code' => $this->delivery->code->content,
