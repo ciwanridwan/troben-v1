@@ -50,7 +50,7 @@
     </div>
     <div v-else-if="record.status == 'manifested'">
       <a-badge status="warning" text=""></a-badge>
-      <span :class="['trawl-status-warning']">Telah terassign di manifest</span>
+      <span :class="['trawl-status-warning']">Telah terassign di manifest {{ record.deliveries[-1].code.content }}</span>
     </div>
     <div v-else-if="record.status == 'in_transit'">
       <a-badge status="warning" text=""></a-badge>
@@ -60,6 +60,10 @@
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Barang sedang di antar kurir</span>
     </div>
+    <div v-else-if="record.status == 'pending'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Mitra {{ record.deliveries[0].partner.code }} belum melakukan penerimaan pesanan</span>
+    </div>
     <div v-else-if="record.status == 'delivered'">
       <a-badge status="success" text=""></a-badge>
       <span :class="['trawl-status-success']">Barang sudah diterima{{ record.received_by ? ' oleh ' + record.received_by : '.' }}</span>
@@ -67,7 +71,7 @@
     <div v-else>
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']"
-        >[Onprogress Status] Pesanan sedang diproses Mitra
+        >[Unhandled Status] Tolong report ke divisi IT bila menemui status ini
       </span>
     </div>
   </div>

@@ -98,7 +98,7 @@ class HomeController extends Controller
 
             $this->getSearch($request);
             $this->dataRelation($request);
-            $this->query->with(['code.logs']);
+            $this->query->with(['code.logs', 'deliveries.code']);
             $this->query->orderBy('created_at', 'desc');
             // $this->query->whereDoesntHave('deliveries');
 

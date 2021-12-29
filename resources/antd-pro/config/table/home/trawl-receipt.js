@@ -17,16 +17,17 @@ export default [
   {
     title: "Mitra Penerima",
     colspan: 5,
-    customRender: (text, row, index) => {
-      return {
-        children: row.deliveries[0]?.partner?.name
-          ? row.deliveries[0].partner.name
-          : ""
-      };
-    }
+    scopedSlots: { customRender: "partner" },
+    classes: "trawl-text-left",
+    //   customRender: (text, row, index) => {
+    //     return {
+    //       children: row.deliveries[0]?.partner?.name
+    //         ? row.deliveries[0].partner.name
+    //         : ""
+    //     };
   },
   {
-    title: "Tujuan",
+    title: "Alamat Tujuan",
     key: "address",
     dataIndex: "receiver_address",
     colspan: 5
