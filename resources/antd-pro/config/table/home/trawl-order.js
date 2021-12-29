@@ -16,17 +16,20 @@ export default [
   {
     title: "Mitra Penerima",
     colspan: 5,
-    customRender: (text, row, index) => {
-      return {
-        children: row.deliveries[0]?.partner?.name
-          ? row.deliveries[0].partner.name
-          : ""
-      };
-    }
+    scopedSlots: { customRender: "partner" },
+    classes: "trawl-text-left",
+    // customRender: (text, row, index) => {
+    //   return {
+    //     children: row.deliveries[0]?.partner?.name
+    //       ? row.deliveries[0].partner.name
+    //       : ""
+    //   };
+    // }
   },
   {
     title: "Lokasi Pengiriman",
     key: "address",
+    classes: "trawl-text-left",
     colspan: 5,
     scopedSlots: { customRender: "address" }
   },
