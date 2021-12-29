@@ -58,15 +58,15 @@
             v-for="(data, index) in dataChat"
             :key="index"
             type="flex"
-            :justify="data.customer_chat ? 'end' : 'start'"
+            :justify="data.user_chat ? 'end' : 'start'"
             align="bottom"
             :class="[
               'trawl-chat--next',
               index == dataChat.length - 1 ? 'scrollingContainers' : '',
             ]"
-            :style="data.customer_chat ? 'padding-left: 15px' : ''"
+            :style="data.user_chat ? 'padding-left: 15px' : ''"
           >
-            <a-col v-if="data.user_chat" :md="1">
+            <a-col v-if="data.customer_chat" :md="1">
               <a-avatar
                 :src="'https://ui-avatars.com/api/?name=A+D'"
               ></a-avatar>
@@ -75,7 +75,7 @@
               :md="14"
               :class="[
                 'trawl-chat trawl-chat-message',
-                data.customer_chat
+                data.user_chat
                   ? 'trawl-chat-message--receive trawl-bg-green--darken'
                   : 'trawl-chat-message--send trawl-bg-white',
               ]"
@@ -100,7 +100,7 @@
                   alt="image"
                 />
               </a>
-              {{ data.customer_chat ? data.customer_chat : data.user_chat }}
+              {{ data.user_chat ? data.user_chat : data.customer_chat }}
               <a-space
                 align="baseline"
                 style="position: absolute; bottom: 0px; right: 0px"
@@ -119,7 +119,7 @@
                 <p>{{ moment(data.created_at).format("LT") }}</p>
               </a-space>
             </a-col>
-            <a-col v-if="data.customer_chat" :md="1" style="margin-left: 20px">
+            <a-col v-if="data.user_chat" :md="1" style="margin-left: 20px">
               <a-avatar
                 :src="`https://ui-avatars.com/api/?name=${nickname}`"
               ></a-avatar>
@@ -129,7 +129,8 @@
       </a-spin>
       <!-- chat send -->
       <div v-if="nickname" class="trawl-chat-send trawl-bg-white">
-        <img v-if="selectedFile" id="blah" src="#" alt="image" />
+        <img v-if="tempUrl" :src="tempUrl" width="200" height="200" />
+        <p v-if="tempUrl">{{ imageName }}</p>
         <a-row>
           <a-col :md="20">
             <a-input
@@ -183,6 +184,8 @@ export default {
   components: { ContentChatLayout },
   data() {
     return {
+      temp: [],
+      imageName: "",
       loadingRoom: true,
       loadingChat: true,
       roomChat: null,
@@ -191,20 +194,32 @@ export default {
       nickname: "",
       descriptionText: "",
       roomId: null,
-      newMessage: [],
       selectedFile: null,
       jwt_token: "",
       activeLoading: 0,
+      tempUrl: null,
     };
   },
   methods: {
-    status() {
-      if (this.dataChat.customer_read_at && this.dataChat.user_chat) {
-        return "/assets/Check_Double_Blue.png";
-      }
-      if (!this.dataChat.customer_read_at && this.dataChat.user_chat) {
-        return "/assets/Check_Double_White.png";
-      } else return "/assets/Clock_Pending.png";
+    tempChat() {
+      let data = {
+        attachments: this.selectedFile
+          ? [{ customer_file: null, user_file: this.tempUrl }]
+          : [],
+        created_at: new Date(),
+        customer_chat: null,
+        customer_read_at: null,
+        deleted_at: null,
+        id: null,
+        room_id: this.roomId,
+        updated_at: null,
+        user_chat: this.textInput,
+        user_read_at: null,
+      };
+
+      this.dataChat.push(data);
+      console.log("tempChat data", data);
+      console.log("pushh", this.dataChat);
     },
 
     scrollToElement(options) {
@@ -217,10 +232,27 @@ export default {
     },
 
     onFileSelected(event) {
-      this.selectedFile = event.target.files[0];
-      if (this.selectedFile) {
-        console.log("gambar masuk");
+      console.log("cel ref", event.target.files.length > 0);
+      console.log(event);
+      if (event.target.files.length > 0) {
+        console.log("ada file");
+        this.selectedFile = event.target.files[0];
+        this.tempUrl = URL.createObjectURL(this.selectedFile);
+        // let output = document.getElementById("blah");
+        // output.src = src;
       }
+      console.log("lolos");
+
+      // var reader = new FileReader();
+      // reader.onload = function (e) {
+      //   // $("#blah").attr("src", e.target.result).width(150).height(200);
+      //   let output = document.getElementById("blah");
+      //   output.src = reader.result;
+      // };
+
+      // reader.readAsDataURL(event.files[0]);
+
+      this.imageName = event.target.files[0].name;
       console.log("upload", event);
       console.log("uploadData", event.target.files[0]);
     },
@@ -232,19 +264,20 @@ export default {
           item.chats[0].customer_chat
             ? item.chats[0].customer_chat
             : item.chats[0].user_chat
-        } ${
-          item.chats[1]
-            ? item.chats[1].customer_chat
-              ? item.chats[1].customer_chat
-              : item.chats[1].user_chat
-            : ""
-        } ${
-          item.chats[2]
-            ? item.chats[2].customer_chat
-              ? item.chats[2].customer_chat
-              : item.chats[2].user_chat
-            : ""
         }`;
+      //  ${
+      //   item.chats[1]
+      //     ? item.chats[1].customer_chat
+      //       ? item.chats[1].customer_chat
+      //       : item.chats[1].user_chat
+      //     : ""
+      // } ${
+      //   item.chats[2]
+      //     ? item.chats[2].customer_chat
+      //       ? item.chats[2].customer_chat
+      //       : item.chats[2].user_chat
+      //     : ""
+      // }`;
     },
 
     getListRoom(value) {
@@ -257,8 +290,10 @@ export default {
     getListChat(value) {
       console.log("masuk pak ekooo", value);
       this.dataChat = value;
-      // this.scrollToElement({ behavior: "smooth" });
       this.loadingChat = false;
+      if (!this.loadingChat) {
+        this.scrollToElement({ behavior: "smooth" });
+      }
     },
 
     consumeSocket(callback) {
@@ -365,6 +400,10 @@ export default {
           .then((response) => {
             console.log("list chat success", response);
           })
+          .then(() => {
+            let el = document.getElementById("scrollingContainer");
+            el.scrollTo(0, el.scrollHeight);
+          })
           .catch((err) => {
             console.error("list chat failure error", err);
           });
@@ -465,13 +504,7 @@ export default {
       formdata.append("message", this.textInput);
       if (this.selectedFile) {
         console.log("masuk upload file", this.selectedFile.name);
-        var reader = new FileReader();
 
-        reader.onload = function (e) {
-          $("#blah").attr("src", e.target.result).width(150).height(200);
-        };
-
-        reader.readAsDataURL(input.files[0]);
         formdata.append("attachments", this.selectedFile);
       }
 
@@ -486,10 +519,16 @@ export default {
         "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
         requestOptions
       )
-        .then((response) => response.text())
+        .then((response) => {
+          console.log("response upload", response);
+          this.tempChat();
+          response.text();
+        })
         .then((result) => {
           this.textInput = "";
           this.selectedFile = null;
+          this.tempUrl = null;
+          this.scrollToElement();
           console.log("success produce", result);
         })
         .catch((error) => console.log("error", error));
@@ -571,35 +610,3 @@ export default {
   },
 };
 </script>
-<style>
-.loader {
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid blue;
-  border-bottom: 16px solid blue;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-  position: absolute;
-  top: 35%;
-}
-
-@-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>
