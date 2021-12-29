@@ -552,7 +552,7 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("tes");
+    console.log("baseurl", this.socketBaseUrl);
     console.log("user", this.user());
     console.log("token", this.$laravel.jwt_token);
   },
