@@ -9,7 +9,7 @@
     <a-layout-content
       id="scrollingContainer"
       class="content"
-      style="overflow: scroll; margin-bottom: 5vh"
+      style="overflow: scroll; margin-bottom: 20vh"
     >
       <a-row class="content-layout-head trawl-bg-white trawl-chat-header">
         <slot name="content-head"></slot>
