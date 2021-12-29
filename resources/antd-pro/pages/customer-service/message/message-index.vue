@@ -2,39 +2,47 @@
   <content-chat-layout>
     <!-- chat list -->
     <template slot="sider-left">
-      <a-list item-layout="horizontal" :data-source="roomChat">
-        <a-list-item
-          slot="renderItem"
-          slot-scope="item, index"
-          :class="[roomId == item.room_id ? 'trawl-bg-gray' : '']"
-          style="padding-left: 10px"
+      <a-spin :spinning="loadingRoom" tip="Loading...">
+        <a-list
+          item-layout="horizontal"
+          :data-source="roomChat"
+          class="spin-content"
         >
-          <a-list-item-meta :description="description(item)">
-            <!-- <button class="trawl-chat--buttonSideBar"> -->
-            <div
-              class="trawl-chat--buttonSideBar"
-              @click="listChat(item, getListChat)"
-              slot="title"
-            >
-              {{ item.customer.name }}
-            </div>
-            <!-- </button> -->
-            <a-badge :dot="item.is_online" slot="avatar"
-              ><a-avatar
-                :src="
-                  'https://ui-avatars.com/api/?name=' + `${item.customer.name}`
-                "
-            /></a-badge>
-          </a-list-item-meta>
-        </a-list-item>
-      </a-list>
+          <a-list-item
+            slot="renderItem"
+            slot-scope="item, index"
+            :class="[roomId == item.room_id ? 'trawl-bg-gray' : '']"
+            style="padding-left: 10px"
+          >
+            <a-list-item-meta :description="description(item)">
+              <!-- <button class="trawl-chat--buttonSideBar"> -->
+              <div
+                class="trawl-chat--buttonSideBar"
+                @click="listChat(item, getListChat)"
+                slot="title"
+              >
+                {{ item.customer.name }}
+              </div>
+              <!-- </button> -->
+              <a-badge :dot="item.is_online" slot="avatar"
+                ><a-avatar
+                  :src="
+                    'https://ui-avatars.com/api/?name=' +
+                    `${item.customer.name}`
+                  "
+              /></a-badge>
+            </a-list-item-meta>
+          </a-list-item>
+        </a-list>
+      </a-spin>
     </template>
 
     <template slot="content-head">
+      <!-- <a-button @click="loading">test loading</a-button> -->
       <a-list-item v-if="nickname" class="trawl-bg-white">
         <a-list-item-meta :description="'active now'">
           <a slot="title">{{ nickname }}</a>
-          <a-badge dot slot="avatar"
+          <a-badge slot="avatar"
             ><a-avatar :src="`https://ui-avatars.com/api/?name=${nickname}`"
           /></a-badge>
         </a-list-item-meta>
@@ -44,78 +52,81 @@
     <!-- chat box -->
     <template slot="content">
       <!-- chat body -->
-      <div v-if="nickname" style="position: relative">
-        <a-row
-          v-for="(data, index) in dataChat"
-          :key="index"
-          type="flex"
-          :justify="data.customer_chat ? 'end' : 'start'"
-          align="bottom"
-          :class="[
-            'trawl-chat--next',
-            index == dataChat.length - 1 ? 'scrollingContainer' : '',
-          ]"
-          :style="data.customer_chat ? 'padding-left: 15px' : ''"
-        >
-          <a-col v-if="data.user_chat" :md="1">
-            <a-avatar :src="'https://ui-avatars.com/api/?name=A+D'"></a-avatar>
-          </a-col>
-          <a-col
-            :md="14"
+      <a-spin v-if="nickname" :spinning="loadingChat" tip="Loading...">
+        <div class="spin-content" style="position: relative">
+          <a-row
+            v-for="(data, index) in dataChat"
+            :key="index"
+            type="flex"
+            :justify="data.customer_chat ? 'end' : 'start'"
+            align="bottom"
             :class="[
-              'trawl-chat trawl-chat-message',
-              data.customer_chat
-                ? 'trawl-chat-message--receive trawl-bg-green--darken'
-                : 'trawl-chat-message--send trawl-bg-white',
+              'trawl-chat--next',
+              index == dataChat.length - 1 ? 'scrollingContainers' : '',
             ]"
+            :style="data.customer_chat ? 'padding-left: 15px' : ''"
           >
-            <a
-              v-if="data.attachments.length"
-              :href="
-                data.attachments[0].customer_file
-                  ? data.attachments[0].customer_file
-                  : data.attachments[0].user_file
-              "
-              target="_blank"
+            <a-col v-if="data.user_chat" :md="1">
+              <a-avatar
+                :src="'https://ui-avatars.com/api/?name=A+D'"
+              ></a-avatar>
+            </a-col>
+            <a-col
+              :md="14"
+              :class="[
+                'trawl-chat trawl-chat-message',
+                data.customer_chat
+                  ? 'trawl-chat-message--receive trawl-bg-green--darken'
+                  : 'trawl-chat-message--send trawl-bg-white',
+              ]"
             >
-              <img
+              <a
                 v-if="data.attachments.length"
-                style="width: 403px"
-                :src="
+                :href="
                   data.attachments[0].customer_file
                     ? data.attachments[0].customer_file
                     : data.attachments[0].user_file
                 "
-                alt="image"
-              />
-            </a>
-            {{ data.customer_chat ? data.customer_chat : data.user_chat }}
-            <a-space
-              align="baseline"
-              style="position: absolute; bottom: 0px; right: 0px"
-            >
-              <img
-                v-if="data.user_chat"
-                :src="
-                  data.customer_read_at && data.user_chat
-                    ? '/assets/Check_Double_Blue.png'
-                    : !data.customer_read_at && data.user_chat
-                    ? '/assets/Check_Double_White.png'
-                    : '/assets/Clock_Pending.png'
-                "
-                alt="logo"
-              />
-              <p>{{ moment(data.created_at).format("LT") }}</p>
-            </a-space>
-          </a-col>
-          <a-col v-if="data.customer_chat" :md="1" style="margin-left: 20px">
-            <a-avatar
-              :src="`https://ui-avatars.com/api/?name=${nickname}`"
-            ></a-avatar>
-          </a-col>
-        </a-row>
-      </div>
-
+                target="_blank"
+              >
+                <img
+                  v-if="data.attachments.length"
+                  style="width: 403px"
+                  :src="
+                    data.attachments[0].customer_file
+                      ? data.attachments[0].customer_file
+                      : data.attachments[0].user_file
+                  "
+                  alt="image"
+                />
+              </a>
+              {{ data.customer_chat ? data.customer_chat : data.user_chat }}
+              <a-space
+                align="baseline"
+                style="position: absolute; bottom: 0px; right: 0px"
+              >
+                <img
+                  v-if="data.user_chat"
+                  :src="
+                    data.customer_read_at && data.user_chat
+                      ? '/assets/Check_Double_Blue.png'
+                      : !data.customer_read_at && data.user_chat
+                      ? '/assets/Check_Double_White.png'
+                      : '/assets/Clock_Pending.png'
+                  "
+                  alt="logo"
+                />
+                <p>{{ moment(data.created_at).format("LT") }}</p>
+              </a-space>
+            </a-col>
+            <a-col v-if="data.customer_chat" :md="1" style="margin-left: 20px">
+              <a-avatar
+                :src="`https://ui-avatars.com/api/?name=${nickname}`"
+              ></a-avatar>
+            </a-col>
+          </a-row>
+        </div>
+      </a-spin>
       <!-- chat send -->
       <div v-if="nickname" class="trawl-chat-send trawl-bg-white">
         <img v-if="selectedFile" id="blah" src="#" alt="image" />
@@ -148,12 +159,12 @@
               style="margin: 0; padding: 0px 10px"
               type="primary"
               @click="producerSocket"
+              :disabled="loadingChat"
               >Send</a-button
             >
             <!-- <a-button @click="scrollToElement({ behavior: 'smooth' })"
               >test scroll down from top</a-button
-            >
-            <a-button @click="loading">test loading</a-button> -->
+            > -->
           </a-col>
         </a-row>
       </div>
@@ -172,7 +183,8 @@ export default {
   components: { ContentChatLayout },
   data() {
     return {
-      fals: false,
+      loadingRoom: true,
+      loadingChat: true,
       roomChat: null,
       dataChat: null,
       textInput: "",
@@ -195,16 +207,13 @@ export default {
       } else return "/assets/Clock_Pending.png";
     },
 
-    loading() {
-      // this.$message.loading("Action in rogress...", this.activeLoading);
-      // setTimeout(hide, 3000);
-    },
-
     scrollToElement(options) {
-      const el = this.$el.getElementsByClassName("scrollingContainer")[0];
-      if (el) {
-        el.scrollIntoView(options);
-      }
+      // let el = this.$el.getElementsByClassName("scrollingContainer")[0];
+      // if (el) {
+      //   el.scrollIntoView(options);
+      // }
+      let el = document.getElementById("scrollingContainer");
+      el.scrollTo(0, el.scrollHeight);
     },
 
     onFileSelected(event) {
@@ -242,20 +251,20 @@ export default {
       if (value === "reconnect") return this.consumeSocket(this.getListRoom);
       this.roomChat = value;
       console.log("onmessage", this.roomChat);
-      this.activeLoading = 1;
+      this.loadingRoom = false;
     },
 
     getListChat(value) {
       console.log("masuk pak ekooo", value);
       this.dataChat = value;
-      this.scrollToElement({ behavior: "smooth" });
+      // this.scrollToElement({ behavior: "smooth" });
+      this.loadingChat = false;
     },
 
     consumeSocket(callback) {
-      this.loading();
       let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+        `${this.socketBaseUrl}/ws/v2/consumer/non-persistent/public/default/${
           this.user().id
         }-partner/room`
       );
@@ -287,26 +296,27 @@ export default {
           element.is_active = false;
           element.is_online = false;
         });
+        console.log("getdata", getData);
         callback(getData);
       };
 
-      // consumer.onclose = function(event) {
-      //   console.log("on close....", event);
-      //   if (event.wasClean) {
-      //     // alert(
-      //     //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-      //     // );
-      //     console.log(
-      //       `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-      //     );
-      //   } else {
-      //     // e.g. server process killed or network down
-      //     // event.code is usually 1006 in this case
-      //     // alert("[close] Connection consumer died");
-      //     console.log("[close] Connection consumer died");
-      //     callback("reconnect");
-      //   }
-      // };
+      consumer.onclose = function (event) {
+        console.log("on close....", event);
+        if (event.wasClean) {
+          // alert(
+          //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          // );
+          console.log(
+            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          );
+        } else {
+          // e.g. server process killed or network down
+          // event.code is usually 1006 in this case
+          // alert("[close] Connection consumer died");
+          console.log("[close] Connection consumer died");
+          callback("reconnect");
+        }
+      };
 
       consumer.onerror = function (error) {
         // alert(`[error] ${error.message}`);
@@ -317,10 +327,12 @@ export default {
     },
 
     listChat(item, callback) {
+      this.loadingChat = true;
+      this.dataChat = null;
       this.roomId = item.room_id;
       let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+        `${this.socketBaseUrl}/ws/v2/consumer/non-persistent/public/default/${
           this.user().id
         }-partner-room-${item.room_id}/chat`
       );
@@ -357,6 +369,8 @@ export default {
             console.error("list chat failure error", err);
           });
       };
+
+      console.log("roomChat", this.roomChat);
 
       consumer.onmessage = function (event) {
         var myHeaders = new Headers();
@@ -483,7 +497,7 @@ export default {
 
     // consumeNotif() {
     //   let consumer = new WebSocket(
-    //     "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-chat-notification/notification"
+    //     "${this.socketBaseUrl}/ws/v2/consumer/non-persistent/public/default/1-admin-chat-notification/notification"
     //   );
 
     //   consumer.onopen = function(e) {
@@ -552,9 +566,40 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("tes");
     console.log("user", this.user());
     console.log("token", this.$laravel.jwt_token);
   },
 };
 </script>
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid blue;
+  border-bottom: 16px solid blue;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 35%;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
