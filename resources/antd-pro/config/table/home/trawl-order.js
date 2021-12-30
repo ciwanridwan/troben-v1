@@ -18,13 +18,13 @@ export default [
     colspan: 5,
     scopedSlots: { customRender: "partner" },
     classes: "trawl-text-left",
-    // customRender: (text, row, index) => {
-    //   return {
-    //     children: row.deliveries[0]?.partner?.name
-    //       ? row.deliveries[0].partner.name
-    //       : ""
-    //   };
-    // }
+    customRender: (text, row, index) => {
+      return {
+        children: row.deliveries[0]?.partner?.code
+          ? row.deliveries[0].partner.code
+          : ""
+      };
+    }
   },
   {
     title: "Lokasi Pengiriman",
