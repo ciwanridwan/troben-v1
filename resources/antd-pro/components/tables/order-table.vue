@@ -16,11 +16,11 @@
       </order-modal>
       <package-table-detail :package="record" />
     </template>
-    <template slot="partner" slot-scope="{ record }">
-      <span>{{ record.deliveries[0].partner.name ?? ''}}</span>
-      <br/>
-      <span>{{ record.deliveries[0].partner.code ?? ''}}</span>
-    </template>
+<!--    <template slot="partner" slot-scope="{ record }">-->
+<!--      <span>{{ record.deliveries[0].partner.name }}</span>-->
+<!--      <br/>-->
+<!--      <span>{{ record.deliveries[0].partner.code}}</span>-->
+<!--    </template>-->
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
         <a-timeline-item color="green">
