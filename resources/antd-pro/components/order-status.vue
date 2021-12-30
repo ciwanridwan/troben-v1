@@ -4,6 +4,14 @@
       <a-badge status="error" text=""></a-badge>
       <span :class="['trawl-status-error']">Pesan Dibatalkan</span>
     </div>
+    <div v-if="record.status == 'cancel_self_pickup'">
+      <a-badge status="error" text=""></a-badge>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan akan paket akan diambil kembali oleh Customer</span>
+    </div>
+    <div v-if="record.status == 'cancel_delivered'">
+      <a-badge status="error" text=""></a-badge>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan akan paket akan diantar kembali oleh Mitra</span>
+    </div>
     <div v-else-if="record.status == 'created'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Menunggu Assign Mitra</span>
