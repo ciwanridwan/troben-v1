@@ -71,12 +71,7 @@ class FailedHistory extends Model
      *
      * @var array
      */
-    protected $hidden = [
-        'id',
-        'partner_id',
-        'delivery_id',
-        'package_id',
-    ];
+    protected $hidden = [];
 
     /**
      * The attributes that should be cast to native types.

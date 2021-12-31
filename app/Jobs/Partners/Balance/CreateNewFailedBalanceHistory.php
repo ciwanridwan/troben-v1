@@ -3,14 +3,15 @@
 namespace App\Jobs\Partners\Balance;
 
 use App\Events\Partners\Balance\NewFailedHistoryCreated;
+use App\Exceptions\Error;
+use App\Http\Response;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use App\Models\Partners\Balance\FailedHistory;
 use App\Models\Partners\Partner;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Validation\ValidationException;
 
-class CreateNewFailedBalanceHistory implements ShouldQueue
+class CreateNewFailedBalanceHistory
 {
     use Dispatchable;
 
@@ -27,24 +28,44 @@ class CreateNewFailedBalanceHistory implements ShouldQueue
      * @var FailedHistory $failedhistory
      */
     public FailedHistory $failedhistory;
+
+    /**
+     * Delivery instance.
+     *
+     * @var Delivery $delivery
+     */
     public Delivery $delivery;
+
+    /**
+     * Partner instance.
+     *
+     * @var Partner $partner
+     */
     public Partner $partner;
 
-    public string $type;
-    public int $package_id;
+    /**
+     * Package instance when exist
+     *
+     * @var Package|null $package
+     */
+    public ?Package $package;
 
     /**
      * Construct of create new partner balance failedhistory.
      *
-     * @param array $inputs
-     * @throws ValidationException
+     * @param Delivery $delivery
+     * @param Partner $partner
+     * @param Package|null $package
+     * @throws \Throwable
      */
-    public function __construct(Delivery $delivery, Partner $partner , $package_id)
+    public function __construct(Delivery $delivery, Partner $partner, ?Package $package = null)
     {
+        throw_if($delivery->type === Delivery::TYPE_DOORING && ! $package, new Error(Response::RC_BAD_REQUEST));
+
         $this->failedhistory = new FailedHistory();
         $this->delivery = $delivery;
         $this->partner = $partner;
-        $this->package_id = $package_id;
+        $this->package = $package;
     }
 
     /**
@@ -54,18 +75,14 @@ class CreateNewFailedBalanceHistory implements ShouldQueue
      */
     public function handle(): bool
     {
-        if ($this->package_id == 0){
-            $this->attributes['package_id'] = $this->package_id;
+        if (! $this->package){
             $this->attributes['type'] = FailedHistory::TYPE_TRANSIT;
         }else{
             $this->attributes['type'] = FailedHistory::TYPE_DOORING;
+            $this->attributes['package_id'] = $this->package->id;
         }
         $this->attributes['partner_id'] = $this->partner->id;
         $this->attributes['delivery_id'] = $this->delivery->id;
-        $this->attributes['package_id'] = $this->package_id;
-        $this->attributes['status'] = 1;
-        $this->attributes['created_by'] = 0;
-        $this->attributes['updated_by'] = 0;
         $this->failedhistory->fill($this->attributes);
         if ($this->failedhistory->save()) {
             event(new NewFailedHistoryCreated($this->failedhistory));

@@ -52,6 +52,8 @@ class Delivery extends Model
 {
     use HashableId, HasCode, HasFactory, CustomSerializeDate;
 
+    public const DELIVERY_SYSTEM_ID = 0;
+
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_RETURN = 'return';
     public const TYPE_TRANSIT = 'transit';

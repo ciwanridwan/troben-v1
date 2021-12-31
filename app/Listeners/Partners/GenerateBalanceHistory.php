@@ -229,8 +229,7 @@ class GenerateBalanceHistory
                                 ->first();
 
                             if (!$price || $price->value == 0) {
-                                $package_id = 0;
-                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $package_id);
+                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 Notification::send([
                                     'data' => [
@@ -251,8 +250,7 @@ class GenerateBalanceHistory
                                 ->where('type', PartnerPrice::TYPE_FLAT)
                                 ->first();
                             if (!$price) {
-                                $package_id = 0;
-                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $package_id);
+                                $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 Notification::send([
                                     'data' => [
@@ -342,7 +340,7 @@ class GenerateBalanceHistory
                     ->where('type',$tier)
                     ->first();
                 if (!$price) {
-                    $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package->id);
+                    $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
                     Notification::send([
                         'data' => [
