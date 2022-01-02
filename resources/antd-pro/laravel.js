@@ -5,6 +5,8 @@ const uriDataFinance = "admin.payment.data";
 const laravel = {
   data() {
     return {
+      socketBaseUrl: "wss://pulsar.trawlbens.com",
+      chatBaseUrl: "https://chat.trawlbens.com",
       filter: {
         q: null,
         per_page: 10
