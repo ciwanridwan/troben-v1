@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Partner\CustomerService;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
