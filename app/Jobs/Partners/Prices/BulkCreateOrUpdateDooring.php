@@ -44,9 +44,9 @@ class BulkCreateOrUpdateDooring
                 'origin_regency_id',
                 'destination_sub_district_id',
                 'type',
-            ],['value']);
+            ], ['value']);
         } catch (\Exception $e) {
-            Log::error("error", [$e->getMessage()]);
+            Log::error('error', [$e->getMessage()]);
             throw new \Exception('Please check your data, specially on '.Partner::find($this->attributes[0]['partner_id'])->code);
         }
     }

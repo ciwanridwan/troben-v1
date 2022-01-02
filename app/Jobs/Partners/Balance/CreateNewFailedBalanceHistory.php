@@ -44,7 +44,7 @@ class CreateNewFailedBalanceHistory
     public Partner $partner;
 
     /**
-     * Package instance when exist
+     * Package instance when exist.
      *
      * @var Package|null $package
      */
@@ -75,9 +75,9 @@ class CreateNewFailedBalanceHistory
      */
     public function handle(): bool
     {
-        if (! $this->package){
+        if (! $this->package) {
             $this->attributes['type'] = FailedHistory::TYPE_TRANSIT;
-        }else{
+        } else {
             $this->attributes['type'] = FailedHistory::TYPE_DOORING;
             $this->attributes['package_id'] = $this->package->id;
         }

@@ -18,10 +18,10 @@ class CreatePartnerFailedBalanceHistoriesTable extends Migration
         Schema::create('partner_failed_balance_histories', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('partner_id');
-            $table->unsignedSmallInteger('type')->default(FailedHistory::TYPE_TRANSIT)->comment("1: transit  2: dooring");
+            $table->unsignedSmallInteger('type')->default(FailedHistory::TYPE_TRANSIT)->comment('1: transit  2: dooring');
             $table->unsignedBigInteger('delivery_id');
             $table->unsignedBigInteger('package_id')->default(\App\Models\Packages\Package::PACKAGE_SYSTEM_ID);
-            $table->unsignedBigInteger('status')->default(FailedHistory::STATUS_WAITING)->comment("1: waiting  2: completed");
+            $table->unsignedBigInteger('status')->default(FailedHistory::STATUS_WAITING)->comment('1: waiting  2: completed');
             $table->unsignedBigInteger('created_by')->default(User::USER_SYSTEM_ID);
             $table->timestamp('created_at');
             $table->unsignedBigInteger('updated_by')->default(User::USER_SYSTEM_ID);

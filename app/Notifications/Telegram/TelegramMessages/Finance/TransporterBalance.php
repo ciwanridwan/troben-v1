@@ -13,14 +13,14 @@ class TransporterBalance extends Notification
     public const MESSAGE_TYPE_PACKAGE = 2; # attributes type for package
 
     /**
-     * represent telegram chat id
+     * represent telegram chat id.
      *
      * @var string|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed
      */
     protected string $chat_id;
 
     /**
-     * represent attributes that use
+     * represent attributes that use.
      *
      * @var array $attributes
      */
@@ -55,8 +55,8 @@ class TransporterBalance extends Notification
             default => false,
         };
 
-        if (!$telegramResponseText) {
-            Log::warning('telegram response text not available',['attributes' => $this->attributes]);
+        if (! $telegramResponseText) {
+            Log::warning('telegram response text not available', ['attributes' => $this->attributes]);
             $this->chat_id = config('telegram.chat.app_group');
             $telegramResponseText = $this->alertResponseText();
         }
@@ -68,29 +68,29 @@ class TransporterBalance extends Notification
 
     private function deliveryResponseText(): string
     {
-        return Emoji::generateEmoji(Emoji::EMOJI_RED_FLAG). "* KOMISI MITRA!*\n".
+        return Emoji::generateEmoji(Emoji::EMOJI_RED_FLAG)."* KOMISI MITRA!*\n".
             "*Harga transit mitra transporter tidak ditemukan*\n".
-            "Mitra code: *".$this->attributes['partner_code']."*\n".
-            "Kode manifest: *".$this->attributes['manifest_code']."*\n".
-            "Jumlah resi: *".$this->attributes['package_count']."*\n".
-            "Berat manifest terhitung: *".$this->attributes['manifest_weight']." Kg*\n";
+            'Mitra code: *'.$this->attributes['partner_code']."*\n".
+            'Kode manifest: *'.$this->attributes['manifest_code']."*\n".
+            'Jumlah resi: *'.$this->attributes['package_count']."*\n".
+            'Berat manifest terhitung: *'.$this->attributes['manifest_weight']." Kg*\n";
     }
 
     private function packageResponseText(): string
     {
-        return Emoji::generateEmoji(Emoji::EMOJI_RED_FLAG). "* KOMISI MITRA!*\n".
+        return Emoji::generateEmoji(Emoji::EMOJI_RED_FLAG)."* KOMISI MITRA!*\n".
             "*Harga dooring mitra transporter tidak ditemukan*\n".
-            "Mitra code: *".$this->attributes['partner_code']."*\n".
-            "Manifest code: *".$this->attributes['manifest_code']."*\n".
-            "Origin regency: *".$this->attributes['origin']."*\n".
-            "Destination: *".$this->attributes['destination']."*\n".
-            "Kode resi: *".$this->attributes['package_code']."*\n".
-            "Berat resi terhitung: *".$this->attributes['package_weight']." Kg*\n";
+            'Mitra code: *'.$this->attributes['partner_code']."*\n".
+            'Manifest code: *'.$this->attributes['manifest_code']."*\n".
+            'Origin regency: *'.$this->attributes['origin']."*\n".
+            'Destination: *'.$this->attributes['destination']."*\n".
+            'Kode resi: *'.$this->attributes['package_code']."*\n".
+            'Berat resi terhitung: *'.$this->attributes['package_weight']." Kg*\n";
     }
 
     private function alertResponseText(): string
     {
-        return Emoji::generateEmoji(Emoji::EMOJI_MEGAPHONE). "* ALERT!*\n".
+        return Emoji::generateEmoji(Emoji::EMOJI_MEGAPHONE)."* ALERT!*\n".
             "*Fail to send notification to finance: *\n".
             "Attributes: \n".
             json_encode($this->attributes);

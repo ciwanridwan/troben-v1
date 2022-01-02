@@ -57,7 +57,7 @@ class BulkCreateOrUpdateTransit
                 'destination_regency_id',
                 'type',
                 'shipment_type'
-            ],['value']);
+            ], ['value']);
         } catch (\Exception $e) {
             throw new \Exception('Please check your data, specially on '.Partner::find($this->attributes['partner_id'])->code);
         }

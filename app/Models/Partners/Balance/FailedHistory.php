@@ -15,8 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class FailedHistory
- * @package App\Models\Partners\Balance
+ * Class FailedHistory.
  *
  * @property int $id
  * @property int $partner_id

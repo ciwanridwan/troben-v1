@@ -79,7 +79,7 @@ class ShippingCalculator
         } else {
             $price = $rateByType['start_price'];
         }
-        Log::info("Shipping Calculator, delivery fee by distance: ",[
+        Log::info('Shipping Calculator, delivery fee by distance: ', [
             'delivery' => $delivery->toArray(),
             'distance' => $distance,
             'type' => $transporter->type,

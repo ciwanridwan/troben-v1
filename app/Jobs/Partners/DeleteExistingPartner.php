@@ -33,7 +33,7 @@ class DeleteExistingPartner
      * @param \App\Models\Partners\Partner $partner
      * @param bool                         $force
      */
-    public function __construct(Partner $partner,bool $force = false)
+    public function __construct(Partner $partner, bool $force = false)
     {
         $this->partner = $partner;
         $this->softDelete = ! $force;

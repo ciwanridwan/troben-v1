@@ -23,21 +23,9 @@ class BulkDataPrice extends Command
 {
     use DispatchesJobs;
 
-    private const TYPE_DELIVERY = "delivery";
-    private const TYPE_TRANSIT = "transit";
-    private const TYPE_DOORING = "dooring";
-
-    private string $type;
-
-    /**
-     * @var string $file_path
-     */
-    private string $file_path;
-
-    private Collection $prices;
-    private Collection $partner_list;
-
-    private ProgressBar $progressBar;
+    private const TYPE_DELIVERY = 'delivery';
+    private const TYPE_TRANSIT = 'transit';
+    private const TYPE_DOORING = 'dooring';
 
     /**
      * The name and signature of the console command.
@@ -54,6 +42,18 @@ class BulkDataPrice extends Command
      * @var string
      */
     protected $description = 'Bulk data price (insert or update)';
+
+    private string $type;
+
+    /**
+     * @var string $file_path
+     */
+    private string $file_path;
+
+    private Collection $prices;
+    private Collection $partner_list;
+
+    private ProgressBar $progressBar;
 
     /**
      * Create a new command instance.
@@ -75,13 +75,13 @@ class BulkDataPrice extends Command
     {
         $time_start = microtime(true);
         $this->type = $this->argument('type');
-        if (!in_array($this->type,self::getAvailableType())) {
+        if (! in_array($this->type, self::getAvailableType())) {
             $this->error('Wrong type argument');
             return;
         }
 
         $this->file_path = $this->option('file');
-        if (!$this->file_path) {
+        if (! $this->file_path) {
             $this->error('Option file is required');
             return;
         }
@@ -89,16 +89,15 @@ class BulkDataPrice extends Command
         $this->prices = $this->loadFiles();
         if ($this->type === self::TYPE_DELIVERY) {
             # TODO: delivery logic update
-            $this->info("Updating delivery prices");
-
+            $this->info('Updating delivery prices');
         } elseif ($this->type === self::TYPE_TRANSIT) {
-            $this->partner_list = Partner::query()->where('type',Partner::TYPE_TRANSPORTER)->get(['id','code']);
+            $this->partner_list = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)->get(['id','code']);
             $this->info('Updating transit price');
             $this->updatePartnerPrice();
-            $this->progressBar->finish();;
+            $this->progressBar->finish();
         } elseif ($this->type === self::TYPE_DOORING) {
-            $this->partner_list = Partner::query()->whereIn('type',[Partner::TYPE_TRANSPORTER,Partner::TYPE_BUSINESS])->get(['id','code']);
-            $this->info("Updating dooring prices");
+            $this->partner_list = Partner::query()->whereIn('type', [Partner::TYPE_TRANSPORTER,Partner::TYPE_BUSINESS])->get(['id','code']);
+            $this->info('Updating dooring prices');
             $this->updatePartnerPrice();
         }
 
@@ -106,6 +105,24 @@ class BulkDataPrice extends Command
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
         $this->info('Total Execution Time:'.($execution_time*1000).'Milliseconds');
+    }
+
+    /**
+     * @return Collection
+     * @throws \League\Csv\Exception
+     */
+    public function loadFiles(): Collection
+    {
+        $collection = new Collection();
+
+        $csv = Reader::createFromPath($this->file_path);
+        $csv->setHeaderOffset(0);
+
+        foreach ((new Statement())->process($csv) as $item) {
+            $collection->add($item);
+        }
+
+        return $collection;
     }
 
     /**
@@ -121,25 +138,6 @@ class BulkDataPrice extends Command
     }
 
     /**
-     * @return Collection
-     * @throws \League\Csv\Exception
-     */
-    public function loadFiles(): Collection
-    {
-        $collection = new Collection();
-
-        $csv = Reader::createFromPath($this->file_path);
-        $csv->setHeaderOffset(0);
-
-        foreach ((new Statement())->process($csv) as $item) {
-
-            $collection->add($item);
-        }
-
-        return $collection;
-    }
-
-    /**
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Exception
      */
@@ -148,8 +146,11 @@ class BulkDataPrice extends Command
         $this->prices = $this->prices->groupBy(['mitra_code']);
         $this->progressBar = $this->getOutput()->createProgressBar($this->prices->count());
 
-        if ($this->type === self::TYPE_TRANSIT) $this->updatePartnerTransitPrices();
-        elseif ($this->type === self::TYPE_DOORING) $this->updatePartnerDooringPrices();
+        if ($this->type === self::TYPE_TRANSIT) {
+            $this->updatePartnerTransitPrices();
+        } elseif ($this->type === self::TYPE_DOORING) {
+            $this->updatePartnerDooringPrices();
+        }
     }
 
     /**
@@ -179,8 +180,11 @@ class BulkDataPrice extends Command
                             'value' => $value
                         ]
                     );
-                    if ($value == '-') $notAvailables->add($item);
-                    else $availables->add($item);
+                    if ($value == '-') {
+                        $notAvailables->add($item);
+                    } else {
+                        $availables->add($item);
+                    }
                 }
             }
 
@@ -188,15 +192,15 @@ class BulkDataPrice extends Command
             $this->dispatch($job);
 
             foreach ($notAvailables as $notAvailable) {
-                $transit = Transit::where('partner_id',$notAvailable['partner_id'])
-                    ->where('origin_regency_id',$notAvailable['origin_regency_id'])
-                    ->where('destination_regency_id',$notAvailable['destination_regency_id'])
-                    ->where('type',$notAvailable['type'])
-                    ->where('shipment_type',$notAvailable['shipment_type'])
+                $transit = Transit::where('partner_id', $notAvailable['partner_id'])
+                    ->where('origin_regency_id', $notAvailable['origin_regency_id'])
+                    ->where('destination_regency_id', $notAvailable['destination_regency_id'])
+                    ->where('type', $notAvailable['type'])
+                    ->where('shipment_type', $notAvailable['shipment_type'])
                     ->first();
 
                 if ($transit) {
-                    $deleteJob = new DeleteExistingTransit(Arr::except($notAvailable,'value'));
+                    $deleteJob = new DeleteExistingTransit(Arr::except($notAvailable, 'value'));
                     $this->dispatch($deleteJob);
                 }
             }
@@ -228,7 +232,7 @@ class BulkDataPrice extends Command
                     $tempData = Arr::except($data, ['mitra_code', 'origin_regency_id', 'destination_district_id']);
 
                     $data['partner_id'] = $partner_id;
-                    $subDistricts = SubDistrict::query()->where('district_id',$data['destination_district_id'])->get(['id']);
+                    $subDistricts = SubDistrict::query()->where('district_id', $data['destination_district_id'])->get(['id']);
                     $subBar = $this->getOutput()->createProgressBar($subDistricts->count());
                     foreach ($subDistricts as $subDistrict) {
                         foreach ($tempData as $keyTemp => $value) {
@@ -240,8 +244,11 @@ class BulkDataPrice extends Command
                                     'value' => $value
                                 ]
                             );
-                            if ($value == '-') $notAvailables->add($item);
-                            else $availables->add($item);
+                            if ($value == '-') {
+                                $notAvailables->add($item);
+                            } else {
+                                $availables->add($item);
+                            }
                         }
                         $subBar->advance();
                     }
@@ -249,14 +256,14 @@ class BulkDataPrice extends Command
                     $job = new BulkCreateOrUpdateDooring($availables->toArray());
                     $this->dispatch($job);
                     foreach ($notAvailables as $notAvailable) {
-                        $transit = Dooring::where('partner_id',$notAvailable['partner_id'])
-                            ->where('origin_regency_id',$notAvailable['origin_regency_id'])
-                            ->where('destination_sub_district_id',$notAvailable['destination_sub_district_id'])
-                            ->where('type',$notAvailable['type'])
+                        $transit = Dooring::where('partner_id', $notAvailable['partner_id'])
+                            ->where('origin_regency_id', $notAvailable['origin_regency_id'])
+                            ->where('destination_sub_district_id', $notAvailable['destination_sub_district_id'])
+                            ->where('type', $notAvailable['type'])
                             ->first();
 
                         if ($transit) {
-                            $deleteJob = new DeleteExistingDooring(Arr::except($notAvailable,'value'));
+                            $deleteJob = new DeleteExistingDooring(Arr::except($notAvailable, 'value'));
                             $this->dispatch($deleteJob);
                         }
                     }

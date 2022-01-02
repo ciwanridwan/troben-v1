@@ -20,7 +20,7 @@ class CreatePartnerDooringPricesTable extends Migration
 
             $table->unsignedBigInteger('origin_regency_id');
             $table->unsignedBigInteger('destination_sub_district_id');
-            $table->unsignedSmallInteger('type',false,true)->comment($this->typeComment());
+            $table->unsignedSmallInteger('type', false, true)->comment($this->typeComment());
             $table->unsignedInteger('value');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
@@ -57,7 +57,7 @@ class CreatePartnerDooringPricesTable extends Migration
      */
     private function typeComment(): string
     {
-        return "
+        return '
             1: SLA
             2: Flat
             3: tier 1
@@ -70,6 +70,6 @@ class CreatePartnerDooringPricesTable extends Migration
             10: tier 8
             11: tier 9
             12: tier 10
-        ";
+        ';
     }
 }
