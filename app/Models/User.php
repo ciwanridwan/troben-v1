@@ -64,6 +64,8 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
         attachable,
         CanSearch;
 
+    public const USER_SYSTEM_ID = 0;
+
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     protected $table = 'users';

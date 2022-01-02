@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Deliveries\Kurir\Pickup;
+namespace App\Events\Deliveries\Courier\Pickup;
 
 use App\Models\Deliveries\Delivery;
 use Illuminate\Broadcasting\InteractsWithSockets;

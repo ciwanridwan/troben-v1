@@ -46,10 +46,13 @@ use ReflectionClass;
  * @property int|null userable_id
  * @property-read Partner $origin_partner
  * @property-read Transporter $transporter
+ * @property-read Code $code
  */
 class Delivery extends Model
 {
     use HashableId, HasCode, HasFactory, CustomSerializeDate;
+
+    public const DELIVERY_SYSTEM_ID = 0;
 
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_RETURN = 'return';

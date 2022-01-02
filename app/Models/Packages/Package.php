@@ -98,6 +98,8 @@ class Package extends Model implements AttachableContract
 {
     use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
 
+    public const PACKAGE_SYSTEM_ID = 0;
+
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
