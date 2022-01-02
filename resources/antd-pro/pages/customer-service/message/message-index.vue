@@ -307,7 +307,7 @@ export default {
       consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
-        fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
+        fetch(`${this.chatBaseUrl}/chat/list/partner/room`, {
           method: "GET",
           headers: {
             Authorization: `bearer ${jwtToken}`,
@@ -331,12 +331,12 @@ export default {
           element.is_active = false;
           element.is_online = false;
         });
-        console.log("getdata", getData);
+        // console.log("getdata", getData);
         callback(getData);
       };
 
       consumer.onclose = function (event) {
-        console.log("on close....", event);
+        // console.log("on close....", event);
         if (event.wasClean) {
           // alert(
           //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
@@ -372,7 +372,7 @@ export default {
         }-partner-room-${item.room_id}/chat`
       );
       consumer.onclose = function (event) {
-        console.log("listchat on close....", event);
+        // console.log("listchat on close....", event);
         if (event.wasClean) {
           console.log(
             `listchat [close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
@@ -386,10 +386,10 @@ export default {
       };
 
       consumer.onopen = function (e) {
-        console.log("list chat isOpenChat", consumer);
+        // console.log("list chat isOpenChat", consumer);
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
+          `${this.chatBaseUrl}/chat/list/partner/room/${item.room_id}`,
           {
             method: "GET",
             headers: {
@@ -398,7 +398,7 @@ export default {
           }
         )
           .then((response) => {
-            console.log("list chat success", response);
+            // console.log("list chat success", response);
           })
           .then(() => {
             let el = document.getElementById("scrollingContainer");
@@ -409,7 +409,7 @@ export default {
           });
       };
 
-      console.log("roomChat", this.roomChat);
+      // console.log("roomChat", this.roomChat);
 
       consumer.onmessage = function (event) {
         var myHeaders = new Headers();
@@ -422,7 +422,7 @@ export default {
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/partner/read/partner/room/${item.room_id}`,
+          `${this.chatBaseUrl}/chat/partner/read/partner/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
@@ -432,7 +432,7 @@ export default {
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
         callback(JSON.parse(payload));
-        console.log("onmessagechat", JSON.parse(payload));
+        // console.log("onmessagechat", JSON.parse(payload));
       };
 
       this.nickname = item.customer.name;
@@ -467,7 +467,7 @@ export default {
     // },
 
     producerSocket() {
-      console.log("produce", this.roomId, this.textInput);
+      // console.log("produce", this.roomId, this.textInput);
 
       // var myHeaders = new Headers();
       // myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
@@ -489,7 +489,7 @@ export default {
       // };
 
       // fetch(
-      //   "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
+      //   `${this.chatBaseUrl}/chat/trawlbens/to/customer",
       //   requestOptions
       // )
       //   .then(response => response.text())
@@ -503,7 +503,7 @@ export default {
       formdata.append("room_id", this.roomId);
       formdata.append("message", this.textInput);
       if (this.selectedFile) {
-        console.log("masuk upload file", this.selectedFile.name);
+        // console.log("masuk upload file", this.selectedFile.name);
 
         formdata.append("attachments", this.selectedFile);
       }
@@ -516,11 +516,11 @@ export default {
       };
 
       fetch(
-        "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
+        `${this.chatBaseUrl}/chat/trawlbens/to/customer`,
         requestOptions
       )
         .then((response) => {
-          console.log("response upload", response);
+          // console.log("response upload", response);
           this.tempChat();
           response.text();
         })
@@ -529,7 +529,7 @@ export default {
           this.selectedFile = null;
           this.tempUrl = null;
           this.scrollToElement();
-          console.log("success produce", result);
+          // console.log("success produce", result);
         })
         .catch((error) => console.log("error", error));
     },
@@ -605,8 +605,8 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("user", this.user());
-    console.log("token", this.$laravel.jwt_token);
+    // console.log("user", this.user());
+    // console.log("token", this.$laravel.jwt_token);
   },
 };
 </script>
