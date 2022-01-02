@@ -307,7 +307,7 @@ export default {
       consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
-        fetch(`${this.chatBaseUrl}/chat/list/partner/room`, {
+        fetch(`https://chat.trawlbens.com/chat/list/partner/room`, {
           method: "GET",
           headers: {
             Authorization: `bearer ${jwtToken}`,
@@ -389,7 +389,7 @@ export default {
         // console.log("list chat isOpenChat", consumer);
 
         fetch(
-          `${this.chatBaseUrl}/chat/list/partner/room/${item.room_id}`,
+          `https://chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
           {
             method: "GET",
             headers: {
@@ -422,7 +422,7 @@ export default {
         };
 
         fetch(
-          `${this.chatBaseUrl}/chat/partner/read/partner/room/${item.room_id}`,
+          `https://chat.trawlbens.com/chat/partner/read/partner/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
@@ -489,7 +489,7 @@ export default {
       // };
 
       // fetch(
-      //   `${this.chatBaseUrl}/chat/trawlbens/to/customer",
+      //   `https://chat.trawlbens.com/chat/trawlbens/to/customer",
       //   requestOptions
       // )
       //   .then(response => response.text())
@@ -516,7 +516,7 @@ export default {
       };
 
       fetch(
-        `${this.chatBaseUrl}/chat/trawlbens/to/customer`,
+        `https://chat.trawlbens.com/chat/trawlbens/to/customer`,
         requestOptions
       )
         .then((response) => {
