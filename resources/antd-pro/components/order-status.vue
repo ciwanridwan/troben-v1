@@ -4,13 +4,13 @@
       <a-badge status="error" text=""></a-badge>
       <span :class="['trawl-status-error']">Pesan Dibatalkan</span>
     </div>
-    <div v-if="record.status == 'cancel_self_pickup'">
+    <div v-else-if="record.status == 'cancel_self_pickup'">
       <a-badge status="error" text=""></a-badge>
-      <span :class="['trawl-status-error']">Pesan Dibatalkan dan akan paket akan diambil kembali oleh Customer</span>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan paket akan diambil kembali oleh Customer</span>
     </div>
-    <div v-if="record.status == 'cancel_delivered'">
+    <div v-else-if="record.status == 'cancel_delivered'">
       <a-badge status="error" text=""></a-badge>
-      <span :class="['trawl-status-error']">Pesan Dibatalkan dan akan paket akan diantar kembali oleh Mitra</span>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan paket akan diantar kembali oleh Mitra</span>
     </div>
     <div v-else-if="record.status == 'created'">
       <a-badge status="warning" text=""></a-badge>
@@ -31,6 +31,10 @@
     <div v-else-if="record.status == 'picked_up'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Driver telah menerima barang</span>
+    </div>
+    <div v-else-if="record.status == 'waiting_for_estimating'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Menunggu untuk dilakukan pengecekan di gudang</span>
     </div>
     <div v-else-if="record.status == 'estimating'">
       <a-badge status="warning" text=""></a-badge>
