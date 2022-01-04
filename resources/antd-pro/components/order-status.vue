@@ -62,7 +62,7 @@
     </div>
     <div v-else-if="record.status == 'manifested'">
       <a-badge status="warning" text=""></a-badge>
-      <span :class="['trawl-status-warning']">Telah terassign di manifest {{ record.deliveries[-1].code.content }}</span>
+      <span :class="['trawl-status-warning']">Telah terassign di manifest</span>
     </div>
     <div v-else-if="record.status == 'in_transit'">
       <a-badge status="warning" text=""></a-badge>
