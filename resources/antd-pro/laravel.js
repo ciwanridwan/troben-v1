@@ -211,6 +211,10 @@ const laravel = {
         currency: "IDR"
       }).format(number);
     },
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+
     getDefaultPagination() {
       return {
         current_page: 1,
