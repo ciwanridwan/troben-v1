@@ -74,11 +74,6 @@ return [
         App\Http\Routes\Api\Courier\OrderRoute::class,
         App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Manifest\TransitRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Order\ItemRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\DooringRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
         /** @inject api **/
     ],
