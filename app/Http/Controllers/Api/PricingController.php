@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\Error;
 use App\Http\Response;
+use App\Models\Geo\Regency;
 use App\Models\Price;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
+use Illuminate\Support\Facades\Log;
 
 class PricingController extends Controller
 {
@@ -60,6 +63,12 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
+        /** @var Regency $regency */
+        $regency = Regency::query()->find($request->get('origin_regency_id'));
+        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_id')]), 'array');
+        Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
+        Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
+        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
         return PricingCalculator::calculate($request->toArray());
     }
 
