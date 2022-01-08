@@ -349,7 +349,7 @@ class GenerateBalanceHistory
                 /** @var Dooring $price */
                 $price = Dooring::query()
                     ->where('partner_id', $this->partner->id)
-                    ->where('origin_regency_id', $this->delivery->origin_partner->geo_regency_id)
+                    ->where('origin_regency_id', $this->package->destination_regency_id)
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->where('type', $tier)
                     ->first();
