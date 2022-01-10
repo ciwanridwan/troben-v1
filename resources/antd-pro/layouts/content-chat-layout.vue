@@ -40,6 +40,7 @@ export default {
     },
     siderPosition: {
       type: String,
+
       default: "left",
     },
     search: {
