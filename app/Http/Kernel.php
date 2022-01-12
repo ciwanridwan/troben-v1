@@ -70,6 +70,10 @@ class Kernel extends HttpKernel
         'partner.role' => \App\Http\Middleware\Partner\EnsureUserHasPartnerWithRole::class,
         'partner.type' => \App\Http\Middleware\Partner\EnsureUserHasPartnerWithType::class,
         'partner.scope.role' => \App\Http\Middleware\Partner\ScopeRole::class,
-        'is.nicepay' => \App\Http\Middleware\Payments\IsNicepay::class
+        'is.nicepay' => \App\Http\Middleware\Payments\IsNicepay::class,
+        'jwt' => \App\Http\Middleware\JwtMiddleware::class,
+        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
     ];
 }

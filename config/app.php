@@ -180,7 +180,7 @@ return [
         App\Providers\HorizonServiceProvider::class,
         // App\Providers\RouteServiceProvider::class,
         Kawankoding\Fcm\FcmServiceProvider::class,
-
+        Spatie\Permission\PermissionServiceProvider::class,
     ],
 
     /*
