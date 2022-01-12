@@ -36,12 +36,9 @@ class JwtMiddleware
         } catch(\Exception $e) {
             throw new Error(Response::RC_JWT_ERROR_DECODING);
         }
-        $user = User::find($credentials->data->id);
-        if (property_exists($credentials->data, 'guard')){
-            $user = Office::find($credentials->data->id);
-        }
+        $user = Office::find($credentials->data->id);
         // Now let's put the user in the request class so that you can grab it from there
-        Auth::setUser($user);
+        $request->auth = $user;
         return $next($request);
     }
 }

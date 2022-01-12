@@ -14,7 +14,14 @@ class AddColumnUpdatedByOnUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('updated_by')->nullable();
+            $table->foreignId('created_by')
+                ->nullable()
+                ->references('id')
+                ->on('offices');
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->references('id')
+                ->on('offices');
         });
     }
 
@@ -26,6 +33,7 @@ class AddColumnUpdatedByOnUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('created_by');
             $table->dropColumn('updated_by');
         });
     }

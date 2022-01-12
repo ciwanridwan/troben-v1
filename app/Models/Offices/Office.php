@@ -4,7 +4,9 @@ namespace App\Models\Offices;
 
 use App\Concerns\Models\CanSearch;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -27,7 +29,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $password
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read  \Illuminate\Database\Eloquent\Collection|MorphMany notifications
+ * @property-read  \Illuminate\Database\Eloquent\Collection role
+ * @property-read  \Illuminate\Database\Eloquent\Collection permission
  */
 class Office extends Authenticatable implements AuthenticatableContact
 {
@@ -92,9 +95,9 @@ class Office extends Authenticatable implements AuthenticatableContact
         $this->attributes['password'] = bcrypt($value);
     }
 
-    public function role(): MorphMany
+    public function role(): BelongsTo
     {
-        return $this->morphMany(Roleable::class, 'role');
+        return $this->belongsTo(Roleable::class, 'id', 'model_id');
     }
 
     public function permission(): MorphMany

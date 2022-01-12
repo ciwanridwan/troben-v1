@@ -50,7 +50,7 @@ class OfficeController extends Controller
 
     public function profile(Request $request)
     {
-        $account = $request->user();;
+        $account = $request->auth;
         return $this->jsonSuccess(new OfficeResource($account));
     }
 

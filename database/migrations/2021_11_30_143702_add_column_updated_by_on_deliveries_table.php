@@ -14,10 +14,14 @@ class AddColumnUpdatedByOnDeliveriesTable extends Migration
     public function up()
     {
         Schema::table('deliveries', function (Blueprint $table) {
+            $table->foreignId('created_by')
+                ->nullable()
+                ->references('id')
+                ->on('offices');
             $table->foreignId('updated_by')
                 ->nullable()
                 ->references('id')
-                ->on('users');
+                ->on('offices');
         });
     }
 
@@ -29,6 +33,7 @@ class AddColumnUpdatedByOnDeliveriesTable extends Migration
     public function down()
     {
         Schema::table('deliveries', function (Blueprint $table) {
+            $table->dropColumn('created_by');
             $table->dropColumn('updated_by');
         });
     }

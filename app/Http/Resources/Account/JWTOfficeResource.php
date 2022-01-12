@@ -17,7 +17,7 @@ class JWTOfficeResource extends JsonResource
      */
     public function toArray($request)
     {
-        /** @var \App\Models\Offices\Office $this */
+        /** @var Office $this */
         $data = [
             'guard' => 'office',
             'id' => $this->id,
@@ -25,20 +25,8 @@ class JWTOfficeResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'address' => $this->address,
-
+            'role' => $this->role->detail->name,
         ];
-
-        if ($this->resource instanceof Office) {
-            /** @var \Illuminate\Database\Eloquent\Collection $partners */
-//            $partners = $this->resource->partners;
-//
-//            if ($partners->count() > 0) {
-//                $data['partner'] = $partners->first()->only(['name', 'code', 'type']);
-//                $data['partner']['as'] = $partners
-//                    ->where('code', Arr::get($data, 'partner.code'))
-//                    ->pluck('pivot')->map->role->toArray();
-//            }
-        }
 
         return $data;
     }

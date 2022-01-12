@@ -14,14 +14,14 @@ class AddColumnUpdatedByOnDeliverablesTable extends Migration
     public function up()
     {
         Schema::table('deliverables', function (Blueprint $table) {
-            $table->foreignId('updated_by')
-                ->nullable()
-                ->references('id')
-                ->on('users');
             $table->foreignId('created_by')
                 ->nullable()
                 ->references('id')
-                ->on('users');
+                ->on('offices');
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->references('id')
+                ->on('offices');
         });
     }
 

@@ -3,8 +3,11 @@
 namespace App\Models\Offices;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Permission\Models\Role;
 
 class Roleable extends Model
 {
@@ -12,17 +15,13 @@ class Roleable extends Model
 
     protected $table = 'model_has_roles';
 
-    protected $casts = [
-
-    ];
+    protected $casts = [];
 
     /**
-     * Define 'MortpTo' relation.
-     *
-     * @return MorphTo
+     * @return BelongsTo
      */
-    public function role(): MorphTo
+    public function detail(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\V;
 
 use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
 use App\Jobs\Packages\UpdateExistingPackage;
+use App\Jobs\Packages\UpdateExistingPackageByOffice;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 use App\Models\Code;
 use App\Models\Customers\Customer;
@@ -15,14 +17,32 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class SelfServiceController extends Controller
 {
     private Code $code;
 
+    /**
+     * @param string $content
+     * @return JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws Error
+     */
+    public function packageDetail(string $content): JsonResponse
+    {
+        $code = Code::query()->where('content',$content)->where('codeable_type',Package::class)->first();
+        if ($code == null){
+            throw Error::make(Response::RC_INVALID_DATA);
+        }
+        $package = Package::query()->find($code->codeable_id);
+        return $this->jsonSuccess(new PackageResource($package));
+    }
     /**
      * @param Request $request
      * @param string $content
@@ -33,9 +53,8 @@ class SelfServiceController extends Controller
     {
         /** @var Code $code */
         $code = Code::query()->where('content',$content)->where('codeable_type',Package::class)->firstOrFail();
-        $job = new UpdateExistingPackage($code->codeable,$request->all());
+        $job = new UpdateExistingPackageByOffice($code->codeable,$request->all());
         $this->dispatch($job);
-
         $code->codeable->setAttribute('updated_by',$request->auth->id)->save();
 
         return $this->jsonSuccess();
@@ -73,21 +92,27 @@ class SelfServiceController extends Controller
      */
     public function accountVerify(Request $request, string $account): JsonResponse
     {
+        $phoneNumber =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($request->phone, 'ID'),
+                PhoneNumberFormat::E164
+            );
         if ($account === 'user') {
-            $input = array_merge($request->toArray(),['email_verified_at' => Carbon::now()]);
+//            $input = array_merge($request->toArray(),['email_verified_at' => Carbon::now()]);
             /** @var User $user */
-            $user = User::where('phone',$input['phone'])->firstOrFail();
+            $user = User::where('phone',$phoneNumber)->first();
+            throw_if($user == null, Error::make(Response::RC_INVALID_DATA));
             $job = new VerifyExistingUser($user);
             $this->dispatch($job);
-
             $user->setAttribute('updated_by', $request->auth->id);
         } elseif ($account === 'customer') {
-            $input = array_merge($request->toArray(),['phone_verified_at' => Carbon::now()]);
+//            $input = array_merge($request->toArray(),['phone_verified_at' => Carbon::now()]);
             /** @var Customer $customer */
-            $customer = Customer::where('phone',$input['phone'])->firstOrFail();
+            $customer = Customer::where('phone',$phoneNumber)->first();
+            throw_if($customer == null, Error::make(Response::RC_INVALID_DATA));
+
             $customer->{$customer->getVerifiedColumn()} = Carbon::now();
             $customer->save();
-
             $customer->setAttribute('updated_by', $request->auth->id)->save();
         } else {
             throw Error::make(Response::RC_BAD_REQUEST);
