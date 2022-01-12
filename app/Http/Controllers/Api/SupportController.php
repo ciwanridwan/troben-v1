@@ -18,7 +18,7 @@ class SupportController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        Notification::send([$request->toArray()],new ProspectivePartner());
+        Notification::send([$request->toArray()], new ProspectivePartner());
         return $this->jsonSuccess();
     }
 }

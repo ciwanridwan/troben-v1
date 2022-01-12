@@ -29,7 +29,7 @@ class SupportRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->group(['prefix' => $this->prefix('prospect'), 'as' => $this->name('prospect')],function () {
+        $this->router->group(['prefix' => $this->prefix('prospect'), 'as' => $this->name('prospect')], function () {
             $this->router->post('register', [
                 'as' => '.register',
                 'uses' => $this->uses('register'),
