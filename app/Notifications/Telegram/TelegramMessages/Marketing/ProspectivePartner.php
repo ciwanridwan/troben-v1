@@ -11,24 +11,25 @@ use NotificationChannels\Telegram\TelegramMessage;
 class ProspectivePartner extends Notification
 {
     private string $chat_id;
+
     /**
-     * Create a new notification instance.
+     * Prospective Partner notification construct.
+     * Setup config telegram bot token and set chat id
      *
      * @return void
      */
     public function __construct()
     {
-        Config::set('services.telegram-bot-api.token',env('TELEGRAM_RAY_BOT_TOKEN'));
+        Config::set('services.telegram-bot-api.token',config('telegram.bot.ray_bot_token'));
         $this->chat_id = config('telegram.chat.new_partner_group');
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
      * @return array
      */
-    public function via()
+    public function via(): array
     {
         return ['telegram'];
     }
