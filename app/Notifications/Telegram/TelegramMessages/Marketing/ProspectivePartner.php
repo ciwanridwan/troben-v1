@@ -14,13 +14,13 @@ class ProspectivePartner extends Notification
 
     /**
      * Prospective Partner notification construct.
-     * Setup config telegram bot token and set chat id
+     * Setup config telegram bot token and set chat id.
      *
      * @return void
      */
     public function __construct()
     {
-        Config::set('services.telegram-bot-api.token',config('telegram.bot.ray_bot_token'));
+        Config::set('services.telegram-bot-api.token', config('telegram.bot.ray_bot_token'));
         $this->chat_id = config('telegram.chat.new_partner_group');
     }
 

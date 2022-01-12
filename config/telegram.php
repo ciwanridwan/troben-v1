@@ -6,8 +6,8 @@ return [
      * storing at config.services.telegram-bot-api
      */
     'bot' => [
-        'jon_bot_token' => env('TELEGRAM_BOT_TOKEN','2122704563:AAHa9ovq8fAez4gmxqrlQzQfOadkfJdbtrk'),
-        'ray_bot_token' => env('TELEGRAM_RAY_BOT_TOKEN','2122704563:AAHa9ovq8fAez4gmxqrlQzQfOadkfJdbtrk'),
+        'jon_bot_token' => env('TELEGRAM_BOT_TOKEN', '2122704563:AAHa9ovq8fAez4gmxqrlQzQfOadkfJdbtrk'),
+        'ray_bot_token' => env('TELEGRAM_RAY_BOT_TOKEN', '2122704563:AAHa9ovq8fAez4gmxqrlQzQfOadkfJdbtrk'),
     ],
     'chat' => [
         'app_group' => env('TELEGRAM_APP_GROUP_ID', -1001404809797),
