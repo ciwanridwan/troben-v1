@@ -2,7 +2,7 @@
   <div>
     <order-modal-row-layout>
       <template slot="icon">
-        <a-icon :component="TrawlRedIcon" :style="{ 'font-size': '3rem' }" />
+        <trawl-red-icon size="3"/>
       </template>
       <template slot="content">
         <a-space direction="vertical">
@@ -14,7 +14,7 @@
 
     <order-modal-row-layout>
       <template slot="icon">
-        <a-icon :component="SendIcon" :style="{ 'font-size': '3rem' }" />
+        <send-icon/>
       </template>
       <template slot="content">
         <package-address :package="package" type="sender" />
@@ -23,7 +23,7 @@
 
     <order-modal-row-layout :afterLine="false">
       <template slot="icon">
-        <a-icon :component="ReceiveIcon" :style="{ 'font-size': '3rem' }" />
+        <receive-icon/>
       </template>
       <template slot="content">
         <a-space direction="vertical" :size="1">
@@ -45,7 +45,8 @@ import EnlargeableImage from '@diracleo/vue-enlargeable-image';
 export default {
   components: {
     EnlargeableImage,
-    packageAddress
+    packageAddress,
+    TrawlRedIcon, SendIcon, ReceiveIcon
   },
   props: {
     package: {
@@ -59,9 +60,6 @@ export default {
   },
   data() {
     return {
-      TrawlRedIcon,
-      SendIcon,
-      ReceiveIcon,
       EnlargeableImage,
       URIImage
     };
