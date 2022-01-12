@@ -65,6 +65,11 @@ return [
             'root' => storage_path('app/cover'),
         ],
 
+        'promotion' => [
+            'driver' => 'local',
+            'root' => storage_path('app/promotion'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

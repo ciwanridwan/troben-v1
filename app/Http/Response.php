@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Carbon\Carbon;
 use ReflectionClass;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -30,6 +31,7 @@ class Response implements Responsable
     public const RC_INVALID_PHONE_NUMBER = '0103';
     public const RC_OUT_OF_RANGE = '0104';
     public const RC_INSUFFICIENT_BALANCE = '0105';
+    public const RC_NOT_ELIGIBLE_FOR_PROMOTION = '0106';
 
     // authentication / authorization related. 0200 - 0299
     public const RC_UNAUTHENTICATED = '0200';
@@ -84,16 +86,20 @@ class Response implements Responsable
      */
     public $data;
 
+    public bool $hasServerTime;
+
     /**
      * Response constructor.
      *
      * @param string $code
-     * @param $data
+     * @param array|null $data
+     * @param bool $hasServerTime
      */
-    public function __construct(string $code, $data = [])
+    public function __construct(string $code, $data = null, bool $hasServerTime = false)
     {
         $this->code = $code;
         $this->data = $data;
+        $this->hasServerTime = $hasServerTime;
     }
 
     /**
@@ -136,6 +142,7 @@ class Response implements Responsable
                 self::RC_OUT_OF_RANGE,
                 self::RC_PARTNER_GEO_UNAVAILABLE,
                 self::RC_INSUFFICIENT_BALANCE,
+                self::RC_NOT_ELIGIBLE_FOR_PROMOTION
             ],
             LaravelResponse::HTTP_FORBIDDEN => [
                 self::RC_PAYMENT_HAS_PAID,
@@ -194,6 +201,8 @@ class Response implements Responsable
             'message' => $this->resolveMessage(),
         ];
 
+        if ($this->hasServerTime) $responseData = array_merge($responseData,['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
+
         if ($this->data instanceof LengthAwarePaginator) {
             $responseData = array_merge($responseData, $this->data->toArray());
         } elseif ($this->data instanceof Model) {
@@ -214,6 +223,8 @@ class Response implements Responsable
         } else {
             if ($responseData['code'] === self::RC_INVALID_DATA) {
                 if ($this->data) foreach ($this->data as $key => $value) {
+            if ($responseData['code'] === self::RC_INVALID_DATA && $this->data) {
+                foreach ($this->data as $key => $value) {
                     if (is_array($value)) {
                         $this->data[$key] = Arr::first($value);
                     }

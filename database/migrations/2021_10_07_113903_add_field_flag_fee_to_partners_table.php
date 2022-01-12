@@ -21,7 +21,9 @@ class AddFieldFlagFeeToPartnersTable extends Migration
     public function up()
     {
         Schema::table('partners', function (Blueprint $table) {
-            foreach ($this->descriptions as $description) $table->boolean($description)->default(false);
+            foreach ($this->descriptions as $description) {
+                $table->boolean($description)->default(false);
+            }
             $table->boolean('get_charge_delivery')->default(false);
         });
     }
@@ -38,9 +40,12 @@ class AddFieldFlagFeeToPartnersTable extends Migration
         });
     }
 
-    private function arrayFields() {
+    private function arrayFields()
+    {
         $this->descriptions = \App\Models\Partners\Balance\History::getAvailableDescription();
 
-        foreach ($this->descriptions as $key => $description) $this->descriptions[$key] = 'get_fee_'.$description;
+        foreach ($this->descriptions as $key => $description) {
+            $this->descriptions[$key] = 'get_fee_'.$description;
+        }
     }
 }

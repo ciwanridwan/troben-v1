@@ -54,7 +54,7 @@ class PartnerBalanceReport extends Model
      */
     public function partner(): Relations\BelongsTo
     {
-        return $this->belongsTo(Partner::class,'partner_code','code');
+        return $this->belongsTo(Partner::class, 'partner_code', 'code');
     }
 
     /**
@@ -64,7 +64,7 @@ class PartnerBalanceReport extends Model
      */
     public function package(): Relations\BelongsTo
     {
-        return $this->belongsTo(Package::class,'package_id','id');
+        return $this->belongsTo(Package::class, 'package_id', 'id');
     }
 
     /**
@@ -74,7 +74,7 @@ class PartnerBalanceReport extends Model
      */
     public function regency(): Relations\BelongsTo
     {
-        return $this->belongsTo(Regency::class,'partner_geo_regency_id','id');
+        return $this->belongsTo(Regency::class, 'partner_geo_regency_id', 'id');
     }
 
     /**
@@ -83,6 +83,6 @@ class PartnerBalanceReport extends Model
      */
     public function balanceHistories(): Relations\HasMany
     {
-        return $this->hasMany(History::class,'package_id','package_id');
+        return $this->hasMany(History::class, 'package_id', 'package_id');
     }
 }

@@ -151,9 +151,7 @@ class Partner extends Model
      *
      * @var array
      */
-    protected $hidden = [
-        'id',
-    ];
+    protected $hidden = [];
 
     /**
      * Phone Number Column.

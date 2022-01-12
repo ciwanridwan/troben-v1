@@ -12,15 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class Withdrawal
- * @package App\Models\Payments
+ * Class Withdrawal.
  *
  * @property int $id
  * @property int $partner_id
  * @property int $account_bank_id
- * @property double $first_balance
- * @property double $amount
- * @property double $last_balance
+ * @property float $first_balance
+ * @property float $amount
+ * @property float $last_balance
  * @property int $bank_id
  * @property string $account_name
  * @property string $account_number

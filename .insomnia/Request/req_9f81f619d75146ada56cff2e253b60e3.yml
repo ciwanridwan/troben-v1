@@ -1,0 +1,53 @@
+_id: req_9f81f619d75146ada56cff2e253b60e3
+type: Request
+parentId: fld_52a7dc537b7d4cc291f28b0fcd5816b3
+modified: 1634268081792
+created: 1634263750840
+url: "{{ _.base_url }}/partner/owner/balance/detail"
+name: Get Partner Balance Detail
+description: >-
+  Get list balance history data.
+
+
+  Optional Parameters
+
+  --
+
+  - `description` => not required | possible values: `pickup`, `service`, `handling`, `insurance`, `delivery`, `transit`, `dooring`, `return`
+
+  - `start_date` => not required | date {% now 'millis', '' %}
+
+  - `end_date` => not required | date {% now 'millis', '' %}
+method: GET
+body: {}
+parameters:
+  - name: description
+    value: pickup
+    description: ""
+    id: pair_9b1d7b7ab2114d01b5f4e959bb446f64
+    disabled: true
+  - name: start_date
+    value: 2021-10-08
+    description: ""
+    id: pair_21356aa3d9b0493f9cdb08180935a564
+  - name: end_date
+    value: 2021-10-09
+    description: ""
+    id: pair_52028f4c0bfe447095fe171001cd3376
+headers:
+  - name: Accept
+    value: application/json
+    description: ""
+    id: pair_1963767f7a1943e5ae20dd45ce9a26a8
+authentication:
+  type: bearer
+  token: "{% response 'body', 'req_255ee6f5fbb94b8db5c81538bd12e7f0',
+    'b64::JC5kYXRhLmFjY2Vzc190b2tlbg==::46b', 'never', 60 %}"
+metaSortKey: -1629359506264.25
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

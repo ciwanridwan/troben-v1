@@ -5,6 +5,7 @@ const uriDataFinance = "admin.payment.data";
 const laravel = {
   data() {
     return {
+      socketBaseUrl: "wss://staging-ws.trawlbens.com",
       filter: {
         q: null,
         per_page: 10

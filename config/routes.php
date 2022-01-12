@@ -85,6 +85,7 @@ return [
         App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
         App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
+        App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -103,6 +104,9 @@ return [
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
+        App\Http\Routes\Admin\Payment\MPWRouter::class,
+        App\Http\Routes\Admin\Payment\MTAKabRouter::class,
+        App\Http\Routes\Admin\Payment\MTAKRouter::class,
         /** @inject admin **/
     ],
     'cashier' => [
@@ -115,6 +119,7 @@ return [
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
+        App\Http\Routes\Partner\CustomerService\CustomerServiceRoute::class,
         /** @inject customer_service **/
     ],
     'partner' => [

@@ -35,10 +35,19 @@ class ManifestController extends Controller
                 $query->with('packages');
             }
         });
+        $request->whenHas('status', function (array $value) use ($query) {
+            $value = Arr::wrap($value);
+            $query->whereIn('status', $value);
+            if (in_array(Delivery::TYPE_DOORING, $value)) {
+                $query->with('packages');
+            }
+        });
 
-        $query->with(['partner', 'transporter',  'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages']);
 
-        return $this->jsonSuccess(DeliveryResource::collection($query->orderBy('created_at', 'desc')->paginate($request->input('per_page'))));
+
+        $query->with(['partner','transporter','item_codes.codeable','code.scan_item_codes.codeable','code.scan_receipt_codes','packages','partner_performance']);
+
+        return $this->jsonSuccess(DeliveryResource::collection($query->orderBy('created_at', 'desc')->paginate($request->input('per_page'))),null,true);
     }
 
     /**

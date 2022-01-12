@@ -6,7 +6,6 @@ use App\Concerns\Models\CanSearch;
 use App\Models\Notifications\Notification;
 use App\Models\Payments\Bank;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
@@ -95,7 +94,6 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'password',
         'remember_token',
         'deleted_at',

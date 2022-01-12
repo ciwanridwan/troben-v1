@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Packages\Item;
@@ -66,6 +67,7 @@ class UnloadCodeFromDelivery
             $this->unloadFromDelivery($code);
         });
 
+        event(new WarehouseUnloadedPackages($this->delivery));
         return;
     }
     public function unloadFromDelivery(Code $code)

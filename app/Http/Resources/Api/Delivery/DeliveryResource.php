@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\Delivery;
 
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 /**
  * Class DeliveryResource.
@@ -59,11 +60,11 @@ class DeliveryResource extends JsonResource
         }
 
         if ($this->resource->relationLoaded('packages')) {
-        //     $packages = PackageResource::collection($this->resource->packages->load('items'));
-        //     $this->resource->unsetRelation('packages');
-             foreach ($this->resource->packages as $key =>$package) {
-                 $this->resource->packages[$key]->customer_hash = (string) $package->customer_id;
-             }
+            //     $packages = PackageResource::collection($this->resource->packages->load('items'));
+            //     $this->resource->unsetRelation('packages');
+            foreach ($this->resource->packages as $key =>$package) {
+                $this->resource->packages[$key]->customer_hash = (string) $package->customer_id;
+            }
         }
 
         $this->resource->append('as');
@@ -82,6 +83,19 @@ class DeliveryResource extends JsonResource
         // if (isset($packages)) {
         //     $data['packages'] = $packages;
         // }
+        if ($this->resource->relationLoaded('partner_performance')) {
+            $data = Arr::except($data,'partner_performance');
+            if ($this->resource->partner_performance) $dataPerformance = [
+                'level' => $this->resource->partner_performance->level,
+                'deadline_time' => $this->resource->partner_performance->deadline
+            ];
+            else $dataPerformance = [
+                'level' => null,
+                'deadline_time' => null
+            ];
+            $this->resource->unsetRelation('partner_performance');
+            $data = array_merge($data,$dataPerformance);
+        }
 
         return $data;
     }

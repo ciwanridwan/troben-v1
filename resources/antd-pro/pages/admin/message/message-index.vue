@@ -7,7 +7,7 @@
           slot="renderItem"
           slot-scope="item, index"
           :class="[roomId == item.room_id ? 'trawl-bg-gray' : '']"
-          style="padding-left: 10px;"
+          style="padding-left: 10px"
         >
           <a-list-item-meta :description="description(item)">
             <!-- <button class="trawl-chat--buttonSideBar"> -->
@@ -44,14 +44,17 @@
     <!-- chat box -->
     <template slot="content">
       <!-- chat body -->
-      <div v-if="nickname">
+      <div v-if="nickname" style="position: relative">
         <a-row
           v-for="(data, index) in dataChat"
           :key="index"
           type="flex"
           :justify="data.customer_chat ? 'end' : 'start'"
           align="bottom"
-          class="trawl-chat--next"
+          :class="[
+            'trawl-chat--next',
+            index == dataChat.length - 1 ? 'scrollingContainer' : '',
+          ]"
           :style="data.customer_chat ? 'padding-left: 15px' : ''"
         >
           <a-col v-if="data.user_chat" :md="1">
@@ -63,7 +66,7 @@
               'trawl-chat trawl-chat-message',
               data.customer_chat
                 ? 'trawl-chat-message--receive trawl-bg-green--darken'
-                : 'trawl-chat-message--send trawl-bg-white'
+                : 'trawl-chat-message--send trawl-bg-white',
             ]"
           >
             <a
@@ -77,7 +80,7 @@
             >
               <img
                 v-if="data.attachments.length"
-                style="width: 403px;"
+                style="width: 403px"
                 :src="
                   data.attachments[0].customer_file
                     ? data.attachments[0].customer_file
@@ -87,6 +90,23 @@
               />
             </a>
             {{ data.customer_chat ? data.customer_chat : data.user_chat }}
+            <a-space
+              align="baseline"
+              style="position: absolute; bottom: 0px; right: 0px"
+            >
+              <img
+                v-if="data.user_chat"
+                :src="
+                  data.customer_read_at && data.user_chat
+                    ? '/assets/Check_Double_Blue.png'
+                    : !data.customer_read_at && data.user_chat
+                    ? '/assets/Check_Double_White.png'
+                    : '/assets/Clock_Pending.png'
+                "
+                alt="logo"
+              />
+              <p>{{ moment(data.created_at).format("LT") }}</p>
+            </a-space>
           </a-col>
           <a-col v-if="data.customer_chat" :md="1" style="margin-left: 20px">
             <a-avatar
@@ -98,6 +118,7 @@
 
       <!-- chat send -->
       <div v-if="nickname" class="trawl-chat-send trawl-bg-white">
+        <img v-if="selectedFile" id="blah" src="#" alt="image" />
         <a-row>
           <a-col :md="20">
             <a-input
@@ -114,21 +135,25 @@
               ref="fileInput"
             />
             <button
-              style="border: none; background: none; margin: 0; padding: 0;"
+              style="border: none; background: none; margin: 0; padding: 0"
               @click="$refs.fileInput.click()"
             >
               <img
-                style="width: 24px;"
+                style="width: 24px"
                 src="/assets/paperclip.png"
                 alt="paperclip"
               />
             </button>
             <a-button
-              style="margin: 0; padding: 0px 10px;"
+              style="margin: 0; padding: 0px 10px"
               type="primary"
               @click="producerSocket"
               >Send</a-button
             >
+            <!-- <a-button @click="scrollToElement({ behavior: 'smooth' })"
+              >test scroll down from top</a-button
+            >
+            <a-button @click="loading">test loading</a-button> -->
           </a-col>
         </a-row>
       </div>
@@ -143,69 +168,10 @@
 <script>
 import ContentChatLayout from "../../../layouts/content-chat-layout";
 
-const data2 = [
-  {
-    titl: "Ant Design Title 1",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: true
-  },
-  {
-    titl: "Ant Design Title 2",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: true,
-    is_online: true
-  },
-  {
-    titl: "Ant Design Title 3",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  },
-  {
-    titl: "Ant Design Title 4",
-    descriptio:
-      "Ant Design, a design language for background applications, is refined by Ant UED Team",
-    is_active: false,
-    is_online: false
-  }
-];
 export default {
   components: { ContentChatLayout },
   data() {
     return {
-      data2,
       fals: false,
       roomChat: null,
       dataChat: null,
@@ -214,17 +180,38 @@ export default {
       descriptionText: "",
       roomId: null,
       newMessage: [],
-      selectedFile: null
+      selectedFile: null,
+      jwt_token: "",
+      activeLoading: 0,
     };
   },
   methods: {
+    status() {
+      if (this.dataChat.customer_read_at && this.dataChat.user_chat) {
+        return "/assets/Check_Double_Blue.png";
+      }
+      if (!this.dataChat.customer_read_at && this.dataChat.user_chat) {
+        return "/assets/Check_Double_White.png";
+      } else return "/assets/Clock_Pending.png";
+    },
+
     loading() {
-      const hide = this.$message.loading("Action in progress..", 0);
-      setTimeout(hide, 2500);
+      // this.$message.loading("Action in rogress...", this.activeLoading);
+      // setTimeout(hide, 3000);
+    },
+
+    scrollToElement(options) {
+      const el = this.$el.getElementsByClassName("scrollingContainer")[0];
+      if (el) {
+        el.scrollIntoView(options);
+      }
     },
 
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
+      if (this.selectedFile) {
+        console.log("gambar masuk");
+      }
       console.log("upload", event);
       console.log("uploadData", event.target.files[0]);
     },
@@ -255,43 +242,48 @@ export default {
       if (value === "reconnect") return this.consumeSocket(this.getListRoom);
       this.roomChat = value;
       console.log("onmessage", this.roomChat);
+      this.activeLoading = 1;
     },
 
     getListChat(value) {
       console.log("masuk pak ekooo", value);
       this.dataChat = value;
+      this.scrollToElement({ behavior: "smooth" });
     },
 
     consumeSocket(callback) {
+      this.loading();
+      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin/room"
+        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+          this.user().id
+        }-partner/room`
       );
 
-      consumer.onopen = function(e) {
+      consumer.onopen = function (e) {
         console.log("isOpen", consumer);
 
-        fetch("https://staging-chat.trawlbens.com/chat/list/admin/room", {
+        fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
           method: "GET",
           headers: {
-            Authorization:
-              "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-          }
+            Authorization: `bearer ${jwtToken}`,
+          },
         })
-          .then(response => {
+          .then((response) => {
             console.log("success", response);
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("failure error", err);
           });
       };
 
-      consumer.onmessage = function(event) {
+      consumer.onmessage = function (event) {
         let getData = null;
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
 
         getData = JSON.parse(payload);
-        getData.forEach(element => {
+        getData.forEach((element) => {
           element.is_active = false;
           element.is_online = false;
         });
@@ -316,7 +308,7 @@ export default {
       //   }
       // };
 
-      consumer.onerror = function(error) {
+      consumer.onerror = function (error) {
         // alert(`[error] ${error.message}`);
         console.log("consumer error", error.message);
       };
@@ -326,10 +318,13 @@ export default {
 
     listChat(item, callback) {
       this.roomId = item.room_id;
+      let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
-        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-room-${item.room_id}/chat`
+        `wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/${
+          this.user().id
+        }-partner-room-${item.room_id}/chat`
       );
-      consumer.onclose = function(event) {
+      consumer.onclose = function (event) {
         console.log("listchat on close....", event);
         if (event.wasClean) {
           console.log(
@@ -343,47 +338,43 @@ export default {
         }
       };
 
-      consumer.onopen = function(e) {
+      consumer.onopen = function (e) {
         console.log("list chat isOpenChat", consumer);
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/list/admin/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
           {
             method: "GET",
             headers: {
-              Authorization:
-                "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-            }
+              Authorization: `bearer ${jwtToken}`,
+            },
           }
         )
-          .then(response => {
+          .then((response) => {
             console.log("list chat success", response);
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("list chat failure error", err);
           });
       };
 
-      consumer.onmessage = function(event) {
+      consumer.onmessage = function (event) {
         var myHeaders = new Headers();
-        myHeaders.append(
-          "Authorization",
-          "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-        );
+        myHeaders.append("Authorization", `bearer ${jwtToken}`);
 
         var requestOptions = {
           method: "PATCH",
           headers: myHeaders,
-          redirect: "follow"
+          redirect: "follow",
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/admin/read/trawlbens/room/${item.room_id}`,
+          `https://staging-chat.trawlbens.com/chat/partner/read/trawlbens/room/${item.room_id}`,
           requestOptions
         )
-          .then(response => response.text())
-          .then(result => console.log("patch", result))
-          .catch(error => console.log("error patch", error));
+          .then((response) => response.text())
+          .then((result) => console.log("patch", result))
+          .catch((error) => console.log("error patch", error));
 
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
@@ -393,7 +384,7 @@ export default {
 
       this.nickname = item.customer.name;
 
-      consumer.onerror = function(error) {
+      consumer.onerror = function (error) {
         console.log("error", error.message);
       };
 
@@ -425,24 +416,55 @@ export default {
     producerSocket() {
       console.log("produce", this.roomId, this.textInput);
 
+      // var myHeaders = new Headers();
+      // myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
+
+      // var formdata = new FormData();
+      // formdata.append("room_id", this.roomId);
+      // formdata.append("message", this.textInput);
+      // if (this.selectedFile) {
+      //   console.log("masuk upload file", this.selectedFile.name);
+      //   formdata.append("attachments", this.selectedFile);
+      // }
+      // // formdata.append("attachments", fileInput.files[0]);
+
+      // var requestOptions = {
+      //   method: "POST",
+      //   headers: myHeaders,
+      //   body: formdata,
+      //   redirect: "follow"
+      // };
+
+      // fetch(
+      //   "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
+      //   requestOptions
+      // )
+      //   .then(response => response.text())
+      //   .then(result => console.log(result))
+      //   .catch(error => console.log("error", error));
+
       var myHeaders = new Headers();
-      myHeaders.append(
-        "Authorization",
-        "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzQxMjAyMTYsImV4cCI6MTYzNjcxMjIxNiwiZGF0YSI6eyJpZCI6MSwibmFtZSI6IkFkbWluIFRyYXdsYmVucyIsImVtYWlsIjoidXNlckB0cmF3bGJlbnMuY28uaWQiLCJwaG9uZSI6Iis2MjU1NTU1NTU1NTUiLCJhZGRyZXNzIjpudWxsLCJwYXJ0bmVyIjp7Im5hbWUiOiJDViBIYWxpbWFoIFJhamFzYSIsImNvZGUiOiJNQi1TVUxUUkEtMjIxIiwidHlwZSI6ImJ1c2luZXNzIiwiYXMiOlsib3duZXIiXX19fQ.uymWOUU31WsnXFvLNg7PZx31vjHq-R4iDL2gGNBrzFk"
-      );
+      myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
 
       var formdata = new FormData();
       formdata.append("room_id", this.roomId);
       formdata.append("message", this.textInput);
       if (this.selectedFile) {
         console.log("masuk upload file", this.selectedFile.name);
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          $("#blah").attr("src", e.target.result).width(150).height(200);
+        };
+
+        reader.readAsDataURL(input.files[0]);
         formdata.append("attachments", this.selectedFile);
       }
 
       var requestOptions = {
         method: "POST",
         headers: myHeaders,
-        body: formdata
+        body: formdata,
         // redirect: "follow"
       };
 
@@ -450,14 +472,14 @@ export default {
         "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
         requestOptions
       )
-        .then(response => response.text())
-        .then(result => {
+        .then((response) => response.text())
+        .then((result) => {
           this.textInput = "";
           this.selectedFile = null;
           console.log("success produce", result);
         })
-        .catch(error => console.log("error", error));
-    }
+        .catch((error) => console.log("error", error));
+    },
 
     // consumeNotif() {
     //   let consumer = new WebSocket(
@@ -521,17 +543,18 @@ export default {
     // }
   },
   created() {
-    // this.consumeSocket(this.getListRoom);
-    // this.consumeNotif();
+    this.jwt_token = this.$laravel.jwt_token;
+    this.consumeSocket(this.getListRoom);
   },
   watch: {
     // $route: "consumeSocket",
-    $route: "listChat"
+    $route: "listChat",
     // $route: "consumeNotif"
   },
   mounted() {
-    // console.log("user", this.$laravel.user);
-    // console.log("token", this.$laravel.jwt_token);
-  }
+    console.log("baseurl", this.socketBaseUrl);
+    console.log("user", this.user());
+    console.log("token", this.$laravel.jwt_token);
+  },
 };
 </script>

@@ -15,12 +15,15 @@ class GraphResource extends JsonResource
      */
     public function toArray($request)
     {
-        $data = array();
-        if (! empty($this->resource['date'])) $days = Carbon::parse($this->resource['date'])->daysInMonth;
-        else $days = Carbon::today()->daysInMonth;
+        $data = [];
+        if (! empty($this->resource['date'])) {
+            $days = Carbon::parse($this->resource['date'])->daysInMonth;
+        } else {
+            $days = Carbon::today()->daysInMonth;
+        }
 
         for ($i = 1; $i <= $days; $i++) {
-            $record = $this->resource['data']->firstWhere('created_at_day',$i);
+            $record = $this->resource['data']->firstWhere('created_at_day', $i);
             $data[$i] = ! is_null($record) ? $record['balance'] : 0;
         }
 

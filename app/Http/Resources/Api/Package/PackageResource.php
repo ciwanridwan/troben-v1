@@ -40,6 +40,17 @@ class PackageResource extends JsonResource
             $this->resource->unsetRelation('picked_up_by');
         }
 
+        if ($this->resource->relationLoaded('partner_performance')) {
+            if ($this->resource->partner_performance) $dataPerformance = [
+                'level' => $this->resource->partner_performance->level,
+                'deadline_time' => $this->resource->partner_performance->deadline
+            ];
+            else $dataPerformance = [
+                'level' => null,
+                'deadline_time' => null
+            ];
+            $this->resource->unsetRelation('partner_performance');
+        }
 
         $data = array_merge(parent::toArray($request), [
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
@@ -47,6 +58,8 @@ class PackageResource extends JsonResource
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district) : null,
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
+
+        if (! empty($dataPerformance)) $data = array_merge($data, $dataPerformance);
 
         if (isset($pickedUpPartner)) {
             $data['picked_up_by'] = $pickedUpPartner->partner ? PartnerResource::make($pickedUpPartner->partner) : null;
