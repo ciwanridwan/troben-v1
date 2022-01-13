@@ -15,6 +15,14 @@ class TrustHosts extends Middleware
     {
         return [
             $this->allSubdomainsOfApplicationUrl(),
+            $this->allSubdomainsOfTrawlbensIdUrl()
         ];
+    }
+
+    protected function allSubdomainsOfTrawlbensIdUrl()
+    {
+        if ($host = parse_url('https://trawlbens.id', PHP_URL_HOST)) {
+            return '^(.+\.)?'.preg_quote($host).'$';
+        }
     }
 }
