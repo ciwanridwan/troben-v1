@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use \Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContact;
-use Spatie\Permission\Traits\HasPermissions;
-use Spatie\Permission\Traits\HasRoles;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
@@ -35,8 +33,6 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 class Office extends Authenticatable implements AuthenticatableContact
 {
     use HasFactory,
-        HasPermissions,
-        HasRoles,
         SoftDeletes,
         HashableId,
         CanSearch;
@@ -89,7 +85,6 @@ class Office extends Authenticatable implements AuthenticatableContact
         'hash',
     ];
 
-
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
@@ -97,7 +92,7 @@ class Office extends Authenticatable implements AuthenticatableContact
 
     public function role(): BelongsTo
     {
-        return $this->belongsTo(Roleable::class, 'id', 'model_id');
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 
     public function permission(): MorphMany

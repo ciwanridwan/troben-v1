@@ -429,8 +429,6 @@ class AccountAuthentication
             'data' => new JWTOfficeResource($authenticatable)
         ];
         $jwt = JWT::encode($payload, self::JWT_KEY);
-
-
         return (new Response(Response::RC_SUCCESS, [
             'jwt_token' => $jwt
         ]))->json();

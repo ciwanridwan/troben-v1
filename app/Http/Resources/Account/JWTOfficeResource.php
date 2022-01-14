@@ -25,7 +25,7 @@ class JWTOfficeResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'address' => $this->address,
-            'role' => $this->role->detail->name,
+            'role' => $this->role->name,
         ];
 
         return $data;
