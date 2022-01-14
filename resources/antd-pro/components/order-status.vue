@@ -60,6 +60,10 @@
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Menunggu konfirmasi customer</span>
     </div>
+    <div v-else-if="record.status == 'revamp'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Resi sedang ditinjau ulang oleh Kasir Mitra</span>
+    </div>
     <div v-else-if="record.status == 'manifested'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Telah terassign di manifest</span>
