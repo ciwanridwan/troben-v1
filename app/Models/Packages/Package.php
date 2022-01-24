@@ -5,6 +5,7 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
@@ -431,6 +432,11 @@ class Package extends Model implements AttachableContract
     public function estimator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'estimator_id', 'id');
+    }
+
+    public function updated_by(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
     }
 
     public function packager(): BelongsTo
