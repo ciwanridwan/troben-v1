@@ -402,6 +402,7 @@ class AccountAuthentication
         $otp = $authenticatable->createOtp($otp_channel);
         $job = new SendMessage($otp, $authenticatable->phone);
         $this->dispatch($job);
+        Mail::to($authenticatable->email)->send(new SendMailOTP($otp, $customer));
         return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
             'message' => 'Harap cek kotak pesan SMS anda',
             'otp' => $otp->id,
@@ -444,6 +445,7 @@ class AccountAuthentication
             try {
                 $job = new SendMessage($otp, $authenticatable->phone);
                 $this->dispatch($job);
+                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             } catch (\Exception $ex) {
                 Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             }
