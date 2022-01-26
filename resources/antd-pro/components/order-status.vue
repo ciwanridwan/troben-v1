@@ -22,7 +22,7 @@
     </div>
     <div v-else-if="record.status == 'accepted' && record.payment_status == 'pending'">
       <a-badge status="warning" text=""></a-badge>
-      <span :class="['trawl-status-warning']">Menunggu konfirmasi admin</span>
+      <span :class="['trawl-status-warning']">Menunggu konfirmasi pembayaran oleh Admin</span>
     </div>
     <div v-else-if="record.status == 'waiting_for_pickup'">
       <a-badge status="warning" text=""></a-badge>

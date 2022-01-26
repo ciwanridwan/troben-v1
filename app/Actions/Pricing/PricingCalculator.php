@@ -235,18 +235,23 @@ class PricingCalculator
         }
 
         $items = [];
-
         foreach ($inputs['items'] as $item) {
+
+            foreach($item['handling'] as $handling){
+                $packing[] = [
+                    'type' => $handling['type']
+                ];
+            }
             $items[] = [
                 'weight' => $item['weight'],
                 'height' => $item['height'],
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => ! empty($item['handling']) ? array_column($item['handling'], 'type') : null
+                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
+
             ];
         }
-
         $totalWeightBorne = self::getTotalWeightBorne($items);
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
