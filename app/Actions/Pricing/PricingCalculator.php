@@ -236,10 +236,12 @@ class PricingCalculator
 
         $items = [];
         foreach ($inputs['items'] as $item) {
-            foreach ($item['handling'] as $handling) {
-                $packing[] = [
-                    'type' => $handling['type']
-                ];
+            if ($item['handling']){
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
             }
             $items[] = [
                 'weight' => $item['weight'],
