@@ -11,7 +11,7 @@
             <a-icon
               :component="MinusCircleIcon"
               :style="{ cursor: 'pointer' }"
-              @click="removeItem"
+              @click="removeItem(index)"
             />
           </trawl-divider>
           <order-item-form :key="index" ref="itemForm" v-model="form.items[index]" />

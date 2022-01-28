@@ -5,6 +5,10 @@ const uriDataFinance = "admin.payment.data";
 const laravel = {
   data() {
     return {
+      socketBaseUrl: "wss://pulsar.trawlbens.com",
+      chatBaseUrl: "https://chat.trawlbens.com", 
+      // socketBaseUrl: "wss://staging-ws.trawlbens.com",
+      // chatBaseUrl: "https://staging-chat.trawlbens.com",
       filter: {
         q: null,
         per_page: 10
@@ -209,6 +213,10 @@ const laravel = {
         currency: "IDR"
       }).format(number);
     },
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+
     getDefaultPagination() {
       return {
         current_page: 1,

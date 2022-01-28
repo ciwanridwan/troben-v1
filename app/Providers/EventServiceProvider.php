@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use App\Events\Codes\CodeCreated;
 use App\Events\CodeScanned;
-use App\Events\Deliveries\DeliveryLoadedPackages;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Packages\PartnerAssigned;
+use App\Events\Partners\Balance\NewDeliveryHistoryCreated;
 use App\Events\Partners\Balance\NewHistoryCreated;
 use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
@@ -14,6 +14,7 @@ use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Events\Promo\PromotionClaimed;
 use App\Listeners\Partners\GenerateBalanceHistory;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
@@ -27,7 +28,7 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
-use App\Events\Deliveries\Kurir\Pickup as CourierPickup;
+use App\Events\Deliveries\Courier\Pickup as CourierPickup;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
@@ -69,6 +70,10 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePrices::class,
             UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        PromotionClaimed::class => [
+            GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
         CourierPickup\DriverArrivedAtPickupPoint::class => [
@@ -222,6 +227,9 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class,
         ],
         NewHistoryCreated::class => [
+            UpdatePartnerBalanceByEvent::class
+        ],
+        NewDeliveryHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
         ],
         WithdrawalRequested::class => [

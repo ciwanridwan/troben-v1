@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $package_id
  * @property string $type
+ * @property string $description
  * @property float $amount
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Price extends Model
 {
     use CustomSerializeDate;
+    public const TYPE_ADDITIONAL = 'additional';
     public const TYPE_SERVICE = 'service';
     public const TYPE_HANDLING = 'handling';
     public const TYPE_INSURANCE = 'insurance';

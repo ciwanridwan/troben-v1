@@ -1,9 +1,16 @@
 <template>
   <a-layout id="content-layout-chat">
-    <a-layout-sider v-if="hasLeftSiderSlot" class="trawl-bg-white trawl-chat--list">
+    <a-layout-sider
+      v-if="hasLeftSiderSlot"
+      class="trawl-bg-white trawl-chat--list"
+    >
       <slot name="sider-left"></slot>
     </a-layout-sider>
-    <a-layout-content class="content" style="overflow: scroll; margin-bottom: 5vh;">
+    <a-layout-content
+      id="scrollingContainer"
+      class="content"
+      style="margin-bottom: 20vh"
+    >
       <a-row class="content-layout-head trawl-bg-white trawl-chat-header">
         <slot name="content-head"></slot>
       </a-row>
@@ -33,6 +40,7 @@ export default {
     },
     siderPosition: {
       type: String,
+
       default: "left",
     },
     search: {

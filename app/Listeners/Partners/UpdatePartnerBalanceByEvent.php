@@ -2,11 +2,13 @@
 
 namespace App\Listeners\Partners;
 
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\History;
+use Illuminate\Database\Eloquent\Model;
 
 class UpdatePartnerBalanceByEvent
 {
-    protected History $history;
+    protected Model $history;
 
     /**
      * Handle the event.
@@ -16,11 +18,14 @@ class UpdatePartnerBalanceByEvent
      */
     public function handle(object $event)
     {
+        /** @var History|DeliveryHistory|Model history */
         $this->history = $event->history;
         if (! ($this->history->type === History::TYPE_WITHDRAW
             && ($this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS ||
-            $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) $this
+            $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) {
+            $this
             ->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
+        }
     }
 
     /**
@@ -32,7 +37,8 @@ class UpdatePartnerBalanceByEvent
     {
         return (
             $this->history->type === History::TYPE_DEPOSIT
-            || ($this->history->type === History::TYPE_WITHDRAW
+            || (
+                $this->history->type === History::TYPE_WITHDRAW
                 && $this->history->description === History::DESCRIPTION_WITHDRAW_REJECT
             ))
             ? $this->history->partner->balance + $this->history->balance

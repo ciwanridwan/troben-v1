@@ -103,7 +103,7 @@ Vue.mixin({
 
     consumeNotif(callback) {
       let consumer = new WebSocket(
-        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/1-admin-chat-notification/notification"
+        "wss://staging-ws.trawlbens.com/ws/v2/consumer/non-persistent/public/default/90-partner-chat-notification/notification"
       );
 
       consumer.onopen = function(e) {

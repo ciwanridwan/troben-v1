@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Master;
 
-use App\Http\Controllers\Admin\Master\Payment\ReportController;
-use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
@@ -13,7 +11,6 @@ use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Validator;
 
 class PaymentController extends Controller
 {
@@ -81,9 +78,9 @@ class PaymentController extends Controller
         $paginator = $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 1));
         $paginator->getCollection()->transform(function ($item) {
             $item->packages->each(fn ($package) => $package->items->each(fn ($package_item) => $item->weight_borne_total += $package_item->weight_borne));
-            foreach($item->packages as $package){
-                if (isset($package->historyTransporter)){
-                    foreach ($package->historyTransporter as $transport){
+            foreach ($item->packages as $package) {
+                if (isset($package->historyTransporter)) {
+                    foreach ($package->historyTransporter as $transport) {
                         $package->transporter_funds = $transport->balance;
                     }
                 }
@@ -99,10 +96,10 @@ class PaymentController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query->with(['histories', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('historyBusiness', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -111,7 +108,7 @@ class PaymentController extends Controller
             }
             $this->query->has('historyBusiness');
             $this->query->has('histories');
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.home');
@@ -121,10 +118,10 @@ class PaymentController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query->with(['histories', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('historyBusiness', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -136,7 +133,7 @@ class PaymentController extends Controller
 
             // PartnerBalanceReportRepository get data sum penghasilan
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.business');
@@ -146,10 +143,10 @@ class PaymentController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query = $this->delivery::query();
-            if ($request->q != null ){
+            if ($request->q != null) {
                 $this->getSearchDelivery($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('packages.historyTransporter', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -174,10 +171,10 @@ class PaymentController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query = $this->delivery::query();
-            if ($request->q != null ){
+            if ($request->q != null) {
                 $this->getSearchDelivery($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('packages.historyTransporter', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -207,10 +204,10 @@ class PaymentController extends Controller
     {
         if ($request->expectsJson()) {
             $this->query->with(['historyPool.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('historyPool', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -220,7 +217,7 @@ class PaymentController extends Controller
             $this->query->has('historyPool');
 
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.pool');
@@ -231,10 +228,10 @@ class PaymentController extends Controller
         if ($request->expectsJson()) {
             $this->query->with(['historySpace.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
 
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
-            if ($request->partner_code != null){
+            if ($request->partner_code != null) {
                 $this->query->whereHas('historySpace', function ($query) use ($request) {
                     $query->whereHas('partner', function ($q) use ($request) {
                         $q->search($request->partner_code, 'code');
@@ -244,7 +241,7 @@ class PaymentController extends Controller
             $this->query->has('historySpace');
 
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.space');

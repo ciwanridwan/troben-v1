@@ -51,12 +51,12 @@ class AppServiceProvider extends ServiceProvider
                 if (! array_key_exists('laravelJs', $view->getData())) {
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
-                        'jwt_token' => auth()->user() 
+                        'jwt_token' => auth()->user()
                             ? JWT::encode([
                                 'iat' => time(),
                                 'exp' => time() + (((60 * 60) * 24) * 30),
                                 'data' => new JWTUserResource(auth()->user())
-                            ], 'trawlbensJWTSecretK') 
+                            ], 'trawlbensJWTSecretK')
                             : null,
                         'user' => auth()->user(),
                         'routes' => $collection,

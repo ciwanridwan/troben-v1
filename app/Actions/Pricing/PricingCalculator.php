@@ -2,12 +2,15 @@
 
 namespace App\Actions\Pricing;
 
-use App\Models\Partners\Partner;
+use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Transporter;
 use App\Models\Price;
 use App\Http\Response;
+use App\Models\Promos\Promotion;
 use App\Models\Service;
 use App\Exceptions\Error;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
@@ -15,12 +18,14 @@ use App\Http\Resources\PriceResource;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
-use App\Models\Partners\Price as PartnerPrice;
+use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class PricingCalculator
 {
+    use DispatchesJobs;
+
     public const INSURANCE_MIN = 1000;
 
     public const INSURANCE_MUL = 0.2 / 100;
@@ -78,7 +83,6 @@ class PricingCalculator
         if (! $package->relationLoaded('prices')) {
             $package->load('prices');
         }
-
         // get handling and insurance prices
         $handling_price = 0;
         $insurance_price = 0;
@@ -93,6 +97,19 @@ class PricingCalculator
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
         $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+
+        if ($package->claimed_promotion != null) {
+            $promo = $package->load('claimed_promotion');
+            if ($total_amount < $promo->claimed_promotion->promotion->min_payment) {
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => PackagePrice::TYPE_SERVICE,
+                    'description' => PackagePrice::TYPE_ADDITIONAL,
+                    'amount' => $promo->claimed_promotion->promotion->min_payment - $total_amount,
+                ]);
+                dispatch($job);
+                $total_amount = $promo->claimed_promotion->promotion->min_payment;
+            }
+        }
 
         return $total_amount;
     }
@@ -138,7 +155,9 @@ class PricingCalculator
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
-            if (! Arr::has($item,'handling')) $item['handling'] = [];
+            if (! Arr::has($item, 'handling')) {
+                $item['handling'] = [];
+            }
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -216,18 +235,24 @@ class PricingCalculator
         }
 
         $items = [];
-
         foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
             $items[] = [
                 'weight' => $item['weight'],
                 'height' => $item['height'],
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => ! empty($item['handling']) ? array_column($item['handling'], 'type') : null
+                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
+
             ];
         }
-
         $totalWeightBorne = self::getTotalWeightBorne($items);
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
@@ -251,7 +276,9 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            if (! Arr::has($item,'handling')) $item['handling'] = [];
+            if (! Arr::has($item, 'handling')) {
+                $item['handling'] = [];
+            }
             if (! empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
@@ -339,36 +366,13 @@ class PricingCalculator
     }
 
     /**
-     * Get partner price.
-     *
-     * @param Partner $partner
-     * @param $origin_regency_id
-     * @param $destination_id
-     * @return PartnerPrice
-     * @throws \Throwable
-     */
-    public static function getPartnerPrice(Partner $partner, $origin_regency_id, $destination_id): PartnerPrice
-    {
-        /** @var PartnerPrice $price */
-        $price = PartnerPrice::query()
-            ->where('partner_id', $partner->id)
-            ->where('origin_regency_id', $origin_regency_id)
-            ->where('destination_id', $destination_id)
-            ->first();
-
-        throw_if($price === null || $price->tier_1 == 0, Error::make(Response::RC_OUT_OF_RANGE));
-
-        return $price;
-    }
-
-    /**
      * Get price by tier.
      *
-     * @param object|\App\Models\Price|\App\Models\Partners\Price $price
-     * @param float|int $weight
+     * @param object $price
+     * @param float $weight
      * @return mixed
      */
-    public static function getTier(object $price, float $weight = 0)
+    public static function getTier(object $price, float $weight = 0.0)
     {
         if ($weight <= Price::TIER_1) {
             return $price->tier_1;
@@ -382,8 +386,37 @@ class PricingCalculator
             return $price->tier_5;
         } elseif ($weight <= Price::TIER_6) {
             return $price->tier_6;
-        } else {
+        } elseif ($weight <= Price::TIER_7) {
             return $price->tier_7;
+        } else {
+            return $price->tier_8;
+        }
+    }
+
+    /**
+     * Get type for value by weight.
+     *
+     * @param float $weight
+     * @return int
+     */
+    public static function getTierType(float $weight): int
+    {
+        if ($weight <= Price::TIER_1) {
+            return PartnerPrice::TYPE_TIER_1;
+        } elseif ($weight <= Price::TIER_2) {
+            return PartnerPrice::TYPE_TIER_2;
+        } elseif ($weight <= Price::TIER_3) {
+            return PartnerPrice::TYPE_TIER_3;
+        } elseif ($weight <= Price::TIER_4) {
+            return PartnerPrice::TYPE_TIER_4;
+        } elseif ($weight <= Price::TIER_5) {
+            return PartnerPrice::TYPE_TIER_5;
+        } elseif ($weight <= Price::TIER_6) {
+            return PartnerPrice::TYPE_TIER_6;
+        } elseif ($weight <= Price::TIER_7) {
+            return PartnerPrice::TYPE_TIER_7;
+        } else {
+            return PartnerPrice::TYPE_TIER_8;
         }
     }
 
@@ -430,6 +463,54 @@ class PricingCalculator
 
         // volume < 1?1:volume
         return $volume > 1 ? $volume : 1;
+    }
+
+
+    public static function getDetailPricingPackage(Package $package)
+    {
+        $handling_price = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount');
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $pickup_price = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->get()->sum('amount');
+        $insurance_price = $package->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount');
+
+        $handling_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_HANDLING)->get()->sum('amount');
+        $insurance_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_INSURANCE)->get()->sum('amount');
+        $pickup_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
+        $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+
+        $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
+
+        return [
+            'service_price' => $service_price,
+            'service_price_fee' => $service_fee,
+            'service_price_discount' => $service_discount,
+            'insurance_price' => $insurance_price ?? 0,
+            'insurance_price_discount' => $insurance_discount,
+            'packing_price' => $handling_price ?? 0,
+            'packing_price_discount' => $handling_discount,
+            'pickup_price' => $pickup_price,
+            'pickup_price_discount' => $pickup_discount,
+        ];
+    }
+
+    public static function getCalculationPromoPackage($promotion_hash, Package $package): array
+    {
+        $promotion = Promotion::byHashOrFail($promotion_hash);
+        $prices = $package->prices()->get();
+        $service = $prices->where('type', PackagePrice::TYPE_SERVICE)->first();
+        if ($package->total_weight <= $promotion->max_weight) {
+            $service_discount = $service->amount;
+        } else {
+            $service_discount = $package->tier_price * $promotion->max_weight;
+        }
+        $total_payment = $package->total_amount - $service_discount;
+        if ($total_payment <= $promotion->min_payment) {
+            $service_fee = $promotion->min_payment - $total_payment;
+        }
+        return [
+            'service_price_fee' => $service_fee ?? 0,
+            'service_price_discount' => $service_discount ?? 0,
+        ];
     }
 
     private static function checkHandling($handling = [])

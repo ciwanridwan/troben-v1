@@ -60,7 +60,7 @@ class RequestController extends Controller
             $this->query->with(['partner']);
             $this->query->has('partner');
 
-            if ($request->q != null){
+            if ($request->q != null) {
                 $this->getSearch($request);
             }
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();

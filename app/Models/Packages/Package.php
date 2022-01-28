@@ -8,6 +8,7 @@ use App\Models\Code;
 use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
+use App\Models\Promos\ClaimedPromotion;
 use App\Models\Partners\Transporter;
 use App\Models\User;
 use App\Models\Geo\Regency;
@@ -20,6 +21,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Jalameta\Attachments\Concerns\Attachable;
@@ -59,6 +61,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property bool $is_separate_item
  * @property float $total_amount
  * @property float $total_weight
+ * @property float $tier_price
  * @property string $payment_status
  * @property int $origin_regency_id
  * @property int $origin_district_id
@@ -95,6 +98,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 class Package extends Model implements AttachableContract
 {
     use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+
+    public const PACKAGE_SYSTEM_ID = 0;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -319,7 +324,14 @@ class Package extends Model implements AttachableContract
     public function getServicePriceAttribute()
     {
         try {
-            $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_SERVICE)
+                ->first()->amount;
+            if ($discount != null) {
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
+            } else {
+                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+            }
             return $service_price;
         } catch (\Throwable $th) {
             return 0;
@@ -413,6 +425,11 @@ class Package extends Model implements AttachableContract
     public function picked_up_by()
     {
         return $this->deliveries()->orderByPivot('created_at')->with('partner');
+    }
+
+    public function claimed_promotion(): HasOne
+    {
+        return $this->hasOne(ClaimedPromotion::class, 'package_id', 'id');
     }
 
     public function deliveries(): MorphToMany
@@ -659,14 +676,20 @@ class Package extends Model implements AttachableContract
 
     /**
      * get detail transporter.
-     * @return array
+     * @return mixed
      */
-    public function getTransporterDetailAttribute(): array
+    public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
+        if (! $transporterType) {
+            return null;
+        }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
-            if ($transporter['name'] === $transporterType) return $transporter;
-            else return [];
-        }, []);
+            if ($transporter['name'] === $transporterType) {
+                return $transporter;
+            } else {
+                return null;
+            }
+        });
     }
 }
