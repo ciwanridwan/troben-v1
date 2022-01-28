@@ -2,15 +2,10 @@
 
 namespace App\Jobs\Offices;
 
-use App\Events\Offices\CustomerModificationFailed;
-use App\Events\Offices\CustomerModified;
 use App\Events\Offices\OfficerModificationFailed;
 use App\Events\Offices\OfficerModified;
 use App\Models\Offices\Office;
 use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;

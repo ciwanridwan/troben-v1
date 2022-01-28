@@ -3,19 +3,16 @@
 namespace App\Models\Offices;
 
 use App\Concerns\Models\CanSearch;
-use App\Concerns\Models\HasPhoneNumber;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use \Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContact;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContact;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class Office
- * @package App\Models\Offices
+ * Class Office.
  *
  * @property int $id
  * @property string $name

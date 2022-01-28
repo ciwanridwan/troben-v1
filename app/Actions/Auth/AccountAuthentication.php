@@ -16,7 +16,6 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
@@ -397,6 +396,35 @@ class AccountAuthentication
         ]))->json();
     }
 
+    public function officeAttempt(): JsonResponse
+    {
+        switch (true) {
+            default:
+                $column = self::CREDENTIAL_EMAIL;
+                break;
+        }
+        $query = Office::query();
+
+        /** @var Office $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+
+        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+            throw ValidationException::withMessages([
+                'username' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        $now = time();
+        $payload = [
+            'iat' => $now,
+            'exp' => $now + (((60 * 60) * 24) * 30),
+            'data' => new JWTOfficeResource($authenticatable)
+        ];
+        $jwt = JWT::encode($payload, self::JWT_KEY);
+        return (new Response(Response::RC_SUCCESS, [
+            'jwt_token' => $jwt
+        ]))->json();
+    }
+
     /**
      * @param HasOtpToken $authenticatable
      * @param string $otp_channel
@@ -458,35 +486,6 @@ class AccountAuthentication
         return (new Response(Response::RC_SUCCESS, [
             'otp' => $otp->id,
             'expired_at' => $otp->expired_at->timestamp,
-        ]))->json();
-    }
-
-    public function officeAttempt(): JsonResponse
-    {
-        switch (true) {
-            default:
-                $column = self::CREDENTIAL_EMAIL;
-                break;
-        }
-        $query = Office::query();
-
-        /** @var Office $authenticatable */
-        $authenticatable = $query->where($column, $this->attributes['username'])->first();
-
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
-            throw ValidationException::withMessages([
-                'username' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-        $now = time();
-        $payload = [
-            'iat' => $now,
-            'exp' => $now + (((60 * 60) * 24) * 30),
-            'data' => new JWTOfficeResource($authenticatable)
-        ];
-        $jwt = JWT::encode($payload, self::JWT_KEY);
-        return (new Response(Response::RC_SUCCESS, [
-            'jwt_token' => $jwt
         ]))->json();
     }
 }

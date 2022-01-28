@@ -28,9 +28,8 @@ class OfficeController extends Controller
     /**
      * Get Type of Promo List
      * Route Path       : {API_DOMAIN}/v/sf/office
-     * Route Name       : api.v.office
+     * Route Name       : api.v.office.
      */
-
     public function authentication(Request $request): JsonResponse
     {
         $inputs = $this->validate($request, [
@@ -68,7 +67,9 @@ class OfficeController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        if (!$user->hasRole('super-admin')) return (new Response(Response::RC_UNAUTHORIZED))->json();
+        if (! $user->hasRole('super-admin')) {
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
+        }
 
         $job = new CreateNewOfficer($request->all());
         $this->dispatch($job);
@@ -80,9 +81,13 @@ class OfficeController extends Controller
     public function destroy(Request $request)
     {
         $user = $request->user();
-        if (!$user->hasRole('super-admin')) return (new Response(Response::RC_UNAUTHORIZED))->json();
+        if (! $user->hasRole('super-admin')) {
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
+        }
         $office = Office::find($request->id);
-        if ($office == null) return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        if ($office == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
 
         $job = new DeleteExistingOfficer($office);
         $this->dispatch($job);
@@ -93,9 +98,13 @@ class OfficeController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
-        if (!$user->hasRole('super-admin')) return (new Response(Response::RC_UNAUTHORIZED))->json();
+        if (! $user->hasRole('super-admin')) {
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
+        }
         $office = Office::find($request->id);
-        if ($office == null) return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        if ($office == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
 
         $job = new UpdateExistingOfficer($office, $request->all());
         $this->dispatch($job);

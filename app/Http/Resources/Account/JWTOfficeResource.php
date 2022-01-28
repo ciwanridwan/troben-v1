@@ -3,9 +3,7 @@
 namespace App\Http\Resources\Account;
 
 use App\Models\Offices\Office;
-use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 
 class JWTOfficeResource extends JsonResource
 {

@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Offices;
 
-use App\Events\Customers\CustomerDeleted;
 use App\Events\Offices\OfficerDeleted;
 use App\Models\Offices\Office;
 use Illuminate\Bus\Batchable;
