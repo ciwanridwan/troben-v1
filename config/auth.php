@@ -52,6 +52,12 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'office' => [
+            'driver' => 'token',
+            'provider' => 'offices',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -80,6 +86,11 @@ return [
         'customers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Customers\Customer::class,
+        ],
+
+        'offices' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Offices\Office::class,
         ],
 
         // 'users' => [

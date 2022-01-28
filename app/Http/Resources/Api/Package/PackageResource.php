@@ -24,6 +24,10 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
+        if (! $this->resource->relationLoaded('updated_by')) {
+            $this->resource->load('updated_by');
+        }
+
         if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Auth;
 
+use App\Http\Controllers\Api\V\OfficeController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Auth\AuthController;
 
@@ -36,6 +37,11 @@ class AuthRoute extends BaseRoute
         $this->router->post('/super/auth/login', [
             'as' => $this->name('super'),
             'uses' => $this->uses('super'),
+        ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('office'), [
+            'as' => $this->name('authentication'),
+            'uses' => $this->uses('authentication', OfficeController::class),
         ])->withoutMiddleware('api');
 
         $this->router->post($this->prefix('register'), [

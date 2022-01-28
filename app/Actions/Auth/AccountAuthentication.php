@@ -2,10 +2,12 @@
 
 namespace App\Actions\Auth;
 
+use App\Http\Resources\Account\JWTOfficeResource;
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Jobs\Users\UpdateExistingUser;
+use App\Models\Offices\Office;
 use App\Mail\SendMailOTP;
 use App\Models\User;
 use App\Http\Response;
@@ -16,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\Customers\CreateNewCustomer;
@@ -25,6 +28,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\PhoneNumberFormat;
 use Firebase\JWT\JWT;
+use Throwable;
 
 class AccountAuthentication
 {
@@ -65,8 +69,8 @@ class AccountAuthentication
     /**
      * Account Register.
      *
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function register(): JsonResponse
     {
@@ -82,9 +86,9 @@ class AccountAuthentication
     /**
      * Attempt login.
      *
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
-     * @throws \Throwable
+     * @return JsonResponse
+     * @throws ValidationException
+     * @throws Throwable
      */
     public function attempt(): JsonResponse
     {
@@ -116,7 +120,7 @@ class AccountAuthentication
 
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
-        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        /** @var User|Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
         if ($column == self::CREDENTIAL_FACEBOOK || $column == self::CREDENTIAL_GOOGLE && $authenticatable == null) {
             $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
@@ -228,8 +232,8 @@ class AccountAuthentication
     /**
      * @return JsonResponse
      * @throws ValidationException
-     * @throws \Throwable
-     * @throws \libphonenumber\NumberParseException
+     * @throws Throwable
+     * @throws NumberParseException
      */
     public function forgotByPhone(): JsonResponse
     {
@@ -250,7 +254,7 @@ class AccountAuthentication
 
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
-        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        /** @var User|Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
 
         # update fcm_token
@@ -323,7 +327,7 @@ class AccountAuthentication
 
         $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
 
-        /** @var \App\Models\User|\App\Models\Customers\Customer|null $authenticatable */
+        /** @var User|Customer|null $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['phone'])->first();
 
         # update fcm_token
@@ -392,6 +396,35 @@ class AccountAuthentication
         ]))->json();
     }
 
+    public function officeAttempt(): JsonResponse
+    {
+        switch (true) {
+            default:
+                $column = self::CREDENTIAL_EMAIL;
+                break;
+        }
+        $query = Office::query();
+
+        /** @var Office $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+
+        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+            throw ValidationException::withMessages([
+                'username' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        $now = time();
+        $payload = [
+            'iat' => $now,
+            'exp' => $now + (((60 * 60) * 24) * 30),
+            'data' => new JWTOfficeResource($authenticatable)
+        ];
+        $jwt = JWT::encode($payload, self::JWT_KEY);
+        return (new Response(Response::RC_SUCCESS, [
+            'jwt_token' => $jwt
+        ]))->json();
+    }
+
     /**
      * @param HasOtpToken $authenticatable
      * @param string $otp_channel
@@ -413,8 +446,8 @@ class AccountAuthentication
     /**
      * Customer registration.
      *
-     * @return \App\Models\Customers\Customer
-     * @throws \Illuminate\Validation\ValidationException
+     * @return Customer
+     * @throws ValidationException
      */
     protected function customerRegistration(): Customer
     {
