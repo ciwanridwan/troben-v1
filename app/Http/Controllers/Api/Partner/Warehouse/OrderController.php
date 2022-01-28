@@ -74,7 +74,7 @@ class OrderController extends Controller
         }
 
         $package = $code->codeable;
-//        $this->authorize('view', $package);
+        $this->authorize('view', $package);
 
         return $this->jsonSuccess(PackageResource::make($package->load([
             'items',
