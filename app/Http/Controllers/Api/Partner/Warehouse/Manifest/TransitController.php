@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
+use App\Jobs\Deliveries\Actions\UnloadCode;
 use App\Jobs\Deliveries\Actions\UnloadCodeFromDelivery;
 use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
@@ -31,5 +32,21 @@ class TransitController extends Controller
         $delivery->refresh();
 
         return (new Response(Response::RC_SUCCESS, DeliveryResource::make($delivery->load('packages'))))->json();
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function unloadItem(Request $request)
+    {
+        $job = new UnloadCode(array_merge($request->only('code'), [
+            'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
+            'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
+        ]));
+        $this->dispatch($job);
+
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 }
