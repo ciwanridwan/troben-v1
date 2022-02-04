@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Partner\Warehouse;
 
 use App\Http\Resources\Api\Delivery\DeliveryDetailResource;
 use App\Http\Resources\Api\Partner\PartnerResource;
+use App\Http\Response;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
@@ -100,6 +101,9 @@ class ManifestController extends Controller
             })
             ->whereIn('deliverable_id', $items)
             ->pluck('delivery_id')->toArray();
+        if (count($deliveries) > 0){
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
 
         $query = Delivery::whereIn('id', $deliveries)
             ->with('code','packages.code', 'packages.items.codes')

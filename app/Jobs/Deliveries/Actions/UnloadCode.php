@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Http\Response;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Packages\Item;
@@ -63,6 +64,9 @@ class UnloadCode
                 ->where('status', 'load_by_driver')
                 ->where('deliverable_id', $code->id)
                 ->first();
+            if ($deliveries == null){
+                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            }
             $delivery = Delivery::find($deliveries->delivery_id);
             $this->unloadFromDelivery($code, $delivery);
         });
