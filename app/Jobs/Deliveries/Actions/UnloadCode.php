@@ -24,7 +24,7 @@ class UnloadCode
     /**
      * @var mixed
      */
-    private ?string $status;
+    public ?string $status;
 
     private array $inputs;
 
@@ -65,7 +65,8 @@ class UnloadCode
                 ->where('deliverable_id', $code->id)
                 ->first();
             if ($deliveries == null){
-                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+                $this->status = 'fail';
+                return;
             }
             $delivery = Delivery::find($deliveries->delivery_id);
             $this->unloadFromDelivery($code, $delivery);

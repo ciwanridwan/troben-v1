@@ -91,7 +91,7 @@ class Response implements Responsable
      * @param string $code
      * @param $data
      */
-    public function __construct(string $code, $data = [])
+    public function __construct(string $code, $data = null)
     {
         $this->code = $code;
         $this->data = $data;

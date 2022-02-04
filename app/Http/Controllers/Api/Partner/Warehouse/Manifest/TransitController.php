@@ -46,6 +46,9 @@ class TransitController extends Controller
             'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
         ]));
         $this->dispatch($job);
+        if ($job->status == 'fail'){
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
 
         return (new Response(Response::RC_SUCCESS))->json();
     }

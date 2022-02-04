@@ -101,15 +101,13 @@ class ManifestController extends Controller
             })
             ->whereIn('deliverable_id', $items)
             ->pluck('delivery_id')->toArray();
-        if (count($deliveries) > 0){
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        if ($deliveries == []){
+            return (new Response(Response::RC_BAD_REQUEST))->json();
         }
-
         $query = Delivery::whereIn('id', $deliveries)
             ->with('code','packages.code', 'packages.items.codes')
             ->get()
             ->toarray();
-
 
         foreach($query as $delivery){
             foreach($delivery['packages'] as $package){
