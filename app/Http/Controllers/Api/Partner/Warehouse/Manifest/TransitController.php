@@ -41,7 +41,7 @@ class TransitController extends Controller
      */
     public function unloadItem(Request $request)
     {
-        $job = new UnloadCode(array_merge($request->only('code'), [
+        $job = new UnloadCode(array_merge($request->only('codes'), [
             'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
             'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
         ]));

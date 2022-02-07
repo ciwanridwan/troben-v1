@@ -38,7 +38,7 @@ class UnloadCode
     public function __construct(array $inputs = [])
     {
         $this->inputs = Validator::make($inputs, [
-            'code' => [
+            'codes' => [
                 'required',
                 Rule::exists('codes', 'content')->whereIn('codeable_type', [
                     Package::class,
@@ -50,8 +50,7 @@ class UnloadCode
         ])->validate();
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->codes = Code::query()->whereIn('content', is_array($inputs['code']) ? $inputs['code'] : [$inputs['code']])->with('codeable')->get();
-
+        $this->codes = Code::query()->whereIn('content', is_array($inputs['codes']) ? $inputs['codes'] : [$inputs['codes']])->with('codeable')->get();
         $this->status = $this->inputs['status'];
         $this->role = $this->inputs['role'] ?? null;
     }
