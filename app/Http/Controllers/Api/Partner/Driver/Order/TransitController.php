@@ -8,10 +8,14 @@ use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\PackageLoadedByDriver;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
+use App\Http\Response;
+use App\Jobs\Deliveries\Actions\ProcessFromCode;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,6 +51,41 @@ class TransitController extends Controller
         event(new PackageLoadedByDriver($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function loadedItems(Request $request, PartnerRepository $repository): JsonResponse
+    {
+        $job = new ProcessFromCode(array_merge($request->only(['codes']), [
+            'status' => Deliverable::STATUS_LOAD_BY_DRIVER,
+            'role' => CodeLogable::STATUS_DRIVER_LOAD
+        ]));
+
+        $this->dispatchNow($job);
+        if ($job->status == 'fail'){
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+        $items = Code::select('id')
+            ->whereIn('content', $request->codes)
+            ->pluck('id')->toArray();
+        $deliveries = Deliverable::select('delivery_id')
+            ->where('deliverable_type', 'App\Models\Code')
+            ->where('status', 'load_by_driver')
+            ->whereHas('delivery', function($q) use ($repository) {
+                $q->where('partner_id', $repository->getPartner()->id);
+            })
+            ->whereIn('deliverable_id', $items)
+            ->pluck('delivery_id')->toArray();
+
+        foreach ($deliveries as $id){
+            $delivery = Delivery::find($id);
+            event(new PackageLoadedByDriver($delivery));
+        }
+        return $this->jsonSuccess();
     }
 
     public function finished(Delivery $delivery): JsonResponse
