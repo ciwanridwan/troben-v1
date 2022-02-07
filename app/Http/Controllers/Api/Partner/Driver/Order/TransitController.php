@@ -85,7 +85,7 @@ class TransitController extends Controller
             $delivery = Delivery::find($id);
             event(new PackageLoadedByDriver($delivery));
         }
-        return $this->jsonSuccess();
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     public function finished(Delivery $delivery): JsonResponse
