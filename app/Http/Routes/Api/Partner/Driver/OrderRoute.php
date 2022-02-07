@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Partner\Driver;
 
+use App\Http\Controllers\Api\Partner\Driver\Order\TransitController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Partner\Driver\OrderController;
 use App\Http\Controllers\Api\Partner\ManifestController as PartnerManifestController;
@@ -38,6 +39,17 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('detaildeliveries'), [
             'as' => $this->name('detaildeliveries'),
             'uses' => $this->uses('detailDeliveries')
+        ]);
+
+        // driver load an items from customer
+        $this->router->patch($this->prefix('transit/loadeditems'), [
+            'as' => $this->name('loadedItems'),
+            'uses' => $this->uses('loadedItems'),
+        ]);
+
+        $this->router->patch($this->prefix('transit/loadeditems'), [
+            'as' => $this->name('loadedItems'),
+            'uses' => $this->uses('loadedItems', TransitController::class),
         ]);
     }
 
