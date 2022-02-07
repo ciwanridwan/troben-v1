@@ -112,8 +112,11 @@ class ManifestController extends Controller
                 $arrDeliveries[] = $deliveries[0];
             }
         }
+        $dataError = [];
         $data = $this->is_scanned($arrDeliveries, $request->codes);
-        $dataError = $this->is_scanned($dataError, $request->codes);
+        if ($dataError != []){
+            $dataError = $this->is_scanned($dataError, $request->codes);
+        }
 
         $things = [
             'deliveries' => $data,

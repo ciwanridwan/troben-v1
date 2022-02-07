@@ -34,6 +34,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('show'),
             'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
+
+        $this->router->post($this->prefix('detaildeliveries'), [
+            'as' => $this->name('detaildeliveries'),
+            'uses' => $this->uses('detailDeliveries')
+        ]);
     }
 
     /**
