@@ -93,28 +93,48 @@ class ManifestController extends Controller
         $items = Code::select('id')
             ->whereIn('content', $request->codes)
             ->pluck('id')->toArray();
-        $deliveries = Deliverable::select('delivery_id')
-            ->where('deliverable_type', 'App\Models\Code')
-            ->where('status', 'load_by_driver')
-            ->whereHas('delivery', function($q) use ($repository) {
-                $q->where('partner_id', $repository->getPartner()->id);
-            })
-            ->whereIn('deliverable_id', $items)
-            ->pluck('delivery_id')->toArray();
-        if ($deliveries == []){
-            return (new Response(Response::RC_BAD_REQUEST))->json();
+        foreach($items as $barang){
+            $deliveries = Deliverable::select('delivery_id')
+                ->where('deliverable_type', 'App\Models\Code')
+                ->where('status', 'load_by_driver')
+                ->whereHas('delivery', function($q) use ($repository) {
+                    $q->where('partner_id', $repository->getPartner()->id);
+                })
+                ->where('deliverable_id', $barang)
+                ->pluck('delivery_id')->toArray();
+            if($deliveries == []){
+                $datas = Deliverable::where('deliverable_type', 'App\Models\Code')
+                    ->where('deliverable_id', $barang)
+                    ->latest('updated_at')
+                    ->first();
+                $dataError[] = $datas->delivery_id;
+            }else{
+                $arrDeliveries[] = $deliveries[0];
+            }
         }
-        $query = Delivery::whereIn('id', $deliveries)
+        $data = $this->is_scanned($arrDeliveries, $request->codes);
+        $dataError = $this->is_scanned($dataError, $request->codes);
+
+        $things = [
+            'deliveries' => $data,
+            'error_deliveries' => $dataError
+        ];
+        return $this->jsonSuccess(new JsonResource($things));
+    }
+
+    public function is_scanned(array $arrDeliveries, array $codes)
+    {
+        $deliveries = Delivery::whereIn('id', $arrDeliveries)
             ->with('code','packages.code', 'packages.items.codes')
             ->get()
             ->toarray();
 
-        foreach($query as $delivery){
+        foreach($deliveries as $delivery){
             foreach($delivery['packages'] as $package){
                 foreach ($package['items'] as $item) {
                     foreach($item['codes'] as $code){
                         $is_scanned = false;
-                        if (in_array($code['content'], $request->codes)){
+                        if (in_array($code['content'], $codes)){
                             $is_scanned = true;
                         }
                         $arrItems[] = array_merge([
@@ -137,7 +157,6 @@ class ManifestController extends Controller
             ]);
             unset($packages);
         }
-
-        return $this->jsonSuccess(new JsonResource($data));
+        return $data;
     }
 }
