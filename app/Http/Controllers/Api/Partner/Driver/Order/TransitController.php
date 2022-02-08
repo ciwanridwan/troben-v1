@@ -74,7 +74,7 @@ class TransitController extends Controller
             ->pluck('id')->toArray();
         $deliveries = Deliverable::select('delivery_id')
             ->where('deliverable_type', 'App\Models\Code')
-            ->where('status', 'load_by_driver')
+            ->where('status', 'prepared_by_origin_warehouse')
             ->whereHas('delivery', function($q) use ($repository) {
                 $q->where('partner_id', $repository->getPartner()->id);
             })
