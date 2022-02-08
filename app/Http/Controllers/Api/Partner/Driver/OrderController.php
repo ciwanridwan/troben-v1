@@ -58,7 +58,7 @@ class OrderController extends Controller
                 ->where('deliverable_type', 'App\Models\Code')
                 ->where('status', 'prepared_by_origin_warehouse')
                 ->whereHas('delivery', function($q) use ($repository) {
-                    $q->where('status', Delivery::STATUS_WAITING_TRANSPORTER);
+                    $q->where('status', Delivery::STATUS_ACCEPTED);
 //                    $q->where('userable_id', $repository->getDataUser()->id);
                 })
                 ->where('deliverable_id', $barang)
