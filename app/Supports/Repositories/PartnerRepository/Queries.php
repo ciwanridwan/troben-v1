@@ -200,7 +200,7 @@ class Queries
                 $deliveriesQueryBuilder
                     ->whereHas('assigned_to', fn (Builder $builder) => $builder
                         ->where('user_id', $this->user->id));
-                
+
                 $userables = $this->user->transporters;
                 $ids = [];
                 foreach ($userables as $userable) {
