@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use App\Http\Response;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
+use function PHPUnit\Framework\isEmpty;
 
 class ManifestController extends Controller
 {
@@ -46,13 +48,15 @@ class ManifestController extends Controller
             }
         });
 
-        $request->whenHas('q', function ($value) use ($query) {
+        if ($request->has('q')){
             $id = Code::select('codeable_id')
-                ->where('content', $value)
+                ->where('content', 'like', '%'.$request->q.'%')
                 ->pluck('codeable_id');
-            $query->where('id', $id);
-        });
-
+            if ($id->count() == 0){
+                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            }
+            $query->whereIn('id', $id)->get();
+        }
 
         $query->with(['partner', 'transporter',  'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages']);
 
