@@ -2,14 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
-use App\Http\Resources\Api\Delivery\DeliveryDetailResource;
-use App\Http\Resources\Api\Partner\PartnerResource;
-use App\Http\Response;
-use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
-use App\Models\Packages\Item;
-use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Deliveries\Delivery;
@@ -20,7 +14,6 @@ use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class ManifestController extends Controller
 {
@@ -53,6 +46,12 @@ class ManifestController extends Controller
             }
         });
 
+        $request->whenHas('q', function ($value) use ($query) {
+            $id = Code::select('codeable_id')
+                ->where('content', $value)
+                ->pluck('codeable_id');
+            $query->where('id', $id);
+        });
 
 
         $query->with(['partner', 'transporter',  'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages']);
