@@ -102,6 +102,7 @@ class ManifestController extends Controller
                 ->where('status', 'load_by_driver')
                 ->whereHas('delivery', function($q) use ($repository) {
                     $q->where('partner_id', $repository->getPartner()->id);
+                    $q->where('status', Delivery::STATUS_FINISHED);
                 })
                 ->where('deliverable_id', $barang)
                 ->pluck('delivery_id')->toArray();
