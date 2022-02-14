@@ -192,7 +192,7 @@ class AccountAuthentication
         }
         if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
             return $this->attributes['otp']
-                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
+                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel'], $authenticatable);
         }
 
         if ($this->attributes['otp']) {
@@ -430,12 +430,12 @@ class AccountAuthentication
      * @param string $otp_channel
      * @return JsonResponse
      */
-    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel, Customer $customer): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
         $job = new SendMessage($otp, $authenticatable->phone);
         $this->dispatch($job);
-        Mail::to($authenticatable->email)->send(new SendMailOTP($otp, $customer));
+//        Mail::to($authenticatable->email)->send(new SendMailOTP($otp, $customer));
         return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
             'message' => 'Harap cek kotak pesan SMS anda',
             'otp' => $otp->id,
@@ -478,7 +478,7 @@ class AccountAuthentication
             try {
                 $job = new SendMessage($otp, $authenticatable->phone);
                 $this->dispatch($job);
-                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
+//                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             } catch (\Exception $ex) {
                 Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             }
