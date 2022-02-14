@@ -96,6 +96,10 @@ class ManifestController extends Controller
         $items = Code::select('id')
             ->whereIn('content', $request->codes)
             ->pluck('id')->toArray();
+
+        $dataError = [];
+        $arrDeliveries = [];
+        $data = [];
         foreach($items as $barang){
             $deliveries = Deliverable::select('delivery_id')
                 ->where('deliverable_type', 'App\Models\Code')
@@ -116,8 +120,9 @@ class ManifestController extends Controller
                 $arrDeliveries[] = $deliveries[0];
             }
         }
-        $dataError = [];
-        $data = $this->is_scanned($arrDeliveries, $request->codes);
+        if ($arrDeliveries != []){
+            $data = $this->is_scanned($arrDeliveries, $request->codes);
+        }
         if ($dataError != []){
             $dataError = $this->is_scanned($dataError, $request->codes);
         }
