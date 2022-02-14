@@ -43,7 +43,7 @@ class PartnerRepository
     public function getDataUser(): User
     {
         $user = $this->getUser();
-        return $user->first();
+        return $user;
     }
 
     public function getPartner(): Partner

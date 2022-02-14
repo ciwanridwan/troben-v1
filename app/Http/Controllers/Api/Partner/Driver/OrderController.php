@@ -54,23 +54,22 @@ class OrderController extends Controller
         $arrDeliveries = [];
         $data = [];
         foreach($items as $barang){
-            $deliveries = Deliverable::select('delivery_id')
-                ->where('deliverable_type', 'App\Models\Code')
+            $deliveries = Deliverable::where('deliverable_type', 'App\Models\Code')
                 ->where('status', 'prepared_by_origin_warehouse')
+                ->with('delivery.assigned_to')
                 ->whereHas('delivery', function($q) use ($repository) {
                     $q->where('status', Delivery::STATUS_ACCEPTED);
-//                    $q->where('userable_id', $repository->getDataUser()->id);
                 })
                 ->where('deliverable_id', $barang)
-                ->pluck('delivery_id')->toArray();
-            if($deliveries == []){
+                ->first();
+            if($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id){
                 $datas = Deliverable::where('deliverable_type', 'App\Models\Code')
                     ->where('deliverable_id', $barang)
                     ->latest('updated_at')
                     ->first();
                 $dataError[] = $datas->delivery_id;
             }else{
-                $arrDeliveries[] = $deliveries[0];
+                $arrDeliveries[] = $deliveries->delivery_id;
             }
         }
         if ($arrDeliveries != []){
