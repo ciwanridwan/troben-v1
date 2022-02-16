@@ -7,7 +7,7 @@ use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class ScheduleTransportationResource
+ * Class ScheduleTransportationResource.
  * @property  ScheduleTransportation $resource
  */
 class ScheduleTransportationResource extends JsonResource

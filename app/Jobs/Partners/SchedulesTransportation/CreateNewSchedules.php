@@ -43,7 +43,6 @@ class CreateNewSchedules
             'destination_regency_id' => ['required'],
             'departed_at' => ['required'],
         ])->validate();
-
     }
 
     /**

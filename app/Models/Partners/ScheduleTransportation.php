@@ -13,8 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class ScheduleTransportation
- * @package App\Models\Partners
+ * Class ScheduleTransportation.
  *
  * @property int $id
  * @property int $partner_id
