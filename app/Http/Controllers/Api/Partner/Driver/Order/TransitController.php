@@ -64,7 +64,8 @@ class TransitController extends Controller
         if ($data['codes'] == []){
             return (new Response(Response::RC_INVALID_DATA))->json();
         }
-        $job = new ProcessFromCode(array_merge($data['codes'], [
+        $things['codes'] = $data['codes'];
+        $job = new ProcessFromCode(array_merge($things, [
             'status' => Deliverable::STATUS_LOAD_BY_DRIVER,
             'role' => CodeLogable::STATUS_DRIVER_LOAD
         ]));
