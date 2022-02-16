@@ -48,7 +48,8 @@ class TransitController extends Controller
         if ($data['codes'] == []){
             return (new Response(Response::RC_INVALID_DATA))->json();
         }
-        $job = new UnloadCode(array_merge($data['codes'], [
+        $things['codes'] = $data['codes'];
+        $job = new UnloadCode(array_merge($things, [
             'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
             'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
         ]));
