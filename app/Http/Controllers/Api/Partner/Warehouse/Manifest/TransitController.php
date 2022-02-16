@@ -46,18 +46,15 @@ class TransitController extends Controller
     {
         $data = $this->checkCodes($request, $repository);
         if ($data['codes'] == []){
-            return (new Response(Response::RC_INVALID_DATA, $data['error_codes']))->json();
+            return (new Response(Response::RC_INVALID_DATA))->json();
         }
         $job = new UnloadCode(array_merge($data['codes'], [
             'status' => Deliverable::STATUS_UNLOAD_BY_DESTINATION_WAREHOUSE,
             'role' => CodeLogable::STATUS_WAREHOUSE_UNLOAD,
         ]));
         $this->dispatch($job);
-        if ($data['error_codes'] != [] && $data['codes'] != []){
-            return $this->jsonSuccess(new JsonResource($data));
-        }
-
         return (new Response(Response::RC_SUCCESS))->json();
+
     }
 
     public function checkCodes(Request $request, PartnerRepository $repository){
