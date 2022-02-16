@@ -80,6 +80,7 @@ return [
         App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
+        App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         App\Http\Routes\Api\SupportRoute::class,
         /** @inject api **/
     ],
