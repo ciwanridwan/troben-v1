@@ -60,7 +60,11 @@ class TransitController extends Controller
      */
     public function loadedItems(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $job = new ProcessFromCode(array_merge($request->only(['codes']), [
+        $data = $this->checkCodes($request, $repository);
+        if ($data['codes'] == []){
+            return (new Response(Response::RC_INVALID_DATA))->json();
+        }
+        $job = new ProcessFromCode(array_merge($data['codes'], [
             'status' => Deliverable::STATUS_LOAD_BY_DRIVER,
             'role' => CodeLogable::STATUS_DRIVER_LOAD
         ]));
@@ -97,5 +101,38 @@ class TransitController extends Controller
         event(new DriverUnloadedPackageInDestinationWarehouse($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
+    }
+
+
+    public function checkCodes(Request $request, $repository){
+        $codesError = [];
+        $codes = [];
+
+        $items = Code::select('id')
+            ->whereIn('content', $request->codes)
+            ->pluck('id')->toArray();
+
+        foreach($items as $barang){
+            $deliveries = Deliverable::where('deliverable_type', 'App\Models\Code')
+                ->where('status', 'prepared_by_origin_warehouse')
+                ->with('delivery.assigned_to')
+                ->whereHas('delivery', function($q) use ($repository) {
+                    $q->where('status', Delivery::STATUS_ACCEPTED);
+                })
+                ->where('deliverable_id', $barang)
+                ->first();
+
+            $code = Code::find($barang);
+            if($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id){
+                $codesError[] = $code->content;
+            }else{
+                $codes[] = $code->content;
+            }
+        }
+
+        return [
+            'error_codes' => $codesError,
+            'codes' => $codes
+        ];
     }
 }

@@ -68,7 +68,7 @@ class TransitController extends Controller
         foreach($items as $barang){
             $deliveries = Deliverable::select('delivery_id')
                 ->where('deliverable_type', 'App\Models\Code')
-                ->where('status', 'load_by_driver')
+                ->where('status', Deliverable::STATUS_LOAD_BY_DRIVER)
                 ->whereHas('delivery', function($q) use ($repository) {
                     $q->where('partner_id', $repository->getPartner()->id);
                     $q->where('status', Delivery::STATUS_FINISHED);
