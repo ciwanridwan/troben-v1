@@ -68,6 +68,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
      * @var string
      */
     protected $table = 'customers';
+    protected string $guard_name = 'jwt';
 
     /**
      * The attributes that are mass assignable.

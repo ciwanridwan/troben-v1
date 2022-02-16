@@ -4,6 +4,14 @@
       <a-badge status="error" text=""></a-badge>
       <span :class="['trawl-status-error']">Pesan Dibatalkan</span>
     </div>
+    <div v-else-if="record.status == 'cancel_self_pickup'">
+      <a-badge status="error" text=""></a-badge>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan paket akan diambil kembali oleh Customer</span>
+    </div>
+    <div v-else-if="record.status == 'cancel_delivered'">
+      <a-badge status="error" text=""></a-badge>
+      <span :class="['trawl-status-error']">Pesan Dibatalkan dan paket akan diantar kembali oleh Mitra</span>
+    </div>
     <div v-else-if="record.status == 'created'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Menunggu Assign Mitra</span>
@@ -14,7 +22,7 @@
     </div>
     <div v-else-if="record.status == 'accepted' && record.payment_status == 'pending'">
       <a-badge status="warning" text=""></a-badge>
-      <span :class="['trawl-status-warning']">Menunggu konfirmasi admin</span>
+      <span :class="['trawl-status-warning']">Menunggu konfirmasi pembayaran oleh Admin</span>
     </div>
     <div v-else-if="record.status == 'waiting_for_pickup'">
       <a-badge status="warning" text=""></a-badge>
@@ -23,6 +31,10 @@
     <div v-else-if="record.status == 'picked_up'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Driver telah menerima barang</span>
+    </div>
+    <div v-else-if="record.status == 'waiting_for_estimating'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Menunggu untuk dilakukan pengecekan di gudang</span>
     </div>
     <div v-else-if="record.status == 'estimating'">
       <a-badge status="warning" text=""></a-badge>
@@ -48,6 +60,10 @@
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Menunggu konfirmasi customer</span>
     </div>
+    <div v-else-if="record.status == 'revamp'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Resi sedang ditinjau ulang oleh Kasir Mitra</span>
+    </div>
     <div v-else-if="record.status == 'manifested'">
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Telah terassign di manifest</span>
@@ -60,6 +76,10 @@
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']">Barang sedang di antar kurir</span>
     </div>
+    <div v-else-if="record.status == 'pending'">
+      <a-badge status="warning" text=""></a-badge>
+      <span :class="['trawl-status-warning']">Mitra {{ record.deliveries[0].partner.code }} belum melakukan penerimaan pesanan</span>
+    </div>
     <div v-else-if="record.status == 'delivered'">
       <a-badge status="success" text=""></a-badge>
       <span :class="['trawl-status-success']">Barang sudah diterima{{ record.received_by ? ' oleh ' + record.received_by : '.' }}</span>
@@ -67,7 +87,7 @@
     <div v-else>
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']"
-        >[Onprogress Status] Pesanan sedang diproses Mitra
+        >[Unhandled Status] Tolong report ke divisi IT bila menemui status ini
       </span>
     </div>
   </div>

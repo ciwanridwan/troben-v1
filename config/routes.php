@@ -32,6 +32,11 @@ return [
         'customer_service' => [
             'middleware' => ['web', 'auth', 'partner.role:customer-service', 'partner.scope.role:customer-service'],
             'prefix' => 'partner/customer-service',
+        ],
+        'self_service' => [
+            'middleware' => ['jwt'],
+            'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
+            'domain' => env('API_DOMAIN')
         ]
     ],
 
@@ -74,13 +79,9 @@ return [
         App\Http\Routes\Api\Courier\OrderRoute::class,
         App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Manifest\TransitRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Order\ItemRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\DooringRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
         App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
+        App\Http\Routes\Api\SupportRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -99,6 +100,10 @@ return [
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
+        # removed at 02-Jan-2021 because not use
+        // App\Http\Routes\Admin\Payment\MPWRouter::class,
+        // App\Http\Routes\Admin\Payment\MTAKabRouter::class,
+        // App\Http\Routes\Admin\Payment\MTAKRouter::class,
         /** @inject admin **/
     ],
     'cashier' => [
@@ -111,10 +116,15 @@ return [
         App\Http\Routes\Partner\CustomerService\Home\OrderRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\WaitingRoute::class,
         App\Http\Routes\Partner\CustomerService\Home\Order\WalkinRoute::class,
+        App\Http\Routes\Partner\CustomerService\CustomerServiceRoute::class,
         /** @inject customer_service **/
     ],
     'partner' => [
         App\Http\Routes\Partner\PartnerRoute::class,
         /** @inject partner **/
-    ]
+    ],
+    'self_service' => [
+        App\Http\Routes\Api\V\SelfRoute::class,
+        App\Http\Routes\Api\V\OfficeRoute::class,
+    ],
 ];

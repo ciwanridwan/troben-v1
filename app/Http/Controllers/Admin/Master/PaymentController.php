@@ -108,7 +108,7 @@ class PaymentController extends Controller
             }
             $this->query->has('historyBusiness');
             $this->query->has('histories');
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.home');
@@ -133,7 +133,7 @@ class PaymentController extends Controller
 
             // PartnerBalanceReportRepository get data sum penghasilan
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.business');
@@ -217,7 +217,7 @@ class PaymentController extends Controller
             $this->query->has('historyPool');
 
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.pool');
@@ -241,7 +241,7 @@ class PaymentController extends Controller
             $this->query->has('historySpace');
 
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
         }
 
         return view('admin.master.payment.partner.space');

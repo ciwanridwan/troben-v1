@@ -53,6 +53,7 @@ class Price extends Model
     public const TIER_4 = 100;
     public const TIER_5 = 1000;
     public const TIER_6 = 3000;
+    public const TIER_7 = 5000;
 
     public const DIVIDER_DARAT = 4000;
     public const DIVIDER_UDARA = 6000;

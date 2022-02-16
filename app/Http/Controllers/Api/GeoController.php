@@ -132,7 +132,7 @@ class GeoController extends Controller
         $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365]));
+        $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365, 393]));
 
         return $is_apps
             ? $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))))

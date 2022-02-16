@@ -5,6 +5,7 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Promos\ClaimedPromotion;
@@ -97,6 +98,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 class Package extends Model implements AttachableContract
 {
     use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+
+    public const PACKAGE_SYSTEM_ID = 0;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -446,6 +449,11 @@ class Package extends Model implements AttachableContract
     public function estimator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'estimator_id', 'id');
+    }
+
+    public function updated_by(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
     }
 
     public function packager(): BelongsTo
