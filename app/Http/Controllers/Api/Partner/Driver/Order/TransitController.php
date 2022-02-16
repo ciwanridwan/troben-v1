@@ -61,7 +61,7 @@ class TransitController extends Controller
     public function loadedItems(Request $request, PartnerRepository $repository): JsonResponse
     {
         $data = $this->checkCodes($request, $repository);
-        if ($data['codes'] == []){
+        if ($data['codes'] == []) {
             return (new Response(Response::RC_INVALID_DATA))->json();
         }
         $things['codes'] = $data['codes'];
@@ -71,7 +71,7 @@ class TransitController extends Controller
         ]));
 
         $this->dispatchNow($job);
-        if ($job->status == 'fail'){
+        if ($job->status == 'fail') {
             return (new Response(Response::RC_BAD_REQUEST))->json();
         }
         $items = Code::select('id')
@@ -83,7 +83,7 @@ class TransitController extends Controller
             ->whereIn('deliverable_id', $items)
             ->pluck('delivery_id')->toArray();
 
-        foreach ($deliveries as $id){
+        foreach ($deliveries as $id) {
             $delivery = Delivery::find($id);
             event(new PackageLoadedByDriver($delivery));
         }
@@ -105,7 +105,8 @@ class TransitController extends Controller
     }
 
 
-    public function checkCodes(Request $request, $repository){
+    public function checkCodes(Request $request, $repository)
+    {
         $codesError = [];
         $codes = [];
 
@@ -113,20 +114,20 @@ class TransitController extends Controller
             ->whereIn('content', $request->codes)
             ->pluck('id')->toArray();
 
-        foreach($items as $barang){
+        foreach ($items as $barang) {
             $deliveries = Deliverable::where('deliverable_type', 'App\Models\Code')
                 ->where('status', 'prepared_by_origin_warehouse')
                 ->with('delivery.assigned_to')
-                ->whereHas('delivery', function($q) use ($repository) {
+                ->whereHas('delivery', function ($q) use ($repository) {
                     $q->where('status', Delivery::STATUS_ACCEPTED);
                 })
                 ->where('deliverable_id', $barang)
                 ->first();
 
             $code = Code::find($barang);
-            if($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id){
+            if ($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id) {
                 $codesError[] = $code->content;
-            }else{
+            } else {
                 $codes[] = $code->content;
             }
         }

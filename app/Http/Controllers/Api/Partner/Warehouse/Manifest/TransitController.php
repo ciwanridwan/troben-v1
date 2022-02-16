@@ -13,7 +13,6 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransitController extends Controller
 {
@@ -45,7 +44,7 @@ class TransitController extends Controller
     public function unloadItem(Request $request, PartnerRepository $repository)
     {
         $data = $this->checkCodes($request, $repository);
-        if ($data['codes'] == []){
+        if ($data['codes'] == []) {
             return (new Response(Response::RC_INVALID_DATA))->json();
         }
         $things['codes'] = $data['codes'];
@@ -55,10 +54,10 @@ class TransitController extends Controller
         ]));
         $this->dispatch($job);
         return (new Response(Response::RC_SUCCESS))->json();
-
     }
 
-    public function checkCodes(Request $request, PartnerRepository $repository){
+    public function checkCodes(Request $request, PartnerRepository $repository)
+    {
         $codesError = [];
         $codes = [];
 
@@ -66,11 +65,11 @@ class TransitController extends Controller
             ->whereIn('content', $request->codes)
             ->pluck('id')->toArray();
 
-        foreach($items as $barang){
+        foreach ($items as $barang) {
             $deliveries = Deliverable::select('delivery_id')
                 ->where('deliverable_type', 'App\Models\Code')
                 ->where('status', Deliverable::STATUS_LOAD_BY_DRIVER)
-                ->whereHas('delivery', function($q) use ($repository) {
+                ->whereHas('delivery', function ($q) use ($repository) {
                     $q->where('partner_id', $repository->getPartner()->id);
                     $q->where('status', Delivery::STATUS_FINISHED);
                 })
@@ -78,9 +77,9 @@ class TransitController extends Controller
                 ->pluck('delivery_id')->toArray();
 
             $code = Code::find($barang);
-            if($deliveries == []){
+            if ($deliveries == []) {
                 $codesError[] = $code->content;
-            }else{
+            } else {
                 $codes[] = $code->content;
             }
         }

@@ -17,7 +17,6 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Transporter\TransporterDriverResource;
-use function PHPUnit\Framework\isEmpty;
 
 class AssignableController extends Controller
 {
@@ -63,11 +62,11 @@ class AssignableController extends Controller
     {
         $query = $repository->queries()->getPackagesQuery();
 
-        if ($request->has('q')){
+        if ($request->has('q')) {
             $id = Code::select('codeable_id')
                 ->where('content', 'like', '%'.$request->q.'%')
                 ->pluck('codeable_id');
-            if ($id->count() == 0){
+            if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
             }
             $query->whereIn('id', $id)->get();

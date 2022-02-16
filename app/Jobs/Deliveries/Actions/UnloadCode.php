@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
-use App\Http\Response;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Packages\Item;
@@ -17,14 +16,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class UnloadCode
 {
-    private Collection $codes;
-    private Code $code;
-    private ?string $role;
-
     /**
      * @var mixed
      */
     public ?string $status;
+    private Collection $codes;
+    private Code $code;
+    private ?string $role;
 
     private array $inputs;
 
@@ -63,7 +61,7 @@ class UnloadCode
                 ->where('status', 'load_by_driver')
                 ->where('deliverable_id', $code->id)
                 ->first();
-            if ($deliveries == null){
+            if ($deliveries == null) {
                 $this->status = 'fail';
                 return;
             }

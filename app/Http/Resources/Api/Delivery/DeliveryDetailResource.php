@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
-use App\Models\Geo\Regency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeliveryDetailResource extends JsonResource

@@ -53,29 +53,29 @@ class OrderController extends Controller
         $dataError = [];
         $arrDeliveries = [];
         $data = [];
-        foreach($items as $barang){
+        foreach ($items as $barang) {
             $deliveries = Deliverable::where('deliverable_type', 'App\Models\Code')
                 ->where('status', 'prepared_by_origin_warehouse')
                 ->with('delivery.assigned_to')
-                ->whereHas('delivery', function($q) use ($repository) {
+                ->whereHas('delivery', function ($q) use ($repository) {
                     $q->where('status', Delivery::STATUS_ACCEPTED);
                 })
                 ->where('deliverable_id', $barang)
                 ->first();
-            if($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id){
+            if ($deliveries == null || $deliveries->delivery->assigned_to->user_id != $repository->getDataUser()->id) {
                 $datas = Deliverable::where('deliverable_type', 'App\Models\Code')
                     ->where('deliverable_id', $barang)
                     ->latest('updated_at')
                     ->first();
                 $dataError[] = $datas->delivery_id;
-            }else{
+            } else {
                 $arrDeliveries[] = $deliveries->delivery_id;
             }
         }
-        if ($arrDeliveries != []){
+        if ($arrDeliveries != []) {
             $data = $this->is_scanned($arrDeliveries, $request->codes);
         }
-        if ($dataError != []){
+        if ($dataError != []) {
             $dataError = $this->is_scanned($dataError, $request->codes);
         }
 
@@ -89,16 +89,16 @@ class OrderController extends Controller
     public function is_scanned(array $arrDeliveries, array $codes)
     {
         $deliveries = Delivery::whereIn('id', $arrDeliveries)
-            ->with('code','packages.code', 'packages.items.codes')
+            ->with('code', 'packages.code', 'packages.items.codes')
             ->get()
             ->toarray();
 
-        foreach($deliveries as $delivery){
-            foreach($delivery['packages'] as $package){
+        foreach ($deliveries as $delivery) {
+            foreach ($delivery['packages'] as $package) {
                 foreach ($package['items'] as $item) {
-                    foreach($item['codes'] as $code){
+                    foreach ($item['codes'] as $code) {
                         $is_scanned = false;
-                        if (in_array($code['content'], $codes)){
+                        if (in_array($code['content'], $codes)) {
                             $is_scanned = true;
                         }
                         $arrItems[] = array_merge([

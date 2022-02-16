@@ -18,15 +18,14 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProcessFromCode
 {
-    private Collection $codes;
-    private Code $code;
-    private ?string $role;
-    private bool $logging;
-
     /**
      * @var mixed
      */
     public ?string $status;
+    private Collection $codes;
+    private Code $code;
+    private ?string $role;
+    private bool $logging;
     /**
      * ProcessFromCodeToDelivery constructor.
      *
@@ -65,7 +64,7 @@ class ProcessFromCode
                 ->where('status', 'prepared_by_origin_warehouse')
                 ->where('deliverable_id', $code->id)
                 ->first();
-            if ($deliveries == null){
+            if ($deliveries == null) {
                 $this->status = 'fail';
                 return;
             }

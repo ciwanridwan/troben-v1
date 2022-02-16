@@ -15,7 +15,6 @@ use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
-use function PHPUnit\Framework\isEmpty;
 
 class ManifestController extends Controller
 {
@@ -48,11 +47,11 @@ class ManifestController extends Controller
             }
         });
 
-        if ($request->has('q')){
+        if ($request->has('q')) {
             $id = Code::select('codeable_id')
                 ->where('content', 'like', '%'.$request->q.'%')
                 ->pluck('codeable_id');
-            if ($id->count() == 0){
+            if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
             }
             $query->whereIn('id', $id)->get();
@@ -100,30 +99,30 @@ class ManifestController extends Controller
         $dataError = [];
         $arrDeliveries = [];
         $data = [];
-        foreach($items as $barang){
+        foreach ($items as $barang) {
             $deliveries = Deliverable::select('delivery_id')
                 ->where('deliverable_type', 'App\Models\Code')
                 ->where('status', 'load_by_driver')
-                ->whereHas('delivery', function($q) use ($repository) {
+                ->whereHas('delivery', function ($q) use ($repository) {
                     $q->where('partner_id', $repository->getPartner()->id);
                     $q->where('status', Delivery::STATUS_FINISHED);
                 })
                 ->where('deliverable_id', $barang)
                 ->pluck('delivery_id')->toArray();
-            if($deliveries == []){
+            if ($deliveries == []) {
                 $datas = Deliverable::where('deliverable_type', 'App\Models\Code')
                     ->where('deliverable_id', $barang)
                     ->latest('updated_at')
                     ->first();
                 $dataError[] = $datas->delivery_id;
-            }else{
+            } else {
                 $arrDeliveries[] = $deliveries[0];
             }
         }
-        if ($arrDeliveries != []){
+        if ($arrDeliveries != []) {
             $data = $this->is_scanned($arrDeliveries, $request->codes);
         }
-        if ($dataError != []){
+        if ($dataError != []) {
             $dataError = $this->is_scanned($dataError, $request->codes);
         }
 
@@ -137,16 +136,16 @@ class ManifestController extends Controller
     public function is_scanned(array $arrDeliveries, array $codes)
     {
         $deliveries = Delivery::whereIn('id', $arrDeliveries)
-            ->with('code','packages.code', 'packages.items.codes')
+            ->with('code', 'packages.code', 'packages.items.codes')
             ->get()
             ->toarray();
 
-        foreach($deliveries as $delivery){
-            foreach($delivery['packages'] as $package){
+        foreach ($deliveries as $delivery) {
+            foreach ($delivery['packages'] as $package) {
                 foreach ($package['items'] as $item) {
-                    foreach($item['codes'] as $code){
+                    foreach ($item['codes'] as $code) {
                         $is_scanned = false;
-                        if (in_array($code['content'], $codes)){
+                        if (in_array($code['content'], $codes)) {
                             $is_scanned = true;
                         }
                         $arrItems[] = array_merge([
