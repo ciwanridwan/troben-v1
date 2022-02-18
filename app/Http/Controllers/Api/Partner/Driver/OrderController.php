@@ -116,7 +116,7 @@ class OrderController extends Controller
                 ]);
                 unset($arrItems);
             }
-            if ($is_error == true){
+            if ($is_error == true) {
                 $data[] = array_merge([
                     'code' => $delivery['code']['content'],
                     'status' => $delivery['status'],
@@ -125,7 +125,7 @@ class OrderController extends Controller
                     'assigned_to' => $delivery['assigned_to']['user']['name'],
                     'packages' => $packages
                 ]);
-            }else{
+            } else {
                 $data[] = array_merge([
                     'code' => $delivery['code']['content'],
                     'packages' => $packages
