@@ -76,7 +76,8 @@ class OrderController extends Controller
             $data = $this->is_scanned($arrDeliveries, $request->codes);
         }
         if ($dataError != []) {
-            $dataError = $this->is_scanned($dataError, $request->codes);
+            $is_error = true;
+            $dataError = $this->is_scanned($dataError, $request->codes, $is_error);
         }
 
         $things = [
@@ -86,10 +87,10 @@ class OrderController extends Controller
         return $this->jsonSuccess(new JsonResource($things));
     }
 
-    public function is_scanned(array $arrDeliveries, array $codes)
+    public function is_scanned(array $arrDeliveries, array $codes, bool $is_error = false)
     {
         $deliveries = Delivery::whereIn('id', $arrDeliveries)
-            ->with('code', 'packages.code', 'packages.items.codes')
+            ->with('code', 'packages.code', 'packages.items.codes', 'origin_partner', 'partner', 'assigned_to.user')
             ->get()
             ->toarray();
 
@@ -115,10 +116,21 @@ class OrderController extends Controller
                 ]);
                 unset($arrItems);
             }
-            $data[] = array_merge([
-                'code' => $delivery['code']['content'],
-                'packages' => $packages
-            ]);
+            if ($is_error == true) {
+                $data[] = array_merge([
+                    'code' => $delivery['code']['content'],
+                    'status' => $delivery['status'],
+                    'origin_partner' => $delivery['origin_partner']['code'],
+                    'destination_partner' => $delivery['partner']['code'],
+                    'assigned_to' => $delivery['assigned_to']['user']['name'],
+                    'packages' => $packages
+                ]);
+            } else {
+                $data[] = array_merge([
+                    'code' => $delivery['code']['content'],
+                    'packages' => $packages
+                ]);
+            }
             unset($packages);
         }
 
