@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Account\CourierResource;
+use App\Http\Resources\FindReceiptResource;
 use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Response;
 use App\Exceptions\Error;
@@ -328,10 +329,10 @@ class OrderController extends Controller
         // $query->groupBy('status');
         $query->orderBy('id');
 
-        return (new Response(Response::RC_SUCCESS, [
+        return $this->jsonSuccess(FindReceiptResource::make([
             'package' => $package,
             'track' => $query->get()
-        ]))->json();
+        ]));
     }
 
     /**
