@@ -149,16 +149,16 @@ class GenerateBalanceHistory
                 /** @var Package $package */
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
-
+                    $variant = '1';
                     # total balance service > record service balance
                     if (! $this->partner->get_fee_transit) {
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $this->saveServiceFee(true);
+                        $this->saveServiceFee($this->partner->type, $variant,true);
                     }
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
-                        $this->saveServiceFee(true);
+                        $this->saveServiceFee($this->partner->type, $variant,true);
                     }
                 }
                 break;
@@ -168,15 +168,16 @@ class GenerateBalanceHistory
                     ->setPackages()
                     ->setPartner($this->delivery->origin_partner)
                     ->setTransporter();
-
                 # fee MB/MS/MPW
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
-
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
-                            $this->saveServiceFee();
+                            // KONTOOOL
+                            // KONTOOOL
+                            $variant = '0';
+                            $this->saveServiceFee($this->partner->type, $variant);
                         }
                         # total balance insurance > record insurance fee
                         if ($this->partner->get_fee_insurance) {
@@ -557,14 +558,21 @@ class GenerateBalanceHistory
     /**
      * Get fee by delivery.
      *
-     * @return int
+     * @return float
      */
-    protected function getServiceFee(): int
+    protected function getServiceFee(string $type): float
     {
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
                 if ($this->countDeliveryTransitOfPackage() === 1) {
-                    return Delivery::FEE_MAIN;
+                    switch ($type){
+                        case Partner::TYPE_BUSINESS:
+                            return Delivery::FEE_PERCENTAGE_BUSINESS;
+                        case Partner::TYPE_SPACE:
+                            return Delivery::FEE_PERCENTAGE_SPACE;
+                        case Partner::TYPE_POS:
+                            return Delivery::FEE_PERCENTAGE_POS;
+                    }
                 } else {
                     return $this->getFeeByAreal();
                 }
@@ -644,9 +652,13 @@ class GenerateBalanceHistory
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function saveServiceFee(bool $isTransit = false)
+    protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
-        $balance_service = $this->package->total_weight * $this->getServiceFee();
+        if ($variant == '0'){
+            $balance_service = $this->package->total_amount * $this->getServiceFee($type);
+        }else{
+            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+        }
         $this
             ->setBalance($balance_service)
             ->setType(History::TYPE_DEPOSIT)
