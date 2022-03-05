@@ -4,7 +4,7 @@
     <template slot="content">
       <a-row type="flex">
         <a-col :span="12">
-          <h3 v-if="! isWalkin">Walk-in Order</h3>
+          <h3 v-if="!isWalkin">Walk-in Order</h3>
           <h3 v-if="isWalkin">Armada Penjemputan</h3>
           <a-space v-if="isWalkin">
             <a-icon :component="CarIcon" :style="{ 'font-size': '2rem' }" />
@@ -15,6 +15,20 @@
           <a-row type="flex">
             <a-col :span="12">
               <span>Biaya Penjemputan</span>
+            </a-col>
+            <a-col :span="12">{{ currency(0) }} </a-col>
+
+            <!--discount sebelum dikirim ke customer -->
+            <a-col :span="12">
+              <span>Potongan Biaya Kirim</span>
+            </a-col>
+            <a-col :span="12">
+              <a-input v-model="discount" prefix="Rp" />
+            </a-col>
+
+            <!--discount sebelum dikirim ke customer -->
+            <a-col :span="12">
+              <span>Potongan Biaya Kirim</span>
             </a-col>
             <a-col :span="12">{{ currency(0) }} </a-col>
           </a-row>
@@ -69,7 +83,7 @@ export default {
     },
     isWalkin() {
       return this.package?.transporter_type;
-    }
+    },
   },
 };
 </script>
