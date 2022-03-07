@@ -80,7 +80,7 @@
       <a-row type="flex">
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(servicePrice) }}
+          {{ currency(total_weight * tierPrice) }}
         </a-col>
 
         <a-col :span="leftColumn"> Sub total biaya </a-col>
@@ -147,6 +147,9 @@ export default {
     },
     subTotalPrice() {
       return this.package?.total_amount;
+    },
+    total_weight() {
+      return this.package?.total_weight;
     },
   },
   methods: {

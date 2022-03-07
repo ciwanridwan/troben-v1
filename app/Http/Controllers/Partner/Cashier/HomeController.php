@@ -84,8 +84,9 @@ class HomeController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->item))->json();
     }
 
-    public function packageChecked(Package $package)
+    public function packageChecked(Package $package, Request $request)
     {
+        dd($request->discount);
         event(new PackageCheckedByCashier($package));
         return (new Response(Response::RC_SUCCESS))->json();
     }
