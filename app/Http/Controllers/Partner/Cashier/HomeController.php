@@ -15,7 +15,6 @@ use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class HomeController extends Controller
 {
