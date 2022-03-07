@@ -155,10 +155,10 @@ class GenerateBalanceHistory
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $this->saveServiceFee($this->partner->type, $variant,true);
+                        $this->saveServiceFee($this->partner->type, $variant, true);
                     }
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
-                        $this->saveServiceFee($this->partner->type, $variant,true);
+                        $this->saveServiceFee($this->partner->type, $variant, true);
                     }
                 }
                 break;
@@ -565,7 +565,7 @@ class GenerateBalanceHistory
         switch ($this->delivery->type) {
             case Delivery::TYPE_TRANSIT:
                 if ($this->countDeliveryTransitOfPackage() === 1) {
-                    switch ($type){
+                    switch ($type) {
                         case Partner::TYPE_BUSINESS:
                             return Delivery::FEE_PERCENTAGE_BUSINESS;
                         case Partner::TYPE_SPACE:
@@ -654,9 +654,9 @@ class GenerateBalanceHistory
      */
     protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
-        if ($variant == '0'){
+        if ($variant == '0') {
             $balance_service = $this->package->total_amount * $this->getServiceFee($type);
-        }else{
+        } else {
             $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
         $this
