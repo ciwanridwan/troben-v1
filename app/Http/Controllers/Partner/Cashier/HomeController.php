@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Partner\Cashier;
 
+use App\Http\Resources\Account\UserResource;
 use App\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class HomeController extends Controller
 {
@@ -86,9 +88,14 @@ class HomeController extends Controller
 
     public function packageChecked(Package $package, Request $request)
     {
-        dd($request->discount);
         event(new PackageCheckedByCashier($package));
         return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    public function getUserInfo(Request $request)
+    {
+        $account = $request->user();
+        return $this->jsonSuccess(new UserResource($account));
     }
 
     public function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse
