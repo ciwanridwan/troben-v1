@@ -55,7 +55,7 @@ class HomeRoute extends BaseRoute
             'uses' => $this->uses('cancel'),
         ]);
 
-        $this->router->getUserInfo($this->prefix('getUserInfo'), [
+        $this->router->get($this->prefix('getUserInfo'), [
             'as' => $this->name('getUserInfo'),
             'uses' => $this->uses('getUserInfo'),
         ]);
