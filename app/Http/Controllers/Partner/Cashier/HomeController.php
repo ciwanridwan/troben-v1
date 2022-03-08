@@ -122,7 +122,7 @@ class HomeController extends Controller
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
-    public function check(float $fee_percentage, Package $package): float|int
+    public function check(float $fee_percentage, Package $package): float
     {
         $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
         return $service_price * $fee_percentage;
