@@ -93,7 +93,7 @@ class HomeController extends Controller
     public function packageChecked(Package $package, Request $request)
     {
         if ($request->has('discount')) {
-            switch ($request->user()->partners[0]['type']){
+            switch ($request->user()->partners[0]['type']) {
                 case Partner::TYPE_BUSINESS:
                     $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
                     break;
@@ -104,7 +104,7 @@ class HomeController extends Controller
                     $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
                     break;
             }
-            if ($request->discount > $check){
+            if ($request->discount > $check) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
