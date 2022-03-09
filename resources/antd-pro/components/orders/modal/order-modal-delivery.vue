@@ -18,29 +18,33 @@
             </a-col>
             <a-col :span="12">{{ currency(0) }} </a-col>
 
-            <a-col :span="12">
-              <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
-            </a-col>
-
-            <!--discount sebelum dikirim ke customer -->
-            <div v-if="checkedDiscount">
+            <div v-if="getStatus == 'estimated'">
               <a-col :span="12">
-                <span>Potongan Biaya Kirim</span>
-              </a-col>
-              <a-col :span="12">
-                <a-input
-                  type="number"
-                  v-model="discount"
-                  @change="localStorage"
-                  prefix="Rp"
-                />
+                <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
               </a-col>
 
               <!--discount sebelum dikirim ke customer -->
-              <a-col :span="12">
-                <span>Potongan Biaya Kirim</span>
-              </a-col>
-              <a-col :span="12">{{ discount }}</a-col>
+              <div v-if="checkedDiscount">
+                <a-col :span="12">
+                  <span>Potongan Biaya Kirim</span>
+                </a-col>
+                <a-col :span="12">
+                  <a-input
+                    type="number"
+                    v-model="discount"
+                    @change="localStorage"
+                    prefix="Rp"
+                  />
+                </a-col>
+
+                <div v-if="getStatus != 'estimated'">
+                  <!--discount sebelum dikirim ke customer -->
+                  <a-col :span="12">
+                    <span>Potongan Biaya Kirim</span>
+                  </a-col>
+                  <a-col :span="12">{{ discount }}</a-col>
+                </div>
+              </div>
             </div>
           </a-row>
           <a-divider />
@@ -96,6 +100,9 @@ export default {
     },
     isWalkin() {
       return this.package?.transporter_type;
+    },
+    getStatus() {
+      return this.package?.status;
     },
   },
   methods: {

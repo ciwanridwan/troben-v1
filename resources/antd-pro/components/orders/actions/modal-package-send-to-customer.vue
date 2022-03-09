@@ -77,7 +77,6 @@ export default {
         })
         .catch((error) => {
           this.onErrorResponse(error);
-          localStorage.removeItem("getDiscount");
         });
     },
   },
