@@ -655,12 +655,11 @@ class GenerateBalanceHistory
         if ($variant == '0') {
             $discount = 0;
             if ($this->package->prices->where('type', Price::TYPE_DISCOUNT)
-                ->where('description', Price::TYPE_SERVICE)->first()->amount){
+                ->where('description', Price::TYPE_SERVICE)->first()->amount) {
                 $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
                     ->where('description', Price::TYPE_SERVICE)->first()->amount;
             }
             $balance_service = $this->package->total_amount * $this->getServiceFee($type) - $discount;
-
         } else {
             $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
