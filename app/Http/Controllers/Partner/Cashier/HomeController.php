@@ -114,7 +114,7 @@ class HomeController extends Controller
             ]);
             $this->dispatch($job);
 
-            event(new PartnerCashierDiscount($package));
+//            event(new PartnerCashierDiscount($package));
         }
 
         event(new PackageCheckedByCashier($package));
