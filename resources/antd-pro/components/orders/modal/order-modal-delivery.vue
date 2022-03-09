@@ -18,19 +18,25 @@
             </a-col>
             <a-col :span="12">{{ currency(0) }} </a-col>
 
-            <!--discount sebelum dikirim ke customer -->
             <a-col :span="12">
-              <span>Potongan Biaya Kirim</span>
-            </a-col>
-            <a-col :span="12">
-              <a-input v-model="discount" prefix="Rp" />
+              <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
             </a-col>
 
             <!--discount sebelum dikirim ke customer -->
-            <a-col :span="12">
-              <span>Potongan Biaya Kirim</span>
-            </a-col>
-            <a-col :span="12">{{ currency(0) }} </a-col>
+            <div v-if="checkedDiscount">
+              <a-col :span="12">
+                <span>Potongan Biaya Kirim</span>
+              </a-col>
+              <a-col :span="12">
+                <a-input type="number" v-model="discount" prefix="Rp" />
+              </a-col>
+
+              <!--discount sebelum dikirim ke customer -->
+              <a-col :span="12">
+                <span>Potongan Biaya Kirim</span>
+              </a-col>
+              <a-col :span="12">{{ discount }}</a-col>
+            </div>
           </a-row>
           <a-divider />
           <a-row type="flex">
@@ -62,6 +68,8 @@ export default {
   data() {
     return {
       CarIcon,
+      checkedDiscount: false,
+      discount: 0,
     };
   },
   props: {
@@ -83,6 +91,11 @@ export default {
     },
     isWalkin() {
       return this.package?.transporter_type;
+    },
+  },
+  methods: {
+    onChange() {
+      this.checkedDiscount = !this.checkedDiscount;
     },
   },
 };

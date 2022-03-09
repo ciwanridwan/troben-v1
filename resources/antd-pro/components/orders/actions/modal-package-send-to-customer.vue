@@ -1,5 +1,10 @@
 <template>
-  <order-modal :package="package" @change="onChange" :modifiable="modifiable" v-model="visible">
+  <order-modal
+    :package="package"
+    @change="onChange"
+    :modifiable="modifiable"
+    v-model="visible"
+  >
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">
         {{ triggerText }}
@@ -8,7 +13,12 @@
     <template slot="footer">
       <a-row type="flex" justify="end">
         <a-col :span="12">
-          <a-button type="success" class="trawl-button-success" block @click="onSubmit">
+          <a-button
+            type="success"
+            class="trawl-button-success"
+            block
+            @click="onSubmit"
+          >
             Kirim ke Pelanggan
           </a-button>
         </a-col>
@@ -52,6 +62,7 @@ export default {
         .patch(
           this.routeUri("partner.cashier.home.packageChecked", {
             package_hash: this.package?.hash,
+            discount: this.discount,
           })
         )
         .then(() => {
