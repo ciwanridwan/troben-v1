@@ -28,7 +28,12 @@
                 <span>Potongan Biaya Kirim</span>
               </a-col>
               <a-col :span="12">
-                <a-input type="number" v-model="discount" prefix="Rp" />
+                <a-input
+                  type="number"
+                  v-model="discount"
+                  @change="localStorage"
+                  prefix="Rp"
+                />
               </a-col>
 
               <!--discount sebelum dikirim ke customer -->
@@ -84,7 +89,7 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      return this.package?.total_amount;
+      return this.package?.total_amount - this.discount;
     },
     totalWeight() {
       return this.package?.total_weight;
@@ -96,6 +101,9 @@ export default {
   methods: {
     onChange() {
       this.checkedDiscount = !this.checkedDiscount;
+    },
+    localStorage() {
+      localStorage.setItem("getDiscount", this.discount);
     },
   },
 };

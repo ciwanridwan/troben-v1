@@ -58,21 +58,27 @@ export default {
       this.$emit("change");
     },
     onSubmit() {
+      let url = this.routeUri("partner.cashier.home.packageChecked", {
+        package_hash: this.package?.hash,
+      });
+
+      if (localStorage.getItem("getDiscount") > 0) {
+        url += `?discount=${localStorage.getItem("getDiscount")}`;
+      }
       this.$http
-        .patch(
-          this.routeUri("partner.cashier.home.packageChecked", {
-            package_hash: this.package?.hash,
-            discount: this.discount,
-          })
-        )
+        .patch(url)
         .then(() => {
           this.$notification.success({
             message: "Berhasil kirim ke customer",
           });
           this.visible = false;
           this.$emit("submit");
+          localStorage.removeItem("getDiscount");
         })
-        .catch((error) => this.onErrorResponse(error));
+        .catch((error) => {
+          this.onErrorResponse(error);
+          localStorage.removeItem("getDiscount");
+        });
     },
   },
 };
