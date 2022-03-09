@@ -76,6 +76,9 @@ class Delivery extends Model
     public const AS_DESTINATION = 'destination';
 
     public const FEE_MAIN = 500;
+    public const FEE_PERCENTAGE_BUSINESS = 0.3;
+    public const FEE_PERCENTAGE_SPACE = 0.2;
+    public const FEE_PERCENTAGE_POS = 0.15;
     public const FEE_JABODETABEK = 200;
     public const FEE_NON_JABODETABEK = 250;
 

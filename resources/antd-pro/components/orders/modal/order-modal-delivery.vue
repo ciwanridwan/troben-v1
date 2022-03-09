@@ -4,7 +4,7 @@
     <template slot="content">
       <a-row type="flex">
         <a-col :span="12">
-          <h3 v-if="! isWalkin">Walk-in Order</h3>
+          <h3 v-if="!isWalkin">Walk-in Order</h3>
           <h3 v-if="isWalkin">Armada Penjemputan</h3>
           <a-space v-if="isWalkin">
             <a-icon :component="CarIcon" :style="{ 'font-size': '2rem' }" />
@@ -17,6 +17,35 @@
               <span>Biaya Penjemputan</span>
             </a-col>
             <a-col :span="12">{{ currency(0) }} </a-col>
+
+            <div v-if="getStatus == 'estimated'">
+              <a-col :span="12">
+                <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
+              </a-col>
+
+              <!--discount sebelum dikirim ke customer -->
+              <div v-if="checkedDiscount">
+                <a-col :span="12">
+                  <span>Potongan Biaya Kirim</span>
+                </a-col>
+                <a-col :span="12">
+                  <a-input
+                    type="number"
+                    v-model="discount"
+                    @change="localStorage"
+                    prefix="Rp"
+                  />
+                </a-col>
+
+                <div v-if="getStatus != 'estimated'">
+                  <!--discount sebelum dikirim ke customer -->
+                  <a-col :span="12">
+                    <span>Potongan Biaya Kirim</span>
+                  </a-col>
+                  <a-col :span="12">{{ discount }}</a-col>
+                </div>
+              </div>
+            </div>
           </a-row>
           <a-divider />
           <a-row type="flex">
@@ -48,6 +77,8 @@ export default {
   data() {
     return {
       CarIcon,
+      checkedDiscount: false,
+      discount: 0,
     };
   },
   props: {
@@ -62,14 +93,25 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      return this.package?.total_amount;
+      return this.package?.total_amount - this.discount;
     },
     totalWeight() {
       return this.package?.total_weight;
     },
     isWalkin() {
       return this.package?.transporter_type;
-    }
+    },
+    getStatus() {
+      return this.package?.status;
+    },
+  },
+  methods: {
+    onChange() {
+      this.checkedDiscount = !this.checkedDiscount;
+    },
+    localStorage() {
+      localStorage.setItem("getDiscount", this.discount);
+    },
   },
 };
 </script>

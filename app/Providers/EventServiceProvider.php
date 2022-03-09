@@ -12,6 +12,7 @@ use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Events\Partners\Balance\WithdrawalSuccess;
+use App\Events\Partners\PartnerCashierDiscount;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Promo\PromotionClaimed;
@@ -73,6 +74,10 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         PromotionClaimed::class => [
+            GeneratePackagePrices::class,
+            WriteCodeLog::class
+        ],
+        PartnerCashierDiscount::class => [
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],

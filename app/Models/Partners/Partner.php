@@ -74,6 +74,7 @@ class Partner extends Model
     public const TYPE_BUSINESS = 'business'; // bisa order dari application.
     public const TYPE_POOL = 'pool';
     public const TYPE_SPACE = 'space';
+    public const TYPE_POS = 'pos';
     public const TYPE_TRANSPORTER = 'transporter';
     public const CODE_TYPE_BUSINESS = 'MB'; // bisa order dari application.
     public const CODE_TYPE_POOL = 'MPW';

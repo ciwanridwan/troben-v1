@@ -55,7 +55,10 @@
                 <span slot="phone">{{ record.receiver_phone }}</span>
                 <span slot="address">{{ record.receiver_address }}</span>
               </address-component>
-              <order-estimation v-if="this.record.charge_price_note.notes" :note="this.record.charge_price_note"></order-estimation>
+              <order-estimation
+                v-if="this.record.charge_price_note.notes"
+                :note="this.record.charge_price_note"
+              ></order-estimation>
             </a-col>
             <a-col :span="8">
               <a-empty description="" :class="['full-width']"></a-empty>
@@ -114,9 +117,7 @@
             </a-col>
             <a-col :span="12">
               <a-row type="flex">
-                <a-col :span="16">
-                  Biaya Penjemputan
-                </a-col>
+                <a-col :span="16"> Biaya Penjemputan </a-col>
                 <a-col :span="8">
                   {{ currency(0) }}
                 </a-col>
@@ -162,7 +163,7 @@ import {
   CarIcon,
   TrawlRedIcon,
   SendIcon,
-  ReceiveIcon
+  ReceiveIcon,
 } from "../../../../components/icons";
 import DeliveryIcon from "../../../../components/icons/deliveryIcon.vue";
 import OrderDeliveryEstimation from "../../../../components/orders/order-delivery-estimation.vue";
@@ -185,7 +186,7 @@ export default {
     ReceiveIcon,
     AddressComponent,
     DeliveryIcon,
-    OrderEstimation
+    OrderEstimation,
   },
   props: {
     // triggerText: {
@@ -194,17 +195,17 @@ export default {
     // },
     record: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     sendButton: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       visible: false,
-      iconSize: 2
+      iconSize: 2,
     };
   },
   methods: {
@@ -218,7 +219,7 @@ export default {
     async sendToCustomer() {
       let response = await this.$http.patch(
         this.routeUri("partner.cashier.home.packageChecked", {
-          package_hash: this.record.hash
+          package_hash: this.record.hash,
         })
       );
     },
@@ -227,17 +228,17 @@ export default {
         .delete(
           this.routeUri("partner.cashier.home.deletePackageItem", {
             item_hash: item_hash,
-            package_hash: record_hash
+            package_hash: record_hash,
           })
         )
-        .then(resp => {
+        .then((resp) => {
           let index = _.findIndex(this.record.items, { hash: item_hash });
           this.record.items.splice(index, 1);
         });
     },
     show() {
       this.visible = true;
-    }
+    },
   },
   computed: {
     triggerText() {
@@ -249,7 +250,7 @@ export default {
         default:
           return "Cek";
       }
-    }
-  }
+    },
+  },
 };
 </script>

@@ -1,5 +1,10 @@
 <template>
-  <order-modal :package="package" @change="onChange" :modifiable="modifiable" v-model="visible">
+  <order-modal
+    :package="package"
+    @change="onChange"
+    :modifiable="modifiable"
+    v-model="visible"
+  >
     <template slot="trigger">
       <a-button type="success" class="trawl-button-success">
         {{ triggerText }}
@@ -8,7 +13,12 @@
     <template slot="footer">
       <a-row type="flex" justify="end">
         <a-col :span="12">
-          <a-button type="success" class="trawl-button-success" block @click="onSubmit">
+          <a-button
+            type="success"
+            class="trawl-button-success"
+            block
+            @click="onSubmit"
+          >
             Kirim ke Pelanggan
           </a-button>
         </a-col>
@@ -48,20 +58,26 @@ export default {
       this.$emit("change");
     },
     onSubmit() {
+      let url = this.routeUri("partner.cashier.home.packageChecked", {
+        package_hash: this.package?.hash,
+      });
+
+      if (localStorage.getItem("getDiscount") > 0) {
+        url += `?discount=${localStorage.getItem("getDiscount")}`;
+      }
       this.$http
-        .patch(
-          this.routeUri("partner.cashier.home.packageChecked", {
-            package_hash: this.package?.hash,
-          })
-        )
+        .patch(url)
         .then(() => {
           this.$notification.success({
             message: "Berhasil kirim ke customer",
           });
           this.visible = false;
           this.$emit("submit");
+          localStorage.removeItem("getDiscount");
         })
-        .catch((error) => this.onErrorResponse(error));
+        .catch((error) => {
+          this.onErrorResponse(error);
+        });
     },
   },
 };
