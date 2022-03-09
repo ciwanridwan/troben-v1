@@ -174,8 +174,6 @@ class GenerateBalanceHistory
                     if ($this->countDeliveryTransitOfPackage() === 1) {
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
-                            // KONTOOOL
-                            // KONTOOOL
                             $variant = '0';
                             $this->saveServiceFee($this->partner->type, $variant);
                         }
@@ -655,7 +653,14 @@ class GenerateBalanceHistory
     protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
         if ($variant == '0') {
-            $balance_service = $this->package->total_amount * $this->getServiceFee($type);
+            $discount = 0;
+            if ($this->package->prices->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_SERVICE)->first()->amount){
+                $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
+                    ->where('description', Price::TYPE_SERVICE)->first()->amount;
+            }
+            $balance_service = $this->package->total_amount * $this->getServiceFee($type) - $discount;
+
         } else {
             $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
