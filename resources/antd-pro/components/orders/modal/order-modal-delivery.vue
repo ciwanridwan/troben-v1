@@ -13,17 +13,17 @@
         </a-col>
         <a-col :span="12">
           <a-row type="flex">
-<!--            <a-col :span="12">-->
-<!--              <span>Biaya Penjemputan</span>-->
-<!--            </a-col>-->
-<!--            <a-col :span="12">{{ currency(0) }} </a-col>-->
+            <!--            <a-col :span="12">-->
+            <!--              <span>Biaya Penjemputan</span>-->
+            <!--            </a-col>-->
+            <!--            <a-col :span="12">{{ currency(0) }} </a-col>-->
 
-<!--            <div v-if="getPaymentStatus == 'paid'">-->
-<!--              <a-col :span="12">-->
-<!--                <span>Biaya Admin</span>-->
-<!--              </a-col>-->
-<!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
-<!--            </div>-->
+            <!--            <div v-if="getPaymentStatus == 'paid'">-->
+            <!--              <a-col :span="12">-->
+            <!--                <span>Biaya Admin</span>-->
+            <!--              </a-col>-->
+            <!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
+            <!--            </div>-->
             <div v-if="getStatus == 'estimated'">
               <a-col :span="12">
                 <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
@@ -31,10 +31,10 @@
 
               <!--discount sebelum dikirim ke customer -->
               <div v-if="checkedDiscount">
-                <a-col :span="12">
+                <a-col v-if="checkedDiscount" :span="12">
                   <span>Potongan Biaya Kirim</span>
                 </a-col>
-                <a-col :span="12">
+                <a-col v-if="checkedDiscount" :span="12">
                   <a-input
                     type="number"
                     v-model="discount"
@@ -43,17 +43,17 @@
                   />
                 </a-col>
 
-                <div v-if="getStatus != 'estimated'">
-                  <!--discount sebelum dikirim ke customer -->
-                  <a-col :span="12">
-                    <span>Potongan Biaya Kirim</span>
-                  </a-col>
-                  <a-col :span="12">{{ discount }}</a-col>
-                </div>
+                <!--discount sebelum dikirim ke customer -->
+                <a-col v-if="getStatus != 'estimated'" :span="12">
+                  <span>Potongan Biaya Kirim</span>
+                </a-col>
+                <a-col v-if="getStatus != 'estimated'" :span="12">{{
+                  discount
+                }}</a-col>
               </div>
             </div>
           </a-row>
-<!--          <a-divider />-->
+          <!--          <a-divider />-->
           <a-row type="flex">
             <a-col :span="12">
               <span class="trawl-text-bolder"> Total Charge Weight </span>
@@ -66,7 +66,7 @@
             </a-col>
             <a-col :span="12">
               <span class="trawl-text-bolder">
-                {{ currency(totalAmount + bankCharge) }}
+                {{ currency(totalAmount) }}
               </span>
             </a-col>
           </a-row>
@@ -84,14 +84,14 @@ export default {
     return {
       CarIcon,
       checkedDiscount: false,
-      discount: 0,
+      discount: 0
     };
   },
   props: {
     package: {
       type: Object,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   components: { orderModalRowLayout },
   computed: {
@@ -99,7 +99,8 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      return this.package?.total_amount - this.discount;
+
+      return (this.package?.total_amount - this.discount) + this.bankCharge;
     },
     totalWeight() {
       return this.package?.total_weight;
@@ -115,7 +116,7 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
-    },
+    }
   },
   methods: {
     onChange() {
@@ -123,7 +124,7 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
-    },
-  },
+    }
+  }
 };
 </script>

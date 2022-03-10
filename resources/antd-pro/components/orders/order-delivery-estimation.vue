@@ -83,8 +83,8 @@
           {{ currency(total_weight * tierPrice) }}
         </a-col>
 
-        <a-col :span="leftColumn"> Bank Charge </a-col>
-        <a-col :span="rightColumn" class="trawl-text-right">
+        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>
+        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">
           {{ currency(bankCharge) }}
         </a-col>
 
@@ -96,7 +96,7 @@
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(subTotalPrice + bankCharge) }}
+          {{ currency(subTotalPrice) }}
         </a-col>
       </a-row>
     </a-card>
@@ -113,31 +113,32 @@ import {
   getServicePrice,
   getTierPrice,
   getSubTotalItems,
-  getHandlings,
+  getHandlings
 } from "../../functions/orders";
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
     package: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     leftColumn: {
       type: Number,
-      default: 16,
+      default: 16
     },
     rightColumn: {
       type: Number,
-      default: 8,
+      default: 8
     },
     price: {
       type: Object,
-      default: () => null,
-    },
+      default: () => null
+    }
   },
   data() {
     return {
       handlings,
+      isBankCharge: true
     };
   },
   computed: {
@@ -160,7 +161,13 @@ export default {
       return this.package?.total_amount;
     },
     bankCharge() {
-      return this.package?.payments[0].payment_admin_charges ;
+      if (this.package?.payments.length === 0) {
+        this.isBankCharge = false;
+        return;
+      } else {
+        this.isBankCharge = true;
+        return this.package?.payments[0].payment_admin_charges;
+      }
     },
     serviceDiscount() {
       return this.package?.prices[0].amount;
@@ -170,7 +177,7 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
-    },
+    }
   },
   methods: {
     getHandlingPrice,
@@ -178,7 +185,7 @@ export default {
     getServicePrice,
     getTierPrice,
     getSubTotalItems,
-    getHandlings,
-  },
+    getHandlings
+  }
 };
 </script>
