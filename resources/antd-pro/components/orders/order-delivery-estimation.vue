@@ -90,7 +90,7 @@
 
         <a-col :span="leftColumn"> Diskon Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(bankCharge) }}
+          {{ currency(serviceDiscount) }}
         </a-col>
 
         <a-divider />
@@ -170,7 +170,7 @@ export default {
       }
     },
     serviceDiscount() {
-      return this.package?.prices[0].amount;
+      return this.package?.discount_service_price;
     },
     total_weight() {
       return this.package?.total_weight;

@@ -52,7 +52,7 @@
               <span>Potongan Biaya Kirim</span>
             </a-col>
             <a-col v-if="getStatus != 'estimated'" :span="12">{{
-              discount
+                serviceDiscount
             }}</a-col>
           </a-row>
           <!--          <a-divider />-->
@@ -116,6 +116,9 @@ export default {
     },
     getStatus() {
       return this.package?.status;
+    },
+    serviceDiscount() {
+      return this.package?.discount_service_price;
     },
     getPaymentStatus() {
       return this.package?.payment_status;
