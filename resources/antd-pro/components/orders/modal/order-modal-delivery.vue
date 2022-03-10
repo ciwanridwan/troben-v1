@@ -13,11 +13,17 @@
         </a-col>
         <a-col :span="12">
           <a-row type="flex">
-            <a-col :span="12">
-              <span>Biaya Penjemputan</span>
-            </a-col>
-            <a-col :span="12">{{ currency(0) }} </a-col>
+<!--            <a-col :span="12">-->
+<!--              <span>Biaya Penjemputan</span>-->
+<!--            </a-col>-->
+<!--            <a-col :span="12">{{ currency(0) }} </a-col>-->
 
+<!--            <div v-if="getPaymentStatus == 'paid'">-->
+<!--              <a-col :span="12">-->
+<!--                <span>Biaya Admin</span>-->
+<!--              </a-col>-->
+<!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
+<!--            </div>-->
             <div v-if="getStatus == 'estimated'">
               <a-col :span="12">
                 <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
@@ -47,7 +53,7 @@
               </div>
             </div>
           </a-row>
-          <a-divider />
+<!--          <a-divider />-->
           <a-row type="flex">
             <a-col :span="12">
               <span class="trawl-text-bolder"> Total Charge Weight </span>
@@ -60,7 +66,7 @@
             </a-col>
             <a-col :span="12">
               <span class="trawl-text-bolder">
-                {{ currency(totalAmount) }}
+                {{ currency(totalAmount + bankCharge) }}
               </span>
             </a-col>
           </a-row>
@@ -98,11 +104,17 @@ export default {
     totalWeight() {
       return this.package?.total_weight;
     },
+    bankCharge() {
+      return this.package?.payments[0].payment_admin_charges;
+    },
     isWalkin() {
       return this.package?.transporter_type;
     },
     getStatus() {
       return this.package?.status;
+    },
+    getPaymentStatus() {
+      return this.package?.payment_status;
     },
   },
   methods: {

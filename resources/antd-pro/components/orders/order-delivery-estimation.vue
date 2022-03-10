@@ -83,9 +83,20 @@
           {{ currency(total_weight * tierPrice) }}
         </a-col>
 
+        <a-col :span="leftColumn"> Bank Charge </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(bankCharge) }}
+        </a-col>
+
+        <a-col :span="leftColumn"> Diskon Biaya Kirim </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(bankCharge) }}
+        </a-col>
+
+        <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(subTotalPrice) }}
+          {{ currency(subTotalPrice + bankCharge) }}
         </a-col>
       </a-row>
     </a-card>
@@ -148,8 +159,17 @@ export default {
     subTotalPrice() {
       return this.package?.total_amount;
     },
+    bankCharge() {
+      return this.package?.payments[0].payment_admin_charges ;
+    },
+    serviceDiscount() {
+      return this.package?.prices[0].amount;
+    },
     total_weight() {
       return this.package?.total_weight;
+    },
+    getPaymentStatus() {
+      return this.package?.payment_status;
     },
   },
   methods: {
