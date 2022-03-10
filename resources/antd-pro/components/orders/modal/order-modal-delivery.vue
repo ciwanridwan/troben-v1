@@ -101,7 +101,14 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      return (this.package?.total_amount - this.serviceDiscount) + this.bankCharge;
+      if (this.packageStatus != 'draft'){
+        return (this.package?.total_amount + this.serviceDiscount - this.serviceDiscount) + this.bankCharge;
+      } else {
+        return (this.package?.total_amount - this.serviceDiscount) + this.bankCharge;
+      }
+    },
+    packageStatus() {
+      return this.package?.status;
     },
     totalWeight() {
       return this.package?.total_weight;

@@ -158,7 +158,11 @@ export default {
       return this.package?.service_price;
     },
     subTotalPrice() {
-      return this.package?.total_amount;
+      if (this.packageStatus != 'draft'){
+        return this.package?.total_amount + this.serviceDiscount;
+      } else {
+        return this.package?.total_amount ;
+      }
     },
     bankCharge() {
       if (this.package?.payments.length === 0) {
@@ -168,6 +172,9 @@ export default {
         this.isBankCharge = true;
         return this.package?.payments[0].payment_admin_charges;
       }
+    },
+    packageStatus() {
+      return this.package?.status;
     },
     serviceDiscount() {
       return this.package?.discount_service_price;
