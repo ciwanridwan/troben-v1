@@ -24,34 +24,36 @@
             <!--              </a-col>-->
             <!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
             <!--            </div>-->
-            <div v-if="getStatus == 'estimated'">
-              <a-col :span="12">
-                <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
-              </a-col>
+            <a-col v-if="getStatus == 'estimated'" :span="24">
+              <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
+            </a-col>
 
-              <!--discount sebelum dikirim ke customer -->
-              <div v-if="checkedDiscount">
-                <a-col v-if="checkedDiscount" :span="12">
-                  <span>Potongan Biaya Kirim</span>
-                </a-col>
-                <a-col v-if="checkedDiscount" :span="12">
-                  <a-input
-                    type="number"
-                    v-model="discount"
-                    @change="localStorage"
-                    prefix="Rp"
-                  />
-                </a-col>
+            <!--discount sebelum dikirim ke customer -->
+            <a-col
+              v-if="checkedDiscount && getStatus == 'estimated'"
+              :span="12"
+            >
+              <span>Potongan Biaya Kirim</span>
+            </a-col>
+            <a-col
+              v-if="checkedDiscount && getStatus == 'estimated'"
+              :span="12"
+            >
+              <a-input
+                type="number"
+                v-model="discount"
+                @change="localStorage"
+                prefix="Rp"
+              />
+            </a-col>
 
-                <!--discount sebelum dikirim ke customer -->
-                <a-col v-if="getStatus != 'estimated'" :span="12">
-                  <span>Potongan Biaya Kirim</span>
-                </a-col>
-                <a-col v-if="getStatus != 'estimated'" :span="12">{{
-                  discount
-                }}</a-col>
-              </div>
-            </div>
+            <!--discount sebelum dikirim ke customer -->
+            <a-col v-if="getStatus != 'estimated'" :span="12">
+              <span>Potongan Biaya Kirim</span>
+            </a-col>
+            <a-col v-if="getStatus != 'estimated'" :span="12">{{
+              discount
+            }}</a-col>
           </a-row>
           <!--          <a-divider />-->
           <a-row type="flex">
@@ -99,14 +101,15 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-
-      return (this.package?.total_amount - this.discount) + this.bankCharge;
+      return this.package?.total_amount - this.discount + this.bankCharge;
     },
     totalWeight() {
       return this.package?.total_weight;
     },
     bankCharge() {
-      return this.package?.payments[0].payment_admin_charges;
+      return this.package?.payments[0]
+        ? this.package?.payments[0].payment_admin_charges
+        : 0;
     },
     isWalkin() {
       return this.package?.transporter_type;
