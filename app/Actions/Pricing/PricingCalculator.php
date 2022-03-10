@@ -75,7 +75,7 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
-    public static function getPackageTotalAmount(Package $package)
+    public static function getPackageTotalAmount(Package $package, bool $is_approved = false )
     {
         if (! $package->relationLoaded('items.prices')) {
             $package->load('items.prices');
@@ -96,7 +96,11 @@ class PricingCalculator
         $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
-        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+        if ($is_approved == true){
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+        }else{
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price;
+        }
 
         if ($package->claimed_promotion != null) {
             $promo = $package->load('claimed_promotion');

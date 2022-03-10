@@ -33,7 +33,7 @@
               v-if="checkedDiscount && getStatus == 'estimated'"
               :span="12"
             >
-              <span>Potongan Biaya Kirim</span>
+              <span>Diskon Pengiriman</span>
             </a-col>
             <a-col
               v-if="checkedDiscount && getStatus == 'estimated'"
@@ -49,10 +49,10 @@
 
             <!--discount sebelum dikirim ke customer -->
             <a-col v-if="getStatus != 'estimated'" :span="12">
-              <span>Potongan Biaya Kirim</span>
+              <span>Diskon Pengiriman</span>
             </a-col>
             <a-col v-if="getStatus != 'estimated'" :span="12">{{
-                serviceDiscount
+                currency(serviceDiscount)
             }}</a-col>
           </a-row>
           <!--          <a-divider />-->

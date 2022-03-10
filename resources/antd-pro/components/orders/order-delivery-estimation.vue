@@ -88,7 +88,7 @@
           {{ currency(bankCharge) }}
         </a-col>
 
-        <a-col :span="leftColumn"> Diskon Biaya Kirim </a-col>
+        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(serviceDiscount) }}
         </a-col>
