@@ -101,7 +101,7 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      return this.package?.total_amount - this.discount + this.bankCharge;
+      return (this.package?.total_amount - this.serviceDiscount) + this.bankCharge;
     },
     totalWeight() {
       return this.package?.total_weight;
