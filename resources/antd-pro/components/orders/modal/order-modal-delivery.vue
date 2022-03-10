@@ -47,26 +47,38 @@
               />
             </a-col>
 
+            <a-col :span="16">
+              <span> Biaya Penjemputan</span>
+            </a-col>
+            <a-col :span="8">
+              <span> {{ currency(0) }} </span>
+            </a-col>
+            <a-col :span="16">
+              <span> Biaya Admin (VA)</span>
+            </a-col>
+            <a-col :span="8">
+              <span> {{ currency(bankCharge) }} </span>
+            </a-col>
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="getStatus != 'estimated'" :span="12">
+            <a-col v-if="getStatus != 'estimated'" :span="16">
               <span>Diskon Pengiriman</span>
             </a-col>
-            <a-col v-if="getStatus != 'estimated'" :span="12">{{
-                currency(serviceDiscount)
-            }}</a-col>
+            <a-col v-if="getStatus != 'estimated'" :span="8">
+              {{ currency(serviceDiscount) }}
+            </a-col>
           </a-row>
-          <!--          <a-divider />-->
+          <a-divider />
           <a-row type="flex">
-            <a-col :span="12">
+            <a-col :span="16">
               <span class="trawl-text-bolder"> Total Charge Weight </span>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="8">
               <span class="trawl-text-bolder"> {{ totalWeight }} Kg </span>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="16">
               <span class="trawl-text-bolder"> Total Biaya </span>
             </a-col>
-            <a-col :span="12">
+            <a-col :span="8">
               <span class="trawl-text-bolder">
                 {{ currency(totalAmount) }}
               </span>
@@ -86,7 +98,7 @@ export default {
     return {
       CarIcon,
       checkedDiscount: false,
-      discount: 0
+      discount: 0,
     };
   },
   props: {

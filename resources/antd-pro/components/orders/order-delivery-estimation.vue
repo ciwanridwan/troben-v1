@@ -83,10 +83,10 @@
           {{ currency(total_weight * tierPrice) }}
         </a-col>
 
-        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>
-        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">
-          {{ currency(bankCharge) }}
-        </a-col>
+<!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
+<!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
+<!--          {{ currency(bankCharge) }}-->
+<!--        </a-col>-->
 
 <!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
 <!--        <a-col :span="rightColumn" class="trawl-text-right">-->
@@ -124,11 +124,11 @@ export default {
     },
     leftColumn: {
       type: Number,
-      default: 16
+      default: 15
     },
     rightColumn: {
       type: Number,
-      default: 8
+      default: 9
     },
     price: {
       type: Object,
