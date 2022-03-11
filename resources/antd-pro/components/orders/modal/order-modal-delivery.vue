@@ -24,19 +24,16 @@
             <!--              </a-col>-->
             <!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
             <!--            </div>-->
-            <a-col v-if="getStatus == 'estimated'" :span="24">
+            <a-col v-if="getStatus == 'estimated' || getStatus == 'revamp'" :span="24">
               <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
             </a-col>
 
             <!--discount sebelum dikirim ke customer -->
-            <a-col
-              v-if="checkedDiscount && getStatus == 'estimated'"
-              :span="12"
-            >
+            <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
               <span>Diskon Pengiriman</span>
             </a-col>
             <a-col
-              v-if="checkedDiscount && getStatus == 'estimated'"
+              v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')"
               :span="12"
             >
               <a-input
@@ -53,17 +50,17 @@
             <a-col :span="8">
               <span> {{ currency(0) }} </span>
             </a-col>
-            <a-col :span="16">
-              <span> Biaya Admin (VA)</span>
+            <a-col v-if="getPaymentStatus != 'draft'" :span="16">
+              <span> Biaya Admin</span>
             </a-col>
-            <a-col :span="8">
+            <a-col v-if="getPaymentStatus != 'draft'" :span="8">
               <span> {{ currency(bankCharge) }} </span>
             </a-col>
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="getStatus != 'estimated'" :span="16">
+            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="16">
               <span>Diskon Pengiriman</span>
             </a-col>
-            <a-col v-if="getStatus != 'estimated'" :span="8">
+            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="8">
               {{ currency(serviceDiscount) }}
             </a-col>
           </a-row>
@@ -113,11 +110,15 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-      if (this.packageStatus != 'draft'){
-        return (this.package?.total_amount + this.serviceDiscount - this.serviceDiscount) + this.bankCharge;
-      } else {
-        return (this.package?.total_amount - this.serviceDiscount) + this.bankCharge;
-      }
+
+
+      return this.package?.total_amount + this.bankCharge - this.discount ;
+
+      // if (this.packageStatus == 'draft'){
+      //   return this.package?.total_amount + this.bankCharge - this.discount ;
+      // } else {
+      //   return this.package?.total_amount + this.serviceDiscount + this.bankCharge - this.serviceDiscount;
+      // }
     },
     packageStatus() {
       return this.package?.status;

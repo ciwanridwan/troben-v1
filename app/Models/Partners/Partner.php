@@ -173,6 +173,7 @@ class Partner extends Model
             self::TYPE_POOL,
             self::TYPE_SPACE,
             self::TYPE_TRANSPORTER,
+            self::TYPE_POS,
         ];
     }
     public static function getAvailableCodeTypes(): array
