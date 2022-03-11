@@ -254,7 +254,7 @@ class OrderController extends Controller
             $this->dispatchNow($job);
         }
         event(new PackageApprovedByCustomer($package));
-        event(new PartnerCashierDiscount($package));
+//        event(new PartnerCashierDiscount($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
