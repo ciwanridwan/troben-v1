@@ -44,7 +44,7 @@
           :gutter="[64, 10]"
         >
           <a-col :class="['trawl-border-right']" :span="12">
-            <h3>Hari ini terdapat</h3>
+            <h3>Jumlah total resi</h3>
             <h2>
               <b>{{ items.total }} Order</b>
             </h2>
@@ -52,8 +52,8 @@
           <a-col :span="12">
             <a-row type="flex" justify="space-between" align="middle">
               <a-col :span="12">
-                <h4>Jumlah total resi</h4>
-                <span><b>{{ items.total }}</b></span>
+<!--                <h4>Jumlah total resi</h4>-->
+<!--                <span><b>{{ items.total }}</b></span>-->
               </a-col>
 <!--              <a-col :span="4">-->
 <!--                <h4>Jml. Pendapatan:</h4>-->

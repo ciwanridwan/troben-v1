@@ -69,7 +69,7 @@ class PaymentController extends Controller
 
     public function dataRelation()
     {
-        $this->query->with(['histories.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
+        $this->query->with(['histories.partner', 'prices', 'payments', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
         return $this;
     }
 
@@ -95,7 +95,7 @@ class PaymentController extends Controller
     public function home(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->query->with(['histories', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
+            $this->query->with(['histories', 'prices', 'payments', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
             if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
@@ -117,7 +117,7 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->query->with(['histories', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
+            $this->query->with(['histories', 'prices', 'payments', 'historyBusiness.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
             if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
@@ -203,7 +203,7 @@ class PaymentController extends Controller
     public function getIncomeMPW(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->query->with(['historyPool.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
+            $this->query->with(['historyPool.partner', 'items', 'prices', 'payments', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
             if ($request->q != null) {
                 $this->getSearchPackage($request);
             }
@@ -226,7 +226,7 @@ class PaymentController extends Controller
     public function getIncomeSpace(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->query->with(['historySpace.partner', 'items', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
+            $this->query->with(['historySpace.partner', 'items', 'prices', 'payments', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'attachments']);
 
             if ($request->q != null) {
                 $this->getSearchPackage($request);
