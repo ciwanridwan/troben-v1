@@ -103,6 +103,12 @@ class HomeController extends Controller
                 case Partner::TYPE_POS:
                     $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
                     break;
+                case Partner::TYPE_HEADSALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                    break;
+                case Partner::TYPE_SALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
+                    break;
             }
             if ($request->discount > $check) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();

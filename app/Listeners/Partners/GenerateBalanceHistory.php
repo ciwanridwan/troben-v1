@@ -570,6 +570,10 @@ class GenerateBalanceHistory
                             return Delivery::FEE_PERCENTAGE_SPACE;
                         case Partner::TYPE_POS:
                             return Delivery::FEE_PERCENTAGE_POS;
+                        case Partner::TYPE_HEADSALES:
+                            return Delivery::FEE_PERCENTAGE_HEADSALES;
+                        case Partner::TYPE_SALES:
+                            return Delivery::FEE_PERCENTAGE_SALES;
                     }
                 } else {
                     return $this->getFeeByAreal();
