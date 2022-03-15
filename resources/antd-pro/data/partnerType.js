@@ -3,8 +3,8 @@ const TYPE_POOL = "pool";
 const TYPE_SPACE = "space";
 const TYPE_TRANSPORTER = "transporter";
 const TYPE_POS = "pos";
-const TYPE_HO_HS = "HO-HS";
-const TYPE_HO_SALES = "HO-Sales";
+const TYPE_HO_HS = "ho-hs";
+const TYPE_HO_SALES = "ho-sales";
 
 const types = [
   {
