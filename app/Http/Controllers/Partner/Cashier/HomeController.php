@@ -61,8 +61,9 @@ class HomeController extends Controller
             $this->query->whereHas('code', function ($query) use ($request) {
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
-
             $this->attributes = $request->validate($this->rules);
+
+            $this->query->orderBy('created_at', 'desc');
             $this->getResource();
 
 
