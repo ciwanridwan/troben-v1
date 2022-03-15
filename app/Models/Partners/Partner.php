@@ -82,6 +82,9 @@ class Partner extends Model
     public const CODE_TYPE_POOL = 'MPW';
     public const CODE_TYPE_SPACE = 'MS';
     public const CODE_TYPE_TRANSPORTER = 'MTM';
+    public const CODE_TYPE_POS = 'MS';
+    public const CODE_TYPE_HEADSALES = 'MHOHS';
+    public const CODE_TYPE_SALES = 'MHOSL';
 
     /**
      * The table associated with the model.
@@ -187,9 +190,9 @@ class Partner extends Model
             self::TYPE_POOL => self::CODE_TYPE_POOL,
             self::TYPE_SPACE => self::CODE_TYPE_SPACE,
             self::TYPE_TRANSPORTER => self::CODE_TYPE_TRANSPORTER,
-            self::TYPE_POS => self::CODE_TYPE_SPACE,
-            self::TYPE_HEADSALES => self::CODE_TYPE_TRANSPORTER,
-            self::TYPE_SALES => self::CODE_TYPE_TRANSPORTER,
+            self::TYPE_POS => self::CODE_TYPE_POS,
+            self::TYPE_HEADSALES => self::CODE_TYPE_HEADSALES,
+            self::TYPE_SALES => self::CODE_TYPE_SALES,
         ];
     }
 
