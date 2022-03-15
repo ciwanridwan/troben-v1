@@ -157,7 +157,14 @@ export default {
     },
     isTypeSpace() {
       return (
-        [TYPE_SPACE, TYPE_POOL, TYPE_BUSINESS].indexOf(this.form?.type) > -1
+        [
+          TYPE_SPACE,
+          TYPE_POOL,
+          TYPE_BUSINESS,
+          TYPE_POS,
+          TYPE_HO_HS,
+          TYPE_HO_SALES
+        ].indexOf(this.form?.type) > -1
       );
     },
     partner() {
