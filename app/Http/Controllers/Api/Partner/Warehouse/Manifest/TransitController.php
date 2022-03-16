@@ -72,6 +72,7 @@ class TransitController extends Controller
                 ->whereHas('delivery', function ($q) use ($repository) {
                     $q->where('partner_id', $repository->getPartner()->id);
                     $q->where('status', Delivery::STATUS_FINISHED);
+                    $q->orwhere('status', Delivery::STATUS_EN_ROUTE);
                 })
                 ->where('deliverable_id', $barang)
                 ->pluck('delivery_id')->toArray();

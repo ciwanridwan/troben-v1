@@ -49,7 +49,7 @@ class CreateNewDelivery
     public function handle(): void
     {
         $this->delivery->fill($this->attributes);
-
+        $this->delivery->created_by = auth()->user()->id;
         if ($this->partner) {
             $this->delivery->partner()->associate($this->partner);
         }

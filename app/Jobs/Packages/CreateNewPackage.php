@@ -4,6 +4,7 @@ namespace App\Jobs\Packages;
 
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
@@ -130,6 +131,7 @@ class CreateNewPackage
 
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
+        $this->package->created_by = User::USER_SYSTEM_ID;
         $this->package->save();
         Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
 
