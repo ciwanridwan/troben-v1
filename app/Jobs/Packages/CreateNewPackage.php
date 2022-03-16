@@ -4,7 +4,6 @@ namespace App\Jobs\Packages;
 
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
-use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
