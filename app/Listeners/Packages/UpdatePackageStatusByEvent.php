@@ -107,7 +107,7 @@ class UpdatePackageStatusByEvent
 
                     $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
                         ->where('description', PackagesPrice::TYPE_SERVICE)->first();
-                    if ($service_discount_price){
+                    if ($service_discount_price) {
                         $service_discount_price->delete();
                     }
                 }

@@ -2,7 +2,6 @@
 
 namespace App\Listeners\Packages;
 
-use App\Events\Packages\PackageCheckedByCashier;
 use App\Events\Partners\PartnerCashierDiscount;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
@@ -123,7 +122,7 @@ class GeneratePackagePrices
                 $this->dispatch($job);
             }
             $is_approved = false;
-            if ($event instanceof PartnerCashierDiscount){
+            if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
 
