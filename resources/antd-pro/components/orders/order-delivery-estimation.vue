@@ -83,6 +83,17 @@
           {{ currency(total_weight * tierPrice) }}
         </a-col>
 
+<!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
+<!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
+<!--          {{ currency(bankCharge) }}-->
+<!--        </a-col>-->
+
+<!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
+<!--        <a-col :span="rightColumn" class="trawl-text-right">-->
+<!--          {{ currency(serviceDiscount) }}-->
+<!--        </a-col>-->
+
+        <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(subTotalPrice) }}
@@ -102,31 +113,32 @@ import {
   getServicePrice,
   getTierPrice,
   getSubTotalItems,
-  getHandlings,
+  getHandlings
 } from "../../functions/orders";
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
     package: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     leftColumn: {
       type: Number,
-      default: 16,
+      default: 15
     },
     rightColumn: {
       type: Number,
-      default: 8,
+      default: 9
     },
     price: {
       type: Object,
-      default: () => null,
-    },
+      default: () => null
+    }
   },
   data() {
     return {
       handlings,
+      isBankCharge: true
     };
   },
   computed: {
@@ -146,11 +158,33 @@ export default {
       return this.package?.service_price;
     },
     subTotalPrice() {
-      return this.package?.total_amount;
+      if (this.packageStatus != 'draft'){
+        return this.package?.total_amount + this.serviceDiscount;
+      } else {
+        return this.package?.total_amount ;
+      }
+    },
+    bankCharge() {
+      if (this.package?.payments.length === 0) {
+        this.isBankCharge = false;
+        return;
+      } else {
+        this.isBankCharge = true;
+        return this.package?.payments[0].payment_admin_charges;
+      }
+    },
+    packageStatus() {
+      return this.package?.status;
+    },
+    serviceDiscount() {
+      return this.package?.discount_service_price;
     },
     total_weight() {
       return this.package?.total_weight;
     },
+    getPaymentStatus() {
+      return this.package?.payment_status;
+    }
   },
   methods: {
     getHandlingPrice,
@@ -158,7 +192,7 @@ export default {
     getServicePrice,
     getTierPrice,
     getSubTotalItems,
-    getHandlings,
-  },
+    getHandlings
+  }
 };
 </script>

@@ -90,7 +90,10 @@ import {
   TYPE_BUSINESS,
   TYPE_POOL,
   TYPE_SPACE,
-  TYPE_TRANSPORTER
+  TYPE_TRANSPORTER,
+  TYPE_POS,
+  TYPE_HO_HS,
+  TYPE_HO_SALES
 } from "../../../../data/partnerType";
 import PartnerFormType from "../../../../components/partners/form/partner-form-type.vue";
 import contentLayout from "../../../../layouts/content-layout.vue";
@@ -157,7 +160,14 @@ export default {
     },
     isTypeSpace() {
       return (
-        [TYPE_SPACE, TYPE_POOL, TYPE_BUSINESS].indexOf(this.form?.type) > -1
+        [
+          TYPE_SPACE,
+          TYPE_POOL,
+          TYPE_BUSINESS,
+          TYPE_POS,
+          TYPE_HO_HS,
+          TYPE_HO_SALES
+        ].indexOf(this.form?.type) > -1
       );
     },
     partner() {

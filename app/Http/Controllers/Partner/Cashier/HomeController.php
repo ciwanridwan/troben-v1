@@ -56,13 +56,14 @@ class HomeController extends Controller
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }
 
-            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments']);
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments']);
 
             $this->query->whereHas('code', function ($query) use ($request) {
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
-
             $this->attributes = $request->validate($this->rules);
+
+            $this->query->orderBy('created_at', 'desc');
             $this->getResource();
 
 
@@ -102,6 +103,12 @@ class HomeController extends Controller
                     break;
                 case Partner::TYPE_POS:
                     $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
+                    break;
+                case Partner::TYPE_HEADSALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                    break;
+                case Partner::TYPE_SALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
                     break;
             }
             if ($request->discount > $check) {

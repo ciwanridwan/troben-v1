@@ -570,6 +570,10 @@ class GenerateBalanceHistory
                             return Delivery::FEE_PERCENTAGE_SPACE;
                         case Partner::TYPE_POS:
                             return Delivery::FEE_PERCENTAGE_POS;
+                        case Partner::TYPE_HEADSALES:
+                            return Delivery::FEE_PERCENTAGE_HEADSALES;
+                        case Partner::TYPE_SALES:
+                            return Delivery::FEE_PERCENTAGE_SALES;
                     }
                 } else {
                     return $this->getFeeByAreal();
@@ -654,12 +658,13 @@ class GenerateBalanceHistory
     {
         if ($variant == '0') {
             $discount = 0;
+            $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
             if ($this->package->prices->where('type', Price::TYPE_DISCOUNT)
                 ->where('description', Price::TYPE_SERVICE)->first()->amount) {
                 $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
                     ->where('description', Price::TYPE_SERVICE)->first()->amount;
             }
-            $balance_service = $this->package->total_amount * $this->getServiceFee($type) - $discount;
+            $balance_service = $service_price * $this->getServiceFee($type) - $discount;
         } else {
             $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }

@@ -55,6 +55,7 @@ class WaitingController extends Controller
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
+            $this->query->orderBy('created_at', 'desc');
             $this->attributes = $request->validate($this->rules);
             $this->getResource();
 
@@ -78,6 +79,7 @@ class WaitingController extends Controller
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
+            $this->query->orderBy('created_at', 'desc');
             $this->attributes = $request->validate($this->rules);
             $this->getResource();
 
@@ -101,6 +103,7 @@ class WaitingController extends Controller
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
+            $this->query->orderBy('created_at', 'desc');
             $this->attributes = $request->validate($this->rules);
             $this->getResource();
 

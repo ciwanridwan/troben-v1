@@ -113,7 +113,7 @@ class CreatePartner
             case Partner::TYPE_BUSINESS:
                 $this->create_business();
                 break;
-            case Partner::TYPE_SPACE:
+            case Partner::TYPE_SPACE || Partner::TYPE_POS || Partner::TYPE_HEADSALES || Partner::TYPE_SALES :
                 $this->create_space();
                 break;
             case Partner::TYPE_TRANSPORTER:
@@ -133,7 +133,7 @@ class CreatePartner
             case Partner::TYPE_BUSINESS:
                 $this->validate_business();
                 break;
-            case Partner::TYPE_SPACE:
+            case Partner::TYPE_SPACE || Partner::TYPE_POS || Partner::TYPE_HEADSALES || Partner::TYPE_SALES:
                 $this->validate_space();
                 break;
             case Partner::TYPE_TRANSPORTER:
