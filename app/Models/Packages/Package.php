@@ -76,6 +76,9 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
+ * @property int $created_by
+ * @property int $updated_by
+ *
  * @property-read \App\Models\Customers\Customer|null $customer
  * @property-read \App\Models\Geo\Regency|null $origin_regency
  * @property-read \App\Models\Geo\District|null $origin_district

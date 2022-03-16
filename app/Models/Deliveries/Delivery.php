@@ -39,6 +39,8 @@ use ReflectionClass;
  * @property string sender_longitude
  * @property string receiver_latitude
  * @property string receiver_longitude
+ * @property int created_by
+ * @property int updated_by
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
  * @property \Illuminate\Database\Eloquent\Collection item_codes

@@ -29,7 +29,6 @@ use App\Events\Packages\WarehouseIsStartPacking;
 use App\Listeners\Packages\GeneratePackagePrices;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageAttachedToDelivery;
-use App\Events\Deliveries\Courier\Pickup as CourierPickup;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
@@ -81,23 +80,6 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
-        CourierPickup\DriverArrivedAtPickupPoint::class => [
-            //
-        ],
-        CourierPickup\PackageLoadedByDriver::class => [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
-            WriteCodeLog::class
-        ],
-        CourierPickup\DriverArrivedAtWarehouse::class => [
-            //
-        ],
-        CourierPickup\DriverUnloadedPackageInWarehouse::class => [
-            UpdateDeliveryStatusByEvent::class,
-            UpdatePackageStatusByEvent::class,
-            WriteCodeLog::class
-        ],
-
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [
             //
         ],
@@ -145,7 +127,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCanceledByCustomer::class => [
             UpdatePackageStatusByEvent::class,
-            WriteCodeLog::class
+            WriteCodweLog::class
         ],
         PackageCancelMethodSelected::class => [
             CreateDeliveryByEvent::class,
