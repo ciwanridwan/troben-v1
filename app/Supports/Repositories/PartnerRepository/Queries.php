@@ -124,7 +124,7 @@ class Queries
 
         $this->resolvePackagesQueryByRole($query);
 
-        $query->orderByDesc('updated_at');
+        $query->orderByDesc('created_at');
 
         return $query;
     }

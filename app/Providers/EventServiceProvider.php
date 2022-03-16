@@ -68,8 +68,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageUpdated::class => [
             UpdatePackageTotalWeightByEvent::class,
-            GeneratePackagePrices::class,
             UpdatePackageStatusByEvent::class,
+            GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
         PromotionClaimed::class => [
@@ -80,6 +80,7 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
+
         DeliveryPickup\DriverArrivedAtPickupPoint::class => [
             //
         ],

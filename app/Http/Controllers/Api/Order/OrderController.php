@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Events\Partners\PartnerCashierDiscount;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Resources\FindReceiptResource;
 use App\Http\Resources\Promote\DataDiscountResource;
@@ -253,6 +254,7 @@ class OrderController extends Controller
             $this->dispatchNow($job);
         }
         event(new PackageApprovedByCustomer($package));
+//        event(new PartnerCashierDiscount($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }

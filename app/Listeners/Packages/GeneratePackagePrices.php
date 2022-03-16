@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Partners\PartnerCashierDiscount;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
@@ -120,8 +121,12 @@ class GeneratePackagePrices
                 ]);
                 $this->dispatch($job);
             }
+            $is_approved = false;
+            if ($event instanceof PartnerCashierDiscount) {
+                $is_approved = true;
+            }
 
-            $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package))->save();
+            $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
             try {
                 $origin_regency = $package->origin_regency;

@@ -232,6 +232,7 @@ class Package extends Model implements AttachableContract
     protected $appends = [
         'hash',
         'service_price',
+        'discount_service_price',
         'type',
     ];
 
@@ -336,6 +337,23 @@ class Package extends Model implements AttachableContract
                 $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
             }
             return $service_price;
+        } catch (\Throwable $th) {
+            return 0;
+        }
+    }
+
+    public function getDiscountServicePriceAttribute()
+    {
+        try {
+            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_SERVICE)
+                ->first()->amount;
+            if ($discount == null) {
+                $discount_service_price = 0;
+            } else {
+                $discount_service_price = $discount;
+            }
+            return $discount_service_price;
         } catch (\Throwable $th) {
             return 0;
         }

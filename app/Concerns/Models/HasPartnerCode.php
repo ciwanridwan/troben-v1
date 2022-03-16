@@ -29,17 +29,17 @@ trait HasPartnerCode
         /** @var Regency $partner_regency */
         $partner_regency = Regency::find($this->geo_regency_id);
 
-        $code = $partner_code.'-'.($partner_regency->bsn_code === 'KYB' ? 'JKT' : $partner_regency->bsn_code).'-';
-
+        $code = $partner_code.'-'.($partner_regency->province_id == 1084 ? 'JKT' : $partner_regency->bsn_code).'-';
         $last_code = Partner::where('code', 'LIKE', $code.'%')->latest()->first();
+
         if ($last_code === null) {
-            $code = $code.str_pad(0, 4, '0', STR_PAD_LEFT);
+            $code = $code.str_pad(0, 3, '0', STR_PAD_LEFT);
             $code_number = (int) substr($last_code, strlen($code));
         } else {
             $last_code = $last_code->code;
             $code_number = (int) substr($last_code, strlen($code));
             $code_number += 1;
-            $code_number = str_pad($code_number, 5, '0', STR_PAD_LEFT);
+            $code_number = str_pad($code_number, 4, '0', STR_PAD_LEFT);
         }
         $code .= $code_number;
 

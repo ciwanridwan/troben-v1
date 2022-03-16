@@ -23,6 +23,7 @@ use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
 use App\Models\User;
+use App\Models\Packages\Price as PackagesPrice;
 
 class UpdatePackageStatusByEvent
 {
@@ -131,6 +132,11 @@ class UpdatePackageStatusByEvent
                     $package->setAttribute('status', Package::STATUS_REVAMP)
                         ->setAttribute('updated_by', $user->id)
                         ->save();
+                    $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                        ->where('description', PackagesPrice::TYPE_SERVICE)->first();
+                    if ($service_discount_price) {
+                        $service_discount_price->delete();
+                    }
                 }
                 break;
             case $event instanceof Registration\NewVacctRegistration:

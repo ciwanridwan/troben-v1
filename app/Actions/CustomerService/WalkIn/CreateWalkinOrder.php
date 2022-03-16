@@ -3,8 +3,6 @@
 namespace App\Actions\CustomerService\WalkIn;
 
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
-use App\Events\Packages\PackageApprovedByCustomer;
-use App\Events\Packages\PackageCheckedByCashier;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Models\Customers\Customer;

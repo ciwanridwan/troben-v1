@@ -75,7 +75,7 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
-    public static function getPackageTotalAmount(Package $package)
+    public static function getPackageTotalAmount(Package $package, bool $is_approved = false)
     {
         if (! $package->relationLoaded('items.prices')) {
             $package->load('items.prices');
@@ -93,10 +93,20 @@ class PricingCalculator
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
-        $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
+
+        $pickup_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+            ->where('description', PackagesPrice::TYPE_PICKUP)->get()->sum('amount');
+
+        $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+            ->where('description', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
+
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
-        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+        if ($is_approved == true) {
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - ($pickup_discount_price + $service_discount_price);
+        } else {
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $pickup_discount_price;
+        }
 
         if ($package->claimed_promotion != null) {
             $promo = $package->load('claimed_promotion');
