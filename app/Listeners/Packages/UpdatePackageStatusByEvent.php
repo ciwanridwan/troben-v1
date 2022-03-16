@@ -59,6 +59,7 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof WarehouseIsEstimatingPackage:
                 $user = auth()->user();
+                dd($user);
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATING);
                 $event->package->setAttribute('updated_by', $user->id);
                 $event->package->estimator()->associate($event->actor);
@@ -66,6 +67,7 @@ class UpdatePackageStatusByEvent
                 break;
             case $event instanceof PackageEstimatedByWarehouse:
                 $user = auth()->user();
+                dd($user);
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATED)
                     ->setAttribute('updated_by', $user->id)
                     ->save();

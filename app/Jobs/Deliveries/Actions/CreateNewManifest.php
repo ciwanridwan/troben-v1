@@ -49,6 +49,7 @@ class CreateNewManifest
         $this->attributes['origin_regency_id'] = $this->originPartner->geo_regency_id;
         $this->attributes['origin_district_id'] = $this->originPartner->geo_district_id;
         $this->attributes['origin_sub_district_id'] = $this->originPartner->geo_sub_district_id;
+        $this->attributes['created_by'] = auth()->user()->id;
 
         /** @var Partner $target */
         $target = Partner::byHashOrFail($this->attributes['target_partner_hash']);

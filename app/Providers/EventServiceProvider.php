@@ -128,7 +128,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCanceledByCustomer::class => [
             UpdatePackageStatusByEvent::class,
-            WriteCodweLog::class
+            WriteCodeLog::class
         ],
         PackageCancelMethodSelected::class => [
             CreateDeliveryByEvent::class,
