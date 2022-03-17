@@ -130,7 +130,7 @@ class UpdatePackageStatusByEvent
                 $user = auth()->user();
                 if ($package->customer->id === $user->id && $user instanceof Customer) {
                     $package->setAttribute('status', Package::STATUS_REVAMP)
-                        ->setAttribute('updated_by', $user->id)
+                        ->setAttribute('updated_by', User::USER_SYSTEM_ID)
                         ->save();
                     $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
                         ->where('description', PackagesPrice::TYPE_SERVICE)->first();
