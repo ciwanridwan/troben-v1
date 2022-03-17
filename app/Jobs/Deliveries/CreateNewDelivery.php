@@ -50,9 +50,9 @@ class CreateNewDelivery
     public function handle(): void
     {
         $this->delivery->fill($this->attributes);
-        if ($this->attributes['type'] == 'pickup'){
+        if ($this->attributes['type'] == 'pickup') {
             $this->delivery->created_by = User::USER_SYSTEM_ID;
-        }else{
+        } else {
             $this->delivery->created_by = auth()->user()->id;
         }
         if ($this->partner) {
