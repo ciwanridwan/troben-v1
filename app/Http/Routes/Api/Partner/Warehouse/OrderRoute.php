@@ -12,7 +12,7 @@ class OrderRoute extends BaseRoute
     protected $name = 'api.partner.warehouse.order';
 
     protected $middleware = [
-        'partner.type:business,space,pool',
+        'partner.type:business,space,pool,ho-hs,ho-sales,pos',
         'partner.role:warehouse',
         'partner.scope.role:warehouse',
     ];
