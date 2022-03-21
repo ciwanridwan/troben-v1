@@ -144,7 +144,7 @@ class WriteCodeLog
                     $delivery,
                     $delivery->code,
                     [
-                        'log_showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_PARTNER]
+                        'log_showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_PARTNER, CodeLogable::SHOW_CUSTOMER]
                     ]
                 );
                 $this->deliveryLog($user, $delivery, $delivery->code, [

@@ -89,7 +89,6 @@ class Package implements HasCodeLog
                 $origin_partner = $delivery->origin_partner;
                 /** @var Regency $origin_partner */
                 $regency = $origin_partner->regency;
-
                 return $regency->name ?? '';
             case 'partner_name':
                 /** @var Delivery $delivery */
@@ -115,6 +114,18 @@ class Package implements HasCodeLog
                 /** @var User $packager */
                 $packager = $this->package->packager()->first();
                 return $packager->name;
+            case 'estimator_name':
+                /** @var User $estimator */
+                $estimator = $this->package->estimator()->first();
+                return $estimator->name;
+            case 'loader_name':
+                /** @var User $loader */
+                $loader = auth()->user();
+                return $loader->name;
+            case 'unloader_name':
+                /** @var User unloader */
+                $unloader = auth()->user();
+                return $unloader->name;
             case 'delivery_code':
                 /** @var Delivery $delivery */
                 $delivery = $this->getLastDelivery();

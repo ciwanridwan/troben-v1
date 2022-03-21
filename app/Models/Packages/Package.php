@@ -622,14 +622,14 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATING],
-                'description' => 'Paket sedang di ukur dan timbang oleh :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket sedang di ukur dan timbang oleh :estimator_name :partner_code',
+                'variable' => ['partner_code', 'estimator_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATED],
-                'description' => 'Paket telah di ukur dan timbang oleh :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket telah di ukur dan timbang oleh :estimator_name :partner_code',
+                'variable' => ['partner_code', 'estimator_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
@@ -658,7 +658,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKING],
-                'description' => 'Paket sedang di packing',
+                'description' => 'Paket sedang di packing oleh :packager_name',
                 'variable' => ['packager_name']
             ],
             [
@@ -676,8 +676,8 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_IN_TRANSIT],
-                'description' => 'Paket sudah sampai di :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket sudah sampai di :partner_code dan diterima oleh :unloader_name',
+                'variable' => ['partner_code', 'unloader_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
