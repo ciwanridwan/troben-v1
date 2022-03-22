@@ -144,7 +144,7 @@ class WriteCodeLog
                     $delivery,
                     $delivery->code,
                     [
-                        'log_showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_PARTNER, CodeLogable::SHOW_CUSTOMER]
+                        'log_showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_PARTNER]
                     ]
                 );
                 $this->deliveryLog($user, $delivery, $delivery->code, [
@@ -152,6 +152,15 @@ class WriteCodeLog
                     'log_type' => CodeLogable::TYPE_SCAN,
                     'log_status' => UserablePivot::ROLE_DRIVER
                 ]);
+                $driver_name = $delivery->driver->name;
+                $partner_code = $delivery->partner->code;
+                foreach ($delivery->packages as $package){
+                    $this->packageLog($user, $package, $package->code, [
+                        'log_description' => 'Paket telah berangkat untuk diantar ke Mitra '.$partner_code.' oleh driver '.$driver_name,
+                        'log_status' => 'driver_load',
+                        'log_showable' => CodeLogable::SHOW_ALL
+                    ]);
+                }
                 break;
             case $event instanceof WarehouseUnloadedPackage:
                 $delivery = $event->delivery;
@@ -291,9 +300,13 @@ class WriteCodeLog
                     CodeLogable::STATUS_CREATED_DRAFT,
                     CodeLogable::STATUS_WAITING_FOR_APPROVAL_DRAFT,
                     CodeLogable::STATUS_ACCEPTED_PENDING,
+                    CodeLogable::STATUS_ESTIMATING_DRAFT,
+                    CodeLogable::STATUS_ESTIMATED_DRAFT,
                     CodeLogable::STATUS_WAITING_FOR_PACKING_PAID,
-                    CodeLogable::STATUS_WAREHOUSE_UNLOAD,
+                    CodeLogable::STATUS_PACKING_PAID,
+                    CodeLogable::STATUS_PACKED_PAID,
                     CodeLogable::STATUS_DRIVER_LOAD,
+                    CodeLogable::STATUS_WAREHOUSE_UNLOAD,
                     CodeLogable::STATUS_DRIVER_DOORING_LOAD,
                     CodeLogable::STATUS_DELIVERED_PAID
                 ]):

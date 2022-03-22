@@ -44,11 +44,6 @@ class OrderRoute extends BaseRoute
         // driver load an items from customer
         $this->router->patch($this->prefix('transit/loadeditems'), [
             'as' => $this->name('loadedItems'),
-            'uses' => $this->uses('loadedItems'),
-        ]);
-
-        $this->router->patch($this->prefix('transit/loadeditems'), [
-            'as' => $this->name('loadedItems'),
             'uses' => $this->uses('loadedItems', TransitController::class),
         ]);
     }

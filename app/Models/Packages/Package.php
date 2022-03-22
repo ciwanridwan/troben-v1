@@ -604,7 +604,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_PICKED_UP],
-                'description' => 'Paket telah dijemput oleh kurir :partner_code',
+                'description' => 'Paket telah dijemput oleh kurir Mitra :partner_code',
                 'variable' => ['partner_code']
             ],
             [
@@ -652,31 +652,31 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_WAITING_FOR_PACKING],
-                'description' => 'Pembayaran sudah diverifikasi dan menuju gudang transit',
+                'description' => 'Pembayaran sudah diverifikasi',
                 'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKING],
-                'description' => 'Paket sedang di packing oleh :packager_name',
-                'variable' => ['packager_name']
+                'description' => 'Paket sedang di packing oleh :packager_name :partner_code',
+                'variable' => ['packager_name', 'partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKED],
-                'description' => 'Paket telah dipacking dan siap diantar',
-                'variable' => []
+                'description' => 'Paket telah dipacking dan siap diantar menuju gudang transit',
+                'variable' => ['packager_name', 'partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_MANIFESTED],
-                'description' => 'Paket diantar ke :partner_code',
+                'description' => 'Paket siap diantar ke Mitra :partner_code',
                 'variable' => ['partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_IN_TRANSIT],
-                'description' => 'Paket sudah sampai di :partner_code dan diterima oleh :unloader_name',
+                'description' => 'Paket sudah sampai di Mitra :partner_code dan diterima oleh :unloader_name',
                 'variable' => ['partner_code', 'unloader_name']
             ],
             [
