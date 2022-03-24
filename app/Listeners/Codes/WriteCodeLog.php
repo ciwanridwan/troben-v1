@@ -154,7 +154,7 @@ class WriteCodeLog
                 ]);
                 $driver_name = $delivery->driver->name;
                 $partner_code = $delivery->partner->code;
-                foreach ($delivery->packages as $package){
+                foreach ($delivery->packages as $package) {
                     $this->packageLog($user, $package, $package->code, [
                         'log_description' => 'Paket telah berangkat untuk diantar ke Mitra '.$partner_code.' oleh driver '.$driver_name,
                         'log_status' => 'driver_load',
