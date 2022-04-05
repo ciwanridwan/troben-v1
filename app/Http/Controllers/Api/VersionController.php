@@ -15,9 +15,9 @@ class VersionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if ($request->has('app')){
+        if ($request->has('app')) {
             $version = Version::where('app', 'LIKE', $request->app.'%')->latest()->first();
-        }else{
+        } else {
             $version  = Version::all();
         }
 
