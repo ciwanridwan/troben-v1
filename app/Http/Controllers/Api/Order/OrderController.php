@@ -152,6 +152,12 @@ class OrderController extends Controller
     public function claimVoucher($voucher_code, Package $package): array
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
+        if (!$voucher){
+            return [
+                'service_price_fee' =>  0,
+                'service_price_discount' => 0,
+            ];
+        }
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 
