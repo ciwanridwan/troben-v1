@@ -22,6 +22,7 @@ class CustomerInfoResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'address' => $this->address,
+            'referral_code' => $this->referral_code,
             'avatar' => $this->attachments()->first()->uri ?? null,
             'type' => $this->google_id ? 'google'
                 : ($this->facebook_id ? 'facebook' : 'trawlbens')

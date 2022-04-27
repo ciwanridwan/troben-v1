@@ -34,6 +34,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @property string $email
  * @property string $phone
  * @property string $address
+ * @property string $referral_code
  * @property string $password
  * @property string $google_id
  * @property string $facebook_id
@@ -80,6 +81,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         'email',
         'phone',
         'address',
+        'referral_code',
         'password',
         'google_id',
         'facebook_id',
