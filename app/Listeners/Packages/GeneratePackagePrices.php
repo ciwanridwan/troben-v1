@@ -121,6 +121,17 @@ class GeneratePackagePrices
                 ]);
                 $this->dispatch($job);
             }
+            if ($package->claimed_voucher != null) {
+                $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
+                $discount_amount = $service->amount * $package->claimed_voucher->discount;
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_DISCOUNT,
+                    'description' => Price::TYPE_SERVICE,
+                    'amount' => $discount_amount,
+                ]);
+                $this->dispatch($job);
+            }
             $is_approved = false;
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;

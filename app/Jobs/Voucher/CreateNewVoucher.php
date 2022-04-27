@@ -44,7 +44,7 @@ class CreateNewVoucher
     {
         $this->attributes = Validator::make($inputs, [
             'partner_id' => ['required'],
-            'discount' => ['nullable'],
+            'discount' => ['required', 'lt:21'],
         ])->validate();
 
         $this->voucher = new Voucher();
