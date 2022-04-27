@@ -21,7 +21,6 @@ use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -89,8 +88,7 @@ class OrderController extends Controller
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
-        }
-        elseif ($request->voucher_code && $request->promotion_hash == null) {
+        } elseif ($request->voucher_code && $request->promotion_hash == null) {
             $voucher = $this->claimVoucher($request->voucher_code, $package);
             $prices['service_price_fee'] = $voucher['service_price_fee'];
             $prices['voucher_price_discount'] = $voucher['service_price_discount'];
@@ -155,7 +153,6 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
-
     }
 
     /**
@@ -276,6 +273,9 @@ class OrderController extends Controller
 
         if ($request->voucher_code != null) {
             $voucher = Voucher::where('code', $request->voucher_code)->first();
+            if (! $voucher) {
+                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+            }
             $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
             $this->dispatchNow($job);
         }
