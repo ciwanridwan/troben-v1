@@ -7,6 +7,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
+use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
@@ -123,6 +124,12 @@ class GeneratePackagePrices
             }
             if ($package->claimed_voucher != null) {
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
+                $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT) ->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+                $percentage_discount = $service_discount_price / $service_price * 100;
+                $total_discount = $percentage_discount + $package->claimed_voucher->discount;
+                if ($total_discount > 21){
+                    $package->claimed_voucher->discount = 20;
+                }
                 $discount_amount = $service->amount * $package->claimed_voucher->discount;
 
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
