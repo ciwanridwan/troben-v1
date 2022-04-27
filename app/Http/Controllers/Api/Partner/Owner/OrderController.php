@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Partner\DashboardResource;
+use App\Http\Resources\Api\Partner\VoucherResource;
+use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Voucher;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -21,6 +24,12 @@ class OrderController extends Controller
     /** @var Builder $query */
     protected Builder $query;
 
+    /**
+     * Filtered attributes.
+     *
+     * @var array
+     */
+    protected array $attributes;
     /**
      * @param Request $request
      * @param PartnerRepository $repository
@@ -110,5 +119,40 @@ class OrderController extends Controller
             'unpaid_order' => $unpaidOrder,
             'deposit_amount' => $partner->balance,
         ]));
+    }
+
+    public function voucherList(PartnerRepository $repository): JsonResponse
+    {
+        $query = $this->getBasicBuilder(Voucher::query());
+        $query->where('partner_id', $repository->getPartner()->id);
+
+        return $this->jsonSuccess(VoucherResource::collection($query->paginate(request('per_page', 15))));
+    }
+
+    public function approval(PartnerRepository $repository, Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required',
+            'approval' => ['required', 'boolean']
+        ]);
+        $voucher = Voucher::where('partner_id', $repository->getPartner()->id)
+            ->where('code', $request->input('code'))
+            ->first();
+        $voucher->is_approved = $request->input('approval');
+        $voucher->save();
+
+
+        return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('title', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 }
