@@ -11,14 +11,17 @@ use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Promo\ClaimExistingPromo;
+use App\Jobs\Voucher\ClaimDiscountVoucher;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Voucher;
 use App\Models\Price;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -75,7 +78,8 @@ class OrderController extends Controller
     {
         $this->authorize('view', $package);
         $request->validate([
-            'promotion_hash' => ['nullable']
+            'promotion_hash' => ['nullable'],
+            'voucher_code' => ['nullable']
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
@@ -85,6 +89,11 @@ class OrderController extends Controller
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
+        }
+        elseif ($request->voucher_code && $request->promotion_hash == null) {
+            $voucher = $this->claimVoucher($request->voucher_code, $package);
+            $prices['service_price_fee'] = $voucher['service_price_fee'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
         }
 
         $package->load(
@@ -110,7 +119,7 @@ class OrderController extends Controller
 
         $data = [
             'notes' => $price->notes,
-            'service_price' => $prices['service_price'] ,
+            'service_price' => $price['service_price'] ,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
@@ -119,6 +128,9 @@ class OrderController extends Controller
             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
             'pickup_price' => $prices['pickup_price'] ?? 0,
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
+            'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] ?? 0
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -137,6 +149,13 @@ class OrderController extends Controller
                     }
                 }
         }
+    }
+
+    public function claimVoucher($voucher_code, Package $package): array
+    {
+        $voucher = Voucher::where('code', $voucher_code)->first();
+        return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
+
     }
 
     /**
@@ -246,11 +265,21 @@ class OrderController extends Controller
     {
         $this->authorize('update', $package);
         $request->validate([
-            'promotion_hash' => ['nullable']
+            'promotion_hash' => ['nullable'],
+            'voucher_code' => ['nullable']
         ]);
         if ($request->promotion_hash != null) {
             $promotion = Promotion::byHashOrFail($request->promotion_hash);
             $job = new ClaimExistingPromo($promotion, $package);
+            $this->dispatchNow($job);
+        }
+
+        if ($request->voucher_code != null) {
+            $voucher = Voucher::where('code', $request->voucher_code)->first();
+            if (!$voucher){
+                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+            }
+            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
             $this->dispatchNow($job);
         }
         event(new PackageApprovedByCustomer($package));

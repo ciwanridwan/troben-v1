@@ -58,6 +58,7 @@ return [
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
+        App\Http\Routes\Api\Partner\VoucherRoute::class,
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,

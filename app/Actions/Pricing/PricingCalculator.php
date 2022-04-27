@@ -5,6 +5,7 @@ namespace App\Actions\Pricing;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Transporter;
+use App\Models\Partners\Voucher;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Promos\Promotion;
@@ -517,6 +518,20 @@ class PricingCalculator
         if ($total_payment <= $promotion->min_payment) {
             $service_fee = $promotion->min_payment - $total_payment;
         }
+        return [
+            'service_price_fee' => $service_fee ?? 0,
+            'service_price_discount' => $service_discount ?? 0,
+        ];
+    }
+
+    public static function getCalculationVoucherPackage(Voucher $voucher, Package $package): array
+    {
+        $prices = $package->prices()->get();
+        $service = $prices->where('type', PackagePrice::TYPE_SERVICE)->first();
+
+        $service_discount = $service->amount * ($voucher->discount / 100);
+        $service_fee = $service->amount - $service_discount;
+
         return [
             'service_price_fee' => $service_fee ?? 0,
             'service_price_discount' => $service_discount ?? 0,
