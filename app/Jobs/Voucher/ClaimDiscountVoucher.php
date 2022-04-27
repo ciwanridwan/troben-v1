@@ -6,14 +6,7 @@ use App\Events\Promo\PromotionClaimed;
 use App\Models\Packages\Package;
 use App\Models\Partners\ClaimedVoucher;
 use App\Models\Partners\Voucher;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class ClaimDiscountVoucher
 {
