@@ -90,7 +90,7 @@ class OrderController extends Controller
             $prices['service_price_discount'] = $promo['service_price_discount'];
         } elseif ($request->voucher_code && $request->promotion_hash == null) {
             $voucher = $this->claimVoucher($request->voucher_code, $package);
-            $prices['service_price_fee'] = $voucher['service_price_fee'];
+            $prices['service_price_fee'] = 0;
             $prices['voucher_price_discount'] = $voucher['service_price_discount'];
         }
 
@@ -114,10 +114,11 @@ class OrderController extends Controller
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
         $data = [
             'notes' => $price->notes,
-            'service_price' => $price['service_price'] ,
+            'service_price' => $service_price,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
