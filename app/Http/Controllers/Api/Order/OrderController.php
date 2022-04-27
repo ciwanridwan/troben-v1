@@ -84,7 +84,7 @@ class OrderController extends Controller
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-
+        $prices['voucher_price_discount'] = 0;
         if ($request->promotion_hash && $service_discount == 0) {
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
@@ -93,7 +93,7 @@ class OrderController extends Controller
         elseif ($request->voucher_code && $request->promotion_hash == null) {
             $voucher = $this->claimVoucher($request->voucher_code, $package);
             $prices['service_price_fee'] = $voucher['service_price_fee'];
-            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['service_price_discount'];
         }
 
         $package->load(
@@ -130,7 +130,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] ?? 0
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -276,9 +276,6 @@ class OrderController extends Controller
 
         if ($request->voucher_code != null) {
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (!$voucher){
-                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
-            }
             $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
             $this->dispatchNow($job);
         }
