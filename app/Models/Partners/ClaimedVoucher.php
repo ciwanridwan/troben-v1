@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jalameta\Attachments\Concerns\Attachable;
 
-
 /**
  * Class ClaimedVoucher.
  *
@@ -22,7 +21,7 @@ use Jalameta\Attachments\Concerns\Attachable;
  * @property int $partner_id
  * @property int $customer_id
  * @property int $package_id
- * @property double $discount
+ * @property float $discount
  * @property string $code
  *
  * @property Carbon $created_at

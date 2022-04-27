@@ -40,7 +40,7 @@ class CreateNewVoucher
      * @param array $inputs
      * @throws ValidationException
      */
-    public function __construct( array $inputs, Request $request, PartnerRepository $repository)
+    public function __construct(array $inputs, Request $request, PartnerRepository $repository)
     {
         $this->attributes = Validator::make($inputs, [
             'partner_id' => ['required'],
