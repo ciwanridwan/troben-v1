@@ -64,6 +64,40 @@ class VoucherController extends Controller
         return $this->jsonSuccess(VoucherResource::make($job->voucher));
     }
 
+    public function claim(Package $package, Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => ['required']
+        ]);
+
+        $voucher = Voucher::where('code', $request->code)->first();
+        if ($voucher) {
+            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
+            $this->dispatchNow($job);
+
+            $data = $this->calculation($voucher, $package);
+            $collection = collect($data);
+            $collection->push($package);
+
+            return $this->jsonSuccess(DataVoucherResource::make(array_merge($data, $package->toArray())));
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+        }
+    }
+
+
+    public function calculation(Voucher $voucher, Package $package)
+    {
+        $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
+        $discount = $service->amount * ($voucher->discount / 100);
+
+        return [
+            'service_price' => $service->amount,
+            'discount' => $discount,
+            'total_payment' => $package->total_amount - $discount
+        ];
+    }
+
     /**
      * @param Builder $builder
      * @return Builder
@@ -77,40 +111,5 @@ class VoucherController extends Controller
         );
 
         return $builder;
-    }
-
-    public function claim(Package $package, Request $request): JsonResponse
-    {
-        $request->validate([
-            'code' => ['required']
-        ]);
-
-        $voucher = Voucher::where('code', $request->code)->first();
-        if ($voucher){
-
-            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
-            $this->dispatchNow($job);
-
-            $data = $this->calculation($voucher, $package);
-            $collection = collect($data);
-            $collection->push($package);
-
-            return $this->jsonSuccess(DataVoucherResource::make(array_merge($data, $package->toArray())));
-        }else{
-            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
-        }
-    }
-
-
-    public function calculation(Voucher $voucher, Package $package)
-    {
-        $service = $package->prices->where('type', Price::TYPE_SERVICE)->first();
-        $discount = $service->amount * ($voucher->discount / 100) ;
-
-        return [
-            'service_price' => $service->amount,
-            'discount' => $discount,
-            'total_payment' => $package->total_amount - $discount
-        ];
     }
 }

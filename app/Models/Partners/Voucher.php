@@ -4,10 +4,8 @@ namespace App\Models\Partners;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
-use App\Models\Geo\Regency;
 use App\Models\User;
 use Carbon\Carbon;
-use Faker\Provider\Text;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +14,6 @@ use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
-
 /**
  * Class Promotion.
  *
@@ -24,7 +21,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $user_id
  * @property string $title
  * @property int $partner_id
- * @property double $discount
+ * @property float $discount
  * @property string $code
  * @property bool $is_approved
  *
@@ -40,7 +37,6 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property-read User|null $user
  *
  */
-
 class Voucher extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
