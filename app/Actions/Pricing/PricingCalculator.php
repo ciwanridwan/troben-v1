@@ -532,15 +532,17 @@ class PricingCalculator
         if ($percentage_discount > $voucher->discount){
             return [
                 'service_price_fee' => 0,
-                'service_price_discount' => 0,
+                'service_price_discount' => $service_discount_price,
+                'voucher_price_discount' => 0,
             ];
         }
 
         $service_discount = $service_price * ($voucher->discount / 100);
         $service_fee = $service_price - $service_discount; // gk dipakai
         return [
-            'service_price_fee' => $service_fee ?? 0,
-            'service_price_discount' => $service_discount ?? 0,
+            'service_price_fee' => 0,
+            'service_price_discount' => 0,
+            'voucher_price_discount' => $service_discount_price,
         ];
     }
 
