@@ -529,12 +529,16 @@ class PricingCalculator
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT) ->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $percentage_discount = $service_discount_price / $service_price * 100;
-        $total_discount = $percentage_discount + $voucher->discount;
-        if ($total_discount > 21){
-            $voucher->discount = 20;
+
+        if ($percentage_discount > $voucher->discount){
+            return [
+                'service_price_fee' => 0,
+                'service_price_discount' => 0,
+            ];
         }
+
         $service_discount = $service_price * ($voucher->discount / 100);
-        $service_fee = $service_price - $service_discount;
+        $service_fee = $service_price - $service_discount; // gk dipakai
         return [
             'service_price_fee' => $service_fee ?? 0,
             'service_price_discount' => $service_discount ?? 0,
