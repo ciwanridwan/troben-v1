@@ -53,7 +53,7 @@ class VoucherController extends Controller
     {
         $request->validate([
             'partner_id' => 'required',
-            'discount' => 'required',
+            'discount' => ['required', 'lt:21'],
         ]);
         $job = new CreateNewVoucher($request->all(), $request, $repository);
         $this->dispatchNow($job);

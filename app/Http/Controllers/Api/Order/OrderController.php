@@ -83,15 +83,15 @@ class OrderController extends Controller
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-
+        $prices['voucher_price_discount'] = 0;
         if ($request->promotion_hash && $service_discount == 0) {
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
         } elseif ($request->voucher_code && $request->promotion_hash == null) {
             $voucher = $this->claimVoucher($request->voucher_code, $package);
-            $prices['service_price_fee'] = $voucher['service_price_fee'];
-            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            $prices['service_price_fee'] = 0;
+            $prices['voucher_price_discount'] = $voucher['service_price_discount'];
         }
 
         $package->load(
@@ -114,10 +114,10 @@ class OrderController extends Controller
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
-
-        $data = [
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+       $data = [
             'notes' => $price->notes,
-            'service_price' => $price['service_price'] ,
+            'service_price' => $service_price,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
@@ -128,7 +128,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] ?? 0
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -152,6 +152,13 @@ class OrderController extends Controller
     public function claimVoucher($voucher_code, Package $package): array
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
+
+        if (!$voucher){
+            return [
+                'service_price_fee' =>  0,
+                'service_price_discount' => 0,
+            ];
+        }
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 

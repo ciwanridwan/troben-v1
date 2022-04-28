@@ -48,6 +48,7 @@ class UpdateExistingUser
             );
         $this->attributes = Validator::make($inputs, [
             'name' => ['filled'],
+            'referral_code' => ['filled'],
             'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL", 'regex:/^\S*$/u'],
             'email' => ['filled', "unique:users,email,$user->id,id,deleted_at,NULL"],
             'phone' => ['filled', "unique:users,phone,$user->id,id,deleted_at,NULL", 'numeric', 'phone:AUTO,ID'],
