@@ -115,7 +115,7 @@ class OrderController extends Controller
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-       $data = [
+        $data = [
             'notes' => $price->notes,
             'service_price' => $service_price,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
@@ -153,7 +153,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (!$voucher){
+        if (! $voucher) {
             return [
                 'service_price_fee' =>  0,
                 'service_price_discount' => 0,

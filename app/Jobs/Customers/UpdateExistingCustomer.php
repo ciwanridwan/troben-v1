@@ -7,7 +7,6 @@ use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Customers\CustomerModified;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -72,8 +71,8 @@ class UpdateExistingCustomer
      */
     public function handle(): bool
     {
-        if (array_key_exists('referral_code', $this->attributes)){
-            if (User::where('referral_code', $this->attributes['referral_code'])->first() == null){
+        if (array_key_exists('referral_code', $this->attributes)) {
+            if (User::where('referral_code', $this->attributes['referral_code'])->first() == null) {
                 return $this->referral = 'failed';
             }
         }

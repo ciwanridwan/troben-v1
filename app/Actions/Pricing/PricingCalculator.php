@@ -527,10 +527,10 @@ class PricingCalculator
     public static function getCalculationVoucherPackage(Voucher $voucher, Package $package): array
     {
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-        $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT) ->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $percentage_discount = $service_discount_price / $service_price * 100;
         $total_discount = $percentage_discount + $voucher->discount;
-        if ($total_discount > 21){
+        if ($total_discount > 21) {
             $voucher->discount = 20;
         }
         $service_discount = $service_price * ($voucher->discount / 100);
