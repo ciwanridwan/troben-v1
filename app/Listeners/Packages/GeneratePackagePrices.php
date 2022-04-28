@@ -105,7 +105,7 @@ class GeneratePackagePrices
             ]);
             // generate pickup price discount
             $this->dispatch($job);
-
+            $is_approved = false;
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
@@ -126,11 +126,7 @@ class GeneratePackagePrices
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
                 $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT) ->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
                 $percentage_discount = $service_discount_price / $service_price * 100;
-                $total_discount = $percentage_discount + $package->claimed_voucher->discount;
-                if ($total_discount > 21){
-                    $package->claimed_voucher->discount = 20;
-                }
-                $discount_amount = $service->amount * $package->claimed_voucher->discount;
+                $discount_amount = $service->amount * $package->claimed_voucher->discount / 100;
 
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_DISCOUNT,
@@ -138,8 +134,8 @@ class GeneratePackagePrices
                     'amount' => $discount_amount,
                 ]);
                 $this->dispatch($job);
+                $is_approved = true;
             }
-            $is_approved = false;
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
