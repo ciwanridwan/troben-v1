@@ -529,7 +529,7 @@ class PricingCalculator
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $percentage_discount = $service_discount_price / $service_price * 100;
-        if ($percentage_discount > $voucher->discount){
+        if ($percentage_discount > $voucher->discount) {
             return [
                 'service_price_fee' => 0,
                 'service_price_discount' => $service_discount_price,

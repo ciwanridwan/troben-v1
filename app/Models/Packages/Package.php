@@ -4,7 +4,6 @@ namespace App\Models\Packages;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
-use App\Concerns\Models\HasPerformance;
 use App\Models\Code;
 use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
