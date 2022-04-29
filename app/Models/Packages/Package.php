@@ -4,9 +4,11 @@ namespace App\Models\Packages;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
+use App\Concerns\Models\HasPerformance;
 use App\Models\Code;
 use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
+use App\Models\Partners\ClaimedVoucher;
 use App\Models\Partners\Partner;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Partners\Transporter;
@@ -327,19 +329,12 @@ class Package extends Model implements AttachableContract
 
     public function getServicePriceAttribute()
     {
-        try {
-            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
-                ->where('description', Price::TYPE_SERVICE)
-                ->first()->amount;
-            if ($discount != null) {
-                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
-            } else {
-                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
-            }
-            return $service_price;
-        } catch (\Throwable $th) {
-            return 0;
-        }
+        $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+            ->where('description', Price::TYPE_SERVICE)
+            ->first();
+        $discount = ($discount == null) ? 0 : $discount['amount'];
+
+        return $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
     }
 
     public function getDiscountServicePriceAttribute()
@@ -451,6 +446,11 @@ class Package extends Model implements AttachableContract
     public function claimed_promotion(): HasOne
     {
         return $this->hasOne(ClaimedPromotion::class, 'package_id', 'id');
+    }
+
+    public function claimed_voucher(): HasOne
+    {
+        return $this->hasOne(ClaimedVoucher::class, 'package_id', 'id');
     }
 
     public function deliveries(): MorphToMany

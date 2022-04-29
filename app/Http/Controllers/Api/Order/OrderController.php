@@ -14,6 +14,7 @@ use App\Jobs\Promo\ClaimExistingPromo;
 use App\Jobs\Voucher\ClaimDiscountVoucher;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Price as PackagePrice;
+use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Voucher;
 use App\Models\Price;
@@ -91,7 +92,8 @@ class OrderController extends Controller
         } elseif ($request->voucher_code && $request->promotion_hash == null) {
             $voucher = $this->claimVoucher($request->voucher_code, $package);
             $prices['service_price_fee'] = 0;
-            $prices['voucher_price_discount'] = $voucher['service_price_discount'];
+            $prices['service_price_discount'] = $voucher['service_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
         }
 
         $package->load(
@@ -156,7 +158,7 @@ class OrderController extends Controller
         if (! $voucher) {
             return [
                 'service_price_fee' =>  0,
-                'service_price_discount' => 0,
+                'voucher_price_discount' => 0,
             ];
         }
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
@@ -279,12 +281,22 @@ class OrderController extends Controller
         }
 
         if ($request->voucher_code != null) {
+            $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                ->where('description', PackagesPrice::TYPE_SERVICE)->first();
+            if ($service_discount_price) {
+                $service_discount_price->delete();
+            }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
             if (! $voucher) {
                 return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
             }
-            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
-            $this->dispatchNow($job);
+            $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+            $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT) ->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+            $percentage_discount = $service_discount_price / $service_price * 100;
+            if ($percentage_discount < $voucher->discount){
+                $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
+                $this->dispatchNow($job);
+            }
         }
         event(new PackageApprovedByCustomer($package));
 //        event(new PartnerCashierDiscount($package));
