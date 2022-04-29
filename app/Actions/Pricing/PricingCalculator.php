@@ -542,7 +542,7 @@ class PricingCalculator
         return [
             'service_price_fee' => 0,
             'service_price_discount' => 0,
-            'voucher_price_discount' => $service_discount_price,
+            'voucher_price_discount' => $service_discount,
         ];
     }
 
