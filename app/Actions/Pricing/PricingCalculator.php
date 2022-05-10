@@ -158,8 +158,7 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
-
-        if (array_key_exists('fleet_name', $inputs) && array_key_exists('partner_code', $inputs)) {
+        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '') {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
             $destination = $partner->latitude.', '.$partner->longitude;
@@ -584,10 +583,10 @@ class PricingCalculator
         ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
         $response = json_decode($response->body());
         $distance = $response->rows[0]->elements[0]->distance->text;
+
         $distance= str_replace("km","",$distance);
         $distance= str_replace(",","",$distance);
         $distance = (double) $distance;
-
         return $distance;
     }
 }
