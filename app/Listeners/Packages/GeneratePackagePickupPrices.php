@@ -6,15 +6,15 @@ use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use phpDocumentor\Reflection\Location;
 
 class GeneratePackagePickupPrices
 {
+    use DispatchesJobs;
     /**
      * Handle the event.
      *
@@ -26,9 +26,10 @@ class GeneratePackagePickupPrices
     {
         /** @var Package $package */
         $package = $event->package->refresh();
-
         $origin = $package->sender_latitude.', '.$package->sender_longitude;
-        $destination = $package->picked_up_by[0]->partner->latitude.', '.$package->picked_up_by[0]->partner->longitude;
+        $partner = Partner::where('code', $event->partner_code)->first();
+        $destination = $partner->latitude.', '.$partner->longitude;
+
         $distance = $this->distance_matrix($origin, $destination);
 
         if($package->transporter_type == null){
@@ -46,7 +47,6 @@ class GeneratePackagePickupPrices
                 $pickup_price = 15000 + (4000 * $distance);
             }
         }
-
         // generate pickup price
         $job = new UpdateOrCreatePriceFromExistingPackage($package, [
             'type' => Price::TYPE_DELIVERY,
