@@ -179,7 +179,7 @@ class PricingCalculator
             }
         }
 
-        $discount = $pickup_price;
+        $discount = 0;
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
