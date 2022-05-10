@@ -158,7 +158,7 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
-        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '') {
+        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
             $destination = $partner->latitude.', '.$partner->longitude;
