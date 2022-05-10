@@ -159,7 +159,7 @@ class PricingCalculator
         $insurancePriceTotal = 0;
         $pickup_price = 0;
 
-        if (array_key_exists('fleet_name', $inputs)) {
+        if (array_key_exists('fleet_name', $inputs) && array_key_exists('partner_code', $inputs)) {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
             $destination = $partner->latitude.', '.$partner->longitude;
