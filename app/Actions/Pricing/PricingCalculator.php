@@ -5,7 +5,6 @@ namespace App\Actions\Pricing;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Price;
 use App\Http\Response;
@@ -165,15 +164,15 @@ class PricingCalculator
             $distance = self::distance_matrix($origin, $destination);
 
             if ($inputs['fleet_name'] == 'bike') {
-                if ($distance < 5){
+                if ($distance < 5) {
                     $pickup_price = 8000;
-                }else{
+                } else {
                     $pickup_price = 8000 + (2000 * $distance);
                 }
             } else {
-                if ($distance < 5){
+                if ($distance < 5) {
                     $pickup_price = 15000;
-                }else{
+                } else {
                     $pickup_price = 15000 + (4000 * $distance);
                 }
             }
@@ -563,6 +562,21 @@ class PricingCalculator
         ];
     }
 
+    public static function distance_matrix($origin, $destination)
+    {
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
+        $response = json_decode($response->body());
+        $distance = $response->rows[0]->elements[0]->distance->text;
+
+        $distance= str_replace('km', '', $distance);
+        $distance= str_replace(',', '', $distance);
+        $distance = (double) $distance;
+        return $distance;
+    }
+
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
@@ -574,19 +588,5 @@ class PricingCalculator
         }
 
         return $handling;
-    }
-
-    public static function distance_matrix($origin, $destination){
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
-        $response = json_decode($response->body());
-        $distance = $response->rows[0]->elements[0]->distance->text;
-
-        $distance= str_replace("km","",$distance);
-        $distance= str_replace(",","",$distance);
-        $distance = (double) $distance;
-        return $distance;
     }
 }
