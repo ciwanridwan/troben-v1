@@ -91,18 +91,18 @@ class GeneratePackagePrices
             $this->dispatch($job);
 
             // generate pickup price
-            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                'type' => Price::TYPE_DELIVERY,
-                'description' => Delivery::TYPE_PICKUP,
-                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            ]);
-            $this->dispatch($job);
+//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+//                'type' => Price::TYPE_DELIVERY,
+//                'description' => Delivery::TYPE_PICKUP,
+//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
+//            ]);
+//            $this->dispatch($job);
 
-            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                'type' => Price::TYPE_DISCOUNT,
-                'description' => Delivery::TYPE_PICKUP,
-                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            ]);
+//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+//                'type' => Price::TYPE_DISCOUNT,
+//                'description' => Delivery::TYPE_PICKUP,
+//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
+//            ]);
             // generate pickup price discount
             $this->dispatch($job);
             $is_approved = false;

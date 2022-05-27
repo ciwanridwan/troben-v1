@@ -4,6 +4,7 @@ namespace App\Actions\Pricing;
 
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Packages\Price as PackagePrice;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Price;
@@ -20,6 +21,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -137,6 +139,9 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'partner_code' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
             'fleet_name' => ['nullable'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
@@ -153,16 +158,28 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
+        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
+            $partner = Partner::where('code', $inputs['partner_code'])->first();
+            $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
+            $destination = $partner->latitude.', '.$partner->longitude;
+            $distance = self::distance_matrix($origin, $destination);
 
-        if (array_key_exists('fleet_name', $inputs)) {
             if ($inputs['fleet_name'] == 'bike') {
-                $pickup_price = Transporter::PRICE_BIKE;
+                if ($distance < 5){
+                    $pickup_price = 8000;
+                }else{
+                    $pickup_price = 8000 + (2000 * $distance);
+                }
             } else {
-                $pickup_price = Transporter::PRICE_CAR;
+                if ($distance < 5){
+                    $pickup_price = 15000;
+                }else{
+                    $pickup_price = 15000 + (4000 * $distance);
+                }
             }
         }
 
-        $discount = $pickup_price;
+        $discount = 0;
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
@@ -557,5 +574,19 @@ class PricingCalculator
         }
 
         return $handling;
+    }
+
+    public static function distance_matrix($origin, $destination){
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
+        $response = json_decode($response->body());
+        $distance = $response->rows[0]->elements[0]->distance->text;
+
+        $distance= str_replace("km","",$distance);
+        $distance= str_replace(",","",$distance);
+        $distance = (double) $distance;
+        return $distance;
     }
 }

@@ -16,6 +16,7 @@ use App\Events\Partners\PartnerCashierDiscount;
 use App\Events\Payment\Nicepay\Registration;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Promo\PromotionClaimed;
+use App\Listeners\Packages\GeneratePackagePickupPrices;
 use App\Listeners\Partners\GenerateBalanceHistory;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
@@ -63,6 +64,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCreated::class => [
             UpdatePackageTotalWeightByEvent::class,
+            GeneratePackagePickupPrices::class,
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
