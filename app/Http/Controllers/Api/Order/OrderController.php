@@ -140,7 +140,7 @@ class OrderController extends Controller
     {
         $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
         switch ($promotion) {
-            case null :
+            case null:
                 return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
             default:
                 if ($promotion_hash != null) {
@@ -155,7 +155,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (! $voucher) {
+        if (!$voucher) {
             return [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
@@ -191,7 +191,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->find($request->get('origin_regency_id'));
         $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]), 'array');
@@ -200,9 +200,10 @@ class OrderController extends Controller
         throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;
-
+        
         $items = $request->input('items') ?? [];
-        foreach ($items as $key=>$item) {
+        
+        foreach ($items as $key => $item) {
             if ($item['insurance'] == '1') {
                 $items[$key]['is_insured'] = true;
             }
@@ -244,7 +245,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -287,7 +288,7 @@ class OrderController extends Controller
                 $service_discount_price->delete();
             }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (! $voucher) {
+            if (!$voucher) {
                 return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
             }
             $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
@@ -299,7 +300,7 @@ class OrderController extends Controller
             }
         }
         event(new PackageApprovedByCustomer($package));
-//        event(new PartnerCashierDiscount($package));
+        //        event(new PartnerCashierDiscount($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -346,7 +347,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (! $code->exists) {
+        if (!$code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -357,11 +358,11 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
-        $package = $codeable->load(['origin_regency','destination_district','destination_district.regency'])->only([
+        $package = $codeable->load(['origin_regency', 'destination_district', 'destination_district.regency'])->only([
             'sender_name',
             'receiver_name',
             'origin_regency',
@@ -416,7 +417,7 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;
