@@ -8,7 +8,7 @@
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
             <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-              Click me <a-icon type="down" />
+              Click <a-icon type="down" />
             </a>
           </a-dropdown>
         </a-col>
