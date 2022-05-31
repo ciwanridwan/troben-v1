@@ -23,20 +23,20 @@
         :change-size-page="changeSizePage"
       />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
-import TrawlNotification from "../../../../components/trawl-notification.vue";
+// import TrawlNotification from "../../../../components/trawl-notification.vue";
 import ManifestTable from "../../../../components/tables/manifest-table.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
-    TrawlNotification,
+    // TrawlNotification,
     ManifestTable
   },
   data: () => {
@@ -87,8 +87,8 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<!-- <style lang="scss">
 .order-notification-item {
   margin: 10px 0;
 }
-</style>
+</style> -->

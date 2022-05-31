@@ -8,7 +8,7 @@
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
             <a class="ant-dropdown-link" @click="e => e.preventDefault()">
-              Click <a-icon type="down" />
+              Click me <a-icon type="down" />
             </a>
           </a-dropdown>
         </a-col>
@@ -23,20 +23,20 @@
         :change-size-page="changeSizePage"
       />
     </template>
-    <template slot="sider">
+    <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-layout>
 </template>
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
-import TrawlNotification from "../../../../components/trawl-notification.vue";
+// import TrawlNotification from "../../../../components/trawl-notification.vue";
 import OrderTable from "../../../../components/tables/order-table.vue";
 export default {
   name: "MasterOrder",
   components: {
     ContentLayout,
-    TrawlNotification,
+    // TrawlNotification,
     OrderTable
   },
   data: () => {
@@ -88,8 +88,8 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<!-- <style lang="scss">
 .order-notification-item {
   margin: 10px 0;
 }
-</style>
+</style> -->

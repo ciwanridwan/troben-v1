@@ -52,7 +52,7 @@ class OrderController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = $request->user()->packages();
+        $query = $request->user()->packages();  
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
