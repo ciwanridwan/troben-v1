@@ -49,6 +49,7 @@ class GeneratePackagePickupPrices
                 $pickup_price = 15000 + (4000 * $substraction);
             }
         }
+
         // generate pickup price
         $job = new UpdateOrCreatePriceFromExistingPackage($package, [
             'type' => Price::TYPE_DELIVERY,

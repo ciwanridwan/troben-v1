@@ -151,7 +151,7 @@ class PricingCalculator
             'items.*.qty' => ['required', 'numeric'],
             'items.*.handling' => ['nullable']
         ]);
-        
+
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
@@ -162,20 +162,24 @@ class PricingCalculator
             $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
             $destination = $partner->latitude . ', ' . $partner->longitude;
             $distance = self::distance_matrix($origin, $destination);
+
             if ($inputs['fleet_name'] == 'bike') {
                 if ($distance < 5) {
                     $pickup_price = 8000;
                 } else {
-                    $pickup_price = 8000 + (2000 * $distance);
+                    $substraction = $distance - 4;
+                    $pickup_price = 8000 + (2000 * $substraction);
                 }
             } else {
                 if ($distance < 5) {
                     $pickup_price = 15000;
                 } else {
-                    $pickup_price = 15000 + (4000 * $distance);
+                    $substraction = $distance - 4;
+                    $pickup_price = 15000 + (4000 * $substraction);
                 }
             }
         }
+
         $discount = 0;
         $handling_price = 0;
 
