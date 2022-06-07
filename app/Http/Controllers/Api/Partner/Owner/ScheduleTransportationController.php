@@ -119,7 +119,7 @@ class ScheduleTransportationController extends Controller
         } else {
             $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
                 ->where('destination_regency_id', $request->destination_regency_id)
-                ->orderByRaw('updated_at - created_at desc')->get();
+                ->orderByRaw('departed_at desc')->get();
 
             return (new Response(Response::RC_SUCCESS, $result))->json();
         }
