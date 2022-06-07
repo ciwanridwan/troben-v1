@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\ScheduleTransportationResource;
+use App\Http\Resources\Geo\RegencyResource;
+use App\Http\Resources\Geo\Web\KotaResource;
 use App\Http\Response;
+use App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute;
 use App\Jobs\Partners\SchedulesTransportation\CreateNewSchedules;
 use App\Jobs\Partners\SchedulesTransportation\DeleteExistingSchedules;
 use App\Jobs\Partners\SchedulesTransportation\UpdateExistingSchedules;
+use App\Models\Geo\Regency;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -98,12 +102,41 @@ class ScheduleTransportationController extends Controller
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
+    public function showInFront(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'origin_regency_id' => 'required',
+            'destination_regency_id' => 'required',
+        ])->validate();
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+            ->where('destination_regency_id', $request->destination_regency_id)
+            ->orderByRaw('updated_at - created_at desc')->first();
+
+        if ($schedules == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+
+        } else {
+            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+                ->where('destination_regency_id', $request->destination_regency_id)
+                ->orderByRaw('updated_at - created_at desc')->get();
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
+    }
+
+    public function showWithHarbor()
+    {
+        $query = $this->getBasicBuilder(ScheduleTransportation::query());
+        return $this->jsonSuccess(ScheduleTransportationResource::collection($query->paginate(request('per_page', 15))));
+    }
+
     private function getBasicBuilder(Builder $builder): Builder
     {
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;

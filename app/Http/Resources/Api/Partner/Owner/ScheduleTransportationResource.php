@@ -24,8 +24,11 @@ class ScheduleTransportationResource extends JsonResource
         /** @var ScheduleTransportation $this */
         $data = [
             'id' => $this->id,
+            // 'assignable_partner' => $this->partner,
             'assignable_partner' => PartnerResource::make($this->partner),
+            // 'origin_regency' => $this->origin_regency,
             'origin_regency' => RegencyResource::make($this->origin_regency),
+            // 'destination_regency' => $this->destination_regency,
             'destination_regency' => RegencyResource::make($this->destination_regency),
             'departure_at' => $this->departed_at->format('Y-m-d H:i:s'),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

@@ -41,6 +41,18 @@ class ScheduleTransportationRoute extends BaseRoute
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ]);
+
+        // Add new route for view in landing page
+        $this->router->get($this->prefix('/show'), [
+            'as' => $this->name('showInFront'),
+            'uses' => $this->uses('showInFront'),
+        ]);
+
+        // Adding route for show with harbor
+        $this->router->get($this->prefix('/harbor/show'), [
+            'as' => $this->name('showWithHarbor'),
+            'uses' => $this->uses('showWithHarbor'),
+        ])->withoutMiddleware('api');
     }
 
     /**
