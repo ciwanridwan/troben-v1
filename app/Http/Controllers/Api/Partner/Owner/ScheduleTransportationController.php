@@ -102,30 +102,6 @@ class ScheduleTransportationController extends Controller
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
-    public function showInFront(Request $request): JsonResponse
-    {
-        $this->attributes = Validator::make($request->all(), [
-            'origin_regency_id' => 'required',
-            'destination_regency_id' => 'required',
-        ])->validate();
-
-        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-            ->where('destination_regency_id', $request->destination_regency_id)
-            ->orderByRaw('updated_at - created_at desc')->first();
-
-        if ($schedules == null) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
-
-        } else {
-            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-                ->where('destination_regency_id', $request->destination_regency_id)
-                ->orderByRaw('departed_at desc')->limit(2)->get();
-            
-            $result->makeHidden(['created_at', 'updated_at', 'deleted_at']);
-            return (new Response(Response::RC_SUCCESS, $result))->json();
-        }
-    }
-
     public function showWithHarbor()
     {
         $query = $this->getBasicBuilder(ScheduleTransportation::query());
