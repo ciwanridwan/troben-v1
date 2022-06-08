@@ -135,7 +135,11 @@ class PricingController extends Controller
         return (new Response(Response::RC_SUCCESS, $prices))->json();
     }
 
-    // ADD SHIP SCHEDULE
+     /**
+     * @param Request $request
+     * @return JsonResponse
+     * Add Ship Schedule
+     */
     public function shipSchedule(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [

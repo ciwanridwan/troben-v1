@@ -104,6 +104,12 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('item.destroy'),
             'uses' => $this->uses('destroy', ItemController::class),
         ]);
+
+        $this->router->get($this->prefix('ship/schedule'), [
+            'as' => $this->name('shipSchedule'),
+            'uses' => $this->uses('shipSchedule'),
+        ]);
+
     }
 
     /**
