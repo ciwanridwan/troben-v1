@@ -48,10 +48,18 @@ class ScheduleTransportationController extends Controller
         $partner_id = $request->user()->partners->first()->id;
         if ($partner_id) {
             $request['partner_id'] = $partner_id;
+            $request['ship_name'] = $request['ship_name'];
             $request['origin_regency_id'] = $request['origin_regency'];
             $request['destination_regency_id'] = $request['destination_regency'];
             $request['departed_at'] = date('Y-m-d', strtotime($request['departure_at']));
-            unset($request['departure_at'], $request['destination_regency'], $request['origin_regency']);
+            $request['nexted_at'] = date('Y-m-d', strtotime($request['next_at']));
+            unset(
+                $request['departure_at'],
+                $request['destination_regency'],
+                $request['origin_regency'],
+                $request['next_at'],
+                $request['ship_name']
+            );
         } else {
             return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
@@ -102,7 +110,7 @@ class ScheduleTransportationController extends Controller
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
-    public function showWithHarbor()
+    public function showShip()
     {
         $query = $this->getBasicBuilder(ScheduleTransportation::query());
         return $this->jsonSuccess(ScheduleTransportationResource::collection($query->paginate(request('per_page', 15))));

@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Http\Resources\Api\Partner\Owner\ScheduleTransportationResource;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -44,9 +45,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -120,9 +121,9 @@ class PricingController extends Controller
             'service_code' => ['required'],
         ]);
         $prices = Price::query();
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
 
@@ -149,12 +150,9 @@ class PricingController extends Controller
         if ($schedules == null) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
-            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-                ->where('destination_regency_id', $request->destination_regency_id)
-                ->orderByRaw('departed_at desc')->limit(2)->get();
-
-            $result->makeHidden(['created_at', 'updated_at', 'deleted_at']);
-            return (new Response(Response::RC_SUCCESS, $result))->json();
+            $schedules->makeHidden(['created_at', 'updated_at', 'deleted_at']);
+            
+            return (new Response(Response::RC_SUCCESS, $schedules))->json();
         }
     }
 }

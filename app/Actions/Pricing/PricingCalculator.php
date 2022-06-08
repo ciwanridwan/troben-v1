@@ -123,7 +123,6 @@ class PricingCalculator
                 $total_amount = $promo->claimed_promotion->promotion->min_payment;
             }
         }
-
         return $total_amount;
     }
 
