@@ -41,6 +41,7 @@ class ScheduleTransportation extends Model
      */
     protected $fillable = [
         'partner_id',
+        'ship_name',
         'origin_regency_id',
         'destination_regency_id',
         'departed_at',

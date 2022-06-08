@@ -52,19 +52,22 @@ class ScheduleTransportationController extends Controller
             $request['origin_regency_id'] = $request['origin_regency'];
             $request['destination_regency_id'] = $request['destination_regency'];
             $request['departed_at'] = date('Y-m-d', strtotime($request['departure_at']));
-            $request['nexted_at'] = date('Y-m-d', strtotime($request['next_at']));
             unset(
                 $request['departure_at'],
                 $request['destination_regency'],
                 $request['origin_regency'],
-                $request['next_at'],
                 $request['ship_name']
             );
         } else {
             return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
-        $this->attributes = $request->all();
-        $job = new CreateNewSchedules($this->attributes);
+        $test = $this->attributes;
+        $test = $request->all();
+        // dump($test);
+        // $this->attributes = $request->all();
+        // $job = new CreateNewSchedules($this->attributes);
+        $job = new CreateNewSchedules($test);
+        // dump($test);
         $this->dispatch($job);
 
         return (new Response(Response::RC_SUCCESS))->json();

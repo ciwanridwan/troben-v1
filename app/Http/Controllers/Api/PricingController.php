@@ -150,9 +150,12 @@ class PricingController extends Controller
         if ($schedules == null) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
-            $schedules->makeHidden(['created_at', 'updated_at', 'deleted_at']);
-            
-            return (new Response(Response::RC_SUCCESS, $schedules))->json();
+            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+                ->where('destination_regency_id', $request->destination_regency_id)
+                ->orderByRaw('departed_at asc')->get();
+
+            $result->makeHidden(['created_at', 'updated_at', 'deleted_at']);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
     }
 }
