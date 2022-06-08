@@ -56,21 +56,17 @@ class ScheduleTransportationController extends Controller
                 $request['departure_at'],
                 $request['destination_regency'],
                 $request['origin_regency'],
-                $request['ship_name']
             );
         } else {
             return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
-        $test = $this->attributes;
-        $test = $request->all();
-        // dump($test);
-        // $this->attributes = $request->all();
-        // $job = new CreateNewSchedules($this->attributes);
-        $job = new CreateNewSchedules($test);
-        // dump($test);
+        $this->attributes = $request->all();
+        $job = new CreateNewSchedules($this->attributes);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        $result = array($job);
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+        // return $this->jsonSuccess(ScheduleTransportationResource::collection($job));
     }
 
 
@@ -113,7 +109,7 @@ class ScheduleTransportationController extends Controller
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
-    public function showShip()
+    public function shipSchedule()
     {
         $query = $this->getBasicBuilder(ScheduleTransportation::query());
         return $this->jsonSuccess(ScheduleTransportationResource::collection($query->paginate(request('per_page', 15))));

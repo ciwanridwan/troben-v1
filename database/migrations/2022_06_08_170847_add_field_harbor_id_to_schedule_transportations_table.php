@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldShipNameInScheduleTransportationsTables extends Migration
+class AddFieldHarborIdToScheduleTransportationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,6 +15,10 @@ class AddFieldShipNameInScheduleTransportationsTables extends Migration
     {
         Schema::table('schedule_transportations', function (Blueprint $table) {
             $table->string('ship_name')->nullable();
+            $table->foreignId('harbor_id')
+                ->nullable()
+                ->references('id')
+                ->on('harbors');
         });
     }
 
@@ -27,6 +31,7 @@ class AddFieldShipNameInScheduleTransportationsTables extends Migration
     {
         Schema::table('schedule_transportations', function (Blueprint $table) {
             $table->dropColumn('ship_name');
+            $table->dropColumn('harbor_id');
         });
     }
 }

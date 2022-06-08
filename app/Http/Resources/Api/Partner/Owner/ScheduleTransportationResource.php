@@ -29,7 +29,6 @@ class ScheduleTransportationResource extends JsonResource
             'destination_regency' => RegencyResource::make($this->destination_regency),
             'ship_name' => $this->ship_name,
             'departure_at' => $this->departed_at->format('Y-m-d H:i:s'),
-            'nexted_at' => $this->nexted_at,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
