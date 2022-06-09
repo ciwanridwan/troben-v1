@@ -70,6 +70,7 @@ class HomeController extends Controller
                     });
                 });
 
+                $this->query->orderBy('created_at', 'desc');
                 /** @var Delivery $deliveries */
                 $deliveries = $this->query->paginate(request('per_page', 15));
                 $deliveryCollection = $deliveries->getCollection();
@@ -116,6 +117,7 @@ class HomeController extends Controller
                     });
                 });
 
+                $this->query->orderBy('created_at', 'desc');
                 /** @var Delivery $deliveries */
                 $deliveries = $this->query->paginate(request('per_page', 15));
                 $deliveryCollection = $deliveries->getCollection();
@@ -170,6 +172,7 @@ class HomeController extends Controller
                     });
                 });
 
+                $this->query->orderBy('created_at', 'desc');
                 /** @var Delivery $deliveries */
                 $deliveries = $this->query->paginate(request('per_page', 15));
                 $deliveryCollection = $deliveries->getCollection();

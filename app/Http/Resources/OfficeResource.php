@@ -23,7 +23,7 @@ class OfficeResource extends JsonResource
             'username' => $this->username,
             'address' => $this->address,
             'is_active' => $this->is_active,
-            'role' => $this->role->detail->name,
+            'role' => $this->role->name,
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
             'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];

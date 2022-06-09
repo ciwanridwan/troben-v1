@@ -35,6 +35,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $phone
  * @property string $latitude
  * @property string $longitude
+ * @property string $referral_code
  * @property bool $is_active
  * @property string $password
  * @property \Carbon\Carbon|null $email_verified_at
@@ -64,6 +65,8 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
         attachable,
         CanSearch;
 
+    public const USER_SYSTEM_ID = 0;
+
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
     protected $table = 'users';
@@ -79,6 +82,7 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
         'email',
         'password',
         'phone',
+        'referral_code',
         'remember_token',
         'latitude',
         'longitude',

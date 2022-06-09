@@ -49,7 +49,7 @@ class CreateNewCustomer
             'name' => ['required'],
             'email' => ['required', 'email', 'unique:customers,email,NULL,id,deleted_at,NULL'],
             'phone' => ['required', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,NULL,id,deleted_at,NULL'],
-            'password' => ['required', 'min:8', 'alpha_num'],
+            'password' => ['required', 'min:8'],
             'fcm_token' => ['nullable'],
             'facebook_id' => ['nullable'],
             'google_id' => ['nullable'],

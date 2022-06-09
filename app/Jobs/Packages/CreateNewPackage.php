@@ -67,6 +67,7 @@ class CreateNewPackage
             'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
+            'partner_code' => ['nullable'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
@@ -130,6 +131,7 @@ class CreateNewPackage
 
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
+        $this->package->created_by = auth()->user()->id;
         $this->package->save();
         Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
 
@@ -144,7 +146,7 @@ class CreateNewPackage
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
 
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            event(new PackageCreated($this->package));
+            event(new PackageCreated($this->package, $this->attributes['partner_code']));
         }
 
         return $this->package->exists;

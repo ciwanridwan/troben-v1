@@ -18,7 +18,7 @@ class DeleteExistingDooring
      */
     public function __construct(array $input)
     {
-        $this->attributes = Validator::make($input,[
+        $this->attributes = Validator::make($input, [
             'partner_id' => 'required',
             'origin_regency_id' => 'required',
             'destination_sub_district_id' => 'required',

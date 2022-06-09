@@ -62,7 +62,6 @@ class CreateNewPartner
     public function handle(): bool
     {
         $this->partner->fill($this->attributes);
-
         if ($this->partner->save()) {
             event(new NewPartnerCreated($this->partner));
         }

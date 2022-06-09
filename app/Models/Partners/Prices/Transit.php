@@ -47,12 +47,12 @@ class Transit extends PriceModel
     protected $casts = [];
 
     /**
-     * Define destination regency belongsto relation
+     * Define destination regency belongsto relation.
      *
      * @return BelongsTo
      */
     public function destination_regency(): BelongsTo
     {
-        return $this->belongsTo(Regency::class,'destination_regency_id','id');
+        return $this->belongsTo(Regency::class, 'destination_regency_id', 'id');
     }
 }

@@ -70,6 +70,14 @@ class Delivery implements HasCodeLog
                 /** @var User $driver */
                 $driver = $this->delivery->driver;
                 return $driver->name;
+            case 'loader_name':
+                /** @var User $loader */
+                $loader = auth()->user();
+                return $loader->name;
+            case 'unloader_name':
+                /** @var User unloader */
+                $unloader = auth()->user();
+                return $unloader->name;
             case 'transporter_registration_number':
                 /** @var Transporter $transporter */
                 $transporter = $this->delivery->transporter()->first();

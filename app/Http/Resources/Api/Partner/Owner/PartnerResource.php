@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Partner\Owner;
 
-use App\Models\Geo\Regency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PartnerResource extends JsonResource

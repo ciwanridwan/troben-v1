@@ -22,6 +22,10 @@ class TransitRoute extends BaseRoute
             'as' => $this->name('unload'),
             'uses' => $this->uses('unload'),
         ]);
+        $this->router->patch($this->prefix('unload/item'), [
+            'as' => $this->name('unloadItem'),
+            'uses' => $this->uses('unloadItem'),
+        ]);
     }
 
     /**

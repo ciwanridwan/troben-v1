@@ -41,6 +41,8 @@ use ReflectionClass;
  * @property string sender_longitude
  * @property string receiver_latitude
  * @property string receiver_longitude
+ * @property int created_by
+ * @property int updated_by
  * @property-read Partner partner
  * @property-read \Illuminate\Database\Eloquent\Collection packages
  * @property \Illuminate\Database\Eloquent\Collection item_codes
@@ -54,6 +56,8 @@ use ReflectionClass;
 class Delivery extends Model
 {
     use HashableId, HasCode, HasFactory, CustomSerializeDate;
+
+    public const DELIVERY_SYSTEM_ID = 0;
 
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_RETURN = 'return';
@@ -77,6 +81,11 @@ class Delivery extends Model
     public const AS_DESTINATION = 'destination';
 
     public const FEE_MAIN = 500;
+    public const FEE_PERCENTAGE_BUSINESS = 0.3;
+    public const FEE_PERCENTAGE_SPACE = 0.2;
+    public const FEE_PERCENTAGE_POS = 0.15;
+    public const FEE_PERCENTAGE_HEADSALES = 0.5;
+    public const FEE_PERCENTAGE_SALES = 0.2;
     public const FEE_JABODETABEK = 200;
     public const FEE_NON_JABODETABEK = 250;
 

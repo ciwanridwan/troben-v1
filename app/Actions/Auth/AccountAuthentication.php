@@ -16,7 +16,10 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
+<<<<<<< HEAD
 use Illuminate\Http\Resources\Json\JsonResource;
+=======
+>>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
@@ -193,7 +196,7 @@ class AccountAuthentication
         }
         if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
             return $this->attributes['otp']
-                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel']);
+                ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel'], $authenticatable);
         }
 
         if ($this->attributes['otp']) {
@@ -397,16 +400,46 @@ class AccountAuthentication
         ]))->json();
     }
 
+    public function officeAttempt(): JsonResponse
+    {
+        switch (true) {
+            default:
+                $column = self::CREDENTIAL_EMAIL;
+                break;
+        }
+        $query = Office::query();
+
+        /** @var Office $authenticatable */
+        $authenticatable = $query->where($column, $this->attributes['username'])->first();
+
+        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+            throw ValidationException::withMessages([
+                'username' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        $now = time();
+        $payload = [
+            'iat' => $now,
+            'exp' => $now + (((60 * 60) * 24) * 30),
+            'data' => new JWTOfficeResource($authenticatable)
+        ];
+        $jwt = JWT::encode($payload, self::JWT_KEY);
+        return (new Response(Response::RC_SUCCESS, [
+            'jwt_token' => $jwt
+        ]))->json();
+    }
+
     /**
      * @param HasOtpToken $authenticatable
      * @param string $otp_channel
      * @return JsonResponse
      */
-    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel): JsonResponse
+    protected function askingOtpResponseFailed(HasOtpToken $authenticatable, string $otp_channel, Customer $customer): JsonResponse
     {
         $otp = $authenticatable->createOtp($otp_channel);
         $job = new SendMessage($otp, $authenticatable->phone);
         $this->dispatch($job);
+        Mail::to($authenticatable->email)->send(new SendMailOTP($otp, $customer));
         return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
             'message' => 'Harap cek kotak pesan SMS anda',
             'otp' => $otp->id,
@@ -449,6 +482,7 @@ class AccountAuthentication
             try {
                 $job = new SendMessage($otp, $authenticatable->phone);
                 $this->dispatch($job);
+                Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             } catch (\Exception $ex) {
                 Mail::to($customer->email)->send(new SendMailOTP($otp, $customer));
             }
@@ -458,6 +492,7 @@ class AccountAuthentication
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
     }
+<<<<<<< HEAD
 
     /**
      * Super login
@@ -517,4 +552,6 @@ class AccountAuthentication
             'jwt_token' => $jwt
         ]))->json();
     }
+=======
+>>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
 }

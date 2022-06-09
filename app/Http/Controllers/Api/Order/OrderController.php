@@ -3,15 +3,20 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Events\Partners\PartnerCashierDiscount;
 use App\Http\Resources\Account\CourierResource;
+use App\Http\Resources\FindReceiptResource;
 use App\Http\Resources\Promote\DataDiscountResource;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Promo\ClaimExistingPromo;
+use App\Jobs\Voucher\ClaimDiscountVoucher;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Price as PackagePrice;
+use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Voucher;
 use App\Models\Price;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Promos\Promotion;
@@ -32,6 +37,7 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,7 +54,6 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
-
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -73,16 +78,22 @@ class OrderController extends Controller
     {
         $this->authorize('view', $package);
         $request->validate([
-            'promotion_hash' => ['nullable']
+            'promotion_hash' => ['nullable'],
+            'voucher_code' => ['nullable']
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-
+        $prices['voucher_price_discount'] = 0;
         if ($request->promotion_hash && $service_discount == 0) {
             $promo = $this->check($request->promotion_hash, $package);
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
+        } elseif ($request->voucher_code && $request->promotion_hash == null) {
+            $voucher = $this->claimVoucher($request->voucher_code, $package);
+            $prices['service_price_fee'] = 0;
+            $prices['service_price_discount'] = $voucher['service_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
         }
 
         $package->load(
@@ -105,10 +116,10 @@ class OrderController extends Controller
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
-
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $data = [
             'notes' => $price->notes,
-            'service_price' => $prices['service_price'] ,
+            'service_price' => $service_price,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
@@ -117,6 +128,9 @@ class OrderController extends Controller
             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
             'pickup_price' => $prices['pickup_price'] ?? 0,
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
+            'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -126,7 +140,7 @@ class OrderController extends Controller
     {
         $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
         switch ($promotion) {
-            case null :
+            case null:
                 return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
             default:
                 if ($promotion_hash != null) {
@@ -135,6 +149,19 @@ class OrderController extends Controller
                     }
                 }
         }
+    }
+
+    public function claimVoucher($voucher_code, Package $package): array
+    {
+        $voucher = Voucher::where('code', $voucher_code)->first();
+
+        if (!$voucher) {
+            return [
+                'service_price_fee' =>  0,
+                'voucher_price_discount' => 0,
+            ];
+        }
+        return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 
     /**
@@ -164,7 +191,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->find($request->get('origin_regency_id'));
         $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]), 'array');
@@ -175,7 +202,8 @@ class OrderController extends Controller
         $inputs['customer_id'] = $user->id;
 
         $items = $request->input('items') ?? [];
-        foreach ($items as $key=>$item) {
+
+        foreach ($items as $key => $item) {
             if ($item['insurance'] == '1') {
                 $items[$key]['is_insured'] = true;
             }
@@ -217,7 +245,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -244,14 +272,35 @@ class OrderController extends Controller
     {
         $this->authorize('update', $package);
         $request->validate([
-            'promotion_hash' => ['nullable']
+            'promotion_hash' => ['nullable'],
+            'voucher_code' => ['nullable']
         ]);
         if ($request->promotion_hash != null) {
             $promotion = Promotion::byHashOrFail($request->promotion_hash);
             $job = new ClaimExistingPromo($promotion, $package);
             $this->dispatchNow($job);
         }
+
+        if ($request->voucher_code != null) {
+            $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                ->where('description', PackagesPrice::TYPE_SERVICE)->first();
+            if ($service_discount_price) {
+                $service_discount_price->delete();
+            }
+            $voucher = Voucher::where('code', $request->voucher_code)->first();
+            if (!$voucher) {
+                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+            }
+            $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+            $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+            $percentage_discount = $service_discount_price / $service_price * 100;
+            if ($percentage_discount < $voucher->discount) {
+                $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
+                $this->dispatchNow($job);
+            }
+        }
         event(new PackageApprovedByCustomer($package));
+        //        event(new PartnerCashierDiscount($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -298,7 +347,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (! $code->exists) {
+        if (!$code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -309,11 +358,11 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
-        $package = $codeable->load(['origin_regency','destination_district','destination_district.regency'])->only([
+        $package = $codeable->load(['origin_regency', 'destination_district', 'destination_district.regency'])->only([
             'sender_name',
             'receiver_name',
             'origin_regency',
@@ -328,10 +377,10 @@ class OrderController extends Controller
         // $query->groupBy('status');
         $query->orderBy('id');
 
-        return (new Response(Response::RC_SUCCESS, [
+        return $this->jsonSuccess(FindReceiptResource::make([
             'package' => $package,
             'track' => $query->get()
-        ]))->json();
+        ]));
     }
 
     /**
@@ -360,6 +409,34 @@ class OrderController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return JsonResponse
+     * Add Ship Schedule Features in way to create order in customer apps.
+     */
+    public function shipSchedule(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'origin_regency_id' => 'required',
+            'destination_regency_id' => 'required',
+        ])->validate();
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+            ->where('destination_regency_id', $request->destination_regency_id)
+            ->orderByRaw('updated_at - created_at desc')->first();
+
+        if ($schedules == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+                ->where('destination_regency_id', $request->destination_regency_id)
+                ->orderByRaw('departed_at asc')->get();
+
+            $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
+    }
+
+    /**
      * @param Builder $builder
      * @return Builder
      */
@@ -368,7 +445,7 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;

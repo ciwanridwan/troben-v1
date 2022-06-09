@@ -1,5 +1,6 @@
 <?php
-include_once "2021_08_31_153431_create_partner_prices_table.php";
+
+include_once '2021_08_31_153431_create_partner_prices_table.php';
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,7 +23,7 @@ class RevampPartnerPricesTable extends Migration
 
             $table->unsignedBigInteger('origin_regency_id');
             $table->unsignedBigInteger('destination_regency_id');
-            $table->unsignedSmallInteger('type',false,true)->comment($this->typeComment());
+            $table->unsignedSmallInteger('type', false, true)->comment($this->typeComment());
             $table->unsignedInteger('value');
             $table->unsignedSmallInteger('shipment_type')->comment($this->shipmentTypeComment());
             $table->unsignedBigInteger('created_by')->nullable();
@@ -61,7 +62,7 @@ class RevampPartnerPricesTable extends Migration
      */
     private function typeComment(): string
     {
-        return "
+        return '
             1: SLA (hours)
             2: Flat
             3: tier 1
@@ -74,7 +75,7 @@ class RevampPartnerPricesTable extends Migration
             10: tier 8
             11: tier 9
             12: tier 10
-        ";
+        ';
     }
 
     /**
@@ -82,10 +83,10 @@ class RevampPartnerPricesTable extends Migration
      */
     private function shipmentTypeComment(): string
     {
-        return "
+        return '
             1: Land
             2: Sea
             3: Airway
-        ";
+        ';
     }
 }

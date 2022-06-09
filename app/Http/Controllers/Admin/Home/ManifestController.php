@@ -110,7 +110,10 @@ class ManifestController extends Controller
 
     public function getPartnerTransporter(Request $request): JsonResponse
     {
-        $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER);
+//        $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)
+//            ->orWhere('type', Partner::TYPE_BUSINESS);
+        $query = Partner::query();
+
         $request->whenHas('q', function ($value) use ($query) {
             $query->where(function ($query) use ($value) {
                 $query->search($value);

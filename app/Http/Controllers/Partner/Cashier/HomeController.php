@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers\Partner\Cashier;
 
+use App\Events\Partners\PartnerCashierDiscount;
+use App\Http\Resources\Account\UserResource;
 use App\Http\Response;
+use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
+use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Price;
+use App\Models\Partners\Partner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Packages\Item;
@@ -50,13 +56,14 @@ class HomeController extends Controller
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }
 
-            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices']);
+            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments']);
 
             $this->query->whereHas('code', function ($query) use ($request) {
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
-
             $this->attributes = $request->validate($this->rules);
+
+            $this->query->orderBy('created_at', 'desc');
             $this->getResource();
 
 
@@ -84,10 +91,54 @@ class HomeController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->item))->json();
     }
 
-    public function packageChecked(Package $package)
+    public function packageChecked(Package $package, Request $request)
     {
+        if ($request->has('discount')) {
+            switch ($request->user()->partners[0]['type']) {
+                case Partner::TYPE_BUSINESS:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
+                    break;
+                case Partner::TYPE_SPACE:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_SPACE, $package);
+                    break;
+                case Partner::TYPE_POS:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
+                    break;
+                case Partner::TYPE_HEADSALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                    break;
+                case Partner::TYPE_SALES:
+                    $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
+                    break;
+            }
+            if ($request->discount > $check) {
+                return (new Response(Response::RC_BAD_REQUEST))->json();
+            }
+            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                'type' => Price::TYPE_DISCOUNT,
+                'description' => Price::TYPE_SERVICE,
+                'amount' => $request->discount,
+            ]);
+            $this->dispatch($job);
+
+            event(new PartnerCashierDiscount($package));
+        }
+
         event(new PackageCheckedByCashier($package));
+
         return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    public function check(float $fee_percentage, Package $package): float
+    {
+        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+        return $service_price * $fee_percentage;
+    }
+
+    public function getUserInfo(Request $request)
+    {
+        $account = $request->user();
+        return $this->jsonSuccess(new UserResource($account));
     }
 
     public function getHistoryDataByPackageStatus(Request $request, $status_condition): JsonResponse

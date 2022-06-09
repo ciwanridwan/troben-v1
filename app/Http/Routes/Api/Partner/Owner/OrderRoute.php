@@ -38,6 +38,16 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('dashboard'),
             'uses' => $this->uses('dashboard'),
         ]);
+
+        $this->router->get($this->prefix('voucherList'), [
+            'as' => $this->name('voucherList'),
+            'uses' => $this->uses('voucherList'),
+        ]);
+
+        $this->router->post($this->prefix('approval'), [
+            'as' => $this->name('approval'),
+            'uses' => $this->uses('approval'),
+        ]);
     }
 
     /**

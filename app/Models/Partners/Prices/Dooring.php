@@ -42,12 +42,12 @@ class Dooring extends PriceModel
     protected $casts = [];
 
     /**
-     * Define destination sub district belongsto relation
+     * Define destination sub district belongsto relation.
      *
      * @return BelongsTo
      */
     public function destination_sub_districts(): BelongsTo
     {
-        return $this->belongsTo(SubDistrict::class,'destination_sub_district_id','id');
+        return $this->belongsTo(SubDistrict::class, 'destination_sub_district_id', 'id');
     }
 }

@@ -58,6 +58,7 @@ return [
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
+        App\Http\Routes\Api\Partner\VoucherRoute::class,
         App\Http\Routes\Api\OrderRoute::class,
         App\Http\Routes\Api\HandlingRoute::class,
         App\Http\Routes\Api\Partner\Warehouse\OrderRoute::class,
@@ -75,17 +76,10 @@ return [
         App\Http\Routes\Api\PaymentRoute::class,
         App\Http\Routes\Api\VersionRoute::class,
         App\Http\Routes\Api\PromoRoute::class,
-        App\Http\Routes\Api\Courier\ManifestRoute::class,
-        App\Http\Routes\Api\Courier\OrderRoute::class,
-        App\Http\Routes\Api\Courier\Transition\PickupRoute::class,
         App\Http\Routes\Api\Partner\Owner\BalanceRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Manifest\TransitRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\Order\ItemRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\DooringRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\ManifestRoute::class,
-        App\Http\Routes\Api\WMS\Warehouse\OrderRoute::class,
         App\Http\Routes\Api\NotificationRoute::class,
         App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
+        App\Http\Routes\Api\SupportRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -104,9 +98,10 @@ return [
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
-        App\Http\Routes\Admin\Payment\MPWRouter::class,
-        App\Http\Routes\Admin\Payment\MTAKabRouter::class,
-        App\Http\Routes\Admin\Payment\MTAKRouter::class,
+        # removed at 02-Jan-2021 because not use
+        // App\Http\Routes\Admin\Payment\MPWRouter::class,
+        // App\Http\Routes\Admin\Payment\MTAKabRouter::class,
+        // App\Http\Routes\Admin\Payment\MTAKRouter::class,
         /** @inject admin **/
     ],
     'cashier' => [

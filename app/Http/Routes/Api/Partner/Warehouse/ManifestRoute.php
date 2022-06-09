@@ -14,7 +14,7 @@ class ManifestRoute extends BaseRoute
     protected $name = 'api.partner.warehouse.manifest';
 
     protected $middleware = [
-        'partner.type:business,space,pool,transporter',
+        'partner.type:business,space,pool,transporter,ho-hs,ho-sales,pos',
         'partner.role:warehouse',
         'partner.scope.role:warehouse',
     ];
@@ -29,6 +29,11 @@ class ManifestRoute extends BaseRoute
         $this->router->get($this->prefix, [
             'as' => $this->name,
             'uses' => $this->uses('index'),
+        ]);
+
+        $this->router->post($this->prefix('detaildeliveries'), [
+            'as' => $this->name('detaildeliveries'),
+            'uses' => $this->uses('detailDeliveries')
         ]);
 
         $this->router->post($this->prefix, [

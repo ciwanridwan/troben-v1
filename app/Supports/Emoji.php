@@ -2,13 +2,6 @@
 
 namespace App\Supports;
 
-use App\Models\Code;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
-use App\Supports\Translates\Delivery as TranslatesDelivery;
-use App\Supports\Translates\Package as TranslatesPackage;
-use Illuminate\Database\Eloquent\Model;
-
 class Emoji
 {
     public const EMOJI_RED_FLAG = '\xF0\x9F\x9A\xA9';

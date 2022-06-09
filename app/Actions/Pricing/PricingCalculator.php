@@ -6,6 +6,7 @@ use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use App\Models\Partners\Voucher;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Promos\Promotion;
@@ -20,6 +21,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -76,12 +78,12 @@ class PricingCalculator
         $this->act_weight = $this->ceilByTolerance($this->attributes['weight']);
     }
 
-    public static function getPackageTotalAmount(Package $package)
+    public static function getPackageTotalAmount(Package $package, bool $is_approved = false)
     {
-        if (! $package->relationLoaded('items.prices')) {
+        if (!$package->relationLoaded('items.prices')) {
             $package->load('items.prices');
         }
-        if (! $package->relationLoaded('prices')) {
+        if (!$package->relationLoaded('prices')) {
             $package->load('prices');
         }
         // get handling and insurance prices
@@ -94,10 +96,20 @@ class PricingCalculator
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
-        $discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->get()->sum('amount');
+
+        $pickup_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+            ->where('description', PackagesPrice::TYPE_PICKUP)->get()->sum('amount');
+
+        $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+            ->where('description', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
+
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
-        $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $discount_price;
+        if ($is_approved == true) {
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - ($pickup_discount_price + $service_discount_price);
+        } else {
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $pickup_discount_price;
+        }
 
         if ($package->claimed_promotion != null) {
             $promo = $package->load('claimed_promotion');
@@ -111,7 +123,6 @@ class PricingCalculator
                 $total_amount = $promo->claimed_promotion->promotion->min_payment;
             }
         }
-
         return $total_amount;
     }
 
@@ -127,6 +138,9 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'partner_code' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
             'fleet_name' => ['nullable'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
@@ -139,24 +153,37 @@ class PricingCalculator
 
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
+        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
+            $partner = Partner::where('code', $inputs['partner_code'])->first();
+            $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
+            $destination = $partner->latitude . ', ' . $partner->longitude;
+            $distance = self::distance_matrix($origin, $destination);
 
-        if (array_key_exists('fleet_name', $inputs)) {
             if ($inputs['fleet_name'] == 'bike') {
-                $pickup_price = Transporter::PRICE_BIKE;
+                if ($distance < 5) {
+                    $pickup_price = 8000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 8000 + (2000 * $substraction);
+                }
             } else {
-                $pickup_price = Transporter::PRICE_CAR;
+                if ($distance < 5) {
+                    $pickup_price = 15000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 15000 + (4000 * $substraction);
+                }
             }
         }
 
-        $discount = $pickup_price;
+        $discount = 0;
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
-            if (! Arr::has($item, 'handling')) {
+            if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
             $handlingResult = [];
@@ -218,9 +245,9 @@ class PricingCalculator
     public static function getServicePrice(array $inputs, ?Price $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -230,24 +257,30 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        if (! $price) {
+        if (!$price) {
             /** @var Price $price */
             $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
 
         $items = [];
-
         foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
             $items[] = [
                 'weight' => $item['weight'],
                 'height' => $item['height'],
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => ! empty($item['handling']) ? array_column($item['handling'], 'type') : null
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+
             ];
         }
-
         $totalWeightBorne = self::getTotalWeightBorne($items);
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
@@ -271,10 +304,10 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            if (! Arr::has($item, 'handling')) {
+            if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
-            if (! empty($item['handling'])) {
+            if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -508,6 +541,28 @@ class PricingCalculator
         ];
     }
 
+    public static function getCalculationVoucherPackage(Voucher $voucher, Package $package): array
+    {
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $percentage_discount = $service_discount_price / $service_price * 100;
+        if ($percentage_discount > $voucher->discount) {
+            return [
+                'service_price_fee' => 0,
+                'service_price_discount' => $service_discount_price,
+                'voucher_price_discount' => 0,
+            ];
+        }
+
+        $service_discount = $service_price * ($voucher->discount / 100);
+        $service_fee = $service_price - $service_discount; // gk dipakai
+        return [
+            'service_price_fee' => 0,
+            'service_price_discount' => 0,
+            'voucher_price_discount' => $service_discount,
+        ];
+    }
+
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
@@ -519,5 +574,20 @@ class PricingCalculator
         }
 
         return $handling;
+    }
+
+    public static function distance_matrix($origin, $destination)
+    {
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=' . $destination . '&origins=' . $origin . '&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
+        $response = json_decode($response->body());
+        $distance = $response->rows[0]->elements[0]->distance->text;
+
+        $distance = str_replace("km", "", $distance);
+        $distance = str_replace(",", "", $distance);
+        $distance = (float) $distance;
+        return $distance;
     }
 }

@@ -48,9 +48,9 @@ class DeleteExistingUser
      */
     public function handle(): bool
     {
-        $this->user->phone = '';
-        $this->user->email = '';
-        $this->user->update();
+//        $this->user->phone = '';
+//        $this->user->email = '';
+//        $this->user->update();
 
         (bool) $result = $this->softDelete ? $this->user->delete() : $this->user->forceDelete();
 

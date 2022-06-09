@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
+use App\Http\Response;
+use App\Models\Code;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
@@ -60,10 +62,18 @@ class AssignableController extends Controller
     {
         $query = $repository->queries()->getPackagesQuery();
 
+        if ($request->has('q')) {
+            $id = Code::select('codeable_id')
+                ->where('content', 'like', '%'.$request->q.'%')
+                ->pluck('codeable_id');
+            if ($id->count() == 0) {
+                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            }
+            $query->whereIn('id', $id)->get();
+        }
+
         $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
-
         $request->whenHas('status', fn ($value) => $query->where('status', $value));
-
         $query->whereDoesntHave(
             'deliveries',
             fn (Builder $builder) => $builder

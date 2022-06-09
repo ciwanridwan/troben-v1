@@ -3,7 +3,7 @@
 namespace App\Jobs\Partners\Balance;
 
 use App\Events\Partners\Balance\NewDeliveryHistoryCreated;
-use App\Models\Partners\Balance\DeliveryHistory;;
+use App\Models\Partners\Balance\DeliveryHistory;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;

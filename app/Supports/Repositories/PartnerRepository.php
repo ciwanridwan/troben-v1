@@ -40,6 +40,11 @@ class PartnerRepository
         return $this->scopedRole;
     }
 
+    public function getDataUser(): User
+    {
+        return $this->getUser();
+    }
+
     public function getPartner(): Partner
     {
         $partners = $this->getUser()->partners;

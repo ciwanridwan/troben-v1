@@ -8,7 +8,7 @@ use Jalameta\Router\BaseRoute;
 class CustomerServiceRoute extends BaseRoute
 {
     protected $name = 'partner.customer_service';
-    
+
     /**
      * Register routes handled by this class.
      *
@@ -18,7 +18,7 @@ class CustomerServiceRoute extends BaseRoute
     {
         $this->router->get($this->prefix('message'), [
             'as' => $this->name('message'),
-            'uses' => $this->uses('index',MessageController::class),
+            'uses' => $this->uses('index', MessageController::class),
         ]);
     }
 }

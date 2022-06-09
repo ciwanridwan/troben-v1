@@ -5,7 +5,9 @@ namespace App\Models\Packages;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
+use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
+use App\Models\Partners\ClaimedVoucher;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Performances\PerformanceModel;
 use App\Models\Promos\ClaimedPromotion;
@@ -76,6 +78,9 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
+ * @property int $created_by
+ * @property int $updated_by
+ *
  * @property-read \App\Models\Customers\Customer|null $customer
  * @property-read \App\Models\Geo\Regency|null $origin_regency
  * @property-read \App\Models\Geo\District|null $origin_district
@@ -99,6 +104,8 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 class Package extends Model implements AttachableContract
 {
     use HasPhoneNumber, SoftDeletes, HashableId, HasCode, HasFactory, Attachable, CanSearch, CustomSerializeDate;
+
+    public const PACKAGE_SYSTEM_ID = 0;
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_LOST = 'lost';
@@ -228,6 +235,7 @@ class Package extends Model implements AttachableContract
     protected $appends = [
         'hash',
         'service_price',
+        'discount_service_price',
         'type',
     ];
 
@@ -322,16 +330,32 @@ class Package extends Model implements AttachableContract
 
     public function getServicePriceAttribute()
     {
+        $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+            ->where('description', Price::TYPE_SERVICE)
+            ->first();
+        $discount = ($discount == null) ? 0 : $discount['amount'];
+
+        // return $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
+        $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount ?? 0; 
+        if ($amount == null) {
+            return 0;
+        } else {
+            return $amount - $discount;
+        }
+    }
+
+    public function getDiscountServicePriceAttribute()
+    {
         try {
             $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
                 ->where('description', Price::TYPE_SERVICE)
                 ->first()->amount;
-            if ($discount != null) {
-                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
+            if ($discount == null) {
+                $discount_service_price = 0;
             } else {
-                $service_price = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount;
+                $discount_service_price = $discount;
             }
-            return $service_price;
+            return $discount_service_price;
         } catch (\Throwable $th) {
             return 0;
         }
@@ -431,6 +455,11 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(ClaimedPromotion::class, 'package_id', 'id');
     }
 
+    public function claimed_voucher(): HasOne
+    {
+        return $this->hasOne(ClaimedVoucher::class, 'package_id', 'id');
+    }
+
     public function deliveries(): MorphToMany
     {
         return $this->morphToMany(Delivery::class, 'deliverable')
@@ -448,6 +477,11 @@ class Package extends Model implements AttachableContract
     public function estimator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'estimator_id', 'id');
+    }
+
+    public function updated_by(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
     }
 
     public function packager(): BelongsTo
@@ -538,7 +572,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -577,7 +611,7 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_PICKED_UP],
-                'description' => 'Paket telah dijemput oleh kurir :partner_code',
+                'description' => 'Paket telah dijemput oleh kurir Mitra :partner_code',
                 'variable' => ['partner_code']
             ],
             [
@@ -595,14 +629,14 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATING],
-                'description' => 'Paket sedang di ukur dan timbang oleh :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket sedang di ukur dan timbang oleh :estimator_name :partner_code',
+                'variable' => ['partner_code', 'estimator_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
                 'status' => [self::STATUS_ESTIMATED],
-                'description' => 'Paket telah di ukur dan timbang oleh :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket telah di ukur dan timbang oleh :estimator_name :partner_code',
+                'variable' => ['partner_code', 'estimator_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_DRAFT],
@@ -625,32 +659,32 @@ class Package extends Model implements AttachableContract
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_WAITING_FOR_PACKING],
-                'description' => 'Pembayaran sudah diverifikasi dan menuju gudang transit',
+                'description' => 'Pembayaran sudah diverifikasi',
                 'variable' => []
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKING],
-                'description' => 'Paket sedang di packing',
-                'variable' => ['packager_name']
+                'description' => 'Paket sedang di packing oleh :packager_name :partner_code',
+                'variable' => ['packager_name', 'partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_PACKED],
-                'description' => 'Paket telah dipacking dan siap diantar',
-                'variable' => []
+                'description' => 'Paket telah dipacking dan siap diantar menuju gudang transit',
+                'variable' => ['packager_name', 'partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_MANIFESTED],
-                'description' => 'Paket diantar ke :partner_code',
+                'description' => 'Paket siap diantar ke Mitra :partner_code',
                 'variable' => ['partner_code']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
                 'status' => [self::STATUS_IN_TRANSIT],
-                'description' => 'Paket sudah sampai di :partner_code',
-                'variable' => ['partner_code']
+                'description' => 'Paket sudah sampai di Mitra :partner_code dan diterima oleh :unloader_name',
+                'variable' => ['partner_code', 'unloader_name']
             ],
             [
                 'payment_status' => [self::PAYMENT_STATUS_PAID],
@@ -675,7 +709,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (! $transporterType) {
+        if (!$transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {

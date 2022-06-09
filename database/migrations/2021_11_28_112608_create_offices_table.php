@@ -21,6 +21,7 @@ class CreateOfficesTable extends Migration
             $table->string('address')->nullable();
             $table->string('email')->unique();
             $table->string('password');
+            $table->foreignId('role_id')->constrained('roles')->nullOnDelete();
             $table->boolean('is_active')->nullable()->default(true);
             $table->timestamps();
             $table->softDeletes();

@@ -3,6 +3,7 @@
 namespace App\Jobs\Deliveries;
 
 use App\Events\Deliveries\DeliveryCreated;
+use App\Models\User;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
@@ -49,7 +50,11 @@ class CreateNewDelivery
     public function handle(): void
     {
         $this->delivery->fill($this->attributes);
-
+        if ($this->attributes['type'] == 'pickup') {
+            $this->delivery->created_by = User::USER_SYSTEM_ID;
+        } else {
+            $this->delivery->created_by = auth()->user()->id;
+        }
         if ($this->partner) {
             $this->delivery->partner()->associate($this->partner);
         }

@@ -22,6 +22,8 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
+use App\Models\User;
+use App\Models\Packages\Price as PackagesPrice;
 
 class UpdatePackageStatusByEvent
 {
@@ -35,85 +37,119 @@ class UpdatePackageStatusByEvent
     {
         switch (true) {
             case $event instanceof Pickup\PackageLoadedByDriver:
+                $user = auth()->user();
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_PICKED_UP)->save())
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_PICKED_UP)->setAttribute('updated_by', $user->id)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', true)->save());
                 break;
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
+                $user = auth()->user();
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_WAITING_FOR_ESTIMATING)->save())
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_WAITING_FOR_ESTIMATING)->setAttribute('updated_by', $user->id)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', false)->save());
                 break;
             case $event instanceof Transit\DriverArrivedAtOriginWarehouse:
+                $user = auth()->user();
                 $event->delivery->packages()
                     ->cursor()
-                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_TRANSIT && $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->save())
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_TRANSIT && $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->setAttribute('updated_by', $user->id)->save())
                     ->each(fn (Package $package) => $package->pivot->setAttribute('is_onboard', true)->save());
                 break;
             case $event instanceof WarehouseIsEstimatingPackage:
+                $user = auth()->user();
                 $event->package->setAttribute('status', Package::STATUS_ESTIMATING);
+                $event->package->setAttribute('updated_by', $user->id);
                 $event->package->estimator()->associate($event->actor);
                 $event->package->save();
                 break;
             case $event instanceof PackageEstimatedByWarehouse:
-                $event->package->setAttribute('status', Package::STATUS_ESTIMATED)->save();
+                $user = auth()->user();
+                $event->package->setAttribute('status', Package::STATUS_ESTIMATED)
+                    ->setAttribute('updated_by', $user->id)
+                    ->save();
                 break;
             case $event instanceof PackageCanceledByCustomer || $event instanceof PackageCanceledByAdmin:
                 $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
+                $event->package->setAttribute('updated_by', User::USER_SYSTEM_ID);
                 break;
             case $event instanceof PackageCheckedByCashier:
-                $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
+                $user = auth()->user();
+                $event->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)
+                    ->setAttribute('updated_by', $user->id)
+                    ->save();
                 break;
             case $event instanceof PackageApprovedByCustomer:
                 $event->package
                     ->setAttribute('status', Package::STATUS_ACCEPTED)
                     ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                    ->setAttribute('updated_by', User::USER_SYSTEM_ID)
                     ->save();
+                $event->package->setAttribute('updated_by', User::USER_SYSTEM_ID)->save();
                 break;
             case $event instanceof PackagePaymentVerified:
                 $event->package
                     ->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING)
                     ->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID)
+                    ->setAttribute('updated_by', User::USER_SYSTEM_ID)
                     ->save();
                 break;
             case $event instanceof WarehouseIsStartPacking:
-                $event->package->setAttribute('status', Package::STATUS_PACKING);
+                $user = auth()->user();
+                $event->package->setAttribute('status', Package::STATUS_PACKING)
+                    ->setAttribute('updated_by', $user->id);
                 $event->package->packager()->associate($event->actor);
                 $event->package->save();
                 break;
             case $event instanceof PackageAlreadyPackedByWarehouse:
-                $event->package->setAttribute('status', Package::STATUS_PACKED)->save();
+                $user = auth()->user();
+                $event->package->setAttribute('status', Package::STATUS_PACKED)
+                    ->setAttribute('updated_by', $user->id)
+                    ->save();
                 break;
             case $event instanceof PackageAttachedToDelivery:
+                $user = auth()->user();
                 if (in_array($event->package->status, [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])) {
-                    $event->package->setAttribute('status', Package::STATUS_MANIFESTED)->save();
+                    $event->package->setAttribute('status', Package::STATUS_MANIFESTED)
+                        ->setAttribute('updated_by', $user->id)
+                        ->save();
                 }
                 break;
             case $event instanceof Transit\WarehouseUnloadedPackage:
+                $user = auth()->user();
                 /** @var Package $package */
                 $package = $event->package;
-                $package->setAttribute('status', Package::STATUS_IN_TRANSIT)->save();
+                $package->setAttribute('status', Package::STATUS_IN_TRANSIT)
+                    ->setAttribute('updated_by', $user->id)
+                    ->save();
                 break;
             case $event instanceof PackageUpdated:
                 /** @var Package $package */
                 $package = $event->package;
                 $user = auth()->user();
-
                 if ($package->customer->id === $user->id && $user instanceof Customer) {
-                    $package->setAttribute('status', Package::STATUS_REVAMP)->save();
+                    $package->setAttribute('status', Package::STATUS_REVAMP)
+                        ->setAttribute('updated_by', User::USER_SYSTEM_ID)
+                        ->save();
+                    $service_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                        ->where('description', PackagesPrice::TYPE_SERVICE)->first();
+                    if ($service_discount_price) {
+                        $service_discount_price->delete();
+                    }
                 }
                 break;
             case $event instanceof Registration\NewVacctRegistration:
                 /** @var Package $package */
                 $package = $event->package;
-                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
+                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                    ->setAttribute('updated_by', User::USER_SYSTEM_ID)->save();
                 break;
             case $event instanceof Registration\NewQrisRegistration:
                 /** @var Package $package */
                 $package = $event->package;
-                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)->save();
+                $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                    ->setAttribute('updated_by', User::USER_SYSTEM_ID)->save();
                 break;
             case $event instanceof PayByNicepay:
                 $params = $event->params;
@@ -123,6 +159,7 @@ class UpdatePackageStatusByEvent
                 if ($params->status === '0' && $package->payment_status !== Package::PAYMENT_STATUS_PAID) {
                     $package->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
                     $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
+                    $package->setAttribute('updated_by', User::USER_SYSTEM_ID);
                     $package->save();
                 }
                 break;

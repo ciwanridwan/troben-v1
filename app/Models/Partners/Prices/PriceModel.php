@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models\Partners\Prices;
 
 use App\Models\Geo\Regency;
@@ -7,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * Base Partner Price Model
+ * Base Partner Price Model.
  *
  * @property-read Partner $partner
  * @property-read Regency $origin_regency
@@ -33,7 +34,7 @@ class PriceModel extends Pivot
      */
     public function partner(): BelongsTo
     {
-        return $this->belongsTo(Partner::class,'partner_id','id');
+        return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
 
     /**
@@ -42,6 +43,6 @@ class PriceModel extends Pivot
      */
     public function origin_regency(): BelongsTo
     {
-        return $this->belongsTo(Regency::class,'origin_regency_id', 'id');
+        return $this->belongsTo(Regency::class, 'origin_regency_id', 'id');
     }
 }

@@ -2,7 +2,15 @@
   <content-chat-layout>
     <!-- chat list -->
     <template slot="sider-left">
-      <a-spin :spinning="loadingRoom" tip="Loading...">
+      <a-spin
+        :spinning="loadingRoom"
+        tip="Loading..."
+        style="min-height: 500px"
+      >
+        <a-empty
+          :description="'nggak ada chat nih...'"
+          v-if="!roomChat && !loadingRoom"
+        />
         <a-list
           item-layout="horizontal"
           :data-source="roomChat"
@@ -52,7 +60,12 @@
     <!-- chat box -->
     <template slot="content">
       <!-- chat body -->
-      <a-spin v-if="nickname" :spinning="loadingChat" tip="Loading...">
+      <a-spin
+        v-if="nickname"
+        :spinning="loadingChat"
+        tip="Loading..."
+        style="min-height: 900px"
+      >
         <div class="spin-content" style="position: relative">
           <a-row
             v-for="(data, index) in dataChat"
@@ -62,9 +75,12 @@
             align="bottom"
             :class="[
               'trawl-chat--next',
-              index == dataChat.length - 1 ? 'scrollingContainers' : '',
+              index == dataChat.length - 1 ? 'scrollingContainer' : '',
             ]"
-            :style="data.user_chat ? 'padding-left: 15px' : ''"
+            :style="[
+              'overflow-y: scroll;',
+              data.user_chat ? 'padding-left: 15px' : '',
+            ]"
           >
             <a-col v-if="data.customer_chat" :md="1">
               <a-avatar
@@ -172,9 +188,9 @@
     </template>
 
     <!-- notification -->
-    <template slot="sider-right">
+    <!-- <template slot="sider-right">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-chat-layout>
 </template>
 <script>
@@ -201,6 +217,10 @@ export default {
     };
   },
   methods: {
+    switchLoading(type) {
+      this.loadingRoom = type;
+    },
+
     tempChat() {
       let data = {
         attachments: this.selectedFile
@@ -218,8 +238,8 @@ export default {
       };
 
       this.dataChat.push(data);
-      console.log("tempChat data", data);
-      console.log("pushh", this.dataChat);
+      //console.log("tempChat data", data);
+      //console.log("pushh", this.dataChat);
     },
 
     scrollToElement(options) {
@@ -232,16 +252,16 @@ export default {
     },
 
     onFileSelected(event) {
-      console.log("cel ref", event.target.files.length > 0);
-      console.log(event);
+      //console.log("cel ref", event.target.files.length > 0);
+      //console.log(event);
       if (event.target.files.length > 0) {
-        console.log("ada file");
+        //console.log("ada file");
         this.selectedFile = event.target.files[0];
         this.tempUrl = URL.createObjectURL(this.selectedFile);
         // let output = document.getElementById("blah");
         // output.src = src;
       }
-      console.log("lolos");
+      //console.log("lolos");
 
       // var reader = new FileReader();
       // reader.onload = function (e) {
@@ -253,8 +273,8 @@ export default {
       // reader.readAsDataURL(event.files[0]);
 
       this.imageName = event.target.files[0].name;
-      console.log("upload", event);
-      console.log("uploadData", event.target.files[0]);
+      //console.log("upload", event);
+      //console.log("uploadData", event.target.files[0]);
     },
 
     description(item) {
@@ -281,14 +301,15 @@ export default {
     },
 
     getListRoom(value) {
-      if (value === "reconnect") return this.consumeSocket(this.getListRoom);
+      if (value === "reconnect")
+        return this.consumeSocket(this.getListRoom, this.switchLoading);
       this.roomChat = value;
-      console.log("onmessage", this.roomChat);
+      //console.log("onmessage", this.roomChat);
       this.loadingRoom = false;
     },
 
     getListChat(value) {
-      console.log("masuk pak ekooo", value);
+      //console.log("masuk pak ekooo", value);
       this.dataChat = value;
       this.loadingChat = false;
       if (!this.loadingChat) {
@@ -296,7 +317,8 @@ export default {
       }
     },
 
-    consumeSocket(callback) {
+    consumeSocket(callback, switchLoading) {
+      let chatBaseUrl = this.chatBaseUrl;
       let jwtToken = this.jwt_token;
       let consumer = new WebSocket(
         `${this.socketBaseUrl}/ws/v2/consumer/non-persistent/public/default/${
@@ -305,16 +327,19 @@ export default {
       );
 
       consumer.onopen = function (e) {
-        console.log("isOpen", consumer);
+        //console.log("isOpen", consumer);
 
-        fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
+        fetch(`${chatBaseUrl}/chat/list/partner/room`, {
           method: "GET",
           headers: {
             Authorization: `bearer ${jwtToken}`,
           },
         })
           .then((response) => {
-            console.log("success", response);
+            // console.log("success", response);
+            if (response.status == 404) {
+              switchLoading(false);
+            }
           })
           .catch((err) => {
             console.error("failure error", err);
@@ -331,37 +356,36 @@ export default {
           element.is_active = false;
           element.is_online = false;
         });
-        console.log("getdata", getData);
+        // console.log("getdata", getData);
         callback(getData);
       };
 
       consumer.onclose = function (event) {
-        console.log("on close....", event);
+        // //console.log("on close....", event);
         if (event.wasClean) {
           // alert(
           //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
           // );
-          console.log(
-            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          );
+          //console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
         } else {
           // e.g. server process killed or network down
           // event.code is usually 1006 in this case
           // alert("[close] Connection consumer died");
-          console.log("[close] Connection consumer died");
+          //console.log("[close] Connection consumer died");
           callback("reconnect");
         }
       };
 
       consumer.onerror = function (error) {
         // alert(`[error] ${error.message}`);
-        console.log("consumer error", error.message);
+        //console.log("consumer error", error.message);
       };
 
       consumer.connect;
     },
 
     listChat(item, callback) {
+      let chatBaseUrl = this.chatBaseUrl;
       this.loadingChat = true;
       this.dataChat = null;
       this.roomId = item.room_id;
@@ -372,33 +396,28 @@ export default {
         }-partner-room-${item.room_id}/chat`
       );
       consumer.onclose = function (event) {
-        console.log("listchat on close....", event);
+        // //console.log("listchat on close....", event);
         if (event.wasClean) {
-          console.log(
-            `listchat [close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          );
+          //console.log(`listchat [close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
         } else {
           // e.g. server process killed or network down
           // event.code is usually 1006 in this case
-          console.log("listchat [close] Connection list chat died");
+          //console.log("listchat [close] Connection list chat died");
           listChat(item, callback);
         }
       };
 
       consumer.onopen = function (e) {
-        console.log("list chat isOpenChat", consumer);
+        // //console.log("list chat isOpenChat", consumer);
 
-        fetch(
-          `https://staging-chat.trawlbens.com/chat/list/partner/room/${item.room_id}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `bearer ${jwtToken}`,
-            },
-          }
-        )
+        fetch(`${chatBaseUrl}/chat/list/partner/room/${item.room_id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `bearer ${jwtToken}`,
+          },
+        })
           .then((response) => {
-            console.log("list chat success", response);
+            // //console.log("list chat success", response);
           })
           .then(() => {
             let el = document.getElementById("scrollingContainer");
@@ -409,7 +428,7 @@ export default {
           });
       };
 
-      console.log("roomChat", this.roomChat);
+      // //console.log("roomChat", this.roomChat);
 
       consumer.onmessage = function (event) {
         var myHeaders = new Headers();
@@ -422,23 +441,27 @@ export default {
         };
 
         fetch(
-          `https://staging-chat.trawlbens.com/chat/partner/read/partner/room/${item.room_id}`,
+          `${chatBaseUrl}/chat/partner/read/partner/room/${item.room_id}`,
           requestOptions
         )
           .then((response) => response.text())
-          .then((result) => console.log("patch", result))
-          .catch((error) => console.log("error patch", error));
+          .then((result) => {
+            //console.log("patch", result)
+          })
+          .catch((error) => {
+            //console.log("error patch", error)
+          });
 
         let message = JSON.parse(event.data);
         let payload = atob(message.payload);
         callback(JSON.parse(payload));
-        console.log("onmessagechat", JSON.parse(payload));
+        // //console.log("onmessagechat", JSON.parse(payload));
       };
 
       this.nickname = item.customer.name;
 
       consumer.onerror = function (error) {
-        console.log("error", error.message);
+        //console.log("error", error.message);
       };
 
       consumer.connect;
@@ -450,7 +473,7 @@ export default {
     //   );
 
     //   socket.onclose = function(event) {
-    //     console.log("on close....", event);
+    //     //console.log("on close....", event);
     //     if (event.wasClean) {
     //       alert(
     //         `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
@@ -467,7 +490,7 @@ export default {
     // },
 
     producerSocket() {
-      console.log("produce", this.roomId, this.textInput);
+      // //console.log("produce", this.roomId, this.textInput);
 
       // var myHeaders = new Headers();
       // myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
@@ -476,7 +499,7 @@ export default {
       // formdata.append("room_id", this.roomId);
       // formdata.append("message", this.textInput);
       // if (this.selectedFile) {
-      //   console.log("masuk upload file", this.selectedFile.name);
+      //   //console.log("masuk upload file", this.selectedFile.name);
       //   formdata.append("attachments", this.selectedFile);
       // }
       // // formdata.append("attachments", fileInput.files[0]);
@@ -489,12 +512,14 @@ export default {
       // };
 
       // fetch(
-      //   "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
+      //   `${chatBaseUrl}/chat/trawlbens/to/customer",
       //   requestOptions
       // )
       //   .then(response => response.text())
-      //   .then(result => console.log(result))
-      //   .catch(error => console.log("error", error));
+      //   .then(result => //console.log(result))
+      //   .catch(error => //console.log("error", error));
+
+      let chatBaseUrl = this.chatBaseUrl;
 
       var myHeaders = new Headers();
       myHeaders.append("Authorization", `bearer ${this.jwt_token}`);
@@ -503,7 +528,7 @@ export default {
       formdata.append("room_id", this.roomId);
       formdata.append("message", this.textInput);
       if (this.selectedFile) {
-        console.log("masuk upload file", this.selectedFile.name);
+        // //console.log("masuk upload file", this.selectedFile.name);
 
         formdata.append("attachments", this.selectedFile);
       }
@@ -515,12 +540,9 @@ export default {
         // redirect: "follow"
       };
 
-      fetch(
-        "https://staging-chat.trawlbens.com/chat/trawlbens/to/customer",
-        requestOptions
-      )
+      fetch(`${chatBaseUrl}/chat/trawlbens/to/customer`, requestOptions)
         .then((response) => {
-          console.log("response upload", response);
+          // //console.log("response upload", response);
           this.tempChat();
           response.text();
         })
@@ -529,9 +551,11 @@ export default {
           this.selectedFile = null;
           this.tempUrl = null;
           this.scrollToElement();
-          console.log("success produce", result);
+          // //console.log("success produce", result);
         })
-        .catch((error) => console.log("error", error));
+        .catch((error) => {
+          //console.log("error", error)
+        });
     },
 
     // consumeNotif() {
@@ -540,34 +564,34 @@ export default {
     //   );
 
     //   consumer.onopen = function(e) {
-    //     console.log("notif isOpen", consumer);
+    //     //console.log("notif isOpen", consumer);
     //   };
 
     //   consumer.onmessage = function(event) {
-    //     console.log("onmessage notif", event);
+    //     //console.log("onmessage notif", event);
     //   };
 
     //   consumer.onclose = function(event) {
-    //     console.log("on close....", event);
+    //     //console.log("on close....", event);
     //     if (event.wasClean) {
     //       // alert(
     //       //   `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
     //       // );
-    //       console.log(
+    //       //console.log(
     //         `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
     //       );
     //     } else {
     //       // e.g. server process killed or network down
     //       // event.code is usually 1006 in this case
     //       // alert("[close] Connection consumer died");
-    //       console.log("[close] Connection consumer died");
+    //       //console.log("[close] Connection consumer died");
     //       callback("reconnect");
     //     }
     //   };
 
     //   consumer.onerror = function(error) {
     //     // alert(`[error] ${error.message}`);
-    //     console.log("consumer error notif", error.message);
+    //     //console.log("consumer error notif", error.message);
     //   };
 
     //   consumer.connect;
@@ -591,13 +615,13 @@ export default {
     //   );
     //   socket.onmessage = function(event) {
     //     this.newMessage.push(event.data);
-    //     console.log("onmessage....", event.data);
+    //     //console.log("onmessage....", event.data);
     //   };
     // }
   },
   created() {
     this.jwt_token = this.$laravel.jwt_token;
-    this.consumeSocket(this.getListRoom);
+    this.consumeSocket(this.getListRoom, this.switchLoading);
   },
   watch: {
     // $route: "consumeSocket",
@@ -605,8 +629,8 @@ export default {
     // $route: "consumeNotif"
   },
   mounted() {
-    console.log("user", this.user());
-    console.log("token", this.$laravel.jwt_token);
+    // //console.log("user", this.user());
+    // //console.log("token", this.$laravel.jwt_token);
   },
 };
 </script>

@@ -124,7 +124,7 @@ class Queries
 
         $this->resolvePackagesQueryByRole($query);
 
-        $query->orderByDesc('updated_at');
+        $query->orderByDesc('created_at');
 
         return $query;
     }
@@ -200,6 +200,13 @@ class Queries
                 $deliveriesQueryBuilder
                     ->whereHas('assigned_to', fn (Builder $builder) => $builder
                         ->where('user_id', $this->user->id));
+
+                $userables = $this->user->transporters;
+                $ids = [];
+                foreach ($userables as $userable) {
+                    $ids[] = $userable->pivot->id;
+                }
+                $deliveriesQueryBuilder->orWhereIn('userable_id', $ids);
                 break;
             case $this->role === UserablePivot::ROLE_WAREHOUSE:
                 $deliveriesQueryBuilder->whereIn('type', [

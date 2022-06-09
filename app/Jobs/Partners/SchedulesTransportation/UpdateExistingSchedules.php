@@ -39,11 +39,12 @@ class UpdateExistingSchedules
      */
     public function __construct(ScheduleTransportation $scheduleTransportation, $request)
     {
-
         $this->attributes = Validator::make($request, [
             'origin_regency_id' => ['filled'],
             'destination_regency_id' => ['filled'],
             'departed_at' => ['filled'],
+            'harbor_id' => ['filled'],
+            'ship_name' => ['filled'],
         ])->validate();
 
         $this->scheduleTransportation = $scheduleTransportation;

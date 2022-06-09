@@ -160,9 +160,9 @@
     </template>
 
     <!-- notification -->
-    <template slot="sider-right">
+    <!-- <template slot="sider-right">
       <trawl-notification></trawl-notification>
-    </template>
+    </template> -->
   </content-chat-layout>
 </template>
 <script>

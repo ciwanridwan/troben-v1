@@ -12,11 +12,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use ReflectionClass;
 
 class CodeLogable extends MorphPivot
 {
-    use HasFactory, CustomSerializeDate;
+    use HasFactory, CustomSerializeDate, SoftDeletes;
     public const TYPE_ERROR = 'error';
     public const TYPE_INFO = 'info';
     public const TYPE_WARNING = 'warning';

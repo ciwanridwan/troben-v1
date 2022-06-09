@@ -16,6 +16,11 @@
       </order-modal>
       <package-table-detail :package="record" />
     </template>
+<!--    <template slot="partner" slot-scope="{ record }">-->
+<!--      <span>{{ record.deliveries[0].partner.name }}</span>-->
+<!--      <br/>-->
+<!--      <span>{{ record.deliveries[0].partner.code }}</span>-->
+<!--    </template>-->
     <template slot="address" slot-scope="{ record }">
       <a-timeline :class="['trawl-timeline']">
         <a-timeline-item color="green">
@@ -36,10 +41,10 @@
     </span>
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between">
-        <a-col :span="8">
+        <a-col :span="12">
           <order-status :record="record"></order-status>
         </a-col>
-        <a-col :span="8" class="trawl-text-right">
+        <a-col :span="12" class="trawl-text-right">
           <trawl-receipt-manual-tracking
             :afterStore="afterAction"
             :record="record"

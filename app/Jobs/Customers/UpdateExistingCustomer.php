@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Customers;
 
+use App\Models\User;
 use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;
@@ -28,7 +29,10 @@ class UpdateExistingCustomer
      * @var array
      */
     public array $attributes;
-
+    /**
+     * @var string
+     */
+    public string $referral = 'success';
     /**
      * UpdateExistingCustomer constructor.
      *
@@ -47,6 +51,7 @@ class UpdateExistingCustomer
 
         $this->attributes = Validator::make($request, [
             'name' => ['filled'],
+            'referral_code' => ['filled'],
             'email' => ['filled', 'email', 'unique:customers,email,'.$customer->id.',id,deleted_at,NULL'],
             'phone' => ['filled', 'numeric', 'phone:AUTO,ID', 'unique:customers,phone,'.$customer->id.',id,deleted_at,NULL'],
             'address' => ['filled'],
@@ -66,6 +71,12 @@ class UpdateExistingCustomer
      */
     public function handle(): bool
     {
+        if (array_key_exists('referral_code', $this->attributes)) {
+            if (User::where('referral_code', $this->attributes['referral_code'])->first() == null) {
+                return $this->referral = 'failed';
+            }
+        }
+
         collect($this->attributes)->each(fn ($v, $k) => $this->customer->{$k} = $v);
         if ($this->customer->isDirty()) {
             if ($this->customer->save()) {

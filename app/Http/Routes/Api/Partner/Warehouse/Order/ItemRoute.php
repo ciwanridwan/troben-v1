@@ -12,7 +12,7 @@ class ItemRoute extends BaseRoute
     protected $name = 'api.partner.warehouse.order.item';
 
     protected $middleware = [
-        'partner.type:business,space,pool',
+        'partner.type:business,space,pool,ho-hs,ho-sales,pos',
         'partner.role:warehouse',
         'partner.scope.role:warehouse',
     ];

@@ -11,7 +11,6 @@ use Closure;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class JwtMiddleware
 {
@@ -27,13 +26,13 @@ class JwtMiddleware
     {
         $token = $request->header('token');
 
-        throw_if(!$token,new Error(Response::RC_MISSING_AUTHENTICATION_HEADER));
+        throw_if(! $token, new Error(Response::RC_MISSING_AUTHENTICATION_HEADER));
 
         try {
             $credentials = JWT::decode($token, AccountAuthentication::JWT_KEY, ['HS256']);
-        } catch(ExpiredException $e) {
+        } catch (ExpiredException $e) {
             throw new Error(Response::RC_JWT_EXPIRED);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             throw new Error(Response::RC_JWT_ERROR_DECODING);
         }
         $user = Office::find($credentials->data->id);
