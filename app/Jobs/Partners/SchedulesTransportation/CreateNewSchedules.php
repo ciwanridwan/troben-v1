@@ -43,6 +43,7 @@ class CreateNewSchedules
             'origin_regency_id' => ['required'],
             'destination_regency_id' => ['required'],
             'departed_at' => ['required'],
+            'harbor_id' => ['required', 'exists:harbors,id']
         ])->validate();
     }
 

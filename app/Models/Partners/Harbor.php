@@ -3,15 +3,12 @@
 namespace App\Models\Partners;
 
 use App\Models\Geo\Regency;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 class Harbor extends Model
 {
-    use HasFactory, BelongsTo;
-
     protected $table = 'harbors';
 
     /**
@@ -21,8 +18,8 @@ class Harbor extends Model
      */
     protected $fillable = [
         'origin_regency_id',
-        'origin_harbor_id',
-        'destination_harbor_id',
+        'origin_name',
+        'destination_name',
         'destination_regency_id'
     ];
 
@@ -49,7 +46,7 @@ class Harbor extends Model
     ];
 
     /**
-     * Define `belongsTo` relationship with Province model.
+     * Define `belongsTo` relationship with Regency model.
      * @return BelongsTo
      */
     public function origin_regency(): BelongsTo

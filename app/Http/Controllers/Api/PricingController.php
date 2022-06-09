@@ -158,7 +158,7 @@ class PricingController extends Controller
                 ->where('destination_regency_id', $request->destination_regency_id)
                 ->orderByRaw('departed_at asc')->get();
 
-            $result->makeHidden(['created_at', 'updated_at', 'deleted_at']);
+            $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
             return (new Response(Response::RC_SUCCESS, $result))->json();
         }
     }
