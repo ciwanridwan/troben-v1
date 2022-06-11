@@ -12,13 +12,11 @@ class HarborResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-
     public function toArray($request)
     {
         /**
          * @var Harbor
          */
-
         $data = [
             'id' => $this->id,
             'origin_name' => $this->origin_name,

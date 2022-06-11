@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Api\Partner\Owner;
 
 use App\Http\Resources\Geo\RegencyResource;
-use App\Http\Resources\Api\Partner\Owner\HarborResource;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Http\Resources\Json\JsonResource;
 

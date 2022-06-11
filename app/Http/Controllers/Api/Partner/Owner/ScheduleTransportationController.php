@@ -4,14 +4,10 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\ScheduleTransportationResource;
-use App\Http\Resources\Geo\RegencyResource;
-use App\Http\Resources\Geo\Web\KotaResource;
 use App\Http\Response;
-use App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute;
 use App\Jobs\Partners\SchedulesTransportation\CreateNewSchedules;
 use App\Jobs\Partners\SchedulesTransportation\DeleteExistingSchedules;
 use App\Jobs\Partners\SchedulesTransportation\UpdateExistingSchedules;
-use App\Models\Geo\Regency;
 use App\Models\Partners\Harbor;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Database\Eloquent\Builder;
@@ -71,7 +67,7 @@ class ScheduleTransportationController extends Controller
         $this->attributes = $request->all();
         $job = new CreateNewSchedules($this->attributes);
         $this->dispatch($job);
-        $result = array($job);
+        $result = [$job];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
@@ -126,7 +122,7 @@ class ScheduleTransportationController extends Controller
             $request['departed_at'] = date('Y-m-d', strtotime($request['departure_at']));
         }
         unset($request['departure_at'], $request['destination_regency'], $request['origin_regency'], $request['harbor']);
-        
+
         $job = new UpdateExistingSchedules($schedules, $request->all());
         // dd($job);
         $this->dispatch($job);
@@ -151,7 +147,7 @@ class ScheduleTransportationController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
         );
 
         return $builder;
