@@ -43,6 +43,8 @@ class UpdateExistingSchedules
             'origin_regency_id' => ['filled'],
             'destination_regency_id' => ['filled'],
             'departed_at' => ['filled'],
+            'harbor_id' => ['filled'],
+            'ship_name' => ['filled'],
         ])->validate();
 
         $this->scheduleTransportation = $scheduleTransportation;

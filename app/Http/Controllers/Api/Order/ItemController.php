@@ -48,7 +48,6 @@ class ItemController extends Controller
         $itemInputs = Arr::wrap($request->all());
 
         $items = new Collection();
-
         foreach ($itemInputs as $itemInput) {
             $item = Item::byHash($itemInput['hash']);
             $job = new UpdateExistingItem($package, $item, $itemInput);

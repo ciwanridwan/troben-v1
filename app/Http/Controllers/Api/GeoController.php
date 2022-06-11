@@ -81,7 +81,7 @@ class GeoController extends Controller
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in([
-                'regency','sub_district',
+                'regency', 'sub_district',
             ])],
             'q' => 'string|nullable',
             'search' => 'nullable',

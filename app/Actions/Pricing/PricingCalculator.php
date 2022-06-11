@@ -122,7 +122,6 @@ class PricingCalculator
                 $total_amount = $promo->claimed_promotion->promotion->min_payment;
             }
         }
-
         return $total_amount;
     }
 
@@ -153,7 +152,6 @@ class PricingCalculator
 
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
@@ -167,13 +165,15 @@ class PricingCalculator
                 if ($distance < 5) {
                     $pickup_price = 8000;
                 } else {
-                    $pickup_price = 8000 + (2000 * $distance);
+                    $substraction = $distance - 4;
+                    $pickup_price = 8000 + (2000 * $substraction);
                 }
             } else {
                 if ($distance < 5) {
                     $pickup_price = 15000;
                 } else {
-                    $pickup_price = 15000 + (4000 * $distance);
+                    $substraction = $distance - 4;
+                    $pickup_price = 15000 + (4000 * $substraction);
                 }
             }
         }
@@ -571,9 +571,9 @@ class PricingCalculator
         $response = json_decode($response->body());
         $distance = $response->rows[0]->elements[0]->distance->text;
 
-        $distance= str_replace('km', '', $distance);
-        $distance= str_replace(',', '', $distance);
-        $distance = (double) $distance;
+        $distance = str_replace('km', '', $distance);
+        $distance = str_replace(',', '', $distance);
+        $distance = (float) $distance;
         return $distance;
     }
 

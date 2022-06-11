@@ -8,6 +8,7 @@ use App\Http\Response;
 use App\Jobs\Partners\SchedulesTransportation\CreateNewSchedules;
 use App\Jobs\Partners\SchedulesTransportation\DeleteExistingSchedules;
 use App\Jobs\Partners\SchedulesTransportation\UpdateExistingSchedules;
+use App\Models\Partners\Harbor;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -46,16 +47,29 @@ class ScheduleTransportationController extends Controller
             $request['partner_id'] = $partner_id;
             $request['origin_regency_id'] = $request['origin_regency'];
             $request['destination_regency_id'] = $request['destination_regency'];
+            if ($request['origin_regency'] || $request['destination_regency'] != null) {
+                $getHarbors = Harbor::where('origin_regency_id', $request['origin_regency'])
+                    ->where('destination_regency_id', $request['destination_regency'])->first();
+                $request['harbor_id'] = $getHarbors->id;
+            }
+            $request['ship_name'] = $request['ship_name'];
             $request['departed_at'] = date('Y-m-d', strtotime($request['departure_at']));
-            unset($request['departure_at'], $request['destination_regency'], $request['origin_regency']);
+            unset(
+                $request['departure_at'],
+                $request['destination_regency'],
+                $request['origin_regency'],
+                $request['harbor'],
+            );
         } else {
             return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
+
         $this->attributes = $request->all();
         $job = new CreateNewSchedules($this->attributes);
         $this->dispatch($job);
+        $result = [$job];
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
 
@@ -69,7 +83,13 @@ class ScheduleTransportationController extends Controller
         $job = new DeleteExistingSchedules($schedules);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        return response()->json([
+            'code' => '0000',
+            'error' => null,
+            'message' => 'Data Has Been Deleted',
+            'data' => null
+        ]);
+        // return (new Response(Response::RC_SUCCESS))->json();
     }
 
     public function update(Request $request)
@@ -87,15 +107,39 @@ class ScheduleTransportationController extends Controller
         if ($request->has('destination_regency')) {
             $request['destination_regency_id'] = $request['destination_regency'];
         }
+        if ($request['origin_regency'] || $request['destination_regency'] != null) {
+            $getHarbors = Harbor::where('origin_regency_id', $request['origin_regency'])
+                ->where('destination_regency_id', $request['destination_regency'])->first();
+            // if ($request->hash('harbor_id')) {
+            //     $request['harbor_id'] = $getHarbors->id;
+            // }
+            $request['harbor_id'] = $getHarbors->id;
+        }
+        if ($request->has('ship_name')) {
+            $request['ship_name'] = $request['ship_name'];
+        }
         if ($request->has('departure_at')) {
             $request['departed_at'] = date('Y-m-d', strtotime($request['departure_at']));
         }
-        unset($request['departure_at'], $request['destination_regency'], $request['origin_regency']);
+        unset($request['departure_at'], $request['destination_regency'], $request['origin_regency'], $request['harbor']);
 
         $job = new UpdateExistingSchedules($schedules, $request->all());
+        // dd($job);
         $this->dispatch($job);
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        return response()->json([
+            'code' => '0000',
+            'error' => null,
+            'message' => 'Update Data Has Been Successfully',
+            'data' => null
+        ]);
+        // return (new Response(Response::RC_SUCCESS))->json();
+    }
+
+    public function shipSchedule()
+    {
+        $query = $this->getBasicBuilder(ScheduleTransportation::query());
+        return $this->jsonSuccess(ScheduleTransportationResource::collection($query->paginate(request('per_page', 15))));
     }
 
     private function getBasicBuilder(Builder $builder): Builder

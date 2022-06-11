@@ -39,9 +39,11 @@ class CreateNewSchedules
         $this->scheduleTransportation = new ScheduleTransportation();
         $this->attributes = Validator::make($inputs, [
             'partner_id' => ['required'],
+            'ship_name' => ['required'],
             'origin_regency_id' => ['required'],
             'destination_regency_id' => ['required'],
             'departed_at' => ['required'],
+            'harbor_id' => ['required', 'exists:harbors,id']
         ])->validate();
     }
 
