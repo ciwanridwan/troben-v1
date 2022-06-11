@@ -37,6 +37,7 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -53,7 +54,6 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
-
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -140,7 +140,7 @@ class OrderController extends Controller
     {
         $promotion = ClaimedPromotion::where('customer_id', $package->customer_id)->latest()->first();
         switch ($promotion) {
-            case null :
+            case null:
                 return PricingCalculator::getCalculationPromoPackage($promotion_hash, $package);
             default:
                 if ($promotion_hash != null) {
@@ -202,7 +202,8 @@ class OrderController extends Controller
         $inputs['customer_id'] = $user->id;
 
         $items = $request->input('items') ?? [];
-        foreach ($items as $key=>$item) {
+
+        foreach ($items as $key => $item) {
             if ($item['insurance'] == '1') {
                 $items[$key]['is_insured'] = true;
             }
@@ -299,7 +300,7 @@ class OrderController extends Controller
             }
         }
         event(new PackageApprovedByCustomer($package));
-//        event(new PartnerCashierDiscount($package));
+        //        event(new PartnerCashierDiscount($package));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -361,7 +362,7 @@ class OrderController extends Controller
             'code' => __('Code not instance of Package'),
         ]));
 
-        $package = $codeable->load(['origin_regency','destination_district','destination_district.regency'])->only([
+        $package = $codeable->load(['origin_regency', 'destination_district', 'destination_district.regency'])->only([
             'sender_name',
             'receiver_name',
             'origin_regency',
@@ -405,6 +406,34 @@ class OrderController extends Controller
         $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
 
         return $this->jsonSuccess(CourierResource::collection($query->paginate(request('per_page', 15))));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * Add Ship Schedule Features in way to create order in customer apps.
+     */
+    public function shipSchedule(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'origin_regency_id' => 'required',
+            'destination_regency_id' => 'required',
+        ])->validate();
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+            ->where('destination_regency_id', $request->destination_regency_id)
+            ->orderByRaw('updated_at - created_at desc')->first();
+
+        if ($schedules == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
+                ->where('destination_regency_id', $request->destination_regency_id)
+                ->orderByRaw('departed_at asc')->get();
+
+            $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
     }
 
     /**

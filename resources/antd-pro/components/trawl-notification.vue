@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <a-card
       :class="[
@@ -53,4 +53,4 @@ export default {
     }
   }
 }
-</script>
+</script> -->

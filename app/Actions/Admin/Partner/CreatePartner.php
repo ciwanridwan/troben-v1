@@ -17,6 +17,7 @@ use App\Jobs\Inventory\CreateManyNewInventory;
 use App\Jobs\Partners\Transporter\BulkTransporter;
 use App\Jobs\Partners\Warehouse\CreateNewWarehouse;
 use App\Jobs\Users\Actions\VerifyExistingUser;
+use Illuminate\Support\Str;
 
 class CreatePartner
 {
@@ -84,6 +85,10 @@ class CreatePartner
         // temp owner info same as partner info
         $this->attributes['partner']['contact_email'] = $this->attributes['owner']['email'];
         $this->attributes['partner']['contact_phone'] = $this->attributes['owner']['phone'];
+
+        if ($this->attributes['partner']['type'] == Partner::TYPE_SALES) {
+            $this->attributes['owner']['referral_code'] = strtoupper(Str::random(5));
+        }
 
         $this->jobUser = new CreateNewUser($this->attributes['owner']);
         $this->jobPartner = new CreateNewPartner($this->attributes['partner']);

@@ -19,13 +19,16 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $partner_id
  * @property int $origin_regency_id
  * @property int $destination_regency_id
+ * @property int $harbor
  * @property Carbon $departed_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
  * @property-read \App\Models\Geo\Regency|null $origin_regency
  * @property-read \App\Models\Geo\Regency|null $destination_regency
+ * @property-read \App\Models\Partners\Harbor|null $harbor
  * @property-read Partner partner
+ * 
  *
  */
 class ScheduleTransportation extends Model
@@ -41,9 +44,11 @@ class ScheduleTransportation extends Model
      */
     protected $fillable = [
         'partner_id',
+        'ship_name',
         'origin_regency_id',
         'destination_regency_id',
         'departed_at',
+        'harbor_id',
     ];
 
     /**
@@ -96,5 +101,15 @@ class ScheduleTransportation extends Model
     public function destination_regency(): BelongsTo
     {
         return $this->belongsTo(Regency::class, 'destination_regency_id', 'id');
+    }
+
+    /**
+     * Define `belongsTo` relationship with Harbor model.
+     *
+     * @return BelongsTo
+     */
+    public function harbor(): BelongsTo
+    {
+        return $this->belongsTo(Harbor::class, 'harbor_id', 'id');
     }
 }

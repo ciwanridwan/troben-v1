@@ -53,6 +53,7 @@ class CreateNewUser
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'verified_at' => ['nullable'],
+            'referral_code' => ['nullable'],
         ])->validate();
     }
 
