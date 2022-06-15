@@ -67,8 +67,8 @@ class GeneratePackagePickupPrices
             'Content-Type' => 'application/json'
         ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
         $response = json_decode($response->body());
-	
-	$distance = 0;
+
+        $distance = 0;
         if (count($response->rows)
             && count($response->rows[0]->elements)
             && isset($response->rows[0]->elements[0]->distance)) {
