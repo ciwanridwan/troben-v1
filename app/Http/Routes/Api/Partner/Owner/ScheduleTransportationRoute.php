@@ -41,12 +41,6 @@ class ScheduleTransportationRoute extends BaseRoute
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
         ]);
-
-        // Adding route for show with harbor
-        $this->router->get($this->prefix('/ship/schedule'), [
-            'as' => $this->name('shipSchedule'),
-            'uses' => $this->uses('shipSchedule'),
-        ])->withoutMiddleware('api');
     }
 
     /**

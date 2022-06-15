@@ -216,6 +216,7 @@ class PricingCalculator
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
         $servicePrice = self::getServicePrice($inputs, $price);
+        
         $response = [
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
@@ -223,13 +224,14 @@ class PricingCalculator
                 'insurance_price_total' => $insurancePriceTotal,
                 'total_weight_borne' => $totalWeightBorne,
                 'handling' => $handling_price,
-                'pickup_price' => $pickup_price,
+                'pickup_price' => 0,
                 'discount' => $discount,
                 'tier' => $tierPrice,
                 'service' => $servicePrice
             ]
         ];
 
+        // dd($response);
         switch ($returnType) {
             case 'array':
                 return $response;

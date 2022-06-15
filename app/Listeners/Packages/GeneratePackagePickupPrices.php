@@ -39,12 +39,12 @@ class GeneratePackagePickupPrices
             } else {
                 $substraction = $distance - 4;
                 $pickup_price = 8000 + (2000 * $substraction);
+                // dd($pickup_price);
             }
         } else {
             if ($distance < 5) {
                 $pickup_price = 15000;
             } else {
-                // $pickup_price = 15000 + (4000 * $distance);
                 $substraction = $distance - 4;
                 $pickup_price = 15000 + (4000 * $substraction);
             }
@@ -54,7 +54,7 @@ class GeneratePackagePickupPrices
         $job = new UpdateOrCreatePriceFromExistingPackage($package, [
             'type' => Price::TYPE_DELIVERY,
             'description' => Delivery::TYPE_PICKUP,
-            'amount' => $pickup_price,
+            'amount' => 0,
         ]);
         $this->dispatch($job);
     }
