@@ -67,7 +67,8 @@ class CreateNewPackage
             'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
-            'partner_code' => ['nullable'],
+            // 'partner_code' => ['nullable'],
+            'partner_code' => ['required'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
@@ -144,11 +145,10 @@ class CreateNewPackage
                 $item->save();
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
-
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
+            // event(new WalkinPackageCreated($this->package, $this->attributes['partner_code']));
             event(new PackageCreated($this->package, $this->attributes['partner_code']));
         }
-
         return $this->package->exists;
     }
 

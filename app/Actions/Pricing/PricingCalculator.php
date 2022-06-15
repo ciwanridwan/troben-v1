@@ -215,6 +215,7 @@ class PricingCalculator
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
         $servicePrice = self::getServicePrice($inputs, $price);
+        
         $response = [
             'price' => PriceResource::make($price),
             'items' => $inputs['items'],
