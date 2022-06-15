@@ -123,7 +123,7 @@ class Handling implements CastsAttributes
                 $min_price = 50000;
                 $add_dimension = self::ADD_WOOD_DIMENSION;
                 $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.6);
-                
+
                 return $price < $min_price ? $min_price : $price;
             default:
                 return 0;

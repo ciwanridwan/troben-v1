@@ -73,11 +73,11 @@ class GeneratePackagePickupPrices
             && count($response->rows[0]->elements)
             && isset($response->rows[0]->elements[0]->distance)) {
             $distance = $response->rows[0]->elements[0]->distance->text;
-            $distance = str_replace("km", "", $distance);
-            $distance = str_replace(",", "", $distance);
+            $distance = str_replace('km', '', $distance);
+            $distance = str_replace(',', '', $distance);
             $distance = (float) $distance;
         } else {
-            Log::info("distancezero", ['dest' => $destination, 'origin' => $origin]);
+            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
         }
 
         return $distance;

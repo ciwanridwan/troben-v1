@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Partner\CustomerService\Home\Order;
 
-use App\Actions\CustomerService\WalkIn\CreateWalkinOrder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Exceptions\Error;
@@ -20,7 +19,6 @@ use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
@@ -45,7 +43,6 @@ class WalkinController extends Controller
 
     public function store(Request $request, PartnerRepository $partnerRepository)
     {
-        
         $request->validate([
             'items' => ['required'],
             'photos' => ['required'],
@@ -141,7 +138,7 @@ class WalkinController extends Controller
         /** @var Regency $regency */
         $regency = $partner->regency;
 
-        throw_if(!$regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
+        throw_if(! $regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
 
         /** @var Price $price */
         $price = PricingCalculator::getPrice($regency->province_id, $regency->id, $request->destination_id);
