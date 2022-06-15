@@ -25,6 +25,7 @@
         "jalameta/jps-patcher": "^2.0",
         "jalameta/jps-router": "^0.1.6",
         "kawankoding/laravel-fcm": "^0.2.0",
+        "larabug/larabug": "^2.5",
         "laravel-notification-channels/fcm": "~2.0",
         "laravel-notification-channels/telegram": "^0.8.0",
         "laravel/fortify": "^1.7",
