@@ -11,6 +11,7 @@ use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Log;
 
 class GeneratePackagePickupPrices
 {
@@ -39,12 +40,12 @@ class GeneratePackagePickupPrices
             } else {
                 $substraction = $distance - 4;
                 $pickup_price = 8000 + (2000 * $substraction);
+                // dd($pickup_price);
             }
         } else {
             if ($distance < 5) {
                 $pickup_price = 15000;
             } else {
-                // $pickup_price = 15000 + (4000 * $distance);
                 $substraction = $distance - 4;
                 $pickup_price = 15000 + (4000 * $substraction);
             }
@@ -66,10 +67,18 @@ class GeneratePackagePickupPrices
             'Content-Type' => 'application/json'
         ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
         $response = json_decode($response->body());
-        $distance = $response->rows[0]->elements[0]->distance->text;
-        $distance = str_replace('km', '', $distance);
-        $distance = str_replace(',', '', $distance);
-        $distance = (float) $distance;
+
+        $distance = 0;
+        if (count($response->rows)
+            && count($response->rows[0]->elements)
+            && isset($response->rows[0]->elements[0]->distance)) {
+            $distance = $response->rows[0]->elements[0]->distance->text;
+            $distance = str_replace('km', '', $distance);
+            $distance = str_replace(',', '', $distance);
+            $distance = (float) $distance;
+        } else {
+            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
+        }
 
         return $distance;
     }
