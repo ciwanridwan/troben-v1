@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class DistanceMatrix
 {
+    const TEN_MINUTES = 10 * 60;
+
     public static function cacheKeyBuilder(string $origin, string $destination)
     {
         $key = 'distance.invalid';

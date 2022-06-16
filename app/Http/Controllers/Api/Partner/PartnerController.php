@@ -97,7 +97,7 @@ class PartnerController extends Controller
                 }
             } else {
                 $distance = DistanceMatrix::calculateDistance($origin, $destination);
-                Cache::put($k, $distance);
+                Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
             }
 
             $r->distance_matrix = $distance;
