@@ -64,8 +64,18 @@ class PartnerController extends Controller
 
         $w = [];
         if ($request->has('origin')) {
-            $w[] = sprintf("AND p.geo_regency_id = '%s'", $request->get('origin'));
+            $w[] = sprintf(" AND p.geo_regency_id = '%s'", $request->get('origin'));
         }
+        if ($request->has('id')) {
+            $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
+        }
+        if ($request->has('q')) {
+            $w[] = sprintf(" AND p.name LIKE '%s%s%s'", '%', $request->get('q'), '%');
+        }
+        // todo
+        // if ($request->has('type')) {
+            // $w[] = sprintf(" AND EXISTS (SELECT * FROM 'transporters' WHERE 'partners'.'id' = 'transporters'.'partner_id' AND 'type'::text LIKE %s%s%s AND 'transporters'.'deleted_at' IS NULL)", '%', $request->get('type'), '%');
+        // }
 
         $lat = $request->get('lat');
         $lon = $request->get('lon');
@@ -77,6 +87,7 @@ class PartnerController extends Controller
                 + sin(radians(%f))
                 * sin(radians(latitude::FLOAT))) AS distance_radian
         FROM partners p
+        -- LEFT JOIN transporters t ON p.id = t.partner_id
         WHERE p.type = '%s'
             AND latitude IS NOT NULL
             AND longitude IS NOT NULL
