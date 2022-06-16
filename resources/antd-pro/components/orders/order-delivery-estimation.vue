@@ -22,10 +22,7 @@
 
       <a-row :style="'padding:24px 0px'">
         <a-col>
-          <order-estimation
-            v-if="this.price"
-            :price="this.price"
-          ></order-estimation>
+          <order-estimation v-if="this.price" :price="this.price"></order-estimation>
         </a-col>
       </a-row>
 
@@ -82,16 +79,21 @@
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(total_weight * tierPrice) }}
         </a-col>
+        <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          <!-- {{ currency(total_weight * tierPrice) }} -->
+          Rp. 0
+        </a-col>
 
-<!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
-<!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
-<!--          {{ currency(bankCharge) }}-->
-<!--        </a-col>-->
+        <!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
+        <!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
+        <!--          {{ currency(bankCharge) }}-->
+        <!--        </a-col>-->
 
-<!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
-<!--        <a-col :span="rightColumn" class="trawl-text-right">-->
-<!--          {{ currency(serviceDiscount) }}-->
-<!--        </a-col>-->
+        <!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
+        <!--        <a-col :span="rightColumn" class="trawl-text-right">-->
+        <!--          {{ currency(serviceDiscount) }}-->
+        <!--        </a-col>-->
 
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
@@ -120,7 +122,7 @@ export default {
   props: {
     package: {
       type: Object,
-      default: () => {}
+      default: () => { }
     },
     leftColumn: {
       type: Number,
@@ -158,10 +160,10 @@ export default {
       return this.package?.service_price;
     },
     subTotalPrice() {
-      if (this.packageStatus != 'draft'){
+      if (this.packageStatus != 'draft') {
         return this.package?.total_amount + this.serviceDiscount;
       } else {
-        return this.package?.total_amount ;
+        return this.package?.total_amount;
       }
     },
     bankCharge() {
