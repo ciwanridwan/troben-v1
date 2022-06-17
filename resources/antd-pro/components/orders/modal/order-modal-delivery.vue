@@ -13,17 +13,6 @@
         </a-col>
         <a-col :span="12">
           <a-row type="flex">
-            <!--            <a-col :span="12">-->
-            <!--              <span>Biaya Penjemputan</span>-->
-            <!--            </a-col>-->
-            <!--            <a-col :span="12">{{ currency(0) }} </a-col>-->
-
-            <!--            <div v-if="getPaymentStatus == 'paid'">-->
-            <!--              <a-col :span="12">-->
-            <!--                <span>Biaya Admin</span>-->
-            <!--              </a-col>-->
-            <!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
-            <!--            </div>-->
             <a-col v-if="getStatus == 'estimated' || getStatus == 'revamp'" :span="24">
               <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
             </a-col>
@@ -35,18 +24,12 @@
             <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
               <a-input type="number" v-model="discount" @change="localStorage" prefix="Rp" />
             </a-col>
-            <!-- <a-col :span="16">
-              <span> Biaya Penjemputan</span>
-            </a-col> -->
             <a-col :span="12">
               <span> Biaya Penjemputan</span>
             </a-col>
             <a-col :span="12">
               <a-input type="number" v-model="pickupFee" @change="localStoragePickupFee" prefix="Rp" />
             </a-col>
-            <!-- <a-col :span="8">
-              <span> {{ currency(0) }} </span>
-            </a-col> -->
             <a-col v-if="getPaymentStatus != 'draft'" :span="16">
               <span> Biaya Admin</span>
             </a-col>
@@ -98,7 +81,7 @@ export default {
   props: {
     package: {
       type: Object,
-      default: () => { }
+      default: () => {}
     }
   },
   components: { orderModalRowLayout },
@@ -107,15 +90,7 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-
-
       return this.package?.total_amount + this.bankCharge - this.discount;
-
-      // if (this.packageStatus == 'draft'){
-      //   return this.package?.total_amount + this.bankCharge - this.discount ;
-      // } else {
-      //   return this.package?.total_amount + this.serviceDiscount + this.bankCharge - this.serviceDiscount;
-      // }
     },
     packageStatus() {
       return this.package?.status;

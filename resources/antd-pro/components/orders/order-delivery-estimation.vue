@@ -85,16 +85,6 @@
           Rp. 0
         </a-col>
 
-        <!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
-        <!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
-        <!--          {{ currency(bankCharge) }}-->
-        <!--        </a-col>-->
-
-        <!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
-        <!--        <a-col :span="rightColumn" class="trawl-text-right">-->
-        <!--          {{ currency(serviceDiscount) }}-->
-        <!--        </a-col>-->
-
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
