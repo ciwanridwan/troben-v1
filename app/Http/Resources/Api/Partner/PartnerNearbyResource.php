@@ -28,8 +28,8 @@ class PartnerNearbyResource extends JsonResource
             'longitude' => $this->longitude,
             'address' => $this->address,
             'transporter' => $this->transporters,
-            'distance_radian' => (float) DistanceMatrix::to2Digit($this->distance_radian),
-            'distance_matrix' => (float) DistanceMatrix::to2Digit($this->distance_matrix),
+            'distance_radian' => (float) DistanceMatrix::toXDigit($this->distance_radian),
+            'distance_matrix' => (float) DistanceMatrix::toXDigit($this->distance_matrix),
         ];
 
 

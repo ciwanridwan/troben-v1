@@ -16,17 +16,17 @@ class DistanceMatrix
         $org = explode(',', $origin);
         $dist = explode(',', $destination);
         if (count($org) == 2 && count($dist)) {
-            $keys = [ self::to2Digit($org[0]), self::to2Digit($org[1]), self::to2Digit($dist[0]), self::to2Digit($dist[1]) ];
+            $keys = [ self::toXDigit($org[0], 3), self::toXDigit($org[1], 3), self::toXDigit($dist[0], 3), self::toXDigit($dist[1], 3) ];
             return sprintf('distance.%s', md5(implode(',', $keys)));
         }
 
         return $key;
     }
 
-    public static function to2Digit($n)
+    public static function toXDigit($n, $precision = 2)
     {
         try {
-            return number_format($n, 2);
+            return number_format($n, $precision);
         } catch (\Exception $e) {
             // ignore
         }
