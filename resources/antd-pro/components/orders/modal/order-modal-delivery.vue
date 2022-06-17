@@ -42,7 +42,7 @@
               <span> Biaya Penjemputan</span>
             </a-col>
             <a-col :span="12">
-              <a-input type="number" v-model="pickupFee" @change="localStorage" prefix="Rp" />
+              <a-input type="number" v-model="pickupFee" @change="localStoragePickupFee" prefix="Rp" />
             </a-col>
             <!-- <a-col :span="8">
               <span> {{ currency(0) }} </span>
@@ -147,6 +147,9 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
+    },
+    localStoragePickupFee() {
+      localStoragePickupFee.setItem("getPickupFee", this.pickupFee);
     }
   }
 };

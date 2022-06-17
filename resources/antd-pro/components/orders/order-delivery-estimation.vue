@@ -186,6 +186,9 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
+    },
+    getPickupFee() {
+      return this.package?.pickup_fee;
     }
   },
   methods: {
