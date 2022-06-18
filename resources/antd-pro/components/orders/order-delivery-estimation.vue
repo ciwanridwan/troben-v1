@@ -81,8 +81,7 @@
         </a-col>
         <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          <!-- {{ currency(total_weight * tierPrice) }} -->
-          Rp. 0
+          {{ currency(getPickupFee) }}
         </a-col>
 
         <a-divider />
@@ -131,7 +130,8 @@ export default {
   data() {
     return {
       handlings,
-      isBankCharge: true
+      isBankCharge: true,
+      pickup : 0
     };
   },
   computed: {
@@ -179,7 +179,13 @@ export default {
       return this.package?.payment_status;
     },
     getPickupFee() {
-      return this.package?.pickup_fee;
+      var pickupPrice = this.package?.prices;
+      pickupPrice.forEach(pickupFee => {
+        if (pickupFee.type === 'delivery') {
+          this.pickup = pickupFee.amount;
+        }
+      });
+      return this.pickup;
     }
   },
   methods: {

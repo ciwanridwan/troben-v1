@@ -19,16 +19,10 @@
 
             <!--discount sebelum dikirim ke customer -->
             <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
-              <span>Diskon Pengiriman</span>
+              <span>Diskon Pengiriman dan Penjemputan</span>
             </a-col>
             <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
               <a-input type="number" v-model="discount" @change="localStorage" prefix="Rp" />
-            </a-col>
-            <a-col :span="12">
-              <span> Biaya Penjemputan</span>
-            </a-col>
-            <a-col :span="12">
-              <a-input type="number" v-model="pickupFee" @change="localStoragePickupFee" prefix="Rp" />
             </a-col>
             <a-col v-if="getPaymentStatus != 'draft'" :span="16">
               <span> Biaya Admin</span>
@@ -75,13 +69,13 @@ export default {
     return {
       CarIcon,
       checkedDiscount: false,
-      discount: 0,
+      discount: 0
     };
   },
   props: {
     package: {
       type: Object,
-      default: () => {}
+      default: () => { }
     }
   },
   components: { orderModalRowLayout },
@@ -122,9 +116,6 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
-    },
-    localStoragePickupFee() {
-      localStoragePickupFee.setItem("getPickupFee", this.pickupFee);
     }
   }
 };
