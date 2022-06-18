@@ -25,7 +25,6 @@ const getServicePrice = item => {
   return price?.amount;
 };
 const getInsurancePrice = prices => {
-  // console.log(item)
   let price = prices?.find(o => o.type.toLowerCase() === "insurance");
   return price?.amount || 0;
 };
