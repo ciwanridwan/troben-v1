@@ -45,6 +45,9 @@ class UpdateExistingPackageByOffice
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
 
+            'status' => ['nullable'],
+            'payment_status' => ['nullable'],
+
             'receiver_name' => ['nullable'],
             'receiver_phone' => ['nullable'],
             'receiver_address' => ['nullable'],
