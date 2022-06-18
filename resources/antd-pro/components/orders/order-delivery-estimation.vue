@@ -107,6 +107,7 @@ import {
   getSubTotalItems,
   getHandlings
 } from "../../functions/orders";
+
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
