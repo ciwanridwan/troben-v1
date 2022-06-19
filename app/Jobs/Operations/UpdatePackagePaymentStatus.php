@@ -61,6 +61,5 @@ class UpdatePackagePaymentStatus implements ShouldQueue
 
             return $this->package->exists;
         }
-
     }
 }
