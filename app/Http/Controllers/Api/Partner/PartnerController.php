@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api\Partner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Partner\PartnerNearbyResource;
 use App\Http\Resources\Api\Partner\PartnerResource;
 use App\Models\Partners\Partner;
+use App\Supports\DistanceMatrix;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PartnerController extends Controller
@@ -37,6 +41,97 @@ class PartnerController extends Controller
         ])->validate();
 
         return $this->getPartnerData();
+    }
+
+    /**
+     * Get Type of Transporter Nearby
+     * Route Path       : {API_DOMAIN}/partner/nearby
+     * Route Name       : api.partner.nearby
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function nearby(Request $request): JsonResponse
+    {
+        $this->attributes = Validator::make($request->all(), [
+            'type' => 'nullable',
+            'origin' => 'nullable',
+            'lat' => 'required|numeric',
+            'lon' => 'required|numeric',
+        ])->validate();
+
+        $w = [];
+        if ($request->has('origin')) {
+            $w[] = sprintf(" AND p.geo_regency_id = '%s'", $request->get('origin'));
+        }
+        if ($request->has('id')) {
+            $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
+        }
+        if ($request->has('q')) {
+            $w[] = sprintf(" AND p.name LIKE '%s%s%s'", '%', $request->get('q'), '%');
+        }
+        // todo
+        // if ($request->has('type')) {
+            // $w[] = sprintf(" AND EXISTS (SELECT * FROM 'transporters' WHERE 'partners'.'id' = 'transporters'.'partner_id' AND 'type'::text LIKE %s%s%s AND 'transporters'.'deleted_at' IS NULL)", '%', $request->get('type'), '%');
+        // }
+
+        $lat = $request->get('lat');
+        $lon = $request->get('lon');
+        $origin = sprintf('%f,%f', $lat, $lon);
+
+        $q = "SELECT p.id, p.longitude, p.latitude,
+            6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT)) 
+                * cos(radians(longitude::FLOAT) - radians(%f))
+                + sin(radians(%f))
+                * sin(radians(latitude::FLOAT))) AS distance_radian
+        FROM partners p
+        -- LEFT JOIN transporters t ON p.id = t.partner_id
+        WHERE p.type = '%s'
+            AND latitude IS NOT NULL
+            AND longitude IS NOT NULL
+            %s
+        ORDER BY distance_radian
+        LIMIT 5";
+        
+        $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(', ', $w));
+        $nearby = collect(DB::select($q))->map(function($r) use ($origin) {
+            $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
+            $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
+
+            if (Cache::has($k)) {
+                if ($k == 'distance.invalid') {
+                    $distance = 0;
+                } else {
+                    $distance = Cache::get($k);
+                }
+            } else {
+                $distance = DistanceMatrix::calculateDistance($origin, $destination);
+                Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
+            }
+
+            $r->distance_matrix = $distance;
+            return $r;
+        });
+
+        $result = Partner::query()
+            ->whereIn('id', $nearby->pluck('id'))
+            ->get()
+            ->map(function($r) use ($nearby) {
+                $dr = 0;
+                $dm = 0;
+                $dist = $nearby->where('id', $r->id)->first();
+                if ($dist) {
+                    $dr = $dist->distance_radian;
+                    $dm = $dist->distance_matrix;
+                }
+                $r->distance_radian = $dr;
+                $r->distance_matrix = $dm;
+                return $r;
+            });
+
+        return $this->jsonSuccess(PartnerNearbyResource::collection($result));
     }
 
     protected function getPartnerData(): JsonResponse
