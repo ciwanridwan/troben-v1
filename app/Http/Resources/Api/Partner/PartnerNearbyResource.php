@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\Partner;
 
-use App\Models\Geo\Regency;
 use App\Supports\DistanceMatrix;
 use Illuminate\Http\Resources\Json\JsonResource;
 

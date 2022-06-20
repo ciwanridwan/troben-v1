@@ -50,7 +50,7 @@ class UpdatePackagePaymentStatus implements ShouldQueue
     {
         if ($this->attributes['payment_status'] == Package::PAYMENT_STATUS_PAID) {
             $this->attributes['status'] = Package::STATUS_WAITING_FOR_PACKING;
-            
+
             $this->package->fill($this->attributes);
             $this->package->save();
 

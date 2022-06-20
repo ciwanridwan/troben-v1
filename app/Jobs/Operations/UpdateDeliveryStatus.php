@@ -14,7 +14,7 @@ class UpdateDeliveryStatus implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-     /**
+    /**
      * The podcast instance.
      *
      * @var \App\Models\Deliveries\Delivery

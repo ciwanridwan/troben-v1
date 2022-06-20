@@ -74,7 +74,7 @@ class PartnerController extends Controller
         }
         // todo
         // if ($request->has('type')) {
-            // $w[] = sprintf(" AND EXISTS (SELECT * FROM 'transporters' WHERE 'partners'.'id' = 'transporters'.'partner_id' AND 'type'::text LIKE %s%s%s AND 'transporters'.'deleted_at' IS NULL)", '%', $request->get('type'), '%');
+        // $w[] = sprintf(" AND EXISTS (SELECT * FROM 'transporters' WHERE 'partners'.'id' = 'transporters'.'partner_id' AND 'type'::text LIKE %s%s%s AND 'transporters'.'deleted_at' IS NULL)", '%', $request->get('type'), '%');
         // }
 
         $lat = $request->get('lat');
@@ -94,9 +94,9 @@ class PartnerController extends Controller
             %s
         ORDER BY distance_radian
         LIMIT 5";
-        
+
         $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(', ', $w));
-        $nearby = collect(DB::select($q))->map(function($r) use ($origin) {
+        $nearby = collect(DB::select($q))->map(function ($r) use ($origin) {
             $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
             $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
 
@@ -118,7 +118,7 @@ class PartnerController extends Controller
         $result = Partner::query()
             ->whereIn('id', $nearby->pluck('id'))
             ->get()
-            ->map(function($r) use ($nearby) {
+            ->map(function ($r) use ($nearby) {
                 $dr = 0;
                 $dm = 0;
                 $dist = $nearby->where('id', $r->id)->first();
