@@ -40,7 +40,7 @@ return [
         ],
         'operation' => [
             'middleware' => ['jwt'],
-            'prefix' => empty(env('API_DOMAIN')) ? 'api/v1/operation' : 'v1/operation',
+            'prefix' => empty(env('API_DOMAIN')) ? 'api/operation' : 'operation',
             'domain' => env('API_DOMAIN')
         ]
     ],
