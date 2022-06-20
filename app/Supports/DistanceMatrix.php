@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class DistanceMatrix
 {
-    const TEN_MINUTES = 10 * 60;
+    public const TEN_MINUTES = 10 * 60;
 
     public static function cacheKeyBuilder(string $origin, string $destination)
     {
@@ -16,7 +16,7 @@ class DistanceMatrix
         $org = explode(',', $origin);
         $dist = explode(',', $destination);
         if (count($org) == 2 && count($dist)) {
-            $keys = [ self::toXDigit($org[0], 3), self::toXDigit($org[1], 3), self::toXDigit($dist[0], 3), self::toXDigit($dist[1], 3) ];
+            $keys = [self::toXDigit($org[0], 3), self::toXDigit($org[1], 3), self::toXDigit($dist[0], 3), self::toXDigit($dist[1], 3)];
             return sprintf('distance.%s', md5(implode(',', $keys)));
         }
 

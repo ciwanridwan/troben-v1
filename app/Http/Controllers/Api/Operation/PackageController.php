@@ -20,7 +20,6 @@ class PackageController extends Controller
      * @return JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-
     public function updatePaymentStatus(Request $request, string $content): JsonResponse
     {
         /** @var Code $code */
