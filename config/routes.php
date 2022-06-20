@@ -37,6 +37,11 @@ return [
             'middleware' => ['jwt'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
             'domain' => env('API_DOMAIN')
+        ],
+        'operation' => [
+            'middleware' => ['jwt'],
+            'prefix' => empty(env('API_DOMAIN')) ? 'api/v1/operation' : 'v1/operation',
+            'domain' => env('API_DOMAIN')
         ]
     ],
 
@@ -125,4 +130,8 @@ return [
         App\Http\Routes\Api\V\SelfRoute::class,
         App\Http\Routes\Api\V\OfficeRoute::class,
     ],
+
+    'operation' => [
+        App\Http\Routes\Api\Operation\PackageRoute::class
+    ]
 ];
