@@ -32,6 +32,11 @@ class PackageRoute extends BaseRoute
             'as' => $this->name('update.payment.status'),
             'uses' => $this->uses('updatePaymentStatus'),
         ]);
+
+        $this->router->patch($this->prefix('update/{content}/status'), [
+            'as' => $this->name('update.status'),
+            'uses' => $this->uses('updateStatus'),
+        ]);
     }
 
     /**
