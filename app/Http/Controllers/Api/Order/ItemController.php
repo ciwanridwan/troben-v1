@@ -46,14 +46,26 @@ class ItemController extends Controller
         $this->authorize('update', $package);
 
         $itemInputs = Arr::wrap($request->all());
-
         $items = new Collection();
+
+        $rows = [];
         foreach ($itemInputs as $itemInput) {
             $item = Item::byHash($itemInput['hash']);
-            $job = new UpdateExistingItem($package, $item, $itemInput);
+            if ($item == null) {
+                return (new Response(Response::RC_DATA_NOT_FOUND, $items->toArray()))->json();
+            }
+            $rows[] = [
+                'item' => $item,
+                'input' => $itemInput,
+            ];
+        }
+
+        foreach ($rows as $row) {
+            $job = new UpdateExistingItem($package, $row['item'], $row['input']);
             $this->dispatchNow($job);
             $items->push($job->item);
         }
+
         return (new Response(Response::RC_SUCCESS, $items->toArray()))->json();
     }
 

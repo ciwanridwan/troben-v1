@@ -19,7 +19,7 @@ class PackageRoute extends BaseRoute
      *
      * @var string
      */
-    protected $name = 'api.v1.operation.package';
+    protected $name = 'api.operation.package';
 
     /**
      * Register routes handled by this class.
