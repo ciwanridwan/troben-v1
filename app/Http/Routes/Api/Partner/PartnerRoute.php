@@ -32,6 +32,11 @@ class PartnerRoute extends BaseRoute
             'as' => $this->name('list'),
             'uses' => $this->uses('list'),
         ]);
+
+        $this->router->get($this->prefix('/nearby'), [
+            'as' => $this->name('nearby'),
+            'uses' => $this->uses('nearby'),
+        ]);
     }
 
     /**
