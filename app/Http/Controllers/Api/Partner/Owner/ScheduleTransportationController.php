@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\ScheduleTransportationResource;
-use App\Http\Resources\Api\GenericResource;
 use App\Http\Resources\Api\Partner\Owner\ScheduleHarborDestResource;
 use App\Http\Resources\Api\Partner\Owner\ScheduleHarborOriginResource;
 use App\Http\Response;
@@ -13,7 +12,6 @@ use App\Jobs\Partners\SchedulesTransportation\DeleteExistingSchedules;
 use App\Jobs\Partners\SchedulesTransportation\UpdateExistingSchedules;
 use App\Models\Partners\Harbor;
 use App\Models\Partners\ScheduleTransportation;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -54,11 +52,11 @@ class ScheduleTransportationController extends Controller
 
     public function listOrigin(Request $request): JsonResponse
     {
-        $q = "SELECT origin_regency_id id, MAX(h.origin_name) harbor_name,  MAX(r.name) origin_name
+        $q = 'SELECT origin_regency_id id, MAX(h.origin_name) harbor_name,  MAX(r.name) origin_name
         FROM harbors h
         LEFT JOIN geo_regencies r ON h.origin_regency_id = r.id
         WHERE deleted_at IS NULL
-        GROUP BY origin_regency_id";
+        GROUP BY origin_regency_id';
 
         $result = DB::select($q);
 
@@ -75,11 +73,11 @@ class ScheduleTransportationController extends Controller
         ];
         Validator::make($req, $rule)->validate();
 
-        $q = "SELECT destination_regency_id id, MAX(h.destination_name) harbor_name,  MAX(r.name) destination_name
+        $q = 'SELECT destination_regency_id id, MAX(h.destination_name) harbor_name,  MAX(r.name) destination_name
         FROM harbors h
         LEFT JOIN geo_regencies r ON h.destination_regency_id = r.id
         WHERE deleted_at IS NULL AND origin_regency_id = %d
-        GROUP BY destination_regency_id";
+        GROUP BY destination_regency_id';
         $q = sprintf($q, $req['origin_id']);
 
         $result = DB::select($q);
