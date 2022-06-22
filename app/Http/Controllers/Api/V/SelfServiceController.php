@@ -85,17 +85,17 @@ class SelfServiceController extends Controller
             return $this->jsonSuccess();
         }
     }
-        
-        // LAST CONDITION AND FLOW FOR CANCEL PACKAGE
-        // Log::info('canceling order '.$code->content);
-        // try {
-        //     $result = DB::select('call cancel_order(?)', [$code->content]);
-        // } catch (\Throwable $e) {
-        //     Log::alert($e->getMessage());
-        //     throw Error::make(Response::RC_INVALID_DATA);
-        // }
-        // Log::info('canceling done.', $result);
-        // END
+
+    // LAST CONDITION AND FLOW FOR CANCEL PACKAGE
+    // Log::info('canceling order '.$code->content);
+    // try {
+    //     $result = DB::select('call cancel_order(?)', [$code->content]);
+    // } catch (\Throwable $e) {
+    //     Log::alert($e->getMessage());
+    //     throw Error::make(Response::RC_INVALID_DATA);
+    // }
+    // Log::info('canceling done.', $result);
+    // END
 
     /**
      * @param Request $request
@@ -150,11 +150,11 @@ class SelfServiceController extends Controller
 
         /** @var Code $code */
         $this->checkDelivery($content);
-        Log::info('changing destination delivery ' . $this->code->content);
+        Log::info('changing destination delivery '.$this->code->content);
         try {
             $result = DB::select('call change_delivery_destination(?,?)', [$this->code->content, $input['partner_code']]);
         } catch (\Throwable $e) {
-            Log::alert('error change destination delivery: ' . $e->getMessage(), ['content' => $content, 'request' => $request->all()]);
+            Log::alert('error change destination delivery: '.$e->getMessage(), ['content' => $content, 'request' => $request->all()]);
             throw Error::make(Response::RC_INVALID_DATA);
         }
         Log::info("change destination $content done.", [$result]);
@@ -178,11 +178,11 @@ class SelfServiceController extends Controller
 
         $this->checkDelivery($content);
 
-        Log::info('delivery append package ' . $this->code->content);
+        Log::info('delivery append package '.$this->code->content);
         try {
             $result = DB::select('call append_package_to_delivery(?,?,?)', [$input['package_code'], $this->code->content], $request->auth->id);
         } catch (\Throwable $e) {
-            Log::alert('error delivery append package: ' . $e->getMessage(), ['content' => $content, 'request' => $request->all()]);
+            Log::alert('error delivery append package: '.$e->getMessage(), ['content' => $content, 'request' => $request->all()]);
             throw Error::make(Response::RC_INVALID_DATA);
         }
         Log::info("delivery append package $content done.", [$result]);
