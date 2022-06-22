@@ -4,7 +4,10 @@ namespace App\Http\Resources\Api\Partner\Owner;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class HarborResource extends JsonResource
+/**
+ * Class ScheduleHarborDestResource.
+ */
+class ScheduleHarborDestResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,15 +17,11 @@ class HarborResource extends JsonResource
      */
     public function toArray($request)
     {
-        /**
-         * @var Harbor
-         */
         $data = [
             'id' => $this->id,
-            'origin_name' => $this->origin_name,
+            'harbor_name' => $this->harbor_name,
             'destination_name' => $this->destination_name,
         ];
-
         return $data;
     }
 }

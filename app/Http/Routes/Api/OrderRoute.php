@@ -109,7 +109,6 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('shipSchedule'),
             'uses' => $this->uses('shipSchedule'),
         ]);
-
     }
 
     /**

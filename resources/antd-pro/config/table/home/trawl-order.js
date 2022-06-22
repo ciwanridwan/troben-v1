@@ -20,7 +20,7 @@ export default [
     classes: "trawl-text-left",
     customRender: (text, row, index) => {
       return {
-        children: row.deliveries[0]?.partner?.code
+        children: row.deliveries.length > 0 && row.deliveries[0]?.partner?.code
           ? row.deliveries[0].partner.code
           : ""
       };

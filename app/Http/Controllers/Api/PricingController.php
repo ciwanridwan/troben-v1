@@ -13,7 +13,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
-use App\Http\Resources\Api\Partner\Owner\ScheduleTransportationResource;
 use App\Models\Partners\ScheduleTransportation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -45,9 +44,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -121,9 +120,9 @@ class PricingController extends Controller
             'service_code' => ['required'],
         ]);
         $prices = Price::query();
-        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
 
@@ -135,7 +134,7 @@ class PricingController extends Controller
         return (new Response(Response::RC_SUCCESS, $prices))->json();
     }
 
-     /**
+    /**
      * @param Request $request
      * @return JsonResponse
      * Add Ship Schedule

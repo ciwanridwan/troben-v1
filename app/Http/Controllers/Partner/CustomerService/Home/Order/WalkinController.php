@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Partner\CustomerService\Home\Order;
 
-use App\Actions\CustomerService\WalkIn\CreateWalkinOrder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Province;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,19 +49,6 @@ class WalkinController extends Controller
             'photos.*' => ['required', 'image']
         ]);
 
-        $package = (new CreateWalkinOrder($partnerRepository->getPartner(), $request->all()))->create();
-
-        $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
-        $this->dispatchNow($uploadJob);
-
-        return (new Response(Response::RC_SUCCESS))->json();
-
-        $request->validate([
-            'items' => ['required'],
-            'photos' => ['required'],
-            'photos.*' => ['required', 'image']
-        ]);
-
         $inputs = $request->except('photos');
         foreach ($inputs as $key => $value) {
             $inputs[$key] = json_decode($value);
@@ -69,12 +58,16 @@ class WalkinController extends Controller
 
         /** @var Partner $partner */
         $partner = $partnerRepository->getPartner();
-
         $inputs['sender_address'] = $partner->geo_address;
         $inputs['origin_regency_id'] = $partner->geo_regency_id;
         $inputs['origin_district_id'] = $partner->geo_district_id;
         $inputs['origin_sub_district_id'] = $partner->geo_sub_district_id;
+        $inputs['sender_way_point'] = $partner->address;
+        $inputs['sender_latitude'] = $partner->latitude;
+        $inputs['sender_longitude'] = $partner->longitude;
 
+        // add partner code
+        $inputs['partner_code'] = $partner->code;
         $items = json_decode($request->input('items')) ?? [];
 
         foreach ($items as $key => $item) {
@@ -88,6 +81,20 @@ class WalkinController extends Controller
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
 
         $this->dispatchNow($uploadJob);
+
+        // Copy from walkin order
+        /** @var Package $package */
+        // $package = $job->package;
+
+        $job = new AssignFirstPartnerToPackage($job->package, $partner);
+
+        $this->dispatch($job);
+
+        $delivery = $job->delivery;
+
+        event(new DriverUnloadedPackageInWarehouse($delivery));
+
+        $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
 
         return (new Response(Response::RC_SUCCESS))->json();
     }

@@ -8,7 +8,7 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
-use Illuminate\Support\Facades\Http;
+use App\Supports\DistanceMatrix;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
@@ -26,10 +26,10 @@ class GeneratePackagePickupPrices
     {
         /** @var Package $package */
         $package = $event->package->refresh();
-        $origin = $package->sender_latitude . ', ' . $package->sender_longitude;
+        $origin = $package->sender_latitude.', '.$package->sender_longitude;
         $partner = Partner::where('code', $event->partner_code)->first();
-        $destination = $partner->latitude . ', ' . $partner->longitude;
-        $distance = $this->distance_matrix($origin, $destination);
+        $destination = $partner->latitude.', '.$partner->longitude;
+        $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
         if ($package->transporter_type == null) {
             $pickup_price = 0;
@@ -39,12 +39,12 @@ class GeneratePackagePickupPrices
             } else {
                 $substraction = $distance - 4;
                 $pickup_price = 8000 + (2000 * $substraction);
+                // dd($pickup_price);
             }
         } else {
             if ($distance < 5) {
                 $pickup_price = 15000;
             } else {
-                // $pickup_price = 15000 + (4000 * $distance);
                 $substraction = $distance - 4;
                 $pickup_price = 15000 + (4000 * $substraction);
             }
@@ -57,20 +57,5 @@ class GeneratePackagePickupPrices
             'amount' => $pickup_price,
         ]);
         $this->dispatch($job);
-    }
-
-    public function distance_matrix($origin, $destination)
-    {
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=' . $destination . '&origins=' . $origin . '&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
-        $response = json_decode($response->body());
-        $distance = $response->rows[0]->elements[0]->distance->text;
-        $distance = str_replace("km", "", $distance);
-        $distance = str_replace(",", "", $distance);
-        $distance = (float) $distance;
-
-        return $distance;
     }
 }
