@@ -79,10 +79,10 @@ class PricingCalculator
 
     public static function getPackageTotalAmount(Package $package, bool $is_approved = false)
     {
-        if (! $package->relationLoaded('items.prices')) {
+        if (!$package->relationLoaded('items.prices')) {
             $package->load('items.prices');
         }
-        if (! $package->relationLoaded('prices')) {
+        if (!$package->relationLoaded('prices')) {
             $package->load('prices');
         }
         // get handling and insurance prices
@@ -157,8 +157,8 @@ class PricingCalculator
         $pickup_price = 0;
         if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
-            $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
-            $destination = $partner->latitude.', '.$partner->longitude;
+            $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
+            $destination = $partner->latitude . ', ' . $partner->longitude;
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($inputs['fleet_name'] == 'bike') {
@@ -182,7 +182,7 @@ class PricingCalculator
         $handling_price = 0;
 
         foreach ($inputs['items'] as $index => $item) {
-            if (! Arr::has($item, 'handling')) {
+            if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
             $handlingResult = [];
@@ -245,9 +245,9 @@ class PricingCalculator
     public static function getServicePrice(array $inputs, ?Price $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -257,7 +257,7 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        if (! $price) {
+        if (!$price) {
             /** @var Price $price */
             $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
@@ -277,7 +277,7 @@ class PricingCalculator
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
 
             ];
         }
@@ -304,10 +304,10 @@ class PricingCalculator
         $totalWeightBorne = 0;
 
         foreach ($items as  $item) {
-            if (! Arr::has($item, 'handling')) {
+            if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
-            if (! empty($item['handling'])) {
+            if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
             $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
