@@ -3,16 +3,12 @@
 namespace App\Jobs\Operations;
 
 use App\Models\Packages\Package;
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UpdatePackagePaymentStatus implements ShouldQueue
+class UpdatePackagePaymentStatus
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
 
     /**
      * The podcast instance.

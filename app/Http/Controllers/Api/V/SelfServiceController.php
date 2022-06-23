@@ -69,7 +69,7 @@ class SelfServiceController extends Controller
     {
         /** @var Code $code */
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->firstOrFail();
-        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->firstOrFail();
+        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->where('deliverable_type', Package::class)->firstOrFail();
         $delivery = Delivery::query()->where('id', $deliverable->delivery_id)->firstOrFail();
 
         if ($delivery->status == Delivery::STATUS_FINISHED) {
