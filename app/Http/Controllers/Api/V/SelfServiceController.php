@@ -69,33 +69,35 @@ class SelfServiceController extends Controller
     {
         /** @var Code $code */
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->firstOrFail();
-        $job = new CancelPackage($code->codeable, $request->all());
-        $this->dispatch($job);
-
         $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->firstOrFail();
         $delivery = Delivery::query()->where('id', $deliverable->delivery_id)->firstOrFail();
-        if ($delivery->status == Delivery::STATUS_FINISHED) {
-            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
 
+        if ($delivery->status == Delivery::STATUS_FINISHED) {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
+            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+            
             return $this->jsonSuccess();
         } else {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
             $delivery->where('id', $deliverable->delivery_id)->delete();
             $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
 
             return $this->jsonSuccess();
         }
     }
-        
-        // LAST CONDITION AND FLOW FOR CANCEL PACKAGE
-        // Log::info('canceling order '.$code->content);
-        // try {
-        //     $result = DB::select('call cancel_order(?)', [$code->content]);
-        // } catch (\Throwable $e) {
-        //     Log::alert($e->getMessage());
-        //     throw Error::make(Response::RC_INVALID_DATA);
-        // }
-        // Log::info('canceling done.', $result);
-        // END
+
+    // LAST CONDITION AND FLOW FOR CANCEL PACKAGE
+    // Log::info('canceling order '.$code->content);
+    // try {
+    //     $result = DB::select('call cancel_order(?)', [$code->content]);
+    // } catch (\Throwable $e) {
+    //     Log::alert($e->getMessage());
+    //     throw Error::make(Response::RC_INVALID_DATA);
+    // }
+    // Log::info('canceling done.', $result);
+    // END
 
     /**
      * @param Request $request
