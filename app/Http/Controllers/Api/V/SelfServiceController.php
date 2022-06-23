@@ -76,7 +76,7 @@ class SelfServiceController extends Controller
             $job = new CancelPackage($code->codeable, $request->all());
             $this->dispatch($job);
             $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
-            
+
             return $this->jsonSuccess();
         } else {
             $job = new CancelPackage($code->codeable, $request->all());
