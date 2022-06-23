@@ -28,8 +28,8 @@ class PackageController extends Controller
         $job = new UpdatePackagePaymentStatus($code->codeable, $request->all());
 
         if ($request->payment_status == Package::PAYMENT_STATUS_PAID) {
-            $deliverale = Deliverable::query()->where('deliverable_id', $code->codeable_id)->firstOrFail();
-            $delivery = Delivery::where('id', $deliverale->delivery_id)->firstOrFail();
+            $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->where('deliverable_type', Package::class)->firstOrFail();
+            $delivery = Delivery::where('id', $deliverable->delivery_id)->firstOrFail();
             $deliveryJob = new UpdateDeliveryStatus($delivery, $request->all());
             $this->dispatch($deliveryJob);
         }
