@@ -77,7 +77,8 @@
       <a-row type="flex">
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(total_weight * tierPrice) }}
+          <!-- {{ currency(total_weight * tierPrice) }} -->
+          {{ currency(servicePrice) }}
         </a-col>
         <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
