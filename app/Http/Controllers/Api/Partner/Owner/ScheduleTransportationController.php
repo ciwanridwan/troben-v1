@@ -40,7 +40,7 @@ class ScheduleTransportationController extends Controller
         $query = ScheduleTransportation::query()->with('harbor');
 
         if ($request->has('q')) {
-            $query = $query->where('name', 'like', '%'.$request->get('q').'%');
+            $query = $query->where('name', 'ilike', '%'.$request->get('q').'%');
         }
 
         $query = $query->paginate(request('per_page', 15));
@@ -52,11 +52,18 @@ class ScheduleTransportationController extends Controller
 
     public function listOrigin(Request $request): JsonResponse
     {
+        $w = '';
+        if ($request->has('q')) {
+            $q = '%'.$request->get('q').'%';
+            $w = sprintf("AND (h.origin_name ILIKE '%s' OR r.name ILIKE '%s')", $q, $q);
+        }
+
         $q = 'SELECT origin_regency_id id, MAX(h.origin_name) harbor_name,  MAX(r.name) origin_name
         FROM harbors h
         LEFT JOIN geo_regencies r ON h.origin_regency_id = r.id
-        WHERE deleted_at IS NULL
+        WHERE deleted_at IS NULL %s
         GROUP BY origin_regency_id';
+        $q = sprintf($q, $w);
 
         $result = DB::select($q);
 
@@ -73,12 +80,18 @@ class ScheduleTransportationController extends Controller
         ];
         Validator::make($req, $rule)->validate();
 
+        $w = '';
+        if ($request->has('q')) {
+            $q = '%'.$request->get('q').'%';
+            $w = sprintf("AND (h.origin_name ILIKE '%s' OR r.name ILIKE '%s')", $q, $q);
+        }
+
         $q = 'SELECT destination_regency_id id, MAX(h.destination_name) harbor_name,  MAX(r.name) destination_name
         FROM harbors h
         LEFT JOIN geo_regencies r ON h.destination_regency_id = r.id
-        WHERE deleted_at IS NULL AND origin_regency_id = %d
+        WHERE deleted_at IS NULL AND origin_regency_id = %d %s
         GROUP BY destination_regency_id';
-        $q = sprintf($q, $req['origin_id']);
+        $q = sprintf($q, $req['origin_id'], $w);
 
         $result = DB::select($q);
 
