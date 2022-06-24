@@ -32,14 +32,24 @@ class ScheduleTransportationRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
-        $this->router->delete($this->prefix(), [
+        $this->router->post($this->prefix('/delete'), [
             'as' => $this->name('destroy'),
             'uses' => $this->uses('destroy'),
         ]);
 
-        $this->router->put($this->prefix(), [
+        $this->router->post($this->prefix('/update'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
+        ]);
+
+        $this->router->get($this->prefix('/list_origin'), [
+            'as' => $this->name('list_origin'),
+            'uses' => $this->uses('listOrigin'),
+        ]);
+
+        $this->router->get($this->prefix('/list_dest'), [
+            'as' => $this->name('list_dest'),
+            'uses' => $this->uses('listDest'),
         ]);
     }
 

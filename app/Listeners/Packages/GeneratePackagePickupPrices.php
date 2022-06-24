@@ -9,10 +9,8 @@ use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Supports\DistanceMatrix;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Facades\Log;
 
 class GeneratePackagePickupPrices
 {

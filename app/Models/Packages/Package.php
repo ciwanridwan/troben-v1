@@ -174,6 +174,8 @@ class Package extends Model implements AttachableContract
         'sender_way_point',
         'sender_latitude',
         'sender_longitude',
+        'status',
+        'payment_status',
 
         'receiver_name',
         'receiver_phone',
