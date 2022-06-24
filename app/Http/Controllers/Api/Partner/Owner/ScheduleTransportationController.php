@@ -40,7 +40,7 @@ class ScheduleTransportationController extends Controller
         $query = ScheduleTransportation::query()->with('harbor');
 
         if ($request->has('q')) {
-            $query = $query->where('name', 'ilike', '%'.$request->get('q').'%');
+            $query = $query->where('ship_name', 'ilike', '%'.$request->get('q').'%');
         }
 
         $query = $query->paginate(request('per_page', 15));
