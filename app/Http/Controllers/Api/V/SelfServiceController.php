@@ -69,16 +69,18 @@ class SelfServiceController extends Controller
     {
         /** @var Code $code */
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->firstOrFail();
-        $job = new CancelPackage($code->codeable, $request->all());
-        $this->dispatch($job);
-
-        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->firstOrFail();
+        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->where('deliverable_type', Package::class)->firstOrFail();
         $delivery = Delivery::query()->where('id', $deliverable->delivery_id)->firstOrFail();
+
         if ($delivery->status == Delivery::STATUS_FINISHED) {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
             $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
 
             return $this->jsonSuccess();
         } else {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
             $delivery->where('id', $deliverable->delivery_id)->delete();
             $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
 

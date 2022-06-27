@@ -1,7 +1,7 @@
 <template>
   <trawl-modal-confirm :ok="cancel">
     <template slot="trigger">
-      <a-button type="danger" ghost>Cancel</a-button>
+      <a-button type="danger" ghost>Request</a-button>
     </template>
     <template slot="text">
       <p>

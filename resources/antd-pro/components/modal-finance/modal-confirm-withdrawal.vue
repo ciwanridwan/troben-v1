@@ -1,7 +1,7 @@
 <template>
   <trawl-modal-confirm :ok="paymentConfirm">
     <template slot="trigger">
-      <a-button class="trawl-button-success">Konfirmasi</a-button>
+      <a-button class="trawl-button-success">Approve</a-button>
     </template>
     <template slot="text">
       <p>Apakah pembayaran telah berhasil dilunaskan?</p>
