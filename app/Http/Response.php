@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Carbon\Carbon;
 use ReflectionClass;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -85,16 +86,20 @@ class Response implements Responsable
      */
     public $data;
 
+    public bool $hasServerTime;
+
     /**
      * Response constructor.
      *
      * @param string $code
-     * @param $data
+     * @param array|null $data
+     * @param bool $hasServerTime
      */
-    public function __construct(string $code, $data = null)
+    public function __construct(string $code, $data = null, bool $hasServerTime = false)
     {
         $this->code = $code;
         $this->data = $data;
+        $this->hasServerTime = $hasServerTime;
     }
 
     /**
@@ -195,6 +200,8 @@ class Response implements Responsable
             'error' => (int) $this->code >= 100 ? $this->resolveErrorCode() : null,
             'message' => $this->resolveMessage(),
         ];
+
+        if ($this->hasServerTime) $responseData = array_merge($responseData,['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
 
         if ($this->data instanceof LengthAwarePaginator) {
             $responseData = array_merge($responseData, $this->data->toArray());

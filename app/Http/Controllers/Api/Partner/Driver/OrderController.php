@@ -22,11 +22,11 @@ class OrderController extends Controller
         $query->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
         $query->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
 
-        $query->with(['packages.origin_district', 'packages.origin_sub_district', 'packages.destination_sub_district', 'packages.code', 'item_codes.codeable']);
+        $query->with(['packages.origin_district','packages.origin_sub_district','packages.destination_sub_district','packages.code','item_codes.codeable','partner_performance']);
 
         $query->orderByDesc('created_at');
 
-        return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page', 15))));
+        return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page', 15))),null,true);
     }
     public function show(Delivery $delivery): JsonResponse
     {

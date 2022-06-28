@@ -151,6 +151,11 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     $variant = '1';
                     # total balance service > record service balance
+<<<<<<< HEAD
+                    if (!$this->partner->get_fee_transit) break;
+                    if ($this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
+                    if ($this->delivery->type === Delivery::TYPE_DOORING) $this->saveServiceFee(true);
+=======
                     if (! $this->partner->get_fee_transit) {
                         break;
                     }
@@ -160,6 +165,7 @@ class GenerateBalanceHistory
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
                         $this->saveServiceFee($this->partner->type, $variant, true);
                     }
+>>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
                 }
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
@@ -505,11 +511,16 @@ class GenerateBalanceHistory
         if ($this->type === History::TYPE_WITHDRAW) {
             $this->attributes['disbursement_id'] = $this->withdrawal->id;
         } else {
+<<<<<<< HEAD
+            if ($is_package) $this->attributes['package_id'] = $this->package->id;
+            else $this->attributes['delivery_id'] = $this->delivery->id;
+=======
             if ($is_package) {
                 $this->attributes['package_id'] = $this->package->id;
             } else {
                 $this->attributes['delivery_id'] = $this->delivery->id;
             }
+>>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
         }
         return $this;
     }
@@ -611,11 +622,16 @@ class GenerateBalanceHistory
         if ($this->type === History::TYPE_WITHDRAW) {
             $historyQuery->where('disbursement_id', $this->withdrawal->id);
         } else {
+<<<<<<< HEAD
+            if ($is_package) $historyQuery->where('package_id', $this->package->id);
+            else $historyQuery->where('delivery_id', $this->delivery->id);
+=======
             if ($is_package) {
                 $historyQuery->where('package_id', $this->package->id);
             } else {
                 $historyQuery->where('delivery_id', $this->delivery->id);
             }
+>>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
         }
 
         return is_null($historyQuery->first());

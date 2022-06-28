@@ -155,24 +155,25 @@ const main = {
       },
       withdraw: {
         text: "Pencairan Mitra",
-        route: "admin.payment.withdraw",
-        children: {
-          request: {
-            text: "Daftar Request",
-            route: "admin.payment.withdraw.request",
-            children: null
-          },
-          pending: {
-            text: "Pencairan Pending",
-            route: "admin.payment.withdraw.pending",
-            children: null
-          },
-          success: {
-            text: "Pencairan Berhasil",
-            route: "admin.payment.withdraw.success",
-            children: null
-          }
-        },
+        route: "admin.payment.withdraw.request",
+        children : null,
+        // children: {
+        //   request: {
+        //     text: "Daftar Request",
+        //     route: "admin.payment.withdraw.request",
+        //     children: null
+        //   }
+          // pending: {
+          //   text: "Pencairan Pending",
+          //   route: "admin.payment.withdraw.pending",
+          //   children: null
+          // },
+          // success: {
+          //   text: "Pencairan Berhasil",
+          //   route: "admin.payment.withdraw.success",
+          //   children: null
+          // }
+        // },
         shortKey: ["ctrl", "alt", "i"]
       }
     },
