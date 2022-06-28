@@ -82,8 +82,11 @@ class PartnerController extends Controller
         $origin = sprintf('%f,%f', $lat, $lon);
         $limit = 5;
         $page = (int) $request->get('page');
-        if ($page > 0) $offset = sprintf('OFFSET %d', $page * $limit);
-        else $offset = '';
+        if ($page > 0) {
+            $offset = sprintf('OFFSET %d', $page * $limit);
+        } else {
+            $offset = '';
+        }
 
         $q = "SELECT p.id, p.longitude, p.latitude,
             6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT)) 

@@ -23,7 +23,7 @@ class Controller extends BaseController
      */
     public function jsonSuccess(?JsonResource $resource = null, ?Request $request = null, ?bool $hasServerTime = null): JsonResponse
     {
-        return (new Response(Response::RC_SUCCESS,$resource ?? [],$hasServerTime ?? false))->json($request);
+        return (new Response(Response::RC_SUCCESS, $resource ?? [], $hasServerTime ?? false))->json($request);
     }
 
     public function coming(): JsonResponse

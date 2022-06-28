@@ -28,7 +28,7 @@ class PartnerPerformanceEvaluatedByEvent
     private Delivery $delivery;
 
     /**
-     * Attributes
+     * Attributes.
      *
      * @var array $attributes
      */
@@ -87,7 +87,7 @@ class PartnerPerformanceEvaluatedByEvent
     }
 
     /**
-     *  Updating performance that
+     *  Updating performance that.
      */
     protected function updatePerformance(): void
     {
@@ -121,7 +121,7 @@ class PartnerPerformanceEvaluatedByEvent
         } elseif ($this->performance instanceof Performance\Delivery) {
             $this->attributes = array_merge($defaultAttribute, ['delivery_id' => $this->performance->delivery_id]);
         } else {
-            Log::info('performance: ',['delivery' => $this->delivery->code->content, 'performance' => $this->performance]);
+            Log::info('performance: ', ['delivery' => $this->delivery->code->content, 'performance' => $this->performance]);
             $this->attributes = [];
         }
     }

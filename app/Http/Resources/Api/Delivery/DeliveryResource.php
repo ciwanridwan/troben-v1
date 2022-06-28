@@ -86,17 +86,20 @@ class DeliveryResource extends JsonResource
         //     $data['packages'] = $packages;
         // }
         if ($this->resource->relationLoaded('partner_performance')) {
-            $data = Arr::except($data,'partner_performance');
-            if ($this->resource->partner_performance) $dataPerformance = [
+            $data = Arr::except($data, 'partner_performance');
+            if ($this->resource->partner_performance) {
+                $dataPerformance = [
                 'level' => $this->resource->partner_performance->level,
                 'deadline_time' => $this->resource->partner_performance->deadline
             ];
-            else $dataPerformance = [
+            } else {
+                $dataPerformance = [
                 'level' => null,
                 'deadline_time' => null
             ];
+            }
             $this->resource->unsetRelation('partner_performance');
-            $data = array_merge($data,$dataPerformance);
+            $data = array_merge($data, $dataPerformance);
         }
 
         return $data;

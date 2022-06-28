@@ -728,8 +728,8 @@ class Package extends Model implements AttachableContract
      */
     public function partner_performance(): HasOne
     {
-        return $this->hasOne(\App\Models\Partners\Performances\Package::class,'package_id','id')
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class, 'package_id', 'id')
             ->where('status', PerformanceModel::STATUS_ON_PROCESS)
-            ->orderBy('created_at','desc');
+            ->orderBy('created_at', 'desc');
     }
 }
