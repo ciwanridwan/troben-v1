@@ -85,8 +85,8 @@ class AssignableController extends Controller
                 ])
         );
 
-        $query->with('estimator', 'packager', 'items','partner_performance');
+        $query->with('estimator', 'packager', 'items', 'partner_performance');
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))),null,true);
+        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
     }
 }
