@@ -58,6 +58,7 @@ class PartnerController extends Controller
         $this->attributes = Validator::make($request->all(), [
             'type' => 'nullable',
             'origin' => 'nullable',
+            'page' => 'nullable',
             'lat' => 'required|numeric',
             'lon' => 'required|numeric',
         ])->validate();
@@ -79,6 +80,10 @@ class PartnerController extends Controller
         $lat = $request->get('lat');
         $lon = $request->get('lon');
         $origin = sprintf('%f,%f', $lat, $lon);
+        $limit = 5;
+        $page = (int) $request->get('page');
+        if ($page > 0) $offset = sprintf('OFFSET %d', $page * $limit);
+        else $offset = '';
 
         $q = "SELECT p.id, p.longitude, p.latitude,
             6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT)) 
@@ -92,9 +97,9 @@ class PartnerController extends Controller
             AND longitude IS NOT NULL
             %s
         ORDER BY distance_radian
-        LIMIT 5";
+        LIMIT %d %s";
 
-        $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(', ', $w));
+        $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(', ', $w), $limit, $offset);
         $nearby = collect(DB::select($q))->map(function ($r) use ($origin) {
             $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
             $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
