@@ -32,6 +32,7 @@ class GeneratePackagePrices
             $event->package->items->each(function (Item $item) use ($event) {
                 $existing_handling = [];
                 foreach (($item->handling ?? []) as $handling) {
+                    $handling['price'] = $item->qty * $handling['price'];
                     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
                         'type' => Price::TYPE_HANDLING,
                         'description' => $handling['type'],
