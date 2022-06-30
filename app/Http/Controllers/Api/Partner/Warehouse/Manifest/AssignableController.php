@@ -84,7 +84,9 @@ class AssignableController extends Controller
                     Delivery::TYPE_RETURN,
                 ])
         );
-        $query->with('estimator', 'packager', 'items');
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))));
+
+        $query->with('estimator', 'packager', 'items', 'partner_performance');
+
+        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
     }
 }
