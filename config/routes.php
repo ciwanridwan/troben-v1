@@ -61,6 +61,7 @@ return [
         App\Http\Routes\Api\ServiceRoute::class,
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
+        App\Http\Routes\Api\Internal\FinanceRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\Partner\VoucherRoute::class,
