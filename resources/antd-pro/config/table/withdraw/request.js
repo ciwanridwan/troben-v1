@@ -1,27 +1,23 @@
 export default [
   {
-    title: "No",
+    title: "ID",
     key: "number",
     dataIndex: "number",
+    align : "center",
     scopedSlots: { customRender: "number" }
   },
   {
     title: "Kode Mitra",
     key: "code",
     dataIndex: "partner.code",
+    align : "center",
     scopedSlots: { customRender: "code" }
   },
   {
-    title: "ID Request",
-    dataIndex: "id",
-    key: "id",
-
-    scopedSlots: { customRender: "id" }
-  },
-  {
-    title: "Saldo",
+    title: "Jumlah Request",
     key: "first_balance",
     dataIndex: "first_balance",
+    align : "center",
     scopedSlots: { customRender: "first_balance" }
   },
   {
@@ -39,7 +35,7 @@ export default [
     scopedSlots: { customRender: "created_at" }
   },
   {
-    title: "Action",
+    title: "Status",
     key: "action",
     align: "center",
     width: "100px",

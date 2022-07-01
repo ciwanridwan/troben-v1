@@ -3,6 +3,7 @@
 namespace App\Jobs\Deliveries\Actions;
 
 use App\Events\CodeScanned;
+use App\Events\Packages\PackagesAttachedToDelivery;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Packages\Item;
@@ -73,6 +74,8 @@ class ProcessFromCodeToDelivery
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
+
+        event(new PackagesAttachedToDelivery($this->delivery));
     }
 
     public function assignToDelivery(Code $code)

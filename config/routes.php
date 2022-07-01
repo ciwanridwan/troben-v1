@@ -100,6 +100,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\RequestRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\PendingRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
+        App\Http\Routes\Admin\Master\Withdraw\DetailRequestRoute::class,
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,

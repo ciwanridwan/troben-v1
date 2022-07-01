@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Packages;
 
+use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CheckDeliveredStatus implements ShouldQueue
+class CheckDeliveredStatus
 {
     use Dispatchable;
 
@@ -47,6 +47,8 @@ class CheckDeliveredStatus implements ShouldQueue
         if ($count == $check) {
             $this->delivery->status = Delivery::STATUS_FINISHED;
             $this->delivery->save();
+
+            event(new DriverDooringFinished($this->delivery));
         }
     }
 }

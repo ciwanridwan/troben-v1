@@ -11,47 +11,61 @@
       <a-card>
         <a-row type="flex" justify="space-between" :gutter="[64, 10]">
           <a-col :class="['trawl-border-right']" :span="12">
-            <h3>Jumlah Request Mitra</h3>
+            <h3>Jumlah Request</h3>
             <h2>
               <b>{{ items.total }}</b>
             </h2>
           </a-col>
-          <a-col>
+          <!-- <a-col>
+            <a-form-model-item prop="province_id">
+              <a-select placeholder="Pilih Provinsi" show-search @focus="getGeo('province')"
+                v-model="filterChart.province_id" size="large" :filter-option="filterOptionMethod" :loading="loading"
+                @change="getFinanceDataChart">
+                <a-select-option v-for="(province, index) in provinces" :key="index" :value="province.id">
+                  {{ province.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col> -->
+          <a-col :class="['trawl-border-right']" :span="12">
             <h3>Total Request</h3>
             <h2>
               <b>{{ items.total }}</b>
             </h2>
           </a-col>
+          <!--          <a-col :span="12">-->
+          <!--            <a-row type="flex" justify="space-between" >-->
+          <!--              <a-col :span="6">-->
+          <!--                <h4>Saldo:</h4>-->
+          <!--                <span-->
+          <!--                ><b>{{ currency(150000) }}</b></span-->
+          <!--                >-->
+          <!--              </a-col>-->
+          <!--              <a-col :span="6">-->
+          <!--                <h4>Saldo:</h4>-->
+          <!--                <span-->
+          <!--                ><b>{{ currency(150000) }}</b></span-->
+          <!--                >-->
+          <!--              </a-col>-->
+          <!--            </a-row>-->
+          <!--          </a-col>-->
         </a-row>
       </a-card>
-      <br>
       <a-card>
-        <a-row type="flex" justify="space-between">
-          <a-col :class="['trawl-border-right']" :span="6">
-            <a-input-search v-model="filter.q" @search="getItems" placeholder="Cari kode mitra"></a-input-search>
-          </a-col>
-          <a-col :class="['trawl-border-right']" :span="4">
-            <a-input-search v-model="filter.q" @search="getItems" placeholder="Filter Status"></a-input-search>
-          </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
-          </a-col>
-          <a-col>
-            <h3>S/D</h3>
-          </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
-          </a-col>
-          <a-col :class="['trawl-border-right']" :span="2">
-            <a-space>
-              <!-- <modal-confirm-withdrawal :afterConfirm="afterAction" :record="record" /> -->
-              <a-button type="success" class="trawl-button-success">Approve</a-button>
-            </a-space>
-          </a-col>
+        <a-row style="margin-bottom: 10px">
+          <a-form-model-item prop="">
+            <a-select placeholder="Pilih Provinsi" size="large">
+              <a-select-option>
+                test
+              </a-select-option>
+            </a-select>
+          </a-form-model-item>
         </a-row>
       </a-card>
       <a-table :columns="requestColumns" :dataSource="items.data" :pagination="trawlbensPagination"
-        @change="handleTableChanged" :loading="loading" :class="['trawl']">
+        @change="handleTableChanged" :loading="loading" :class="['trawl']" :row-selection="{
+          onChange: onChangeSelected
+        }">
         <span slot="number" slot-scope="number">{{ number }}</span>
         <span slot="action" slot-scope="record">
           <a-space v-if="record.status">
@@ -63,17 +77,16 @@
       </a-table>
     </template>
     <template slot="footer">
-      <!-- <a-layout-footer v-show="selections.length > 0" :class="['trawl-content-footer']"> -->
-      <a-layout-footer :class="['trawl-content-footer']">
+      <a-layout-footer v-show="selections.length > 0" :class="['trawl-content-footer']">
         <a-row type="flex" justify="end">
-          <!-- <a-col :span="10">
+          <a-col :span="10">
             <a-space>
-              <span>Item terpilih</span>
+              <span>{{ selections.length }} Item terpilih</span>
 
               <a-button type="primary" @click="showConfirm">Selesai</a-button>
               <a-button type="danger">Cancel</a-button>
             </a-space>
-          </a-col> -->
+          </a-col>
         </a-row>
       </a-layout-footer>
     </template>
@@ -103,20 +116,19 @@ export default {
     },
     loading: false,
     requestColumns,
-    // selections: [],
+    selections: [],
   }),
   methods: {
     onSuccessResponse(response) {
       this.items = response;
-
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
       });
     },
-    // onChangeSelected(selections) {
-    //   this.selections = selections;
-    // },
+    onChangeSelected(selections) {
+      this.selections = selections;
+    },
   },
   props: {
     record: {

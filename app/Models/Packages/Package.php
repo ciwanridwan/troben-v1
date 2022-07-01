@@ -9,6 +9,7 @@ use App\Models\Offices\Office;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\ClaimedVoucher;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Performances\PerformanceModel;
 use App\Models\Promos\ClaimedPromotion;
 use App\Models\Partners\Transporter;
 use App\Models\User;
@@ -95,6 +96,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property-read null|Deliverable pivot
  * @property-read User|null packager
  * @property-read User|null estimator
+ * @property-read \App\Models\Partners\Performances\Package|null $partner_performance
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
@@ -719,5 +721,15 @@ class Package extends Model implements AttachableContract
                 return null;
             }
         });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function partner_performance(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class, 'package_id', 'id')
+            ->where('status', PerformanceModel::STATUS_ON_PROCESS)
+            ->orderBy('created_at', 'desc');
     }
 }
