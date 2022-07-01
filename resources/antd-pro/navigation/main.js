@@ -156,7 +156,14 @@ const main = {
       withdraw: {
         text: "Pencairan Mitra",
         route: "admin.payment.withdraw.request",
-        children : null,
+        children : {
+          detail: {
+            text: "Detail Pencairan",
+            route: "admin.payment.withdraw.request.detail"
+          }
+        },
+        shortKey: ["ctrl", "alt", "i"]
+      }
         // children: {
         //   request: {
         //     text: "Daftar Request",
@@ -174,8 +181,6 @@ const main = {
           //   children: null
           // }
         // },
-        shortKey: ["ctrl", "alt", "i"]
-      }
     },
     shortKey: ["ctrl", "alt", "p"]
   },

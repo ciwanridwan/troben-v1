@@ -1,5 +1,5 @@
 <template>
-  <content-layout title="Request Pencairan Mitra">
+  <content-layout title="Detail Pencairan Mitra">
     <template slot="head-tools">
       <!-- <a-row type="flex" justify="end" :gutter="[10, 10]">
         <a-col :span="8">
@@ -10,16 +10,22 @@
     <template slot="content">
       <a-card>
         <a-row type="flex" justify="space-between" :gutter="[64, 10]">
-          <a-col :class="['trawl-border-right']" :span="12">
-            <h3>Jumlah Request Mitra</h3>
+          <a-col>
+            <h3>Total</h3>
             <h2>
-              <b>{{ items.total }}</b>
+              <b>100</b>
             </h2>
           </a-col>
           <a-col>
-            <h3>Total Request</h3>
+            <h3>Total Unapproved</h3>
             <h2>
-              <b>{{ items.total }}</b>
+              <b>200</b>
+            </h2>
+          </a-col>
+           <a-col>
+            <h3>Total Approved</h3>
+            <h2>
+              <b>300</b>
             </h2>
           </a-col>
         </a-row>
@@ -30,24 +36,6 @@
           <a-col :class="['trawl-border-right']" :span="6">
             <a-input-search v-model="filter.q" @search="getItems" placeholder="Cari kode mitra"></a-input-search>
           </a-col>
-          <a-col :class="['trawl-border-right']" :span="4">
-            <a-input-search v-model="filter.q" @search="getItems" placeholder="Filter Status"></a-input-search>
-          </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
-          </a-col>
-          <a-col>
-            <h3>S/D</h3>
-          </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
-          </a-col>
-          <a-col :class="['trawl-border-right']" :span="2">
-            <a-space>
-              <!-- <modal-confirm-withdrawal :afterConfirm="afterAction" :record="record" /> -->
-              <a-button type="success" class="trawl-button-success">Approve</a-button>
-            </a-space>
-          </a-col>
         </a-row>
       </a-card>
       <a-table :columns="requestColumns" :dataSource="items.data" :pagination="trawlbensPagination"
@@ -55,8 +43,6 @@
         <span slot="number" slot-scope="number">{{ number }}</span>
         <span slot="action" slot-scope="record">
           <a-space v-if="record.status">
-
-            <modal-reject-withdrawal :afterConfirm="afterAction" :record="record" />
             <modal-confirm-withdrawal :afterConfirm="afterAction" :record="record" />
           </a-space>
         </span>
@@ -80,7 +66,7 @@
   </content-layout>
 </template>
 <script>
-import requestColumns from "../../../../../config/table/withdraw/request";
+import requestColumns from "../../../../../config/table/withdraw/detail";
 import ContentLayout from "../../../../../layouts/content-layout.vue";
 import AdminOrderActions from "../../../../../components/orders/actions/admin-order-actions.vue";
 import ModalRejectWithdrawal from "../../../../../components/modal-finance/modal-reject-withdrawal";
