@@ -71,7 +71,7 @@ class PartnerController extends Controller
             $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
         }
         if ($request->has('q')) {
-            $w[] = sprintf(" AND p.name LIKE '%s%s%s'", '%', $request->get('q'), '%');
+            $w[] = sprintf(" AND p.name ILIKE '%s%s%s'", '%', $request->get('q'), '%');
         }
         if ($request->has('type')) {
             $w[] = sprintf(" AND EXISTS (SELECT * FROM transporters t WHERE t.partner_id = p.id AND type ILIKE '%s%s%s' AND t.deleted_at IS NULL)", '%', $request->get('type'), '%');
@@ -94,7 +94,6 @@ class PartnerController extends Controller
                 + sin(radians(%f))
                 * sin(radians(latitude::FLOAT))) AS distance_radian
         FROM partners p
-        -- LEFT JOIN transporters t ON p.id = t.partner_id
         WHERE p.type = '%s'
             AND latitude IS NOT NULL
             AND longitude IS NOT NULL
@@ -136,7 +135,7 @@ class PartnerController extends Controller
                 $r->distance_radian = $dr;
                 $r->distance_matrix = $dm;
                 return $r;
-            });
+            })->sortBy('distance_matrix')->values();
 
         return $this->jsonSuccess(PartnerNearbyResource::collection($result));
     }
