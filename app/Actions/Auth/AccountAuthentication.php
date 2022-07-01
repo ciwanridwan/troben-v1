@@ -492,7 +492,6 @@ class AccountAuthentication
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
     }
-<<<<<<< HEAD
 
     /**
      * Super login
@@ -552,6 +551,4 @@ class AccountAuthentication
             'jwt_token' => $jwt
         ]))->json();
     }
-=======
->>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
 }
