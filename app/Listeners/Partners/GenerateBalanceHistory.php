@@ -151,11 +151,6 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     $variant = '1';
                     # total balance service > record service balance
-<<<<<<< HEAD
-                    if (!$this->partner->get_fee_transit) break;
-                    if ($this->countDeliveryTransitOfPackage() > 1) $this->saveServiceFee(true);
-                    if ($this->delivery->type === Delivery::TYPE_DOORING) $this->saveServiceFee(true);
-=======
                     if (! $this->partner->get_fee_transit) {
                         break;
                     }
@@ -165,7 +160,6 @@ class GenerateBalanceHistory
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
                         $this->saveServiceFee($this->partner->type, $variant, true);
                     }
->>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
                 }
                 break;
             case $event instanceof DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse:
