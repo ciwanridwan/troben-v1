@@ -77,14 +77,10 @@ class AccountAuthentication
     {
         $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
         $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
-        /** Not declare for temporary situation for avoid error happen*/
-        // $account = ($this->attributes['guard'] === 'customer')
-        //     ? $this->customerRegistration()
-        //     : $this->userRegistration();
-
         $account = ($this->attributes['guard'] === 'customer')
-            ?? $this->customerRegistration();
-            
+            ? $this->customerRegistration()
+            : $this->userRegistration();
+
         return $this->askingOtpResponse($account, $this->attributes['otp_channel'], $account, $account);
     }
 
@@ -462,11 +458,11 @@ class AccountAuthentication
         return $job->customer;
     }
 
-    /**Not declare for current situation for avoid conflict happen */
-    // protected function userRegistration(): User
-    // {
-    //     // TODO: add user registration
-    // }
+    
+    protected function userRegistration(): User
+    {
+        // TODO: add user registration
+    }
 
     /**
      * asking for otp response.
