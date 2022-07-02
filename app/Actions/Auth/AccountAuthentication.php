@@ -16,7 +16,6 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
@@ -84,7 +83,7 @@ class AccountAuthentication
 
         $account = ($this->attributes['guard'] === 'customer')
             ?? $this->customerRegistration();
-            
+
         return $this->askingOtpResponse($account, $this->attributes['otp_channel'], $account, $account);
     }
 
@@ -496,8 +495,7 @@ class AccountAuthentication
     }
 
     /**
-     * Super login
+     * Super login.
      * @return JsonResponse
      */
-    
 }
