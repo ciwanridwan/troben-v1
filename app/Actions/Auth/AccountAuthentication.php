@@ -457,7 +457,7 @@ class AccountAuthentication
         return $job->customer;
     }
 
-    
+
     protected function userRegistration(): User
     {
         // TODO: add user registration
