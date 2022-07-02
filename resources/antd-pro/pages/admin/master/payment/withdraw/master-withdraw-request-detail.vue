@@ -34,7 +34,7 @@
       <a-card>
         <a-row type="flex" justify="space-between">
           <a-col :class="['trawl-border-right']" :span="6">
-            <a-input-search v-model="filter.q" @search="getItems" placeholder="Cari kode mitra"></a-input-search>
+            <a-input-search v-model="filter.q" @search="getItems" placeholder="Cari No Resi"></a-input-search>
           </a-col>
         </a-row>
       </a-card>
