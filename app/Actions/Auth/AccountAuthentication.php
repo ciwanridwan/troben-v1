@@ -16,10 +16,7 @@ use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;
-<<<<<<< HEAD
 use Illuminate\Http\Resources\Json\JsonResource;
-=======
->>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use libphonenumber\NumberParseException;
@@ -80,10 +77,14 @@ class AccountAuthentication
     {
         $this->attributes['guard'] = $this->attributes['guard'] ?? 'customer';
         $this->attributes['otp_channel'] = $this->attributes['otp_channel'] ?? 'phone';
-        $account = ($this->attributes['guard'] === 'customer')
-            ? $this->customerRegistration()
-            : $this->userRegistration();
+        /** Not declare for temporary situation for avoid error happen*/
+        // $account = ($this->attributes['guard'] === 'customer')
+        //     ? $this->customerRegistration()
+        //     : $this->userRegistration();
 
+        $account = ($this->attributes['guard'] === 'customer')
+            ?? $this->customerRegistration();
+            
         return $this->askingOtpResponse($account, $this->attributes['otp_channel'], $account, $account);
     }
 
@@ -461,10 +462,11 @@ class AccountAuthentication
         return $job->customer;
     }
 
-    protected function userRegistration(): User
-    {
-        // TODO: add user registration
-    }
+    /**Not declare for current situation for avoid conflict happen */
+    // protected function userRegistration(): User
+    // {
+    //     // TODO: add user registration
+    // }
 
     /**
      * asking for otp response.
@@ -497,58 +499,5 @@ class AccountAuthentication
      * Super login
      * @return JsonResponse
      */
-    public function superAttempt(): JsonResponse
-    {
-        $query = $this->attributes['guard'] === 'customer' ? Customer::query() : User::query();
-        $column = $this->attributes['guard'] === 'customer' ? AccountAuthentication::CREDENTIAL_PHONE : AccountAuthentication::CREDENTIAL_USERNAME;
-        $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
-
-        $payload = [];
-
-        if ($authenticatable) {
-            $now = time();
-            $payload = [
-                'iat' => $now,
-                'exp' => $now + (((60 * 60) * 24) * 30),
-                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-            ];
-        }
-        return (new Response(Response::RC_SUCCESS, [
-            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
-            'fcm_token' => $authenticatable->fcm_token ?? null,
-            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
-        ]))->json();
-    }
-
-
-    public function officeAttempt(): JsonResponse
-    {
-        switch (true) {
-            default:
-                $column = self::CREDENTIAL_EMAIL;
-                break;
-        }
-        $query = Office::query();
-
-        /** @var Office $authenticatable */
-        $authenticatable = $query->where($column, $this->attributes['username'])->first();
-
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
-            throw ValidationException::withMessages([
-                'username' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-        $now = time();
-        $payload = [
-            'iat' => $now,
-            'exp' => $now + (((60 * 60) * 24) * 30),
-            'data' => new JWTOfficeResource($authenticatable)
-        ];
-        $jwt = JWT::encode($payload, self::JWT_KEY);
-
-
-        return (new Response(Response::RC_SUCCESS, [
-            'jwt_token' => $jwt
-        ]))->json();
-    }
+    
 }
