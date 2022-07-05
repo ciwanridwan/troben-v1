@@ -38,7 +38,7 @@ class CreateNewBalanceDisbursement
     public function __construct(Partner $partner, $inputs = [])
     {
         $this->attributes = Validator::make($inputs, [
-            'status' => ['nullable', 'max:255'],
+            'status' => ['required', 'max:255'],
             'amount' => ['required', 'max:255'],
             'bank_id' => ['required','max:255'],
             'account_name' => ['required','max:255'],

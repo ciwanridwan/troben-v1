@@ -6,7 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
 use App\Http\Resources\Api\Internal\Finance\OverviewResource;
 use App\Http\Resources\Api\Internal\Finance\DetailResource;
+use App\Http\Resources\Api\Internal\Finance\FindByPartnerResource as FinanceFindByPartnerResource;
+use App\Http\Resources\FindByPartnerResource;
+use App\Http\Response;
+use App\Models\Partners\Partner;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,18 +24,23 @@ class FinanceController extends Controller
         self::STATUS_REQUEST,
     ];
 
+    /**
+     * @var array
+     */
+    protected $attributes = [];
+
     public function list(Request $request): JsonResponse
     {
         $rows = [];
         foreach (range(1, 10) as $i) {
-            $s = self::STATUS_LIST[ mt_rand(0, 1) ];
+            $s = self::STATUS_LIST[mt_rand(0, 1)];
             $d = $s == self::STATUS_APPROVE ? (mt_rand(1, 5) * 10000) : 0;
 
             $rows[] = [
                 'id' => $i,
                 'mitra' => sprintf('MTM-JKTI-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
                 'status' => $s,
-                'request_at' => Carbon::now()->addDay( mt_rand(1, 10) )->format('Y-m-d H:i:s'),
+                'request_at' => Carbon::now()->addDay(mt_rand(1, 10))->format('Y-m-d H:i:s'),
                 'amount_request' => mt_rand(1, 10) * 10000,
                 'amount_disbursement' => $d,
             ];
@@ -58,7 +68,7 @@ class FinanceController extends Controller
 
     public function detail(Request $request): JsonResponse
     {
-        $s = self::STATUS_LIST[ mt_rand(0, 1) ];
+        $s = self::STATUS_LIST[mt_rand(0, 1)];
         $d = $s == self::STATUS_APPROVE ? (mt_rand(1, 5) * 10000) : 0;
 
         $rows = [];
@@ -80,7 +90,7 @@ class FinanceController extends Controller
                 'id' => mt_rand(1, 99),
                 'mitra' => sprintf('MTM-JKTI-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
                 'status' => $s,
-                'request_at' => Carbon::now()->addDay( mt_rand(1, 10) )->format('Y-m-d H:i:s'),
+                'request_at' => Carbon::now()->addDay(mt_rand(1, 10))->format('Y-m-d H:i:s'),
                 'total_approved' => $d,
                 'total_request' => mt_rand(1, 10) * 10000,
             ],
@@ -88,4 +98,36 @@ class FinanceController extends Controller
 
         return $this->jsonSuccess(new DetailResource($result));
     }
+
+    // Todo Find
+    public function findByPartner(Request $request): JsonResponse
+    {
+        $this->attributes = $request->validate([
+            'partner_id' => ['required'],
+        ]);
+
+        $partners = Partner::where('id', $this->attributes['partner_id'])->first();
+        
+        return $this->jsonSuccess(new FinanceFindByPartnerResource($partners));
+    }
+
+    public function findByStatus(Request $request): JsonResponse 
+    {
+        $this->attributes = $request->validate([
+            'status' => ['required'],
+        ]);
+
+        return $this->jsonSuccess(new FinanceFindByPartnerResource());
+    }
+
+    public function findByDate(Request $request): JsonResponse 
+    {
+        $this->attributes = $request->validate([
+            'date' => ['required'],
+        ]);
+
+        return $this->jsonSuccess(new FinanceFindByPartnerResource());
+    }    
+
+    // End Todo
 }
