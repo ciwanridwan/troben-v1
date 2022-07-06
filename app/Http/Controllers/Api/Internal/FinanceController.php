@@ -9,6 +9,7 @@ use App\Http\Resources\Api\Internal\Finance\OverviewResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Resources\Api\Internal\Finance\FindByPartnerResource as FinanceFindByPartnerResource;
+use App\Http\Response;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Illuminate\Http\Request;
@@ -51,14 +52,14 @@ class FinanceController extends Controller
     /**End Todo */
 
     /**Todo Count Request Disbursment */
-    public function countDisbursment(Request $request)
+    public function countDisbursment(Withdrawal $withdrawal)
     {
-        return $this->jsonSuccess(new CountDisbursmentResource($request));
+        return $this->jsonSuccess(new CountDisbursmentResource($withdrawal));
     }
 
-    public function countAmountDisbursment(Request $request)
+    public function countAmountDisbursment(Withdrawal $withdrawal)
     {
-        return $this->jsonSuccess(new CountAmountResource($request));
+        return $this->jsonSuccess(new CountAmountResource($withdrawal));
     }
     /**End Todo */
 
@@ -79,9 +80,12 @@ class FinanceController extends Controller
             'partner_id' => ['required'],
         ]);
 
-        $partners = Partner::where('id', $this->attributes['partner_id'])->first();
-
-        return $this->jsonSuccess(new FinanceFindByPartnerResource($partners));
+        $partners = Withdrawal::where('partner_id', $this->attributes['partner_id'])->orderByDesc('created_at')->get();
+        if ($partners->isEmpty()) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            return $this->jsonSuccess(ListResource::collection($partners));
+        }
     }
 
     public function findByStatus(Request $request): JsonResponse
@@ -90,16 +94,35 @@ class FinanceController extends Controller
             'status' => ['required'],
         ]);
 
-        return $this->jsonSuccess(new FinanceFindByPartnerResource());
+        if ($this->attributes['status'] == "requested") {
+            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->get();
+            return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
+
+        } else if ($this->attributes['status'] == "approved") {
+            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->get();
+
+            if ($disbursmentStatus->isEmpty()) {
+                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            }
+
+            return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
     }
 
     public function findByDate(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'date' => ['required'],
+            'date' => ['required', 'date_format:Y-m-d'],
         ]);
 
-        return $this->jsonSuccess(new FinanceFindByPartnerResource());
+        $date = Withdrawal::whereDate('created_at', $this->attributes['date'])->get();
+        if ($date->isEmpty()) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            return $this->jsonSuccess(ListResource::collection($date));
+        }
     }
     // End Todo
 }

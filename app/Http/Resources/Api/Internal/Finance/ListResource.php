@@ -17,7 +17,7 @@ class ListResource extends JsonResource
             'hash' => $this['hash'],
             'partner_id' => $partner,
             'amount' => $this['amount'],
-            'created_at' => $this['created_at'],
+            'created_at' => $this['created_at']->format('Y-m-d'),
             'status' => $this['status']
         ];
 

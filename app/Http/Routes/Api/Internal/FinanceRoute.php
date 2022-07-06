@@ -46,14 +46,14 @@ class FinanceRoute extends BaseRoute
             'as' => $this->name('findByPartner'),
             'uses' => $this->uses('findByPartner'),
         ]);
-        // $this->router->get($this->prefix('/find/status'), [
-        //     'as' => $this->name('findByStatus'),
-        //     'uses' => $this->uses('findByStatus'),
-        // ]);
-        // $this->router->get($this->prefix('/find/date'), [
-        //     'as' => $this->name('findByDate'),
-        //     'uses' => $this->uses('findByDate'),
-        // ]);
+        $this->router->get($this->prefix('/find/status'), [
+            'as' => $this->name('findByStatus'),
+            'uses' => $this->uses('findByStatus'),
+        ]);
+        $this->router->get($this->prefix('/find/date'), [
+            'as' => $this->name('findByDate'),
+            'uses' => $this->uses('findByDate'),
+        ]);
 
         $this->router->get($this->prefix('/count'), [
             'as' => $this->name('countDisbursment'),
