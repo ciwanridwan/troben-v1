@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Api\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
-use App\Http\Resources\Api\Internal\Finance\OverviewResource;
 use App\Http\Resources\Api\Internal\Finance\DetailResource;
+use App\Http\Resources\Api\Internal\Finance\OverviewResource;
+use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
+use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Resources\Api\Internal\Finance\FindByPartnerResource as FinanceFindByPartnerResource;
-use App\Http\Resources\FindByPartnerResource;
-use App\Http\Response;
 use App\Models\Partners\Partner;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use App\Models\Payments\Withdrawal;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Builder;
 
 class FinanceController extends Controller
 {
@@ -29,32 +29,38 @@ class FinanceController extends Controller
      */
     protected $attributes = [];
 
-    public function list(Request $request): JsonResponse
+    /**
+     * @var Builder
+     */
+    protected Builder $query;
+
+    /**Todo list disbursment */
+    public function list(): JsonResponse
     {
-        $rows = [];
-        foreach (range(1, 10) as $i) {
-            $s = self::STATUS_LIST[mt_rand(0, 1)];
-            $d = $s == self::STATUS_APPROVE ? (mt_rand(1, 5) * 10000) : 0;
-
-            $rows[] = [
-                'id' => $i,
-                'mitra' => sprintf('MTM-JKTI-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
-                'status' => $s,
-                'request_at' => Carbon::now()->addDay(mt_rand(1, 10))->format('Y-m-d H:i:s'),
-                'amount_request' => mt_rand(1, 10) * 10000,
-                'amount_disbursement' => $d,
-            ];
-        }
-
-        $result = [
-            'list' => $rows,
-            'page' => 0,
-            'total_data' => 0,
-            'total_page' => 0,
-        ];
-
-        return $this->jsonSuccess(new ListResource($result));
+        $result = Withdrawal::query();
+        return $this->jsonSuccess(ListResource::collection($result->paginate(request('per_page', 10))));
     }
+    /**End todo */
+
+    /**Todo detail disbursment */
+    public function detail(Withdrawal $withdrawal): JsonResponse
+    {
+        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        return $this->jsonSuccess(DetailResource::collection($result));
+    }
+    /**End Todo */
+
+    /**Todo Count Request Disbursment */
+    public function countDisbursment(Request $request)
+    {
+        return $this->jsonSuccess(new CountDisbursmentResource($request));
+    }
+
+    public function countAmountDisbursment(Request $request)
+    {
+        return $this->jsonSuccess(new CountAmountResource($request));
+    }
+    /**End Todo */
 
     public function overview(Request $request): JsonResponse
     {
@@ -66,39 +72,6 @@ class FinanceController extends Controller
         return $this->jsonSuccess(new OverviewResource($result));
     }
 
-    public function detail(Request $request): JsonResponse
-    {
-        $s = self::STATUS_LIST[mt_rand(0, 1)];
-        $d = $s == self::STATUS_APPROVE ? (mt_rand(1, 5) * 10000) : 0;
-
-        $rows = [];
-        foreach (range(1, 10) as $i) {
-            $d = $s == self::STATUS_APPROVE ? (mt_rand(1, 5) * 10000) : 0;
-
-            $rows[] = [
-                'id' => $i,
-                'receipt' => sprintf('TB-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
-                'mitra' => sprintf('MTM-JKTI-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
-                'total_amount' => mt_rand(5, 10) * 10000,
-                'total_receive' => mt_rand(1, 4) * 10000,
-            ];
-        }
-
-        $result = [
-            'receipt_list' => $rows,
-            'request' => [
-                'id' => mt_rand(1, 99),
-                'mitra' => sprintf('MTM-JKTI-%s', str_pad(mt_rand(10, 99999), 5, '0', STR_PAD_LEFT)),
-                'status' => $s,
-                'request_at' => Carbon::now()->addDay(mt_rand(1, 10))->format('Y-m-d H:i:s'),
-                'total_approved' => $d,
-                'total_request' => mt_rand(1, 10) * 10000,
-            ],
-        ];
-
-        return $this->jsonSuccess(new DetailResource($result));
-    }
-
     // Todo Find
     public function findByPartner(Request $request): JsonResponse
     {
@@ -107,11 +80,11 @@ class FinanceController extends Controller
         ]);
 
         $partners = Partner::where('id', $this->attributes['partner_id'])->first();
-        
+
         return $this->jsonSuccess(new FinanceFindByPartnerResource($partners));
     }
 
-    public function findByStatus(Request $request): JsonResponse 
+    public function findByStatus(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
             'status' => ['required'],
@@ -120,14 +93,13 @@ class FinanceController extends Controller
         return $this->jsonSuccess(new FinanceFindByPartnerResource());
     }
 
-    public function findByDate(Request $request): JsonResponse 
+    public function findByDate(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
             'date' => ['required'],
         ]);
 
         return $this->jsonSuccess(new FinanceFindByPartnerResource());
-    }    
-
+    }
     // End Todo
 }
