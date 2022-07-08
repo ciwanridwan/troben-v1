@@ -13,18 +13,11 @@ export default [
     align : "center",
     scopedSlots: { customRender: "code" }
   },
-  // {
-  //   title: "Jumlah Request",
-  //   dataIndex: "id",
-  //   key: "id",
-
-  //   scopedSlots: { customRender: "id" }
-  // },
   {
     title: "Jumlah Request",
     key: "first_balance",
     dataIndex: "first_balance",
-    align : "center", 
+    align : "center",
     scopedSlots: { customRender: "first_balance" }
   },
   {

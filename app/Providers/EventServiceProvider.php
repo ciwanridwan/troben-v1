@@ -52,6 +52,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Partners\Balance\WithdrawalApproved;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -254,6 +255,11 @@ class EventServiceProvider extends ServiceProvider
         WithdrawalSuccess::class => [
             GenerateBalanceHistory::class,
         ],
+        /**TODO NEW APPROVED STATUS EVENT & LISTENER */
+        WithdrawalApproved::class => [
+            GenerateBalanceHistory::class,
+        ]
+        /**END TODO */
     ];
 
     /**

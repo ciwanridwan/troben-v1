@@ -27,20 +27,61 @@
       <br>
       <a-card>
         <a-row type="flex" justify="space-between">
-          <a-col :class="['trawl-border-right']" :span="6">
-            <a-input-search v-model="filter.q" @search="getItems"></a-input-search>
-          </a-col>
+          <!-- <a-col :class="['trawl-border-right']" :span="6">
+            <a-input-search v-model="filter.q" @search="getItems" placeholder="Cari kode mitra"></a-input-search>
+          </a-col> -->
+
+          <!-- Add Filter Partner Code -->
           <a-col :class="['trawl-border-right']" :span="4">
-            <a-input-search v-model="filter.q" @search="getItems"></a-input-search>
+            <a-form-model-item prop="province_id">
+              <a-select 
+                placeholder="Pilih Mitra" 
+                show-search @focus="getGeo('province')"
+                v-model="filterChart.province_id" 
+                size="large" 
+                :filter-option="filterOptionMethod" 
+                :loading="loading"
+                @change="getFinanceDataChart"
+              >
+                <a-select-option v-for="(province, index) in provinces" :key="index" :value="province.id">
+                  {{ province.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
           </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
+          <!-- End Filter Partner Code -->
+
+          <!-- Add Filter Status -->
+          <a-col :class="['trawl-border-right']" :span="4">
+            <a-form-model-item prop="province_id">
+              <a-select 
+                placeholder="Filter Status" 
+                show-search @focus="getGeo('province')"
+                v-model="filterChart.province_id" 
+                size="large" 
+                :filter-option="filterOptionMethod" 
+                :loading="loading"
+                @change="getFinanceDataChart"
+              >
+                <a-select-option v-for="(province, index) in provinces" :key="index" :value="province.id">
+                  {{ province.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+          <!-- End Add Filter Status -->
+
+          <!-- <a-col :class="['trawl-border-right']" :span="4">
+            <a-input-search v-model="filter.q" @search="getItems" placeholder="Filter Status"></a-input-search>
+          </a-col> -->
+          <a-col :class="['trawl-border-right']" :span="2">
+            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Start Date" />
           </a-col>
           <a-col>
             <h3>S/D</h3>
           </a-col>
-          <a-col>
-            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="Masukkan tanggal" />
+          <a-col :class="['trawl-border-right']" :span="2">
+            <a-date-picker valueFormat='YYYY-MM-DD' placeholder="End Date" />
           </a-col>
           <a-col :class="['trawl-border-right']" :span="2">
             <a-space>
@@ -103,16 +144,50 @@ export default {
     },
     loading: false,
     requestColumns,
+    filterChart: {
+      province_id: undefined,
+    },
+    loading: false,
+    form: {
+      province_id: null
+    },
     // selections: [],
   }),
   methods: {
     onSuccessResponse(response) {
       this.items = response;
-      // console.log(">>>>>", this.items);
+
       let numbering = this.items.from;
       this.items.data.forEach((o, k) => {
         o.number = numbering++;
       });
+    },
+
+    async getGeo(status = "province", params = {}) {
+      this.loading = true;
+      params = { per_page: "-1", ...params };
+      this.$http
+        .get(this.routeUri("admin.payment.geo"), {
+          params: {
+            type: status,
+            ...params
+          }
+        })
+        .then(({ data }) => {
+          let datas = data.data;
+          this.putGeoToData(status, datas);
+        })
+        .finally(() => (this.loading = false));
+    },
+    putGeoToData(status, data) {
+      switch (status) {
+        case "province":
+          this.provinces = data;
+          break;
+        case "regency":
+          this.regencies = data;
+          break;
+      }
     },
     // onChangeSelected(selections) {
     //   this.selections = selections;
