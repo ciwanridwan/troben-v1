@@ -9,12 +9,18 @@ use App\Http\Resources\Api\Internal\Finance\OverviewResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Resources\Api\Internal\Finance\FindByPartnerResource as FinanceFindByPartnerResource;
+use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
+use App\Models\Deliveries\Deliverable;
+use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Item;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class FinanceController extends Controller
 {
@@ -30,6 +36,7 @@ class FinanceController extends Controller
      */
     protected $attributes = [];
 
+    private Package $package;
     /**
      * @var Builder
      */
@@ -47,9 +54,19 @@ class FinanceController extends Controller
     public function detail(Withdrawal $withdrawal): JsonResponse
     {
         $result = Withdrawal::where('id', $withdrawal->id)->first();
-        return $this->jsonSuccess(DetailResource::collection($result));
+        $delivery = Delivery::has('packages')->where('partner_id', $result->partner_id);
+        return $this->jsonSuccess(DetailResource::collection($delivery->paginate(request('per_page', 10))));
     }
     /**End Todo */
+
+    /**Todo Submit Approved Disbursment */
+    public function approve(Withdrawal $withdrawal): JsonResponse
+    {
+        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $delivery = Delivery::has('packages')->where('partner_id', $result->partner_id);
+        return $this->jsonSuccess(new DetailResource($delivery));
+    }
+    /**End todo */
 
     /**Todo Count Request Disbursment */
     public function countDisbursment(Withdrawal $withdrawal)
