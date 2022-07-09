@@ -35,6 +35,7 @@ class UserResource extends JsonResource
             /** @var \Illuminate\Database\Eloquent\Collection $partners */
             $partners = $this->resource->partners;
 
+            $data['partner'] = null;
             if ($partners->count() > 0) {
                 $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address',  'latitude',  'longitude']);
                 $data['partner']['as'] = $partners
@@ -44,6 +45,7 @@ class UserResource extends JsonResource
 
             $transporters = $this->resource->transporters;
 
+            $data['vehicle'] = null;
             if ($transporters->count() > 0) {
                 $data['vehicle'] = $transporters->first()->only(['type', 'registration_name', 'registration_number', 'registration_year']);
             }
