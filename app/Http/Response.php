@@ -221,8 +221,6 @@ class Response implements Responsable
             $responseData['data'] = $this->data['resource']->toArray($request);
             $responseData['data_extra'] = Arr::except($this->data, 'resource');
         } else {
-            if ($responseData['code'] === self::RC_INVALID_DATA) {
-                if ($this->data) foreach ($this->data as $key => $value) {
             if ($responseData['code'] === self::RC_INVALID_DATA && $this->data) {
                 foreach ($this->data as $key => $value) {
                     if (is_array($value)) {
