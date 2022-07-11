@@ -18,6 +18,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\Api\Partner\VoucherAEResource;
+use App\Models\Partners\VoucherAE;
 
 class OrderController extends Controller
 {
@@ -123,22 +125,27 @@ class OrderController extends Controller
 
     public function voucherList(PartnerRepository $repository): JsonResponse
     {
-        $query = $this->getBasicBuilder(Voucher::query());
+        $query = VoucherAE::query();
         $query->where('partner_id', $repository->getPartner()->id);
 
-        return $this->jsonSuccess(VoucherResource::collection($query->paginate(request('per_page', 15))));
+        return $this->jsonSuccess(VoucherAEResource::collection($query->paginate(request('per_page', 15))));
     }
 
     public function approval(PartnerRepository $repository, Request $request): JsonResponse
     {
         $request->validate([
             'code' => 'required',
-            'approval' => ['required', 'boolean']
+            'approval' => ['required', 'in:accept,reject']
         ]);
-        $voucher = Voucher::where('partner_id', $repository->getPartner()->id)
+        $voucher = VoucherAE::where('partner_id', $repository->getPartner()->id)
             ->where('code', $request->input('code'))
-            ->first();
-        $voucher->is_approved = $request->input('approval');
+            ->firstOrFail();
+        
+        if ($voucher->is_approved) {
+            return (new Response(Response::RC_INVALID_DATA, []))->json();
+        }
+
+        $voucher->is_approved = $request->input('approval') == 'accept' ? true : false;
         $voucher->save();
 
 
