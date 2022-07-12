@@ -159,6 +159,7 @@ class OrderController extends Controller
             return [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
+                'service_price_discount' => 0,
             ];
         }
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
