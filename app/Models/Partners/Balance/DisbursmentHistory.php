@@ -10,5 +10,14 @@ class DisbursmentHistory extends Model
     use HasFactory;
 
     /** Define Table */
-    protected $table = 'disbursment_histories';
+    protected $table = 'disbursement_histories';
+
+    /** Define column for allow to inserting */
+    protected $fillable = [
+        'disbursement_id',
+        'receipt',
+        'amount',
+    ];
+
+    
 }
