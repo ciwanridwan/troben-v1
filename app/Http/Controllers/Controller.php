@@ -10,6 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Kreait\Firebase\Exception\MessagingApiExceptionConverter;
 
 class Controller extends BaseController
 {
@@ -24,6 +25,17 @@ class Controller extends BaseController
     public function jsonSuccess(?JsonResource $resource = null, ?Request $request = null, ?bool $hasServerTime = null): JsonResponse
     {
         return (new Response(Response::RC_SUCCESS,$resource ?? [],$hasServerTime ?? false))->json($request);
+    }
+
+    public function jsonResponse($data): JsonResponse
+    {
+        $response = new Request([
+            'code' => 200,
+            'error' => null,
+            'message' => 'Success',
+            'data' => $data
+        ]);
+        return (new Response(Response::RC_SUCCESS, $data))->json($response);
     }
 
     public function coming(): JsonResponse
