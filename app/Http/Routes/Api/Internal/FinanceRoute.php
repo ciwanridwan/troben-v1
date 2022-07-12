@@ -63,6 +63,11 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('findByDate'),
         ]);
 
+        $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
+            'as' => $this->name('findByReceipt'),
+            'uses' => $this->uses('findByReceipt'),
+        ]);
+
         $this->router->get($this->prefix('/count'), [
             'as' => $this->name('countDisbursment'),
             'uses' => $this->uses('countDisbursment'),

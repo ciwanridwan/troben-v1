@@ -34,6 +34,7 @@ class UserResource extends JsonResource
         if ($this->resource instanceof User) {
             /** @var \Illuminate\Database\Eloquent\Collection $partners */
             $partners = $this->resource->partners;
+            // dd($partners);
 
             if ($partners->count() > 0) {
                 $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address',  'latitude',  'longitude']);

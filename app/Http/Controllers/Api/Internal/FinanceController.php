@@ -47,7 +47,7 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
         $data = $this->paginate($packages);
-
+        
         return $this->jsonResponse($data);
     }
     /**End Todo */
@@ -131,6 +131,21 @@ class FinanceController extends Controller
         } else {
             return $this->jsonSuccess(ListResource::collection($date));
         }
+    }
+
+    public function findByReceipt(Request $request, Withdrawal $withdrawal): JsonResponse
+    {
+        $this->attributes = $request->validate([
+            'receipt' => ['required'],
+        ]);
+
+        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $query = $this->detailDisbursment($result);
+        $packages = collect(DB::select($query));
+        $receipt = $packages->where('receipt', $this->attributes['receipt'])->first();
+        $data = array($receipt);
+        
+        return $this->jsonResponse($data);
     }
     // End Todo
 

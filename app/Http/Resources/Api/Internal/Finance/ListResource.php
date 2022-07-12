@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Internal\Finance;
 
 use App\Models\Partners\Partner;
+use App\Models\Payments\Withdrawal;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ListResource extends JsonResource
@@ -16,10 +17,13 @@ class ListResource extends JsonResource
             'id' => $this['id'],
             'hash' => $this['hash'],
             'partner_id' => $partner,
-            'amount' => $this['amount'],
+            'first_balance' => $this['first_balance'],
             'created_at' => $this['created_at']->format('Y-m-d'),
             'status' => $this['status']
         ];
+        if ($data['status'] == Withdrawal::STATUS_REQUESTED) {
+            $data['amount'] = 0;
+        }
 
         return $data;
     }
