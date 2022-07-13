@@ -89,6 +89,16 @@ class HomeController extends Controller
         return view('admin.home.index');
     }
 
+    public function accountExecutive(Request $request)
+    {
+        return view('admin.home.account-executive.index');
+    }
+
+    public function teamAgent(Request $request)
+    {
+        return view('admin.home.account-executive.team-agent');
+    }
+
     public function receipt(Request $request)
     {
         if ($request->expectsJson()) {

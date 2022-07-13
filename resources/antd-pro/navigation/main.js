@@ -46,7 +46,26 @@ const main = {
         text: "Data Delivery Order",
         route: "admin.home.delivery",
         children: null
-      }
+      },
+      accountExecutive: {
+        title: "Account Executive",
+        text: "Account Executive",
+        route: "admin.home.accountexecutive",
+        children: {
+          all: {
+            title: "Akun Agen Trawlbens",
+            text: "Akun Agen Trawlbens",
+            route: "admin.home.accountexecutive",
+            children: null
+          },
+          request: {
+            title: "Tim Agen Trawlbens",
+            text: "Tim Agen Trawlbens",
+            route: "admin.home.accountexecutive.teamagent",
+            children: null
+          }
+        }
+      },
     },
     shortKey: ["ctrl", "alt", "d"]
   },

@@ -17,7 +17,7 @@ class HomeRoute extends BaseRoute
      */
     protected $name = 'admin.home';
 
-
+    
     /**
      * Register routes handled by this class.
      *
@@ -32,6 +32,16 @@ class HomeRoute extends BaseRoute
         $this->router->get($this->prefix('receipt'), [
             'as' => $this->name('receipt'),
             'uses' => $this->uses('receipt'),
+        ]);
+
+        $this->router->get($this->prefix('accountexecutive'), [
+            'as' => $this->name('accountexecutive'), 
+            'uses' => $this->uses('accountExecutive'), //ini manggil home controller
+        ]);
+
+        $this->router->get($this->prefix('accountexecutive/teamagent'), [
+            'as' => $this->name('accountexecutive.teamagent'),
+            'uses' => $this->uses('teamAgent'),
         ]);
 
         $this->router->post($this->prefix('receipt/{package_hash}'), [

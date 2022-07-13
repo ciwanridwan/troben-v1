@@ -24,16 +24,28 @@
             <!--              </a-col>-->
             <!--              <a-col :span="12">{{ currency(bankCharge) }} </a-col>-->
             <!--            </div>-->
-            <a-col v-if="getStatus == 'estimated' || getStatus == 'revamp'" :span="24">
+            <a-col
+              v-if="getStatus == 'estimated' || getStatus == 'revamp'"
+              :span="24"
+            >
               <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
             </a-col>
 
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
+            <a-col
+              v-if="
+                checkedDiscount &&
+                (getStatus == 'estimated' || getStatus == 'revamp')
+              "
+              :span="12"
+            >
               <span>Diskon Pengiriman</span>
             </a-col>
             <a-col
-              v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')"
+              v-if="
+                checkedDiscount &&
+                (getStatus == 'estimated' || getStatus == 'revamp')
+              "
               :span="12"
             >
               <a-input
@@ -57,10 +69,16 @@
               <span> {{ currency(bankCharge) }} </span>
             </a-col>
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="16">
+            <a-col
+              v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+              :span="16"
+            >
               <span>Diskon Pengiriman</span>
             </a-col>
-            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="8">
+            <a-col
+              v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+              :span="8"
+            >
               {{ currency(serviceDiscount) }}
             </a-col>
           </a-row>
@@ -101,8 +119,8 @@ export default {
   props: {
     package: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   components: { orderModalRowLayout },
   computed: {
@@ -110,9 +128,7 @@ export default {
       return this.package?.transporter_type;
     },
     totalAmount() {
-
-
-      return this.package?.total_amount + this.bankCharge - this.discount ;
+      return this.package?.total_amount + this.bankCharge - this.discount;
 
       // if (this.packageStatus == 'draft'){
       //   return this.package?.total_amount + this.bankCharge - this.discount ;
@@ -142,7 +158,7 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
-    }
+    },
   },
   methods: {
     onChange() {
@@ -150,7 +166,7 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
-    }
-  }
+    },
+  },
 };
 </script>
