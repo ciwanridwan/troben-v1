@@ -22,10 +22,7 @@
 
       <a-row :style="'padding:24px 0px'">
         <a-col>
-          <order-estimation
-            v-if="this.price"
-            :price="this.price"
-          ></order-estimation>
+          <order-estimation v-if="this.price" :price="this.price"></order-estimation>
         </a-col>
       </a-row>
 
@@ -80,18 +77,13 @@
       <a-row type="flex">
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          {{ currency(total_weight * tierPrice) }}
+          <!-- {{ currency(total_weight * tierPrice) }} -->
+          {{ currency(servicePrice) }}
         </a-col>
-
-<!--        <a-col v-if="isBankCharge" :span="leftColumn"> Bank Charge </a-col>-->
-<!--        <a-col v-if="isBankCharge" :span="rightColumn" class="trawl-text-right">-->
-<!--          {{ currency(bankCharge) }}-->
-<!--        </a-col>-->
-
-<!--        <a-col :span="leftColumn"> Diskon Pengiriman </a-col>-->
-<!--        <a-col :span="rightColumn" class="trawl-text-right">-->
-<!--          {{ currency(serviceDiscount) }}-->
-<!--        </a-col>-->
+        <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(getPickupFee) }}
+        </a-col>
 
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
@@ -115,12 +107,13 @@ import {
   getSubTotalItems,
   getHandlings
 } from "../../functions/orders";
+
 export default {
   components: { informationIcon, deliveryIcon, OrderEstimation },
   props: {
     package: {
       type: Object,
-      default: () => {}
+      default: () => { }
     },
     leftColumn: {
       type: Number,
@@ -138,7 +131,8 @@ export default {
   data() {
     return {
       handlings,
-      isBankCharge: true
+      isBankCharge: true,
+      pickup : 0
     };
   },
   computed: {
@@ -158,10 +152,10 @@ export default {
       return this.package?.service_price;
     },
     subTotalPrice() {
-      if (this.packageStatus != 'draft'){
+      if (this.packageStatus != 'draft') {
         return this.package?.total_amount + this.serviceDiscount;
       } else {
-        return this.package?.total_amount ;
+        return this.package?.total_amount;
       }
     },
     bankCharge() {
@@ -184,6 +178,15 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
+    },
+    getPickupFee() {
+      var pickupPrice = this.package?.prices;
+      pickupPrice.forEach(pickupFee => {
+        if (pickupFee.type === 'delivery') {
+          this.pickup = pickupFee.amount;
+        }
+      });
+      return this.pickup;
     }
   },
   methods: {

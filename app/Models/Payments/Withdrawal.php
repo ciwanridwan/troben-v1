@@ -5,6 +5,7 @@ namespace App\Models\Payments;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Partners\Partner;
 use App\Models\User;
+use Attribute;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,10 +37,15 @@ class Withdrawal extends Model
         HasFactory,
         HashableId;
 
-    public const STATUS_CREATED = 'created';
-    public const STATUS_REJECTED = 'rejected';
-    public const STATUS_CONFIRMED = 'accepted';
-    public const STATUS_SUCCESS = 'success';
+    // public const STATUS_CREATED = 'created';
+    // public const STATUS_REJECTED = 'rejected';
+    // public const STATUS_CONFIRMED = 'accepted';
+    // public const STATUS_SUCCESS = 'success';
+    
+    // Todo New Status
+    public const STATUS_REQUESTED = 'requested';
+    public const STATUS_APPROVED = 'approved';
+    // End Todo
 
     protected $table = 'partner_balance_disbursement';
 
@@ -65,6 +71,7 @@ class Withdrawal extends Model
 
     protected $appends = [
         'hash',
+        'is_approved'
     ];
 
     /**
@@ -75,11 +82,23 @@ class Withdrawal extends Model
     public static function getAvailableStatus(): array
     {
         return [
-            self::STATUS_CREATED,
-            self::STATUS_CONFIRMED,
-            self::STATUS_REJECTED,
-            self::STATUS_SUCCESS,
+            // self::STATUS_CREATED,
+            // self::STATUS_CONFIRMED,
+            // self::STATUS_REJECTED,
+            // self::STATUS_SUCCESS,
+            self::STATUS_REQUESTED,
+            self::STATUS_APPROVED,
         ];
+    }
+
+    public function isApproved()
+    {
+        // return new Attribute(
+        //     get: fn () => 'yes',
+        // );
+        $this->attributes['is_approved'] = 'unchecked';
+        $is_approved = $this->attributes['is_approved'];
+        return $is_approved;
     }
 
     /**

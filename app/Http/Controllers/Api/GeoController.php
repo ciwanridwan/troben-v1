@@ -132,7 +132,9 @@ class GeoController extends Controller
         $query = $this->getBasicBuilder(Regency::query()->with(['province', 'country']));
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
-        $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365, 393, 134]));
+        // List regency for showing to apps 
+        $regencyId = [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365, 393, 134, 135, 126, 123];
+        $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', $regencyId));
 
         return $is_apps
             ? $this->jsonSuccess(RegencyResource::collection($query->paginate(request('per_page', 15))))
@@ -169,7 +171,7 @@ class GeoController extends Controller
         $query->when(request()->has('regency_id'), fn ($q) => $q->where('regency_id', $this->attributes['regency_id']));
         $query->when(request()->has('district_id'), fn ($q) => $q->where('district_id', $this->attributes['district_id']));
 
-        $query->when(request()->has('zip_code'), fn ($q) => $q->where('zip_code', 'like', '%'.$this->attributes['zip_code'].'%'));
+        $query->when(request()->has('zip_code'), fn ($q) => $q->where('zip_code', 'ilike', '%'.$this->attributes['zip_code'].'%'));
 
         return $this->jsonSuccess(SubDistrictResource::collection($query->paginate(request('per_page', 15))));
     }
@@ -188,9 +190,9 @@ class GeoController extends Controller
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
             ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code')
 
-            ->Where('geo_regencies.name', 'like', '%'.$caps.'%')
-            ->orWhere('geo_districts.name', 'like', '%'.$caps.'%')
-            ->orWhere('geo_sub_districts.name', 'like', '%'.$caps.'%')
+            ->Where('geo_regencies.name', 'ilike', '%'.$caps.'%')
+            ->orWhere('geo_districts.name', 'ilike', '%'.$caps.'%')
+            ->orWhere('geo_sub_districts.name', 'ilike', '%'.$caps.'%')
             ->orderBy('geo_regencies.name', 'desc');
 
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
@@ -207,8 +209,8 @@ class GeoController extends Controller
     {
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
-            request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            request()->has('q'),
+            fn ($q) => $q->where('name', 'ilike', '%'.$this->attributes['q'].'%')
         );
 
         return $builder;

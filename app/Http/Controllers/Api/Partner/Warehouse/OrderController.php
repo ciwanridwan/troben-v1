@@ -39,10 +39,11 @@ class OrderController extends Controller
             'items',
             'estimator',
             'packager',
-            'code.scanned_by'
+            'code.scanned_by',
+            'partner_performance'
         ]);
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))));
+        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))),null,true);
     }
 
     /**

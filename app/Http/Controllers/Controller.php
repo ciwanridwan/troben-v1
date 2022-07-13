@@ -10,20 +10,32 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Kreait\Firebase\Exception\MessagingApiExceptionConverter;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
-     * @param \Illuminate\Http\Resources\Json\JsonResource|null $resource
-     * @param \Illuminate\Http\Request|null $request
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @param JsonResource|null $resource
+     * @param Request|null $request
+     * @param bool|null $hasServerTime
+     * @return JsonResponse
      */
-    public function jsonSuccess(?JsonResource $resource = null, ?Request $request = null): JsonResponse
+    public function jsonSuccess(?JsonResource $resource = null, ?Request $request = null, ?bool $hasServerTime = null): JsonResponse
     {
-        return (new Response(Response::RC_SUCCESS, $resource ?? []))->json($request);
+        return (new Response(Response::RC_SUCCESS,$resource ?? [],$hasServerTime ?? false))->json($request);
+    }
+
+    public function jsonResponse($data): JsonResponse
+    {
+        $response = new Request([
+            'code' => 200,
+            'error' => null,
+            'message' => 'Success',
+            'data' => $data
+        ]);
+        return (new Response(Response::RC_SUCCESS, $data))->json($response);
     }
 
     public function coming(): JsonResponse

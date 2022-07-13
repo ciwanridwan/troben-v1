@@ -20,7 +20,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
-use Illuminate\Support\Facades\Http;
+use App\Supports\DistanceMatrix;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -159,7 +159,7 @@ class PricingCalculator
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
             $destination = $partner->latitude.', '.$partner->longitude;
-            $distance = self::distance_matrix($origin, $destination);
+            $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($inputs['fleet_name'] == 'bike') {
                 if ($distance < 5) {
@@ -561,21 +561,6 @@ class PricingCalculator
             'service_price_discount' => 0,
             'voucher_price_discount' => $service_discount,
         ];
-    }
-
-    public static function distance_matrix($origin, $destination)
-    {
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
-        $response = json_decode($response->body());
-        $distance = $response->rows[0]->elements[0]->distance->text;
-
-        $distance = str_replace('km', '', $distance);
-        $distance = str_replace(',', '', $distance);
-        $distance = (float) $distance;
-        return $distance;
     }
 
     private static function checkHandling($handling = [])

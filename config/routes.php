@@ -37,6 +37,11 @@ return [
             'middleware' => ['jwt'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
             'domain' => env('API_DOMAIN')
+        ],
+        'operation' => [
+            'middleware' => ['jwt'],
+            'prefix' => empty(env('API_DOMAIN')) ? 'api/operation' : 'operation',
+            'domain' => env('API_DOMAIN')
         ]
     ],
 
@@ -56,6 +61,7 @@ return [
         App\Http\Routes\Api\ServiceRoute::class,
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
+        App\Http\Routes\Api\Internal\FinanceRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\Partner\VoucherRoute::class,
@@ -95,6 +101,7 @@ return [
         App\Http\Routes\Admin\Master\Withdraw\RequestRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\PendingRoute::class,
         App\Http\Routes\Admin\Master\Withdraw\SuccessRoute::class,
+        App\Http\Routes\Admin\Master\Withdraw\DetailRequestRoute::class,
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
@@ -125,4 +132,8 @@ return [
         App\Http\Routes\Api\V\SelfRoute::class,
         App\Http\Routes\Api\V\OfficeRoute::class,
     ],
+
+    'operation' => [
+        App\Http\Routes\Api\Operation\PackageRoute::class
+    ]
 ];

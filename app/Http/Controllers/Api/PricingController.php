@@ -124,9 +124,12 @@ class PricingController extends Controller
         ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
         ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
-        $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
+        $origin_id = (int) $this->attributes['origin_id'];
+        $destination_id = (int) $this->attributes['destination_id'];
 
-            ->where('destination_id', $this->attributes['destination_id'])
+        $prices = Price::where('origin_regency_id', $origin_id)
+
+            ->where('destination_id', $destination_id)
 
             ->where('service_code', $this->attributes['service_code'])
             ->first();
@@ -146,15 +149,18 @@ class PricingController extends Controller
             'destination_regency_id' => 'required',
         ])->validate();
 
-        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-            ->where('destination_regency_id', $request->destination_regency_id)
+        $origin_regency_id = (int) $request->origin_regency_id;
+        $destination_regency_id = (int) $request->destination_regency_id;
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+            ->where('destination_regency_id', $destination_regency_id)
             ->orderByRaw('updated_at - created_at desc')->first();
 
         if ($schedules == null) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
-            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-                ->where('destination_regency_id', $request->destination_regency_id)
+            $result = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+                ->where('destination_regency_id', $destination_regency_id)
                 ->orderByRaw('departed_at asc')->get();
 
             $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
