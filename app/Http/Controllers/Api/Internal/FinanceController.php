@@ -171,13 +171,16 @@ class FinanceController extends Controller
     }
     // End Todo
 
+    /** Custom Paginate */
     public function paginate($items, $perPage = 15, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
+    /**End Paginate */
 
+    /**Query for get spesific data from many tables */
     private function detailDisbursment($request)
     {
         $q =
@@ -205,4 +208,5 @@ class FinanceController extends Controller
 
         return $q;
     }
+    /**End query */
 }
