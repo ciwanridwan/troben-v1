@@ -23,6 +23,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -206,5 +207,11 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
     public function notifications(): Relations\MorphMany
     {
         return $this->morphMany(Notification::class, 'notifiable');
+    }
+
+    /**Define BelongsToMany to roles tables */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 }
