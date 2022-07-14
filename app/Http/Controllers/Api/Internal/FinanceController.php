@@ -9,7 +9,9 @@ use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
@@ -56,26 +58,36 @@ class FinanceController extends Controller
         $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
         $query = $this->detailDisbursment($disbursment);
         $packages = collect(DB::select($query));
-        $receipt = $packages->where('receipt', $request->receipt)->first();
-        $commission_discount = floatval($receipt->commission_discount);
+        $receipt = (array) $request->get('receipt');
+        $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
+            $r->commission_discount = ceil($r->commission_discount);
+            return $r;
+        })->values();
 
-        if ($receipt != null) {
-            $disbursHistory = new DisbursmentHistory();
-            $disbursHistory->disbursment_id = $disbursment->id;
-            $disbursHistory->receipt = $receipt->receipt;
-            $disbursHistory->amount = $commission_discount;
-            $disbursHistory->save();
+        if ($getReceipt->isNotEmpty()) {
+            $getReceipt->each(function ($r) use ($disbursment) {
+                $disbursHistory = new DisbursmentHistory();
+                $disbursHistory->disbursment_id = $disbursment->id;
+                $disbursHistory->receipt = $r->receipt;
+                $disbursHistory->amount = $r->commission_discount;
+                $disbursHistory->save();
+            });
 
+            $commission_discount = $getReceipt->sum('commission_discount');
             $calculate = $disbursment->first_balance - $commission_discount;
             $disbursment->first_balance = $calculate;
+
             if ($disbursment->first_balance == $calculate) {
-                $disbursment->amount = $disbursHistory->amount;
+                $disbursment->amount = $commission_discount;
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
+                $disbursment->action_by = $withdrawal->partner_id;
+                $disbursment->action_at = Carbon::now();
                 $disbursment->save();
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
-            return (new Response(Response::RC_UPDATED, $disbursHistory))->json();
+
+            return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
@@ -184,7 +196,7 @@ class FinanceController extends Controller
     private function detailDisbursment($request)
     {
         $q =
-            "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
+            "SELECT p.total_amount total_payment, c.content receipt, (p.total_amount * 0.3) as commission_discount
 
         FROM deliveries d
         LEFT JOIN (
