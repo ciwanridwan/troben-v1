@@ -15,6 +15,10 @@ class CreateVoucherModifyTypesTable extends Migration
     {
         Schema::table('vouchers', function (Blueprint $table) {
             $table->string('type')->default('discount_service_percentage'); // discount_service_percentage, discount_service_nominal, free_pickup
+            $table->foreignId('aevoucher_id')
+                ->nullable()
+                ->references('id')
+                ->on('ae_vouchers');
         });
     }
 
