@@ -19,6 +19,7 @@ class CreateAppVersionsTable extends Migration
             $table->string('platform');
             $table->string('version');
             $table->string('description');
+            $table->integer('build');
             $table->timestamps();
         });
     }
