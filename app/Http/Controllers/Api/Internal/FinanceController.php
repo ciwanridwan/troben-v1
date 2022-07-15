@@ -245,7 +245,7 @@ class FinanceController extends Controller
 
     /**Query for get approved disbursement */
     private function getApprovedDisbursment($receipts) {
-        $q = "SELECT * FROM disbursment_histories WHERE receipt IN (%s)";
+        $q = "SELECT * FROM disbursment_histories WHERE receipt IN ('%s')";
         $q = sprintf($q, implode(',', $receipts));
 
         return $q;
