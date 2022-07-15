@@ -103,4 +103,12 @@ class ClaimedVoucher extends Model
     {
         return $this->belongsTo(Package::class, 'package_id');
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id');
+    }
 }
