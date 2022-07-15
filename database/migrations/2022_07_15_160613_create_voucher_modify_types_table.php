@@ -20,6 +20,13 @@ class CreateVoucherModifyTypesTable extends Migration
                 ->references('id')
                 ->on('ae_vouchers');
         });
+
+        Schema::table('voucher_claimed_customers', function (Blueprint $table) {
+            $table->foreignId('voucher_id')
+                ->nullable()
+                ->references('id')
+                ->on('vouchers');
+        });
     }
 
     /**
