@@ -64,6 +64,7 @@ class Voucher extends Model implements AttachableContract
         'end_date',
         'is_approved',
         'type',
+        'aevoucher_id',
     ];
 
     /**
@@ -103,5 +104,13 @@ class Voucher extends Model implements AttachableContract
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function aevoucher(): BelongsTo
+    {
+        return $this->belongsTo(VoucherAE::class, 'aevoucher_id');
     }
 }
