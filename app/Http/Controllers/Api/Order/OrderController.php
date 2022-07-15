@@ -171,7 +171,6 @@ class OrderController extends Controller
             // add fallback to VoucherAE generated
             if ($partnerId != null) {
                 $voucherAE = VoucherAE::query()
-                    ->where('expired', '>', Carbon::now())
                     ->where('is_approved', true)
                     ->where('partner_id', (int) $partnerId)
                     ->where('code', $voucher_code)
@@ -296,7 +295,8 @@ class OrderController extends Controller
         $this->authorize('update', $package);
         $request->validate([
             'promotion_hash' => ['nullable'],
-            'voucher_code' => ['nullable']
+            'voucher_code' => ['nullable'],
+            'partner_id' => ['nullable'],
         ]);
         if ($request->promotion_hash != null) {
             $promotion = Promotion::byHashOrFail($request->promotion_hash);
@@ -310,17 +310,60 @@ class OrderController extends Controller
             if ($service_discount_price) {
                 $service_discount_price->delete();
             }
+            $pickup_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                ->where('description', PackagesPrice::TYPE_PICKUP)->first();
+            if ($pickup_discount_price) {
+                $pickup_discount_price->delete();
+            }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
             if (! $voucher) {
-                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                $partnerId = $request->get('partner_id');
+                if ($partnerId != null) {
+                    // add fallback to Voucher AE
+                    $voucherAE = VoucherAE::query()
+                        ->where('is_approved', true)
+                        ->where('partner_id', (int) $partnerId)
+                        ->where('code', $request->get('voucher_code'))
+                        ->latest()
+                        ->first();
+                    if ($voucherAE) {
+                        $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
+                        $amountVoucher = 0;
+                        if ($voucherAE->type == VoucherAE::VOUCHER_FREE_PICKUP) {
+                            $typeVoucher = Voucher::VOUCHER_FREE_PICKUP;
+                        }
+                        if ($voucherAE->type == VoucherAE::VOUCHER_DISCOUNT_SERVICE) {
+                            if ($voucherAE->discount > 0) {
+                                $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
+                                $amountVoucher = $voucherAE->discount;
+                            } else if ($voucherAE->nominal > 0) {
+                                $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL;
+                                $amountVoucher = $voucherAE->nominal;
+                            }
+                        }
+
+                        $voucher = Voucher::create([
+                            'user_id' => $voucherAE->user_id,
+                            'title' => $voucherAE->title,
+                            'partner_id' => $voucherAE->partner_id,
+                            'discount' => $amountVoucher,
+                            'code' => $voucherAE->code,
+                            'start_date' => $voucherAE->created_at,
+                            'end_date' => $voucherAE->expired,
+                            'is_approved' => true,
+                            'type' => $typeVoucher,
+                            'aevoucher_id' => $voucherAE->getKey(),
+                        ]);
+                    } else {
+                        return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                    }
+                } else {
+                    return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                }
             }
-            $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-            $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-            $percentage_discount = $service_discount_price / $service_price * 100;
-            if ($percentage_discount < $voucher->discount) {
-                $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
-                $this->dispatchNow($job);
-            }
+
+            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
+            $this->dispatchNow($job);
         }
         event(new PackageApprovedByCustomer($package));
         //        event(new PartnerCashierDiscount($package));
