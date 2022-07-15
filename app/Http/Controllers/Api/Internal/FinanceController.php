@@ -64,7 +64,7 @@ class FinanceController extends Controller
 
         $data = $this->paginate($packages);
 
-        return $this->jsonResponse($data);
+        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
     /**End Todo */
 
@@ -198,11 +198,11 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->first();
-        if ($receipt->isEmpty()) {
+        if (is_null($receipt)) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
             $data = array($receipt);
-            return $this->jsonResponse($data);
+            return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
     // End Todo
