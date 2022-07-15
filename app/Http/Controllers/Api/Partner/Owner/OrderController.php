@@ -20,6 +20,7 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Api\Partner\VoucherAEResource;
 use App\Models\Partners\VoucherAE;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -137,8 +138,9 @@ class OrderController extends Controller
             'code' => 'required',
             'approval' => ['required', 'in:accept,reject']
         ]);
-        $voucher = VoucherAE::where('partner_id', $repository->getPartner()->id)
-            ->where('code', $request->input('code'))
+        $voucher = VoucherAE::query()
+            ->where('partner_id', $repository->getPartner()->id)
+            ->where('code', $request->get('code'))
             ->firstOrFail();
         
         if ($voucher->is_approved) {
@@ -146,6 +148,9 @@ class OrderController extends Controller
         }
 
         $voucher->is_approved = $request->input('approval') == 'accept' ? true : false;
+        if ($voucher->is_approved) {
+            $voucher->expired = Carbon::now()->addHours(24);
+        }
         $voucher->save();
 
 
