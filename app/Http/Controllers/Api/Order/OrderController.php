@@ -171,9 +171,9 @@ class OrderController extends Controller
             // add fallback to VoucherAE generated
             if ($partnerId != null) {
                 $voucherAE = VoucherAE::query()
+                    ->where('expired', '>', Carbon::now())
                     ->where('is_approved', true)
                     ->where('partner_id', (int) $partnerId)
-                    ->where('code', $voucher_code)
                     ->latest()
                     ->first();
                 if ($voucherAE) {
