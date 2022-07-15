@@ -49,6 +49,7 @@ class ClaimDiscountVoucher
      */
     public function handle() : bool
     {
+        $this->claimedVoucher->voucher_id = $this->voucher->getKey();
         $this->claimedVoucher->user_id = $this->voucher->user_id;
         $this->claimedVoucher->partner_id = $this->voucher->partner_id;
         $this->claimedVoucher->customer_id = $this->customer_id;
