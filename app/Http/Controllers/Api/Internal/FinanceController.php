@@ -85,7 +85,7 @@ class FinanceController extends Controller
             if ($disbursment->first_balance == $calculate) {
                 $disbursment->amount = $commission_discount;
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
-                $disbursment->action_by = $withdrawal->partner_id;
+                $disbursment->action_by = Auth::id();
                 $disbursment->action_at = Carbon::now();
                 $disbursment->save();
             } else {
