@@ -198,9 +198,12 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->first();
-        $data = array($receipt);
-
-        return $this->jsonResponse($data);
+        if ($receipt->isEmpty()) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            $data = array($receipt);
+            return $this->jsonResponse($data);
+        }
     }
     // End Todo
 
