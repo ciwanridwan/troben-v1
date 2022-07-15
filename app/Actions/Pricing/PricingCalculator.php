@@ -575,7 +575,8 @@ class PricingCalculator
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
         if ($voucher->type == VoucherAE::VOUCHER_FREE_PICKUP) {
-            $default['pickup_price'] = 0;
+            $pickup_price = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
+            $default['pickup_price_discount'] = $pickup_price;
         }
 
         if ($voucher->type == VoucherAE::VOUCHER_DISCOUNT_SERVICE) {
@@ -585,8 +586,7 @@ class PricingCalculator
             }
             if ($voucher->nominal > 0) {
                 if ($voucher->nominal > $service_price) $voucher->nominal = $service_price;
-                $discount = $service_price - $voucher->nominal;
-                $default['voucher_price_discount'] = $discount;
+                $default['voucher_price_discount'] = $voucher->nominal;
             }
         }
 

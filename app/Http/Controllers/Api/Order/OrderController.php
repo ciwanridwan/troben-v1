@@ -97,6 +97,9 @@ class OrderController extends Controller
             $prices['service_price_fee'] = 0;
             $prices['service_price_discount'] = $voucher['service_price_discount'];
             $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            if (isset($voucher['pickup_price_discount'])) { // free pickup
+                $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
+            }
         }
 
         $package->load(
