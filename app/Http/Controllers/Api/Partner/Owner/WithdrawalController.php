@@ -59,7 +59,7 @@ class WithdrawalController extends Controller
         return $this;
     }
 
-    public function index(Request $request) : JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $account = $request->user();
         $this->query->where('partner_id', $account->partners[0]->id);
@@ -76,19 +76,22 @@ class WithdrawalController extends Controller
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    public function store(Request $request, PartnerRepository $repository) : JsonResponse
+    public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
         if ($repository->getPartner()->balance < $request->amount) {
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
-        // $request['status'] = Withdrawal::STATUS_CREATED;
+
         $request['status'] = Withdrawal::STATUS_REQUESTED;
         $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
         $this->dispatch($job);
-        
-        event(new WithdrawalRequested($job->withdrawal));
-
-        return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
+        // dd($job);
+        if ($job->withdrawal->amount == 0 || $job->withdrawal->first_balance == 0) {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        } else {
+            event(new WithdrawalRequested($job->withdrawal));
+            return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
+        }
     }
 
     /**
