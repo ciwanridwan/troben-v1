@@ -38,6 +38,8 @@ use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
+use App\Models\Partners\VoucherAE;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -79,7 +81,8 @@ class OrderController extends Controller
         $this->authorize('view', $package);
         $request->validate([
             'promotion_hash' => ['nullable'],
-            'voucher_code' => ['nullable']
+            'voucher_code' => ['nullable'],
+            'partner_id' => ['nullable'],
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
@@ -90,7 +93,7 @@ class OrderController extends Controller
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
         } elseif ($request->voucher_code && $request->promotion_hash == null) {
-            $voucher = $this->claimVoucher($request->voucher_code, $package);
+            $voucher = $this->claimVoucher($request->voucher_code, $package, $request->get('partner_id'));
             $prices['service_price_fee'] = 0;
             $prices['service_price_discount'] = $voucher['service_price_discount'];
             $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
@@ -151,16 +154,31 @@ class OrderController extends Controller
         }
     }
 
-    public function claimVoucher($voucher_code, Package $package): array
+    public function claimVoucher($voucher_code, Package $package, $partnerId): array
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
         if (! $voucher) {
-            return [
+            $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
                 'service_price_discount' => 0,
             ];
+
+            // add fallback to VoucherAE generated
+            if ($partnerId != null) {
+                $voucherAE = VoucherAE::query()
+                    ->where('expired', '>', Carbon::now())
+                    ->where('is_approved', true)
+                    ->where('partner_id', (int) $partnerId)
+                    ->latest()
+                    ->first();
+                if ($voucherAE) {
+                    return PricingCalculator::getCalculationVoucherPackageAE($voucherAE, $package);
+                }
+            }
+
+            return $default;
         }
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
