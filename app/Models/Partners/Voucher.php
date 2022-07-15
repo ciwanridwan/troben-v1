@@ -43,6 +43,11 @@ class Voucher extends Model implements AttachableContract
 
     public const ATTACHMENT_COVER = 'voucher';
 
+    public const VOUCHER_FREE_PICKUP = 'free_pickup';
+    // subset of VoucherAE::VOUCHER_DISCOUNT_SERVICE
+    public const VOUCHER_DISCOUNT_SERVICE_PERCENTAGE = 'discount_service_percentage';
+    public const VOUCHER_DISCOUNT_SERVICE_NOMINAL = 'discount_service_nominal';
+
     protected $table = 'vouchers';
     /**
      * The attributes that are mass assignable.
@@ -58,6 +63,7 @@ class Voucher extends Model implements AttachableContract
         'start_date',
         'end_date',
         'is_approved',
+        'type',
     ];
 
     /**
