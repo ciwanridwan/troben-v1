@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
@@ -46,6 +47,21 @@ class FinanceController extends Controller
         $result = Withdrawal::where('id', $withdrawal->id)->first();
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
+
+        $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
+        $approveds = collect(DB::select($approveds));
+
+        $packages = $packages->map(function($r) use ($approveds) {
+            $r->approved = 'pending';
+            $check = $approveds->where('receipt', $r->receipt)->first();
+            if ($check) {
+                $r->approved = 'approved';
+                $r->commission_discount = $check->amount;
+            }
+
+            return $r;
+        });
+
         $data = $this->paginate($packages);
 
         return $this->jsonResponse($data);
@@ -63,7 +79,7 @@ class FinanceController extends Controller
         $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
         $query = $this->detailDisbursment($disbursment);
         $packages = collect(DB::select($query));
-        $receipt = (array) $request->get('receipt');
+
         $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
             $r->commission_discount = ceil($r->commission_discount);
             return $r;
@@ -205,23 +221,32 @@ class FinanceController extends Controller
 
         FROM deliveries d
         LEFT JOIN (
-        SELECT *
-        FROM deliverables
-        WHERE deliverable_type = 'App\Models\Packages\Package'
+            SELECT *
+            FROM deliverables
+            WHERE deliverable_type = 'App\Models\Packages\Package'
         ) dd ON d.id = dd.delivery_id
         LEFT JOIN packages p ON dd.deliverable_id = p.id
         LEFT JOIN (
-        SELECT *
-        FROM codes
-        WHERE codeable_type = 'App\Models\Packages\Package'
+            SELECT *
+            FROM codes
+            WHERE codeable_type = 'App\Models\Packages\Package'
         ) c ON p.id = c.codeable_id
         WHERE 1=1 AND
         d.partner_id IN (
-        SELECT partner_id
-        FROM partner_balance_disbursement
-        WHERE partner_id = $request->partner_id
+            SELECT partner_id
+            FROM partner_balance_disbursement
+            WHERE partner_id = $request->partner_id
         )
         AND dd.delivery_id IS NOT NULL";
+
+        return $q;
+    }
+    /**End query */
+
+    /**Query for get approved disbursement */
+    private function getApprovedDisbursment($receipts) {
+        $q = "SELECT * FROM disbursment_histories WHERE receipt IN (%s)";
+        $q = sprintf($q, implode(',', $receipts));
 
         return $q;
     }
