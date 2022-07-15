@@ -55,6 +55,11 @@ class FinanceController extends Controller
     /**Todo Submit Approved Disbursment */
     public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
     {
+        $receipt = (array) $request->get('receipt');
+        if (count($receipt) == 0) {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+
         $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
         $query = $this->detailDisbursment($disbursment);
         $packages = collect(DB::select($query));
