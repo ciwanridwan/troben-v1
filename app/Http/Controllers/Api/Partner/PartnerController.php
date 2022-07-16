@@ -94,7 +94,7 @@ class PartnerController extends Controller
         ORDER BY distance_radian
         LIMIT 5";
 
-        $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(', ', $w));
+        $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(' ', $w));
         $nearby = collect(DB::select($q))->map(function ($r) use ($origin) {
             $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
             $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
