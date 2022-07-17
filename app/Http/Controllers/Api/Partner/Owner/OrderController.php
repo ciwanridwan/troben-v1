@@ -19,8 +19,10 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Api\Partner\VoucherAEResource;
+use App\Models\Partners\NotificationAgent;
 use App\Models\Partners\VoucherAE;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -151,12 +153,27 @@ class OrderController extends Controller
             return (new Response(Response::RC_INVALID_DATA, []))->json();
         }
 
-        $voucher->is_approved = $request->input('approval') == 'accept' ? true : false;
-        if ($voucher->is_approved) {
+        $agentId = 0;
+        $agentFind = DB::table('agents')->where('user_id', $voucher->user_id)->first();
+        if (! is_null($agentFind)) $agentId = $agentFind->id;
+
+        $isApproved = $request->input('approval') == 'accept';
+        $voucher->is_approved = $isApproved;
+        if ($isApproved) {
             $voucher->expired = Carbon::now()->addHours(24);
         }
         $voucher->save();
 
+        if ($agentId != 0) {
+            $name = $repository->getPartner()->code;
+            NotificationAgent::create([
+                'type' => $isApproved ? 'voucher_approved' : 'voucher_rejected',
+                'title' => sprintf('%s %s request voucher', $name, ($isApproved ? 'menyetujui' : 'menolak') ),
+                'message' => $isApproved ? 'Request voucher telah disetujui' : 'Request voucher telah ditolak',
+                'status' => 'sent',
+                'agent_id' => $agentId,
+            ]);
+        }
 
         return (new Response(Response::RC_SUCCESS))->json();
     }
