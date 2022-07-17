@@ -144,9 +144,8 @@ class OrderController extends Controller
             'code' => 'required',
             'approval' => ['required', 'in:accept,reject']
         ]);
-        $voucher = VoucherAE::query()
-            ->where('partner_id', $repository->getPartner()->id)
-            ->where('code', $request->get('code'))
+        $voucher = VoucherAE::where('partner_id', $repository->getPartner()->id)
+            ->where('code', $request->input('code'))
             ->firstOrFail();
         
         if ($voucher->is_approved) {
