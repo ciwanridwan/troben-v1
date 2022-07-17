@@ -48,13 +48,13 @@ const main = {
         children: null
       },
       accountExecutive: {
-        title: "Account Executive",
-        text: "Account Executive",
+        title: "Account Excecutive",
+        text: "Account Excecutive",
         route: "admin.home.accountexecutive",
         children: {
           all: {
-            title: "Akun Agen Trawlbens",
-            text: "Akun Agen Trawlbens",
+            title: "Akun Agen TrawlBens",
+            text: "Akun Agen TrawlBens",
             route: "admin.home.accountexecutive",
             children: null
           },
@@ -63,7 +63,7 @@ const main = {
             text: "Tim Agen Trawlbens",
             route: "admin.home.accountexecutive.teamagent",
             children: null
-          }
+          },
         }
       },
     },
