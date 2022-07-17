@@ -3,20 +3,17 @@
 namespace App\Models\Partners;
 
 use App\Concerns\Controllers\CustomSerializeDate;
-use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Jalameta\Attachments\Concerns\Attachable;
-use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
-class VoucherAE extends Model implements AttachableContract
+class VoucherAE extends Model
 {
-    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
+    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory;
 
     protected $table = 'ae_vouchers';
     /**
