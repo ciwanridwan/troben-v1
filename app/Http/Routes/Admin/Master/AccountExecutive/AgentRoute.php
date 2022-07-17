@@ -13,7 +13,7 @@ class AgentRoute extends BaseRoute
      * @return void
      */
 
-    protected $prefix = '/admin/account/executive/agent/';
+    protected $prefix = '/account/executive/agent/';
 
     protected $name = 'admin.master.account.executive.agent';
     
