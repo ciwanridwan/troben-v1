@@ -57,8 +57,8 @@ class AccountController extends Controller
     public function update(UpdateAccountRequest $request): JsonResponse
     {
         if ($request->has('referral_code')) {
-            $check_referral = User::where('referral_code', $request->get('referral_code'))->first();
-            if ($check_referral == null) {
+            $agent = DB::table('agents')->where('referral_code', $request->get('referral_code'))->first();
+            if (is_null($agent)) {
                 return (new Response(Response::RC_INVALID_DATA, []))->json();
             }
         }
