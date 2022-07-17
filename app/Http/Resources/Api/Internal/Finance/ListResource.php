@@ -23,8 +23,6 @@ class ListResource extends JsonResource
         ];
         if ($data['status'] == Withdrawal::STATUS_REQUESTED) {
             $data['amount'] = 0;
-        } else {
-            $data['amount'] = $this['amount'];
         }
 
         return $data;

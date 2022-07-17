@@ -20,7 +20,6 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
-use App\Models\Partners\VoucherAE;
 use App\Supports\DistanceMatrix;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -562,35 +561,6 @@ class PricingCalculator
             'service_price_discount' => 0,
             'voucher_price_discount' => $service_discount,
         ];
-    }
-
-    public static function getCalculationVoucherPackageAE(VoucherAE $voucher, Package $package): array
-    {
-        $default =  [
-            'service_price_fee' =>  0,
-            'voucher_price_discount' => 0,
-            'service_price_discount' => 0,
-        ];
-
-        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-
-        if ($voucher->type == VoucherAE::VOUCHER_FREE_PICKUP) {
-            $pickup_price = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
-            $default['pickup_price_discount'] = $pickup_price;
-        }
-
-        if ($voucher->type == VoucherAE::VOUCHER_DISCOUNT_SERVICE) {
-            if ($voucher->discount > 0) {
-                $discount = $service_price * ($voucher->discount / 100);
-                $default['voucher_price_discount'] = $discount;
-            }
-            if ($voucher->nominal > 0) {
-                if ($voucher->nominal > $service_price) $voucher->nominal = $service_price;
-                $default['voucher_price_discount'] = $voucher->nominal;
-            }
-        }
-
-        return $default;
     }
 
     private static function checkHandling($handling = [])

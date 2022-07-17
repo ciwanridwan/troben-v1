@@ -21,7 +21,6 @@ use App\Events\Promo\PromotionClaimed;
 use App\Listeners\Packages\GeneratePackagePickupPrices;
 use App\Listeners\Partners\GenerateBalanceHistory;
 use App\Listeners\Partners\PartnerPerformanceEvaluatedByEvent;
-use App\Listeners\Partners\CalculateIncomeAE;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
 use App\Listeners\Payments\UpdatePaymentByEvent;
@@ -216,8 +215,7 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverDooringFinished::class => [
-            PartnerPerformanceEvaluatedByEvent::class,
-            CalculateIncomeAE::class,
+            PartnerPerformanceEvaluatedByEvent::class
         ],
         DriverAssigned::class => [
             PaymentCreatedByEvent::class

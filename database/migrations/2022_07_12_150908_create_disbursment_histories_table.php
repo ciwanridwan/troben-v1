@@ -15,12 +15,12 @@ class CreateDisbursmentHistoriesTable extends Migration
     {
         Schema::create('disbursment_histories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('disbursment_id');
+            $table->unsignedBigInteger('disbursement_id');
             $table->string('receipt')->nullable();
-            $table->decimal('amount', 14, 2)->default(0);
+            $table->string('is_approved')->nullable();
             $table->timestamps();
 
-            $table->foreign('disbursment_id')->references('id')->on('partner_balance_disbursement');
+            $table->foreign('disbursement_id')->references('id')->on('partner_balance_disbursement');
         });
     }
 

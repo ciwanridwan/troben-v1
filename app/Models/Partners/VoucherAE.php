@@ -18,10 +18,6 @@ class VoucherAE extends Model implements AttachableContract
 {
     use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
 
-    public const VOUCHER_FREE_PICKUP = 'free_pickup';
-    public const VOUCHER_DISCOUNT_SERVICE = 'discount_service';
-
-
     protected $table = 'ae_vouchers';
     /**
      * The attributes that are mass assignable.
@@ -30,8 +26,6 @@ class VoucherAE extends Model implements AttachableContract
      */
     protected $fillable = [
         'partner_id',
-        'is_approved',
-        'expired',
     ];
 
     /**
