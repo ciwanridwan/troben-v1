@@ -92,8 +92,8 @@ class UpdateExistingCustomer
             && ! is_null($agent)) {
             NotificationAgent::create([
                 'type' => 'referral_cust',
-                'title' => 'telah join melalui referral code',
-                'message' => $this->customer->name,
+                'message' => 'telah join melalui referral code',
+                'title' => $this->customer->name,
                 'status' => 'sent',
                 'agent_id' => $agent->id,
             ]);

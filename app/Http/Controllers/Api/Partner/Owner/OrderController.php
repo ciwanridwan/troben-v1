@@ -167,8 +167,8 @@ class OrderController extends Controller
             $name = $repository->getPartner()->code;
             NotificationAgent::create([
                 'type' => $isApproved ? 'voucher_approved' : 'voucher_rejected',
-                'title' => sprintf('%s %s request voucher', $name, ($isApproved ? 'menyetujui' : 'menolak') ),
-                'message' => $isApproved ? 'Request voucher telah disetujui' : 'Request voucher telah ditolak',
+                'message' => sprintf('%s %s request voucher', $name, ($isApproved ? 'menyetujui' : 'menolak') ),
+                'title' => $isApproved ? 'Request voucher telah disetujui' : 'Request voucher telah ditolak',
                 'status' => 'sent',
                 'agent_id' => $agentId,
             ]);
