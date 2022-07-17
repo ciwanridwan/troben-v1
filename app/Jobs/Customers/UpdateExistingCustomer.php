@@ -76,12 +76,9 @@ class UpdateExistingCustomer
         $agent = null;
         if (array_key_exists('referral_code', $this->attributes)) {
             $rc = $this->attributes['referral_code'];
-            if (User::where('referral_code', $rc)->first() == null) {
-                // fallback, find from agent
-                $agent = DB::table('agents')->where('referral_code', $rc)->first();
-                if (is_null($agent)) {
-                    return $this->referral = 'failed';
-                }
+            $agent = DB::table('agents')->where('referral_code', $rc)->first();
+            if (is_null($agent)) {
+                return $this->referral = 'failed';
             }
         }
 
