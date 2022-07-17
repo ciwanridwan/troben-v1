@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Api\Partner\VoucherAEResource;
-use App\Models\Partners\NotificationAgent;
+use App\Models\Notifications\NotificationAgent;
 use App\Models\Partners\VoucherAE;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

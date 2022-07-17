@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Partners;
+namespace App\Models\Notifications;
 
 use App\Concerns\Controllers\CustomSerializeDate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

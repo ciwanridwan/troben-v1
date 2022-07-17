@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Events\Customers\CustomerModified;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Customers\CustomerModificationFailed;
-use App\Models\Partners\NotificationAgent;
+use App\Models\Notifications\NotificationAgent;
 use Illuminate\Support\Facades\DB;
 
 class UpdateExistingCustomer
