@@ -16,6 +16,11 @@ class VoucherAEResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $agent = '';
+        if ($this->creator) {
+            $agent = $this->creator->name;
+        }
+
         /** @var Voucher $this */
         return [
             'title' => $this->title,
@@ -28,6 +33,7 @@ class VoucherAEResource extends JsonResource
             'is_approved' => $this->is_approved,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'agent' => $agent,
         ];
     }
 }

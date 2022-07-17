@@ -62,4 +62,12 @@ class VoucherAE extends Model implements AttachableContract
     {
         return $this->belongsTo(Partner::class, 'partner_id');
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

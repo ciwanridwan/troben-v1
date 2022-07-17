@@ -126,10 +126,14 @@ class OrderController extends Controller
 
     public function voucherList(PartnerRepository $repository): JsonResponse
     {
-        $query = VoucherAE::query();
+        $query = VoucherAE::query()->with('creator');
         $query->where('partner_id', $repository->getPartner()->id);
 
-        return $this->jsonSuccess(VoucherAEResource::collection($query->paginate(request('per_page', 15))));
+        $query->latest();
+
+        $result = $query->paginate(request('per_page', 15));
+
+        return $this->jsonSuccess(VoucherAEResource::collection($result));
     }
 
     public function approval(PartnerRepository $repository, Request $request): JsonResponse
