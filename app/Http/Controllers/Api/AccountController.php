@@ -18,6 +18,7 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use libphonenumber\PhoneNumberFormat;
@@ -72,6 +73,28 @@ class AccountController extends Controller
             : $this->getUserInfo($account);
     }
 
+    /** Todo 
+     * Delete Account Customer */
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $request->validate([
+            'password' => ['required']
+        ]);
+
+        $customers = $request->user();
+        if (is_null($customers)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
+        $password = $request->user()->password;
+        
+        if (password_verify($request->password, $password)) {
+            $customers->delete();
+            return (new Response(Response::RC_DELETED))->json();
+        }
+        return (new Response(Response::RC_BAD_REQUEST))->json();
+        /**End Todo */
+    }
+
     /**
      * @param Customer $account
      *
@@ -113,9 +136,7 @@ class AccountController extends Controller
             return $this->jsonSuccess(new CustomerResource($customer));
         }
 
-        return (new Response(Response::RC_INVALID_DATA, [
-
-        ]))->json();
+        return (new Response(Response::RC_INVALID_DATA, []))->json();
     }
 
     /**
