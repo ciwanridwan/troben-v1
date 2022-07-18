@@ -109,9 +109,7 @@ class OrderController extends Controller
             $prices['service_price_fee'] = 0;
             $prices['service_price_discount'] = $voucher['service_price_discount'];
             $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
-            if (isset($voucher['pickup_price_discount'])) { // free pickup
-                $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
-            }
+            $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
         }
 
         $package->load(
@@ -148,7 +146,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
