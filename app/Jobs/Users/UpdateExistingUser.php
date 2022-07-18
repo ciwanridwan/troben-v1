@@ -68,6 +68,7 @@ class UpdateExistingUser
     public function handle(): bool
     {
         if (array_key_exists('referral_code', $this->attributes)) {
+            // todo unused
             if (User::where('referral_code', $this->attributes['referral_code'])->first() == null) {
                 return $this->referral = 'failed';
             }

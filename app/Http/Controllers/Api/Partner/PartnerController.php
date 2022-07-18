@@ -69,8 +69,9 @@ class PartnerController extends Controller
         if ($request->has('id')) {
             $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
         }
-        if ($request->has('q')) {
-            $w[] = sprintf(" AND p.name LIKE '%s%s%s'", '%', $request->get('q'), '%');
+	if ($request->has('q')) {
+		$q = $request->get('q');
+            $w[] = sprintf(" AND (p.name LIKE '%%%s%%' OR p.code ILIKE '%%%s%%')", $q, $q);
         }
         if ($request->has('type')) {
             $w[] = sprintf(" AND EXISTS (SELECT * FROM transporters t WHERE t.partner_id = p.id AND type ILIKE '%s%s%s' AND t.deleted_at IS NULL)", '%', $request->get('type'), '%');
