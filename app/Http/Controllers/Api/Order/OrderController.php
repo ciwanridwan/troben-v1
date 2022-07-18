@@ -102,6 +102,18 @@ class OrderController extends Controller
             }
         }
 
+        // override if already inputed
+        if ($package->claimed_voucher && $package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
+            $aevoucher = $package->claimed_voucher->voucher->aevoucher;
+            $voucher = $this->claimVoucher($aevoucher->code, $package, $aevoucher->partner_id);
+            $prices['service_price_fee'] = 0;
+            $prices['service_price_discount'] = $voucher['service_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            if (isset($voucher['pickup_price_discount'])) { // free pickup
+                $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
+            }
+        }
+
         $package->load(
             'code',
             'prices',
@@ -183,6 +195,11 @@ class OrderController extends Controller
 
             return $default;
         }
+
+        if (! is_null($voucher->aevoucher)) {
+            return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
+        }
+
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 
