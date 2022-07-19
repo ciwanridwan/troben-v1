@@ -116,4 +116,7 @@ export default {
     .capitalize{
         text-transform: capitalize;
     }
+    .text-danger{
+      color: #E60013 !important;
+    }
 </style>
