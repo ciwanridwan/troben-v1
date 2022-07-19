@@ -188,13 +188,6 @@ class OrderController extends Controller
                     ->latest()
                     ->first();
                 if ($voucherAE) {
-                    if (request()->user()->referral_code != null && request()->user()->referral_code != '') {
-                        $agentData = DB::table('agents')->where('referral_code', request()->user()->referral_code)->first();
-                        if (! is_null($agentData) && $agentData->user_id != $voucherAE->user_id) {
-                            // only allow customer referral code same as creator of voucher
-                            return $default;
-                        }
-                    }
                     return PricingCalculator::getCalculationVoucherPackageAE($voucherAE, $package);
                 }
             }
