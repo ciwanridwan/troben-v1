@@ -42,7 +42,7 @@
                     <span slot="status" slot-scope="record">
                         <template v-if="record.status == 'transferred'">
                             <span class="text-green fw-medium">
-                                <a-icon class="ml-1" type="check"/>
+                                <a-icon type="check"/>
                                 Transferred
                             </span>
                         </template>
