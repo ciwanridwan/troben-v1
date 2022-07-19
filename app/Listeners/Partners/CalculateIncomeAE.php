@@ -30,7 +30,6 @@ class CalculateIncomeAE
     {
         $delivery = $event->delivery;
         $deliveryId = $delivery->getKey();
-        $deliveryId = 8994;
 
         $q = "SELECT v.id voucher_claim_id, a.id agent_id, c.id coordinator_id, p.amount
         FROM voucher_claimed_customers v

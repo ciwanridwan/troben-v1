@@ -3,37 +3,34 @@
         <content-layout>
             <template slot="content">
                 <div>
-                    <h2 class="text-danger">
-                        <a :href="routeUri('admin.home.accountexecutive.teamagent')">
+                    <h2 class="title-page">
+                        <a :href="routeUri('admin.master.account.executive.agent.index')">
                             <a-icon class="mr-1 gray-color" type="arrow-left"/>
                         </a>
-                        Tim Agen TrawlBens
+                        Pencairan Saldo
                     </h2>
-                    <h3 class="fw-medium mt-1 mb-0 capitalize">
-                        {{ list_leader.name }}
-                    </h3>
-                    <h3 class="fw-light gray-color capitalize">
-                        {{ list_leader.role }}
-                    </h3>
                 </div>
                 <a-table
-                    :loading="loading"
                     :columns="teamDetailColumns"
-                    :data-source="lists"
                     :class="['trawl']"
                     rowKey="id"
+                    :loading="loading"
+                    :data-source="datas"
                 >
                     <span slot="number" slot-scope="number" class="fw-bold">
                         {{ number }}
                     </span>
-                    <span slot="name" slot-scope="record" class="fw-bold uppercase">
-                        {{ record.name }}
+                    <span slot="id" slot-scope="record" class="uppercase">
+                        {{ record.package_id }}
                     </span>
-                    <span slot="voucher" slot-scope="record">
-                        {{ record.voucher_share }} Voucher
+                    <span slot="type" slot-scope="record">
+                        {{ record.profit_type }}
                     </span>
-                    <span slot="income" slot-scope="record">
-                        Rp.{{ formatPrice(record.monthly_income) }}
+                    <span slot="payment" slot-scope="record">
+                        Rp.{{ formatPrice(record.service_price) }}
+                    </span>
+                    <span slot="komisi" slot-scope="record">
+                        Rp.{{ formatPrice(record.income) }}
                     </span>
                 </a-table>
             </template>
@@ -43,12 +40,12 @@
 
 <script>
 
-import teamDetailColumns from "../../../config/table/team-detail";
+import teamDetailColumns from "../../../config/table/master-ae-agent-detail";
 import ContentLayout from "../../../layouts/content-layout.vue";
 import axios from "axios";
 
 export default {
-    name: "team-agent",
+    name: "master-ae-agent-detail",
     components: {
         ContentLayout,
     },
@@ -56,15 +53,13 @@ export default {
         return {
             loading: false,
             teamDetailColumns,
-            lists: {},
-            list_leader: {},
-            check_status: null,
-            is_coordinator: false,
-            code_item: window.location.href.split('/').pop(),
+            userId: window.location.pathname.split('/')[6],
+            periode: window.location.pathname.split('/')[7],
+            datas: []
         };
     },
     created() {
-        this.getData()
+        this.getDatas()
     },
     computed: {
     },
@@ -73,21 +68,29 @@ export default {
             let val = (value/1).toFixed(2).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
-        getData(){
+        getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.co.id/agent/teamDetail`, {
+            axios.get(`https://ae.trawlbens.co.id/agent/disbursementDetail`, {
                 params: {
-                    code:this.code_item
+                    user_id: this.userId,
+                    month: this.periode,
                 },
             })
             .then((res)=>{
+                this.datas = res.data.data
                 this.loading = false
-                this.lists = res.data.data.leader.members
-                this.list_leader = res.data.data.leader
+
                 let numbering = 1;
-                this.lists.forEach((o, k) => {
+                this.datas.forEach((o, k) => {
                     o.number = numbering++;
                 });
+            }).catch(function (error) {
+                console.error(error);
+            });
+        },
+    },
+};
+</script>
 
 <style lang="scss" scoped>
     .mb-0{
@@ -107,5 +110,10 @@ export default {
     }
     .capitalize{
         text-transform: capitalize;
+    }
+    .title-page{
+        color: #E60013 !important;
+        font-size: 25px;
+        font-weight: 600;
     }
 </style>
