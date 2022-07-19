@@ -203,7 +203,9 @@ class Response implements Responsable
             'message' => $this->resolveMessage(),
         ];
 
-        if ($this->hasServerTime) $responseData = array_merge($responseData,['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
+        if ($this->hasServerTime) {
+            $responseData = array_merge($responseData, ['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
+        }
 
         if ($this->data instanceof LengthAwarePaginator) {
             $responseData = array_merge($responseData, $this->data->toArray());

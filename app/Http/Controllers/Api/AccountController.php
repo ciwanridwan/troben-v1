@@ -18,7 +18,6 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use libphonenumber\PhoneNumberFormat;
@@ -86,7 +85,7 @@ class AccountController extends Controller
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
         $password = $request->user()->password;
-        
+
         if (password_verify($request->password, $password)) {
             $customers->delete();
             return (new Response(Response::RC_DELETED))->json();
