@@ -47,6 +47,11 @@ class AccountRoute extends BaseRoute
             'as' => $this->name('updatePassword'),
             'uses' => $this->uses('updatePassword'),
         ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('delete'), [
+            'as' => $this->name('delete'),
+            'uses' => $this->uses('deleteAccount'),
+        ]);   
     }
 
     /**

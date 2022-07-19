@@ -23,6 +23,7 @@ class Response implements Responsable
     public const RC_UPDATED = '0002';
     public const RC_ACCEPTED = '0003';
     public const RC_ACCEPTED_NO_CONTENT = '0004';
+    public const RC_DELETED = '0005';
 
     // client side fault. 0100 - 0199
     public const RC_INVALID_DATA = '0100';
@@ -113,6 +114,7 @@ class Response implements Responsable
             LaravelResponse::HTTP_OK => [
                 self::RC_SUCCESS,
                 self::RC_UPDATED,
+                self::RC_DELETED,
             ],
             LaravelResponse::HTTP_NO_CONTENT => [
                 self::RC_ACCEPTED_NO_CONTENT,
@@ -201,9 +203,7 @@ class Response implements Responsable
             'message' => $this->resolveMessage(),
         ];
 
-        if ($this->hasServerTime) {
-            $responseData = array_merge($responseData, ['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
-        }
+        if ($this->hasServerTime) $responseData = array_merge($responseData,['server_time' => Carbon::now()->format('Y-m-d H:i:s')]);
 
         if ($this->data instanceof LengthAwarePaginator) {
             $responseData = array_merge($responseData, $this->data->toArray());
