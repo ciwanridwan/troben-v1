@@ -7,7 +7,7 @@
       <a-row class="content-layout-head">
         <a-col :span="10">
           <slot name="title" v-if="hasTitleSlot"></slot>
-          <h3 v-else>{{ title ? title : defaultTitle }}</h3>
+          <h3 class="head-title" v-else>{{ title ? title : defaultTitle }}</h3>
         </a-col>
         <a-col :span="14">
           <a-row type="flex" :gutter="12">
@@ -80,6 +80,11 @@ export default {
 };
 </script>
 <style lang="scss">
+.head-title{
+  color: #E60013 !important;
+  font-size: 25px;
+  font-weight: 600;
+}
 #content-layout {
   min-height: 90vh;
   position: relative;

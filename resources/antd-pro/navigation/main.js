@@ -53,7 +53,7 @@ const main = {
         route: "admin.home.accountexecutive",
         children: {
           all: {
-            title: "Akun Agen TrawlBens",
+            title: "Agen TrawlBens",
             text: "Akun Agen TrawlBens",
             route: "admin.home.accountexecutive",
             children: null
@@ -65,6 +65,12 @@ const main = {
             children: null
           },
         }
+      },
+      resi: {
+        title: "All Resi",
+        text: "Resi",
+        route: "admin.home.receipt",
+        children: null
       },
     },
     shortKey: ["ctrl", "alt", "d"]
@@ -182,7 +188,13 @@ const main = {
           }
         },
         shortKey: ["ctrl", "alt", "i"]
-      }
+      },
+      agent: {
+        title: "Pencairan Saldo",
+        text: "Pencairan Agen",
+        route: "admin.master.account.executive.agent.index",
+        children: null
+      },
         // children: {
         //   request: {
         //     text: "Daftar Request",
