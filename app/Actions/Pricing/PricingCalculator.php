@@ -586,7 +586,8 @@ class PricingCalculator
             }
             if ($voucher->nominal > 0) {
                 if ($voucher->nominal > $service_price) $voucher->nominal = $service_price;
-                $default['voucher_price_discount'] = $voucher->nominal;
+                $discount = $service_price - $voucher->nominal;
+                $default['voucher_price_discount'] = $discount;
             }
         }
 

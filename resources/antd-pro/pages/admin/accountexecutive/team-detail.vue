@@ -88,14 +88,6 @@ export default {
                 this.lists.forEach((o, k) => {
                     o.number = numbering++;
                 });
-            }).catch(function (error) {
-                console.error(error);
-                this.loading = false
-            });
-        },
-    },
-};
-</script>
 
 <style lang="scss" scoped>
     .mb-0{

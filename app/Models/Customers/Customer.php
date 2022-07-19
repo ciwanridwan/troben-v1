@@ -86,6 +86,8 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         'google_id',
         'facebook_id',
         'fcm_token',
+        'is_active',
+        'blocked_at'
     ];
 
     protected $verifiedColumn = 'phone_verified_at';
@@ -107,6 +109,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     protected $casts = [
         'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'blocked_at' => 'datetime'
     ];
 
     /**
@@ -117,6 +120,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     protected $hidden = [
         'id',
         'password',
+        'is_active'
     ];
 
     /**
