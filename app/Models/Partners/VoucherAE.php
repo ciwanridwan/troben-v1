@@ -3,20 +3,21 @@
 namespace App\Models\Partners;
 
 use App\Concerns\Controllers\CustomSerializeDate;
-use App\Concerns\Models\CanSearch;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Jalameta\Attachments\Concerns\Attachable;
-use Jalameta\Attachments\Contracts\AttachableContract;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
-class VoucherAE extends Model implements AttachableContract
+class VoucherAE extends Model
 {
-    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory, Attachable, CanSearch;
+    use SoftDeletes, CustomSerializeDate, HashableId, HasFactory;
+
+    public const VOUCHER_FREE_PICKUP = 'free_pickup';
+    public const VOUCHER_DISCOUNT_SERVICE = 'discount_service';
+
 
     protected $table = 'ae_vouchers';
     /**
@@ -26,6 +27,8 @@ class VoucherAE extends Model implements AttachableContract
      */
     protected $fillable = [
         'partner_id',
+        'is_approved',
+        'expired',
     ];
 
     /**
@@ -55,5 +58,13 @@ class VoucherAE extends Model implements AttachableContract
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class, 'partner_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
