@@ -40,6 +40,7 @@ use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -187,6 +188,13 @@ class OrderController extends Controller
                     ->latest()
                     ->first();
                 if ($voucherAE) {
+                    if (request()->user()->referral_code != null && request()->user()->referral_code != '') {
+                        $agentData = DB::table('agents')->where('referral_code', request()->user()->referral_code)->first();
+                        if (! is_null($agentData) && $agentData->user_id != $voucherAE->user_id) {
+                            // only allow customer referral code same as creator of voucher
+                            return $default;
+                        }
+                    }
                     return PricingCalculator::getCalculationVoucherPackageAE($voucherAE, $package);
                 }
             }
