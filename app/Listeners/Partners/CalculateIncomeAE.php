@@ -4,6 +4,7 @@ namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Models\Partners\AgentProfitAE;
+use Faker\Provider\UserAgent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
@@ -64,24 +65,26 @@ class CalculateIncomeAE
             $profitCoordinator = $r->amount * 0.05; // for coordinator
 
             if (! is_null($r->agent_id)) {
+                $agent = DB::table('agents')->where('id', $r->agent_id)->first();
                 AgentProfitAE::updateOrCreate([
-                    'user_id' => $r->agent_id,
+                    'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_AGENT,
                 ], [
-                    'user_id' => $r->agent_id,
+                    'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_AGENT,
                     'commission' => $profitAgent,
                 ]);
             }
             if (! is_null($r->coordinator_id)) {
+                $agent = DB::table('agents')->where('id', $r->coordinator_id)->first();
                 AgentProfitAE::updateOrCreate([
-                    'user_id' => $r->agent_id,
+                    'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_COORDINATOR,
                 ], [
-                    'user_id' => $r->agent_id,
+                    'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_COORDINATOR,
                     'commission' => $profitCoordinator,
