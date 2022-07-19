@@ -19,10 +19,6 @@ class VoucherAE extends Model
     public const VOUCHER_DISCOUNT_SERVICE = 'discount_service';
 
 
-    public const VOUCHER_FREE_PICKUP = 'free_pickup';
-    public const VOUCHER_DISCOUNT_SERVICE = 'discount_service';
-
-
     protected $table = 'ae_vouchers';
     /**
      * The attributes that are mass assignable.
