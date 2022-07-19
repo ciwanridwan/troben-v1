@@ -37,7 +37,7 @@
                         Rp. {{ formatPrice(record.monthly_income) }}
                     </span>
                     <span slot="periode" slot-scope="record">
-                        {{ record.periode }}
+                        {{ moment(record.periode).format('MMMM') }}
                     </span>
                     <span slot="status" slot-scope="record">
                         <template v-if="record.status == 'transferred'">
@@ -110,7 +110,6 @@ export default {
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
         getDatas(){
-            console.log(this.req)
             this.loading = true
             axios.get(`https://ae.trawlbens.co.id/agent/disbursement`)
             .then((res)=>{
