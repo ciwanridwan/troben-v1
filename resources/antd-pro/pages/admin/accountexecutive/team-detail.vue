@@ -88,6 +88,14 @@ export default {
                 this.lists.forEach((o, k) => {
                     o.number = numbering++;
                 });
+            }).catch(function (error) {
+                console.error(error);
+                this.loading = false
+            });
+        },
+    },
+};
+</script>
 
 <style lang="scss" scoped>
     .mb-0{
@@ -107,5 +115,8 @@ export default {
     }
     .capitalize{
         text-transform: capitalize;
+    }
+    .text-danger{
+      color: #E60013 !important;
     }
 </style>
