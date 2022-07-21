@@ -125,7 +125,7 @@ class FinanceController extends Controller
 
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_SUCCESS, []))->json();
         }
     }
     /**End todo */
@@ -161,7 +161,7 @@ class FinanceController extends Controller
 
         $partners = Withdrawal::where('partner_id', $this->attributes['partner_id'])->orderByDesc('created_at')->paginate(10);
         if ($partners->isEmpty()) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_SUCCESS, []))->json();
         } else {
             return $this->jsonSuccess(ListResource::collection($partners));
         }
@@ -180,12 +180,12 @@ class FinanceController extends Controller
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
             if ($disbursmentStatus->isEmpty()) {
-                return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+                return (new Response(Response::RC_SUCCESS, []))->json();
             }
 
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
-        } else {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else { 
+            return (new Response(Response::RC_SUCCESS, []))->json();
         }
     }
 
@@ -199,7 +199,7 @@ class FinanceController extends Controller
         $date = Withdrawal::whereBetween('created_at', [$this->attributes['start_date'], $this->attributes['end_date']])->paginate(10);
 
         if ($date->isEmpty()) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_SUCCESS, []))->json();
         } else {
             return $this->jsonSuccess(ListResource::collection($date));
         }
@@ -229,7 +229,7 @@ class FinanceController extends Controller
         })->first();
 
         if (is_null($receipt)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_SUCCESS, []))->json();
         } else {
             $data = array($receipt);
             return (new Response(Response::RC_SUCCESS, $data))->json();
