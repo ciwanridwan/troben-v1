@@ -49,18 +49,33 @@ class FinanceController extends Controller
         $packages = collect(DB::select($query));
 
         $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
-        $approveds = collect(DB::select($approveds));
+        $approves = collect(DB::select($approveds));
 
-        $packages = $packages->map(function($r) use ($approveds) {
+        // $packages = $packages->map(function ($r) use ($approves) {
+        //     $r->approved = 'pending';
+        //     $check = $approves->where('receipt', $r->receipt)->first();
+
+        //     if ($check) {
+        //         $r->approved = 'success';
+        //         $r->commission_discount = $check->amount;
+        //     }
+
+        //     return $r;
+        // });
+
+        $packages = $packages->map(function ($r) use ($approves) {
             $r->approved = 'pending';
-            $check = $approveds->where('receipt', $r->receipt)->first();
-            if ($check) {
-                $r->approved = 'approved';
-                $r->commission_discount = $check->amount;
-            }
-
             return $r;
         });
+
+        $disbursHistory = DisbursmentHistory::all();
+        
+        foreach ($disbursHistory as $key) {
+            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) {
+                $r->approved = 'success';
+                return $r;
+            })->values();
+        }
 
         $data = $this->paginate($packages);
 
@@ -247,7 +262,8 @@ class FinanceController extends Controller
     /**End query */
 
     /**Query for get approved disbursement */
-    private function getApprovedDisbursment($receipts) {
+    private function getApprovedDisbursment($receipts)
+    {
         $q = "SELECT * FROM disbursment_histories WHERE receipt IN ('%s')";
         $q = sprintf($q, implode(',', $receipts));
 
