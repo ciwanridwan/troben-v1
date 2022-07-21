@@ -69,7 +69,7 @@ class FinanceController extends Controller
         });
 
         $disbursHistory = DisbursmentHistory::all();
-        
+
         foreach ($disbursHistory as $key) {
             $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) {
                 $r->approved = 'success';
@@ -159,7 +159,7 @@ class FinanceController extends Controller
             'partner_id' => ['required'],
         ]);
 
-        $partners = Withdrawal::where('partner_id', $this->attributes['partner_id'])->orderByDesc('created_at')->get();
+        $partners = Withdrawal::where('partner_id', $this->attributes['partner_id'])->orderByDesc('created_at')->paginate(10);
         if ($partners->isEmpty()) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
@@ -174,10 +174,10 @@ class FinanceController extends Controller
         ]);
 
         if ($this->attributes['status'] == "requested") {
-            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->get();
+            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
         } else if ($this->attributes['status'] == "approved") {
-            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->get();
+            $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
             if ($disbursmentStatus->isEmpty()) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -192,10 +192,12 @@ class FinanceController extends Controller
     public function findByDate(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'date' => ['required', 'date_format:Y-m-d'],
+            'start_date' => ['required', 'date_format:Y-m-d'],
+            'end_date' => ['required', 'date_format:Y-m-d'],
         ]);
 
-        $date = Withdrawal::whereDate('created_at', $this->attributes['date'])->get();
+        $date = Withdrawal::whereBetween('created_at', [$this->attributes['start_date'], $this->attributes['end_date']])->paginate(10);
+
         if ($date->isEmpty()) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
@@ -209,10 +211,23 @@ class FinanceController extends Controller
             'receipt' => ['required'],
         ]);
 
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $withdrawal->id)->firstOrFail();
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
-        $receipt = $packages->where('receipt', $this->attributes['receipt'])->first();
+        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
+            $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->first();
+            if (is_null($disbursHistory)) {
+                $r->approved = 'pending';
+                return $r;
+            } else if ($disbursHistory->receipt == $r->receipt) {
+                $r->approved = 'success';
+                return $r;
+            } else {
+                $r->approved = 'pending';
+                return $r;
+            }
+        })->first();
+
         if (is_null($receipt)) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
@@ -221,6 +236,13 @@ class FinanceController extends Controller
         }
     }
     // End Todo
+
+    /**Get list partner for findByPartner Function */
+    public function listPartners()
+    {
+        $data = Partner::select('id', 'name', 'code')->get();
+        return (new Response(Response::RC_SUCCESS, $data))->json();
+    }
 
     /** Custom Paginate */
     public function paginate($items, $perPage = 15, $page = null, $options = [])

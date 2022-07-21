@@ -33,6 +33,11 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('list'),
         ])->withoutMiddleware('api');
 
+        $this->router->get($this->prefix('/list/partners'), [
+            'as' => $this->name('listPartners'),
+            'uses' => $this->uses('listPartners'),
+        ])->withoutMiddleware('api');
+
         $this->router->get($this->prefix('/overview'), [
             'as' => $this->name('overview'),
             'uses' => $this->uses('overview'),
