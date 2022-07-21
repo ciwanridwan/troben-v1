@@ -51,17 +51,17 @@ class FinanceRoute extends BaseRoute
         $this->router->get($this->prefix('/find/partner'), [
             'as' => $this->name('findByPartner'),
             'uses' => $this->uses('findByPartner'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/find/status'), [
             'as' => $this->name('findByStatus'),
             'uses' => $this->uses('findByStatus'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/find/date'), [
             'as' => $this->name('findByDate'),
             'uses' => $this->uses('findByDate'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
             'as' => $this->name('findByReceipt'),
@@ -71,12 +71,12 @@ class FinanceRoute extends BaseRoute
         $this->router->get($this->prefix('/count'), [
             'as' => $this->name('countDisbursment'),
             'uses' => $this->uses('countDisbursment'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/count/amount'), [
             'as' => $this->name('countAmountDisbursment'),
             'uses' => $this->uses('countAmountDisbursment'),
-        ]);
+        ])->withoutMiddleware('api');
     }
 
     /**
