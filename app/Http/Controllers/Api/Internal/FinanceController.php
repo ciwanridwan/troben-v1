@@ -58,6 +58,8 @@ class FinanceController extends Controller
 
         $packages = $packages->map(function ($r) use ($approves) {
             $r->approved = 'pending';
+            $r->total_payment = intval($r->total_payment);
+            $r->commission_discount = intval($r->commission_discount);
             return $r;
         });
 
@@ -69,7 +71,6 @@ class FinanceController extends Controller
                 return $r;
             })->values();
         }
-
         $data = $this->paginate($packages);
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -217,6 +218,9 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
+            $r->total_payment = intval($r->total_payment);
+            $r->commission_discount = intval($r->commission_discount);
+            
             $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->first();
             if (is_null($disbursHistory)) {
                 $r->approved = 'pending';
