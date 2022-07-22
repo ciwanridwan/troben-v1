@@ -43,15 +43,25 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('overview'),
         ]);
 
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}'), [
+        // $this->router->get($this->prefix('/detail/{withdrawal_hash}'), [
+        //     'as' => $this->name('detail'),
+        //     'uses' => $this->uses('detail'),
+        // ]);
+
+        $this->router->get($this->prefix('/detail/{id}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail'),
-        ]);
+        ])->withoutMiddleware('api');
 
-        $this->router->patch($this->prefix('/detail/{withdrawal_hash}/approve'), [
+        // $this->router->patch($this->prefix('/detail/{withdrawal_hash}/approve'), [
+        //     'as' => $this->name('approve'),
+        //     'uses' => $this->uses('approve'),
+        // ]);
+
+        $this->router->patch($this->prefix('/detail/{id}/approve'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/find/partner'), [
             'as' => $this->name('findByPartner'),
@@ -68,10 +78,15 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('findByDate'),
         ])->withoutMiddleware('api');
 
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
+        // $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
+        //     'as' => $this->name('findByReceipt'),
+        //     'uses' => $this->uses('findByReceipt'),
+        // ]);
+
+        $this->router->get($this->prefix('/detail/{id}/find/receipt'), [
             'as' => $this->name('findByReceipt'),
             'uses' => $this->uses('findByReceipt'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/count'), [
             'as' => $this->name('countDisbursment'),

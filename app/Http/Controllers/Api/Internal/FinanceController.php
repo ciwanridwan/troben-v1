@@ -42,26 +42,19 @@ class FinanceController extends Controller
     /**End todo */
 
     /**Todo detail disbursment */
-    public function detail(Withdrawal $withdrawal): JsonResponse
+    public function detail(Withdrawal $withdrawal, Request $request): JsonResponse
     {
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        // $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $request->id)->first();
+        if (is_null($result)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
 
         $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
         $approves = collect(DB::select($approveds));
-
-        // $packages = $packages->map(function ($r) use ($approves) {
-        //     $r->approved = 'pending';
-        //     $check = $approves->where('receipt', $r->receipt)->first();
-
-        //     if ($check) {
-        //         $r->approved = 'success';
-        //         $r->commission_discount = $check->amount;
-        //     }
-
-        //     return $r;
-        // });
 
         $packages = $packages->map(function ($r) use ($approves) {
             $r->approved = 'pending';
@@ -91,7 +84,11 @@ class FinanceController extends Controller
             return (new Response(Response::RC_BAD_REQUEST))->json();
         }
 
-        $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
+        // $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
+        $disbursment = Withdrawal::where('id', $request->id)->first();
+        if (is_null($disbursment)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
         $query = $this->detailDisbursment($disbursment);
         $packages = collect(DB::select($query));
 
@@ -211,7 +208,12 @@ class FinanceController extends Controller
             'receipt' => ['required'],
         ]);
 
-        $result = Withdrawal::where('id', $withdrawal->id)->firstOrFail();
+        // $result = Withdrawal::where('id', $withdrawal->id)->firstOrFail();
+        $result = Withdrawal::where('id', $request->id)->first();
+        if (is_null($result)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
