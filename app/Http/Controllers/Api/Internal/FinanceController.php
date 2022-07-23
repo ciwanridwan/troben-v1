@@ -12,6 +12,7 @@ use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Payments\Withdrawal;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Builder;
@@ -154,6 +155,104 @@ class FinanceController extends Controller
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
+    public function reportReceipt(Request $request)
+    {
+        $request->validate([
+            'start' => 'required|date_format:Y-m-d',
+            'end' => 'required|date_format:Y-m-d',
+        ]);
+
+        $param = [
+            'start' => $request->get('start', Carbon::now()->subMonth()->format('Y-m-d')),
+            'end' => $request->get('end', Carbon::now()->format('Y-m-d')),
+        ];
+        $q = $this->reportReceiptQuery($param);
+        $result = collect(DB::select($q));
+
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        header("Content-type: application/vnd-ms-excel");
+        header("Cache-Control: max-age=0");
+
+        return view('report.finance', compact('result'));
+    }
+
+    private function reportReceiptQuery($param)
+    {
+        $q = "select
+        c.content as receipt_code,
+        gr2.name as origin_city,
+        gp.name as destination_province,
+        gr.name as destination_city,
+        gd.name as destination_district,
+        gsd.name as destination_sub_district,
+        gsd.zip_code as zip_code,
+        case
+          when p.transporter_type is null then 'walk-in'
+          else 'by apps'
+        end as type_order,
+        case
+          when p.transporter_type is null then '-'
+          else p.transporter_type
+        end as transporter_pickup_type,
+        d2.updated_at as unloaded_at,
+        p2.code as origin_partner,
+        p3.payment_ref_id as nicepay_trx_id,
+        p3.status as nicepay_status,
+        p3.confirmed_at as payment_verified_at,
+        p3.created_at as payment_request_at,
+        p.total_weight as total_weight,
+        coalesce((select sum(pi3.price) from package_items pi3 where pi3.package_id = p.id and pi3.is_insured = true), 0) as item_price,
+          coalesce((select pp.amount from package_prices pp where pp.package_id = p.id and pp.type='service'), 0) as total_delivery_price,
+          coalesce((select pp2.amount from package_prices pp2 where pp2.package_id = p.id and pp2.type = 'discount' and pp2.description='service'), 0) as discount_delivery,
+          coalesce((select calculate_extra_commission(total_weight, (select pp.amount from package_prices pp where pp.package_id = p.id and pp.type='service'))),0 ) as extra_commission,
+          coalesce((select calculate_commission(p2.type, (select pp.amount from package_prices pp where pp.package_id = p.id and pp.type='service'))),0 ) as commission_manual,
+        coalesce(((select public.calculate_commission(p2.type, (select pp.amount from package_prices pp where pp.package_id = p.id and pp.type='service'))) - (coalesce((select pp2.amount from package_prices pp2 where pp2.package_id = p.id and pp2.type = 'discount' and pp2.description='service'), 0)) + (coalesce((select public.calculate_extra_commission(total_weight, (select pp.amount from package_prices pp where pp.package_id = p.id and pp.type='service'))),0 ))), 0) as total_commission,
+        coalesce((select calculate_package_price_by_package_id_and_type(p.id, 'handling')), 0) as receipt_total_packing_price,
+        coalesce((select calculate_package_price_by_package_id_and_type(p.id, 'insurance')), 0) as receipt_insurance_price,
+        coalesce((select sum(pp3.amount) from package_prices pp3 where pp3.package_id = p.id and pp3.type = 'delivery' and pp3.description = 'pickup'), 0) as receipt_pickup_price,
+        p.total_amount as receipt_total_amount
+      from
+        deliverables d
+      left join packages p on
+        p.id = d.deliverable_id
+        and d.deliverable_type = 'App\Models\Packages\Package'
+      left join codes c on
+        (p.id = c.codeable_id
+          and c.codeable_type = 'App\Models\Packages\Package')
+      left join deliveries d2 on
+        d.delivery_id = d2.id
+      left join partners p2 on
+        p2.id = d2.partner_id
+      inner join payments p3 on
+        p.id = p3.payable_id
+        and p3.payable_type = 'App\Models\Packages\Package'
+        and p3.status = 'success'
+      left join geo_sub_districts gsd on
+        p.destination_sub_district_id = gsd.id 
+      left join geo_districts gd on
+          gsd.district_id = gd.id
+      left join geo_regencies gr on
+          gd.regency_id = gr.id
+      left join geo_provinces gp on
+          gr.province_id = gp.id
+      left join geo_regencies gr2 on 
+          p.origin_regency_id = gr2.id
+      where
+        d2.type = 'pickup'
+        and d2.status = 'finished'
+        and p.payment_status = 'paid'
+        and DATE(p3.confirmed_at) >= '%s'
+        and DATE(p3.confirmed_at) <= '%s'
+      order by
+        p3.confirmed_at
+        LIMIT 20";
+
+        $q = sprintf($q, $param['start'], $param['end']);
+
+        return $q;
     }
 
     private function detailDisbursment($request)

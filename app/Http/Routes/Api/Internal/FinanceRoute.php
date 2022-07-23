@@ -77,6 +77,11 @@ class FinanceRoute extends BaseRoute
             'as' => $this->name('countAmountDisbursment'),
             'uses' => $this->uses('countAmountDisbursment'),
         ]);
+
+        $this->router->get($this->prefix('/report'), [
+            'as' => $this->name('report'),
+            'uses' => $this->uses('reportReceipt'),
+        ]);
     }
 
     /**
