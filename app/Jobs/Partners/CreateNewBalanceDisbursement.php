@@ -58,8 +58,9 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->fill($this->attributes);
         $this->withdrawal->partner_id = $this->partner->id;
         $this->withdrawal->first_balance = $this->partner->balance;
-        /** Inserting for first amoung be as request disbursment */
+        /**TODO ADD NEW AMOUNT BE AS ALL BALANCE FOR WD */
         $this->withdrawal->amount = $this->partner->balance;
+        /**END TODO */
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {

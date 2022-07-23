@@ -40,6 +40,7 @@ use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -102,6 +103,16 @@ class OrderController extends Controller
             }
         }
 
+        // override if already inputed
+        if ($package->claimed_voucher && $package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
+            $aevoucher = $package->claimed_voucher->voucher->aevoucher;
+            $voucher = $this->claimVoucher($aevoucher->code, $package, $aevoucher->partner_id);
+            $prices['service_price_fee'] = 0;
+            $prices['service_price_discount'] = $voucher['service_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
+        }
+
         $package->load(
             'code',
             'prices',
@@ -136,7 +147,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -183,6 +194,11 @@ class OrderController extends Controller
 
             return $default;
         }
+
+        if (! is_null($voucher->aevoucher)) {
+            return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
+        }
+
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 

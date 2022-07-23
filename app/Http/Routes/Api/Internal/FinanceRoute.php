@@ -43,7 +43,7 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('detail'),
         ]);
 
-        $this->router->patch($this->prefix('/detail/{withdrawal_hash}/approve'), [
+        $this->router->get($this->prefix('/approve/{withdrawal_hash}'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve'),
         ]);
