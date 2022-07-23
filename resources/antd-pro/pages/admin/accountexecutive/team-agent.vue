@@ -5,7 +5,7 @@
                 <div>
                   <a-row type="flex" :gutter="[24, 24]">
                     <a-col :span="17">
-                      <h2 class="text-danger">
+                      <h2 class="head-title">
                         Tim Agen TrawlBens
                       </h2>
                     </a-col>
@@ -172,5 +172,10 @@ export default {
     }
     .mt-3{
       margin-top: 30px;
+    }
+    .head-title{
+      color: #E60013 !important;
+      font-size: 25px;
+      font-weight: 600;
     }
 </style>

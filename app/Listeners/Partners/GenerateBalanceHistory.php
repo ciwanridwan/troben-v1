@@ -33,6 +33,7 @@ use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class GenerateBalanceHistory
@@ -242,7 +243,7 @@ class GenerateBalanceHistory
                             if (!$price || $price->value == 0) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
-                                Notification::send([
+                                $payload = [
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
@@ -250,7 +251,13 @@ class GenerateBalanceHistory
                                         'partner_code' => $this->partner->code,
                                         'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
                                     ]
-                                ], new TransporterBalance());
+                                ];
+                                try {
+                                    Notification::send($payload, new TransporterBalance());
+                                } catch (\Exception $e) {
+                                    report($e);
+                                    Log::error('TransporterBalance-tlg-err', $payload);
+                                }
                                 break;
                             }
                         } else {
@@ -264,7 +271,7 @@ class GenerateBalanceHistory
                             if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
-                                Notification::send([
+                                $payload = [
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
@@ -272,7 +279,13 @@ class GenerateBalanceHistory
                                         'partner_code' => $this->partner->code,
                                         'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
                                     ]
-                                ], new TransporterBalance());
+                                ];
+                                try {
+                                    Notification::send($payload, new TransporterBalance());
+                                } catch (\Exception $e) {
+                                    report($e);
+                                    Log::error('TransporterBalance-tlg-err', $payload);
+                                }
                                 break;
                             }
                         }
@@ -359,7 +372,7 @@ class GenerateBalanceHistory
                 if (!$price) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
-                    Notification::send([
+                    $payload = [
                         'data' => [
                             'manifest_code' => $this->delivery->code->content,
                             'package_code' => $this->package->code->content,
@@ -369,7 +382,13 @@ class GenerateBalanceHistory
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
                         ]
-                    ], new TransporterBalance());
+                    ];
+                    try {
+                        Notification::send($payload, new TransporterBalance());
+                    } catch (\Exception $e) {
+                        report($e);
+                        Log::error('TransporterBalance-tlg-err', $payload);
+                    }
                     break;
                 }
                 $this

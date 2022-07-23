@@ -57,15 +57,18 @@
                 
                 <a-modal
                     v-model="visible"
-                    cancel-text="Batal"
-                    maskClosable
-                    closable
                     :width="550"
+                    @cancel="onCancel"
+                    :closable="true"
+                    :mask-closable="true"
                     footer=""
                 >
+                    <template slot="closeIcon"
+                        ><a-icon type="close" @click="onCancel"></a-icon
+                    ></template>
                     <template slot="title">
                         <div class="red-color">
-                            Akun Agen TrawlBens
+                            Agen TrawlBens
                         </div>
                     </template>
                     <a-row type="flex" :gutter="[24, 24]">
@@ -82,7 +85,7 @@
                             </div>
                             <div class="line-gray"></div>
                             <div class="gray-color size-12 mt-1">
-                                Nomor Telephoen
+                                nomor telepon
                             </div>
                             <div class="fw-bold">
                                 {{ data_modal.phone }}
@@ -156,6 +159,9 @@ export default {
         }
     },
     methods: {
+        onCancel() {
+            this.visible = false;
+        },
         getAccountList(){
             this.loading = true
             axios.request(options)

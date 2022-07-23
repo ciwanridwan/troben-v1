@@ -24,7 +24,7 @@ class AgentRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
-        $this->router->get($this->prefix('detail'), [
+        $this->router->get($this->prefix('detail/{user_id}/{period}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail'),
         ]);
