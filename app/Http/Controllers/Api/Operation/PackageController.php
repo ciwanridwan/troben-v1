@@ -51,7 +51,7 @@ class PackageController extends Controller
         if (is_null($code)) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
-        
+
         $deliverable = Deliverable::where('deliverable_id', $code->codeable->id)->where('deliverable_type', Package::class)->first();
         if (is_null($deliverable)) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -65,6 +65,7 @@ class PackageController extends Controller
 
                 $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
                 $this->dispatch($job);
+
                 $data = [
                     'package_status' => $code->codeable->status,
                     'delivery_status' => $deliverable->delivery->status
@@ -72,6 +73,7 @@ class PackageController extends Controller
 
                 return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_PICKED_UP:
                 $code->codeable->status = Package::STATUS_PICKED_UP;
                 $deliverable->delivery->status = Delivery::STATUS_EN_ROUTE;
@@ -82,6 +84,7 @@ class PackageController extends Controller
 
                 $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
                 $this->dispatch($job);
+
                 $data = [
                     'package_status' => $code->codeable->status,
                     'delivery_status' => $deliverable->delivery->status,
@@ -90,30 +93,120 @@ class PackageController extends Controller
 
                 return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_WAITING_FOR_ESTIMATING:
-                # code...
+                $code->codeable->status = Package::STATUS_WAITING_FOR_ESTIMATING;
+                $deliverable->delivery->status = Delivery::STATUS_FINISHED;
+                $deliverable->is_onboard = false;
+                $deliverable->save();
+                $deliverable->delivery->save();
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'delivery_status' => $deliverable->delivery->status,
+                    'delilverable_status' => $deliverable->is_onboard,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_ESTIMATING:
-                # code...
+                $code->codeable->status = Package::STATUS_ESTIMATING;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'estimator_id' => $code->codeable->estimator_id,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_ESTIMATED:
-                # code...
+                $code->codeable->status = Package::STATUS_ESTIMATED;
+                $code->codeable->payment_status = Package::PAYMENT_STATUS_DRAFT;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'payment_status' => $code->codeable->payment_status,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+                
+            case Package::STATUS_REVAMP:
+                $code->codeable->status = Package::STATUS_REVAMP;
+                $code->codeable->payment_status = Package::PAYMENT_STATUS_DRAFT;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'payment_status' => $code->codeable->payment_status,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
+                break;
+
             case Package::STATUS_WAITING_FOR_APPROVAL:
-                # code...
+                $code->codeable->status = Package::STATUS_WAITING_FOR_APPROVAL;
+                $code->codeable->payment_status = Package::PAYMENT_STATUS_PENDING;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'payment_status' => $code->codeable->payment_status,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_ACCEPTED:
-                # code...
+                $code->codeable->status = Package::STATUS_ACCEPTED;
+                $code->codeable->payment_status = Package::PAYMENT_STATUS_PENDING;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'payment_status' => $code->codeable->payment_status,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             case Package::STATUS_WAITING_FOR_PACKING:
-                # code...
+                $code->codeable->status = Package::STATUS_WAITING_FOR_PACKING;
+                $code->codeable->payment_status = Package::PAYMENT_STATUS_PAID;
+
+                $job = new OperationsUpdatePackageStatus($code->codeable, $request->all());
+                $this->dispatch($job);
+
+                $data = [
+                    'package_status' => $code->codeable->status,
+                    'payment_status' => $code->codeable->payment_status,
+                ];
+
+                return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
+
             default:
-                # code...
+                return (new Response(Response::RC_BAD_REQUEST))->json();
                 break;
         }
         return (new Response(Response::RC_BAD_REQUEST))->json();
-        
     }
     /** End Todo */
 
