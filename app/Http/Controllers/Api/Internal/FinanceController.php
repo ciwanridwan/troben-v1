@@ -4,13 +4,9 @@ namespace App\Http\Controllers\Api\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
-use App\Http\Resources\Api\Internal\Finance\DetailResource;
-use App\Http\Resources\Api\Internal\Finance\OverviewResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
@@ -36,19 +32,17 @@ class FinanceController extends Controller
      */
     protected Builder $query;
 
-    /**Todo list disbursment */
+    /**List disbursment */
     public function list(): JsonResponse
     {
         $result = Withdrawal::orderBy('created_at', 'desc')->paginate(10);
         return $this->jsonSuccess(ListResource::collection($result));
     }
-    /**End todo */
 
-    /**Todo detail disbursment */
-    public function detail(Withdrawal $withdrawal, Request $request): JsonResponse
+    /**Detail disbursment */
+    public function detail(Withdrawal $withdrawal): JsonResponse
     {
-        // $result = Withdrawal::where('id', $withdrawal->id)->first();
-        $result = Withdrawal::where('id', $request->id)->first();
+        $result = Withdrawal::where('id', $withdrawal->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
@@ -75,12 +69,18 @@ class FinanceController extends Controller
             })->values();
         }
         $data = $this->paginate($packages);
-        
-        return $this->jsonResponse($data);
-    }
-    /**End Todo */
 
-    /**Todo Submit Approved Disbursment */
+        // $canAction = false;
+        // foreach ($packages as $row) {
+        //     if ($row->approved != 'pending') {
+        //         $canAction = true;
+        //     }
+        // }
+
+        return (new Response(Response::RC_SUCCESS, $data))->json();
+    }
+
+    /**Submit Approved Disbursment */
     public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
     {
         $receipt = (array) $request->get('receipt');
@@ -88,11 +88,11 @@ class FinanceController extends Controller
             return (new Response(Response::RC_BAD_REQUEST))->json();
         }
 
-        // $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
-        $disbursment = Withdrawal::where('id', $request->id)->first();
+        $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
         if (is_null($disbursment)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
+
         $query = $this->detailDisbursment($disbursment);
         $packages = collect(DB::select($query));
 
@@ -126,31 +126,20 @@ class FinanceController extends Controller
 
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
-            return (new Response(Response::RC_SUCCESS, []))->json();
+            return (new Response(Response::RC_BAD_REQUEST))->json();
         }
     }
-    /**End todo */
 
-    /**Todo Count Request Disbursment */
+    /** Count Request Disbursment */
     public function countDisbursment(Withdrawal $withdrawal)
     {
         return $this->jsonSuccess(new CountDisbursmentResource($withdrawal));
     }
 
+    /** Count Total Request Disbursment */
     public function countAmountDisbursment(Withdrawal $withdrawal)
     {
         return $this->jsonSuccess(new CountAmountResource($withdrawal));
-    }
-    /**End Todo */
-
-    public function overview(Request $request): JsonResponse
-    {
-        $result = [
-            'mitra_count' => mt_rand(1, 10),
-            'request_count' => mt_rand(11, 99) * 100000,
-        ];
-
-        return $this->jsonSuccess(new OverviewResource($result));
     }
 
     // Todo Find
@@ -177,6 +166,7 @@ class FinanceController extends Controller
         if ($this->attributes['status'] == "requested") {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
+
         } else if ($this->attributes['status'] == "approved") {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
@@ -185,7 +175,7 @@ class FinanceController extends Controller
             }
 
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
-        } else { 
+        } else {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
     }
@@ -212,18 +202,18 @@ class FinanceController extends Controller
             'receipt' => ['required'],
         ]);
 
-        // $result = Withdrawal::where('id', $withdrawal->id)->firstOrFail();
-        $result = Withdrawal::where('id', $request->id)->first();
+        $result = Withdrawal::where('id', $withdrawal->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
+        
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
-            
+
             $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->first();
             if (is_null($disbursHistory)) {
                 $r->approved = 'pending';
@@ -275,7 +265,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
+        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header("Content-type: application/vnd-ms-excel");
         header("Cache-Control: max-age=0");
@@ -361,8 +351,8 @@ class FinanceController extends Controller
 
     private function detailDisbursment($request)
     {
-        $q = 
-        "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
+        $q =
+            "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
 
         FROM deliveries d
         LEFT JOIN (
