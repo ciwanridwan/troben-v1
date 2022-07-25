@@ -181,13 +181,7 @@ const main = {
       withdraw: {
         text: "Pencairan Mitra",
         route: "admin.payment.withdraw.request",
-        children : {
-          detail: {
-            text: "Detail Pencairan",
-            route: "admin.payment.withdraw.request.detail"
-          }
-        },
-        shortKey: ["ctrl", "alt", "i"]
+        children: null,
       },
       agent: {
         title: "Pencairan Saldo",

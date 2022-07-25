@@ -18,7 +18,7 @@
             </template>
             <template slot="content">
                 <a-table
-                    class="mt-3"
+                    class="mt-3 mb-table"
                     :columns="disbursement"
                     :loading="loading"
                     :data-source="filteredItems"
@@ -56,11 +56,21 @@
                         </template>
                     </span>
                 </a-table>
-                <div>
-                    <a-button type="primary" @click="store()" :disabled="req.checked.length == 0" class="trawl-button-success">
-                        Simpan
-                    </a-button>
-                </div>
+            </template>
+            <template slot="footer">
+                <a-layout-footer :class="['trawl-content-footer']">
+                    <a-row type="flex" :gutter="24">
+                        <a-col :span="14">
+                        </a-col>
+                        <a-col :span="4">
+                            <center>
+                                <a-button type="primary" @click="store()" :disabled="req.checked.length == 0" class="trawl-button-success">
+                                    Simpan
+                                </a-button>
+                            </center>
+                        </a-col>
+                    </a-row>
+                </a-layout-footer>
             </template>
         </content-layout>
     </div>
@@ -111,7 +121,11 @@ export default {
         },
         getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.co.id/agent/disbursement`)
+            axios.get(`https://ae.trawlbens.co.id/agent/disbursement`, {
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
+            })
             .then((res)=>{
                 this.datas = res.data.data
                 this.loading = false
@@ -126,23 +140,20 @@ export default {
             });
         },
         store(){
-            var items = []
             this.req.checked.forEach(item => {
-                // var object = {
-                //     user_id: item.user_id,
-                //     month: item.periode,
-                // }
-                // items.push(object)
-
                 axios.patch(`https://ae.trawlbens.co.id/agent/setDisbursementStatus`, null, {
                     params: {
                         user_id: item.user_id,
                         month: item.periode
+                    },
+                    headers: {
+                        Authorization: `Bearer ${this.$laravel.jwt_token}`
                     }
                 })
                 .then((res)=>{
                     this.getDatas()
                     this.$message.success(`Change status success`);
+                    this.req.checked = []
                 }).catch(function (error) {
                     console.log(error)
                 });
@@ -169,5 +180,8 @@ export default {
     }
     .text-black{
         color: #000;
+    }
+    .ml-auto{
+        margin-left: auto;
     }
 </style>
