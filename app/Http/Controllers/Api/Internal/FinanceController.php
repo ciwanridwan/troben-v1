@@ -57,6 +57,7 @@ class FinanceController extends Controller
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
+            $r->approved_at = null;
             return $r;
         });
 
