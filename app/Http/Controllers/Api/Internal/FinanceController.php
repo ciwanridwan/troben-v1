@@ -63,8 +63,9 @@ class FinanceController extends Controller
         $disbursHistory = DisbursmentHistory::all();
 
         foreach ($disbursHistory as $key) {
-            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) {
+            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
                 $r->approved = 'success';
+                $r->approved_at = $key->created_at->format('Y-m-d');
                 return $r;
             })->values();
         }
