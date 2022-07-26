@@ -43,10 +43,17 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('detail'),
         ]);
 
-        $this->router->post($this->prefix('/detail/{withdrawal_hash}/approve'), [
+        /** Route fixed can error 419 */
+        // $this->router->post($this->prefix('/detail/{withdrawal_hash}/approve'), [
+        //     'as' => $this->name('approve'),
+        //     'uses' => $this->uses('approve'),
+        // ]);
+
+        /** Route temporary*/
+        $this->router->post($this->prefix('/detail/{id}/approve'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve'),
-        ]);
+        ])->withoutMiddleware('api');
 
         $this->router->get($this->prefix('/find/partner'), [
             'as' => $this->name('findByPartner'),

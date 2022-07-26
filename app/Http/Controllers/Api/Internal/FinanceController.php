@@ -72,13 +72,6 @@ class FinanceController extends Controller
         }
         $data = $this->paginate($packages);
 
-        // $canAction = false;
-        // foreach ($packages as $row) {
-        //     if ($row->approved != 'pending') {
-        //         $canAction = true;
-        //     }
-        // }
-
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
@@ -90,7 +83,7 @@ class FinanceController extends Controller
             return (new Response(Response::RC_BAD_REQUEST))->json();
         }
 
-        $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
+        $disbursment = Withdrawal::where('id', $request->id)->first();
         if (is_null($disbursment)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
