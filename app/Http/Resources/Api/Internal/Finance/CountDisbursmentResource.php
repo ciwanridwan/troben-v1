@@ -15,7 +15,7 @@ class CountDisbursmentResource extends JsonResource
      */
     public function toArray($request)
     {
-        $result = Withdrawal::query()->count();
+        $result = Withdrawal::query()->where('status', '=', 'requested')->count();
         $data = [
             'count' => $result
         ];
