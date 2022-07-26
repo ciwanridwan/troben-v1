@@ -75,7 +75,7 @@ class PackageController extends Controller
                 $code->codeable->status = Package::STATUS_PICKED_UP;
                 $deliverable->delivery->status = Delivery::STATUS_EN_ROUTE;
                 // $deliverable->is_onboard = true;
-                // $deliverable->save(); 
+                // $deliverable->save();
                 // dd($deliverable->save());
                 $deliverable->delivery->save();
 
@@ -138,7 +138,7 @@ class PackageController extends Controller
 
                 return (new Response(Response::RC_UPDATED, $data))->json();
                 break;
-                
+
             case Package::STATUS_REVAMP:
                 $code->codeable->status = Package::STATUS_REVAMP;
                 $code->codeable->payment_status = Package::PAYMENT_STATUS_DRAFT;
@@ -209,13 +209,13 @@ class PackageController extends Controller
 
 
     /** Todo Declare Variable with array type to define status in CS 
-     * CS Scale
+     * CS Scale.
      */
     private function assignDriver(Request $request)
     {
         $status = [
-            "package_status" => Package::STATUS_WAITING_FOR_PICKUP,
-            "develiry_status" => Delivery::STATUS_ACCEPTED
+            'package_status' => Package::STATUS_WAITING_FOR_PICKUP,
+            'develiry_status' => Delivery::STATUS_ACCEPTED
         ];
 
         return $status;

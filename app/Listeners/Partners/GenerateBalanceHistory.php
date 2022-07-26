@@ -326,7 +326,7 @@ class GenerateBalanceHistory
 //                    # total balance service > record service balance
 //                    $this->saveServiceFee();
 //                }
-////                $this->pushNotificationToOwner();
+                ////                $this->pushNotificationToOwner();
 //                break;
             case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
                 $this
