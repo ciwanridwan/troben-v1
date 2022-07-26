@@ -172,7 +172,7 @@ export default {
                 },
                 headers: {
                     Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    // 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                 },
             })
             .then((res)=>{
