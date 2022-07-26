@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Operation;
 
-use App\Events\Packages\PackageApprovedByCustomer;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
