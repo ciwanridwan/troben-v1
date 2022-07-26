@@ -1,18 +1,14 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Operations;
 
 use App\Models\Packages\Package;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Validator;
 
-class UpdatePackageStatus implements ShouldQueue
+class UpdatePackageStatus
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
 
     /**
      * The podcast instance.
@@ -35,7 +31,10 @@ class UpdatePackageStatus implements ShouldQueue
         $this->attributes = Validator::make(
             $inputs,
             [
-                'status' => ['required']
+                'status' => ['required', 'exists:packages,status'],
+                'payment_status' => ['nullable', 'exists:packages,payment_status'],
+                'estimator_id' => ['nullable', 'exists:users,id'],
+                'is_onboard' => ['nullable', 'exists:deliverables,is_onboard'],
             ]
         )->validate();
     }
