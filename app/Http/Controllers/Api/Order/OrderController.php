@@ -40,6 +40,7 @@ use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;

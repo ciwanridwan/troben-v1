@@ -70,8 +70,7 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash',
-        'is_approved'
+        'hash'
     ];
 
     /**
@@ -89,16 +88,6 @@ class Withdrawal extends Model
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
         ];
-    }
-
-    public function isApproved()
-    {
-        // return new Attribute(
-        //     get: fn () => 'yes',
-        // );
-        $this->attributes['is_approved'] = 'unchecked';
-        $is_approved = $this->attributes['is_approved'];
-        return $is_approved;
     }
 
     /**
