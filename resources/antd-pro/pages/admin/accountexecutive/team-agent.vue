@@ -75,13 +75,6 @@ import teamAgentColumns from "../../../config/table/team-agent";
 import ContentLayout from "../../../layouts/content-layout.vue";
 import axios from "axios";
 
-const options = {
-  method: 'GET',
-  url: 'https://ae.trawlbens.co.id/agent/teamList',
-  params: {'': ''},
-  data: []
-};
-
 export default {
     name: "team-agent",
     components: {
@@ -119,7 +112,11 @@ export default {
         },
         getTeamList(){
             this.loading = true
-            axios.request(options)
+            axios.get(`https://ae.trawlbens.co.id/agent/teamList`, {
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
+            })
             .then((res)=>{
                 this.lists = res.data
                 let numbering = 1;
@@ -137,6 +134,9 @@ export default {
                 params: {
                     code: code
                 },
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
             })
             .then((res)=>{
               console.log(res)

@@ -75,6 +75,9 @@ export default {
                     user_id: this.userId,
                     month: this.periode,
                 },
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
             })
             .then((res)=>{
                 this.datas = res.data.data

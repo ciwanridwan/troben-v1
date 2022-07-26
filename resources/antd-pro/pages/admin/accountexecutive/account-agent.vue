@@ -118,13 +118,6 @@ import accountAgentColumns from "../../../config/table/account-agent";
 import ContentLayout from "../../../layouts/content-layout.vue";
 import axios from "axios";
 
-const options = {
-  method: 'GET',
-  url: 'https://ae.trawlbens.co.id/account/accountList',
-  params: {'': ''},
-  data: []
-};
-
 export default {
     name: "account-agent",
     components: {
@@ -164,7 +157,11 @@ export default {
         },
         getAccountList(){
             this.loading = true
-            axios.request(options)
+            axios.get(`https://ae.trawlbens.co.id/account/accountList`, {
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
+            })
             .then((res)=>{
                 this.lists = res.data
                 let numbering = 1;
@@ -187,6 +184,9 @@ export default {
                 params: {
                     id: id
                 },
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
             })
             .then((res)=>{
                 this.getAccountList()
@@ -205,12 +205,12 @@ export default {
         padding: 0 23px;
         height: 40px;
         border: 2px solid #3D8824;
-        color: #3D8824;
+        color: #fff;
         border-radius: 50px !important;
         &:hover{
             background-color: #fff;
             border: 2px solid #3D8824;
-            color: #3D8824;
+            color: #fff;
             border-radius: 50px !important;
         }
     }
@@ -219,12 +219,12 @@ export default {
         padding: 0 23px;
         height: 40px;
         border: 2px solid #E60013;
-        color: #E60013;
+        color: #fff;
         border-radius: 50px !important;
         &:hover{
             background-color: #fff;
             border: 2px solid #E60013;
-            color: #E60013;
+            color: #fff;
             border-radius: 50px !important;
         }
     }

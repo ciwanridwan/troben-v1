@@ -64,7 +64,7 @@ export default {
         };
     },
     created() {
-        this.getData()
+        this.getDatas()
     },
     computed: {
     },
@@ -73,12 +73,15 @@ export default {
             let val = (value/1).toFixed(2).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
-        getData(){
+        getDatas(){
             this.loading = true
             axios.get(`https://ae.trawlbens.co.id/agent/teamDetail`, {
                 params: {
                     code:this.code_item
                 },
+                headers: {
+                    Authorization: `Bearer ${this.$laravel.jwt_token}`
+                }
             })
             .then((res)=>{
                 this.loading = false
