@@ -10,7 +10,7 @@
                 <b>0</b>
               </template>
               <template v-else>
-               <b>Rp. {{ formatPrice(request_disbursment.count) }}</b>
+               <b>{{ request_disbursment.count }}</b>
               </template>
             </h2>
           </a-col>
