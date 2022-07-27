@@ -38,6 +38,7 @@
         "qrcode": "^1.4.4",
         "sass-loader": "^11.0.1",
         "save-svg-as-png": "^1.4.17",
+        "sequelize-cli": "^6.4.1",
         "stream": "0.0.2",
         "tls": "0.0.1",
         "vue-html2pdf": "^1.8.0",
