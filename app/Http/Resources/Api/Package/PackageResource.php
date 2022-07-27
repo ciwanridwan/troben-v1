@@ -45,14 +45,17 @@ class PackageResource extends JsonResource
         }
 
         if ($this->resource->relationLoaded('partner_performance')) {
-            if ($this->resource->partner_performance) $dataPerformance = [
+            if ($this->resource->partner_performance) {
+                $dataPerformance = [
                 'level' => $this->resource->partner_performance->level,
                 'deadline_time' => $this->resource->partner_performance->deadline
             ];
-            else $dataPerformance = [
+            } else {
+                $dataPerformance = [
                 'level' => null,
                 'deadline_time' => null
             ];
+            }
             $this->resource->unsetRelation('partner_performance');
         }
 
@@ -63,7 +66,9 @@ class PackageResource extends JsonResource
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
 
-        if (! empty($dataPerformance)) $data = array_merge($data, $dataPerformance);
+        if (! empty($dataPerformance)) {
+            $data = array_merge($data, $dataPerformance);
+        }
 
         if (isset($pickedUpPartner)) {
             $data['picked_up_by'] = $pickedUpPartner->partner ? PartnerResource::make($pickedUpPartner->partner) : null;

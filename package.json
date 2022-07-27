@@ -36,6 +36,7 @@
         "jquery": "^3.6.0",
         "jspdf": "^2.3.1",
         "net": "^1.0.2",
+        "node-sass": "^7.0.0",
         "qrcode": "^1.4.4",
         "sass-loader": "^11.0.1",
         "save-svg-as-png": "^1.4.17",

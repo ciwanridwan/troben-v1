@@ -43,7 +43,7 @@ class OrderController extends Controller
             'partner_performance'
         ]);
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))),null,true);
+        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))), null, true);
     }
 
     /**

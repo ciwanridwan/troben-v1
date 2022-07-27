@@ -6407,7 +6407,6 @@
         },
         {
             "name": "spatie/enum",
-<<<<<<< HEAD
             "version": "3.11.1",
             "source": {
                 "type": "git",
@@ -6418,7 +6417,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/spatie/enum/zipball/4afe5f06bb4c3cf46d8b02328bcc34c0de652ad4",
                 "reference": "4afe5f06bb4c3cf46d8b02328bcc34c0de652ad4",
-=======
             "version": "3.13.0",
             "source": {
                 "type": "git",
@@ -6429,7 +6427,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/spatie/enum/zipball/f1a0f464ba909491a53e60a955ce84ad7cd93a2c",
                 "reference": "f1a0f464ba909491a53e60a955ce84ad7cd93a2c",
->>>>>>> 033ffa7f5aac294e2770a93ce8256d31aa993e2c
                 "shasum": ""
             },
             "require": {

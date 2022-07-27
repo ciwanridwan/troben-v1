@@ -334,8 +334,8 @@ class Delivery extends Model
      */
     public function partner_performance(): HasOne
     {
-        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class,'delivery_id','id')
-            ->where('status',PerformanceModel::STATUS_ON_PROCESS)
-            ->orderBy('created_at','desc');
+        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class, 'delivery_id', 'id')
+            ->where('status', PerformanceModel::STATUS_ON_PROCESS)
+            ->orderBy('created_at', 'desc');
     }
 }
