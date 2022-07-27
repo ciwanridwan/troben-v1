@@ -26,6 +26,17 @@ class Controller extends BaseController
         return (new Response(Response::RC_SUCCESS, $resource ?? [], $hasServerTime ?? false))->json($request);
     }
 
+    public function jsonResponse($data): JsonResponse
+    {
+        $response = new Request([
+            'code' => 200,
+            'error' => null,
+            'message' => 'Success',
+            'data' => $data
+        ]);
+        return (new Response(Response::RC_SUCCESS, $data))->json($response);
+    }
+
     public function coming(): JsonResponse
     {
         return $this->jsonSuccess(new JsonResource([

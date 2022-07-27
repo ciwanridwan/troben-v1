@@ -81,7 +81,8 @@ class WithdrawalController extends Controller
         if ($repository->getPartner()->balance < $request->amount) {
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
-        $request['status'] = Withdrawal::STATUS_CREATED;
+        // $request['status'] = Withdrawal::STATUS_CREATED;
+        $request['status'] = Withdrawal::STATUS_REQUESTED;
         $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
         $this->dispatch($job);
 

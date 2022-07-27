@@ -18,14 +18,23 @@ class UpdatePartnerBalanceByEvent
      */
     public function handle(object $event)
     {
+        /**LAST SCRIPT */
+        // $this->history = $event->history;
+        // if (!($this->history->type === History::TYPE_WITHDRAW
+        //     && ($this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS ||
+        //         $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) {
+        //     $this
+        //         ->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
+        // }
+        /**END LAST */
+
         /** @var History|DeliveryHistory|Model history */
+        /**TODO NEW SCRIPT */
         $this->history = $event->history;
-        if (! ($this->history->type === History::TYPE_WITHDRAW
-            && ($this->history->description === History::DESCRIPTION_WITHDRAW_SUCCESS ||
-            $this->history->description === History::DESCRIPTION_WITHDRAW_CONFIRMED))) {
-            $this
-            ->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
+        if (! ($this->history->type === History::TYPE_WITHDRAW && ($this->history->description === History::DESCRIPTION_WITHDRAW_APPROVED))) {
+            $this->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
         }
+        /**END TODO */
     }
 
     /**
@@ -35,13 +44,23 @@ class UpdatePartnerBalanceByEvent
      */
     protected function getUpdatedPartnerBalance(): float
     {
-        return (
-            $this->history->type === History::TYPE_DEPOSIT
+        /**LAST SCRIPT */
+        // return ($this->history->type === History::TYPE_DEPOSIT
+        //     || ($this->history->type === History::TYPE_WITHDRAW
+        //         && $this->history->description === History::DESCRIPTION_WITHDRAW_REJECT
+        //     ))
+        //     ? $this->history->partner->balance + $this->history->balance
+        //     : $this->history->partner->balance - $this->history->balance;
+        /**END LAST */
+
+        /**TODO NEW SCRIPT */
+        return ($this->history->type === History::TYPE_DEPOSIT
             || (
                 $this->history->type === History::TYPE_WITHDRAW
-                && $this->history->description === History::DESCRIPTION_WITHDRAW_REJECT
+                && $this->history->description === History::DESCRIPTION_WITHDRAW_REQUESTED
             ))
-            ? $this->history->partner->balance + $this->history->balance
+            ? $this->history->partner->balance
             : $this->history->partner->balance - $this->history->balance;
+        /**END TODO */
     }
 }

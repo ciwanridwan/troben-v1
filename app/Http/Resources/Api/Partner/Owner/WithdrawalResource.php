@@ -15,15 +15,19 @@ class WithdrawalResource extends JsonResource
      */
     public function toArray($request)
     {
+        /**TODO SELECTED COLUMN FOR SHOW TO RESPONSE */
+        $partner = Partner::find($this->partner_id)->only('id', 'name', 'code', 'balance');
+        /**END TODO */
+
         /** @var \App\Models\Payments\Withdrawal $this */
         $data = [
             'hash' => $this->hash,
-            'user' => Partner::find($this->partner_id),
-            'first_balance' => $this->first_balance,
-            'amount' => $this->amount,
+            'user' => $partner,
             'status' => $this->status,
+            'amount' => $this->amount,
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
-            'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
+            // 'first_balance' => $this->first_balance,
+            // 'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];
 
         return $data;
