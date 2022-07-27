@@ -18,7 +18,6 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use libphonenumber\PhoneNumberFormat;

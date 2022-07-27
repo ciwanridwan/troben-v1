@@ -39,8 +39,6 @@ use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -352,7 +350,7 @@ class OrderController extends Controller
                             if ($voucherAE->discount > 0) {
                                 $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
                                 $amountVoucher = $voucherAE->discount;
-                            } else if ($voucherAE->nominal > 0) {
+                            } elseif ($voucherAE->nominal > 0) {
                                 $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL;
                                 $amountVoucher = $voucherAE->nominal;
                             }

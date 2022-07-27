@@ -12,11 +12,10 @@ class AgentRoute extends BaseRoute
      *
      * @return void
      */
-
     protected $prefix = '/account/executive/agent/';
 
     protected $name = 'admin.master.account.executive.agent';
-    
+
     public function register()
     {
         $this->router->get($this->prefix('index'), [

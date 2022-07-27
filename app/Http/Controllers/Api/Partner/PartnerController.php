@@ -70,8 +70,8 @@ class PartnerController extends Controller
         if ($request->has('id')) {
             $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
         }
-	if ($request->has('q')) {
-		$q = $request->get('q');
+        if ($request->has('q')) {
+            $q = $request->get('q');
             $w[] = sprintf(" AND (p.name LIKE '%%%s%%' OR p.code ILIKE '%%%s%%')", $q, $q);
         }
         if ($request->has('type')) {

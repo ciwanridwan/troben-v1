@@ -51,7 +51,7 @@ class AccountRoute extends BaseRoute
         $this->router->post($this->prefix('delete'), [
             'as' => $this->name('delete'),
             'uses' => $this->uses('deleteAccount'),
-        ]);   
+        ]);
     }
 
     /**

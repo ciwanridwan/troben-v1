@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Partner\DashboardResource;
-use App\Http\Resources\Api\Partner\VoucherResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Partners\Voucher;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -148,14 +146,16 @@ class OrderController extends Controller
             ->where('partner_id', $repository->getPartner()->id)
             ->where('code', $request->get('code'))
             ->firstOrFail();
-        
+
         if ($voucher->is_approved) {
             return (new Response(Response::RC_INVALID_DATA, []))->json();
         }
 
         $agentId = 0;
         $agentFind = DB::table('agents')->where('user_id', $voucher->user_id)->first();
-        if (! is_null($agentFind)) $agentId = $agentFind->id;
+        if (! is_null($agentFind)) {
+            $agentId = $agentFind->id;
+        }
 
         $isApproved = $request->input('approval') == 'accept';
         $voucher->is_approved = $isApproved;
@@ -168,7 +168,7 @@ class OrderController extends Controller
             $name = $repository->getPartner()->code;
             NotificationAgent::create([
                 'type' => $isApproved ? 'voucher_approved' : 'voucher_rejected',
-                'message' => sprintf('%s %s request voucher', $name, ($isApproved ? 'menyetujui' : 'menolak') ),
+                'message' => sprintf('%s %s request voucher', $name, ($isApproved ? 'menyetujui' : 'menolak')),
                 'title' => $isApproved ? 'Request voucher telah disetujui' : 'Request voucher telah ditolak',
                 'status' => 'sent',
                 'agent_id' => $agentId,

@@ -18,6 +18,4 @@ class DisbursmentHistory extends Model
         'receipt',
         'amount',
     ];
-
-    
 }

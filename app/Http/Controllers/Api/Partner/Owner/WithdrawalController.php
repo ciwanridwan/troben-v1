@@ -85,7 +85,7 @@ class WithdrawalController extends Controller
         $request['status'] = Withdrawal::STATUS_REQUESTED;
         $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
         $this->dispatch($job);
-        
+
         event(new WithdrawalRequested($job->withdrawal));
 
         return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));

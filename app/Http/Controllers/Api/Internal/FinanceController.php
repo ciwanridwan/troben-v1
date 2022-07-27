@@ -158,11 +158,10 @@ class FinanceController extends Controller
             'status' => ['required'],
         ]);
 
-        if ($this->attributes['status'] == "requested") {
+        if ($this->attributes['status'] == 'requested') {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
-
-        } else if ($this->attributes['status'] == "approved") {
+        } elseif ($this->attributes['status'] == 'approved') {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
             if ($disbursmentStatus->isEmpty()) {
@@ -204,7 +203,7 @@ class FinanceController extends Controller
 
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
-        
+
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
@@ -213,7 +212,7 @@ class FinanceController extends Controller
             if (is_null($disbursHistory)) {
                 $r->approved = 'pending';
                 return $r;
-            } else if ($disbursHistory->receipt == $r->receipt) {
+            } elseif ($disbursHistory->receipt == $r->receipt) {
                 $r->approved = 'success';
                 return $r;
             } else {
@@ -225,7 +224,7 @@ class FinanceController extends Controller
         if (is_null($receipt)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         } else {
-            $data = array($receipt);
+            $data = [$receipt];
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
@@ -260,10 +259,10 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
-        header("Content-type: application/vnd-ms-excel");
-        header("Cache-Control: max-age=0");
+        header('Content-type: application/vnd-ms-excel');
+        header('Cache-Control: max-age=0');
 
         return view('report.finance', compact('result'));
     }
