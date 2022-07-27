@@ -77,7 +77,7 @@ class PackageController extends Controller
                 $code->codeable->status = Package::STATUS_PICKED_UP;
                 $deliverable->delivery->status = Delivery::STATUS_EN_ROUTE;
                 // $deliverable->is_onboard = true;
-                // $deliverable->save(); 
+                // $deliverable->save();
                 // dd($deliverable->save());
                 $deliverable->delivery->save();
 

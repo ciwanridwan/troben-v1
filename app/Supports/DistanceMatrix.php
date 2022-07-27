@@ -23,12 +23,13 @@ class DistanceMatrix
         return $key;
     }
 
-    public static function toXDigit($n, $precision = 2)
+    public static function toXDigit($n, $precision = 2, $ts = ',')
     {
         try {
-            return number_format($n, $precision);
+            $n = number_format($n, $precision, '.', $ts);
         } catch (\Exception $e) {
             // ignore
+            return $n;
         }
         return $n;
     }
@@ -45,10 +46,8 @@ class DistanceMatrix
         if (count($response->rows)
             && count($response->rows[0]->elements)
             && isset($response->rows[0]->elements[0]->distance)) {
-            $distance = $response->rows[0]->elements[0]->distance->text;
-            $distance = str_replace('km', '', $distance);
-            $distance = str_replace(',', '', $distance);
-            $distance = (float) $distance;
+            $distance = $response->rows[0]->elements[0]->distance->value;
+            $distance = $distance / 1000;
         } else {
             Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
         }

@@ -34,11 +34,13 @@ class DeadlineCreatedByEvent
                     'deadline' => $deadline
                 ]);
 
-                Log::debug("Deadline Package Created Listener: ",[$performanceQuery]);
+                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
                 break;
             case $event instanceof PackagesAttachedToDelivery:
                 $delivery = $event->delivery;
-                if ($delivery->status === Delivery::STATUS_ACCEPTED) break;
+                if ($delivery->status === Delivery::STATUS_ACCEPTED) {
+                    break;
+                }
                 $partnerOrigin = $delivery->origin_partner;
 
                 $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
@@ -48,7 +50,7 @@ class DeadlineCreatedByEvent
                     'deadline' => $deadline
                 ]);
 
-                Log::debug("Deadline Delivery Created Listener: ",[$performanceQuery]);
+                Log::debug('Deadline Delivery Created Listener: ', [$performanceQuery]);
                 break;
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $delivery = $event->delivery;
@@ -61,7 +63,7 @@ class DeadlineCreatedByEvent
                     'deadline' => $deadline,
                 ]);
 
-                Log::debug("Deadline delivery created Listen to driver unload in destination warehouse: ",[$performanceQuery]);
+                Log::debug('Deadline delivery created Listen to driver unload in destination warehouse: ', [$performanceQuery]);
                 break;
         }
     }
