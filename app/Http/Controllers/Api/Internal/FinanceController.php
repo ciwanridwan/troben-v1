@@ -19,6 +19,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Riverline\MultiPartParser\Part;
 
 class FinanceController extends Controller
 {
@@ -50,16 +51,21 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
 
-        $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
+        // $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
+        $approveds = $this->getApprovedReceipt();
         $approves = collect(DB::select($approveds));
+        // dump($approves);
 
         $packages = $packages->map(function ($r) use ($approves) {
+            $approves->each(function ($q) use ($r) {
+
+            });
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
             $r->approved_at = null;
             return $r;
-        });
+        })->values();
 
         $disbursHistory = DisbursmentHistory::all();
 
@@ -102,6 +108,7 @@ class FinanceController extends Controller
                 $disbursHistory->disbursment_id = $disbursment->id;
                 $disbursHistory->receipt = $r->receipt;
                 $disbursHistory->amount = $r->commission_discount;
+                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
                 $disbursHistory->save();
             });
 
@@ -114,7 +121,49 @@ class FinanceController extends Controller
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
                 $disbursment->action_by = Auth::id();
                 $disbursment->action_at = Carbon::now();
+                if ($disbursment->bank_id == 3) {
+                    $disbursment->charge_admin = false;
+                    $disbursment->fee_charge_admin = 0;
+                } else {
+                    $disbursment->charge_admin = true;
+                    $disbursment->fee_charge_admin = 6500;
+                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
+                }
                 $disbursment->save();
+
+                $partner = Partner::where('id', $disbursment->partner_id)->first();
+                $balance = $partner->balance - $disbursment->amount;
+                $partner->balance = $balance;
+                $partner->save();
+
+                $getPendingReceipt = $packages->whereNotIn('receipt', $receipt)->map(function ($p) {
+                    $p->commission_discount = ceil($p->commission_discount);
+                    return $p;
+                });
+
+                if ($getPendingReceipt->isNotEmpty()) {
+                    $getPendingReceipt->each(function ($p) use ($disbursment) {
+                        $pendingReceipt = new DisbursmentHistory();
+                        $pendingReceipt->disbursment_id = $disbursment->id;
+                        $pendingReceipt->receipt = $p->receipt;
+                        $pendingReceipt->amount = $p->commission_discount;
+                        $pendingReceipt->status = DisbursmentHistory::STATUS_PENDING;
+                        $pendingReceipt->save();
+                    });
+                    $cd = $getPendingReceipt->sum('commission_discount');
+
+                    $pendingDisburs = new Withdrawal();
+                    $pendingDisburs->partner_id = $disbursment->partner_id;
+                    $pendingDisburs->first_balance = $disbursment->first_balance;
+                    $pendingDisburs->amount = $cd;
+                    $pendingDisburs->bank_id = $disbursment->bank_id;
+                    $pendingDisburs->account_name = $disbursment->account_name;
+                    $pendingDisburs->account_number = $disbursment->account_number;
+                    $pendingDisburs->status = Withdrawal::STATUS_PENDING;
+                    $pendingDisburs->action_by = Auth::id();
+                    $pendingDisburs->action_at = Carbon::now();
+                    $pendingDisburs->save();
+                }
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
@@ -161,7 +210,6 @@ class FinanceController extends Controller
         if ($this->attributes['status'] == "requested") {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
-
         } else if ($this->attributes['status'] == "approved") {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
@@ -204,7 +252,7 @@ class FinanceController extends Controller
 
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
-        
+
         $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
@@ -344,7 +392,7 @@ class FinanceController extends Controller
         return $q;
     }
 
-    private function detailDisbursment($request)
+    public static function detailDisbursment($request)
     {
         $q =
             "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
@@ -382,4 +430,10 @@ class FinanceController extends Controller
         return $q;
     }
     /**End query */
+
+    private function getApprovedReceipt()
+    {
+        $query = "SELECT * FROM disbursment_histories";
+        return $query;
+    }
 }

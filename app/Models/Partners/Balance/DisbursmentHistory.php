@@ -9,6 +9,9 @@ class DisbursmentHistory extends Model
 {
     use HasFactory;
 
+    public const STATUS_APPROVE = 'approve';
+    public const STATUS_PENDING = 'pending';
+
     /** Define Table */
     protected $table = 'disbursment_histories';
 
@@ -17,7 +20,15 @@ class DisbursmentHistory extends Model
         'disbursement_id',
         'receipt',
         'amount',
+        'status'
     ];
 
+    public static function getAvailableStatus(): array
+    {
+        return [
+            self::STATUS_APPROVE,
+            self::STATUS_PENDING
+        ];
+    }
     
 }
