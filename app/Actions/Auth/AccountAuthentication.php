@@ -489,9 +489,4 @@ class AccountAuthentication
             'expired_at' => $otp->expired_at->timestamp,
         ]))->json();
     }
-
-    /**
-     * Super login.
-     * @return JsonResponse
-     */
 }

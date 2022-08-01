@@ -46,7 +46,32 @@ const main = {
         text: "Data Delivery Order",
         route: "admin.home.delivery",
         children: null
-      }
+      },
+      accountExecutive: {
+        title: "Agen TrawlBens",
+        text: "Agen TrawlBens",
+        route: "admin.home.accountexecutive",
+        children: {
+          all: {
+            title: "Agen TrawlBens",
+            text: "Agen TrawlBens",
+            route: "admin.home.accountexecutive",
+            children: null
+          },
+          request: {
+            title: "Tim Agen Trawlbens",
+            text: "Tim Agen Trawlbens",
+            route: "admin.home.accountexecutive.teamagent",
+            children: null
+          },
+        }
+      },
+      resi: {
+        title: "All Resi",
+        text: "Resi",
+        route: "admin.home.receipt",
+        children: null
+      },
     },
     shortKey: ["ctrl", "alt", "d"]
   },
@@ -156,14 +181,14 @@ const main = {
       withdraw: {
         text: "Pencairan Mitra",
         route: "admin.payment.withdraw.request",
-        children : {
-          detail: {
-            text: "Detail Pencairan",
-            route: "admin.payment.withdraw.request.detail"
-          }
-        },
-        shortKey: ["ctrl", "alt", "i"]
-      }
+        children: null,
+      },
+      agent: {
+        title: "Pencairan Saldo",
+        text: "Pencairan Agen",
+        route: "admin.master.account.executive.agent.index",
+        children: null
+      },
         // children: {
         //   request: {
         //     text: "Daftar Request",

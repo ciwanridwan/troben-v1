@@ -311,7 +311,7 @@ class WriteCodeLog
                     CodeLogable::STATUS_DELIVERED_PAID
                 ]):
                 return CodeLogable::SHOW_ALL;
-        default:
+            default:
                 return [
                     CodeLogable::SHOW_ADMIN,
                     CodeLogable::SHOW_PARTNER

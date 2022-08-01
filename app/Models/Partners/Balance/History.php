@@ -39,10 +39,17 @@ class History extends Model
     public const DESCRIPTION_DELIVERY = 'delivery'; // delivery fee for transit items (transporter)
     public const DESCRIPTION_DOORING = 'dooring'; // dooring fee to end user (transporter)
     public const DESCRIPTION_RETURN = 'return'; // return fee (transporter)
-    public const DESCRIPTION_WITHDRAW_REQUEST = 'request';
-    public const DESCRIPTION_WITHDRAW_REJECT = 'reject';
-    public const DESCRIPTION_WITHDRAW_CONFIRMED = 'confirmed';
-    public const DESCRIPTION_WITHDRAW_SUCCESS = 'success';
+
+    /**LAST DESCRIPTION TO WITHDRAWAL */
+    // public const DESCRIPTION_WITHDRAW_REJECT = 'reject';
+    // public const DESCRIPTION_WITHDRAW_CONFIRMED = 'confirmed';
+    // public const DESCRIPTION_WITHDRAW_SUCCESS = 'success';
+    // END LAST
+
+    // TODO NEW DESCRIPTION
+    public const DESCRIPTION_WITHDRAW_REQUESTED = 'request';
+    public const DESCRIPTION_WITHDRAW_APPROVED = 'approve';
+    // END TODO
 
     protected $table = 'partner_balance_histories';
 
@@ -88,10 +95,14 @@ class History extends Model
             self::DESCRIPTION_TRANSIT,
             self::DESCRIPTION_DELIVERY,
             self::DESCRIPTION_DOORING,
-            self::DESCRIPTION_WITHDRAW_REQUEST,
-            self::DESCRIPTION_WITHDRAW_REJECT,
-            self::DESCRIPTION_WITHDRAW_SUCCESS,
-            self::DESCRIPTION_WITHDRAW_CONFIRMED,
+            // self::DESCRIPTION_WITHDRAW_REJECT,
+            // self::DESCRIPTION_WITHDRAW_SUCCESS,
+            // self::DESCRIPTION_WITHDRAW_CONFIRMED,
+
+            /**TODO NEW REQUEST */
+            self::DESCRIPTION_WITHDRAW_REQUESTED,
+            self::DESCRIPTION_WITHDRAW_APPROVED,
+            /**END TODO */
         ];
     }
 
