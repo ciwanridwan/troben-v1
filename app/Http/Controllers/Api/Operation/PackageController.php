@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Operation;
 
-use App\Events\Packages\PackageApprovedByCustomer;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
@@ -78,7 +77,7 @@ class PackageController extends Controller
                 $code->codeable->status = Package::STATUS_PICKED_UP;
                 $deliverable->delivery->status = Delivery::STATUS_EN_ROUTE;
                 // $deliverable->is_onboard = true;
-                // $deliverable->save(); 
+                // $deliverable->save();
                 // dd($deliverable->save());
                 $deliverable->delivery->save();
 

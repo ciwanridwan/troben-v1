@@ -26,7 +26,7 @@ class OrderController extends Controller
 
         $query->orderByDesc('created_at');
 
-        return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page', 15))),null,true);
+        return $this->jsonSuccess(DeliveryResource::collection($query->paginate($request->input('per_page', 15))), null, true);
     }
     public function show(Delivery $delivery): JsonResponse
     {

@@ -2,9 +2,6 @@
 
 namespace App\Listeners\Partners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-
 class CreatedDeadlineByEvent
 {
     /**

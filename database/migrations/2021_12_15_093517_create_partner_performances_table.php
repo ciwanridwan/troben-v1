@@ -66,24 +66,24 @@ class CreatePartnerPerformancesTable extends Migration
 
     private function levelComment(): string
     {
-        return "
+        return '
             1: alert 1
             2: alert 2
             3: last alert (shown for quality control dashboard)
             maximum level is 3.
-        ";
+        ';
     }
 
     /**
-     * Reference on status const @\App\Models\Partners\Performances\PerformanceModel
+     * Reference on status const @\App\Models\Partners\Performances\PerformanceModel.
      * @return string
      */
     private function statusComment(): string
     {
-        return "
+        return '
             1: on process
             5: reached
             10: failed
-        ";
+        ';
     }
 }

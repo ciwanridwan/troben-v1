@@ -40,9 +40,9 @@ class FinanceController extends Controller
     }
 
     /**Detail disbursment */
-    public function detail(Withdrawal $withdrawal): JsonResponse
+    public function detail(Withdrawal $withdrawal, Request $request): JsonResponse
     {
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $request->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
@@ -72,13 +72,6 @@ class FinanceController extends Controller
         }
         $data = $this->paginate($packages);
 
-        // $canAction = false;
-        // foreach ($packages as $row) {
-        //     if ($row->approved != 'pending') {
-        //         $canAction = true;
-        //     }
-        // }
-
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
@@ -90,7 +83,7 @@ class FinanceController extends Controller
             return (new Response(Response::RC_BAD_REQUEST))->json();
         }
 
-        $disbursment = Withdrawal::where('id', $withdrawal->id)->first();
+        $disbursment = Withdrawal::where('id', $request->id)->first();
         if (is_null($disbursment)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
@@ -204,7 +197,7 @@ class FinanceController extends Controller
             'receipt' => ['required'],
         ]);
 
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $request->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
