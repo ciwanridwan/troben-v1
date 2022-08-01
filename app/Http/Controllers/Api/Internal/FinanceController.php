@@ -67,15 +67,15 @@ class FinanceController extends Controller
             return $r;
         })->values();
 
-        $disbursHistory = DisbursmentHistory::all();
+        // $disbursHistory = DisbursmentHistory::all();
 
-        foreach ($disbursHistory as $key) {
-            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
-                $r->approved = 'success';
-                $r->approved_at = $key->created_at->format('Y-m-d');
-                return $r;
-            })->values();
-        }
+        // foreach ($disbursHistory as $key) {
+        //     $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
+        //         $r->approved = 'success';
+        //         $r->approved_at = $key->created_at->format('Y-m-d');
+        //         return $r;
+        //     })->values();
+        // }
         $data = $this->paginate($packages);
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -147,7 +147,7 @@ class FinanceController extends Controller
                         $pendingReceipt->disbursment_id = $disbursment->id;
                         $pendingReceipt->receipt = $p->receipt;
                         $pendingReceipt->amount = $p->commission_discount;
-                        $pendingReceipt->status = DisbursmentHistory::STATUS_PENDING;
+                        $pendingReceipt->status = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
                         $pendingReceipt->save();
                     });
                     $cd = $getPendingReceipt->sum('commission_discount');

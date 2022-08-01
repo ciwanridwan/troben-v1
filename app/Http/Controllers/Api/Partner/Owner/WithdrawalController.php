@@ -129,8 +129,8 @@ class WithdrawalController extends Controller
             return (new Response(Response::RC_SUCCESS, $result))->json();
 
         } else if ($withdrawal->status == Withdrawal::STATUS_PENDING) {
-            $pendingResult = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_PENDING)->get();
-            $pen = DisbursmentHistory::STATUS_PENDING;
+            $pendingResult = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_WAITING_FOR_APPROVE)->paginate(10);
+            $pen = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
             dump($pen);
             $test = DisbursmentHistory::all();
             dump($test);
