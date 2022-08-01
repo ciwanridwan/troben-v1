@@ -40,9 +40,9 @@ class FinanceController extends Controller
     }
 
     /**Detail disbursment */
-    public function detail(Withdrawal $withdrawal): JsonResponse
+    public function detail(Withdrawal $withdrawal, Request $request): JsonResponse
     {
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $request->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
@@ -197,7 +197,7 @@ class FinanceController extends Controller
             'receipt' => ['required'],
         ]);
 
-        $result = Withdrawal::where('id', $withdrawal->id)->first();
+        $result = Withdrawal::where('id', $request->id)->first();
         if (is_null($result)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }

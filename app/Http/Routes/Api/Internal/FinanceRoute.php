@@ -38,7 +38,7 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('listPartners'),
         ]);
 
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}'), [
+        $this->router->get($this->prefix('/detail/{id}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail'),
         ]);
@@ -70,7 +70,7 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('findByDate'),
         ]);
 
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
+        $this->router->get($this->prefix('/detail/{id}/find/receipt'), [
             'as' => $this->name('findByReceipt'),
             'uses' => $this->uses('findByReceipt'),
         ]);
