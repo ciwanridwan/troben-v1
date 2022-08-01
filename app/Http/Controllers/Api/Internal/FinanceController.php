@@ -57,9 +57,9 @@ class FinanceController extends Controller
         // dump($approves);
 
         $packages = $packages->map(function ($r) use ($approves) {
-            $approves->each(function ($q) use ($r) {
+            // $approves->each(function ($q) use ($r) {
 
-            });
+            // });
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
@@ -67,15 +67,15 @@ class FinanceController extends Controller
             return $r;
         })->values();
 
-        // $disbursHistory = DisbursmentHistory::all();
+        $disbursHistory = DisbursmentHistory::all();
 
-        // foreach ($disbursHistory as $key) {
-        //     $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
-        //         $r->approved = 'success';
-        //         $r->approved_at = $key->created_at->format('Y-m-d');
-        //         return $r;
-        //     })->values();
-        // }
+        foreach ($disbursHistory as $key) {
+            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
+                $r->approved = 'success';
+                $r->approved_at = $key->created_at->format('Y-m-d');
+                return $r;
+            })->values();
+        }
         $data = $this->paginate($packages);
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -142,14 +142,6 @@ class FinanceController extends Controller
                 });
 
                 if ($getPendingReceipt->isNotEmpty()) {
-                    $getPendingReceipt->each(function ($p) use ($disbursment) {
-                        $pendingReceipt = new DisbursmentHistory();
-                        $pendingReceipt->disbursment_id = $disbursment->id;
-                        $pendingReceipt->receipt = $p->receipt;
-                        $pendingReceipt->amount = $p->commission_discount;
-                        $pendingReceipt->status = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
-                        $pendingReceipt->save();
-                    });
                     $cd = $getPendingReceipt->sum('commission_discount');
 
                     $pendingDisburs = new Withdrawal();
@@ -163,6 +155,15 @@ class FinanceController extends Controller
                     $pendingDisburs->action_by = Auth::id();
                     $pendingDisburs->action_at = Carbon::now();
                     $pendingDisburs->save();
+
+                    $getPendingReceipt->each(function ($p) use ($pendingDisburs) {
+                        $pendingReceipt = new DisbursmentHistory();
+                        $pendingReceipt->disbursment_id = $pendingDisburs->id;
+                        $pendingReceipt->receipt = $p->receipt;
+                        $pendingReceipt->amount = $p->commission_discount;
+                        $pendingReceipt->status = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
+                        $pendingReceipt->save();
+                    });
                 }
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();

@@ -127,18 +127,59 @@ class WithdrawalController extends Controller
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
             return (new Response(Response::RC_SUCCESS, $result))->json();
-
         } else if ($withdrawal->status == Withdrawal::STATUS_PENDING) {
             $pendingResult = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_WAITING_FOR_APPROVE)->paginate(10);
-            $pen = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
-            dump($pen);
-            $test = DisbursmentHistory::all();
-            dump($test);
-            dump($pendingResult);
             return (new Response(Response::RC_SUCCESS, $pendingResult))->json();
         } else {
+            /** Todo Show Request Receipts for withdrawal */
 
-            return (new Response(Response::RC_SUCCESS))->json();
+            $receipts = $this->getReceivedReceipts($withdrawal);
+            $getReceipts = collect(DB::select($receipts));
+
+            $disbursment = DisbursmentHistory::all();
+            $getReceipts->map(function ($r) use ($disbursment) {
+                
+                foreach ($disbursment as $key) {
+                    if ($key->receipt != $r->receipt) {
+                        return (new Response(Response::RC_SUCCESS))->json();            
+                    }
+                }
+            });
+            /**End Todo */
         }
+    }
+
+    private function getExistingReceipt()
+    {
+        $query = "SELECT * FROM disbursment_histories";
+        return $query;
+    }
+
+    private function getReceivedReceipts($request)
+    {
+        $q =
+            "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
+
+        FROM deliveries d
+        LEFT JOIN (
+        SELECT *
+        FROM deliverables
+        WHERE deliverable_type = 'App\Models\Packages\Package'
+        ) dd ON d.id = dd.delivery_id
+        LEFT JOIN packages p ON dd.deliverable_id = p.id
+        LEFT JOIN (
+        SELECT *
+        FROM codes
+        WHERE codeable_type = 'App\Models\Packages\Package'
+        ) c ON p.id = c.codeable_id
+        WHERE 1=1 AND
+        d.partner_id IN (
+        SELECT partner_id
+        FROM partner_balance_disbursement
+        WHERE partner_id = $request->partner_id
+        )
+        AND dd.delivery_id IS NOT NULL";
+
+        return $q;
     }
 }
