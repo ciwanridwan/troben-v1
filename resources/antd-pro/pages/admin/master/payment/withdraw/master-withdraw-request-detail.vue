@@ -58,7 +58,7 @@
                 <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.commission_discount) }}</span>
                 <span slot="approved" slot-scope="record">
                     <template v-if="record.approved == 'pending'">
-                        <input type="checkbox" v-model="receipt" :value="record">
+                        <input type="checkbox" v-model="receipt" :value="record" :disabled="record.approved_at != '' || record.approved_at == null">
                         <span class="text-gray">Pending</span>
                     </template>
                     <template v-else>
@@ -75,10 +75,10 @@
             <a-layout-footer :class="['trawl-content-footer']">
                 <a-row type="flex" :gutter="24">
                     <a-col :span="14">
-                        <template v-if="approved_at != null">
+                        <template v-if="this.lists[0].approved_at != null">
                             Approved At
                             <span class="fw-medium">
-                                {{ moment(approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
+                                {{ moment(this.lists[0].approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
                             </span>
                         </template>
                     </a-col>
@@ -110,7 +110,7 @@ export default {
         total_unapproved: '',
         total_approved: '',
         receipt: [],
-        approved_at: null,
+        // approved_at: null,
         filter: {
             q: ''
         },
@@ -166,14 +166,14 @@ export default {
                 receipt.push(object)
             });
 
-            axios.post(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/approve`, {
+            axios.post(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/approve`, null, {
                 params: {
                     receipt: receipt
                 },
-                headers: {
-                    Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi',
-                    // 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
+                // headers: {
+                //     Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi',
+                //     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                // },
             })
             .then((res)=>{
                 console.log(res)

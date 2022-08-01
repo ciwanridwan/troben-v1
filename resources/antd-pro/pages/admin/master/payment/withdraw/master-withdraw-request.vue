@@ -111,7 +111,7 @@
       >
         <span slot="number" slot-scope="number" class="fw-bold">{{ number }}.</span>
         <span slot="code" slot-scope="record">
-          <a :href="routeUri('admin.payment.withdraw.request.detail', {withdrawl_hash: record.hash})" class="fw-bold text-black">
+          <a :href="routeUri('admin.payment.withdraw.request.detail', {id: record.id})" class="fw-bold text-black">
             {{ record.partner_id.code }}
           </a>
         </span>
@@ -164,7 +164,7 @@ export default {
     requestColumns,
     loading: false,
     numbers: [],
-    data_excel: null
+    data_excel: null,
   }),
   created() {
     this.getDisbursmentList()
