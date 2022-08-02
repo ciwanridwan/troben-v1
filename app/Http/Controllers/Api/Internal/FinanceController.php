@@ -57,9 +57,6 @@ class FinanceController extends Controller
         // dump($approves);
 
         $packages = $packages->map(function ($r) use ($approves) {
-            // $approves->each(function ($q) use ($r) {
-
-            // });
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);

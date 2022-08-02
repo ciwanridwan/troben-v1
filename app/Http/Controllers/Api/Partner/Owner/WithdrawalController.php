@@ -133,20 +133,20 @@ class WithdrawalController extends Controller
         } else {
             /** Todo Show Request Receipts for withdrawal */
 
-            $receipts = $this->getReceivedReceipts($withdrawal);
-            $getReceipts = collect(DB::select($receipts));
-
-            $disbursment = DisbursmentHistory::all();
-            $getReceipts->map(function ($r) use ($disbursment) {
-                
-                foreach ($disbursment as $key) {
-                    if ($key->receipt != $r->receipt) {
-                        return (new Response(Response::RC_SUCCESS))->json();            
-                    }
-                }
-            });
-            /**End Todo */
+            // $receipts = $this->getReceivedReceipts($withdrawal);
+            // $getReceipts = collect(DB::select($receipts));
+            
+            // $disbursment = DisbursmentHistory::all();
+            // dump($disbursment);
+            // foreach ($disbursment as $key) {
+            //     $getReceipts->where('receipt', '!=', $key->receipt)->map(function ($r) {
+            //         return $r;
+            //     })->values();
+            // }
+            // dump($getReceipts);
+            // return (new Response(Response::RC_SUCCESS, $getReceipts))->json();
         }
+        /** End todo */
     }
 
     private function getExistingReceipt()
