@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Concerns\Controllers\HasResource;
 use App\Events\Partners\Balance\WithdrawalRequested;
+use App\Http\Controllers\Api\Internal\FinanceController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\UserBankResource;
 use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
 use App\Http\Response;
 use App\Jobs\Partners\CreateNewBalanceDisbursement;
+use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
@@ -18,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalController extends Controller
 {
@@ -59,11 +62,11 @@ class WithdrawalController extends Controller
         return $this;
     }
 
-    public function index(Request $request) : JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $account = $request->user();
         $this->query->where('partner_id', $account->partners[0]->id);
-        $this->query->with(['partner'])->has('partner');
+
         $this->query->when($request->input('status'), fn (Builder $builder, $input) => $builder->where('status', $input));
         if ($request->to == null) {
             $request->to = Carbon::now();
@@ -73,19 +76,20 @@ class WithdrawalController extends Controller
         if ($request->q != null) {
             $this->getSearch($request);
         }
+
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
-    public function store(Request $request, PartnerRepository $repository) : JsonResponse
+    public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
         if ($repository->getPartner()->balance < $request->amount) {
             return (new Response(Response::RC_INSUFFICIENT_BALANCE))->json();
         }
-        // $request['status'] = Withdrawal::STATUS_CREATED;
+
         $request['status'] = Withdrawal::STATUS_REQUESTED;
         $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
         $this->dispatch($job);
-        
+
         event(new WithdrawalRequested($job->withdrawal));
 
         return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
@@ -112,5 +116,68 @@ class WithdrawalController extends Controller
         $bank  = Bank::where('is_active', true)->get();
 
         return (new Response(Response::RC_SUCCESS, $bank))->json();
+    }
+
+    /**
+     * @return JsonResponse
+     * Todo Status Of Withdrawal Partners
+     */
+    public function detail(Withdrawal $withdrawal)
+    {
+        if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
+            $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        } else if ($withdrawal->status == Withdrawal::STATUS_PENDING) {
+
+            $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            $toCollect = collect(DB::select($pendingReceipts));
+            
+            $toCollect->map(function ($r) use ($withdrawal) {
+                $r->created_at = $withdrawal->created_at;
+                return $r;
+            })->values();
+
+            $data = $this->paginate($toCollect);
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        } else {
+            $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            $toCollect = collect(DB::select($pendingReceipts));
+
+            $toCollect->map(function ($r) use ($withdrawal) {
+                $r->created_at = $withdrawal->created_at;
+                return $r;
+            })->values();
+
+            $data = $this->paginate($toCollect);
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+
+        }
+        /** End todo */
+    }
+
+    private function getPendingReceipt($request)
+    {
+        $query = "SELECT p.total_amount total_payment, c.content receipt, p.total_amount * 0.3 as commission_discount
+        FROM deliveries d
+        LEFT JOIN (
+        SELECT *
+        FROM deliverables
+        WHERE deliverable_type = 'App\Models\Packages\Package') dd 
+        ON d.id = dd.delivery_id LEFT JOIN packages p ON dd.deliverable_id = p.id
+        LEFT JOIN ( SELECT *
+        FROM codes
+        WHERE codeable_type = 'App\Models\Packages\Package'
+        ) c ON p.id = c.codeable_id
+        left join disbursment_histories dh on c.content = dh.receipt 
+        WHERE 1=1 AND
+        d.partner_id IN (
+        SELECT partner_id
+        FROM partner_balance_disbursement 
+        WHERE partner_id = $request->partner_id
+        )
+        AND dd.delivery_id IS NOT null
+        and dh.receipt is null";
+
+        return $query;
     }
 }

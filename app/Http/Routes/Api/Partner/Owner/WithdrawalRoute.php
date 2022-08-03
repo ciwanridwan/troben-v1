@@ -41,6 +41,11 @@ class WithdrawalRoute extends BaseRoute
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
         ]);
+
+        $this->router->get($this->prefix('detail/{withdrawal_hash}'), [
+            'as' => $this->name('detail'),
+            'uses' => $this->uses('detail')
+        ]);
     }
 
     /**
