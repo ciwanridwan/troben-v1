@@ -258,6 +258,27 @@ const main = {
     route: "admin.message",
     children: null,
     shortKey: ["ctrl", "alt", "c"]
+  },
+  
+  /**declaring route for trawltruck dashboard */
+  trawltruck: {
+    icon: "",
+    text: "",
+    route: "admin.master.trawltruck.dashboard",
+    children: {
+      registerDriver: {
+        route: "admin.master.trawltruck.dashboard.driver.register"
+      },
+      accountDriver: {
+        route: "admin.master.trawltruck.dashboard.driver.account"
+      },
+      suspendDriver: {
+        route: "admin.master.trawltruck.dashboard.driver.suspend"
+      },
+      trackingOrder: {
+        route: "admin.master.trawltruck.dashboard.tracking.order"
+      }
+    }
   }
 };
 
