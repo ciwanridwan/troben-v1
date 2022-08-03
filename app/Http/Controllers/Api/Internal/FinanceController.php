@@ -54,7 +54,6 @@ class FinanceController extends Controller
         // $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
         $approveds = $this->getApprovedReceipt();
         $approves = collect(DB::select($approveds));
-        // dump($approves);
 
         $packages = $packages->map(function ($r) use ($approves) {
             $r->approved = 'pending';
@@ -152,15 +151,6 @@ class FinanceController extends Controller
                     $pendingDisburs->action_by = Auth::id();
                     $pendingDisburs->action_at = Carbon::now();
                     $pendingDisburs->save();
-
-                    $getPendingReceipt->each(function ($p) use ($pendingDisburs) {
-                        $pendingReceipt = new DisbursmentHistory();
-                        $pendingReceipt->disbursment_id = $pendingDisburs->id;
-                        $pendingReceipt->receipt = $p->receipt;
-                        $pendingReceipt->amount = $p->commission_discount;
-                        $pendingReceipt->status = DisbursmentHistory::STATUS_WAITING_FOR_APPROVE;
-                        $pendingReceipt->save();
-                    });
                 }
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
