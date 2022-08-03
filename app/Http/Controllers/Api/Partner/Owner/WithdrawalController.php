@@ -10,6 +10,8 @@ use App\Http\Resources\Account\UserBankResource;
 use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
 use App\Http\Response;
 use App\Jobs\Partners\CreateNewBalanceDisbursement;
+use App\Models\Code;
+use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
@@ -153,6 +155,24 @@ class WithdrawalController extends Controller
 
         }
         /** End todo */
+    }
+
+    public function detailReceipt(Withdrawal $withdrawal, $receipt)
+    {
+        $this->withdrawal = $withdrawal;
+
+        $code = Code::where('content', $receipt)->where('codeable_type', Package::class)->first();
+        if (is_null($code)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND));
+        }
+
+        $data = $code->codeable->prices;
+        $receipt = [
+            'receipt' => $receipt,
+            'total_amount' => $data->sum('amount')
+        ];
+        
+        return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
     }
 
     private function getPendingReceipt($request)
