@@ -2,18 +2,23 @@
 
 namespace App\Jobs\Packages;
 
-use App\Models\Geo\Regency;
-use App\Models\Packages\Item;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
 use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageCreated;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Geo\Regency;
+use App\Models\Packages\Item;
+use App\Models\Packages\Package;
+use App\Models\Partners\Transporter;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
-class CreateNewPackage
+class CreateMotorBike implements ShouldQueue
 {
     use Dispatchable;
 
@@ -47,13 +52,9 @@ class CreateNewPackage
     protected bool $isSeparate;
 
     /**
-     * CreateNewPackage constructor.
+     * Create a new job instance.
      *
-     * @param array $inputs
-     * @param array $items
-     * @param bool  $isSeparate
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * @return void
      */
     public function __construct(array $inputs, array $items, bool $isSeparate = false)
     {
@@ -116,9 +117,9 @@ class CreateNewPackage
     }
 
     /**
-     * Handle the job.
+     * Execute the job.
      *
-     * @return bool
+     * @return void
      */
     public function handle(): bool
     {
@@ -150,7 +151,6 @@ class CreateNewPackage
         }
         return $this->package->exists;
     }
-
 
     public static function ceilByTolerance(float $weight = 0)
     {
