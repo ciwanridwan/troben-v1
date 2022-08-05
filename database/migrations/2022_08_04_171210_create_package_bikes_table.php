@@ -19,7 +19,7 @@ class CreatePackageBikesTable extends Migration
             $table->unsignedBigInteger('package_item_id');
             $table->string('type');
             $table->string('merk');
-            $table->string('cc');
+            $table->integer('cc');
             $table->string('years');
             $table->timestamps();
 

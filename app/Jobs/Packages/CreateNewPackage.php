@@ -82,6 +82,11 @@ class CreateNewPackage
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+            /** Add attributes if customer want to send motorbike */
+            'type' => ['string', Rule::requiredIf($inputs['category'] = 'motorbike')],
+            'merk' => ['string', Rule::requiredIf($inputs['category'] = 'motorbike')],
+            'cc' => [Rule::requiredIf($inputs['category'] = 'motorbike')],
+            'years' => ['string', Rule::requiredIf($inputs['category'] = 'motorbike')],
         ])->validate();
         Log::info('validate package success', [$this->attributes['sender_name']]);
 
