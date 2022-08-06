@@ -28,11 +28,6 @@ class FinanceRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('/list'), [
-            'as' => $this->name('list'),
-            'uses' => $this->uses('list'),
-        ]);
-
         $this->router->get($this->prefix('/list/partners'), [
             'as' => $this->name('listPartners'),
             'uses' => $this->uses('listPartners'),
@@ -73,16 +68,6 @@ class FinanceRoute extends BaseRoute
         $this->router->get($this->prefix('/detail/{id}/find/receipt'), [
             'as' => $this->name('findByReceipt'),
             'uses' => $this->uses('findByReceipt'),
-        ]);
-
-        $this->router->get($this->prefix('/count'), [
-            'as' => $this->name('countDisbursment'),
-            'uses' => $this->uses('countDisbursment'),
-        ]);
-
-        $this->router->get($this->prefix('/count/amount'), [
-            'as' => $this->name('countAmountDisbursment'),
-            'uses' => $this->uses('countAmountDisbursment'),
         ]);
 
         $this->router->get($this->prefix('/report'), [
