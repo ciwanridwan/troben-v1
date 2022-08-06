@@ -192,11 +192,8 @@ export default {
     },
     getDisbursmentList(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.list")
+      this.$http.get(uri)
       .then((res)=>{
           this.loading = false
           this.lists = res.data.data
@@ -211,11 +208,8 @@ export default {
     },
     getTotalRequest(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count/amount`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countAmountDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.total_request = res.data.data
           this.loading = false
@@ -226,11 +220,8 @@ export default {
     },
     getRequestDisbursment(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.request_disbursment = res.data.data
           this.loading = false
@@ -241,11 +232,8 @@ export default {
     },
     filterCode(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list/partners`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.findByPartner")
+      this.$http.get(uri)
       .then((res)=>{
           this.codes = res.data.data
       }).catch(function (error) {
