@@ -241,6 +241,7 @@ export default {
           this.loading = false
       });
     },
+    /**URL filter date -> admin.payment.withdraw.request.findByDate */
     filterDate(){
       if(this.filter.start_date == null || this.filter.end_date == null){
         this.loading = true
@@ -286,6 +287,7 @@ export default {
         });
       }
     },
+    /**URL exportData -> admin.payment.withdraw.request.report */
     exportData(){
       axios.get(`https://api.staging.trawlbens.co.id/internal/finance/report`, {
         params: {

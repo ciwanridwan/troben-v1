@@ -143,6 +143,7 @@ export default {
             let val = (value/1).toFixed(2).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
+        /**URL getDatas -> admin.payment.withdraw.request.detail */
         getDatas(){
             this.loading = true
             axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}`, {
@@ -159,6 +160,7 @@ export default {
                 this.loading = false
             });
         },
+        /**URL store -> admin.payment.withdraw.request.approve */
         store(){
             var receipt = []
             this.receipt.forEach(item => {
@@ -185,6 +187,7 @@ export default {
                 console.log(error)
             });
         },
+        /**URL searchData -> admin.payment.withdraw.request.findByReceipt */
         searchData(){
             if(this.filter.q != ''){
                 axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/find/receipt`, {
