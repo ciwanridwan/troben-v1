@@ -101,7 +101,7 @@ class FinanceController extends Controller
         if ($getReceipt->isNotEmpty()) {
             $getReceipt->each(function ($r) use ($disbursment) {
                 $disbursHistory = new DisbursmentHistory();
-                $disbursHistory->disbursment_id = $disbursment->id;
+                $disbursHistory->disbursement_id = $disbursment->id;
                 $disbursHistory->receipt = $r->receipt;
                 $disbursHistory->amount = $r->commission_discount;
                 $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;

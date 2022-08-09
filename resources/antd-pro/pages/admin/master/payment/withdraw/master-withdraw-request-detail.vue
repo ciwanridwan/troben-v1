@@ -58,7 +58,7 @@
                 <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.commission_discount) }}</span>
                 <span slot="approved" slot-scope="record">
                     <template v-if="record.approved == 'pending'">
-                        <input type="checkbox" v-model="receipt" :value="record" :disabled="record.approved_at != '' || record.approved_at == null">
+                        <input type="checkbox" v-model="receipt" :value="record">
                         <span class="text-gray">Pending</span>
                     </template>
                     <template v-else>
@@ -104,7 +104,7 @@ export default {
     data: () => ({
         requestColumns,
         loading: false,
-        hash: window.location.href.split('/').pop(),
+        id: window.location.href.split('/').pop(),
         lists: [],
         total: 0,
         total_unapproved: '',
@@ -146,12 +146,10 @@ export default {
         /**URL getDatas -> admin.payment.withdraw.request.detail */
         getDatas(){
             this.loading = true
-            axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}`, {
-                headers: {
-                    Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-                }
-            })
+            let uri = this.routeUri(`admin.payment.withdraw.request.detailAjax`, {id: this.id})
+            this.$http.get(uri)
             .then((res)=>{
+                console.log(res)
                 this.lists = res.data.data
                 this.loading = false
                 this.getTotal()
@@ -168,14 +166,10 @@ export default {
                 receipt.push(object)
             });
 
-            axios.post(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/approve`, null, {
-                params: {
-                    receipt: receipt
-                },
-                // headers: {
-                //     Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi',
-                //     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                // },
+            let uri = this.routeUri("admin.payment.withdraw.request.approve")
+            this.$http.post(uri, {
+                id: this.id,
+                receipt: receipt
             })
             .then((res)=>{
                 console.log(res)
@@ -190,12 +184,10 @@ export default {
         /**URL searchData -> admin.payment.withdraw.request.findByReceipt */
         searchData(){
             if(this.filter.q != ''){
-                axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/find/receipt`, {
+                let uri = this.routeUri("admin.payment.withdraw.request.findByReceipt")
+                this.$http.get(uri, {
                     params: {
                         receipt: this.filter.q
-                    },
-                    headers: {
-                        Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
                     }
                 })
                 .then((res)=>{
@@ -212,6 +204,9 @@ export default {
 </script>
 
 <style type="scss">
+    .ant-card-bordered{
+        border: unset !important;
+    }
     .ant-btn-primary{
         background: #3D8824;
         border-color: #3D8824;
