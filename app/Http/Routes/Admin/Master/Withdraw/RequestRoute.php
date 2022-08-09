@@ -24,6 +24,11 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
+        $this->router->get($this->prefix('detail'), [
+            'as' => $this->name,
+            'uses' => $this->uses('detail'),
+        ]);
+
         $this->router->get($this->prefix('/list'), [
             'as' => $this->name('list'),
             'uses' => $this->uses('list', FinanceController::class),
@@ -56,6 +61,11 @@ class RequestRoute extends BaseRoute
 
         $this->router->get($this->prefix('/detail/{id}'), [
             'as' => $this->name('detail'),
+            'uses' => $this->uses('detail', FinanceController::class),
+        ]);
+
+        $this->router->get($this->prefix('/detail/{id}/ajax'), [
+            'as' => $this->name('detailAjax'),
             'uses' => $this->uses('detail', FinanceController::class),
         ]);
         

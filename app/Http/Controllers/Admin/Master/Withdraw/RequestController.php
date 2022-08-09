@@ -55,6 +55,22 @@ class RequestController extends Controller
 
     public function index(Request $request)
     {
+        // if ($request->expectsJson()) {
+        //     $this->query->where('status', Withdrawal::STATUS_REQUESTED);
+        //     $this->query->with(['partner']);
+        //     $this->query->has('partner');
+
+        //     if ($request->q != null) {
+        //         $this->getSearch($request);
+        //     }
+        //     return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+        // }
+
+        return view('admin.master.payment.withdraw.request.index');
+    }
+
+    public function detail(Request $request, $id)
+    {
         if ($request->expectsJson()) {
             $this->query->where('status', Withdrawal::STATUS_REQUESTED);
             $this->query->with(['partner']);
@@ -66,7 +82,7 @@ class RequestController extends Controller
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
 
-        return view('admin.master.payment.withdraw.request.index');
+        return view('admin.master.payment.withdraw.request.index.detail');
     }
 
 
