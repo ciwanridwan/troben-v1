@@ -178,7 +178,7 @@ class FinanceController extends Controller
     public function findByPartner(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'partner_id' => ['required'],
+            'partner_id' => ['nullable'],
         ]);
 
         $partners = Withdrawal::where('partner_id', $this->attributes['partner_id'])->orderByDesc('created_at')->paginate(10);
@@ -192,7 +192,7 @@ class FinanceController extends Controller
     public function findByStatus(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'status' => ['required'],
+            'status' => ['nullable'],
         ]);
 
         if ($this->attributes['status'] == "requested") {
@@ -214,8 +214,8 @@ class FinanceController extends Controller
     public function findByDate(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'start_date' => ['required', 'date_format:Y-m-d'],
-            'end_date' => ['required', 'date_format:Y-m-d'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d'],
         ]);
 
         $date = Withdrawal::whereBetween('created_at', [$this->attributes['start_date'], $this->attributes['end_date']])->paginate(10);
@@ -230,7 +230,7 @@ class FinanceController extends Controller
     public function findByReceipt(Request $request, Withdrawal $withdrawal): JsonResponse
     {
         $this->attributes = $request->validate([
-            'receipt' => ['required'],
+            'receipt' => ['nullable'],
         ]);
 
         $result = Withdrawal::where('id', $request->id)->first();
