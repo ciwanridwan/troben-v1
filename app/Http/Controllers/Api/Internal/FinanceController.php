@@ -19,6 +19,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PDO;
 use Riverline\MultiPartParser\Part;
 
 class FinanceController extends Controller
@@ -55,24 +56,30 @@ class FinanceController extends Controller
         $approveds = $this->getApprovedReceipt();
         $approves = collect(DB::select($approveds));
 
-        $packages = $packages->map(function ($r) use ($approves) {
+        
+
+        $disbursHistory = DisbursmentHistory::all();
+
+        $packages->map(function ($r) use ($disbursHistory) {
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->commission_discount = intval($r->commission_discount);
             $r->approved_at = null;
+            
+            $check = $disbursHistory->where('receipt', $r->receipt)->first();
+            if ($check) {
+                $r->approved = 'success';
+                $r->approved_at = $check->created_at->format('Y-m-d');
+            }
             return $r;
         })->values();
 
-        $disbursHistory = DisbursmentHistory::all();
+        $approvedAt = $packages->whereNotNull('approved_at')->first();
 
-        foreach ($disbursHistory as $key) {
-            $key = $packages->whereIn('receipt', $key->receipt)->map(function ($r) use ($key) {
-                $r->approved = 'success';
-                $r->approved_at = $key->created_at->format('Y-m-d');
-                return $r;
-            })->values();
-        }
-        $data = $this->paginate($packages);
+        $data = [
+            'rows' => $packages,
+            'approved_at' => $approvedAt ? $approvedAt->approved_at : null 
+        ];
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
