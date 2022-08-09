@@ -25,7 +25,7 @@ class RequestRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('detail'), [
-            'as' => $this->name,
+            'as' => $this->name('detail'),
             'uses' => $this->uses('detail'),
         ]);
 
