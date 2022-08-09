@@ -56,7 +56,7 @@ class RequestController extends Controller
     public function index(Request $request)
     {
         if ($request->expectsJson()) {
-            $this->query->where('status', Withdrawal::STATUS_CREATED);
+            $this->query->where('status', Withdrawal::STATUS_REQUESTED);
             $this->query->with(['partner']);
             $this->query->has('partner');
 
@@ -70,30 +70,30 @@ class RequestController extends Controller
     }
 
 
-    public function confirmation(Withdrawal $withdrawal)
-    {
-        $partner = Partner::where($withdrawal->partner_id)->first();
-        $partner->balance = $partner->balance - $withdrawal->amount;
-        $partner->save();
+    // public function confirmation(Withdrawal $withdrawal)
+    // {
+    //     $partner = Partner::where($withdrawal->partner_id)->first();
+    //     $partner->balance = $partner->balance - $withdrawal->amount;
+    //     $partner->save();
 
-        $withdrawal->status = Withdrawal::STATUS_CONFIRMED;
-        $withdrawal->last_balance = $partner->balance;
-        $withdrawal->save();
+    //     $withdrawal->status = Withdrawal::STATUS_CONFIRMED;
+    //     $withdrawal->last_balance = $partner->balance;
+    //     $withdrawal->save();
 
-        event(new WithdrawalConfirmed($withdrawal));
+    //     event(new WithdrawalConfirmed($withdrawal));
 
-        return (new Response(Response::RC_SUCCESS))->json();
-    }
+    //     return (new Response(Response::RC_SUCCESS))->json();
+    // }
 
 
-    public function rejection(Withdrawal $withdrawal)
-    {
-        $withdrawal->status = Withdrawal::STATUS_REJECTED;
-        $withdrawal->last_balance = $withdrawal->first_balance;
-        $withdrawal->save();
+    // public function rejection(Withdrawal $withdrawal)
+    // {
+    //     $withdrawal->status = Withdrawal::STATUS_REJECTED;
+    //     $withdrawal->last_balance = $withdrawal->first_balance;
+    //     $withdrawal->save();
 
-        event(new WithdrawalRejected($withdrawal));
+    //     event(new WithdrawalRejected($withdrawal));
 
-        return (new Response(Response::RC_SUCCESS))->json();
-    }
+    //     return (new Response(Response::RC_SUCCESS))->json();
+    // }
 }

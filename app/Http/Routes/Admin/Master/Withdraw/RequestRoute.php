@@ -19,6 +19,11 @@ class RequestRoute extends BaseRoute
      */
     public function register()
     {   
+        $this->router->get($this->prefix, [
+            'as' => $this->name,
+            'uses' => $this->uses('index'),
+        ]);
+
         $this->router->get($this->prefix('/list'), [
             'as' => $this->name('list'),
             'uses' => $this->uses('list', FinanceController::class),
