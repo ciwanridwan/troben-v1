@@ -2,23 +2,18 @@
 
 namespace App\Jobs\Packages;
 
-use App\Casts\Package\Items\Handling;
-use App\Events\Packages\PackageCreated;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
+use App\Casts\Package\Items\Handling;
+use App\Events\Packages\PackageCreated;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateMotorBike implements ShouldQueue
+class CreateMotorBike
 {
     use Dispatchable;
 
@@ -52,9 +47,13 @@ class CreateMotorBike implements ShouldQueue
     protected bool $isSeparate;
 
     /**
-     * Create a new job instance.
+     * CreateNewPackage constructor.
      *
-     * @return void
+     * @param array $inputs
+     * @param array $items
+     * @param bool  $isSeparate
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function __construct(array $inputs, array $items, bool $isSeparate = false)
     {
@@ -83,6 +82,10 @@ class CreateMotorBike implements ShouldQueue
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+            'type' => ['required', 'string'],
+            'merk' => ['required', 'string'],
+            'cc' => ['required', 'string'],
+            'years' => ['required', 'string'],
         ])->validate();
         Log::info('validate package success', [$this->attributes['sender_name']]);
 
@@ -117,9 +120,9 @@ class CreateMotorBike implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Handle the job.
      *
-     * @return void
+     * @return bool
      */
     public function handle(): bool
     {
@@ -146,11 +149,12 @@ class CreateMotorBike implements ShouldQueue
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            // event(new WalkinPackageCreated($this->package, $this->attributes['partner_code']));
-            event(new PackageCreated($this->package, $this->attributes['partner_code']));
+            // event(new PackageCreated($this->package, $this->attributes['partner_code']));
+            
         }
         return $this->package->exists;
     }
+
 
     public static function ceilByTolerance(float $weight = 0)
     {

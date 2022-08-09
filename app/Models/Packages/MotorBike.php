@@ -22,12 +22,12 @@ class MotorBike extends Model
 
     public function packages()
     {
-
+        return $this->belongsTo(Package::class, 'package_id', 'id');
     }
     
     public function packageItems()
     {
-
+        return $this->belongsTo(Package::class, 'package_item_id', 'id');
     }
 
     public function packagePrices()
