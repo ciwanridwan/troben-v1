@@ -14,6 +14,7 @@ use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Models\Partners\ScheduleTransportation;
+use App\Supports\Geo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
@@ -65,9 +66,36 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_id = $request->get('destination_id');
+        if ($origin_regency_id == null || $destination_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
+
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA);
+
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA);
+
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_id = $resultDestination['district'];
+            $request->merge([
+                'origin_regency_id' => $origin_regency_id,
+                'destination_id' => $destination_id,
+            ]);
+        }
+
         /** @var Regency $regency */
-        $regency = Regency::query()->find($request->get('origin_regency_id'));
-        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_id')]), 'array');
+        $regency = Regency::query()->findOrFail($origin_regency_id);
+        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]), 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
         throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
