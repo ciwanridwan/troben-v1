@@ -52,8 +52,8 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
 
-        $approveds = $this->getApprovedReceipt($result);   
-        $approves = collect(DB::select($approveds));     
+        $approveds = $this->getApprovedReceipt($result);
+        $approves = collect(DB::select($approveds));
 
         $disbursHistory = DisbursmentHistory::all();
 
@@ -62,7 +62,7 @@ class FinanceController extends Controller
                 $r->approved = 'success';
                 $r->total_payment = intval($r->total_payment);
                 $r->commission_discount = intval($r->commission_discount);
-                $r->approved_at = date('Y-m-d', strtotime($r->approved_at));
+                $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
                 return $r;
             })->values();
 
@@ -70,7 +70,7 @@ class FinanceController extends Controller
 
             $data = [
                 'rows' => $receipt,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null 
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -85,11 +85,11 @@ class FinanceController extends Controller
                 $r->commission_discount = intval($r->commission_discount);
                 return $r;
             })->values();
-    
+
             $data = [
                 'rows' => $receipts
             ];
-    
+
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
@@ -118,7 +118,7 @@ class FinanceController extends Controller
         if ($getReceipt->isNotEmpty()) {
             $getReceipt->each(function ($r) use ($disbursment) {
                 $disbursHistory = new DisbursmentHistory();
-                $disbursHistory->disbursement_id = $disbursment->id;
+                $disbursHistory->disbursment_id = $disbursment->id;
                 $disbursHistory->receipt = $r->receipt;
                 $disbursHistory->amount = $r->commission_discount;
                 $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
@@ -144,11 +144,6 @@ class FinanceController extends Controller
                 }
                 $disbursment->save();
 
-                $partner = Partner::where('id', $disbursment->partner_id)->first();
-                $balance = $partner->balance - $disbursment->amount;
-                $partner->balance = $balance;
-                $partner->save();
-
                 $getPendingReceipt = $packages->whereNotIn('receipt', $receipt)->map(function ($p) {
                     $p->commission_discount = ceil($p->commission_discount);
                     return $p;
@@ -168,6 +163,11 @@ class FinanceController extends Controller
                     $pendingDisburs->action_by = Auth::id();
                     $pendingDisburs->action_at = Carbon::now();
                     $pendingDisburs->save();
+
+                    $partner = Partner::where('id', $disbursment->partner_id)->first();
+                    $balance = $disbursment->first_balance;
+                    $partner->balance = $balance;
+                    $partner->save();
                 }
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
@@ -438,14 +438,14 @@ class FinanceController extends Controller
 
     private function getApprovedReceipt($request)
     {
-        $query = 
-        "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as commission_discount, dh.created_at as approved_at 
+        $query =
+            "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as commission_discount, dh.created_at as approved_at 
         from disbursment_histories dh
         left join partner_balance_disbursement pbd on dh.disbursment_id = pbd.id
         left join codes c on dh.receipt = c.content
         left join packages p on c.codeable_id = p.id
         where dh.disbursment_id = $request->id";
-        
+
         return $query;
     }
 }
