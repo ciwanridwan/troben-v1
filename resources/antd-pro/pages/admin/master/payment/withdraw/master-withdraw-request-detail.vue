@@ -189,7 +189,7 @@ export default {
         /**URL searchData -> admin.payment.withdraw.request.findByReceipt */
         searchData(){
             if(this.filter.q != ''){
-                let uri = this.routeUri("admin.payment.withdraw.request.findByReceipt")
+                let uri = this.routeUri(`admin.payment.withdraw.request.findByReceipt`, {id: this.id})
                 this.$http.get(uri, {
                     params: {
                         receipt: this.filter.q
