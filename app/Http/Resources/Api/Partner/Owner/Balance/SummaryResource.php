@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Partner\Owner\Balance;
 
 use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,8 +21,12 @@ class SummaryResource extends JsonResource
         $deposit_today = $this->getTotalBalance(History::TYPE_DEPOSIT, true);
         $withdraw_today = $this->getTotalBalance(History::TYPE_WITHDRAW, true);
 
+        $user = $request->user()->partners()->first();
+        $balance = intval($user->balance);
+
         return [
-            'current_balance' => $deposit - $withdraw,
+            // 'current_balance' => $deposit - $withdraw,
+            'current_balance' => $balance,
             'daily_income' => $deposit_today - $withdraw_today,
         ];
     }
