@@ -91,11 +91,24 @@ class WithdrawalController extends Controller
         $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_PENDING)->orWhere('status', Withdrawal::STATUS_REQUESTED)->first();
         $currentDate = Carbon::now();
 
-        if (is_null($withdrawal) || !empty($withdrawal)) {
+        if (is_null($withdrawal)) {
+            $currentTime = Carbon::now();
+            $expiredTime = $currentTime->addDays(7);
+
+            $request['expired_at'] = $expiredTime;
+            $request['status'] = Withdrawal::STATUS_REQUESTED;
+
+            $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
+            $this->dispatch($job);
+
+            event(new WithdrawalRequested($job->withdrawal));
+
+            return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
+        } else if (!empty($withdrawal)) {
             if ($currentDate < $withdrawal->expired_at) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
-
+            
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
 
