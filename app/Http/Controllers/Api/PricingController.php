@@ -172,23 +172,33 @@ class PricingController extends Controller
      */
     public function shipSchedule(Request $request): JsonResponse
     {
-        $request->validate([
-            'origin_lat' => 'required|numeric',
-            'origin_lon' => 'required|numeric',
-            'destination_lat' => 'required|numeric',
-            'destination_lon' => 'required|numeric',
-        ]);
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_regency_id = $request->get('destination_regency_id');
+        if ($origin_regency_id == null || $destination_regency_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
 
-        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
-        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA);
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA);
 
-        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
-        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA);
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA);
 
-        $origin_regency_id = $resultOrigin['regency'];
-        $destination_regency_id = $resultDestination['regency'];
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_regency_id = $resultDestination['regency'];
+        } else {
+            $request->validate([
+                'origin_regency_id' => 'required|numeric',
+                'destination_regency_id' => 'required|numeric',
+            ]);
+        }
 
         $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
             ->where('destination_regency_id', $destination_regency_id)
