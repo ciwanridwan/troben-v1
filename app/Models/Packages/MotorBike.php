@@ -29,9 +29,4 @@ class MotorBike extends Model
     {
         return $this->belongsTo(Package::class, 'package_item_id', 'id');
     }
-
-    public function packagePrices()
-    {
-
-    }
 }
