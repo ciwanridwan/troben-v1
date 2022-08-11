@@ -58,7 +58,12 @@
                 <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.commission_discount) }}</span>
                 <span slot="approved" slot-scope="record">
                     <template v-if="record.approved == 'pending'">
-                        <input type="checkbox" v-model="receipt" :value="record">
+                        <template v-if="approved_at">
+                            <input type="checkbox" disabled>
+                        </template>
+                        <template v-else>
+                            <input type="checkbox" v-model="receipt" :value="record">
+                        </template>
                         <span class="text-gray">Pending</span>
                     </template>
                     <template v-else>
@@ -75,10 +80,10 @@
             <a-layout-footer :class="['trawl-content-footer']">
                 <a-row type="flex" :gutter="24">
                     <a-col :span="14">
-                        <template v-if="this.lists[0].approved_at != null">
+                        <template v-if="this.approved_at != null">
                             Approved At
                             <span class="fw-medium">
-                                {{ moment(this.lists[0].approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
+                                {{ moment(this.approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
                             </span>
                         </template>
                     </a-col>
@@ -110,7 +115,7 @@ export default {
         total_unapproved: '',
         total_approved: '',
         receipt: [],
-        // approved_at: null,
+        approved_at: '',
         filter: {
             q: ''
         },
@@ -149,8 +154,8 @@ export default {
             let uri = this.routeUri(`admin.payment.withdraw.request.detailAjax`, {id: this.id})
             this.$http.get(uri)
             .then((res)=>{
-                console.log(res)
-                this.lists = res.data.data
+                this.lists = res.data.data.rows
+                this.approved_at = res.data.data.approved_at
                 this.loading = false
                 this.getTotal()
             }).catch(function (error) {
