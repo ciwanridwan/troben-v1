@@ -52,36 +52,46 @@ class FinanceController extends Controller
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
 
-        // $approveds = $this->getApprovedDisbursment($packages->unique('receipt')->pluck('receipt')->values()->toArray());
-        $approveds = $this->getApprovedReceipt();
-        $approves = collect(DB::select($approveds));
-
-        
+        $approveds = $this->getApprovedReceipt($result);   
+        $approves = collect(DB::select($approveds));     
 
         $disbursHistory = DisbursmentHistory::all();
 
-        $packages->map(function ($r) use ($disbursHistory) {
-            $r->approved = 'pending';
-            $r->total_payment = intval($r->total_payment);
-            $r->commission_discount = intval($r->commission_discount);
-            $r->approved_at = null;
-            
-            $check = $disbursHistory->where('receipt', $r->receipt)->first();
-            if ($check) {
+        if ($result->status == Withdrawal::STATUS_APPROVED) {
+            $receipt = $approves->map(function ($r) {
                 $r->approved = 'success';
-                $r->approved_at = $check->created_at->format('Y-m-d');
-            }
-            return $r;
-        })->values();
+                $r->total_payment = intval($r->total_payment);
+                $r->commission_discount = intval($r->commission_discount);
+                $r->approved_at = date('Y-m-d', strtotime($r->approved_at));
+                return $r;
+            })->values();
 
-        $approvedAt = $packages->whereNotNull('approved_at')->first();
+            $approvedAt = $receipt->whereNotNull('approved_at')->first();
 
-        $data = [
-            'rows' => $packages,
-            'approved_at' => $approvedAt ? $approvedAt->approved_at : null 
-        ];
+            $data = [
+                'rows' => $receipt,
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null 
+            ];
 
-        return (new Response(Response::RC_SUCCESS, $data))->json();
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        } else {
+            $receipts = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
+                return $r->receipt;
+            })->values());
+
+            $receipts->map(function ($r) {
+                $r->approved = 'pending';
+                $r->total_payment = intval($r->total_payment);
+                $r->commission_discount = intval($r->commission_discount);
+                return $r;
+            })->values();
+    
+            $data = [
+                'rows' => $receipts
+            ];
+    
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        }
     }
 
     /**Submit Approved Disbursment */
@@ -426,9 +436,16 @@ class FinanceController extends Controller
     }
     /**End query */
 
-    private function getApprovedReceipt()
+    private function getApprovedReceipt($request)
     {
-        $query = "SELECT * FROM disbursment_histories";
+        $query = 
+        "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as commission_discount, dh.created_at as approved_at 
+        from disbursment_histories dh
+        left join partner_balance_disbursement pbd on dh.disbursment_id = pbd.id
+        left join codes c on dh.receipt = c.content
+        left join packages p on c.codeable_id = p.id
+        where dh.disbursment_id = $request->id";
+        
         return $query;
     }
 }
