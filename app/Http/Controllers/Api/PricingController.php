@@ -172,13 +172,23 @@ class PricingController extends Controller
      */
     public function shipSchedule(Request $request): JsonResponse
     {
-        $this->attributes = Validator::make($request->all(), [
-            'origin_regency_id' => 'required',
-            'destination_regency_id' => 'required',
-        ])->validate();
+        $request->validate([
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
+        ]);
 
-        $origin_regency_id = (int) $request->origin_regency_id;
-        $destination_regency_id = (int) $request->destination_regency_id;
+        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+        $resultOrigin = Geo::getRegional($coordOrigin);
+        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA);
+
+        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        $resultDestination = Geo::getRegional($coordDestination);
+        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA);
+
+        $origin_regency_id = $resultOrigin['regency'];
+        $destination_regency_id = $resultDestination['regency'];
 
         $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
             ->where('destination_regency_id', $destination_regency_id)
