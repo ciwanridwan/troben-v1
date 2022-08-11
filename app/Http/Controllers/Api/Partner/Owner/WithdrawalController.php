@@ -80,9 +80,7 @@ class WithdrawalController extends Controller
         if ($request->q != null) {
             $this->getSearch($request);
         }
-        if (isNull($this->query)) {
-            return (new Response(Response::RC_SUCCESS, []))->json();
-        }
+        
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 

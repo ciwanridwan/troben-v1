@@ -59,10 +59,10 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('findByDate', FinanceController::class),
         ]);
 
-        $this->router->get($this->prefix('/detail/{id}'), [
-            'as' => $this->name('detail'),
-            'uses' => $this->uses('detail', FinanceController::class),
-        ]);
+        // $this->router->get($this->prefix('/detail/{id}'), [
+        //     'as' => $this->name('detail'),
+        //     'uses' => $this->uses('detail', FinanceController::class),
+        // ]);
 
         $this->router->get($this->prefix('/detail/{id}/ajax'), [
             'as' => $this->name('detailAjax'),
