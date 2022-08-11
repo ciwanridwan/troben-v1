@@ -28,67 +28,7 @@ class FinanceRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('/list'), [
-            'as' => $this->name('list'),
-            'uses' => $this->uses('list'),
-        ]);
-
-        $this->router->get($this->prefix('/list/partners'), [
-            'as' => $this->name('listPartners'),
-            'uses' => $this->uses('listPartners'),
-        ]);
-
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}'), [
-            'as' => $this->name('detail'),
-            'uses' => $this->uses('detail'),
-        ]);
-
-        /** Route fixed can error 419 */
-        // $this->router->post($this->prefix('/detail/{withdrawal_hash}/approve'), [
-        //     'as' => $this->name('approve'),
-        //     'uses' => $this->uses('approve'),
-        // ]);
-
-        /** Route temporary*/
-        $this->router->post($this->prefix('/detail/{id}/approve'), [
-            'as' => $this->name('approve'),
-            'uses' => $this->uses('approve'),
-        ])->withoutMiddleware('api');
-
-        $this->router->get($this->prefix('/find/partner'), [
-            'as' => $this->name('findByPartner'),
-            'uses' => $this->uses('findByPartner'),
-        ]);
-
-        $this->router->get($this->prefix('/find/status'), [
-            'as' => $this->name('findByStatus'),
-            'uses' => $this->uses('findByStatus'),
-        ]);
-
-        $this->router->get($this->prefix('/find/date'), [
-            'as' => $this->name('findByDate'),
-            'uses' => $this->uses('findByDate'),
-        ]);
-
-        $this->router->get($this->prefix('/detail/{withdrawal_hash}/find/receipt'), [
-            'as' => $this->name('findByReceipt'),
-            'uses' => $this->uses('findByReceipt'),
-        ]);
-
-        $this->router->get($this->prefix('/count'), [
-            'as' => $this->name('countDisbursment'),
-            'uses' => $this->uses('countDisbursment'),
-        ]);
-
-        $this->router->get($this->prefix('/count/amount'), [
-            'as' => $this->name('countAmountDisbursment'),
-            'uses' => $this->uses('countAmountDisbursment'),
-        ]);
-
-        $this->router->get($this->prefix('/report'), [
-            'as' => $this->name('report'),
-            'uses' => $this->uses('reportReceipt'),
-        ]);
+        /**Move to request route */
     }
 
     /**

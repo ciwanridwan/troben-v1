@@ -45,6 +45,7 @@ class Withdrawal extends Model
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
+    public const STATUS_PENDING = 'pending';
     // End Todo
 
     protected $table = 'partner_balance_disbursement';
@@ -60,7 +61,8 @@ class Withdrawal extends Model
         'account_number',
         'status',
         'notes',
-        'admin',
+        'charge_admin',
+        'fee_charge_admin'
     ];
 
     protected $casts = [
@@ -73,6 +75,10 @@ class Withdrawal extends Model
         'hash'
     ];
 
+    // protected $attributes =
+    // [
+    //     'fee_charge_admin' => 0
+    // ];
     /**
      * Get all available type on partner balance histories.
      *
@@ -87,6 +93,7 @@ class Withdrawal extends Model
             // self::STATUS_SUCCESS,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
+            self::STATUS_PENDING,
         ];
     }
 
@@ -99,6 +106,7 @@ class Withdrawal extends Model
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
+
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin', 'id');

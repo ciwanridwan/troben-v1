@@ -10,6 +10,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Kreait\Firebase\Exception\MessagingApiExceptionConverter;
 
 class Controller extends BaseController
@@ -43,5 +46,13 @@ class Controller extends BaseController
         return $this->jsonSuccess(new JsonResource([
             'message' => 'Humming is fun, we\'re still working on it 😘',
         ]));
+    }
+
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        $slicedItems = $items->forPage($page, $perPage)->values();
+        return new LengthAwarePaginator($slicedItems, $items->count(), $perPage, $page, $options);
     }
 }

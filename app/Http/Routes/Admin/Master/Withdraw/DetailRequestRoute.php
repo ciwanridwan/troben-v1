@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\Master\Withdraw\DetailRequestController;
 class DetailRequestRoute extends BaseRoute
 {
     /**Add new route for detail request */
-    protected $prefix = '/payment/withdraw/request/detail/{withdrawl_hash}';
+    protected $prefix = '/payment/withdraw/request/detail/{id}';
 
     protected $name = 'admin.payment.withdraw.request.detail';
     /**
