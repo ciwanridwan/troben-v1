@@ -55,28 +55,51 @@ class FinanceController extends Controller
 
         $disbursHistory = DisbursmentHistory::all();
 
-        $receipts = $packages->map(function ($r) use ($disbursHistory) {
-            $r->approved = 'pending';
-            $r->total_payment = intval($r->total_payment);
-            $r->commission_discount = intval($r->commission_discount);
-            $r->approved_at = null;
-            
-            $check = $disbursHistory->where('receipt', $r->receipt)->first();
-            if ($check) {
-                $r->approved = 'success';
-                $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
-            }
-            return $r;
-        })->values();
+        if ($result->status == Withdrawal::STATUS_REQUESTED) {
+            $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
+                return $r->receipt;
+            })->values());
 
-        $approvedAt = $receipts->whereNotNull('approved_at')->first();
+            $getPendingReceipts = $receiptRequested->map(function ($r) {
+                $r->approved = 'pending';
+                $r->total_payment = intval($r->total_payment);
+                $r->commission_discount = intval($r->commission_discount);
+                $r->approved_at = null;
+                return $r;
+            })->values();
 
-        $data = [
-            'rows' => $receipts,
-            'approved_at' => $approvedAt ? $approvedAt->approved_at : null
-        ];
+            $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
-        return (new Response(Response::RC_SUCCESS, $data))->json();
+            $data = [
+                'rows' => $getPendingReceipts,
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        } else {
+            $receipts = $packages->map(function ($r) use ($disbursHistory, $result) {
+                $r->approved = 'pending';
+                $r->total_payment = intval($r->total_payment);
+                $r->commission_discount = intval($r->commission_discount);
+                $r->approved_at = null;
+                
+                $check = $disbursHistory->where('receipt', $r->receipt)->first();
+                if ($check) {
+                    $r->approved = 'success';
+                    $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
+                }
+                return $r;
+            })->values();
+
+            $approvedAt = $receipts->whereNotNull('approved_at')->first();
+
+            $data = [
+                'rows' => $receipts,
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        }
     }
 
     /**Submit Approved Disbursment */
@@ -128,6 +151,10 @@ class FinanceController extends Controller
                     $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
                 }
                 $disbursment->save();
+
+                $partners = Partner::where('id', $disbursment->partner_id)->first();
+                $partners->balance = $calculate;
+                $partners->save();
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
@@ -419,6 +446,20 @@ class FinanceController extends Controller
         left join codes c on dh.receipt = c.content
         left join packages p on c.codeable_id = p.id
         where dh.disbursment_id = $request->id";
+
+        return $query;
+    }
+
+    private function getLatestApprovedReceipts($request)
+    {
+        $query =
+            "SELECT * FROM disbursment_histories dh2 
+        WHERE disbursment_id = (
+            SELECT max(disbursment_id) FROM disbursment_histories dh
+            LEFT JOIN partner_balance_disbursement pbd ON dh.disbursment_id = pbd.id 
+            WHERE pbd.partner_id = $request->partner_id
+        LIMIT 1
+        )";
 
         return $query;
     }
