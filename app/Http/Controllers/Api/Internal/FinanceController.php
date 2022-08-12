@@ -65,14 +65,13 @@ class FinanceController extends Controller
                 $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
                 return $r;
             })->values();
-
             $approvedAt = $receipt->whereNotNull('approved_at')->first();
-
+            
             $data = [
                 'rows' => $receipt,
                 'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
-
+            
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
             $receipts = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
@@ -85,9 +84,12 @@ class FinanceController extends Controller
                 $r->commission_discount = intval($r->commission_discount);
                 return $r;
             })->values();
+            foreach ($receipts as $key ) {
+                $arr[] = $key;
+            }
 
             $data = [
-                'rows' => $receipts
+                'rows' => $arr
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -162,6 +164,7 @@ class FinanceController extends Controller
                     $pendingDisburs->status = Withdrawal::STATUS_PENDING;
                     $pendingDisburs->action_by = Auth::id();
                     $pendingDisburs->action_at = Carbon::now();
+                    $pendingDisburs->expired_at = Carbon::now()->addDays(7);
                     $pendingDisburs->save();
 
                     $partner = Partner::where('id', $disbursment->partner_id)->first();

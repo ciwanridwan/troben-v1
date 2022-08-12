@@ -86,9 +86,10 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_PENDING)->orWhere('status', Withdrawal::STATUS_REQUESTED)->first();
+        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_PENDING)
+        ->orWhere('status', Withdrawal::STATUS_REQUESTED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-
+        
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
