@@ -62,7 +62,8 @@ class Withdrawal extends Model
         'status',
         'notes',
         'charge_admin',
-        'fee_charge_admin'
+        'fee_charge_admin',
+        'expired_at'
     ];
 
     protected $casts = [
