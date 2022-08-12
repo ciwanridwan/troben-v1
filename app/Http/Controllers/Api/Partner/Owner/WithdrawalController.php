@@ -86,8 +86,7 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_PENDING)
-        ->orWhere('status', Withdrawal::STATUS_REQUESTED)->orderBy('created_at', 'desc')->first();
+        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_REQUESTED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
         
         if (is_null($withdrawal)) {
@@ -154,19 +153,7 @@ class WithdrawalController extends Controller
     {
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
-            return (new Response(Response::RC_SUCCESS, $result))->json();
-        } else if ($withdrawal->status == Withdrawal::STATUS_PENDING) {
-
-            $pendingReceipts = $this->getPendingReceipt($withdrawal);
-            $toCollect = collect(DB::select($pendingReceipts));
-
-            $toCollect->map(function ($r) use ($withdrawal) {
-                $r->created_at = $withdrawal->created_at;
-                return $r;
-            })->values();
-
-            $data = $this->paginate($toCollect);
-            return (new Response(Response::RC_SUCCESS, $data))->json();
+            return (new Response(Response::RC_SUCCESS, $result))->json(); 
         } else {
             $pendingReceipts = $this->getPendingReceipt($withdrawal);
             $toCollect = collect(DB::select($pendingReceipts));

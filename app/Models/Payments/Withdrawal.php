@@ -45,7 +45,6 @@ class Withdrawal extends Model
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
-    public const STATUS_PENDING = 'pending';
     // End Todo
 
     protected $table = 'partner_balance_disbursement';
@@ -94,7 +93,6 @@ class Withdrawal extends Model
             // self::STATUS_SUCCESS,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
-            self::STATUS_PENDING,
         ];
     }
 

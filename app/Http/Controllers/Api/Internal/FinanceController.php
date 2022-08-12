@@ -19,8 +19,6 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PDO;
-use Riverline\MultiPartParser\Part;
 
 class FinanceController extends Controller
 {
@@ -57,43 +55,28 @@ class FinanceController extends Controller
 
         $disbursHistory = DisbursmentHistory::all();
 
-        if ($result->status == Withdrawal::STATUS_APPROVED) {
-            $receipt = $approves->map(function ($r) {
+        $receipts = $packages->map(function ($r) use ($disbursHistory) {
+            $r->approved = 'pending';
+            $r->total_payment = intval($r->total_payment);
+            $r->commission_discount = intval($r->commission_discount);
+            $r->approved_at = null;
+            
+            $check = $disbursHistory->where('receipt', $r->receipt)->first();
+            if ($check) {
                 $r->approved = 'success';
-                $r->total_payment = intval($r->total_payment);
-                $r->commission_discount = intval($r->commission_discount);
                 $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
-                return $r;
-            })->values();
-            $approvedAt = $receipt->whereNotNull('approved_at')->first();
-            
-            $data = [
-                'rows' => $receipt,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
-            ];
-            
-            return (new Response(Response::RC_SUCCESS, $data))->json();
-        } else {
-            $receipts = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
-                return $r->receipt;
-            })->values());
-
-            $receipts->map(function ($r) {
-                $r->approved = 'pending';
-                $r->total_payment = intval($r->total_payment);
-                $r->commission_discount = intval($r->commission_discount);
-                return $r;
-            })->values();
-            foreach ($receipts as $key ) {
-                $arr[] = $key;
             }
+            return $r;
+        })->values();
 
-            $data = [
-                'rows' => $arr
-            ];
+        $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
-            return (new Response(Response::RC_SUCCESS, $data))->json();
-        }
+        $data = [
+            'rows' => $receipts,
+            'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
     /**Submit Approved Disbursment */
@@ -145,33 +128,6 @@ class FinanceController extends Controller
                     $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
                 }
                 $disbursment->save();
-
-                $getPendingReceipt = $packages->whereNotIn('receipt', $receipt)->map(function ($p) {
-                    $p->commission_discount = ceil($p->commission_discount);
-                    return $p;
-                });
-
-                if ($getPendingReceipt->isNotEmpty()) {
-                    $cd = $getPendingReceipt->sum('commission_discount');
-
-                    $pendingDisburs = new Withdrawal();
-                    $pendingDisburs->partner_id = $disbursment->partner_id;
-                    $pendingDisburs->first_balance = $disbursment->first_balance;
-                    $pendingDisburs->amount = $cd;
-                    $pendingDisburs->bank_id = $disbursment->bank_id;
-                    $pendingDisburs->account_name = $disbursment->account_name;
-                    $pendingDisburs->account_number = $disbursment->account_number;
-                    $pendingDisburs->status = Withdrawal::STATUS_PENDING;
-                    $pendingDisburs->action_by = Auth::id();
-                    $pendingDisburs->action_at = Carbon::now();
-                    $pendingDisburs->expired_at = Carbon::now()->addDays(7);
-                    $pendingDisburs->save();
-
-                    $partner = Partner::where('id', $disbursment->partner_id)->first();
-                    $balance = $disbursment->first_balance;
-                    $partner->balance = $balance;
-                    $partner->save();
-                }
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
@@ -322,6 +278,21 @@ class FinanceController extends Controller
         header("Cache-Control: max-age=0");
 
         return view('report.finance', compact('result'));
+    }
+
+    /**Add report excel for disbursment */
+    public function reportDisbursment(Request $request)
+    {
+        $request->validate([
+            'start' => 'required|date_format:Y-m-d',
+            'end' => 'required|date_format:Y-m-d',
+        ]);
+
+        $param = [
+            'start' => $request->get('start', Carbon::now()->subMonth()->format('Y-m-d')),
+            'end' => $request->get('end', Carbon::now()->format('Y-m-d')),
+        ];
+        $result = Withdrawal::all();
     }
 
     private function reportReceiptQuery($param)
