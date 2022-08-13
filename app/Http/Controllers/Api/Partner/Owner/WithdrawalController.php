@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Concerns\Controllers\HasResource;
 use App\Events\Partners\Balance\WithdrawalRequested;
+use App\Exports\WithdrawalExport;
 use App\Http\Controllers\Api\Internal\FinanceController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\UserBankResource;
@@ -23,6 +24,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 use function PHPUnit\Framework\isNull;
 
@@ -186,6 +188,13 @@ class WithdrawalController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
+    }
+
+    public function export()
+    {
+        // $disbursment = DisbursmentHistory::all();
+        // return Excel::download(new WithdrawalExport(), 'Withdrawal-Histories.xlsx');
+        return (new WithdrawalExport)->download('Withdrawal-Histories.xlsx');
     }
 
     private function getPendingReceipt($request)

@@ -3,6 +3,7 @@
 namespace App\Models\Payments;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Attribute;
@@ -10,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
@@ -109,5 +111,10 @@ class Withdrawal extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin', 'id');
+    }
+
+    public function disbursmentHistories(): BelongsTo
+    {
+        return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
     }
 }
