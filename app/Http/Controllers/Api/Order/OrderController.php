@@ -236,11 +236,11 @@ class OrderController extends Controller
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA);
+            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
             $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA);
+            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
 
             $origin_regency_id = $resultOrigin['regency'];
             $destination_id = $resultDestination['district'];
