@@ -83,16 +83,34 @@ class Geo
         $result = self::getReverseMeta($coord);
         if (is_null($result)) return null;
 
-        $comps = collect($result->address_components);
+        $comps = collect($result);
 
         $province_check = $comps->filter(function($r) { return in_array('administrative_area_level_1', $r->types); })->first();
-        $province = ! is_null($province_check) ? self::regionCleaner($province_check->long_name) : null;
+        $province = null;
+        if (! is_null($province_check)) {
+            $province = [
+                'k' => $province_check->place_id,
+                'v' => collect($province_check->address_components)->filter(function($r) { return in_array('administrative_area_level_1', $r->types); })->first()->long_name,
+            ];
+        }
 
         $regency_check = $comps->filter(function($r) { return in_array('administrative_area_level_2', $r->types); })->first();
-        $regency = ! is_null($regency_check) ? self::regionCleaner($regency_check->long_name) : null;
+        $regency = null;
+        if (! is_null($regency_check)) {
+            $regency = [
+                'k' => $regency_check->place_id,
+                'v' => collect($regency_check->address_components)->filter(function($r) { return in_array('administrative_area_level_2', $r->types); })->first()->long_name,
+            ];
+        }
 
         $district_check = $comps->filter(function($r) { return in_array('administrative_area_level_3', $r->types); })->first();
-        $district = ! is_null($district_check) ? self::regionCleaner($district_check->long_name) : null;
+        $district = null;
+        if (! is_null($district_check)) {
+            $district = [
+                'k' => $district_check->place_id,
+                'v' => collect($district_check->address_components)->filter(function($r) { return in_array('administrative_area_level_3', $r->types); })->first()->long_name,
+            ];
+        }
 
         if ($province == null && $regency == null && $district == null) return null;
 
@@ -119,6 +137,10 @@ class Geo
         if ($district != null) {
             $districtRegional = self::findInDB($key, $district, $coord, $provinceId, $regencyId);
         }
+        if ($districtRegional == null) { // district still null, fallback to province level
+            $districtRegional = self::findInDB($key, $district, $coord, $provinceId);
+        }
+
         // no regency match, terminate func
         if ($districtRegional == null) return null;
         $districtId = $districtRegional->regional_id;
@@ -152,7 +174,7 @@ class Geo
             }
 
             if (isset($response->results) && count($response->results)) {
-                return $response->results[0];
+                return $response->results;
             }
 
             return null;
@@ -196,60 +218,57 @@ class Geo
             $str = str_replace($b, '', $str);
         }
 
+        $str = preg_replace("/[^A-Za-z0-9 ]/", '', $str);
+
         $str = trim($str);
 
         return $str;
     }
 
-    private static function findInDB($type, $keyword, $coord, $provinceId = null, $regencyId = null)
+    private static function findInDB($type, $place, $coord, $provinceId = null, $regencyId = null)
     {
+        // find in mapping first
+        $result = MapMapping::where('google_placeid', $place['k'])->first();
+        if (! is_null($result)) return $result;
+
         switch ($type) {
-            case 'province':
-                $t = 'geo_provinces';
-                break;
-            case 'regency':
-                $t = 'geo_regencies';
-                break;
-            case 'district':
-                $t = 'geo_districts';
-                break;
-            default:
-                throw new \Exception('Invalid type');
-                break;
+            case 'province': $t = 'geo_provinces'; break;
+            case 'regency': $t = 'geo_regencies'; break;
+            case 'district': $t = 'geo_districts'; break;
+            default: throw new \Exception('Invalid type'); break;
         }
 
         // first check in local db
-        $result = DB::table($t)->where('name', 'ilike', '%'.self::regionCleaner($keyword).'%');
+        $result = DB::table($t)->where('name', 'ilike', '%'.self::regionCleaner($place['v']).'%');
 
         if ($provinceId != null) $result = $result->where('province_id', $provinceId);
         if ($regencyId != null) $result = $result->where('regency_id', $regencyId);
 
         $regionLocal = $result->first();
-        if ($regionLocal == null) {
-            // if not found, check in table mapping
-            $result = MapMapping::where('google_name', $keyword)->where('level', $type)->first();
-
-            // still null, fallback save to pending
-            if (is_null($result)) {
-                list($lat, $lon) = explode(',', $coord);
-                MapMappingPending::create([
-                    'level' => $type,
-                    'google_name' => $keyword,
-                    'lat' => $lat,
-                    'lon' => $lon,
-                ]);
-            }
-        } else {
-            // if exist, find it by region to table mapping
+        if ($regionLocal != null) {
+            // if exist, find it and create to table mapping
             $result = MapMapping::firstOrCreate([
                 'level' => $type,
                 'regional_id' => $regionLocal->id,
             ], [
-                'google_name' => $keyword,
+                'google_placeid' => $place['k'],
+                'google_name' => $place['v'],
                 'name' => $regionLocal->name,
             ]);
+
+            return $result;
         }
 
-        return $result;
+        // not found in local, fallback save to pending
+        list($lat, $lon) = explode(',', $coord);
+        MapMappingPending::create([
+            'level' => $type,
+            'google_name' => $place['v'],
+            'google_placeid' => $place['k'],
+            'lat' => $lat,
+            'lon' => $lon,
+        ]);
+
+        return null;
     }
 }
