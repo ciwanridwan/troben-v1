@@ -105,6 +105,31 @@ class PricingController extends Controller
     }
 
     /**
+     *
+     * Get Pricing Location
+     * Route Path       : {API_DOMAIN}/pricing/location
+     * Route Name       : api.pricing.location
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function locationCheck(Request $request): JsonResponse
+    {
+        $request->validate([
+            'location_lat' => 'required|numeric',
+            'location_lon' => 'required|numeric',
+        ]);
+
+        $coordLocation = sprintf('%s,%s', $request->get('location_lat'), $request->get('location_lon'));
+        $resultLocation = Geo::getRegional($coordLocation);
+        if ($resultLocation == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
+
+        return (new Response(Response::RC_SUCCESS, $resultLocation))->json();
+    }
+
+    /**
      * @param Builder $query
      *
      * @return Builder
