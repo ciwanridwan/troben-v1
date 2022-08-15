@@ -309,18 +309,8 @@ class FinanceController extends Controller
     }
 
     /**Add report excel for disbursment */
-    public function export(Request $request)
+    public function export()
     {
-        $request->validate([
-            'start' => 'required|date_format:Y-m-d',
-            'end' => 'required|date_format:Y-m-d',
-        ]);
-
-        $param = [
-            'start' => $request->get('start', Carbon::now()->subMonth()->format('Y-m-d')),
-            'end' => $request->get('end', Carbon::now()->format('Y-m-d')),
-        ];
-
         return (new DisbursmentExport())->download('Disbursment-Histories.xlsx');
     }
 

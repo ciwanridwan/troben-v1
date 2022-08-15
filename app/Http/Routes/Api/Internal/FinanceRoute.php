@@ -87,7 +87,6 @@ class FinanceRoute extends BaseRoute
             'as' => $this->name('report'),
             'uses' => $this->uses('reportReceipt', FinanceController::class),
         ]);
-
     }
 
     /**
