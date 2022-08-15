@@ -192,8 +192,6 @@ class WithdrawalController extends Controller
 
     public function export()
     {
-        // $disbursment = DisbursmentHistory::all();
-        // return Excel::download(new WithdrawalExport(), 'Withdrawal-Histories.xlsx');
         return (new WithdrawalExport)->download('Withdrawal-Histories.xlsx');
     }
 

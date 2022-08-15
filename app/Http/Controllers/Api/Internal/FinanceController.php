@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal;
 
+use App\Exports\DisbursmentExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
@@ -308,7 +309,7 @@ class FinanceController extends Controller
     }
 
     /**Add report excel for disbursment */
-    public function reportDisbursment(Request $request)
+    public function export(Request $request)
     {
         $request->validate([
             'start' => 'required|date_format:Y-m-d',
@@ -319,7 +320,8 @@ class FinanceController extends Controller
             'start' => $request->get('start', Carbon::now()->subMonth()->format('Y-m-d')),
             'end' => $request->get('end', Carbon::now()->format('Y-m-d')),
         ];
-        $result = Withdrawal::all();
+
+        return (new DisbursmentExport())->download('Disbursment-Histories.xlsx');
     }
 
     private function reportReceiptQuery($param)
