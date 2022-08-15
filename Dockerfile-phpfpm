@@ -2,7 +2,7 @@ FROM php:7.4-fpm-alpine
 
 LABEL maintainer="ciwanridwan <github.com/ciwanridwan>"
 
-RUN apk add --no-cache postgresql-dev freetype freetype-dev libjpeg-turbo libjpeg-turbo-dev libwebp-dev libxpm-dev libpng libpng-dev curl zip unzip zip zlib-dev libzip-dev gcc musl-dev linux-headers gmp-dev pcre-dev ${PHPIZE_DEPS} && \
+RUN apk add --no-cache npm postgresql-dev freetype freetype-dev libjpeg-turbo libjpeg-turbo-dev libwebp-dev libxpm-dev libpng libpng-dev curl zip unzip zip zlib-dev libzip-dev gcc musl-dev linux-headers gmp-dev pcre-dev ${PHPIZE_DEPS} && \
     docker-php-ext-configure gd --with-freetype --with-webp --with-jpeg && \
     docker-php-ext-configure zip && \
     NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
