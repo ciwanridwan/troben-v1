@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAppBannersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateAppBannersTable extends Migration
      */
     public function up()
     {
-        Schema::create('app_banners', function (Blueprint $table) {
+        Schema::create('map_mappings', function (Blueprint $table) {
             $table->id();
-            $table->string('filename');
-            $table->string('app_code');
-            $table->string('author');
-            $table->text('meta');
-            $table->boolean('status')->default(false);
+            $table->string('level');
+            $table->string('google_name');
+            $table->string('google_placeid');
+            $table->string('name');
+            $table->unsignedInteger('regional_id');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ class CreateAppBannersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('app_banners');
+        Schema::dropIfExists('map_mappings');
     }
-}
+};

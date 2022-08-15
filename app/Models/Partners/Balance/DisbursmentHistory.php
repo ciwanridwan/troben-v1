@@ -17,7 +17,7 @@ class DisbursmentHistory extends Model
 
     /** Define column for allow to inserting */
     protected $fillable = [
-        'disbursement_id',
+        'disbursment_id',
         'receipt',
         'amount',
         'status'

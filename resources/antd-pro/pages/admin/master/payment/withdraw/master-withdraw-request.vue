@@ -192,11 +192,8 @@ export default {
     },
     getDisbursmentList(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.list")
+      this.$http.get(uri)
       .then((res)=>{
           this.loading = false
           this.lists = res.data.data
@@ -211,11 +208,8 @@ export default {
     },
     getTotalRequest(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count/amount`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countAmountDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.total_request = res.data.data
           this.loading = false
@@ -226,11 +220,8 @@ export default {
     },
     getRequestDisbursment(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.request_disbursment = res.data.data
           this.loading = false
@@ -241,30 +232,26 @@ export default {
     },
     filterCode(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list/partners`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.listPartners")
+      this.$http.get(uri)
       .then((res)=>{
+          console.log(res)
           this.codes = res.data.data
+          this.loading = false
       }).catch(function (error) {
           console.error(error);
           this.loading = false
       });
     },
     filterDate(){
+      console.log('aa')
       if(this.filter.start_date == null || this.filter.end_date == null){
         this.loading = true
-        axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list`, {
-          headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-          }
-        })
+        let uri = this.routeUri("admin.payment.withdraw.request.list")
+        this.$http.get(uri)
         .then((res)=>{
             this.loading = false
             this.lists = res.data.data
-            this.filterCode()
             let numbering = 1;
             this.lists.forEach((o, k) => {
                 o.number = numbering++;
@@ -275,13 +262,11 @@ export default {
         });
       }else{
         this.loading = true
-        axios.get(`https://api.staging.trawlbens.co.id/internal/finance/find/date`, {
+        let uri = this.routeUri("admin.payment.withdraw.request.findByDate")
+        this.$http.get(uri, {
           params: {
             start_date: this.filter.start_date,
             end_date: this.filter.end_date
-          },
-          headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
           }
         })
         .then((res)=>{
@@ -299,13 +284,11 @@ export default {
       }
     },
     exportData(){
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/report`, {
+      let uri = this.routeUri("admin.payment.withdraw.request.report")
+      this.$http.get(uri, {
         params: {
           start: this.filter.start_date,
           end: this.filter.end_date
-        },
-        headers: {
-          Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
         },
         responseType: 'blob'
       })

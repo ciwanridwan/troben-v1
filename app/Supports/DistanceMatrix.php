@@ -36,10 +36,11 @@ class DistanceMatrix
 
     public static function calculateDistance(string $origin, string $destination)
     {
+        $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
+        ])->get($url);
         $response = json_decode($response->body());
 
         $distance = 0;
