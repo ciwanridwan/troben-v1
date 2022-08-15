@@ -1,14 +1,14 @@
-FROM php:7.4-fpm-alpine
+FROM php:8.0-fpm-alpine
 
 LABEL maintainer="ciwanridwan <github.com/ciwanridwan>"
 
-RUN apk add --no-cache npm postgresql-dev freetype freetype-dev libjpeg-turbo libjpeg-turbo-dev libwebp-dev libxpm-dev libpng libpng-dev curl zip unzip zip zlib-dev libzip-dev gcc musl-dev linux-headers gmp-dev pcre-dev ${PHPIZE_DEPS} && \
+RUN apk add --no-cache git npm postgresql-dev freetype freetype-dev libjpeg-turbo libjpeg-turbo-dev libwebp-dev libxpm-dev libpng libpng-dev curl zip unzip zip zlib-dev libzip-dev gcc musl-dev linux-headers gmp-dev pcre-dev ${PHPIZE_DEPS} && \
     docker-php-ext-configure gd --with-freetype --with-webp --with-jpeg && \
     docker-php-ext-configure zip && \
     NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
     curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/bin --filename=composer && \
-    docker-php-ext-install -j$(nproc) pdo_pgsql zip gmp gd bcmath && \
+    docker-php-ext-install -j$(nproc) pdo_pgsql zip gmp gd bcmath pcntl && \
     pecl channel-update pecl.php.net && pecl install redis && \
     apk del pcre-dev ${PHPIZE_DEPS} && \
     docker-php-ext-enable redis
@@ -33,9 +33,3 @@ COPY . /var/www
 
 COPY docker_conf/scheduler/start.sh /usr/local/bin/start
 
-RUN composer install \
-    --ignore-platform-reqs \
-    --no-interaction \
-    --no-plugins \
-    --no-scripts \
-    --prefer-dist
