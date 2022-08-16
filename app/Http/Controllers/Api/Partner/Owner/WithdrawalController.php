@@ -192,7 +192,14 @@ class WithdrawalController extends Controller
 
     public function export()
     {
-        return (new WithdrawalExport)->download('Withdrawal-Histories.xlsx');
+        $result = DisbursmentHistory::query()
+            ->select('receipt', 'amount')
+            ->get()
+            ->map(function($row, $index) {
+                $row->no = $index + 1;
+                return $row;
+            });
+        return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }
 
     private function getPendingReceipt($request)

@@ -18,15 +18,39 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Style;
+use Illuminate\Support\Collection;
 
-
-class WithdrawalExport implements FromQuery, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles
+class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles
 {
     use Exportable;
+
+    protected $rowsData;
 
     /**
     * @var DisbursmentHistories $withdrawal
     */
+
+    public function __construct(array $rowsData)
+    {
+        $this->rowsData = $rowsData;
+    }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function collection()
+    {
+        return new Collection($this->rowsData);
+    }
+
+    public function map($row): array
+    {
+        return [
+            $row->no,
+            $row->receipt,
+            $row->amount,
+        ];
+    }
 
     public function headings(): array
     {
@@ -57,9 +81,4 @@ class WithdrawalExport implements FromQuery, WithHeadings, WithColumnFormatting,
         $sheet->getStyle('A1:C1')->getFont()->setBold(true);
         $sheet->getStyle('A:C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
     }
-
-    public function query()
-    {
-        return DisbursmentHistory::query()->select('id', 'receipt', 'amount');
-    } 
 }
