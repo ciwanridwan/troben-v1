@@ -83,7 +83,7 @@ class FinanceController extends Controller
                 $r->total_payment = intval($r->total_payment);
                 $r->commission_discount = intval($r->commission_discount);
                 $r->approved_at = null;
-                
+
                 $check = $disbursHistory->where('receipt', $r->receipt)->first();
                 if ($check) {
                     $r->approved = 'success';
@@ -311,7 +311,10 @@ class FinanceController extends Controller
     /**Add report excel for disbursment */
     public function export()
     {
-        return (new DisbursmentExport())->download('Disbursment-Histories.xlsx');
+        $result = $this->getQueryExports();
+        $data = collect(DB::select($result))->toArray();
+        
+        return (new DisbursmentExport($data))->download('Disbursment-Histories.xlsx');
     }
 
     private function reportReceiptQuery($param)
@@ -454,5 +457,66 @@ class FinanceController extends Controller
         )";
 
         return $query;
+    }
+
+    /**Query for get all disbursment with spesific data */
+    private function getQueryExports()
+    {
+        $q =
+            "SELECT
+        r.partner_name,
+        r.bank_name,
+        r.bank_number,
+        r.receipt,
+        r.weight,
+        r.pickup_fee,
+        r.packing_fee,
+        r.insurance_fee,
+        r.partner_fee,
+        r.discount_fee,
+        r.commision,
+        (r.pickup_fee+r.packing_fee+r.insurance_fee+r.partner_fee+r.commision-r.discount_fee) as total
+    FROM (
+    
+    select p.code as partner_name, 
+    b.name as bank_name, 
+    pbd.account_number as bank_number, 
+    dh.receipt, 
+    c.codeable_id,
+    weight,
+    COALESCE(pp.amount, 0) as pickup_fee,
+    COALESCE(packing_fee, 0) as packing_fee, 
+    COALESCE(insurance_fee, 0) insurance_fee,
+    COALESCE(pp5.amount * 0.3, 0) as partner_fee,
+    COALESCE(pp4.amount, 0) as discount_fee,
+    CASE
+        WHEN weight>90 THEN COALESCE(pp5.amount * 0.05, 0)
+        ELSE 0
+    END  as commision
+    from disbursment_histories dh
+    left join partner_balance_disbursement pbd on dh.disbursment_id = pbd.id
+    left join partners p on pbd.partner_id = p.id
+    left join bank b on pbd.bank_id = b.id
+    left join codes c on dh.receipt = c.content
+    left join (	select pi2.package_id, sum(pi2.weight) as weight 
+                from package_items pi2 where weight notnull group by 1) pi2 
+                on pi2.package_id = c.codeable_id
+    left join (	select pp.package_id, pp.amount 
+                from package_prices pp where type = 'delivery' and description = 'pickup')pp 
+                on pp.package_id = c.codeable_id
+    left join (	select pp2.package_id, sum(pp2.amount) as packing_fee 
+                from package_prices pp2 where type = 'handling' group by 1) pp2 
+                on pp2.package_id = c.codeable_id
+    left join (	select pp3.package_id, sum(pp3.amount) as insurance_fee 
+                from package_prices pp3 where type = 'insurance' and description = 'insurance' group by 1) pp3
+                on pp3.package_id = c.codeable_id
+    left join (	select pp4.package_id, pp4.amount 
+                from package_prices pp4 where type = 'discount') pp4 
+                on pp4.package_id = c.codeable_id
+    left join ( select pp5.package_id, pp5.amount from package_prices pp5 where type = 'service' and description = 'service') pp5
+                on pp5.package_id  = c.codeable_id
+    ) r";
+
+    return $q;
     }
 }

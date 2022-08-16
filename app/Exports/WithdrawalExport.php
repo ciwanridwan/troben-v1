@@ -2,25 +2,20 @@
 
 namespace App\Exports;
 
-use App\Models\Partners\Balance\DisbursmentHistory;
-use App\Models\Payments\Withdrawal;
-use Illuminate\Http\Request;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 use Illuminate\Support\Collection;
 
-class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles
+class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles, WithMapping
 {
     use Exportable;
 
@@ -30,7 +25,7 @@ class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormat
     * @var DisbursmentHistories $withdrawal
     */
 
-    public function __construct(array $rowsData)
+    public function __construct($rowsData)
     {
         $this->rowsData = $rowsData;
     }
@@ -56,8 +51,8 @@ class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormat
     {
         return [
             'No',
-            'Resi',
-            'Amount',
+            'Nomor Resi',
+            'Total Penerimaan',
         ];
     }
 
@@ -71,8 +66,9 @@ class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormat
     public function columnWidths(): array
     {
         return [
+            'A' => 10,
             'B' => 25,
-            'C' => 15,            
+            'C' => 20,            
         ];
     }
 
