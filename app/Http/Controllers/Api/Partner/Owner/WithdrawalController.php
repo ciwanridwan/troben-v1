@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -82,16 +83,16 @@ class WithdrawalController extends Controller
         if ($request->q != null) {
             $this->getSearch($request);
         }
-        
+
         return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
     }
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
         $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_REQUESTED)
-        ->orWhere('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
+            ->orWhere('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-        
+
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
@@ -109,7 +110,7 @@ class WithdrawalController extends Controller
             if ($currentDate < $withdrawal->expired_at) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
-            
+
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
 
@@ -156,7 +157,7 @@ class WithdrawalController extends Controller
     {
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
-            return (new Response(Response::RC_SUCCESS, $result))->json(); 
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         } else {
             $pendingReceipts = $this->getPendingReceipt($withdrawal);
             $toCollect = collect(DB::select($pendingReceipts));
@@ -190,11 +191,18 @@ class WithdrawalController extends Controller
         return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        // $disbursment = DisbursmentHistory::all();
-        // return Excel::download(new WithdrawalExport(), 'Withdrawal-Histories.xlsx');
-        return (new WithdrawalExport)->download('Withdrawal-Histories.xlsx');
+        $partners = $request->user()->partners()->first();
+        $result = DisbursmentHistory::query()->select('disbursment_histories.receipt as receipt', 'disbursment_histories.amount as amount')
+            ->leftJoin('partner_balance_disbursement as pbd', 'disbursment_histories.disbursment_id', '=', 'pbd.id')
+            ->where('pbd.partner_id', $partners->id)
+            ->get()->map(function ($row, $index) {
+            $row->no = $index + 1;
+            return $row;
+        });
+
+        return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }
 
     private function getPendingReceipt($request)

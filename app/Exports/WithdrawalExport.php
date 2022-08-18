@@ -2,38 +2,57 @@
 
 namespace App\Exports;
 
-use App\Models\Partners\Balance\DisbursmentHistory;
-use App\Models\Payments\Withdrawal;
-use Illuminate\Http\Request;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Style\Style;
+use Illuminate\Support\Collection;
 
-
-class WithdrawalExport implements FromQuery, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles
+class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles, WithMapping
 {
     use Exportable;
+
+    protected $rowsData;
 
     /**
     * @var DisbursmentHistories $withdrawal
     */
 
+    public function __construct($rowsData)
+    {
+        $this->rowsData = $rowsData;
+    }
+
+    /**
+    * @return \Illuminate\Support\Collection
+    */
+    public function collection()
+    {
+        return new Collection($this->rowsData);
+    }
+
+    public function map($row): array
+    {
+        return [
+            $row->no,
+            $row->receipt,
+            $row->amount,
+        ];
+    }
+
     public function headings(): array
     {
         return [
             'No',
-            'Resi',
-            'Amount',
+            'Nomor Resi',
+            'Total Penerimaan',
         ];
     }
 
@@ -47,8 +66,9 @@ class WithdrawalExport implements FromQuery, WithHeadings, WithColumnFormatting,
     public function columnWidths(): array
     {
         return [
+            'A' => 10,
             'B' => 25,
-            'C' => 15,            
+            'C' => 20,            
         ];
     }
 
@@ -57,9 +77,4 @@ class WithdrawalExport implements FromQuery, WithHeadings, WithColumnFormatting,
         $sheet->getStyle('A1:C1')->getFont()->setBold(true);
         $sheet->getStyle('A:C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
     }
-
-    public function query()
-    {
-        return DisbursmentHistory::query()->select('id', 'receipt', 'amount');
-    } 
 }

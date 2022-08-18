@@ -106,18 +106,7 @@ class PartnerController extends Controller
         $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(' ', $w), $limit, $offset);
         $nearby = collect(DB::select($q))->map(function ($r) use ($origin) {
             $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
-            $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
-
-            if (Cache::has($k)) {
-                if ($k == 'distance.invalid') {
-                    $distance = 0;
-                } else {
-                    $distance = Cache::get($k);
-                }
-            } else {
-                $distance = DistanceMatrix::calculateDistance($origin, $destination);
-                Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
-            }
+            $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             $r->distance_matrix = $distance;
             return $r;

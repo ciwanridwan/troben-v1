@@ -88,6 +88,10 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('reportReceipt', FinanceController::class),
         ]);
 
+        $this->router->get($this->prefix('/export'), [
+            'as' => $this->name('export'),
+            'uses' => $this->uses('export', FinanceController::class),
+        ]);
     }
 
     /**
