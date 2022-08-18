@@ -5,6 +5,7 @@ namespace App\Http\Routes\Admin\Master\Withdraw;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Admin\Master\Withdraw\RequestController;
 use App\Http\Controllers\Api\Internal\FinanceController;
+use App\Http\Controllers\Api\Partner\Owner\WithdrawalController;
 
 class RequestRoute extends BaseRoute
 {
@@ -59,10 +60,10 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('findByDate', FinanceController::class),
         ]);
 
-        $this->router->get($this->prefix('/detail/{id}'), [
-            'as' => $this->name('detail'),
-            'uses' => $this->uses('detail', FinanceController::class),
-        ]);
+        // $this->router->get($this->prefix('/detail/{id}'), [
+        //     'as' => $this->name('detail'),
+        //     'uses' => $this->uses('detail', FinanceController::class),
+        // ]);
 
         $this->router->get($this->prefix('/detail/{id}/ajax'), [
             'as' => $this->name('detailAjax'),
@@ -87,6 +88,11 @@ class RequestRoute extends BaseRoute
         $this->router->get($this->prefix('/report'), [
             'as' => $this->name('report'),
             'uses' => $this->uses('reportReceipt', FinanceController::class),
+        ]);
+
+        $this->router->get($this->prefix('export'), [
+            'as' => $this->name('export'),
+            'uses' => $this->uses('export', WithdrawalController::class)
         ]);
     }
 

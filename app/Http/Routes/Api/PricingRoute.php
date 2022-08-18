@@ -31,6 +31,11 @@ class PricingRoute extends BaseRoute
             'uses' => $this->uses('calculate'),
         ])->withoutMiddleware('api');
 
+        $this->router->post($this->prefix('location'), [
+            'as' => $this->name('location'),
+            'uses' => $this->uses('locationCheck'),
+        ])->withoutMiddleware('api');
+
         $this->router->get($this->prefix('tarif'), [
             'as' => $this->name('tarif'),
             'uses' => $this->uses('tarif'),

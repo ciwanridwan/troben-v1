@@ -6,6 +6,7 @@ use App\Events\Partners\NewBalanceDisbursementCreated;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
 
@@ -43,6 +44,7 @@ class CreateNewBalanceDisbursement
             'bank_id' => ['required','max:255', 'exists:bank,id'],
             'account_name' => ['required','max:255'],
             'account_number' => ['required', 'max:255'],
+            'expired_at' => ['required']
         ])->validate();
         $this->withdrawal = new Withdrawal();
         $this->partner = $partner;
@@ -58,13 +60,14 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->fill($this->attributes);
         $this->withdrawal->partner_id = $this->partner->id;
         $this->withdrawal->first_balance = $this->partner->balance;
-        /**TODO ADD NEW AMOUNT BE AS ALL BALANCE FOR WD */
         $this->withdrawal->amount = $this->partner->balance;
-        /**END TODO */
+
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
             event(new NewBalanceDisbursementCreated($this->withdrawal));
+            $this->partner->balance = 0;
+            $this->partner->save();
         }
 
         return $this->withdrawal->exists;

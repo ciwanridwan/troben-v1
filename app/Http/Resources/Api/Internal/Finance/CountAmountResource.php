@@ -15,9 +15,10 @@ class CountAmountResource extends JsonResource
      */
     public function toArray($request)
     {
-        $amount = Withdrawal::query()->where('status', '=', 'requested')->sum('amount');
+        $amount = Withdrawal::query()->where('status', Withdrawal::STATUS_REQUESTED)->sum('amount');
+
         $result = (int)$amount;
-        
+
         $data = [
             'amount' => $result
         ];

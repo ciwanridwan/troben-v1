@@ -51,6 +51,11 @@ class WithdrawalRoute extends BaseRoute
             'as' => $this->name('detailReceipt'),
             'uses' => $this->uses('detailReceipt')
         ]);
+
+        $this->router->get($this->prefix('export'), [
+            'as' => $this->name('export'),
+            'uses' => $this->uses('export')
+        ]);
     }
 
     /**
