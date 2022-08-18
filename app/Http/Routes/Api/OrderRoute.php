@@ -30,6 +30,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
+        $this->router->post($this->prefix(), [
+            'as' => $this->name('store-motorbike'),
+            'uses' => $this->uses('storeMotorbike'),
+        ]);
+
         $this->router->get($this->prefix('find/{code_content}'), [
             'as' => $this->name('find'),
             'uses' => $this->uses('findReceipt')

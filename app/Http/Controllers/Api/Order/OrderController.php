@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Events\Partners\PartnerCashierDiscount;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Resources\FindReceiptResource;
@@ -292,6 +293,49 @@ class OrderController extends Controller
             'destination_district',
             'destination_sub_district'
         )));
+    }
+
+    public function storeMotorbike(Request $request): JsonResponse
+    {
+        $handlers = [
+            Handling::TYPE_BUBBLE_WRAP,
+            Handling::TYPE_WOOD,
+            Handling::TYPE_PLASTIC,
+        ];
+
+        $request->validate([
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_brand' => 'required',
+            'moto_cc' => 'required',
+            'moto_year' => 'required|numeric',
+            'moto_photo' => 'required|image',
+            'moto_price' => 'required|numeric',
+            'moto_handling' => 'required|in:'.implode(',', $handlers),
+
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
+        ]);
+
+        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+        $resultOrigin = Geo::getRegional($coordOrigin);
+        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+
+        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        $resultDestination = Geo::getRegional($coordDestination);
+        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+
+        $origin_regency_id = $resultOrigin['regency'];
+        $destination_id = $resultDestination['district'];
+        $request->merge([
+            'origin_regency_id' => $origin_regency_id,
+            'destination_id' => $destination_id,
+        ]);
+
+        $result = 'created';
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     /**
