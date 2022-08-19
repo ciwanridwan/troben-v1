@@ -48,7 +48,8 @@ class DistanceMatrix
         return $distance;
     }
 
-    private static function callDistanceMatrix(string $origin, string $destination)
+
+    protected static function callDistanceMatrix(string $origin, string $destination)
     {
         $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
         $response = Http::withHeaders([
