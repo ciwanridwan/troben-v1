@@ -59,6 +59,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
+        
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -66,11 +67,10 @@ class OrderController extends Controller
         );
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
-
+        
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
-
+        
         $paginate = $query->paginate();
-
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }
 
@@ -149,7 +149,8 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
+            // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
