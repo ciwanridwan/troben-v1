@@ -98,4 +98,20 @@ class MotorBikeController extends Controller
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
+
+    public function motorbikeCheck(Request $request): JsonResponse
+    {
+        $request->validate([
+            'height' => 'required_if:*.is_insured,true|numeric',
+            'length' => 'required_if:*.is_insured,true|numeric',
+            'width' => 'required_if:*.is_insured,true|numeric',
+        ]);
+
+        // todo handling calculatior wood motorbike
+
+        $rand = mt_rand(10, 99) * 1000;
+        $result = ['result' => $rand];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
 }
