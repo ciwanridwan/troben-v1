@@ -24,17 +24,16 @@ class MotorBikeController extends Controller
     {
         $request->validate([
             'service_code' => 'required|in:tps',
-            'moto_type' => 'required|in:matic,kopling,gigi',
             
-            'sender_name' => 'required|string',
-            'sender_phone' => 'required|string',
+            'sender_name' => 'required',
+            'sender_phone' => 'required',
             'sender_address' => 'required',
 
-            'receiver_name' => 'required|string',
-            'receiver_phone' => 'required|string',
+            'receiver_name' => 'required',
+            'receiver_phone' => 'required',
             'receiver_address' => 'required',
 
-            'partner_code' => 'required',
+            'partner_code' => 'nullable',
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
             'destination_lat' => 'required|numeric',
