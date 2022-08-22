@@ -80,6 +80,20 @@ class MotorBikeController extends Controller
             'handling.*' => 'required_if:*.is_insured,true|in:'.Handling::TYPE_WOOD,
         ]);
 
+        // todo handling file upload
+        // $photos = [];
+        // foreach ((array) $request->file('moto_photo') as $i => $doc) {
+        //     $original_filename = $doc->getClientOriginalName();
+        //     $filesize = $doc->getSize();
+        //     $filename = 'doc_' . md5(microtime(true)) . '.' . $doc->extension();
+        //     $doc->move(public_path('uploads/projects-doc'), $filename);
+        //     $photos[] = [
+        //         'original' => $original_filename,
+        //         'size' => $filesize,
+        //         'filename' => $filename,
+        //     ];
+        // }
+
         $result = ['result' => 'inserted'];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
