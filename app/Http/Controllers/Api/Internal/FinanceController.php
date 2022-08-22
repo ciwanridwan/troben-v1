@@ -78,13 +78,6 @@ class FinanceController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
-            // $receiptApproved = DisbursmentHistory::where('disbursment_id', $result->id)->get();
-
-            // $receipts = $packages->whereNotIn('receipt', $receiptApproved->map(function ($r) {
-            //     return $r->receipt;
-            // })->values());
-            // dd($receipts);
-
             $receipts = $packages->map(function ($r) use ($disbursHistory, $result) {
                 $r->approved = 'pending';
                 $r->total_payment = intval($r->total_payment);
@@ -534,8 +527,8 @@ class FinanceController extends Controller
     left join ( select pp5.package_id, pp5.amount from package_prices pp5 where type = 'service' and description = 'service') pp5
                 on pp5.package_id  = c.codeable_id
     ) r
-    and date(r.created_at) >= '%s'
-    and date(r.created_at) <= '%s'
+    and to_char(r.created_at,'YYYY-MM-DD') >= '%s'
+    and to_char(r.created_at, 'YYYY-MM-DD') <= '%s'
     order by r.created_at ASC";
 
         $q = sprintf($q, $param['start'], $param['end']);
