@@ -22,20 +22,9 @@ class MotorBikeController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        $handlers = [
-            Handling::TYPE_BUBBLE_WRAP,
-            Handling::TYPE_WOOD,
-            Handling::TYPE_PLASTIC,
-            Handling::TYPE_CARDBOARD,
-            Handling::TYPE_PALLETE,
-            Handling::TYPE_SANDBAG_L,
-            Handling::TYPE_SANDBAG_MD,
-            Handling::TYPE_SANDBAG_SM,
-        ];
-
         $request->validate([
             'service_code' => 'required|in:tps',
-            'transporter_type' => 'required|in:bike,mvp,pickup,engkel box,cde engkel bak,pickup box,cdd double box,fuso bak,cdd double bak,',
+            'moto_type' => 'required|in:matic,kopling,gigi',
             
             'sender_name' => 'required|string',
             'sender_phone' => 'required|string',
@@ -45,30 +34,11 @@ class MotorBikeController extends Controller
             'receiver_phone' => 'required|string',
             'receiver_address' => 'required',
 
-            'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_merk' => 'required',
-            'moto_cc' => 'required|numeric',
-            'moto_year' => 'required|numeric',
-            'moto_photo' => 'required|image',
-            'moto_price' => 'required|numeric',
-            
-            'items.*.qty' => 'nullable',
-            'items.*.name' => 'nullable',
-            'items.*.desc' => 'nullable',
-            'items.*.weight' => 'nullable',
-            'items.*.height' => 'nullable',
-            'items.*.length' => 'nullable',
-            'items.*.width' => 'nullable',
-            'items.*.insurance' => 'nullable',
-            'items.*.is_insured' => 'nullable|boolean',
-            'items.*.price' => 'required_if:*.is_insured,true|numeric',
-            'items.*.handling.*' => 'nullable:|in:'.implode(',', $handlers),
-
             'partner_code' => 'required',
-            'origin_lat' => 'required',
-            'origin_lon' => 'required',
-            'destination_lat' => 'required',
-            'destination_lon' => 'required',
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
         ]);
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
