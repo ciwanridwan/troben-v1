@@ -95,10 +95,10 @@ class RequestRoute extends BaseRoute
         //     'uses' => $this->uses('export', WithdrawalController::class)
         // ]);
 
-        // $this->router->get($this->prefix('export/disbursment'), [
-        //     'as' => $this->name('export'),
-        //     'uses' => $this->uses('export', FinanceController::class)
-        // ]);
+        $this->router->get($this->prefix('export/disbursment'), [
+            'as' => $this->name('export'),
+            'uses' => $this->uses('export', FinanceController::class)
+        ]);
     }
 
     /**

@@ -78,6 +78,13 @@ class FinanceController extends Controller
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
+            // $receiptApproved = DisbursmentHistory::where('disbursment_id', $result->id)->get();
+
+            // $receipts = $packages->whereNotIn('receipt', $receiptApproved->map(function ($r) {
+            //     return $r->receipt;
+            // })->values());
+            // dd($receipts);
+
             $receipts = $packages->map(function ($r) use ($disbursHistory, $result) {
                 $r->approved = 'pending';
                 $r->total_payment = intval($r->total_payment);
@@ -309,11 +316,21 @@ class FinanceController extends Controller
     }
 
     /**Add report excel for disbursment */
-    public function export()
+    public function export(Request $request)
     {
-        $result = $this->getQueryExports();
+        $request->validate([
+            'start' => 'required|date_format:Y-m-d',
+            'end' => 'required|date_format:Y-m-d',
+        ]);
+
+        $param = [
+            'start' => $request->get('start', Carbon::now()->subMonth()->format('Y-m-d')),
+            'end' => $request->get('end', Carbon::now()->format('Y-m-d')),
+        ];
+
+        $result = $this->getQueryExports($param);
         $data = collect(DB::select($result))->toArray();
-        
+
         return (new DisbursmentExport($data))->download('Disbursment-Histories.xlsx');
     }
 
@@ -460,7 +477,7 @@ class FinanceController extends Controller
     }
 
     /**Query for get all disbursment with spesific data */
-    private function getQueryExports()
+    private function getQueryExports($param)
     {
         $q =
             "SELECT
@@ -482,6 +499,7 @@ class FinanceController extends Controller
     b.name as bank_name, 
     pbd.account_number as bank_number, 
     dh.receipt, 
+    dh.created_at,
     c.codeable_id,
     weight,
     COALESCE(pp.amount, 0) as pickup_fee,
@@ -515,8 +533,13 @@ class FinanceController extends Controller
                 on pp4.package_id = c.codeable_id
     left join ( select pp5.package_id, pp5.amount from package_prices pp5 where type = 'service' and description = 'service') pp5
                 on pp5.package_id  = c.codeable_id
-    ) r";
+    ) r
+    and date(r.created_at) >= '%s'
+    and date(r.created_at) <= '%s'
+    order by r.created_at ASC";
 
-    return $q;
+        $q = sprintf($q, $param['start'], $param['end']);
+
+        return $q;
     }
 }
