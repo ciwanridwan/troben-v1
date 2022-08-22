@@ -60,4 +60,28 @@ class MotorBikeController extends Controller
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
+
+    public function storeItem(Request $request): JsonResponse
+    {
+        $request->validate([
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_brand' => 'required',
+            'moto_cc' => 'required|numeric',
+            'moto_year' => 'required|numeric',
+            'moto_photo' => 'required',
+            'moto_photo.*' => 'image|max:10240',
+            'moto_price' => 'required|numeric',
+
+            'is_insured' => 'required|boolean',
+            'height' => 'required_if:*.is_insured,true|numeric',
+            'length' => 'required_if:*.is_insured,true|numeric',
+            'width' => 'required_if:*.is_insured,true|numeric',
+            'price' => 'required_if:*.is_insured,true|numeric',
+            'handling.*' => 'required_if:*.is_insured,true|in:'.Handling::TYPE_WOOD,
+        ]);
+
+        $result = ['result' => 'inserted'];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
 }
