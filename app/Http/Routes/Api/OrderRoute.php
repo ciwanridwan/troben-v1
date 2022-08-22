@@ -32,7 +32,7 @@ class OrderRoute extends BaseRoute
         ]);
 
         $this->router->post($this->prefix('/motorbike/store'), [
-            'as' => $this->name('store'),
+            'as' => $this->name('store-motorbike'),
             'uses' => $this->uses('store', MotorBikeController::class),
         ]);
 
@@ -99,6 +99,11 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('{package_hash}/item'), [
             'as' => $this->name('item.store'),
             'uses' => $this->uses('store', ItemController::class),
+        ]);
+
+        $this->router->post($this->prefix('{package_hash}/item-motorbike'), [
+            'as' => $this->name('item.store-motorbike'),
+            'uses' => $this->uses('storeItem', MotorBikeController::class),
         ]);
 
         $this->router->put($this->prefix('{package_hash}/item'), [

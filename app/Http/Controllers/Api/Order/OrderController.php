@@ -298,6 +298,7 @@ class OrderController extends Controller
         )));
     }
 
+    // deprecated, move to MotorBikeController
     public function storeMotorbike(Request $request): JsonResponse
     {
         $handlers = [

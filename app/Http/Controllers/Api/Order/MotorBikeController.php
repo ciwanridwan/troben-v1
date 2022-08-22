@@ -22,53 +22,22 @@ class MotorBikeController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        $handlers = [
-            Handling::TYPE_BUBBLE_WRAP,
-            Handling::TYPE_WOOD,
-            Handling::TYPE_PLASTIC,
-            Handling::TYPE_CARDBOARD,
-            Handling::TYPE_PALLETE,
-            Handling::TYPE_SANDBAG_L,
-            Handling::TYPE_SANDBAG_MD,
-            Handling::TYPE_SANDBAG_SM,
-        ];
-
         $request->validate([
             'service_code' => 'required|in:tps',
-            'transporter_type' => 'required|in:bike,mvp,pickup,engkel box,cde engkel bak,pickup box,cdd double box,fuso bak,cdd double bak,',
             
-            'sender_name' => 'required|string',
-            'sender_phone' => 'required|string',
+            'sender_name' => 'required',
+            'sender_phone' => 'required',
             'sender_address' => 'required',
 
-            'receiver_name' => 'required|string',
-            'receiver_phone' => 'required|string',
+            'receiver_name' => 'required',
+            'receiver_phone' => 'required',
             'receiver_address' => 'required',
 
-            'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_merk' => 'required',
-            'moto_cc' => 'required|numeric',
-            'moto_year' => 'required|numeric',
-            'moto_photo' => 'required|image',
-            'moto_price' => 'required|numeric',
-            
-            'items.*.qty' => 'nullable',
-            'items.*.name' => 'nullable',
-            'items.*.desc' => 'nullable',
-            'items.*.weight' => 'nullable',
-            'items.*.height' => 'nullable',
-            'items.*.length' => 'nullable',
-            'items.*.width' => 'nullable',
-            'items.*.insurance' => 'nullable',
-            'items.*.is_insured' => 'nullable|boolean',
-            'items.*.price' => 'required_if:*.is_insured,true|numeric',
-            'items.*.handling.*' => 'nullable:|in:'.implode(',', $handlers),
-
-            'partner_code' => 'required',
-            'origin_lat' => 'required',
-            'origin_lon' => 'required',
-            'destination_lat' => 'required',
-            'destination_lon' => 'required',
+            'partner_code' => 'nullable',
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
         ]);
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
@@ -87,6 +56,60 @@ class MotorBikeController extends Controller
         ]);
 
         $result = ['result' => 'created'];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function storeItem(Request $request): JsonResponse
+    {
+        $request->validate([
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_brand' => 'required',
+            'moto_cc' => 'required|numeric',
+            'moto_year' => 'required|numeric',
+            'moto_photo' => 'required',
+            'moto_photo.*' => 'image|max:10240',
+            'moto_price' => 'required|numeric',
+
+            'is_insured' => 'required|boolean',
+            'height' => 'required_if:*.is_insured,true|numeric',
+            'length' => 'required_if:*.is_insured,true|numeric',
+            'width' => 'required_if:*.is_insured,true|numeric',
+            'price' => 'required_if:*.is_insured,true|numeric',
+            'handling.*' => 'required_if:*.is_insured,true|in:'.Handling::TYPE_WOOD,
+        ]);
+
+        // todo handling file upload
+        // $photos = [];
+        // foreach ((array) $request->file('moto_photo') as $i => $doc) {
+        //     $original_filename = $doc->getClientOriginalName();
+        //     $filesize = $doc->getSize();
+        //     $filename = 'doc_' . md5(microtime(true)) . '.' . $doc->extension();
+        //     $doc->move(public_path('uploads/projects-doc'), $filename);
+        //     $photos[] = [
+        //         'original' => $original_filename,
+        //         'size' => $filesize,
+        //         'filename' => $filename,
+        //     ];
+        // }
+
+        $result = ['result' => 'inserted'];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function motorbikeCheck(Request $request): JsonResponse
+    {
+        $request->validate([
+            'height' => 'required_if:*.is_insured,true|numeric',
+            'length' => 'required_if:*.is_insured,true|numeric',
+            'width' => 'required_if:*.is_insured,true|numeric',
+        ]);
+
+        // todo handling calculatior wood motorbike
+
+        $rand = mt_rand(10, 99) * 1000;
+        $result = ['result' => $rand];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
