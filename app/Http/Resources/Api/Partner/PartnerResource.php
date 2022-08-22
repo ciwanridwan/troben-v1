@@ -15,7 +15,6 @@ class PartnerResource extends JsonResource
      */
     public function toArray($request)
     {
-
         /** @var \App\Models\Partners\Partner $this */
         $data = [
             'hash' => $this->hash,
