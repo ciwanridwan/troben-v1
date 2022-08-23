@@ -92,12 +92,28 @@
               placeholder="End Date" />
           </a-col>
           <a-col :span="2">
-            <a-space>
-              <a-button type="success" class="trawl-button-success h-button" :disabled="filter.start_date == null || filter.end_date == null" @click="exportData()">
-                <a-icon type="download"></a-icon>
+            <a-dropdown :disabled="filter.start_date == null || filter.end_date == null" :trigger="['click']">
+              <a-button type="success" class="trawl-button-success h-button" @click.prevent>
                 Export
+                <a-icon type="down"></a-icon>
+                <DownOutlined />
               </a-button>
-            </a-space>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="1">
+                    <a href="javascript:void(0)" class="export-menu" @click="exportDataRequest()">
+                      Resi Paid
+                    </a>
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="2">
+                    <a href="javascript:void(0)" class="export-menu" @click="exportDataApproved()">
+                      Pencairan Mitra
+                    </a>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </a-col>
         </a-row>
       </a-card>
@@ -107,7 +123,7 @@
         :dataSource="filteredItems"
         :loading="loading"
         :class="['trawl']"
-        rowKey="id"
+        class="mb-table"
       >
         <span slot="number" slot-scope="number" class="fw-bold">{{ number }}.</span>
         <span slot="code" slot-scope="record">
@@ -164,7 +180,8 @@ export default {
     requestColumns,
     loading: false,
     numbers: [],
-    data_excel: null,
+    data_excel_request: null,
+    data_excel_approve: null,
   }),
   created() {
     this.getDisbursmentList()
@@ -195,6 +212,7 @@ export default {
       let uri = this.routeUri("admin.payment.withdraw.request.list")
       this.$http.get(uri)
       .then((res)=>{
+        console.log(res)
           this.loading = false
           this.lists = res.data.data
           let numbering = 1;
@@ -235,7 +253,6 @@ export default {
       let uri = this.routeUri("admin.payment.withdraw.request.listPartners")
       this.$http.get(uri)
       .then((res)=>{
-          console.log(res)
           this.codes = res.data.data
           this.loading = false
       }).catch(function (error) {
@@ -244,7 +261,6 @@ export default {
       });
     },
     filterDate(){
-      console.log('aa')
       if(this.filter.start_date == null || this.filter.end_date == null){
         this.loading = true
         let uri = this.routeUri("admin.payment.withdraw.request.list")
@@ -283,7 +299,7 @@ export default {
         });
       }
     },
-    exportData(){
+    exportDataRequest(){
       let uri = this.routeUri("admin.payment.withdraw.request.report")
       this.$http.get(uri, {
         params: {
@@ -293,7 +309,7 @@ export default {
         responseType: 'blob'
       })
       .then((res)=>{
-        this.data_excel = res.data
+        this.data_excel_request = res.data
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -304,7 +320,29 @@ export default {
       }).catch(function (error) {
           console.error(error);
       });
-    }
+    },
+    exportDataApproved(){
+      let uri = this.routeUri("admin.payment.withdraw.request.export")
+      this.$http.get(uri, {
+        params: {
+          start: this.filter.start_date,
+          end: this.filter.end_date
+        },
+        responseType: 'blob'
+      })
+      .then((res)=>{
+        this.data_excel_approve = res.data
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'file.xls');
+        document.body.appendChild(link);
+        link.click();
+
+      }).catch(function (error) {
+          console.error(error);
+      });
+    },
   },
 };
 </script>
@@ -341,5 +379,8 @@ export default {
   }
   .text-gray{
     color: #61616A;
+  }
+  .export-menu{
+    color: #000 !important;
   }
 </style>
