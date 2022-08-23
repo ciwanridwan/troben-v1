@@ -69,9 +69,9 @@ class RequestController extends Controller
         return view('admin.master.payment.withdraw.request.index');
     }
 
-    public function detail()
+    public function detail($id)
     {
-        return view('admin.master.payment.withdraw.request.index.detail');
+        return view('admin.master.payment.withdraw.request.detail');
     }
 
 

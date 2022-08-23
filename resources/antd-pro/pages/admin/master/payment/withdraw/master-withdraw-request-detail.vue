@@ -55,7 +55,7 @@
                 :class="['trawl']">
                 <span slot="code" slot-scope="record" class="fw-medium">{{ record.receipt }}</span>
                 <span slot="total_payment" slot-scope="record">Rp. {{ formatPrice(record.total_payment) }}</span>
-                <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.commission_discount) }}</span>
+                <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.total_accepted) }}</span>
                 <span slot="approved" slot-scope="record">
                     <template v-if="record.approved == 'pending'">
                         <template v-if="approved_at">
@@ -132,12 +132,12 @@ export default {
             let total_unapproved = 0;
             let total_approved = 0;
             this.lists.forEach(item => {
-                total += Number(item.commission_discount);
+                total += Number(item.total_accepted);
                 if(item.approved == 'pending'){
-                    total_unapproved += Number(item.commission_discount);
+                    total_unapproved += Number(item.total_accepted);
                 }
                 if(item.approved == 'success'){
-                    total_approved += Number(item.commission_discount);
+                    total_approved += Number(item.total_accepted);
                 }
             });
             this.total = total
