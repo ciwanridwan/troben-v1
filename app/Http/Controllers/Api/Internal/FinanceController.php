@@ -95,8 +95,12 @@ class FinanceController extends Controller
                 
                 $check = $getDisburs->where('receipt', $r->receipt)->first();
                 if ($check) {
+                    $date = $getDisburs->map(function ($time) {
+                        return $time->created_at;
+                    })->first();
+                    
                     $r->approved = 'success';
-                    $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
+                    $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
                 }
                 return $r;
             })->values();
@@ -462,7 +466,7 @@ class FinanceController extends Controller
                     d.partner_id IN (
                     SELECT partner_id
                     FROM partner_balance_disbursement
-                    WHERE partner_id = 11
+                    WHERE partner_id = $request->partner_id
                     )
                     AND dd.delivery_id IS NOT null
                     ) r";
