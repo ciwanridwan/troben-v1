@@ -226,7 +226,7 @@ class OrderController extends Controller
         ]);
 
         $origin_regency_id = $request->get('origin_regency_id');
-        $destination_id = $request->get('destination_id');
+        $destination_id = $request->get('destination_regency_id');
         if ($origin_regency_id == null || $destination_id == null) {
             // add validation
             $request->validate([
@@ -248,7 +248,7 @@ class OrderController extends Controller
             $destination_id = $resultDestination['district'];
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
-                'destination_id' => $destination_id,
+                'destination_regency_id' => $destination_id,
                 'sender_latitude' => $request->get('origin_lat'),
                 'sender_longitude' => $request->get('origin_lon')
             ]);
