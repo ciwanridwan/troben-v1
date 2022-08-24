@@ -191,12 +191,11 @@ class WithdrawalController extends Controller
         return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
     }
 
-    public function export(Request $request)
+    public function export(Withdrawal $withdrawal)
     {
-        $partners = $request->user()->partners()->first();
         $result = DisbursmentHistory::query()->select('disbursment_histories.receipt as receipt', 'disbursment_histories.amount as amount')
             ->leftJoin('partner_balance_disbursement as pbd', 'disbursment_histories.disbursment_id', '=', 'pbd.id')
-            ->where('pbd.partner_id', $partners->id)
+            ->where('pbd.partner_id', $withdrawal->partner_id)
             ->get()->map(function ($row, $index) {
             $row->no = $index + 1;
             return $row;

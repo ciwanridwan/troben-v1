@@ -60,11 +60,6 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('findByDate', FinanceController::class),
         ]);
 
-        // $this->router->get($this->prefix('/detail/{id}'), [
-        //     'as' => $this->name('detail'),
-        //     'uses' => $this->uses('detail', FinanceController::class),
-        // ]);
-
         $this->router->get($this->prefix('/detail/{id}/ajax'), [
             'as' => $this->name('detailAjax'),
             'uses' => $this->uses('detail', FinanceController::class),
@@ -90,7 +85,7 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('reportReceipt', FinanceController::class),
         ]);
 
-        // $this->router->get($this->prefix('export'), [
+        // $this->router->get($this->prefix('export/{withdrawal_hash}'), [
         //     'as' => $this->name('export'),
         //     'uses' => $this->uses('export', WithdrawalController::class)
         // ]);
