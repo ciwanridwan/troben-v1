@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PromotionController extends Controller
 {
@@ -47,6 +48,11 @@ class PromotionController extends Controller
 
     public function show(Promotion $promotion, Package $package) :JsonResponse
     {
+        if (Auth::guest()) {
+            $promotion->is_available = false;
+            return (new Response(Response::RC_SUCCESS, $promotion))->json();
+        }
+
         if ($package->transporter_type == $promotion->transporter_type) {
             $check = ClaimedPromotion::where('customer_id', $package->customer_id)
                 ->whereDate('claimed_at', Carbon::today())
