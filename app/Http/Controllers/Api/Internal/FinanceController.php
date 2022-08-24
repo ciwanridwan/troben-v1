@@ -470,7 +470,6 @@ class FinanceController extends Controller
                     )
                     AND dd.delivery_id IS NOT null
                     ) r";
-
         return $q;
     }
     /**End query */
@@ -494,20 +493,6 @@ class FinanceController extends Controller
         left join codes c on dh.receipt = c.content
         left join packages p on c.codeable_id = p.id
         where dh.disbursment_id = $request->id";
-
-        return $query;
-    }
-
-    private function getLatestApprovedReceipts($request)
-    {
-        $query =
-            "SELECT * FROM disbursment_histories dh2 
-        WHERE disbursment_id = (
-            SELECT max(disbursment_id) FROM disbursment_histories dh
-            LEFT JOIN partner_balance_disbursement pbd ON dh.disbursment_id = pbd.id 
-            WHERE pbd.partner_id = $request->partner_id
-        LIMIT 1
-        )";
 
         return $query;
     }
