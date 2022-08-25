@@ -95,8 +95,12 @@ class FinanceController extends Controller
                 
                 $check = $getDisburs->where('receipt', $r->receipt)->first();
                 if ($check) {
+                    $date = $getDisburs->map(function ($time) {
+                        return $time->created_at;
+                    })->first();
+                    
                     $r->approved = 'success';
-                    $r->approved_at = date('Y-m-d H:i:s', strtotime($r->approved_at));
+                    $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
                 }
                 return $r;
             })->values();
@@ -462,11 +466,10 @@ class FinanceController extends Controller
                     d.partner_id IN (
                     SELECT partner_id
                     FROM partner_balance_disbursement
-                    WHERE partner_id = 11
+                    WHERE partner_id = $request->partner_id
                     )
                     AND dd.delivery_id IS NOT null
                     ) r";
-
         return $q;
     }
     /**End query */
@@ -490,20 +493,6 @@ class FinanceController extends Controller
         left join codes c on dh.receipt = c.content
         left join packages p on c.codeable_id = p.id
         where dh.disbursment_id = $request->id";
-
-        return $query;
-    }
-
-    private function getLatestApprovedReceipts($request)
-    {
-        $query =
-            "SELECT * FROM disbursment_histories dh2 
-        WHERE disbursment_id = (
-            SELECT max(disbursment_id) FROM disbursment_histories dh
-            LEFT JOIN partner_balance_disbursement pbd ON dh.disbursment_id = pbd.id 
-            WHERE pbd.partner_id = $request->partner_id
-        LIMIT 1
-        )";
 
         return $query;
     }
