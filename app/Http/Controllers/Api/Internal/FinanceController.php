@@ -72,10 +72,20 @@ class FinanceController extends Controller
                 return $r;
             })->values();
 
+            $totalUnApproved = $getPendingReceipts->where('approved', 'pending')->map(function ($r) {
+                return $r; 
+            })->sum('total_accepted');
+
+            $totalApproved = $getPendingReceipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
             $data = [
                 'rows' => $getPendingReceipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
                 'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
 
@@ -105,11 +115,20 @@ class FinanceController extends Controller
                 return $r;
             })->values();
             
+            $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
+                return $r; 
+            })->sum('total_accepted');
+
+            $totalApproved = $receipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
 
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
             
             $data = [
                 'rows' => $receipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
                 'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
 
@@ -150,9 +169,8 @@ class FinanceController extends Controller
 
             $total_accepted = $getReceipt->sum('total_accepted');
             $calculate = $disbursment->first_balance - $total_accepted;
-            $disbursment->first_balance = $calculate;
 
-            if ($disbursment->first_balance == $calculate) {
+                if ($disbursment->first_balance !== $calculate) {
                 $disbursment->amount = $total_accepted;
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
                 $disbursment->action_by = Auth::id();
