@@ -62,27 +62,25 @@ class MotorBikeController extends Controller
             'destination_id' => $destination_id,
         ]);
 
-        $inputs = $request->except('items');
+        // $inputs = $request->except('items');
 
-        /**Checkin User as customer */
-        $user = $request->user();
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
-        $inputs['customer_id'] = $user->id;
+        // /**Checkin User as customer */
+        // $user = $request->user();
+        // throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        // $inputs['customer_id'] = $user->id;
 
-        /**Check origin regency and destination */
-        $regency = Regency::query()->findOrFail($origin_regency_id);
-        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]);
+        // /**Check origin regency and destination */
+        // $regency = Regency::query()->findOrFail($origin_regency_id);
+        // $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]);
 
-        /**Check Service */
-        $tempData = PricingCalculator::calculate($payload, 'array');
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        // /**Check Service */
+        // $tempData = PricingCalculator::calculate($payload, 'array');
+        // throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
 
-        /**Job for insert package bike */
-        $firstJob = new CreateMotorBike($inputs);
+        // /**Job for insert package bike */
+        // $firstJob = new CreateMotorBike($inputs);
 
-        $result = array($firstJob);
-
-        return (new Response(Response::RC_SUCCESS, $result))->json();
+        return (new Response(Response::RC_CREATED))->json();
     }
 
     public function storeItem(Request $request): JsonResponse
@@ -137,134 +135,5 @@ class MotorBikeController extends Controller
         $result = ['result' => $rand];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
-    }
-
-    private static function temporaryCalculate(array $inputs, string $returnType = 'json')
-    {
-        $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
-            'partner_code' => ['nullable'],
-            'sender_latitude' => ['nullable'],
-            'sender_longitude' => ['nullable'],
-            'fleet_name' => ['nullable'],
-        ]);
-
-        $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-        // $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
-        $insurancePriceTotal = 0;
-        $pickup_price = 0;
-
-        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
-            $partner = Partner::where('code', $inputs['partner_code'])->first();
-            $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
-            $destination = $partner->latitude.', '.$partner->longitude;
-            $distance = DistanceMatrix::calculateDistance($origin, $destination);
-
-            if ($inputs['fleet_name'] == 'bike') {
-                if ($distance < 5) {
-                    $pickup_price = 8000;
-                } else {
-                    $substraction = $distance - 4;
-                    $pickup_price = 8000 + (2000 * $substraction);
-                }
-            } else {
-                if ($distance < 5) {
-                    $pickup_price = 15000;
-                } else {
-                    $substraction = $distance - 4;
-                    $pickup_price = 15000 + (4000 * $substraction);
-                }
-            }
-        }
-
-        $discount = 0;
-        $handling_price = 0;
-
-        $tierPrice = self::getTier($price, $totalWeightBorne);
-        $servicePrice = self::getServicePrice($inputs, $price);
-
-        $response = [
-            'price' => PriceResource::make($price),
-            'result' => [
-                'insurance_price_total' => $insurancePriceTotal,
-                'total_weight_borne' => $totalWeightBorne,
-                'handling' => $handling_price,
-                'pickup_price' => $pickup_price,
-                'discount' => $discount,
-                'tier' => $tierPrice,
-                'service' => $servicePrice
-            ]
-        ];
-
-        switch ($returnType) {
-            case 'array':
-                return $response;
-            case 'json':
-                return (new Response(Response::RC_SUCCESS, $response))->json();
-                break;
-            default:
-                return (new Response(Response::RC_SUCCESS, $response))->json();
-                break;
-        }
-    }
-
-
-    private static function getPrice()
-    {
-
-    }
-
-    private static function getTotalWeightBorne()
-    {
-
-    }
-
-    public static function getServicePrice(array $inputs, ?Price $price = null)
-    {
-        $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
-            'items' => ['required'],
-            'items.*.height' => ['required', 'numeric'],
-            'items.*.length' => ['required', 'numeric'],
-            'items.*.width' => ['required', 'numeric'],
-            'items.*.weight' => ['required', 'numeric'],
-            'items.*.qty' => ['required', 'numeric'],
-            'items.*.handling' => ['nullable']
-        ]);
-
-        if (! $price) {
-            /** @var Price $price */
-            $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-        }
-
-        $items = [];
-        foreach ($inputs['items'] as $item) {
-            if ($item['handling']) {
-                foreach ($item['handling'] as $handling) {
-                    $packing[] = [
-                        'type' => $handling['type']
-                    ];
-                }
-            }
-            $items[] = [
-                'weight' => $item['weight'],
-                'height' => $item['height'],
-                'length' => $item['length'],
-                'width' => $item['width'],
-                'qty' => $item['qty'],
-                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
-
-            ];
-        }
-        $totalWeightBorne = self::getTotalWeightBorne($items);
-
-        $tierPrice = self::getTier($price, $totalWeightBorne);
-
-        $servicePrice = $tierPrice * $totalWeightBorne;
-        return $servicePrice;
     }
 }
