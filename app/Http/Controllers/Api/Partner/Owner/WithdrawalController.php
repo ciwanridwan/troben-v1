@@ -200,7 +200,7 @@ class WithdrawalController extends Controller
             $row->no = $index + 1;
             return $row;
         });
-        dd($result);
+        
         return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }
 
