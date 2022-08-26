@@ -6,19 +6,14 @@
                     <a-col>
                         <h3 class="text-gray">Total</h3>
                         <h2 class="mb-0 title-price">
-                            <template v-if="total != 0">
-                                <b>Rp.{{ formatPrice(total) }}</b>
-                            </template>
-                            <template v-else>
-                                <b>Rp. 0</b>
-                            </template>
+                            <b>Rp.{{ formatPrice(data_total.total_approved + data_total.total_unapproved) }}</b>
                         </h2>
                     </a-col>
                     <a-col>
                         <h3 class="text-gray">Total Unapproved</h3>
                         <h2 class="mb-0 title-price">
-                            <template v-if="total_unapproved != 0">
-                                <b>Rp.{{ formatPrice(total_unapproved) }}</b>
+                            <template v-if="data_total.total_unapproved != 0">
+                                <b>Rp.{{ formatPrice(data_total.total_unapproved) }}</b>
                             </template>
                             <template v-else>
                                 <b>Rp. 0</b>
@@ -28,8 +23,8 @@
                     <a-col>
                         <h3 class="text-gray">Total Approved</h3>
                         <h2 class="mb-0 title-price">
-                            <template v-if="total_approved != 0">
-                                <b>Rp.{{ formatPrice(total_approved) }}</b>
+                            <template v-if="data_total.total_approved != 0">
+                                <b>Rp.{{ formatPrice(data_total.total_approved) }}</b>
                             </template>
                             <template v-else>
                                 <b>Rp. 0</b>
@@ -119,7 +114,8 @@ export default {
         filter: {
             q: ''
         },
-        data_filters: []
+        data_filters: [],
+        data_total: {}
     }),
     created() {
         this.getDatas()
@@ -154,10 +150,11 @@ export default {
             let uri = this.routeUri(`admin.payment.withdraw.request.detailAjax`, {id: this.id})
             this.$http.get(uri)
             .then((res)=>{
+                console.log(res)
                 this.lists = res.data.data.rows
+                this.data_total = res.data.data
                 this.approved_at = res.data.data.approved_at
                 this.loading = false
-                this.getTotal()
             }).catch(function (error) {
                 console.error(error);
                 this.loading = false
