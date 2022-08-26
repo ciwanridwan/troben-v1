@@ -21,3 +21,5 @@ yarn-error.log
 coverage.xml
 package-lock.json
 yarn.lock
+composer.lock
+

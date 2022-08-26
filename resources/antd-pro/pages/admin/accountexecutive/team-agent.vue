@@ -112,7 +112,7 @@ export default {
         },
         getTeamList(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.co.id/agent/teamList`, {
+            axios.get(`https://ae.trawlbens.com/agent/teamList`, {
                 headers: {
                     Authorization: `Bearer ${this.$laravel.jwt_token}`
                 }
@@ -130,7 +130,7 @@ export default {
             });
         },
         changeStatus(code){
-            axios.patch(`https://ae.trawlbens.co.id/agent/setCoordinator`, null, {
+            axios.patch(`https://ae.trawlbens.com/agent/setCoordinator`, null, {
                 params: {
                     code: code
                 },
