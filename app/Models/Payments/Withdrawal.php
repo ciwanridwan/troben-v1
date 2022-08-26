@@ -6,7 +6,6 @@ use App\Concerns\Controllers\CustomSerializeDate;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\User;
-use Attribute;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,7 +42,7 @@ class Withdrawal extends Model
     // public const STATUS_REJECTED = 'rejected';
     // public const STATUS_CONFIRMED = 'accepted';
     // public const STATUS_SUCCESS = 'success';
-    
+
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';

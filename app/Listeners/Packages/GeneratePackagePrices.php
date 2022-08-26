@@ -146,7 +146,9 @@ class GeneratePackagePrices
                         $discount['amount'] = $amount;
                     }
                     if ($t == Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL) {
-                        if ($av->nominal > $service) $av->nominal = $service;
+                        if ($av->nominal > $service) {
+                            $av->nominal = $service;
+                        }
                         $discount['amount'] = $av->nominal;
                     }
                 } else { // regular voucher
