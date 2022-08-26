@@ -62,24 +62,6 @@ class MotorBikeController extends Controller
             'destination_id' => $destination_id,
         ]);
 
-        // $inputs = $request->except('items');
-
-        // /**Checkin User as customer */
-        // $user = $request->user();
-        // throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
-        // $inputs['customer_id'] = $user->id;
-
-        // /**Check origin regency and destination */
-        // $regency = Regency::query()->findOrFail($origin_regency_id);
-        // $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]);
-
-        // /**Check Service */
-        // $tempData = PricingCalculator::calculate($payload, 'array');
-        // throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
-
-        // /**Job for insert package bike */
-        // $firstJob = new CreateMotorBike($inputs);
-
         return (new Response(Response::RC_CREATED))->json();
     }
 
