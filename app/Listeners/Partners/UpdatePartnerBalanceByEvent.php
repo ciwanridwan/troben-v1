@@ -31,7 +31,7 @@ class UpdatePartnerBalanceByEvent
         /** @var History|DeliveryHistory|Model history */
         /**TODO NEW SCRIPT */
         $this->history = $event->history;
-        if (!($this->history->type === History::TYPE_WITHDRAW && ($this->history->description === History::DESCRIPTION_WITHDRAW_APPROVED))) {
+        if (! ($this->history->type === History::TYPE_WITHDRAW && ($this->history->description === History::DESCRIPTION_WITHDRAW_APPROVED))) {
             $this->history->partner->setAttribute('balance', $this->getUpdatedPartnerBalance())->save();
         }
         /**END TODO */
@@ -55,7 +55,8 @@ class UpdatePartnerBalanceByEvent
 
         /**TODO NEW SCRIPT */
         return ($this->history->type === History::TYPE_DEPOSIT
-            || ($this->history->type === History::TYPE_WITHDRAW
+            || (
+                $this->history->type === History::TYPE_WITHDRAW
                 && $this->history->description === History::DESCRIPTION_WITHDRAW_REQUESTED
             ))
             ? $this->history->partner->balance

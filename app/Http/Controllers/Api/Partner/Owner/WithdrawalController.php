@@ -195,12 +195,12 @@ class WithdrawalController extends Controller
     {
         $result = DisbursmentHistory::query()->select('disbursment_histories.receipt as receipt', 'disbursment_histories.amount as amount')
             ->leftJoin('partner_balance_disbursement as pbd', 'disbursment_histories.disbursment_id', '=', 'pbd.id')
-            ->where('pbd.partner_id', $withdrawal->partner_id)
+            ->where('pbd.partner_id', $withdrawal->partner_id)->where('disbursment_histories.disbursment_id', $withdrawal->id)
             ->get()->map(function ($row, $index) {
             $row->no = $index + 1;
             return $row;
         });
-
+        
         return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }
 

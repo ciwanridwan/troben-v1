@@ -16,7 +16,7 @@ class WithdrawalApproved
      * @var Withdrawal $withdrawal
      */
     public Withdrawal $withdrawal;
-    
+
     /**
      * Create a new event instance.
      *

@@ -4,9 +4,6 @@ namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Models\Partners\AgentProfitAE;
-use Faker\Provider\UserAgent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
 
 class CalculateIncomeAE
@@ -58,7 +55,7 @@ class CalculateIncomeAE
         )";
 
         $q = sprintf($q, $deliveryId);
-        collect(DB::select($q))->each(function($r) {
+        collect(DB::select($q))->each(function ($r) {
             $profitMitra = $r->amount * 0.3; // for mitra
             $profitHO = $r->amount * 0.7; // for ho
             $profitAgent = $profitMitra * 0.3; // for agent
