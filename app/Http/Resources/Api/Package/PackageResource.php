@@ -77,7 +77,7 @@ class PackageResource extends JsonResource
         if (isset($items)) {
             $data['items'] = $items;
         }
-        
+
         return $data;
     }
 }

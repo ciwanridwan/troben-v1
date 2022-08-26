@@ -19,17 +19,16 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
     protected $rowsData;
 
     /**
-    * @var DisbursmentHistories $withdrawal
-    */
-
+     * @var DisbursmentHistories $withdrawal
+     */
     public function __construct(array $rowsData)
     {
         $this->rowsData = $rowsData;
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return new Collection($this->rowsData);
@@ -61,7 +60,7 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
             'C' => 25,
             'D' => 25,
             'E' => 25,
-            'F' => 25,            
+            'F' => 25,
             'G' => 25,
             'H' => 25,
             'I' => 25,

@@ -56,7 +56,7 @@ class FinanceController extends Controller
         $approves = collect(DB::select($approveds));
 
         $getDisburs = DisbursmentHistory::where('disbursment_id', $result->id)->get();
-        
+
         $disbursHistory = DisbursmentHistory::all();
 
         if ($result->status == Withdrawal::STATUS_REQUESTED) {
@@ -73,7 +73,7 @@ class FinanceController extends Controller
             })->values();
 
             $totalUnApproved = $getPendingReceipts->where('approved', 'pending')->map(function ($r) {
-                return $r; 
+                return $r;
             })->sum('total_accepted');
 
             $totalApproved = $getPendingReceipts->where('approved', 'success')->map(function ($r) {
@@ -93,30 +93,32 @@ class FinanceController extends Controller
         } else {
             $getDisburs = DisbursmentHistory::where('disbursment_id', $result->id)->get();
             $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $result->id)->whereIn('receipt', $packages->pluck('receipt'))->get();
-            $receipts = $packages->filter(function($r) use ($alreadyDis) {
+            $receipts = $packages->filter(function ($r) use ($alreadyDis) {
                 $check = $alreadyDis->where('receipt', $r->receipt)->first();
-                if ($check) return false;
+                if ($check) {
+                    return false;
+                }
                 return true;
             })->map(function ($r) use ($getDisburs, $result) {
                 $r->approved = 'pending';
                 $r->total_payment = intval($r->total_payment);
                 $r->total_accepted = intval($r->total_accepted);
                 $r->approved_at = null;
-                
+
                 $check = $getDisburs->where('receipt', $r->receipt)->first();
                 if ($check) {
                     $date = $getDisburs->map(function ($time) {
                         return $time->created_at;
                     })->first();
-                    
+
                     $r->approved = 'success';
                     $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
                 }
                 return $r;
             })->values();
-            
+
             $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
-                return $r; 
+                return $r;
             })->sum('total_accepted');
 
             $totalApproved = $receipts->where('approved', 'success')->map(function ($r) {
@@ -124,7 +126,7 @@ class FinanceController extends Controller
             })->sum('total_accepted');
 
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
-            
+
             $data = [
                 'rows' => $receipts,
                 'total_unapproved' => $totalUnApproved,
@@ -170,7 +172,7 @@ class FinanceController extends Controller
             $total_accepted = $getReceipt->sum('total_accepted');
             $calculate = $disbursment->first_balance - $total_accepted;
 
-                if ($disbursment->first_balance !== $calculate) {
+            if ($disbursment->first_balance !== $calculate) {
                 $disbursment->amount = $total_accepted;
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
                 $disbursment->action_by = Auth::id();
@@ -231,10 +233,10 @@ class FinanceController extends Controller
             'status' => ['nullable'],
         ]);
 
-        if ($this->attributes['status'] == "requested") {
+        if ($this->attributes['status'] == 'requested') {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
             return $this->jsonSuccess(ListResource::collection($disbursmentStatus));
-        } else if ($this->attributes['status'] == "approved") {
+        } elseif ($this->attributes['status'] == 'approved') {
             $disbursmentStatus = Withdrawal::where('status', $this->attributes['status'])->orderByDesc('created_at')->paginate(10);
 
             if ($disbursmentStatus->isEmpty()) {
@@ -285,7 +287,7 @@ class FinanceController extends Controller
             if (is_null($disbursHistory)) {
                 $r->approved = 'pending';
                 return $r;
-            } else if ($disbursHistory->receipt == $r->receipt) {
+            } elseif ($disbursHistory->receipt == $r->receipt) {
                 $r->approved = 'success';
                 return $r;
             } else {
@@ -297,7 +299,7 @@ class FinanceController extends Controller
         if (is_null($receipt)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         } else {
-            $data = array($receipt);
+            $data = [$receipt];
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
@@ -332,10 +334,10 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
-        header("Content-type: application/vnd-ms-excel");
-        header("Cache-Control: max-age=0");
+        header('Content-type: application/vnd-ms-excel');
+        header('Cache-Control: max-age=0');
 
         return view('report.finance', compact('result'));
     }
@@ -354,10 +356,65 @@ class FinanceController extends Controller
         ];
 
         $result = $this->getQueryExports($param);
-        
+
         $data = collect(DB::select($result))->toArray();
 
         return (new DisbursmentExport($data))->download('Disbursment-Histories.xlsx');
+    }
+
+    public static function detailDisbursment($request)
+    {
+        $q =
+            "SELECT
+            r.total_payment,
+            r.receipt,
+            (r.pickup_fee + r.packing_fee + r.insurance_fee + r.partner_fee + r.extra_charge - r.discount) as total_accepted
+            from (
+            SELECT 
+            p.total_amount total_payment, 
+            c.content receipt,
+            coalesce(pp.amount, 0) as pickup_fee,
+            coalesce(packing_fee, 0) as packing_fee,
+            coalesce(insurance_fee, 0) as insurance_fee,
+            coalesce(pp4.amount * 0.3, 0) as partner_fee,
+            coalesce(pp5.amount, 0) as discount,
+            case
+                when weight > 99 then coalesce(pp4.amount * 0.05, 0)
+                else 0
+            end as extra_charge
+                    FROM deliveries d
+                    LEFT JOIN (
+                    SELECT *
+                    FROM deliverables
+                    WHERE deliverable_type = 'App\Models\Packages\Package'
+                    ) dd ON d.id = dd.delivery_id
+                    LEFT JOIN packages p ON dd.deliverable_id = p.id
+                    LEFT JOIN (
+                    SELECT *
+                    FROM codes
+                    WHERE codeable_type = 'App\Models\Packages\Package'
+                    ) c ON p.id = c.codeable_id
+                    left join (select pi2.package_id, sum(pi2.weight) as weight from package_items pi2 group by 1)
+                    pi2 on pi2.package_id = c.codeable_id
+                    left join (select pp.package_id, pp.amount from package_prices pp where type = 'delivery')
+                    pp on pp.package_id = c.codeable_id
+                    left join (select pp2.package_id, sum(pp2.amount) as packing_fee from package_prices pp2 where type = 'handling' group by 1)
+                    pp2 on pp2.package_id = c.codeable_id
+                    left join (select pp3.package_id, sum(pp3.amount) as insurance_fee from package_prices pp3 where type = 'insurance' group by 1)
+                    pp3 on pp3.package_id = c.codeable_id
+                    left join (select pp4.package_id, pp4.amount from package_prices pp4 where type = 'service')
+                    pp4 on pp4.package_id = c.codeable_id
+                    left join (select pp5.package_id, pp5.amount from package_prices pp5 where type = 'discount' and description = 'service')
+                    pp5 on pp5.package_id = c.codeable_id
+                    WHERE 1=1 AND
+                    d.partner_id IN (
+                    SELECT partner_id
+                    FROM partner_balance_disbursement
+                    WHERE partner_id = $request->partner_id
+                    )
+                    AND dd.delivery_id IS NOT null
+                    ) r";
+        return $q;
     }
 
     private function reportReceiptQuery($param)
@@ -433,61 +490,6 @@ class FinanceController extends Controller
 
         $q = sprintf($q, $param['start'], $param['end']);
 
-        return $q;
-    }
-
-    public static function detailDisbursment($request)
-    {
-        $q =
-            "SELECT
-            r.total_payment,
-            r.receipt,
-            (r.pickup_fee + r.packing_fee + r.insurance_fee + r.partner_fee + r.extra_charge - r.discount) as total_accepted
-            from (
-            SELECT 
-            p.total_amount total_payment, 
-            c.content receipt,
-            coalesce(pp.amount, 0) as pickup_fee,
-            coalesce(packing_fee, 0) as packing_fee,
-            coalesce(insurance_fee, 0) as insurance_fee,
-            coalesce(pp4.amount * 0.3, 0) as partner_fee,
-            coalesce(pp5.amount, 0) as discount,
-            case
-                when weight > 99 then coalesce(pp4.amount * 0.05, 0)
-                else 0
-            end as extra_charge
-                    FROM deliveries d
-                    LEFT JOIN (
-                    SELECT *
-                    FROM deliverables
-                    WHERE deliverable_type = 'App\Models\Packages\Package'
-                    ) dd ON d.id = dd.delivery_id
-                    LEFT JOIN packages p ON dd.deliverable_id = p.id
-                    LEFT JOIN (
-                    SELECT *
-                    FROM codes
-                    WHERE codeable_type = 'App\Models\Packages\Package'
-                    ) c ON p.id = c.codeable_id
-                    left join (select pi2.package_id, sum(pi2.weight) as weight from package_items pi2 group by 1)
-                    pi2 on pi2.package_id = c.codeable_id
-                    left join (select pp.package_id, pp.amount from package_prices pp where type = 'delivery')
-                    pp on pp.package_id = c.codeable_id
-                    left join (select pp2.package_id, sum(pp2.amount) as packing_fee from package_prices pp2 where type = 'handling' group by 1)
-                    pp2 on pp2.package_id = c.codeable_id
-                    left join (select pp3.package_id, sum(pp3.amount) as insurance_fee from package_prices pp3 where type = 'insurance' group by 1)
-                    pp3 on pp3.package_id = c.codeable_id
-                    left join (select pp4.package_id, pp4.amount from package_prices pp4 where type = 'service')
-                    pp4 on pp4.package_id = c.codeable_id
-                    left join (select pp5.package_id, pp5.amount from package_prices pp5 where type = 'discount' and description = 'service')
-                    pp5 on pp5.package_id = c.codeable_id
-                    WHERE 1=1 AND
-                    d.partner_id IN (
-                    SELECT partner_id
-                    FROM partner_balance_disbursement
-                    WHERE partner_id = $request->partner_id
-                    )
-                    AND dd.delivery_id IS NOT null
-                    ) r";
         return $q;
     }
     /**End query */

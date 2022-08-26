@@ -19,7 +19,7 @@ class RequestRoute extends BaseRoute
      * @return void
      */
     public function register()
-    {   
+    {
         $this->router->get($this->prefix, [
             'as' => $this->name,
             'uses' => $this->uses('index'),
@@ -64,7 +64,7 @@ class RequestRoute extends BaseRoute
             'as' => $this->name('detailAjax'),
             'uses' => $this->uses('detail', FinanceController::class),
         ]);
-        
+
         $this->router->post($this->prefix('/detail/{id}/approve'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve', FinanceController::class),

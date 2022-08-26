@@ -9,14 +9,9 @@ use App\Http\Response;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Regency;
 use App\Exceptions\Error;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Jobs\Packages\CreateMotorBike;
-use App\Jobs\Packages\CreateNewPackage;
-use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class MotorBikeController extends Controller
 {
@@ -24,7 +19,7 @@ class MotorBikeController extends Controller
     {
         $request->validate([
             'service_code' => 'required|in:tps',
-            
+
             'sender_name' => 'required',
             'sender_phone' => 'required',
             'sender_address' => 'required',
@@ -42,11 +37,15 @@ class MotorBikeController extends Controller
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
         $resultOrigin = Geo::getRegional($coordOrigin);
-        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
         $resultDestination = Geo::getRegional($coordDestination);
-        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
 
         $origin_regency_id = $resultOrigin['regency'];
         $destination_id = $resultDestination['district'];

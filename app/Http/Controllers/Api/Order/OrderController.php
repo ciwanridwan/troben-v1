@@ -41,8 +41,6 @@ use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use App\Supports\Geo;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -59,7 +57,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
-        
+
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -67,9 +65,9 @@ class OrderController extends Controller
         );
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
-        
+
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
-        
+
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }
@@ -238,11 +236,15 @@ class OrderController extends Controller
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
             $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
 
             $origin_regency_id = $resultOrigin['regency'];
             $destination_id = $resultDestination['district'];
@@ -324,11 +326,15 @@ class OrderController extends Controller
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
         $resultOrigin = Geo::getRegional($coordOrigin);
-        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
         $resultDestination = Geo::getRegional($coordDestination);
-        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
 
         $origin_regency_id = $resultOrigin['regency'];
         $destination_id = $resultDestination['district'];

@@ -4,7 +4,6 @@ namespace App\Supports;
 
 use App\Models\MapMapping;
 use App\Models\MapMappingPending;
-use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -41,7 +40,8 @@ class Geo
         return $n;
     }
 
-    public static function getReverse(string $coord) {
+    public static function getReverse(string $coord)
+    {
         $k = self::cacheKeyBuilder($coord);
         if (Cache::has($k)) {
             if ($k == 'georeverse.invalid') {
@@ -57,7 +57,8 @@ class Geo
         return $result;
     }
 
-    public static function getReverseMeta(string $coord) {
+    public static function getReverseMeta(string $coord)
+    {
         $k = self::cacheKeyBuilder($coord, 'geometa');
         if (Cache::has($k)) {
             if ($k == 'geometa.invalid') {
@@ -67,7 +68,9 @@ class Geo
             }
         } else {
             $result = self::callReverseService($coord, true);
-            if ($result == null) return null;
+            if ($result == null) {
+                return null;
+            }
 
             Cache::put($k, $result, self::TEN_MINUTES);
         }
@@ -78,41 +81,59 @@ class Geo
     public static function getRegional(string $coord)
     {
         $coordExp = explode(',', $coord);
-        if (count($coordExp) != 2) return null;
+        if (count($coordExp) != 2) {
+            return null;
+        }
 
         $result = self::getReverseMeta($coord);
-        if (is_null($result)) return null;
+        if (is_null($result)) {
+            return null;
+        }
 
         $comps = collect($result);
 
-        $province_check = $comps->filter(function($r) { return in_array('administrative_area_level_1', $r->types); })->first();
+        $province_check = $comps->filter(function ($r) {
+            return in_array('administrative_area_level_1', $r->types);
+        })->first();
         $province = null;
         if (! is_null($province_check)) {
             $province = [
                 'k' => $province_check->place_id,
-                'v' => collect($province_check->address_components)->filter(function($r) { return in_array('administrative_area_level_1', $r->types); })->first()->long_name,
+                'v' => collect($province_check->address_components)->filter(function ($r) {
+                    return in_array('administrative_area_level_1', $r->types);
+                })->first()->long_name,
             ];
         }
 
-        $regency_check = $comps->filter(function($r) { return in_array('administrative_area_level_2', $r->types); })->first();
+        $regency_check = $comps->filter(function ($r) {
+            return in_array('administrative_area_level_2', $r->types);
+        })->first();
         $regency = null;
         if (! is_null($regency_check)) {
             $regency = [
                 'k' => $regency_check->place_id,
-                'v' => collect($regency_check->address_components)->filter(function($r) { return in_array('administrative_area_level_2', $r->types); })->first()->long_name,
+                'v' => collect($regency_check->address_components)->filter(function ($r) {
+                    return in_array('administrative_area_level_2', $r->types);
+                })->first()->long_name,
             ];
         }
 
-        $district_check = $comps->filter(function($r) { return in_array('administrative_area_level_3', $r->types); })->first();
+        $district_check = $comps->filter(function ($r) {
+            return in_array('administrative_area_level_3', $r->types);
+        })->first();
         $district = null;
         if (! is_null($district_check)) {
             $district = [
                 'k' => $district_check->place_id,
-                'v' => collect($district_check->address_components)->filter(function($r) { return in_array('administrative_area_level_3', $r->types); })->first()->long_name,
+                'v' => collect($district_check->address_components)->filter(function ($r) {
+                    return in_array('administrative_area_level_3', $r->types);
+                })->first()->long_name,
             ];
         }
 
-        if ($province == null && $regency == null && $district == null) return null;
+        if ($province == null && $regency == null && $district == null) {
+            return null;
+        }
 
         $key = 'province';
         $provinceRegional = null;
@@ -120,7 +141,9 @@ class Geo
             $provinceRegional = self::findInDB($key, $province, $coord);
         }
         // no province match, terminate func
-        if ($provinceRegional == null) return null;
+        if ($provinceRegional == null) {
+            return null;
+        }
 
         $provinceId = $provinceRegional->regional_id;
         $key = 'regency';
@@ -129,7 +152,9 @@ class Geo
             $regencyRegional = self::findInDB($key, $regency, $coord, $provinceId);
         }
         // no regency match, terminate func
-        if ($regencyRegional == null) return null;
+        if ($regencyRegional == null) {
+            return null;
+        }
 
         $regencyId = $regencyRegional->regional_id;
         $key = 'district';
@@ -142,7 +167,9 @@ class Geo
         }
 
         // no regency match, terminate func
-        if ($districtRegional == null) return null;
+        if ($districtRegional == null) {
+            return null;
+        }
         $districtId = $districtRegional->regional_id;
 
         return [
@@ -160,7 +187,7 @@ class Geo
             'Content-Type' => 'application/json'
         ])->get($url);
         $response = json_decode($request->body());
-        
+
         if ($isRaw) {
             // err checker on raw
             if ($response === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -214,11 +241,11 @@ class Geo
             'Kabupaten'
         ];
 
-        foreach($blacklist as $b) {
+        foreach ($blacklist as $b) {
             $str = str_replace($b, '', $str);
         }
 
-        $str = preg_replace("/[^A-Za-z0-9 ]/", '', $str);
+        $str = preg_replace('/[^A-Za-z0-9 ]/', '', $str);
 
         $str = trim($str);
 
@@ -229,20 +256,30 @@ class Geo
     {
         // find in mapping first
         $result = MapMapping::where('google_placeid', $place['k'])->first();
-        if (! is_null($result)) return $result;
+        if (! is_null($result)) {
+            return $result;
+        }
 
         switch ($type) {
-            case 'province': $t = 'geo_provinces'; break;
-            case 'regency': $t = 'geo_regencies'; break;
-            case 'district': $t = 'geo_districts'; break;
-            default: throw new \Exception('Invalid type'); break;
+            case 'province': $t = 'geo_provinces';
+            break;
+            case 'regency': $t = 'geo_regencies';
+            break;
+            case 'district': $t = 'geo_districts';
+            break;
+            default: throw new \Exception('Invalid type');
+            break;
         }
 
         // first check in local db
         $result = DB::table($t)->where('name', 'ilike', '%'.self::regionCleaner($place['v']).'%');
 
-        if ($provinceId != null) $result = $result->where('province_id', $provinceId);
-        if ($regencyId != null) $result = $result->where('regency_id', $regencyId);
+        if ($provinceId != null) {
+            $result = $result->where('province_id', $provinceId);
+        }
+        if ($regencyId != null) {
+            $result = $result->where('regency_id', $regencyId);
+        }
 
         $regionLocal = $result->first();
         if ($regionLocal != null) {
