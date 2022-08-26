@@ -262,13 +262,13 @@ class Geo
 
         switch ($type) {
             case 'province': $t = 'geo_provinces';
-            break;
+                break;
             case 'regency': $t = 'geo_regencies';
-            break;
+                break;
             case 'district': $t = 'geo_districts';
-            break;
+                break;
             default: throw new \Exception('Invalid type');
-            break;
+                break;
         }
 
         // first check in local db
