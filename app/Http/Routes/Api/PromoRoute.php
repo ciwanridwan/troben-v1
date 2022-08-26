@@ -61,15 +61,15 @@ class PromoRoute extends BaseRoute
 
         // public route
         $this->router->get('public/'.$this->prefix(), [
-            'as' => $this->name,
+            'as' => $this->name('public'),
             'uses' => $this->uses('index'),
         ])->withoutMiddleware('api');
         $this->router->get('public/'.$this->prefix('promotion/list'), [
-            'as' => $this->name('promotion.list'),
+            'as' => $this->name('public.promotion.list'),
             'uses' => $this->uses('index', PromotionController::class),
         ])->withoutMiddleware('api');
         $this->router->get('public/'.$this->prefix('promotion/show/{promotion_hash}/{package_hash}'), [
-            'as' => $this->name('promotion.show'),
+            'as' => $this->name('public.promotion.show'),
             'uses' => $this->uses('show', PromotionController::class),
         ])->withoutMiddleware('api');
     }
