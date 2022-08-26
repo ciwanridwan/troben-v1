@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('level');
             $table->string('google_name');
+            $table->string('google_placeid');
             $table->string('name');
             $table->unsignedInteger('regional_id');
             $table->timestamps();

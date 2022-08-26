@@ -1,0 +1,7 @@
+FROM nginx:mainline-alpine
+
+LABEL maintainer="ciwanridwan <github.com/ciwanridwan>"
+
+ADD docker_conf/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+COPY public /var/www/public

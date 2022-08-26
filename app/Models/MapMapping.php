@@ -12,6 +12,7 @@ class MapMapping extends Model
     protected $fillable = [
         'level',
         'google_name',
+        'google_placeid',
         'name',
         'regional_id',
     ];

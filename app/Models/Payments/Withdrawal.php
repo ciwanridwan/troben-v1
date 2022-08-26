@@ -3,13 +3,14 @@
 namespace App\Models\Payments;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\User;
-use Attribute;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
@@ -41,11 +42,10 @@ class Withdrawal extends Model
     // public const STATUS_REJECTED = 'rejected';
     // public const STATUS_CONFIRMED = 'accepted';
     // public const STATUS_SUCCESS = 'success';
-    
+
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
-    public const STATUS_PENDING = 'pending';
     // End Todo
 
     protected $table = 'partner_balance_disbursement';
@@ -62,7 +62,8 @@ class Withdrawal extends Model
         'status',
         'notes',
         'charge_admin',
-        'fee_charge_admin'
+        'fee_charge_admin',
+        'expired_at'
     ];
 
     protected $casts = [
@@ -93,7 +94,6 @@ class Withdrawal extends Model
             // self::STATUS_SUCCESS,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
-            self::STATUS_PENDING,
         ];
     }
 
@@ -110,5 +110,10 @@ class Withdrawal extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin', 'id');
+    }
+
+    public function disbursmentHistories(): BelongsTo
+    {
+        return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
     }
 }
