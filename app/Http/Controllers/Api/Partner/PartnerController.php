@@ -103,6 +103,7 @@ class PartnerController extends Controller
         WHERE p.type = '%s'
             AND latitude IS NOT NULL
             AND longitude IS NOT NULL
+            AND p.availability = 'open'
             %s
         ORDER BY distance_radian
         LIMIT %d %s";
@@ -211,6 +212,7 @@ class PartnerController extends Controller
         // MITRA MB
         $query->where('type', Partner::TYPE_BUSINESS);
         $query->whereNotNull(['latitude','longitude']);
+        $query->where('availability', 'open');
 
         $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);
