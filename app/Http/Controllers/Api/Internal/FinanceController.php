@@ -72,10 +72,20 @@ class FinanceController extends Controller
                 return $r;
             })->values();
 
+            $totalUnApproved = $getPendingReceipts->where('approved', 'pending')->map(function ($r) {
+                return $r; 
+            })->sum('total_accepted');
+
+            $totalApproved = $getPendingReceipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
             $data = [
                 'rows' => $getPendingReceipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
                 'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
 
@@ -105,11 +115,20 @@ class FinanceController extends Controller
                 return $r;
             })->values();
             
+            $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
+                return $r; 
+            })->sum('total_accepted');
+
+            $totalApproved = $receipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
 
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
             
             $data = [
                 'rows' => $receipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
                 'approved_at' => $approvedAt ? $approvedAt->approved_at : null
             ];
 
@@ -150,9 +169,8 @@ class FinanceController extends Controller
 
             $total_accepted = $getReceipt->sum('total_accepted');
             $calculate = $disbursment->first_balance - $total_accepted;
-            $disbursment->first_balance = $calculate;
 
-            if ($disbursment->first_balance == $calculate) {
+                if ($disbursment->first_balance !== $calculate) {
                 $disbursment->amount = $total_accepted;
                 $disbursment->status = Withdrawal::STATUS_APPROVED;
                 $disbursment->action_by = Auth::id();
@@ -470,7 +488,6 @@ class FinanceController extends Controller
                     )
                     AND dd.delivery_id IS NOT null
                     ) r";
-
         return $q;
     }
     /**End query */
@@ -494,20 +511,6 @@ class FinanceController extends Controller
         left join codes c on dh.receipt = c.content
         left join packages p on c.codeable_id = p.id
         where dh.disbursment_id = $request->id";
-
-        return $query;
-    }
-
-    private function getLatestApprovedReceipts($request)
-    {
-        $query =
-            "SELECT * FROM disbursment_histories dh2 
-        WHERE disbursment_id = (
-            SELECT max(disbursment_id) FROM disbursment_histories dh
-            LEFT JOIN partner_balance_disbursement pbd ON dh.disbursment_id = pbd.id 
-            WHERE pbd.partner_id = $request->partner_id
-        LIMIT 1
-        )";
 
         return $query;
     }

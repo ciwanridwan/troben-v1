@@ -431,7 +431,7 @@ class OrderController extends Controller
                             if ($voucherAE->discount > 0) {
                                 $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
                                 $amountVoucher = $voucherAE->discount;
-                            } else if ($voucherAE->nominal > 0) {
+                            } elseif ($voucherAE->nominal > 0) {
                                 $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL;
                                 $amountVoucher = $voucherAE->nominal;
                             }
