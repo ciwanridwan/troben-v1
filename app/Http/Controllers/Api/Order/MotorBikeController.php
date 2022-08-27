@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
+use App\Events\Package\PackageBikeCreated;
 use App\Events\Packages\PackageCreated;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use App\Http\Resources\PriceResource;
 use App\Jobs\Packages\CreateMotorBike;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -51,6 +53,13 @@ class MotorBikeController extends Controller
      * @var bool
      */
     protected bool $isSeparate;
+
+    /**
+     * Package items array.
+     *
+     * @var array
+     */
+    protected array $items;
 
     public function store(Request $request): JsonResponse
     {
@@ -173,23 +182,52 @@ class MotorBikeController extends Controller
             'width' => 'required_if:*.is_insured,true|numeric',
             'price' => 'required_if:*.is_insured,true|numeric',
             'handling.*' => 'required_if:*.is_insured,true|in:' . Handling::TYPE_WOOD,
+
+            'partner_code' => 'required|exists:partners,code',
+            'package_id' => 'required|exists:packages,id',
+            'package_item_id' => 'required|exists:package_items,id',
         ]);
-        // todo handling file upload
-        // $photos = [];
-        // foreach ((array) $request->file('moto_photo') as $i => $doc) {
-        //     $original_filename = $doc->getClientOriginalName();
-        //     $filesize = $doc->getSize();
-        //     $filename = 'doc_' . md5(microtime(true)) . '.' . $doc->extension();
-        //     $doc->move(public_path('uploads/projects-doc'), $filename);
-        //     $photos[] = [
-        //         'original' => $original_filename,
-        //         'size' => $filesize,
-        //         'filename' => $filename,
-        //     ];
-        // }
+
+        $items = [];
+        $this->items = Validator::make($items, [
+            '*.qty' => ['required', 'numeric'],
+            '*.name' => 'required',
+            '*.desc' => 'nullable',
+            '*.weight' => ['required', 'numeric'],
+            '*.height' => ['required', 'numeric'],
+            '*.length' => ['required', 'numeric'],
+            '*.width' => ['required', 'numeric'],
+            '*.is_insured' => ['nullable', 'boolean'],
+            '*.price' => ['required_if:*.is_insured,true', 'numeric'],
+            '*.handling' => ['nullable', 'array'],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+        ])->validate();
+        
+        foreach ($this->items as $item) {
+            $item['height'] = ceil($item['height']);
+            $item['length'] = ceil($item['length']);
+            $item['width'] = ceil($item['width']);
+            $item['weight'] = $this->ceilByTolerance($item['weight']);
+
+            array_push($items, $item);
+        }
+        $this->items = $items;
+        $item = new Item();
+        
+
+        $data = new MotorBike();
+        $data->type = $request->input('moto_type');
+        $data->merk = $request->input('moto_brand');
+        $data->cc = $request->input('moto_cc');
+        $data->years = $request->input('moto_year');
+        $data->package_id = $package->id;
+        $data->package_id = $package->items()->firstOrCreate()->id;
+        $data->save();
+
+        $partnerCode = $request->input('partner_code');
+        event(new PackageBikeCreated($data, $partnerCode));
 
         $result = ['result' => 'inserted'];
-
         return (new Response(Response::RC_CREATED, $result))->json();
     }
 

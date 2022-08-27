@@ -2,6 +2,7 @@
 
 namespace App\Events\Packages;
 
+use App\Models\Packages\Package;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,22 +16,21 @@ class PackageBikeCreated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
+     * Package instance.
      *
-     * @return void
+     * @var \App\Models\Packages\Package
      */
-    public function __construct()
-    {
-        //
-    }
+    public Package $package;
+    public string $partner_code;
 
     /**
-     * Get the channels the event should broadcast on.
+     * PackageCreated constructor.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @param \App\Models\Packages\Package $package
      */
-    public function broadcastOn()
+    public function __construct(Package $package, string $partner_code)
     {
-        return new PrivateChannel('channel-name');
+        $this->package = $package;
+        $this->partner_code = $partner_code;
     }
 }
