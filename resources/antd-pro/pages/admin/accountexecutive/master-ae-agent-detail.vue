@@ -70,7 +70,7 @@ export default {
         },
         getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/agent/disbursementDetail`, {
+            axios.get(`https://ae.trawlbens.co.id/agent/disbursementDetail`, {
                 params: {
                     user_id: this.userId,
                     month: this.periode,
