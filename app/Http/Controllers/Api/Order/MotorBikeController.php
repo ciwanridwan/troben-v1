@@ -197,15 +197,69 @@ class MotorBikeController extends Controller
     public function motorbikeCheck(Request $request): JsonResponse
     {
         $request->validate([
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
+
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_brand' => 'required',
+            'moto_cc' => 'required|numeric|in:150,250,999',
+            'moto_price' => 'required|numeric',
+
+            'is_insured' => 'required|boolean',
             'height' => 'required_if:*.is_insured,true|numeric',
             'length' => 'required_if:*.is_insured,true|numeric',
             'width' => 'required_if:*.is_insured,true|numeric',
+            // 'price' => 'required_if:*.is_insured,true|numeric', // disable
+            'handling.*' => 'required_if:*.is_insured,true|in:' . Handling::TYPE_WOOD,
         ]);
 
-        // todo handling calculatior wood motorbike
+        $req = $request->all();
 
-        $rand = mt_rand(10, 99) * 1000;
-        $result = ['result' => $rand];
+        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+        $resultOrigin = Geo::getRegional($coordOrigin);
+        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+
+        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        $resultDestination = Geo::getRegional($coordDestination);
+        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+
+        $handling_price = 0;
+        switch ($req['moto_cc']) {
+            case 150: $handling_price = 150000; break;
+            case 250: $handling_price = 250000; break;
+            case 999: $handling_price = 500000; break;
+        }
+
+        $weight = 0;
+        if ($req['is_insured']) {
+            $weight = PricingCalculator::getWeightBorne(
+                $req['height'], 
+                $req['length'], 
+                $req['width'], 
+                0, // set weight to 0
+                1, // qty
+                [Handling::TYPE_WOOD]
+            );
+        }
+
+        $pickup_price = 0;
+        $insurance = 0;
+        $service_price = 0; // todo get from regional mapping
+
+        $price = $insurance + $handling_price + $pickup_price + $service_price;
+
+        $result = [
+            'price' => $price,
+            'details' => [
+                'insurance' => $insurance,
+                'weight' => $weight,
+                'handling' => $handling_price,
+                'pickup_price' => $pickup_price,
+                'service' => $service_price
+            ]
+        ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
