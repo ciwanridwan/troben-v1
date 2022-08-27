@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Order;
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageCreated;
+use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Customers\Customer;
@@ -15,6 +16,7 @@ use App\Http\Resources\PriceResource;
 use App\Jobs\Packages\CreateMotorBike;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
@@ -144,11 +146,9 @@ class MotorBikeController extends Controller
         $data->sender_longitude = $request->input('origin_lon');
         $data->created_by = $request->user()->first()->id;
         $data->save();
-
-        $partnerCode = $request->input('partner_code');
     
         /**Call generate codes by event */
-        event(new PackageCreated($data, $partnerCode));
+        event(new PackageCreatedForBike($data));
         Log::info('triggering event. ', $senderName);
 
         $result = ['hash' => $data->hash];
@@ -156,7 +156,7 @@ class MotorBikeController extends Controller
         return (new Response(Response::RC_CREATED, $result))->json();
     }
 
-    public function storeItem(Request $request): JsonResponse
+    public function storeItem(Request $request, Package $package): JsonResponse
     {
         $request->validate([
             'moto_type' => 'required|in:matic,kopling,gigi',
@@ -174,7 +174,6 @@ class MotorBikeController extends Controller
             'price' => 'required_if:*.is_insured,true|numeric',
             'handling.*' => 'required_if:*.is_insured,true|in:' . Handling::TYPE_WOOD,
         ]);
-
         // todo handling file upload
         // $photos = [];
         // foreach ((array) $request->file('moto_photo') as $i => $doc) {
@@ -191,7 +190,7 @@ class MotorBikeController extends Controller
 
         $result = ['result' => 'inserted'];
 
-        return (new Response(Response::RC_SUCCESS, $result))->json();
+        return (new Response(Response::RC_CREATED, $result))->json();
     }
 
     public function motorbikeCheck(Request $request): JsonResponse
