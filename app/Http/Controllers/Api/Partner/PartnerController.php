@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerNearbyResource;
 use App\Http\Resources\Api\Partner\PartnerResource;
@@ -13,6 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Response;
+use App\Models\Customers\Customer;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class PartnerController extends Controller
 {
@@ -129,6 +134,74 @@ class PartnerController extends Controller
             })->sortBy('distance_matrix')->values();
 
         return $this->jsonSuccess(PartnerNearbyResource::collection($result));
+    }
+
+    public function availabilitySet(Request $request) : JsonResponse
+    {
+        $availList = [
+            Partner::AVAIL_OPEN,
+            Partner::AVAIL_CLOSE,
+        ];
+        $this->attributes = Validator::make($request->all(), [
+            'availability' => 'required|in:'.implode(',', $availList),
+        ])->validate();
+
+        $notUser = ! (Auth::user() instanceof User);
+        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+
+        try {
+            $avail = $this->checkAvailability(Auth::id());
+        } catch (\Exception $e) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+        }
+
+        $availStatus = $request->get('availability');
+        $q = "UPDATE partners SET availability = '%s' WHERE id = %d";
+        $q = sprintf($q, $availStatus, $avail->partner_id);
+        DB::statement($q);
+
+        $result = [
+            'result' => 'availability set to: '.$request->get('availability')
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function availabilityGet(Request $request) : JsonResponse
+    {
+        $notUser = ! (Auth::user() instanceof User);
+        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+
+        try {
+            $avail = $this->checkAvailability(Auth::id());
+        } catch (\Exception $e) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+        }
+
+        $result = [
+            'result' => $avail
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    private function checkAvailability(int $userId)
+    {
+        $q = "SELECT u.user_id, u.role, p.availability, p.id partner_id
+        FROM userables u
+        LEFT JOIN partners p ON u.userable_id = p.id
+        WHERE 1=1
+        AND userable_type = 'App\Models\Partners\Partner'
+        AND user_id = %d
+        LIMIT 1";
+        $q = sprintf($q, $userId);
+        $check = DB::select($q);
+        
+        if (count($check) == 0) {
+            throw new \Exception("Partner not Found");
+        }
+
+        return $check[0];
     }
 
     protected function getPartnerData(): JsonResponse
