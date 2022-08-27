@@ -146,11 +146,8 @@ class MotorBikeController extends Controller
         $data->save();
 
         $partnerCode = $request->input('partner_code');
-        /**Inserting Photos */
-        $uploadJob = new CustomerUploadPackagePhotos($data, $request->file('photos') ?? []);
-        $this->dispatchNow($uploadJob);
-        Log::info('prepared continue to make an item. ', $senderName);
-
+    
+        /**Call generate codes by event */
         event(new PackageCreated($data, $partnerCode));
         Log::info('triggering event. ', $senderName);
 
