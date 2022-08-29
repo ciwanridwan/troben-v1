@@ -159,31 +159,31 @@ class MotorBikeController extends Controller
             'moto_year' => 'required|numeric',
             'moto_photo' => 'required',
             'moto_photo.*' => 'image|max:10240',
-
-            'items' => 'nullable|array',
-            'items.*.is_insured' => 'nullable|boolean',
-            'items.*.price' => 'required_if:is_insured,true',
+            
+            'is_insured' => 'nullable|boolean',
+            'price' => 'required_if:is_insured,true',
             'handling' => 'nullable',
             'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
-            'items.*.height' => 'nullable|numeric',
-            'items.*.length' => 'nullable|numeric',
-            'items.*.width' => 'nullable|numeric',
+            'height' => 'required_if:handling,wood|numeric',
+            'length' => 'required_if:handling,wood|numeric',
+            'width' => 'required_if:handling,wood|numeric',
 
             'transporter_type' => 'required|in:' . Transporter::TYPE_MPV,
             'partner_code' => ['required', 'exists:partners,code']
         ]);
+
         $package->update(['transporter_type' => $request->input('transporter_type')]);
 
         $item = new Item();
         $item->package_id = $package->id;
         $item->qty = 1;
         $item->name = $request->input('moto_brand');
-        $item->is_insured =  $request->input('items.0.is_insured') ?? false;
-        $item->price = $request->input('items.0.price') ?? 0;
-        $item->handling = $request->input('items.0.handling');
-        $item->height = $request->input('items.0.height') ?? 0;
-        $item->length = $request->input('items.0.length') ?? 0;
-        $item->width = $request->input('items.0.width') ?? 0;
+        $item->is_insured =  $request->input('is_insured') ?? false;
+        $item->price = $request->input('price') ?? 0;
+        $item->handling = $request->input('handling');
+        $item->height = $request->input('height') ?? 0;
+        $item->length = $request->input('length') ?? 0;
+        $item->width = $request->input('width') ?? 0;
         if (is_null($item->price) && is_null($item->handling) && is_null($item->height) && is_null($item->length) && is_null($item->width)) {
             $item->handling = null;
             $item->price = $item->height = $item->length = $item->width = 0;
@@ -208,7 +208,7 @@ class MotorBikeController extends Controller
 
         event(new PackageBikeCreated($package, $partnerCode));
 
-        $result = ['result' => 'inserted'];
+        $result = ['hash' => $package->hash];
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
