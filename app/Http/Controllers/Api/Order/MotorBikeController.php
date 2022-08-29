@@ -134,7 +134,7 @@ class MotorBikeController extends Controller
         $data->origin_regency_id = $origin_regency_id;
         $data->destination_regency_id = $resultDestination['regency'];
         $data->destination_district_id = $destination_id;
-        $data->destination_sub_district_id = $request->input('destination_sub_district');
+        $data->destination_sub_district_id = $resultDestination['subdistrict'];
         $data->sender_way_point = $request->input('sender_address');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
