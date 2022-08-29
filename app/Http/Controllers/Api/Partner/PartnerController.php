@@ -174,14 +174,10 @@ class PartnerController extends Controller
         if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
 
         try {
-            $avail = $this->checkAvailability(Auth::id());
+            $result = $this->checkAvailability(Auth::id());
         } catch (\Exception $e) {
             throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
         }
-
-        $result = [
-            'result' => $avail
-        ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
@@ -202,7 +198,7 @@ class PartnerController extends Controller
             throw new \Exception("Partner not Found");
         }
 
-        return $check[0];
+        return (array) $check[0];
     }
 
     protected function getPartnerData(): JsonResponse
