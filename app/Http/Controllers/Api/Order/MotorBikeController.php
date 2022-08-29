@@ -18,8 +18,6 @@ use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class MotorBikeController extends Controller
 {
@@ -136,7 +134,7 @@ class MotorBikeController extends Controller
         $data->origin_regency_id = $origin_regency_id;
         $data->destination_regency_id = $resultDestination['regency'];
         $data->destination_district_id = $destination_id;
-        $data->destination_sub_district_id = $request->input('destination_sub_district');
+        $data->destination_sub_district_id = $resultDestination['subdistrict'];
         $data->sender_way_point = $request->input('sender_address');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
@@ -161,33 +159,37 @@ class MotorBikeController extends Controller
             'moto_year' => 'required|numeric',
             'moto_photo' => 'required',
             'moto_photo.*' => 'image|max:10240',
-            // 'moto_price' => 'required|numeric',
 
             'items' => 'nullable|array',
             'items.*.is_insured' => 'nullable|boolean',
             'items.*.price' => 'required_if:is_insured,true',
+            'handling' => 'nullable',
+            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
             'items.*.height' => 'nullable|numeric',
             'items.*.length' => 'nullable|numeric',
             'items.*.width' => 'nullable|numeric',
-            'handling' => 'nullable',
-            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
 
             'transporter_type' => 'required|in:' . Transporter::TYPE_MPV,
             'partner_code' => ['required', 'exists:partners,code']
         ]);
+        $package->update(['transporter_type' => $request->input('transporter_type')]);
 
         $item = new Item();
         $item->package_id = $package->id;
         $item->qty = 1;
         $item->name = $request->input('moto_brand');
-        $item->price = $request->input('items.0.price');
-        $item->height = $request->input('items.0.height');
-        $item->length = $request->input('items.0.length');
-        $item->width = $request->input('items.0.width');
+        $item->is_insured =  $request->input('items.0.is_insured') ?? false;
+        $item->price = $request->input('items.0.price') ?? 0;
+        $item->handling = $request->input('items.0.handling');
+        $item->height = $request->input('items.0.height') ?? 0;
+        $item->length = $request->input('items.0.length') ?? 0;
+        $item->width = $request->input('items.0.width') ?? 0;
+        if (is_null($item->price) && is_null($item->handling) && is_null($item->height) && is_null($item->length) && is_null($item->width)) {
+            $item->handling = null;
+            $item->price = $item->height = $item->length = $item->width = 0;
+        }
         $item->weight = 0;
         $item->in_estimation = true;
-        $item->is_insured = $request->input('items.0.is_insured');
-        $item->handling = $request->input('items.0.handling');
         $item->save();
 
         $data = new MotorBike();

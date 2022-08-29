@@ -37,7 +37,7 @@ class PricingRoute extends BaseRoute
             'uses' => $this->uses('locationCheck'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('calculator-motorbike'), [
+        $this->router->post($this->prefix('/calculator/motorbike'), [
             'as' => $this->name('calculator.motorbike'),
             'uses' => $this->uses('motorbikeCheck', MotorBikeController::class),
         ])->withoutMiddleware('api');
