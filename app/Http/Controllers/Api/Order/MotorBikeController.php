@@ -99,12 +99,12 @@ class MotorBikeController extends Controller
         Log::info('validate package success', $senderName);
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
+        $resultDestination = Geo::getRegional($coordDestination, true);
 
         if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
 
@@ -237,11 +237,11 @@ class MotorBikeController extends Controller
         $req = $request->all();
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
         if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
+        $resultDestination = Geo::getRegional($coordDestination, true);
         if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
 
         $handling_price = 0;
