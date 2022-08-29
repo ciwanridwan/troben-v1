@@ -154,9 +154,14 @@ class Geo
         if ($districtRegional == null) return null;
         $districtId = $districtRegional->regional_id;
 
+        $result = [
+            'province' => $provinceId,
+            'regency' => $regencyId,
+            'district' => $districtId,
+        ];
+
         if ($get_subdistrict) {
             // fetch subdistrict too
-            $regencyId = $regencyRegional->regional_id;
             $key = 'subdistrict';
             $subdistrictRegional = null;
             if ($subdistrict != null) {
@@ -169,13 +174,10 @@ class Geo
                 $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId);
             }
             if ($subdistrictRegional == null) return null;
-        }
+            $subdistrictId = $subdistrictRegional->regional_id;
 
-        $result = [
-            'province' => $provinceId,
-            'regency' => $regencyId,
-            'district' => $districtId,
-        ];
+            $result['subdistrict'] = $subdistrictId;
+        }
 
         return $result;
     }
