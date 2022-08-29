@@ -4,30 +4,20 @@ namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
-use App\Events\Packages\PackageCreated;
+use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Models\Customers\Customer;
-use App\Models\Geo\Regency;
 use App\Exceptions\Error;
-use App\Http\Resources\Api\Package\PackageResource;
-use App\Http\Resources\PriceResource;
-use App\Jobs\Packages\CreateMotorBike;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
-use App\Models\Price;
-use App\Supports\DistanceMatrix;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class MotorBikeController extends Controller
 {
@@ -52,12 +42,18 @@ class MotorBikeController extends Controller
      */
     protected bool $isSeparate;
 
+    /**
+     * Package items array.
+     *
+     * @var array
+     */
+    protected array $items;
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
             'customer_id' => ['nullable', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
-            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
 
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
@@ -103,28 +99,26 @@ class MotorBikeController extends Controller
         Log::info('validate package success', $senderName);
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
+        $resultDestination = Geo::getRegional($coordDestination, true);
 
         if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-    
+
         $origin_regency_id = $resultOrigin['regency'];
         $destination_id = $resultDestination['district'];
         $request->merge([
             'origin_regency_id' => $origin_regency_id,
             'destination_id' => $destination_id,
         ]);
-        
+
 
         /**Inserting to tables */
         $data = new Package();
         $data->customer_id = $request->user()->first()->id;
-        $data->service_code = $request->input('service_code');
-        $data->transporter_type = $request->input('transporter_type');
         $data->service_code = $request->input('service_code');
         $data->sender_name = $request->input('sender_name');
         $data->sender_phone = $request->input('sender_phone');
@@ -140,19 +134,19 @@ class MotorBikeController extends Controller
         $data->origin_regency_id = $origin_regency_id;
         $data->destination_regency_id = $resultDestination['regency'];
         $data->destination_district_id = $destination_id;
-        $data->destination_sub_district_id = $request->input('destination_sub_district');
+        $data->destination_sub_district_id = $resultDestination['subdistrict'];
         $data->sender_way_point = $request->input('sender_address');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
         $data->created_by = $request->user()->first()->id;
         $data->save();
-    
+
         /**Call generate codes by event */
         event(new PackageCreatedForBike($data));
         Log::info('triggering event. ', $senderName);
 
         $result = ['hash' => $data->hash];
-        
+
         return (new Response(Response::RC_CREATED, $result))->json();
     }
 
@@ -165,28 +159,54 @@ class MotorBikeController extends Controller
             'moto_year' => 'required|numeric',
             'moto_photo' => 'required',
             'moto_photo.*' => 'image|max:10240',
-            'moto_price' => 'required|numeric',
 
-            'is_insured' => 'required|boolean',
-            'height' => 'required_if:*.is_insured,true|numeric',
-            'length' => 'required_if:*.is_insured,true|numeric',
-            'width' => 'required_if:*.is_insured,true|numeric',
-            'price' => 'required_if:*.is_insured,true|numeric',
-            'handling.*' => 'required_if:*.is_insured,true|in:' . Handling::TYPE_WOOD,
+            'items' => 'nullable|array',
+            'items.*.is_insured' => 'nullable|boolean',
+            'items.*.price' => 'required_if:is_insured,true',
+            'handling' => 'nullable',
+            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'items.*.height' => 'nullable|numeric',
+            'items.*.length' => 'nullable|numeric',
+            'items.*.width' => 'nullable|numeric',
+
+            'transporter_type' => 'required|in:' . Transporter::TYPE_MPV,
+            'partner_code' => ['required', 'exists:partners,code']
         ]);
-        // todo handling file upload
-        // $photos = [];
-        // foreach ((array) $request->file('moto_photo') as $i => $doc) {
-        //     $original_filename = $doc->getClientOriginalName();
-        //     $filesize = $doc->getSize();
-        //     $filename = 'doc_' . md5(microtime(true)) . '.' . $doc->extension();
-        //     $doc->move(public_path('uploads/projects-doc'), $filename);
-        //     $photos[] = [
-        //         'original' => $original_filename,
-        //         'size' => $filesize,
-        //         'filename' => $filename,
-        //     ];
-        // }
+        $package->update(['transporter_type' => $request->input('transporter_type')]);
+
+        $item = new Item();
+        $item->package_id = $package->id;
+        $item->qty = 1;
+        $item->name = $request->input('moto_brand');
+        $item->is_insured =  $request->input('items.0.is_insured') ?? false;
+        $item->price = $request->input('items.0.price') ?? 0;
+        $item->handling = $request->input('items.0.handling');
+        $item->height = $request->input('items.0.height') ?? 0;
+        $item->length = $request->input('items.0.length') ?? 0;
+        $item->width = $request->input('items.0.width') ?? 0;
+        if (is_null($item->price) && is_null($item->handling) && is_null($item->height) && is_null($item->length) && is_null($item->width)) {
+            $item->handling = null;
+            $item->price = $item->height = $item->length = $item->width = 0;
+        }
+        $item->weight = 0;
+        $item->in_estimation = true;
+        $item->save();
+
+        $data = new MotorBike();
+        $data->type = $request->input('moto_type');
+        $data->merk = $request->input('moto_brand');
+        $data->cc = $request->input('moto_cc');
+        $data->years = $request->input('moto_year');
+        $data->package_id = $package->id;
+        $data->package_item_id = $item->id;
+        $data->save();
+
+        $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('moto_photo') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        $partnerCode = $request->input('partner_code');
+
+        event(new PackageBikeCreated($package, $partnerCode));
 
         $result = ['result' => 'inserted'];
 
@@ -217,26 +237,32 @@ class MotorBikeController extends Controller
         $req = $request->all();
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
         if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
+        $resultDestination = Geo::getRegional($coordDestination, true);
         if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
 
         $handling_price = 0;
         switch ($req['moto_cc']) {
-            case 150: $handling_price = 150000; break;
-            case 250: $handling_price = 250000; break;
-            case 999: $handling_price = 500000; break;
+            case 150:
+                $handling_price = 150000;
+                break;
+            case 250:
+                $handling_price = 250000;
+                break;
+            case 999:
+                $handling_price = 500000;
+                break;
         }
 
         $weight = 0;
         if ($req['is_insured']) {
             $weight = PricingCalculator::getWeightBorne(
-                $req['height'], 
-                $req['length'], 
-                $req['width'], 
+                $req['height'],
+                $req['length'],
+                $req['width'],
                 0, // set weight to 0
                 1, // qty
                 [Handling::TYPE_WOOD]

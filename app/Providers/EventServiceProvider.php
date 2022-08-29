@@ -53,6 +53,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use Illuminate\Support\Facades\Event;
@@ -267,7 +268,14 @@ class EventServiceProvider extends ServiceProvider
         /**Motorbike event & listeners */
         PackageCreatedForBike::class => [
             WriteCodeLog::class
-        ]
+        ],
+
+        PackageBikeCreated::class => [
+            UpdatePackageTotalWeightByEvent::class,
+            GeneratePackagePickupPrices::class,
+            GeneratePackagePrices::class,
+            WriteCodeLog::class
+        ],
     ];
 
     /**
