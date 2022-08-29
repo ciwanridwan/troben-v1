@@ -158,7 +158,7 @@ class PartnerController extends Controller
 
         $availStatus = $request->get('availability');
         $q = "UPDATE partners SET availability = '%s' WHERE id = %d";
-        $q = sprintf($q, $availStatus, $avail->partner_id);
+        $q = sprintf($q, $availStatus, $avail['partner_id']);
         DB::statement($q);
 
         $result = [
