@@ -75,7 +75,7 @@ class Geo
         return $result;
     }
 
-    public static function getRegional(string $coord)
+    public static function getRegional(string $coord, bool $get_subdistrict = false)
     {
         $coordExp = explode(',', $coord);
         if (count($coordExp) != 2) return null;
@@ -112,6 +112,15 @@ class Geo
             ];
         }
 
+        $subdistrict_check = $comps->filter(function($r) { return in_array('administrative_area_level_4', $r->types); })->first();
+        $subdistrict = null;
+        if (! is_null($subdistrict_check)) {
+            $subdistrict = [
+                'k' => $subdistrict_check->place_id,
+                'v' => collect($subdistrict_check->address_components)->filter(function($r) { return in_array('administrative_area_level_4', $r->types); })->first()->long_name,
+            ];
+        }
+
         if ($province == null && $regency == null && $district == null) return null;
 
         $key = 'province';
@@ -145,11 +154,30 @@ class Geo
         if ($districtRegional == null) return null;
         $districtId = $districtRegional->regional_id;
 
-        return [
+        if ($get_subdistrict) {
+            // fetch subdistrict too
+            $regencyId = $regencyRegional->regional_id;
+            $key = 'subdistrict';
+            $subdistrictRegional = null;
+            if ($subdistrict != null) {
+                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId, $regencyId, $districtId);
+            }
+            if ($subdistrictRegional == null) { // subdistrict still null, fallback to regency level
+                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId, $regencyId);
+            }
+            if ($subdistrictRegional == null) { // subdistrict still null, fallback to province level
+                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId);
+            }
+            if ($subdistrictRegional == null) return null;
+        }
+
+        $result = [
             'province' => $provinceId,
             'regency' => $regencyId,
             'district' => $districtId,
         ];
+
+        return $result;
     }
 
     public static function callReverseService(string $coord, bool $isRaw = false)
@@ -225,7 +253,7 @@ class Geo
         return $str;
     }
 
-    private static function findInDB($type, $place, $coord, $provinceId = null, $regencyId = null)
+    private static function findInDB($type, $place, $coord, $provinceId = null, $regencyId = null, $districtId = null)
     {
         // find in mapping first
         $result = MapMapping::where('google_placeid', $place['k'])->first();
@@ -235,6 +263,7 @@ class Geo
             case 'province': $t = 'geo_provinces'; break;
             case 'regency': $t = 'geo_regencies'; break;
             case 'district': $t = 'geo_districts'; break;
+            case 'subdistrict': $t = 'geo_sub_districts'; break;
             default: throw new \Exception('Invalid type'); break;
         }
 
@@ -243,6 +272,7 @@ class Geo
 
         if ($provinceId != null) $result = $result->where('province_id', $provinceId);
         if ($regencyId != null) $result = $result->where('regency_id', $regencyId);
+        if ($districtId != null) $result = $result->where('district_id', $districtId);
 
         $regionLocal = $result->first();
         if ($regionLocal != null) {
