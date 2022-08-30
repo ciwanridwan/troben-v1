@@ -243,8 +243,8 @@ class MotorBikeController extends Controller
             'width' => 'required_if:handling,wood|numeric',
 
             /**Pickup Fee */
-            'transporter_type' => 'required',
-            'partner_code' => 'required|exists:partners,code',
+            'transporter_type' => 'nullable',
+            'partner_code' => 'nullable|exists:partners,code',
 
             /**Insurance Price */
             'price' => 'nullable',
