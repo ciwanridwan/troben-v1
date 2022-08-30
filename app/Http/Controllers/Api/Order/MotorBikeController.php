@@ -9,10 +9,12 @@ use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
@@ -204,11 +206,17 @@ class MotorBikeController extends Controller
         $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('moto_photo') ?? []);
         $this->dispatchNow($uploadJob);
 
-        $partnerCode = $request->input('partner_code');
+        $partner = Partner::where('code', $request->input('partner_code'))->first();
+        
+        event(new PackageBikeCreated($package, $partner->code));
 
-        event(new PackageBikeCreated($package, $partnerCode));
+        $this->orderAssignation($package, $partner);
 
-        $result = ['hash' => $package->hash];
+        $noReceipt = $package->code()->first()->content;
+        $result = 
+        [
+            'receipt' => $noReceipt
+        ];
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
@@ -287,5 +295,14 @@ class MotorBikeController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /** Assign firts partner to be partner origin and create delivery */
+    public function orderAssignation(Package $package, Partner $partner)
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+        
+        return $job;
     }
 }
