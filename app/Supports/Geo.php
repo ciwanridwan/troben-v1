@@ -165,13 +165,13 @@ class Geo
             $key = 'subdistrict';
             $subdistrictRegional = null;
             if ($subdistrict != null) {
-                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId, $regencyId, $districtId);
+                $subdistrictRegional = self::findInDB($key, $subdistrict, $coord, $provinceId, $regencyId, $districtId);
             }
             if ($subdistrictRegional == null) { // subdistrict still null, fallback to regency level
-                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId, $regencyId);
+                $subdistrictRegional = self::findInDB($key, $subdistrict, $coord, $provinceId, $regencyId);
             }
             if ($subdistrictRegional == null) { // subdistrict still null, fallback to province level
-                $subdistrictRegional = self::findInDB($key, $district, $coord, $provinceId);
+                $subdistrictRegional = self::findInDB($key, $subdistrict, $coord, $provinceId);
             }
             if ($subdistrictRegional == null) return null;
             $subdistrictId = $subdistrictRegional->regional_id;
