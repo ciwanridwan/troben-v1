@@ -247,7 +247,7 @@ class MotorBikeController extends Controller
             'partner_code' => 'required|exists:partners,code',
 
             /**Insurance Price */
-            'insurance_price' => 'nullable',
+            'price' => 'nullable',
         ]);
         $req = $request->all();
 
@@ -276,7 +276,7 @@ class MotorBikeController extends Controller
             }
         }
         $insurance = 0;
-        $insurance = ceil(self::getInsurancePrice($request->input('insurance_price')));
+        $insurance = ceil(self::getInsurancePrice($request->input('price')));
 
         $handling_price = 0;
         switch ($req['moto_cc']) {
@@ -306,7 +306,7 @@ class MotorBikeController extends Controller
         $result = [
             'details' => [
                 'pickup_price' => $pickup_price,
-                'insurance_price' => $insurance,
+                'price' => $insurance,
                 'handling_price' => $handling_price,
                 'handling_additional_price' => $handlingAdditionalPrice,
                 'service_price' => $service_price
