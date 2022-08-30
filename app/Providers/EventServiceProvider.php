@@ -274,7 +274,6 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePickupPrices::class,
             GeneratePackagePrices::class,
-            WriteCodeLog::class
         ],
     ];
 

@@ -9,11 +9,14 @@ use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use App\Supports\DistanceMatrix;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +24,9 @@ use Illuminate\Support\Facades\Log;
 
 class MotorBikeController extends Controller
 {
+    public const INSURANCE_MIN = 1000;
+
+    public const INSURANCE_MUL = 0.2 / 100;
     /**
      * Package instance.
      *
@@ -159,7 +165,7 @@ class MotorBikeController extends Controller
             'moto_year' => 'required|numeric',
             'moto_photo' => 'required',
             'moto_photo.*' => 'image|max:10240',
-            
+
             'is_insured' => 'nullable|boolean',
             'price' => 'required_if:is_insured,true',
             'handling' => 'nullable',
@@ -168,7 +174,7 @@ class MotorBikeController extends Controller
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
 
-            'transporter_type' => 'required|in:' . Transporter::TYPE_MPV,
+            'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX,
             'partner_code' => ['required', 'exists:partners,code']
         ]);
 
@@ -204,11 +210,17 @@ class MotorBikeController extends Controller
         $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('moto_photo') ?? []);
         $this->dispatchNow($uploadJob);
 
-        $partnerCode = $request->input('partner_code');
+        $partner = Partner::where('code', $request->input('partner_code'))->first();
 
-        event(new PackageBikeCreated($package, $partnerCode));
+        event(new PackageBikeCreated($package, $partner->code));
 
-        $result = ['hash' => $package->hash];
+        $this->orderAssignation($package, $partner);
+
+        $noReceipt = $package->code()->first()->content;
+        $result =
+            [
+                'receipt' => $noReceipt
+            ];
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
@@ -222,18 +234,21 @@ class MotorBikeController extends Controller
             'destination_lon' => 'required|numeric',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_brand' => 'required',
             'moto_cc' => 'required|numeric|in:150,250,999',
-            'moto_price' => 'required|numeric',
 
-            'is_insured' => 'required|boolean',
-            'height' => 'required_if:*.is_insured,true|numeric',
-            'length' => 'required_if:*.is_insured,true|numeric',
-            'width' => 'required_if:*.is_insured,true|numeric',
-            // 'price' => 'required_if:*.is_insured,true|numeric', // disable
-            'handling.*' => 'required_if:*.is_insured,true|in:' . Handling::TYPE_WOOD,
+            /**Handling */
+            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'height' => 'required_if:handling,wood|numeric',
+            'length' => 'required_if:handling,wood|numeric',
+            'width' => 'required_if:handling,wood|numeric',
+
+            /**Pickup Fee */
+            'transporter_type' => 'nullable',
+            'partner_code' => 'nullable|exists:partners,code',
+
+            /**Insurance Price */
+            'price' => 'nullable',
         ]);
-
         $req = $request->all();
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
@@ -243,6 +258,25 @@ class MotorBikeController extends Controller
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
         $resultDestination = Geo::getRegional($coordDestination, true);
         if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+
+        $pickup_price = 0;
+        if ($request->input('transporter_type') != null && $request->input('transporter_type') != '' && $request->input('partner_code') != '' && $request->input('partner_code') != null) {
+            $partner = Partner::where('code', $request->input('partner_code'))->first();
+            $origin = $request->input('origin_lat') . ', ' . $request->input('origin_lon');
+            $destination = $partner->latitude . ', ' . $partner->longitude;
+            $distance = DistanceMatrix::calculateDistance($origin, $destination);
+
+            if ($request->input('transporter_type') != 'bike') {
+                if ($distance < 5) {
+                    $pickup_price = 15000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 15000 + (4000 * $substraction);
+                }
+            }
+        }
+        $insurance = 0;
+        $insurance = ceil(self::getInsurancePrice($request->input('price')));
 
         $handling_price = 0;
         switch ($req['moto_cc']) {
@@ -257,35 +291,44 @@ class MotorBikeController extends Controller
                 break;
         }
 
-        $weight = 0;
-        if ($req['is_insured']) {
-            $weight = PricingCalculator::getWeightBorne(
-                $req['height'],
-                $req['length'],
-                $req['width'],
-                0, // set weight to 0
-                1, // qty
-                [Handling::TYPE_WOOD]
-            );
-        }
+        $height = $request->get('height');
+        $length = $request->get('length');
+        $width = $request->get('width');
+        $type = $request->get('handling');
 
-        $pickup_price = 0;
-        $insurance = 0;
+        $handlingAdditionalPrice = 0;
+        $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
+
         $service_price = 0; // todo get from regional mapping
 
-        $price = $insurance + $handling_price + $pickup_price + $service_price;
+        $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
 
         $result = [
-            'price' => $price,
             'details' => [
-                'insurance' => $insurance,
-                'weight' => $weight,
-                'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
-                'service' => $service_price
-            ]
+                'price' => $insurance,
+                'handling_price' => $handling_price,
+                'handling_additional_price' => $handlingAdditionalPrice,
+                'service_price' => $service_price
+            ],
+            'total_amount' => $total_amount,
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /** Assign firts partner to be partner origin and create delivery */
+    private function orderAssignation(Package $package, Partner $partner)
+    {
+        $job = new AssignFirstPartnerToPackage($package, $partner);
+        $this->dispatchNow($job);
+
+        return $job;
+    }
+
+    /** Get Insurance Price */
+    private static function getInsurancePrice($price)
+    {
+        return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }
 }
