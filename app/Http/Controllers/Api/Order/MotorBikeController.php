@@ -121,7 +121,7 @@ class MotorBikeController extends Controller
             'origin_regency_id' => $origin_regency_id,
             'destination_id' => $destination_id,
         ]);
-
+        Log::info('check location success', $senderName);
 
         /**Inserting to tables */
         $data = new Package();
@@ -145,8 +145,12 @@ class MotorBikeController extends Controller
         $data->sender_way_point = $request->input('sender_address');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
+        $data->receiver_way_point = $request->input('receiver_address');
+        $data->receiver_latitude = $request->input('destination_lat');
+        $data->receiver_longitude = $request->input('destination_lon');
         $data->created_by = $request->user()->first()->id;
         $data->save();
+        Log::info('Package have been save, New Order ', $senderName);
 
         /**Call generate codes by event */
         event(new PackageCreatedForBike($data));
