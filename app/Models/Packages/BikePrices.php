@@ -9,6 +9,12 @@ class BikePrices extends Model
 {
     use HasFactory;
 
+    public const LOWER_CC = '100-150';
+    public const MIDDLE_CC = '151-250';
+    public const HIGH_CC = '999';
+
+    
+
     protected $table = 'bike_prices';
 
     protected $fillable = [

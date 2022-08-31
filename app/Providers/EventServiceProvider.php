@@ -56,6 +56,7 @@ use App\Events\Deliveries\DriverAssigned;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Events\Partners\Balance\WithdrawalApproved;
+use App\Listeners\Packages\GeneratePackageBikePrices;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -273,7 +274,7 @@ class EventServiceProvider extends ServiceProvider
         PackageBikeCreated::class => [
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePickupPrices::class,
-            GeneratePackagePrices::class,
+            GeneratePackageBikePrices::class,
         ],
     ];
 
