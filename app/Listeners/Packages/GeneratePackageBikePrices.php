@@ -8,6 +8,7 @@ use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
@@ -157,7 +158,35 @@ class GeneratePackageBikePrices
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
-
+            
+            /** Inserting required handling prices of bikes */
+            try {
+                $ccInput = [
+                    'moto_cc' => $package->motoBikes()->first()->cc
+                ];
+                switch ($ccInput['moto_cc']) {
+                    case 150:
+                        $handlingBikePrices = 150000;
+                        break;
+                    case 250:
+                        $handlingBikePrices = 250000;
+                        break;
+                    case 999:
+                        $handlingBikePrices = 500000;
+                        break;
+                }
+                
+                $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                    'type' => Price::TYPE_HANDLING,
+                    'description' => Handling::TYPE_BIKES,
+                    'amount' => $handlingBikePrices,
+                ]);
+                $this->dispatch($job);
+            
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+            
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
             // try {
