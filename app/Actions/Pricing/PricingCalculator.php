@@ -16,6 +16,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceResource;
+use App\Models\Packages\BikePrices;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -607,5 +608,14 @@ class PricingCalculator
         }
 
         return $handling;
+    }
+
+    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+
+        return $price;
     }
 }

@@ -272,7 +272,6 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         PackageBikeCreated::class => [
-            UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePickupPrices::class,
             GeneratePackageBikePrices::class,
         ],
