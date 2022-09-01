@@ -65,7 +65,7 @@ class DistanceMatrix
             $distance = $response->rows[0]->elements[0]->distance->value;
             $distance = $distance / 1000;
         } else {
-            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
+            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin, 'response' => json_decode($response->body(), true)]);
         }
 
         return $distance;
