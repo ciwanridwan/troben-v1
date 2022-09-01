@@ -11,6 +11,7 @@ use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Packages\BikePrices;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
@@ -120,7 +121,7 @@ class MotorBikeController extends Controller
             'origin_regency_id' => $origin_regency_id,
             'destination_id' => $destination_id,
         ]);
-
+        Log::info('check location success', $senderName);
 
         /**Inserting to tables */
         $data = new Package();
@@ -144,8 +145,12 @@ class MotorBikeController extends Controller
         $data->sender_way_point = $request->input('sender_address');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
+        $data->receiver_way_point = $request->input('receiver_address');
+        $data->receiver_latitude = $request->input('destination_lat');
+        $data->receiver_longitude = $request->input('destination_lon');
         $data->created_by = $request->user()->first()->id;
         $data->save();
+        Log::info('Package have been save, New Order ', $senderName);
 
         /**Call generate codes by event */
         event(new PackageCreatedForBike($data));
@@ -227,6 +232,9 @@ class MotorBikeController extends Controller
 
     public function motorbikeCheck(Request $request): JsonResponse
     {
+        $startNum = substr(str_shuffle("123456789"), 0, 1);
+        $endNum = substr(str_shuffle("123456789"), 0, 1);
+
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
@@ -299,19 +307,33 @@ class MotorBikeController extends Controller
         $handlingAdditionalPrice = 0;
         $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
 
+
+        $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
 
+        switch ($request->get('moto_cc')) {
+            case 150:
+                $service_price = $getPrice->lower_cc;
+                break;
+            case 250:
+                $service_price = $getPrice->middle_cc;
+                break;
+            case 999:
+                $service_price = $getPrice->high_cc;
+                break;
+        }
         $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
 
         $result = [
             'details' => [
                 'pickup_price' => $pickup_price,
-                'price' => $insurance,
+                'insurance_price' => $insurance,
                 'handling_price' => $handling_price,
                 'handling_additional_price' => $handlingAdditionalPrice,
-                'service_price' => $service_price
+                'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,
+            'notes' => 'Estimasi pengiriman barang ' . $startNum . '-' . $endNum . ' hari'
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
@@ -330,5 +352,14 @@ class MotorBikeController extends Controller
     private static function getInsurancePrice($price)
     {
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
+    }
+
+    private static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+
+        return $price;
     }
 }
