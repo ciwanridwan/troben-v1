@@ -16,6 +16,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceResource;
+use App\Models\Packages\BikePrices;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -105,10 +106,12 @@ class PricingCalculator
 
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
+        $handlingBikePrices = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', Handling::TYPE_BIKES)->get()->sum('amount');
+        
         if ($is_approved == true) {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - ($pickup_discount_price + $service_discount_price);
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices - ($pickup_discount_price + $service_discount_price);
         } else {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price - $pickup_discount_price;
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices - $pickup_discount_price;
         }
 
         if ($package->claimed_promotion != null) {
@@ -156,7 +159,7 @@ class PricingCalculator
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
-        if (array_key_exists('fleet_name', $inputs) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
+        if (array_key_exists('fleet_name', $inputs) && isset($inputs['partner_code']) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'].', '.$inputs['sender_longitude'];
             $destination = $partner->latitude.', '.$partner->longitude;
@@ -585,7 +588,9 @@ class PricingCalculator
                 $default['voucher_price_discount'] = $discount;
             }
             if ($voucher->nominal > 0) {
-                if ($voucher->nominal > $service_price) $voucher->nominal = $service_price;
+                if ($voucher->nominal > $service_price) {
+                    $voucher->nominal = $service_price;
+                }
                 $discount = $service_price - $voucher->nominal;
                 $default['voucher_price_discount'] = $discount;
             }
@@ -605,5 +610,14 @@ class PricingCalculator
         }
 
         return $handling;
+    }
+
+    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+
+        return $price;
     }
 }

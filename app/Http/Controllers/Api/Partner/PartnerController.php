@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerNearbyResource;
 use App\Http\Resources\Api\Partner\PartnerResource;
@@ -13,6 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Response;
+use App\Models\Customers\Customer;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class PartnerController extends Controller
 {
@@ -70,8 +75,8 @@ class PartnerController extends Controller
         if ($request->has('id')) {
             $w[] = sprintf(" AND p.id = '%s'", $request->get('id'));
         }
-	if ($request->has('q')) {
-		$q = $request->get('q');
+        if ($request->has('q')) {
+            $q = $request->get('q');
             $w[] = sprintf(" AND (p.name LIKE '%%%s%%' OR p.code ILIKE '%%%s%%')", $q, $q);
         }
         if ($request->has('type')) {
@@ -98,6 +103,7 @@ class PartnerController extends Controller
         WHERE p.type = '%s'
             AND latitude IS NOT NULL
             AND longitude IS NOT NULL
+            AND p.availability = 'open'
             %s
         ORDER BY distance_radian
         LIMIT %d %s";
@@ -131,6 +137,70 @@ class PartnerController extends Controller
         return $this->jsonSuccess(PartnerNearbyResource::collection($result));
     }
 
+    public function availabilitySet(Request $request) : JsonResponse
+    {
+        $availList = [
+            Partner::AVAIL_OPEN,
+            Partner::AVAIL_CLOSE,
+        ];
+        $this->attributes = Validator::make($request->all(), [
+            'availability' => 'required|in:'.implode(',', $availList),
+        ])->validate();
+
+        $notUser = ! (Auth::user() instanceof User);
+        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+
+        try {
+            $avail = $this->checkAvailability(Auth::id());
+        } catch (\Exception $e) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+        }
+
+        $availStatus = $request->get('availability');
+        $q = "UPDATE partners SET availability = '%s' WHERE id = %d";
+        $q = sprintf($q, $availStatus, $avail['partner_id']);
+        DB::statement($q);
+
+        $result = [
+            'result' => 'availability set to: '.$request->get('availability')
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function availabilityGet(Request $request) : JsonResponse
+    {
+        $notUser = ! (Auth::user() instanceof User);
+        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+
+        try {
+            $result = $this->checkAvailability(Auth::id());
+        } catch (\Exception $e) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+        }
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    private function checkAvailability(int $userId)
+    {
+        $q = "SELECT u.user_id, u.role, p.availability, p.id partner_id
+        FROM userables u
+        LEFT JOIN partners p ON u.userable_id = p.id
+        WHERE 1=1
+        AND userable_type = 'App\Models\Partners\Partner'
+        AND user_id = %d
+        LIMIT 1";
+        $q = sprintf($q, $userId);
+        $check = DB::select($q);
+        
+        if (count($check) == 0) {
+            throw new \Exception("Partner not Found");
+        }
+
+        return (array) $check[0];
+    }
+
     protected function getPartnerData(): JsonResponse
     {
         $query = $this->getBasicBuilder(Partner::query());
@@ -138,6 +208,7 @@ class PartnerController extends Controller
         // MITRA MB
         $query->where('type', Partner::TYPE_BUSINESS);
         $query->whereNotNull(['latitude','longitude']);
+        $query->where('availability', 'open');
 
         $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
             $query->where('type', 'like', $this->attributes['type']);

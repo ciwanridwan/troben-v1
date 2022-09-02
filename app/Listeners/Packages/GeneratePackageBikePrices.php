@@ -2,30 +2,29 @@
 
 namespace App\Listeners\Packages;
 
+use App\Events\Packages\PackageBikeCreated;
 use App\Events\Partners\PartnerCashierDiscount;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
-use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use Illuminate\Validation\ValidationException;
 
-class GeneratePackagePrices
+class GeneratePackageBikePrices
 {
     use DispatchesJobs;
 
     /**
      * Handle the event.
      *
-     * @param object $event
+     * @param  \App\Events\PackageBikeCreated  $event
      * @return void
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function handle(object $event)
     {
@@ -64,11 +63,11 @@ class GeneratePackagePrices
             /** @var Package $package */
             $package = $event->package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -77,36 +76,33 @@ class GeneratePackagePrices
                     'origin_province_id' => $package->origin_regency->province_id,
                     'origin_regency_id' => $package->origin_regency->id,
                     'destination_id' => $package->destination_sub_district->id,
-                    'items' => $package->items->toArray()
+                    'moto_cc' => $package->motoBikes()->first()->cc
                 ];
 
-                $service_price = PricingCalculator::getServicePrice($service_input);
+                $result = PricingCalculator::getBikePrice($service_input['origin_province_id'], $service_input['origin_regency_id'], $service_input['destination_id']);
+                switch ($service_input['moto_cc']) {
+                    case 150:
+                        $servicePrice = $result->lower_cc;
+                        break;
+                    case 250:
+                        $servicePrice = $result->middle_cc;
+                        break;
+                    case 999:
+                        $servicePrice = $result->high_cc;
+                        break;
+                    }
+                    $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
             } catch (ValidationException $e) {
-                $service_price = 0;
+                $servicePrice = 0;
             }
 
             $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                 'type' => Price::TYPE_SERVICE,
                 'description' => Price::TYPE_SERVICE,
-                'amount' => $service_price,
+                'amount' => $servicePrice,
             ]);
             $this->dispatch($job);
-
-            // generate pickup price
-//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-//                'type' => Price::TYPE_DELIVERY,
-//                'description' => Delivery::TYPE_PICKUP,
-//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-//            ]);
-//            $this->dispatch($job);
-
-//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-//                'type' => Price::TYPE_DISCOUNT,
-//                'description' => Delivery::TYPE_PICKUP,
-//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-//            ]);
-            // generate pickup price discount
-            $this->dispatch($job);
+            
             $is_approved = false;
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
@@ -162,17 +158,45 @@ class GeneratePackagePrices
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
-
+            
+            /** Inserting required handling prices of bikes */
+            try {
+                $ccInput = [
+                    'moto_cc' => $package->motoBikes()->first()->cc
+                ];
+                switch ($ccInput['moto_cc']) {
+                    case 150:
+                        $handlingBikePrices = 150000;
+                        break;
+                    case 250:
+                        $handlingBikePrices = 250000;
+                        break;
+                    case 999:
+                        $handlingBikePrices = 500000;
+                        break;
+                }
+                
+                $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                    'type' => Price::TYPE_HANDLING,
+                    'description' => Handling::TYPE_BIKES,
+                    'amount' => $handlingBikePrices,
+                ]);
+                $this->dispatch($job);
+            
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+            
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
-            try {
-                $origin_regency = $package->origin_regency;
-                $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
-                $tier = PricingCalculator::getTier($price, $package->total_weight);
-                $package->setAttribute('tier_price', $tier)->save();
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
+            // try {
+            //     $origin_regency = $package->origin_regency;
+            //     $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+            //     $tier = PricingCalculator::getTier($price, $package->total_weight);
+            //     $package->setAttribute('tier_price', $tier)->save();
+            // } catch (\Throwable $th) {
+            //     //throw $th;
+            // }
             // todo : create service lainnya, contoh : biaya penjemputan
         }
     }

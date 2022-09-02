@@ -15,16 +15,18 @@
           </a-tab-pane>
           <a-tab-pane :key="2">
             <a-card :style="{ 'margin-bottom': '3rem' }">
-              <order-receiver-form-step-2
-                ref="stepForm2"
-                v-model="form.steps[1]"
-              />
-              <a-checkbox v-model="form.eula">
-                <a-space size="large">
-                  <span>Saya menyetujui semua ketentuan yang berlaku </span>
-                  <a-icon :component="InformationCircleIcon" />
-                </a-space>
-              </a-checkbox>
+              <a-form-model-item prop="eula">
+                <order-receiver-form-step-2
+                  ref="stepForm2"
+                  v-model="form.steps[1]"
+                />
+                <a-checkbox v-model="form.eula">
+                  <a-space size="large">
+                    <span>Saya menyetujui semua ketentuan yang berlaku </span>
+                    <a-icon :component="InformationCircleIcon" />
+                  </a-space>
+                </a-checkbox>
+              </a-form-model-item>
             </a-card>
           </a-tab-pane>
           <a-tab-pane :key="3">
@@ -120,11 +122,12 @@ export default {
     return {
       form: {
         steps: [{}, {}],
-        eula: false
+        eula: null
       },
       rules: {
         "steps.0.valid": [{ required: true }],
-        "steps.1.valid": [{ required: true }]
+        "steps.1.valid": [{ required: true }],
+        eula: [{ required: true }]
       },
       calculateData: {},
       current: 1,
@@ -174,6 +177,9 @@ export default {
       for (const ref of this.stepForms.slice(0, toStep - 1)) {
         let formValid = await this.$refs[ref].validate();
         if (!formValid) {
+          return false;
+        }
+        if (ref == "stepForm2" && !this.form.eula) {
           return false;
         }
       }

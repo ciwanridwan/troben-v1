@@ -443,6 +443,11 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function motoBikes(): HasOne
+    {
+        return $this->hasOne(MotorBike::class, 'package_id', 'id');
+    }
+
     public function tarif(): HasMany
     {
         return $this->hasMany(\App\Models\Price::class, 'destination_id', 'destination_sub_district_id');

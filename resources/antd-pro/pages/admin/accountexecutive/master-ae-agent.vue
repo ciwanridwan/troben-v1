@@ -121,7 +121,7 @@ export default {
         },
         getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/agent/disbursement`, {
+            axios.get(`https://ae.trawlbens.co.id/agent/disbursement`, {
                 headers: {
                     Authorization: `Bearer ${this.$laravel.jwt_token}`
                 }
@@ -141,7 +141,7 @@ export default {
         },
         store(){
             this.req.checked.forEach(item => {
-                axios.patch(`https://ae.trawlbens.com/agent/setDisbursementStatus`, null, {
+                axios.patch(`https://ae.trawlbens.co.id/agent/setDisbursementStatus`, null, {
                     params: {
                         user_id: item.user_id,
                         month: item.periode

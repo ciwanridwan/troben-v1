@@ -37,6 +37,16 @@ class PartnerRoute extends BaseRoute
             'as' => $this->name('nearby'),
             'uses' => $this->uses('nearby'),
         ]);
+
+        $this->router->post($this->prefix('availability'), [
+            'as' => $this->name('availability-set'),
+            'uses' => $this->uses('availabilitySet'),
+        ]);
+
+        $this->router->get($this->prefix('availability'), [
+            'as' => $this->name('availability-get'),
+            'uses' => $this->uses('availabilityGet'),
+        ]);
     }
 
     /**

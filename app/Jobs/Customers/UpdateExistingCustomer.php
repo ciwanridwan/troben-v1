@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Customers;
 
-use App\Models\User;
 use Illuminate\Bus\Batchable;
 use App\Models\Customers\Customer;
 use Illuminate\Queue\SerializesModels;

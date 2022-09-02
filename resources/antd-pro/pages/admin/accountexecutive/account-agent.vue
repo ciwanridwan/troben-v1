@@ -157,7 +157,7 @@ export default {
         },
         getAccountList(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/account/accountList`, {
+            axios.get(`https://ae.trawlbens.co.id/account/accountList`, {
                 headers: {
                     Authorization: `Bearer ${this.$laravel.jwt_token}`
                 }
@@ -180,7 +180,7 @@ export default {
         },
         changeStatus(id){
             var data = {is_active: this.is_active}
-            axios.patch(`https://ae.trawlbens.com/account/setAccountStatus`, data, {
+            axios.patch(`https://ae.trawlbens.co.id/account/setAccountStatus`, data, {
                 params: {
                     id: id
                 },
