@@ -83,7 +83,7 @@
                         </template>
                     </a-col>
                     <a-col :span="4">
-                        <a-button type="primary mr-1" @click="store()" :disabled="receipt.length == 0">Selesai</a-button>
+                        <a-button type="primary mr-1" @click="store()" :disabled="receipt.length == 0">Cairkan</a-button>
                         <a :href="routeUri('admin.payment.withdraw.request')" class="ant-btn ant-btn-danger">Back</a>
                     </a-col>
                 </a-row>
