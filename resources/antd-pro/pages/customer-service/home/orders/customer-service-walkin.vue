@@ -15,10 +15,6 @@
           </a-tab-pane>
           <a-tab-pane :key="2">
             <a-card :style="{ 'margin-bottom': '3rem' }">
-              <order-receiver-form-step-2
-                ref="stepForm2"
-                v-model="form.steps[1]"
-              />
               <a-form-model-item prop="eula">
                 <order-receiver-form-step-2
                   ref="stepForm2"
