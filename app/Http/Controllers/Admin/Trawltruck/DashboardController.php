@@ -26,4 +26,14 @@ class DashboardController extends Controller
     {
         return view('admin.master.trawltrucks.suspend-driver');
     }
+
+    public function accountDetail()
+    {
+        return view('admin.master.trawltrucks.account-detail');
+    }
+
+    public function orderDetail()
+    {
+        return view('admin.master.trawltrucks.order-detail');
+    }
 }

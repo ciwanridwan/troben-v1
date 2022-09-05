@@ -36,8 +36,18 @@ class DashboardRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('tracking/order'), [
-            'as' => $this->name('tracking/order'),
+            'as' => $this->name('tracking.order'),
             'uses' => $this->uses('trackingOrder'),
+        ]);
+
+        $this->router->get($this->prefix('order/detail'), [
+            'as' => $this->name('order.detail'),
+            'uses' => $this->uses('orderDetail'),
+        ]);
+
+        $this->router->get($this->prefix('account/detail'), [
+            'as' => $this->name('account.detail'),
+            'uses' => $this->uses('accountDetail'),
         ]);
     }
 

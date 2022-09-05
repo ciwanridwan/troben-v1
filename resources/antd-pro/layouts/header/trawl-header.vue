@@ -2,14 +2,14 @@
   <a-layout-header :class="['admin-header']">
     <a-row type="flex" justify="space-between">
       <a-col :span="3">
-        <a-input-search></a-input-search>
+        <!-- <a-input-search></a-input-search> -->
       </a-col>
 
       <a-col :span="12">
         <a-row type="flex" justify="end">
           <a-col :span="10">
             <a-dropdown :trigger="['click']">
-              <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+              <a class="ant-dropdown-link" @click="(e) => e.preventDefault()">
                 <a-icon type="user"></a-icon>
                 <span>{{ name }}</span>
               </a>
@@ -34,8 +34,8 @@ export default {
   computed: {
     name() {
       return this.$laravel.user.name;
-    }
-  }
+    },
+  },
 };
 </script>
 
