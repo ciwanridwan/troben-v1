@@ -125,7 +125,7 @@ class MotorBikeController extends Controller
 
         /**Inserting to tables */
         $data = new Package();
-        $data->customer_id = $request->user()->first()->id;
+        $data->customer_id = $request->user()->id;
         $data->service_code = $request->input('service_code');
         $data->sender_name = $request->input('sender_name');
         $data->sender_phone = $request->input('sender_phone');
