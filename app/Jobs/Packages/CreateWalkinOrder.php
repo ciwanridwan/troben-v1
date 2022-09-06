@@ -14,7 +14,7 @@ use App\Events\Packages\WalkinPackageCreated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewPackage
+class CreateWalkinOrder
 {
     use Dispatchable;
 
@@ -146,7 +146,7 @@ class CreateNewPackage
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            event(new PackageCreated($this->package, $this->attributes['partner_code']));
+            event(new WalkinPackageCreated($this->package, $this->attributes['partner_code']));
         }
         return $this->package->exists;
     }

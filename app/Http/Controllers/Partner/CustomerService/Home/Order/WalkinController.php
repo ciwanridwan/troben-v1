@@ -10,6 +10,7 @@ use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CreateNewPackage;
+use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Province;
@@ -74,7 +75,7 @@ class WalkinController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
-        $job = new CreateNewPackage($inputs, $items);
+        $job = new CreateWalkinOrder($inputs, $items);
 
         $this->dispatchNow($job);
 
