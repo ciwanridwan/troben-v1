@@ -68,7 +68,7 @@ class OrderController extends Controller
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
         
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
         
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
@@ -152,7 +152,6 @@ class OrderController extends Controller
             // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
-
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
     }
 
