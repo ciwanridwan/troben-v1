@@ -55,6 +55,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use App\Events\Deliveries\DriverAssigned;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCreatedForBike;
+use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Listeners\Packages\GeneratePackageBikePrices;
 use Illuminate\Support\Facades\Event;
