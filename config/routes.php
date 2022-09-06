@@ -86,6 +86,8 @@ return [
         App\Http\Routes\Api\NotificationRoute::class,
         App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         App\Http\Routes\Api\SupportRoute::class,
+        App\Http\Routes\TermAndConditionRoute::class,
+        App\Http\Routes\Api\MotorBikeRoute::class
         /** @inject api **/
     ],
     'admin' => [

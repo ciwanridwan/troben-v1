@@ -55,10 +55,15 @@
                 :class="['trawl']">
                 <span slot="code" slot-scope="record" class="fw-medium">{{ record.receipt }}</span>
                 <span slot="total_payment" slot-scope="record">Rp. {{ formatPrice(record.total_payment) }}</span>
-                <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.commission_discount) }}</span>
+                <span slot="total_accepted" slot-scope="record">Rp. {{ formatPrice(record.total_accepted) }}</span>
                 <span slot="approved" slot-scope="record">
                     <template v-if="record.approved == 'pending'">
-                        <input type="checkbox" v-model="receipt" :value="record">
+                        <template v-if="approved_at">
+                            <input type="checkbox" disabled>
+                        </template>
+                        <template v-else>
+                            <input type="checkbox" v-model="receipt" :value="record">
+                        </template>
                         <span class="text-gray">Pending</span>
                     </template>
                     <template v-else>
@@ -75,10 +80,10 @@
             <a-layout-footer :class="['trawl-content-footer']">
                 <a-row type="flex" :gutter="24">
                     <a-col :span="14">
-                        <template v-if="approved_at != null">
+                        <template v-if="this.approved_at != null">
                             Approved At
                             <span class="fw-medium">
-                                {{ moment(approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
+                                {{ moment(this.approved_at).format("ddd, DD MMM YYYY HH:mm:ss") }}
                             </span>
                         </template>
                     </a-col>
@@ -104,13 +109,13 @@ export default {
     data: () => ({
         requestColumns,
         loading: false,
-        hash: window.location.href.split('/').pop(),
+        id: window.location.href.split('/').pop(),
         lists: [],
         total: 0,
         total_unapproved: '',
         total_approved: '',
         receipt: [],
-        approved_at: null,
+        approved_at: '',
         filter: {
             q: ''
         },
@@ -127,12 +132,12 @@ export default {
             let total_unapproved = 0;
             let total_approved = 0;
             this.lists.forEach(item => {
-                total += Number(item.commission_discount);
+                total += Number(item.total_accepted);
                 if(item.approved == 'pending'){
-                    total_unapproved += Number(item.commission_discount);
+                    total_unapproved += Number(item.total_accepted);
                 }
                 if(item.approved == 'success'){
-                    total_approved += Number(item.commission_discount);
+                    total_approved += Number(item.total_accepted);
                 }
             });
             this.total = total
@@ -143,15 +148,14 @@ export default {
             let val = (value/1).toFixed(2).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
+        /**URL getDatas -> admin.payment.withdraw.request.detail */
         getDatas(){
             this.loading = true
-            axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}`, {
-                headers: {
-                    Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-                }
-            })
+            let uri = this.routeUri(`admin.payment.withdraw.request.detailAjax`, {id: this.id})
+            this.$http.get(uri)
             .then((res)=>{
-                this.lists = res.data.data
+                this.lists = res.data.data.rows
+                this.approved_at = res.data.data.approved_at
                 this.loading = false
                 this.getTotal()
             }).catch(function (error) {
@@ -159,6 +163,7 @@ export default {
                 this.loading = false
             });
         },
+        /**URL store -> admin.payment.withdraw.request.approve */
         store(){
             var receipt = []
             this.receipt.forEach(item => {
@@ -166,14 +171,10 @@ export default {
                 receipt.push(object)
             });
 
-            axios.post(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/approve`, {
-                params: {
-                    receipt: receipt
-                },
-                headers: {
-                    Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi',
-                    // 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
+            let uri = this.routeUri("admin.payment.withdraw.request.approve")
+            this.$http.post(uri, {
+                id: this.id,
+                receipt: receipt
             })
             .then((res)=>{
                 console.log(res)
@@ -185,14 +186,13 @@ export default {
                 console.log(error)
             });
         },
+        /**URL searchData -> admin.payment.withdraw.request.findByReceipt */
         searchData(){
             if(this.filter.q != ''){
-                axios.get(`https://api.staging.trawlbens.co.id/internal/finance/detail/${this.hash}/find/receipt`, {
+                let uri = this.routeUri(`admin.payment.withdraw.request.findByReceipt`, {id: this.id})
+                this.$http.get(uri, {
                     params: {
                         receipt: this.filter.q
-                    },
-                    headers: {
-                        Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
                     }
                 })
                 .then((res)=>{
@@ -209,6 +209,9 @@ export default {
 </script>
 
 <style type="scss">
+    .ant-card-bordered{
+        border: unset !important;
+    }
     .ant-btn-primary{
         background: #3D8824;
         border-color: #3D8824;

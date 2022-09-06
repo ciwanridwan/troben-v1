@@ -53,6 +53,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use Illuminate\Support\Facades\Event;
 

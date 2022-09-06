@@ -339,7 +339,7 @@ export default {
         destination_district_id: [{ required: false }],
         destination_sub_district_id: [{ required: false }],
         destination_zip_code: null,
-        service_code: [{ required: false }]
+        service_code: [{ required: true }]
       },
       valid: false
     };

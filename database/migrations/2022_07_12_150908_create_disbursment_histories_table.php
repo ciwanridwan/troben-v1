@@ -17,7 +17,7 @@ class CreateDisbursmentHistoriesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('disbursement_id');
             $table->string('receipt')->nullable();
-            $table->string('is_approved')->nullable();
+            $table->decimal('amount', 14, 2)->nullable();
             $table->timestamps();
 
             $table->foreign('disbursement_id')->references('id')->on('partner_balance_disbursement');

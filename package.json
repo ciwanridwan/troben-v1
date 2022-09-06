@@ -25,7 +25,7 @@
         "v-clipboard": "^2.2.3",
         "vue": "^2.6.12",
         "vue-json-pretty": "^2.0.2",
-        "vue-loader": "^15.9.6",
+        "vue-loader": "^15.10.0",
         "vue-shortkey": "^3.1.7",
         "vue-template-compiler": "^2.6.12"
     },
@@ -36,8 +36,8 @@
         "jquery": "^3.6.0",
         "jspdf": "^2.3.1",
         "net": "^1.0.2",
-        "node-sass": "^7.0.0",
         "qrcode": "^1.4.4",
+        "sass": "^1.53.0",
         "sass-loader": "^11.0.1",
         "save-svg-as-png": "^1.4.17",
         "sequelize-cli": "^6.4.1",

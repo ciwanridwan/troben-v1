@@ -40,7 +40,6 @@ class GeoTableSimpleSeeder extends Seeder
         $regency = null;
         $district = null;
         foreach ((new Statement())->process($csv) as $record) {
-
             // resolve province.
             /** @var \App\Models\Geo\Province|null $province */
             if (is_null($province) || $province->iso_code !== $record['province_code']) {

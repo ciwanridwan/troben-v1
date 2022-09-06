@@ -20,8 +20,12 @@ class SummaryResource extends JsonResource
         $deposit_today = $this->getTotalBalance(History::TYPE_DEPOSIT, true);
         $withdraw_today = $this->getTotalBalance(History::TYPE_WITHDRAW, true);
 
+        $user = $request->user()->partners()->first();
+        $balance = intval($user->balance);
+
         return [
-            'current_balance' => $deposit - $withdraw,
+            // 'current_balance' => $deposit - $withdraw,
+            'current_balance' => $balance,
             'daily_income' => $deposit_today - $withdraw_today,
         ];
     }

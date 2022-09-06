@@ -39,7 +39,6 @@ class GeneratePackagePickupPrices
             } else {
                 $substraction = $distance - 4;
                 $pickup_price = 8000 + (2000 * $substraction);
-                // dd($pickup_price);
             }
         } else {
             if ($distance < 5) {
