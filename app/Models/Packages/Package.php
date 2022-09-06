@@ -342,7 +342,8 @@ class Package extends Model implements AttachableContract
         if ($amount == null) {
             return 0;
         } else {
-            return $amount - $discount;
+            // return $amount - $discount;
+            return $amount;
         }
     }
 

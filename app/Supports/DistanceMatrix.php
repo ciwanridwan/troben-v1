@@ -2,6 +2,7 @@
 
 namespace App\Supports;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -36,10 +37,29 @@ class DistanceMatrix
 
     public static function calculateDistance(string $origin, string $destination)
     {
+        $k = self::cacheKeyBuilder($origin, $destination);
+
+        if ($k == 'distance.invalid') {
+            return 0;
+        }
+        if (Cache::has($k)) {
+            return Cache::get($k);
+        }
+
+        $distance = self::callDistanceMatrix($origin, $destination);
+        Cache::put($k, $distance, self::TEN_MINUTES);
+
+        return $distance;
+    }
+
+
+    protected static function callDistanceMatrix(string $origin, string $destination)
+    {
+        $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
+        ])->get($url);
         $response = json_decode($response->body());
 
         $distance = 0;

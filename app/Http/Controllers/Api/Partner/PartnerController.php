@@ -10,7 +10,6 @@ use App\Supports\DistanceMatrix;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -72,7 +71,7 @@ class PartnerController extends Controller
         }
         if ($request->has('q')) {
             $q = $request->get('q');
-            $w[] = sprintf(" AND (p.code ILIKE '%%%s%%' OR p.name ILIKE '%%%s%%')", $q, $q);
+            $w[] = sprintf(" AND (p.name LIKE '%%%s%%' OR p.code ILIKE '%%%s%%')", $q, $q);
         }
         if ($request->has('type')) {
             $w[] = sprintf(" AND EXISTS (SELECT * FROM transporters t WHERE t.partner_id = p.id AND type ILIKE '%s%s%s' AND t.deleted_at IS NULL)", '%', $request->get('type'), '%');
@@ -102,21 +101,11 @@ class PartnerController extends Controller
         ORDER BY distance_radian
         LIMIT %d %s";
 
+        // $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(' ', $w));
         $q = sprintf($q, $lat, $lon, $lat, Partner::TYPE_BUSINESS, implode(' ', $w), $limit, $offset);
         $nearby = collect(DB::select($q))->map(function ($r) use ($origin) {
             $destination = sprintf('%f,%f', $r->latitude, $r->longitude);
-            $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
-
-            if (Cache::has($k)) {
-                if ($k == 'distance.invalid') {
-                    $distance = 0;
-                } else {
-                    $distance = Cache::get($k);
-                }
-            } else {
-                $distance = DistanceMatrix::calculateDistance($origin, $destination);
-                Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
-            }
+            $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             $r->distance_matrix = $distance;
             return $r;

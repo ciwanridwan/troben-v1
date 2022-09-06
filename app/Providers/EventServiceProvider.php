@@ -21,6 +21,7 @@ use App\Events\Promo\PromotionClaimed;
 use App\Listeners\Packages\GeneratePackagePickupPrices;
 use App\Listeners\Partners\GenerateBalanceHistory;
 use App\Listeners\Partners\PartnerPerformanceEvaluatedByEvent;
+use App\Listeners\Partners\CalculateIncomeAE;
 use App\Listeners\Partners\UpdatePartnerBalanceByEvent;
 use App\Listeners\Payments\PaymentCreatedByEvent;
 use App\Listeners\Payments\UpdatePaymentByEvent;
@@ -52,6 +53,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Partners\Balance\WithdrawalApproved;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -214,7 +216,8 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverDooringFinished::class => [
-            PartnerPerformanceEvaluatedByEvent::class
+            PartnerPerformanceEvaluatedByEvent::class,
+            CalculateIncomeAE::class,
         ],
         DriverAssigned::class => [
             PaymentCreatedByEvent::class
@@ -254,6 +257,11 @@ class EventServiceProvider extends ServiceProvider
         WithdrawalSuccess::class => [
             GenerateBalanceHistory::class,
         ],
+        /**TODO NEW APPROVED STATUS EVENT & LISTENER */
+        WithdrawalApproved::class => [
+            GenerateBalanceHistory::class,
+        ]
+        /**END TODO */
     ];
 
     /**

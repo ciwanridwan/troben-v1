@@ -67,7 +67,6 @@ class CreateNewPackage
             'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
-            // 'partner_code' => ['nullable'],
             'partner_code' => ['required'],
 
             'receiver_name' => ['required'],

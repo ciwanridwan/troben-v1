@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
+use function PHPUnit\Framework\isNull;
+
 class SelfServiceController extends Controller
 {
     private Code $code;
@@ -69,8 +71,23 @@ class SelfServiceController extends Controller
     {
         /** @var Code $code */
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->firstOrFail();
-        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->where('deliverable_type', Package::class)->firstOrFail();
-        $delivery = Delivery::query()->where('id', $deliverable->delivery_id)->firstOrFail();
+        $deliverable = Deliverable::query()->where('deliverable_id', $code->codeable_id)->where('deliverable_type', Package::class)->first();
+        if (isNull($deliverable)) {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
+            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+
+            return $this->jsonSuccess();
+        }
+
+        $delivery = Delivery::query()->where('id', $deliverable->delivery_id)->first();
+        if (isNull($delivery)) {
+            $job = new CancelPackage($code->codeable, $request->all());
+            $this->dispatch($job);
+            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+
+            return $this->jsonSuccess();
+        }
 
         if ($delivery->status == Delivery::STATUS_FINISHED) {
             $job = new CancelPackage($code->codeable, $request->all());

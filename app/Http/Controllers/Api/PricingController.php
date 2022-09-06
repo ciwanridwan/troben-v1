@@ -14,7 +14,7 @@ use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Models\Partners\ScheduleTransportation;
-use Illuminate\Support\Facades\Validator;
+use App\Supports\Geo;
 use Illuminate\Support\Facades\Log;
 
 class PricingController extends Controller
@@ -65,13 +65,75 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_id = $request->get('destination_id');
+        if ($origin_regency_id == null || $destination_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
+
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
+
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
+
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_id = $resultDestination['district'];
+            $request->merge([
+                'origin_regency_id' => $origin_regency_id,
+                'destination_id' => $destination_id,
+                'sender_latitude' => $request->get('destination_lat'),
+                'sender_longitude' => $request->get('destination_lon'),
+            ]);
+        }
+
         /** @var Regency $regency */
-        $regency = Regency::query()->find($request->get('origin_regency_id'));
-        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_id')]), 'array');
+        $regency = Regency::query()->findOrFail($origin_regency_id);
+        $additional = ['origin_province_id' => $regency->province_id, 'origin_regency_id' => $origin_regency_id, 'destination_id' => $destination_id];
+        $payload = array_merge($request->toArray(), $additional);
+        $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
         throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
-        return PricingCalculator::calculate($request->toArray());
+        return PricingCalculator::calculate($payload);
+    }
+
+    /**
+     *
+     * Get Pricing Location
+     * Route Path       : {API_DOMAIN}/pricing/location
+     * Route Name       : api.pricing.location
+     * Route Method     : GET.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function locationCheck(Request $request): JsonResponse
+    {
+        $request->validate([
+            'location_lat' => 'required|numeric',
+            'location_lon' => 'required|numeric',
+        ]);
+
+        $coordLocation = sprintf('%s,%s', $request->get('location_lat'), $request->get('location_lon'));
+        $resultLocation = Geo::getRegional($coordLocation);
+        if ($resultLocation == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
+        }
+
+        return (new Response(Response::RC_SUCCESS, $resultLocation))->json();
     }
 
     /**
@@ -124,9 +186,12 @@ class PricingController extends Controller
         ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
         ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
-        $prices = Price::where('origin_regency_id', $this->attributes['origin_id'])
+        $origin_id = (int) $this->attributes['origin_id'];
+        $destination_id = (int) $this->attributes['destination_id'];
 
-            ->where('destination_id', $this->attributes['destination_id'])
+        $prices = Price::where('origin_regency_id', $origin_id)
+
+            ->where('destination_id', $destination_id)
 
             ->where('service_code', $this->attributes['service_code'])
             ->first();
@@ -141,20 +206,47 @@ class PricingController extends Controller
      */
     public function shipSchedule(Request $request): JsonResponse
     {
-        $this->attributes = Validator::make($request->all(), [
-            'origin_regency_id' => 'required',
-            'destination_regency_id' => 'required',
-        ])->validate();
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_regency_id = $request->get('destination_regency_id');
+        if ($origin_regency_id == null || $destination_regency_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
 
-        $schedules = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-            ->where('destination_regency_id', $request->destination_regency_id)
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
+
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
+
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_regency_id = $resultDestination['regency'];
+        } else {
+            $request->validate([
+                'origin_regency_id' => 'required|numeric',
+                'destination_regency_id' => 'required|numeric',
+            ]);
+        }
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+            ->where('destination_regency_id', $destination_regency_id)
             ->orderByRaw('updated_at - created_at desc')->first();
 
         if ($schedules == null) {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         } else {
-            $result = ScheduleTransportation::where('origin_regency_id', $request->origin_regency_id)
-                ->where('destination_regency_id', $request->destination_regency_id)
+            $result = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+                ->where('destination_regency_id', $destination_regency_id)
                 ->orderByRaw('departed_at asc')->get();
 
             $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);

@@ -1,0 +1,35 @@
+FROM php:8.0-fpm-alpine
+
+LABEL maintainer="ciwanridwan <github.com/ciwanridwan>"
+
+RUN apk add --no-cache git npm postgresql-dev freetype freetype-dev libjpeg-turbo libjpeg-turbo-dev libwebp-dev libxpm-dev libpng libpng-dev curl zip unzip zip zlib-dev libzip-dev gcc musl-dev linux-headers gmp-dev pcre-dev ${PHPIZE_DEPS} && \
+    docker-php-ext-configure gd --with-freetype --with-webp --with-jpeg && \
+    docker-php-ext-configure zip && \
+    NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
+    curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/bin --filename=composer && \
+    docker-php-ext-install -j$(nproc) pdo_pgsql zip gmp gd bcmath pcntl && \
+    pecl channel-update pecl.php.net && pecl install redis && \
+    apk del pcre-dev ${PHPIZE_DEPS} && \
+    docker-php-ext-enable redis
+
+RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer && \
+    COMPOSER_ALLOW_SUPERUSER=1 && \
+    PATH="./vendor/bin:$PATH"
+
+RUN echo $' \n\
+    memory_limit=2G; \n\
+    max_execution_time=0; \n\
+    post_max_size=1024M; \n\
+    upload_max_filesize=1024M; \n\
+    display_errors=1;' > /usr/local/etc/php/conf.d/docker-php-custom.ini
+
+COPY composer.json /var/www/
+COPY database /var/www/database
+
+WORKDIR /var/www
+
+COPY . /var/www
+
+COPY docker_conf/scheduler/start.sh /usr/local/bin/start
+

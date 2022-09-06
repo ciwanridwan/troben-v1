@@ -3,6 +3,7 @@
 namespace App\Models\Payments;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Carbon\Carbon;
@@ -36,10 +37,15 @@ class Withdrawal extends Model
         HasFactory,
         HashableId;
 
-    public const STATUS_CREATED = 'created';
-    public const STATUS_REJECTED = 'rejected';
-    public const STATUS_CONFIRMED = 'accepted';
-    public const STATUS_SUCCESS = 'success';
+    // public const STATUS_CREATED = 'created';
+    // public const STATUS_REJECTED = 'rejected';
+    // public const STATUS_CONFIRMED = 'accepted';
+    // public const STATUS_SUCCESS = 'success';
+
+    // Todo New Status
+    public const STATUS_REQUESTED = 'requested';
+    public const STATUS_APPROVED = 'approved';
+    // End Todo
 
     protected $table = 'partner_balance_disbursement';
 
@@ -54,7 +60,9 @@ class Withdrawal extends Model
         'account_number',
         'status',
         'notes',
-        'admin',
+        'charge_admin',
+        'fee_charge_admin',
+        'expired_at'
     ];
 
     protected $casts = [
@@ -64,9 +72,13 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash',
+        'hash'
     ];
 
+    // protected $attributes =
+    // [
+    //     'fee_charge_admin' => 0
+    // ];
     /**
      * Get all available type on partner balance histories.
      *
@@ -75,10 +87,12 @@ class Withdrawal extends Model
     public static function getAvailableStatus(): array
     {
         return [
-            self::STATUS_CREATED,
-            self::STATUS_CONFIRMED,
-            self::STATUS_REJECTED,
-            self::STATUS_SUCCESS,
+            // self::STATUS_CREATED,
+            // self::STATUS_CONFIRMED,
+            // self::STATUS_REJECTED,
+            // self::STATUS_SUCCESS,
+            self::STATUS_REQUESTED,
+            self::STATUS_APPROVED,
         ];
     }
 
@@ -91,8 +105,14 @@ class Withdrawal extends Model
     {
         return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
+
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin', 'id');
+    }
+
+    public function disbursmentHistories(): BelongsTo
+    {
+        return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
     }
 }

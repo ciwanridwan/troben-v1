@@ -85,7 +85,6 @@ class AccountController extends Controller
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
         $password = $request->user()->password;
-
         if (password_verify($request->password, $password)) {
             $customers->delete();
             return (new Response(Response::RC_DELETED))->json();

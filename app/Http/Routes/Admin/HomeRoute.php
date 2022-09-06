@@ -34,6 +34,21 @@ class HomeRoute extends BaseRoute
             'uses' => $this->uses('receipt'),
         ]);
 
+        $this->router->get($this->prefix('accountexecutive'), [
+            'as' => $this->name('accountexecutive'),
+            'uses' => $this->uses('accountExecutive'), //ini manggil home controller
+        ]);
+
+        $this->router->get($this->prefix('accountexecutive/teamagent'), [
+            'as' => $this->name('accountexecutive.teamagent'),
+            'uses' => $this->uses('teamAgent'),
+        ]);
+
+        $this->router->get($this->prefix('accountexecutive/teamdetail/{code}'), [
+            'as' => $this->name('accountexecutive.teamdetail'),
+            'uses' => $this->uses('teamDetail'),
+        ]);
+
         $this->router->post($this->prefix('receipt/{package_hash}'), [
             'as' => $this->name('receipt.log.store'),
             'uses' => $this->uses('storeLog'),

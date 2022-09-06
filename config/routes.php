@@ -61,6 +61,7 @@ return [
         App\Http\Routes\Api\ServiceRoute::class,
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
+        App\Http\Routes\Api\Internal\FinanceRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\Partner\VoucherRoute::class,
@@ -85,6 +86,8 @@ return [
         App\Http\Routes\Api\NotificationRoute::class,
         App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         App\Http\Routes\Api\SupportRoute::class,
+        App\Http\Routes\TermAndConditionRoute::class,
+        App\Http\Routes\Api\MotorBikeRoute::class
         /** @inject api **/
     ],
     'admin' => [
@@ -104,6 +107,7 @@ return [
         App\Http\Routes\Admin\Home\ManifestRoute::class,
         App\Http\Routes\Admin\GeoRoute::class,
         App\Http\Routes\Admin\AdminRoute::class,
+        App\Http\Routes\Admin\Master\AccountExecutive\AgentRoute::class,
         # removed at 02-Jan-2021 because not use
         // App\Http\Routes\Admin\Payment\MPWRouter::class,
         // App\Http\Routes\Admin\Payment\MTAKabRouter::class,

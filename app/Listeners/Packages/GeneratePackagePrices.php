@@ -13,6 +13,7 @@ use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
+use App\Models\Partners\Voucher;
 use Illuminate\Validation\ValidationException;
 
 class GeneratePackagePrices
@@ -124,16 +125,37 @@ class GeneratePackagePrices
                 $this->dispatch($job);
             }
             if ($package->claimed_voucher != null) {
-                $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
-                $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-                $percentage_discount = $service_discount_price / $service_price * 100;
-                $discount_amount = $service->amount * $package->claimed_voucher->discount / 100;
+                $service = $package->prices()->where('description', PackagePrice::TYPE_SERVICE)->where('type', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+                $pickup = $package->prices()->where('description', PackagePrice::TYPE_PICKUP)->where('type', PackagePrice::TYPE_DELIVERY)->get()->sum('amount');
 
-                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                $discount = [
                     'type' => Price::TYPE_DISCOUNT,
                     'description' => Price::TYPE_SERVICE,
-                    'amount' => $discount_amount,
-                ]);
+                    'amount' => 0,
+                ];
+
+                if ($package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
+                    $t = $package->claimed_voucher->voucher->type;
+                    $av = $package->claimed_voucher->voucher->aevoucher;
+                    if ($t == Voucher::VOUCHER_FREE_PICKUP) {
+                        $discount['description'] = Price::TYPE_PICKUP;
+                        $discount['amount'] = $pickup;
+                    }
+                    if ($t == Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE) {
+                        $amount = $service * ($av->discount / 100);
+                        $discount['amount'] = $amount;
+                    }
+                    if ($t == Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL) {
+                        if ($av->nominal > $service) {
+                            $av->nominal = $service;
+                        }
+                        $discount['amount'] = $av->nominal;
+                    }
+                } else { // regular voucher
+                    $discount['amount'] = $service * ($package->claimed_voucher->discount / 100);
+                }
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, $discount);
                 $this->dispatch($job);
                 $is_approved = true;
             }

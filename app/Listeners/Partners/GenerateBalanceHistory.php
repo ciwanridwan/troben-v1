@@ -8,6 +8,7 @@ use App\Broadcasting\User\PrivateChannel;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
+use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Events\Partners\Balance\WithdrawalConfirmed;
 use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
@@ -32,6 +33,7 @@ use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class GenerateBalanceHistory
@@ -112,7 +114,8 @@ class GenerateBalanceHistory
         $this->event = $event;
 
         switch (true) {
-            case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
+            case $event instanceof WithdrawalRequested || $event instanceof WithdrawalApproved:
+                // case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
                 $this
                     ->setWithdrawal($this->event->withdrawal)
                     ->setPartner($this->withdrawal->partner)
@@ -131,12 +134,12 @@ class GenerateBalanceHistory
                         ->setPartner($this->transporter->partner);
                     if ($this->partner->get_fee_pickup) {
                         $this
-                        ->setPackage($this->packages[0])
-                        ->setBalance($this->getPickupFee())
-                        ->setType(History::TYPE_DEPOSIT)
-                        ->setDescription(History::DESCRIPTION_PICKUP)
-                        ->setAttributes()
-                        ->recordHistory();
+                            ->setPackage($this->packages[0])
+                            ->setBalance($this->getPickupFee())
+                            ->setType(History::TYPE_DEPOSIT)
+                            ->setDescription(History::DESCRIPTION_PICKUP)
+                            ->setAttributes()
+                            ->recordHistory();
                     }
                 }
                 break;
@@ -240,14 +243,21 @@ class GenerateBalanceHistory
                             if (! $price || $price->value == 0) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
-                                Notification::send([
+                                $payload = [
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
                                         'package_count' => $package_count,
                                         'partner_code' => $this->partner->code,
                                         'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
-                                    ]], new TransporterBalance());
+                                    ]
+                                ];
+                                try {
+                                    Notification::send($payload, new TransporterBalance());
+                                } catch (\Exception $e) {
+                                    report($e);
+                                    Log::error('TransporterBalance-tlg-err', $payload);
+                                }
                                 break;
                             }
                         } else {
@@ -261,14 +271,21 @@ class GenerateBalanceHistory
                             if (! $price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
-                                Notification::send([
+                                $payload = [
                                     'data' => [
                                         'manifest_code' => $this->delivery->code->content,
                                         'manifest_weight' => $manifest_weight,
                                         'package_count' => $package_count,
                                         'partner_code' => $this->partner->code,
                                         'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
-                                    ]], new TransporterBalance());
+                                    ]
+                                ];
+                                try {
+                                    Notification::send($payload, new TransporterBalance());
+                                } catch (\Exception $e) {
+                                    report($e);
+                                    Log::error('TransporterBalance-tlg-err', $payload);
+                                }
                                 break;
                             }
                         }
@@ -300,11 +317,11 @@ class GenerateBalanceHistory
                                         $this->setPartner($this->delivery->origin_partner);
                                         if ($this->partner->get_charge_delivery) {
                                             $this
-                                            ->setBalance($balance)
-                                            ->setType(History::TYPE_CHARGE)
-                                            ->setDescription(History::DESCRIPTION_DELIVERY)
-                                            ->setAttributes()
-                                            ->recordHistory();
+                                                ->setBalance($balance)
+                                                ->setType(History::TYPE_CHARGE)
+                                                ->setDescription(History::DESCRIPTION_DELIVERY)
+                                                ->setAttributes()
+                                                ->recordHistory();
                                         }
                                     }
                                 }
@@ -313,21 +330,21 @@ class GenerateBalanceHistory
                     }
                 }
                 break;
-//            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
-//                $this
-//                    ->setDelivery()
-//                    ->setPackages()
-//                    ->setTransporter()
-//                    ->setPartner($this->transporter->partner);
-//
-//                foreach ($this->packages as $package) {
-//                    $this->setPackage($package);
-//
-//                    # total balance service > record service balance
-//                    $this->saveServiceFee();
-//                }
-////                $this->pushNotificationToOwner();
-//                break;
+                //            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
+                //                $this
+                //                    ->setDelivery()
+                //                    ->setPackages()
+                //                    ->setTransporter()
+                //                    ->setPartner($this->transporter->partner);
+                //
+                //                foreach ($this->packages as $package) {
+                //                    $this->setPackage($package);
+                //
+                //                    # total balance service > record service balance
+                //                    $this->saveServiceFee();
+                //                }
+                ////                $this->pushNotificationToOwner();
+                //                break;
             case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
                 $this
                     ->setDelivery()
@@ -339,9 +356,9 @@ class GenerateBalanceHistory
                     break;
                 }
 
-//                $weight = $this->package->items->sum(function ($item) {
-//                    return $item->weight_borne_total;
-//                });
+                //                $weight = $this->package->items->sum(function ($item) {
+                //                    return $item->weight_borne_total;
+                //                });
                 $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
@@ -355,7 +372,7 @@ class GenerateBalanceHistory
                 if (! $price) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
-                    Notification::send([
+                    $payload = [
                         'data' => [
                             'manifest_code' => $this->delivery->code->content,
                             'package_code' => $this->package->code->content,
@@ -364,7 +381,14 @@ class GenerateBalanceHistory
                             'package_weight' => $weight,
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
-                        ]], new TransporterBalance());
+                        ]
+                    ];
+                    try {
+                        Notification::send($payload, new TransporterBalance());
+                    } catch (\Exception $e) {
+                        report($e);
+                        Log::error('TransporterBalance-tlg-err', $payload);
+                    }
                     break;
                 }
                 $this
@@ -373,7 +397,7 @@ class GenerateBalanceHistory
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
                     ->recordHistory();
-//                $this->pushNotificationToOwner();
+                //                $this->pushNotificationToOwner();
                 break;
         }
     }
@@ -525,16 +549,29 @@ class GenerateBalanceHistory
      */
     protected function getDescriptionByTypeWithdrawal(): string
     {
-        if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) {
-            return History::DESCRIPTION_WITHDRAW_REQUEST;
+        // LAST SCRIPT
+        // if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) {
+        //     return History::DESCRIPTION_WITHDRAW_REQUEST;
+        // }
+        // if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) {
+        //     return History::DESCRIPTION_WITHDRAW_CONFIRMED;
+        // }
+        // if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) {
+        //     return History::DESCRIPTION_WITHDRAW_REJECT;
+        // }
+        // return History::DESCRIPTION_WITHDRAW_SUCCESS;
+        // END LAST
+
+        // TODO NEW SCRIPT
+        switch ($this->withdrawal->status) {
+            case Withdrawal::STATUS_REQUESTED:
+                return History::DESCRIPTION_WITHDRAW_REQUESTED;
+                break;
+            case Withdrawal::STATUS_APPROVED:
+                return History::DESCRIPTION_WITHDRAW_APPROVED;
+                break;
         }
-        if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) {
-            return History::DESCRIPTION_WITHDRAW_CONFIRMED;
-        }
-        if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) {
-            return History::DESCRIPTION_WITHDRAW_REJECT;
-        }
-        return History::DESCRIPTION_WITHDRAW_SUCCESS;
+        // END TODO
     }
 
     /**

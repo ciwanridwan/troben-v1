@@ -13,16 +13,36 @@
         </a-col>
         <a-col :span="12">
           <a-row type="flex">
-            <a-col v-if="getStatus == 'estimated' || getStatus == 'revamp'" :span="24">
+            <a-col
+              v-if="getStatus == 'estimated' || getStatus == 'revamp'"
+              :span="24"
+            >
               <a-checkbox @change="onChange"> Berikan Discount </a-checkbox>
             </a-col>
 
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
+            <a-col
+              v-if="
+                checkedDiscount &&
+                (getStatus == 'estimated' || getStatus == 'revamp')
+              "
+              :span="12"
+            >
               <span>Diskon Pengiriman dan Penjemputan</span>
             </a-col>
-            <a-col v-if="checkedDiscount && (getStatus == 'estimated' || getStatus == 'revamp')" :span="12">
-              <a-input type="number" v-model="discount" @change="localStorage" prefix="Rp" />
+            <a-col
+              v-if="
+                checkedDiscount &&
+                (getStatus == 'estimated' || getStatus == 'revamp')
+              "
+              :span="12"
+            >
+              <a-input
+                type="number"
+                v-model="discount"
+                @change="localStorage"
+                prefix="Rp"
+              />
             </a-col>
             <a-col v-if="getPaymentStatus != 'draft'" :span="16">
               <span> Biaya Admin</span>
@@ -31,10 +51,16 @@
               <span> {{ currency(bankCharge) }} </span>
             </a-col>
             <!--discount sebelum dikirim ke customer -->
-            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="16">
+            <a-col
+              v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+              :span="16"
+            >
               <span>Diskon Pengiriman</span>
             </a-col>
-            <a-col v-if="getStatus != 'estimated' && getStatus != 'revamp'" :span="8">
+            <a-col
+              v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+              :span="8"
+            >
               {{ currency(serviceDiscount) }}
             </a-col>
           </a-row>
@@ -69,14 +95,14 @@ export default {
     return {
       CarIcon,
       checkedDiscount: false,
-      discount: 0
+      discount: 0,
     };
   },
   props: {
     package: {
       type: Object,
-      default: () => { }
-    }
+      default: () => {},
+    },
   },
   components: { orderModalRowLayout },
   computed: {
@@ -108,7 +134,7 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
-    }
+    },
   },
   methods: {
     onChange() {
@@ -116,7 +142,7 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
-    }
-  }
+    },
+  },
 };
 </script>

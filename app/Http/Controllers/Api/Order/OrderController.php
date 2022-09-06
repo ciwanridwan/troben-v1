@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Events\Partners\PartnerCashierDiscount;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Resources\FindReceiptResource;
@@ -38,6 +39,8 @@ use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Partners\ScheduleTransportation;
+use App\Models\Partners\VoucherAE;
+use App\Supports\Geo;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +57,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = $request->user()->packages();
+
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
@@ -65,7 +69,6 @@ class OrderController extends Controller
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
 
         $paginate = $query->paginate();
-
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }
 
@@ -79,7 +82,8 @@ class OrderController extends Controller
         $this->authorize('view', $package);
         $request->validate([
             'promotion_hash' => ['nullable'],
-            'voucher_code' => ['nullable']
+            'voucher_code' => ['nullable'],
+            'partner_id' => ['nullable'],
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
@@ -90,10 +94,23 @@ class OrderController extends Controller
             $prices['service_price_fee'] = $promo['service_price_fee'];
             $prices['service_price_discount'] = $promo['service_price_discount'];
         } elseif ($request->voucher_code && $request->promotion_hash == null) {
-            $voucher = $this->claimVoucher($request->voucher_code, $package);
+            $voucher = $this->claimVoucher($request->voucher_code, $package, $request->get('partner_id'));
             $prices['service_price_fee'] = 0;
             $prices['service_price_discount'] = $voucher['service_price_discount'];
             $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            if (isset($voucher['pickup_price_discount'])) { // free pickup
+                $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
+            }
+        }
+
+        // override if already inputed
+        if ($package->claimed_voucher && $package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
+            $aevoucher = $package->claimed_voucher->voucher->aevoucher;
+            $voucher = $this->claimVoucher($aevoucher->code, $package, $aevoucher->partner_id);
+            $prices['service_price_fee'] = 0;
+            $prices['service_price_discount'] = $voucher['service_price_discount'];
+            $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+            $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
         }
 
         $package->load(
@@ -130,7 +147,8 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
 
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount']
+            // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
 
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
@@ -151,16 +169,37 @@ class OrderController extends Controller
         }
     }
 
-    public function claimVoucher($voucher_code, Package $package): array
+    public function claimVoucher($voucher_code, Package $package, $partnerId): array
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
         if (! $voucher) {
-            return [
+            $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
+                'service_price_discount' => 0,
             ];
+
+            // add fallback to VoucherAE generated
+            if ($partnerId != null) {
+                $voucherAE = VoucherAE::query()
+                    ->where('is_approved', true)
+                    ->where('partner_id', (int) $partnerId)
+                    ->where('code', $voucher_code)
+                    ->latest()
+                    ->first();
+                if ($voucherAE) {
+                    return PricingCalculator::getCalculationVoucherPackageAE($voucherAE, $package);
+                }
+            }
+
+            return $default;
         }
+
+        if (! is_null($voucher->aevoucher)) {
+            return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
+        }
+
         return PricingCalculator::getCalculationVoucherPackage($voucher, $package);
     }
 
@@ -184,6 +223,39 @@ class OrderController extends Controller
             'photos.*' => ['nullable', 'image']
         ]);
 
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_id = $request->get('destination_regency_id');
+        if ($origin_regency_id == null || $destination_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
+
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
+
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
+
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_id = $resultDestination['district'];
+            $request->merge([
+                'origin_regency_id' => $origin_regency_id,
+                'destination_regency_id' => $destination_id,
+                'sender_latitude' => $request->get('origin_lat'),
+                'sender_longitude' => $request->get('origin_lon')
+            ]);
+        }
+
         $inputs = $request->except('items');
 
         /** @var Customer $user */
@@ -193,8 +265,9 @@ class OrderController extends Controller
         /** @noinspection PhpUnhandledExceptionInspection */
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
-        $regency = Regency::query()->find($request->get('origin_regency_id'));
-        $tempData = PricingCalculator::calculate(array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]), 'array');
+        $regency = Regency::query()->findOrFail($origin_regency_id);
+        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]);
+        $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
         throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
@@ -225,6 +298,56 @@ class OrderController extends Controller
             'destination_district',
             'destination_sub_district'
         )));
+    }
+
+    // deprecated, move to MotorBikeController
+    public function storeMotorbike(Request $request): JsonResponse
+    {
+        $handlers = [
+            Handling::TYPE_BUBBLE_WRAP,
+            Handling::TYPE_WOOD,
+            Handling::TYPE_PLASTIC,
+        ];
+
+        $request->validate([
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_brand' => 'required',
+            'moto_cc' => 'required',
+            'moto_year' => 'required|numeric',
+            'moto_photo' => 'required|image',
+            'moto_price' => 'required|numeric',
+            'moto_handling' => 'required|in:'.implode(',', $handlers),
+
+            'origin_lat' => 'required|numeric',
+            'origin_lon' => 'required|numeric',
+            'destination_lat' => 'required|numeric',
+            'destination_lon' => 'required|numeric',
+        ]);
+
+        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+        $resultOrigin = Geo::getRegional($coordOrigin);
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
+
+        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        $resultDestination = Geo::getRegional($coordDestination);
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
+
+        $origin_regency_id = $resultOrigin['regency'];
+        $destination_id = $resultDestination['district'];
+        $request->merge([
+            'origin_regency_id' => $origin_regency_id,
+            'destination_id' => $destination_id,
+            'sender_latitude' => $request->get('destination_lat'),
+            'sender_longitude' => $request->get('destination_lon'),
+        ]);
+
+        $result = 'created';
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     /**
@@ -273,7 +396,8 @@ class OrderController extends Controller
         $this->authorize('update', $package);
         $request->validate([
             'promotion_hash' => ['nullable'],
-            'voucher_code' => ['nullable']
+            'voucher_code' => ['nullable'],
+            'partner_id' => ['nullable'],
         ]);
         if ($request->promotion_hash != null) {
             $promotion = Promotion::byHashOrFail($request->promotion_hash);
@@ -287,17 +411,60 @@ class OrderController extends Controller
             if ($service_discount_price) {
                 $service_discount_price->delete();
             }
+            $pickup_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
+                ->where('description', PackagesPrice::TYPE_PICKUP)->first();
+            if ($pickup_discount_price) {
+                $pickup_discount_price->delete();
+            }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
             if (! $voucher) {
-                return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                $partnerId = $request->get('partner_id');
+                if ($partnerId != null) {
+                    // add fallback to Voucher AE
+                    $voucherAE = VoucherAE::query()
+                        ->where('is_approved', true)
+                        ->where('partner_id', (int) $partnerId)
+                        ->where('code', $request->get('voucher_code'))
+                        ->latest()
+                        ->first();
+                    if ($voucherAE) {
+                        $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
+                        $amountVoucher = 0;
+                        if ($voucherAE->type == VoucherAE::VOUCHER_FREE_PICKUP) {
+                            $typeVoucher = Voucher::VOUCHER_FREE_PICKUP;
+                        }
+                        if ($voucherAE->type == VoucherAE::VOUCHER_DISCOUNT_SERVICE) {
+                            if ($voucherAE->discount > 0) {
+                                $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_PERCENTAGE;
+                                $amountVoucher = $voucherAE->discount;
+                            } elseif ($voucherAE->nominal > 0) {
+                                $typeVoucher = Voucher::VOUCHER_DISCOUNT_SERVICE_NOMINAL;
+                                $amountVoucher = $voucherAE->nominal;
+                            }
+                        }
+
+                        $voucher = Voucher::create([
+                            'user_id' => $voucherAE->user_id,
+                            'title' => $voucherAE->title,
+                            'partner_id' => $voucherAE->partner_id,
+                            'discount' => $amountVoucher,
+                            'code' => $voucherAE->code,
+                            'start_date' => $voucherAE->created_at,
+                            'end_date' => $voucherAE->expired,
+                            'is_approved' => true,
+                            'type' => $typeVoucher,
+                            'aevoucher_id' => $voucherAE->getKey(),
+                        ]);
+                    } else {
+                        return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                    }
+                } else {
+                    return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Kode Voucher Tidak Ditemukan']))->json();
+                }
             }
-            $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-            $service_discount_price = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-            $percentage_discount = $service_discount_price / $service_price * 100;
-            if ($percentage_discount < $voucher->discount) {
-                $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
-                $this->dispatchNow($job);
-            }
+
+            $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
+            $this->dispatchNow($job);
         }
         event(new PackageApprovedByCustomer($package));
         //        event(new PartnerCashierDiscount($package));
