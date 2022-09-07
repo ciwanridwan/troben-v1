@@ -95,8 +95,8 @@ class PackageResource extends JsonResource
             'hash' => $data['hash'],
             'created_at' => $data['created_at'],
             'content' => $data['code']['content'],
-            'sender_address' => $data['sender_address'],
-            'receiver_address' => $data['receiver_address'],
+            'origin_regency' => $data['origin_regency']['name'],
+            'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
             'type' => $data['type'],
             'picked_up_by' => [
