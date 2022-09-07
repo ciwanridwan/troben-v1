@@ -338,14 +338,20 @@ class OrderController extends Controller
 
         $this->dispatchNow($uploadJob);
 
-        return $this->jsonSuccess(new PackageResource($job->package->load(
-            'items',
-            'prices',
-            'origin_regency',
-            'destination_regency',
-            'destination_district',
-            'destination_sub_district'
-        )));
+        /**Simple response with needed frontend */
+        $data = ['hash' => $job->package->hash];
+
+        return (new Response(Response::RC_CREATED, $data))->json();
+        
+        /** Old response */
+        // return $this->jsonSuccess(new PackageResource($job->package->load(
+        //     'items',
+        //     'prices',
+        //     'origin_regency',
+        //     'destination_regency',
+        //     'destination_district',
+        //     'destination_sub_district'
+        // )));
     }
 
     // deprecated, move to MotorBikeController
