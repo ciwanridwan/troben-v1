@@ -99,13 +99,17 @@ class PackageResource extends JsonResource
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
             'type' => $data['type'],
-            'picked_up_by' => [
+            'picked_up_by' => null,
+        ];
+        if (isset($data['picked_up_by'])) {
+            $result['picked_up_by'] = [
                 'code' => $data['picked_up_by']['code'],
                 'contact_email' => $data['picked_up_by']['contact_email'],
                 'contact_phone' => $data['picked_up_by']['contact_phone'],
                 'address' => $data['picked_up_by']['address'],
-            ] ?? null  
-        ];
+            ];
+        }
+
         return $result;
         // return $data;
     }
