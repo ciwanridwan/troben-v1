@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
