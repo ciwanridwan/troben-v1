@@ -13,13 +13,17 @@ class ListResource extends JsonResource
         $partner = Partner::find($this->partner_id)->only('id', 'name', 'code', 'balance');
 
         /** @var \App\Models\Payments\Withdrawal */
+        $attachment = $this['attachment_transfer'] ?
+            asset('attachment_transfer/'.$this['attachment_transfer']) :
+            null;
         $data = [
             'id' => $this['id'],
             'hash' => $this['hash'],
             'partner_id' => $partner,
             'first_balance' => $this['first_balance'],
             'created_at' => $this['created_at']->format('Y-m-d'),
-            'status' => $this['status']
+            'status' => $this['status'],
+            'attachment_transfer' => $attachment,
         ];
         if ($data['status'] == Withdrawal::STATUS_REQUESTED) {
             $data['amount'] = 0;

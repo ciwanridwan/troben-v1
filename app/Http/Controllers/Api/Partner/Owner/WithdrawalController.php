@@ -19,6 +19,7 @@ use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
+use Google\Cloud\Storage\Connection\Rest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Str;
 use function PHPUnit\Framework\isNull;
 
 class WithdrawalController extends Controller
@@ -94,9 +95,9 @@ class WithdrawalController extends Controller
         $currentDate = Carbon::now();
 
         if (is_null($withdrawal)) {
+
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
-
             $request['expired_at'] = $expiredTime;
             $request['status'] = Withdrawal::STATUS_REQUESTED;
 
@@ -123,6 +124,32 @@ class WithdrawalController extends Controller
             event(new WithdrawalRequested($job->withdrawal));
 
             return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
+        }
+    }
+
+    public function attachmentTransfer(Request $request,Withdrawal $withdrawal): JsonResponse
+    {
+        $request->validate([
+            'attachment_transfer' => ['required','image','mimes:png,jpg,jpeg']
+        ]);
+        if($withdrawal->status == Withdrawal::STATUS_APPROVED) {
+            $attachment = $request->attachment_transfer;
+            $attachment_extension = $attachment->getClientOriginalExtension();
+            $fileName = bin2hex(random_bytes(20)).'.'.$attachment_extension;
+            $attachment->move('attachment_transfer',$fileName);
+
+            // Update table partner_balance_disbursement and attach the image
+            $withdrawal->attachment_transfer = $fileName;
+            $withdrawal->status = Withdrawal::STATUS_TRANSFERRED;
+            $withdrawal->save();
+
+            $data = [
+                'attachment' => asset('attachment_transfer/'.$withdrawal->attachment_transfer),
+                // 'attachment_transfer' => $fileName,
+            ];
+            return (new Response(Response::RC_CREATED,$data))->json();
+        } else {
+            return (new Response(Response::RC_INVALID_DATA,[]))->json();
         }
     }
 
@@ -157,7 +184,11 @@ class WithdrawalController extends Controller
     {
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
-            return (new Response(Response::RC_SUCCESS, $result))->json();
+            $data = [
+                'attachment_transfer' => asset('attachment_transfer/'.$withdrawal->attachment_transfer),
+                'result' => $result
+            ];
+            return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
             $pendingReceipts = $this->getPendingReceipt($withdrawal);
             $toCollect = collect(DB::select($pendingReceipts));
@@ -200,7 +231,7 @@ class WithdrawalController extends Controller
             $row->no = $index + 1;
             return $row;
         });
-        
+
         return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }
 
@@ -211,8 +242,8 @@ class WithdrawalController extends Controller
             r.receipt,
             (r.pickup_fee + r.packing_fee + r.insurance_fee + r.partner_fee + r.extra_charge - r.discount) as amount
             from (
-            SELECT 
-            p.total_amount total_payment, 
+            SELECT
+            p.total_amount total_payment,
             c.content receipt,
             coalesce(pp.amount, 0) as pickup_fee,
             coalesce(packing_fee, 0) as packing_fee,

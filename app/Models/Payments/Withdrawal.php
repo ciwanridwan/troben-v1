@@ -46,6 +46,7 @@ class Withdrawal extends Model
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
+    public const STATUS_TRANSFERRED = 'transferred';
     // End Todo
 
     protected $table = 'partner_balance_disbursement';
@@ -59,6 +60,7 @@ class Withdrawal extends Model
         'bank_id',
         'account_name',
         'account_number',
+        'attachment_transfer',
         'status',
         'notes',
         'charge_admin',
@@ -92,6 +94,7 @@ class Withdrawal extends Model
             // self::STATUS_CONFIRMED,
             // self::STATUS_REJECTED,
             // self::STATUS_SUCCESS,
+            self::STATUS_TRANSFERRED,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
         ];
