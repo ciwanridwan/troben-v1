@@ -100,6 +100,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
+ * @property-read \App\Models\Packages\MotorBike|null $moto_bikes
  */
 class Package extends Model implements AttachableContract
 {

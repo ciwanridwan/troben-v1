@@ -19,6 +19,14 @@ class MotorBike extends Model
         'years',
     ];
 
+    protected $hidden = [
+        'id',
+        'package_id',
+        'package_item_id',
+        'created_at',
+        'updated_at'
+    ];
+
 
     public function packages()
     {

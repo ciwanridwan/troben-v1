@@ -38,6 +38,8 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\Packages\BikePrices;
+use App\Models\Packages\MotorBike;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use App\Supports\Geo;
@@ -68,7 +70,7 @@ class OrderController extends Controller
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
         
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
         
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
@@ -115,45 +117,89 @@ class OrderController extends Controller
             $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
         }
 
+        // $package->load(
+        //     'code',
+        //     'prices',
+        //     'attachments',
+        //     'items',
+        //     'items.attachments',
+        //     'items.prices',
+        //     'motoBikes',
+        //     'deliveries.partner',
+        //     'deliveries.assigned_to.userable',
+        //     'deliveries.assigned_to.user',
+        //     'origin_regency',
+        //     'destination_regency',
+        //     'destination_district',
+        //     'destination_sub_district'
+        // )->append('transporter_detail');
+
         $package->load(
-            'code',
-            'prices',
             'attachments',
             'items',
-            'items.attachments',
-            'items.prices',
+            'motoBikes',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
-            'deliveries.assigned_to.user',
-            'origin_regency',
-            'destination_regency',
-            'destination_district',
-            'destination_sub_district'
+            'deliveries.assigned_to.user'
         )->append('transporter_detail');
 
+        /** Price Of Item */
         $price = Price::query()
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
+
+        $bikePrice = BikePrices::query()
+            ->where('origin_regency_id', $package->origin_regency_id)
+            ->where('destination_id', $package->destination_sub_district_id)->first();
+            
+
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        
+        if ($package['motoBikes'] !== null) {
+            $result['type'] = 'bike';    
+            $result['notes'] = $bikePrice->notes;    
+        } else {
+            $result['type'] = 'item';
+            $result['notes'] = $price->notes;
+        }
+
         $data = [
-            'notes' => $price->notes,
-            'service_price' => $service_price,
-            'service_price_fee' => $prices['service_price_fee'] ?? 0,
-            'service_price_discount' => $prices['service_price_discount'] ?? 0,
-            'insurance_price' => $prices['insurance_price'] ?? 0,
-            'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
-            'packing_price' => $prices['packing_price'] ?? 0,
-            'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
-            'pickup_price' => $prices['pickup_price'] ?? 0,
-            'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
-            'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+            'sender_name' => $package['sender_name'],
+            'sender_address' => $package['sender_address'],
+            'sender_phone' => $package['sender_phone'],
+            'receiver_name' => $package['receiver_name'],
+            'receiver_address' => $package['receiver_address'],
+            'receiver_phone' => $package['receiver_phone'],
+            
+            'type' => $result['type'],
+            'moto_bikes' => $package['motoBikes'] ?? null,
+            'items' => $package['items'],
+            'attachments' => $package['attachments'],
+            'transporter_detail' => $package['transporter_detail'],
+            'deliveries' => $package['deliveries'],
 
+            // 'service_price' => $service_price,
+            // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            // 'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
+            'notes' => $result['notes'],
+            'pricings' => [
+                'service_price' => $package['service_price'] ?? $service_price,
+                'service_price_discount' => $prices['service_price_discount'] ?? 0,
+                'insurance_price' => $prices['insurance_price'] ?? 0,
+                'packing_price' => $prices['packing_price'] ?? 0,
+                'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
+                'pickup_price' => $prices['pickup_price'] ?? 0,
+                'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
+                'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+                'total_amount' => $package['total_amount'],
+            ],
             // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
+            // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
-
-        return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
+        
+        // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
+        return $this->jsonSuccess(DataDiscountResource::make($data));
     }
 
     public function check($promotion_hash, Package $package): array
