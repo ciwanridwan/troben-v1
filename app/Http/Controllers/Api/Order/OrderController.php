@@ -117,6 +117,7 @@ class OrderController extends Controller
             $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
         }
 
+        /** Old script */
         // $package->load(
         //     'code',
         //     'prices',
@@ -149,6 +150,7 @@ class OrderController extends Controller
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
 
+        /** Price for motobikes */
         $bikePrice = BikePrices::query()
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)->first();
@@ -156,14 +158,29 @@ class OrderController extends Controller
 
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         
+        /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
             $result['type'] = 'bike';    
-            $result['notes'] = $bikePrice->notes;    
+            $result['notes'] = $bikePrice->notes;
+            $package['items'] = [
+                'qty' => $package['items'][0]->qty,
+                'height' => $package['items'][0]->height,
+                'length' => $package['items'][0]->length,
+                'width' => $package['items'][0]->width,
+                'is_insured' => $package['items'][0]->is_insured,
+                'handling' => $package['items'][0]->handling,
+            ];    
         } else {
             $result['type'] = 'item';
             $result['notes'] = $price->notes;
         }
 
+        $attachment = $package['attachments']->map(function ($r) {    
+            $arr['url'] = $r->uri;
+            return $arr;
+        })->values();
+        
+        
         $data = [
             'sender_name' => $package['sender_name'],
             'sender_address' => $package['sender_address'],
@@ -175,13 +192,14 @@ class OrderController extends Controller
             'type' => $result['type'],
             'moto_bikes' => $package['motoBikes'] ?? null,
             'items' => $package['items'],
-            'attachments' => $package['attachments'],
+            'attachments' => $attachment,
             'transporter_detail' => $package['transporter_detail'],
-            'deliveries' => $package['deliveries'],
+            'deliveries' => [
+                'partner_code' => $package['deliveries'][0]->partner->code,
+                'partner_address' =>  $package['deliveries'][0]->partner->address
 
-            // 'service_price' => $service_price,
-            // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
-            // 'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
+            ],
+
             'notes' => $result['notes'],
             'pricings' => [
                 'service_price' => $package['service_price'] ?? $service_price,
@@ -194,12 +212,15 @@ class OrderController extends Controller
                 'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
                 'total_amount' => $package['total_amount'],
             ],
+            // 'service_price' => $service_price,
+            // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            // 'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
             // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
             // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
         
-        // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
         return $this->jsonSuccess(DataDiscountResource::make($data));
+        // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
     }
 
     public function check($promotion_hash, Package $package): array
