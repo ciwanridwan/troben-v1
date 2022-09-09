@@ -42,15 +42,17 @@ class WithdrawalRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
-        $this->router->post($this->prefix('attachment_transfer/{withdrawal_hash}'),[
-            'as' => $this->name('attachmentTransfer'),
-            'uses' => $this->uses('attachmentTransfer')
-        ]);
+
 
         $this->router->get($this->prefix('detail/{withdrawal_hash}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail')
         ]);
+
+        // $this->router->post($this->prefix('/attachment_transfer/{withdrawal_hash}'),[
+        //     'as' => $this->name('attachmentTransfer'),
+        //     'uses' => $this->uses('attachmentTransfer')
+        // ]);
 
         $this->router->get($this->prefix('detail/{withdrawal_hash}/{receipt}'), [
             'as' => $this->name('detailReceipt'),
