@@ -22,4 +22,4 @@ coverage.xml
 package-lock.json
 yarn.lock
 composer.lock
-
+public/attachment_transfer

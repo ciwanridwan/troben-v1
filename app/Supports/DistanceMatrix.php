@@ -56,6 +56,11 @@ class DistanceMatrix
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
         ])->get($url);
+        if (! method_exists($response, 'body')) {
+            Log::info('distance400', ['dest' => $destination, 'origin' => $origin, 'body' => $response->body(), 'status' => $response->status(), 'ok' => $response->ok()]);
+            return 0;
+        }
+
         $response = json_decode($response->body());
 
         $distance = 0;
