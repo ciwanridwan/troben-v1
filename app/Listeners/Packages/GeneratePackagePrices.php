@@ -189,14 +189,22 @@ class GeneratePackagePrices
             }
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
-
+            
             try {
-                $origin_regency = $package->origin_regency;
-                $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
-                $tier = PricingCalculator::getTier($price, $package->total_weight);
-                $package->setAttribute('tier_price', $tier)->save();
+                switch ($serviceCode) {
+                    case Service::TRAWLPACK_STANDARD:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = PricingCalculator::getTier($price, $package->total_weight);
+                        $package->setAttribute('tier_price', $tier)->save();
+                        break;
+                    case Service::TRAWLPACK_CUBIC:
+                        $package->setAttribute('total_weight', 0)->save();
+                        $package->setAttribute('tier_price', 0)->save();
+                        break;
+                }
             } catch (\Throwable $th) {
-                //throw $th;
+                throw $th;
             }
             // todo : create service lainnya, contoh : biaya penjemputan
         }

@@ -16,8 +16,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\PriceResource;
-use App\Models\CubicPrice;
 use App\Models\Packages\BikePrices;
+use App\Models\Packages\CubicPrice;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -626,7 +626,7 @@ class PricingCalculator
     /** Cubic Price */
     public static function getCubicPrice($originProvinceId, $originRegencyId, $destinationId)
     {
-        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        $price = CubicPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
 
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
 
@@ -650,9 +650,34 @@ class PricingCalculator
 
         if (!$price) {
             /** @var Price $price */
-            $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+            $price = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
 
         /**Todo calculate */
+        $items = [];
+        foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
+            $items[] = [
+                'weight' => 0,
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+            ];
+        }
+        // $totalWeightBorne = self::getTotalWeightBorne($items);
+
+        // $tierPrice = self::getTier($price, $totalWeightBorne);
+
+        $servicePrice = $price->amount;
+        
+        return $servicePrice;
     }
 }
