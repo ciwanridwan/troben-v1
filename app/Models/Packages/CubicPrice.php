@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Packages;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,5 +29,11 @@ class CubicPrice extends Model
     protected $casts = [
         'amount' => 'float',
         'zip_code' => 'int'
+    ];
+
+    protected $hidden = [
+        'id',
+        'created_at',
+        'updated_at'
     ];
 }

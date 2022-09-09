@@ -13,7 +13,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
-use App\Models\CubicPrice;
+use App\Http\Resources\Api\Pricings\CheckPriceResource;
+use App\Models\Packages\CubicPrice;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -222,7 +223,7 @@ class PricingController extends Controller
                     return (new Response(Response::RC_SUCCESS, $message))->json();
                 }
 
-                return (new Response(Response::RC_SUCCESS, $prices))->json();
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
     }
