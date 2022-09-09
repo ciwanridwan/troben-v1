@@ -9,6 +9,8 @@ class CubicPrice extends Model
 {
     use HasFactory;
 
+    public const TYPE_CUBIC = 'kubikasi';
+
     protected $table = 'cubic_prices';
 
     protected $fillable = [
@@ -21,5 +23,11 @@ class CubicPrice extends Model
         'amount',
         'notes',
         'service_code'
-    ];    
+    ];
+    
+    
+    protected $casts = [
+        'amount' => 'float',
+        'zip_code' => 'int'
+    ];
 }

@@ -26,6 +26,7 @@ class Service extends Model
     public const TRAWLPACK_SAMEDAY = 'tpd';
     public const TRAWLPACK_EXPRESS = 'tpx';
     public const TRAWLPACK_STANDARD = 'tps';
+    public const TRAWLPACK_CUBIC = 'tpc';
 
     /**
      * Indicates if the IDs are auto-incrementing.
