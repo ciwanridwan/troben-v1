@@ -55,13 +55,18 @@ class DistanceMatrix
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->get($url);
-        if (! method_exists($response, 'body')) {
+    ])->get($url);
+
+	try {
+	Log::info('distancebody', ['b' => $response->status(), 'r' => $response]);
             Log::info('distance400', ['dest' => $destination, 'origin' => $origin, 'body' => $response->body(), 'status' => $response->status(), 'ok' => $response->ok()]);
             return 0;
-        }
 
         $response = json_decode($response->body());
+	} catch (\Exception $e) {
+		report($e);
+		dd($response);
+	}
 
         $distance = 0;
         if (count($response->rows)
