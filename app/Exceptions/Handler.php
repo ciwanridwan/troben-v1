@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response as LaravelResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -19,7 +20,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        FileNotFoundException::class,
     ];
 
     /**
