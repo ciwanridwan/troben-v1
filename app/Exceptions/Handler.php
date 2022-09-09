@@ -36,9 +36,9 @@ class Handler extends ExceptionHandler
     /** {@inheritdoc} */
     public function report(Throwable $e)
     {
-        if ($this->shouldReport($e) && app()->bound('sentry')) {
-            app('sentry')->captureException($e);
-        }
+        // if ($this->shouldReport($e) && app()->bound('sentry')) {
+        //     app('sentry')->captureException($e);
+        // }
 
         parent::report($e);
     }
@@ -88,9 +88,9 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            if ($this->shouldReport($e) && app()->bound('sentry')) {
-                app('sentry')->captureException($e);
-            }
+            // if ($this->shouldReport($e) && app()->bound('sentry')) {
+            //     app('sentry')->captureException($e);
+            // }
         });
     }
 }
