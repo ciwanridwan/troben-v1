@@ -137,6 +137,7 @@ class FinanceController extends Controller
 
 
             $data = [
+                'transferred_at' => $result->transferred_at,
                 'attachment_transfer' => $attachment,
                 'rows' => $receipts,
                 'total_unapproved' => $totalUnApproved,
