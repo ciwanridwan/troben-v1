@@ -87,6 +87,7 @@ class FinanceController extends Controller
                 null;
 
             $data = [
+                'transferred_at' => $result->transferred_at,
                 'attachment_transfer' => $attachment,
                 'rows' => $getPendingReceipts,
                 'total_unapproved' => $totalUnApproved,
