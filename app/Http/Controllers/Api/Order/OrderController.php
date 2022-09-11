@@ -154,9 +154,12 @@ class OrderController extends Controller
         if ($package['motoBikes'] !== null) {
             $result['type'] = 'bike';    
             $result['notes'] = $bikePrice->notes;
+            $result['packing_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_BIKE)->get()->sum('amount');
+            $result['packing_additional_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_WOOD)->get()->sum('amount');
         } else {    
             $result['type'] = 'item';
             $result['notes'] = $price->notes;
+            $result['packing_price'] = $prices['packing_price'];
         }
         
         $data = [
@@ -167,7 +170,8 @@ class OrderController extends Controller
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
             'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
-            'packing_price' => $prices['packing_price'] ?? 0,
+            'packing_price' => $result['packing_price'] ?? 0,
+            'packing_additional_price' => $result['packing_additional_price'] ?? 0,
             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
             'pickup_price' => $prices['pickup_price'] ?? 0,
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
