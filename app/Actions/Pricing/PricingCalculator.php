@@ -25,6 +25,7 @@ use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use App\Models\Partners\VoucherAE;
 use App\Supports\DistanceMatrix;
+use Illuminate\Http\Resources\MergeValue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -159,7 +160,7 @@ class PricingCalculator
 
         $serviceCode = $inputs['service_code'];
         /**Todo Cubic Calculate */
-        
+
         if ($serviceCode === Service::TRAWLPACK_CUBIC) {
             $cubicPrice = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
@@ -175,7 +176,7 @@ class PricingCalculator
             $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
             $destination = $partner->latitude . ', ' . $partner->longitude;
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
-            
+
             if ($inputs['fleet_name'] == 'bike') {
                 if ($distance < 5) {
                     $pickup_price = 8000;
@@ -229,25 +230,28 @@ class PricingCalculator
         }
 
         if ($serviceCode === Service::TRAWLPACK_CUBIC) {
-            $servicePrice = $cubicPrice->amount;
-            $response['price'] = CubicPriceResource::make($cubicPrice);
+            $servicePrice = self::getServiceCubicPrice($inputs, $cubicPrice);
+            $result['price'] = CubicPriceResource::make($cubicPrice);
+            $result['tier'] = $cubicPrice->amount;
+            $result['total_weight_borne'] = 0;
         } else {
             $tierPrice = self::getTier($price, $totalWeightBorne);
             $servicePrice = self::getServicePrice($inputs, $price);
-            $response['price'] = PriceResource::make($price);
-            $response['tier'] = $tierPrice;
+            $result['price'] = PriceResource::make($price);
+            $result['tier'] = $tierPrice;
+            $result['total_weight_borne'] = $totalWeightBorne;
         }
-        
+
         $response = [
-            // 'price' => PriceResource::make($price),
+            'price' => $result['price'],
             'items' => $inputs['items'],
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
-                'total_weight_borne' => $totalWeightBorne,
+                'total_weight_borne' => $result['total_weight_borne'],
                 'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
-                // 'tier' => $tierPrice,
+                'tier' => $result['tier'],
                 'service' => $servicePrice
             ]
         ];
@@ -801,11 +805,18 @@ class PricingCalculator
                 'handling' => !empty($packing) ? array_column($packing, 'type') : null
             ];
         }
-        // $totalWeightBorne = self::getTotalWeightBorne($items);
+        
+        foreach ($items as $item) {
+            $calculateCubic = $item['height'] * $item['width'] * $item['length'] / 1000000;
+            $cubic[] = $calculateCubic;
+            $cubicResult = array_sum($cubic);
+        }
 
-        // $tierPrice = self::getTier($price, $totalWeightBorne);
-
-        $servicePrice = $price->amount;
+        if ($cubicResult <= 3) {
+            $cubicResult = 3;
+        }
+        
+        $servicePrice = $cubicResult * $price->amount;
 
         return $servicePrice;
     }
