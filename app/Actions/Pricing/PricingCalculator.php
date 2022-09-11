@@ -760,8 +760,9 @@ class PricingCalculator
     public static function getCubicPrice($originProvinceId, $originRegencyId, $destinationId)
     {
         $price = CubicPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+        $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+        
+        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
 
         return $price;
     }
