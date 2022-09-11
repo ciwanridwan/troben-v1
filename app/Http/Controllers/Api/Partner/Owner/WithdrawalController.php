@@ -127,11 +127,12 @@ class WithdrawalController extends Controller
         }
     }
 
-    public function attachmentTransfer(Request $request,Withdrawal $withdrawal): JsonResponse
+    public function attachmentTransfer(Request $request,Withdrawal $wd,$id): JsonResponse
     {
         $request->validate([
             'attachment_transfer' => ['required','image','mimes:png,jpg,jpeg']
         ]);
+        $withdrawal = Withdrawal::where('id',$id)->first();
         if($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
             $attachment_extension = $attachment->getClientOriginalExtension();
@@ -141,6 +142,7 @@ class WithdrawalController extends Controller
             // Update table partner_balance_disbursement and attach the image
             $withdrawal->attachment_transfer = $fileName;
             $withdrawal->status = Withdrawal::STATUS_TRANSFERRED;
+            $withdrawal->transferred_at = now();
             $withdrawal->save();
 
             $data = [

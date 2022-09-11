@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response as LaravelResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class Handler extends ExceptionHandler
 {
