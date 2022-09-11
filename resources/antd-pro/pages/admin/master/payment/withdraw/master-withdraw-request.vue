@@ -66,6 +66,9 @@
                 <a-select-option value="approved">
                   Approved
                 </a-select-option>
+                <a-select-option value="transferred">
+                  Transferred
+                </a-select-option>
                 <a-select-option value="requested">
                   Request
                 </a-select-option>
@@ -147,6 +150,11 @@
               Approved
             </div>
           </template>
+          <template v-else-if="record.status == 'transferred'">
+            <div class="tag blue">
+              Transferred
+            </div>
+          </template>
           <template v-else>
             <div class="tag yellow">
               Request
@@ -212,7 +220,6 @@ export default {
       let uri = this.routeUri("admin.payment.withdraw.request.list")
       this.$http.get(uri)
       .then((res)=>{
-        console.log(res)
           this.loading = false
           this.lists = res.data.data
           let numbering = 1;
@@ -372,6 +379,9 @@ export default {
     }
     &.yellow{
       background-color: #FB9727;
+    }
+    &.blue{
+      background-color: #0d6efd;
     }
   }
   .text-black{
