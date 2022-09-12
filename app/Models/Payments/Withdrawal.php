@@ -76,7 +76,7 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash','attachment'
+        'hash','attachment_transfer_url'
     ];
 
     // protected $attributes =
@@ -89,11 +89,10 @@ class Withdrawal extends Model
      * @return string[]
      */
 
-    public function getAttachmentAttribute() {
-        $attachment = $this->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$this->attachment_transfer, Carbon::now()->addMinutes(60)) :
-            null;
-        return $attachment;
+    public function getAttachmentTransferUrlAttribute() {
+        $attachment = $this->attributes['attachment_transfer'];
+        if($attachment == null) return null;
+        return Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$attachment, Carbon::now()->addMinutes(60));
     }
 
     public static function getAvailableStatus(): array
