@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Withdrawal.
@@ -75,7 +76,7 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash'
+        'hash','attachment'
     ];
 
     // protected $attributes =
@@ -87,6 +88,14 @@ class Withdrawal extends Model
      *
      * @return string[]
      */
+
+    public function getAttachmentAttribute() {
+        $attachment = $this->attachment_transfer ?
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$this->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            null;
+        return $attachment;
+    }
+
     public static function getAvailableStatus(): array
     {
         return [
