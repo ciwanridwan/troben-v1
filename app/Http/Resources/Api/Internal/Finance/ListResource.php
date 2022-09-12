@@ -4,7 +4,9 @@ namespace App\Http\Resources\Api\Internal\Finance;
 
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ListResource extends JsonResource
 {
@@ -14,7 +16,7 @@ class ListResource extends JsonResource
 
         /** @var \App\Models\Payments\Withdrawal */
         $attachment = $this['attachment_transfer'] ?
-            asset('attachment_transfer/'.$this['attachment_transfer']) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$this['attachment_transfer'], Carbon::now()->addMinutes(60)) :
             null;
         $data = [
             'id' => $this['id'],
