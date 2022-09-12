@@ -142,6 +142,7 @@ class WithdrawalController extends Controller
             // Update table partner_balance_disbursement and attach the image
             $withdrawal->attachment_transfer = $fileName;
             $withdrawal->status = Withdrawal::STATUS_TRANSFERRED;
+            $withdrawal->transferred_at = now();
             $withdrawal->save();
 
             $data = [

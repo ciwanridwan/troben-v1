@@ -22,6 +22,7 @@ use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class MotorBikeController extends Controller
 {
@@ -58,6 +59,10 @@ class MotorBikeController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $messages = [
+            'required' => ':attribute harus diisi'
+        ];
+
         $request->validate([
             'customer_id' => ['nullable', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
@@ -101,7 +106,7 @@ class MotorBikeController extends Controller
             'destination_sub_district' => ['nullable', 'exists:geo_sub_districts,id'],
 
             'created_by' => ['nullable', 'exists:customers,id'],
-        ]);
+        ], $messages);
         $senderName = array($request->input('sender_name'));
         Log::info('validate package success', $senderName);
 
@@ -163,6 +168,13 @@ class MotorBikeController extends Controller
 
     public function storeItem(Request $request, Package $package): JsonResponse
     {
+        $messages = [
+            'price.required_if' => 'attribute harus diisi jika memilih asuransi',
+            'height.required' => ':attribute harus diisi jika memilih perlindungan ekstra',
+            'length.required' => ':attribute harus diisi jika memilih perlindungan ekstra',
+            'width.required' => ':attribute harus diisi jika memilih perlindungan ekstra'
+        ];
+
         $request->validate([
             'moto_type' => 'required|in:matic,kopling,gigi',
             'moto_brand' => 'required',
@@ -172,16 +184,17 @@ class MotorBikeController extends Controller
             'moto_photo.*' => 'image|max:10240',
 
             'is_insured' => 'nullable|boolean',
-            'price' => 'required_if:is_insured,true',
+            'price' => 'required_if:is_insured,true|numeric',
+
             'handling' => 'nullable',
             'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
-            'height' => 'required_if:handling,wood|numeric',
-            'length' => 'required_if:handling,wood|numeric',
-            'width' => 'required_if:handling,wood|numeric',
+            'height' => [Rule::requiredIf($request->handling != null), 'numeric'],
+            'length' => [Rule::requiredIf($request->handling != null), 'numeric'],
+            'width' => [Rule::requiredIf($request->handling != null), 'numeric'],
 
             'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX,
             'partner_code' => ['required', 'exists:partners,code']
-        ]);
+        ], $messages);
 
         $package->update(['transporter_type' => $request->input('transporter_type')]);
 
@@ -190,15 +203,11 @@ class MotorBikeController extends Controller
         $item->qty = 1;
         $item->name = $request->input('moto_brand');
         $item->is_insured =  $request->input('is_insured') ?? false;
-        $item->price = $request->input('price') ?? 0;
-        $item->handling = $request->input('handling');
+        $item->price = $request->get('price') ?? 0;
+        $item->handling = $request->input('handling.*') ?? null;
         $item->height = $request->input('height') ?? 0;
         $item->length = $request->input('length') ?? 0;
         $item->width = $request->input('width') ?? 0;
-        if (is_null($item->price) && is_null($item->handling) && is_null($item->height) && is_null($item->length) && is_null($item->width)) {
-            $item->handling = null;
-            $item->price = $item->height = $item->length = $item->width = 0;
-        }
         $item->weight = 0;
         $item->in_estimation = true;
         $item->save();
