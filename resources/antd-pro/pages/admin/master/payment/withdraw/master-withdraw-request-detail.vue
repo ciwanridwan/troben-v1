@@ -369,6 +369,9 @@ export default {
     .image-preview img{
         width: 100%;
     }
+    .image-success-upload img{
+        width: 100%;
+    }
     .pr-2{
         padding-right: 30px;
     }
