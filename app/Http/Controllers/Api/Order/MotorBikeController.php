@@ -243,9 +243,6 @@ class MotorBikeController extends Controller
 
     public function motorbikeCheck(Request $request): JsonResponse
     {
-        $startNum = substr(str_shuffle("123456789"), 0, 1);
-        $endNum = substr(str_shuffle("123456789"), 0, 1);
-
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
@@ -344,7 +341,7 @@ class MotorBikeController extends Controller
                 'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,
-            'notes' => 'Estimasi pengiriman barang ' . $startNum . '-' . $endNum . ' hari'
+            'notes' => $getPrice->notes
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
