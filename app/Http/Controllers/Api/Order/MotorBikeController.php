@@ -70,10 +70,12 @@ class MotorBikeController extends Controller
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
             'sender_address' => ['required'],
+            'sender_way_point' => ['nullable'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
+            'receiver_way_point' => ['nullable'],
 
             /**get from other function with generate, first track in listener App\Listeners\Codes\WriteCodeLog */
             'status' => ['nullable'],
@@ -147,10 +149,10 @@ class MotorBikeController extends Controller
         $data->destination_regency_id = $resultDestination['regency'];
         $data->destination_district_id = $destination_id;
         $data->destination_sub_district_id = $resultDestination['subdistrict'];
-        $data->sender_way_point = $request->input('sender_address');
+        $data->sender_way_point = $request->input('sender_way_point');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
-        $data->receiver_way_point = $request->input('receiver_address');
+        $data->receiver_way_point = $request->input('receiver_way_point');
         $data->receiver_latitude = $request->input('destination_lat');
         $data->receiver_longitude = $request->input('destination_lon');
         $data->created_by = $request->user()->first()->id;
