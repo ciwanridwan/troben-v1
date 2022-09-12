@@ -615,9 +615,9 @@ class PricingCalculator
     public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
     {
         $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-	$messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
 
-        throw_if($price === null, Error::make(Response::RC_SUCCESS, $messages));
+        $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
 
         return $price;
     }
