@@ -26,6 +26,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Str;
 use function PHPUnit\Framework\isNull;
@@ -135,9 +136,10 @@ class WithdrawalController extends Controller
         $withdrawal = Withdrawal::where('id',$id)->first();
         if($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
+            $path = 'attachment_transfer';
             $attachment_extension = $attachment->getClientOriginalExtension();
             $fileName = bin2hex(random_bytes(20)).'.'.$attachment_extension;
-            $attachment->move('attachment_transfer',$fileName);
+            Storage::disk('s3')->putFileAs($path, $attachment, $fileName);
 
             // Update table partner_balance_disbursement and attach the image
             $withdrawal->attachment_transfer = $fileName;
@@ -146,7 +148,7 @@ class WithdrawalController extends Controller
             $withdrawal->save();
 
             $data = [
-                'attachment' => asset('attachment_transfer/'.$withdrawal->attachment_transfer),
+                'attachment' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60))
                 // 'attachment_transfer' => $fileName,
             ];
             return (new Response(Response::RC_CREATED,$data))->json();
@@ -187,7 +189,7 @@ class WithdrawalController extends Controller
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
             $data = [
-                'attachment_transfer' => asset('attachment_transfer/'.$withdrawal->attachment_transfer),
+                'attachment_transfer' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60)),
                 'result' => $result
             ];
             return (new Response(Response::RC_SUCCESS, $data))->json();

@@ -20,6 +20,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FinanceController extends Controller
 {
@@ -83,7 +84,7 @@ class FinanceController extends Controller
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
             $attachment = $result->attachment_transfer ?
-                asset('attachment_transfer/'.$result->attachment_transfer) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
             $data = [
@@ -132,7 +133,7 @@ class FinanceController extends Controller
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
             $attachment = $result->attachment_transfer ?
-                asset('attachment_transfer/'.$result->attachment_transfer) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
 
