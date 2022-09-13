@@ -49,9 +49,9 @@ class HomeRoute extends BaseRoute
             'uses' => $this->uses('teamDetail'),
         ]);
 
-        $this->router->get($this->prefix('form-register/trawlbens-corporat'), [
-            'as' => $this->name('formregister.trawlbenscorporat'),
-            'uses' => $this->uses('trawlbensCorporat'),
+        $this->router->get($this->prefix('form-register/trawlbens-corporate'), [
+            'as' => $this->name('formregister.trawlbenscorporate'),
+            'uses' => $this->uses('trawlbensCorporate'),
         ]);
 
         $this->router->get($this->prefix('form-register/mitra-bisnis'), [
@@ -62,6 +62,11 @@ class HomeRoute extends BaseRoute
         $this->router->get($this->prefix('form-register/mitra-space'), [
             'as' => $this->name('formregister.mitraspace'),
             'uses' => $this->uses('mitraSpace'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-pos'), [
+            'as' => $this->name('formregister.mitrapos'),
+            'uses' => $this->uses('mitraPos'),
         ]);
 
         $this->router->get($this->prefix('form-register/mitra-pool-warehouse'), [
