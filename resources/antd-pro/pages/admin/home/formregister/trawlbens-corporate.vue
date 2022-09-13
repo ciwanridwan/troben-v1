@@ -1,12 +1,12 @@
 <template>
   <content-layout>
     <template slot="title">
-      <div class="red-color">Account Driver</div>
+      <div class="red-color">Trawlbens Corporate</div>
     </template>
     <template slot="content">
       <a-table
-        :loading="loading"
         :class="['trawl']"
+        :loading="loading"
         :data-source="data"
         :columns="columns"
         rowKey="id"
@@ -85,119 +85,11 @@
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import axios from "axios";
-const data = [
-  {
-    id: "DRV864783496",
-    name: "Bagas",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "gery",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "danang",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-];
+
+const data = [];
 
 export default {
-  name: "account-driver",
+  name: "Trawlbens-Corporate",
   components: {
     ContentLayout,
   },
@@ -210,14 +102,14 @@ export default {
       searchedColumn: "",
       columns: [
         {
-          title: "Id Driver",
-          dataIndex: "id",
-          key: "id",
+          title: "Nama Perusahaan",
+          dataIndex: "name",
+          key: "name",
         },
         {
           title: "Nama",
-          dataIndex: "name",
-          key: "name",
+          dataIndex: "contact_person",
+          key: "contact_person",
           scopedSlots: {
             filterDropdown: "filterDropdown",
             filterIcon: "filterIcon",
@@ -235,13 +127,23 @@ export default {
         },
         {
           title: "Nomor Telepon",
-          dataIndex: "phone",
-          key: "phone",
+          dataIndex: "phone_number",
+          key: "phone_number",
         },
         {
-          title: "Alamat Domisili",
+          title: "Email",
+          dataIndex: "email",
+          key: "email",
+        },
+        {
+          title: "Alamat",
           dataIndex: "address",
           key: "address",
+        },
+        {
+          title: "Kota",
+          dataIndex: "city",
+          key: "city",
         },
       ],
     };
@@ -254,13 +156,12 @@ export default {
       this.loading = true;
       const options = {
         method: "GET",
-        url: "https://apiv2.trawlbens.com/mitra",
-        params: { code: "mb" },
+        url: "https://apiv2.trawlbens.co.id/corporate",
       };
       axios
         .request(options)
         .then((res) => {
-          this.data = res.data.data.user;
+          this.data = res.data.data;
           // console.log(res.data.data.user);
           this.loading = false;
         })
@@ -280,9 +181,7 @@ export default {
       this.searchText = "";
     },
   },
-  mounted() {
-    console.log("tes", this.$laravel.jwt_token);
-  },
+  mounted() {},
 };
 </script>
 <style scoped>
