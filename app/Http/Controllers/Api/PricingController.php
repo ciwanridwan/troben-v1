@@ -13,7 +13,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Http\Resources\Api\Pricings\CheckPriceResource;
+use App\Models\Packages\CubicPrice;
 use App\Models\Partners\ScheduleTransportation;
+use App\Models\Service;
 use App\Supports\Geo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -45,9 +48,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -176,22 +179,53 @@ class PricingController extends Controller
             'destination_id' => ['required'],
             'service_code' => ['required'],
         ]);
-        $prices = Price::query();
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
-        $origin_id = (int) $this->attributes['origin_id'];
-        $destination_id = (int) $this->attributes['destination_id'];
+        switch ($this->attributes['service_code']) {
+            case Service::TRAWLPACK_STANDARD:
+                $prices = Price::query();
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
-        $prices = Price::where('origin_regency_id', $origin_id)
+                $origin_id = (int) $this->attributes['origin_id'];
+                $destination_id = (int) $this->attributes['destination_id'];
 
-            ->where('destination_id', $destination_id)
+                $prices = Price::where('origin_regency_id', $origin_id)
+                    ->where('destination_id', $destination_id)
+                    ->where('service_code', $this->attributes['service_code'])
+                    ->first();
 
-            ->where('service_code', $this->attributes['service_code'])
-            ->first();
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
 
-        return (new Response(Response::RC_SUCCESS, $prices))->json();
+                return (new Response(Response::RC_SUCCESS, $prices))->json();
+                break;
+
+            case Service::TRAWLPACK_CUBIC:
+                $prices = CubicPrice::query();
+
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+
+                $origin_id = (int) $this->attributes['origin_id'];
+                $destination_id = (int) $this->attributes['destination_id'];
+
+                $prices = CubicPrice::where('origin_regency_id', $origin_id)
+                    ->where('destination_id', $destination_id)
+                    ->where('service_code', $this->attributes['service_code'])
+                    ->first();
+
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
+
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
+                break;
+        }
     }
 
     /**

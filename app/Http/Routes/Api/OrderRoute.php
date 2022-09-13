@@ -125,6 +125,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('shipSchedule'),
             'uses' => $this->uses('shipSchedule'),
         ]);
+
+        $this->router->get($this->prefix('personal/data'), [
+            'as' => $this->name('usePersonalData'),
+            'uses' => $this->uses('usePersonalData'),
+        ]);
     }
 
     /**

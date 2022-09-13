@@ -91,6 +91,7 @@ class OrderController extends Controller
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
+        
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $prices['voucher_price_discount'] = 0;
         if ($request->promotion_hash && $service_discount == 0) {
@@ -147,7 +148,7 @@ class OrderController extends Controller
             ->where('destination_id', $package->destination_sub_district_id)->first();
             
 
-        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         
         /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
@@ -646,6 +647,18 @@ class OrderController extends Controller
         );
 
         return $builder;
+    }
+
+    public function usePersonalData(Request $request)
+    {
+        $user = $request->user();
+
+        $result = [
+            'name' => $user->name,
+            'phone' => $user->phone
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     /** Todo New Script */
