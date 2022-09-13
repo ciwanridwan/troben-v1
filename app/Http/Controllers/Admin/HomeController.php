@@ -104,6 +104,36 @@ class HomeController extends Controller
         return view('admin.home.account-executive.team-detail');
     }
 
+    public function trawlbensCorporat(Request $request)
+    {
+        return view('admin.home.form-register.trawlbens-corporat');
+    }
+
+    public function mitraBisnis(Request $request)
+    {
+        return view('admin.home.form-register.mitra-bisnis');
+    }
+
+    public function mitraSpace(Request $request)
+    {
+        return view('admin.home.form-register.mitra-space');
+    }
+
+    public function mitraPoolWarehouse(Request $request)
+    {
+        return view('admin.home.form-register.mitra-pool-warehouse');
+    }
+
+    public function mitraKurirMotor(Request $request)
+    {
+        return view('admin.home.form-register.mitra-kurir-motor');
+    }
+
+    public function mitraKurirMobil(Request $request)
+    {
+        return view('admin.home.form-register.mitra-kurir-mobil');
+    }
+
     public function receipt(Request $request)
     {
         if ($request->expectsJson()) {
@@ -134,8 +164,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
-            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
+            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);

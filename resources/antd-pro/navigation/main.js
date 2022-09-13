@@ -66,6 +66,86 @@ const main = {
           },
         }
       },
+      trawltruck: {
+        title: "Trawltruck",
+        text: "Trawltruck",
+        route: "admin.master.trawltruck.dashboard",
+        children: {
+          registerDriver: {
+            title: "Register Driver",
+            text: "Register Driver",
+            route: "admin.master.trawltruck.dashboard.driver.register"
+          },
+          accountDriver: {
+            title: "Account Driver",
+            text: "Account Driver",
+            route: "admin.master.trawltruck.dashboard.driver.account"
+          },
+          suspendDriver: {
+            title: "Suspend Driver",
+            text: "Suspend Driver",
+            route: "admin.master.trawltruck.dashboard.driver.suspend"
+          },
+          trackingOrder: {
+            title: "Tracking Order",
+            text: "Tracking Order",
+            route: "admin.master.trawltruck.dashboard.tracking.order"
+          },
+          accountDetail: {
+            title: "Account Detail",
+            text: "Account Detail",
+            route: "admin.master.trawltruck.dashboard.account.detail"
+          },
+          orderDetail: {
+            title: "Order Detail",
+            text: "Order Detail",
+            route: "admin.master.trawltruck.dashboard.order.detail"
+          }
+        }
+      },
+      formRegister: {
+        title: "Permohonan Pendaftaran",
+        text: "Permohonan Pendaftaran",
+        route: "admin.home.formregister.trawlbenscorporat",
+        children: {
+          trawlbensCorporat: {
+            title: "Mitra Corporat",
+            text: "Mitra Corporat",
+            route: "admin.home.formregister.trawlbenscorporat",
+            children: null
+          },
+          MB: {
+            title: "Mitra Bisnis",
+            text: "Mitra Bisnis",
+            route: "admin.home.formregister.mitrabisnis",
+            children: null
+          },
+          MS: {
+            title: "Mitra Space",
+            text: "Mitra Space",
+            route: "admin.home.formregister.mitraspace",
+            children: null
+          },
+          MPW: {
+            title: "Mitra Pool Warehouse",
+            text: "Mitra Pool Warehouse",
+            route: "admin.home.formregister.mitrapoolwarehouse",
+            children: null
+          },
+          MKM: {
+            title: "Mitra Kurir Motor",
+            text: "Mitra Kurir Motor",
+            route: "admin.home.formregister.mitrakurirmotor",
+            children: null
+          },
+          MKB: {
+            title: "Mitra Kurir Mobil",
+            text: "Mitra Kurir Mobil",
+            route: "admin.home.formregister.mitrakurirmobil",
+            children: null
+          },
+        }
+      },
       resi: {
         title: "All Resi",
         text: "Resi",
@@ -258,7 +338,28 @@ const main = {
     route: "admin.message",
     children: null,
     shortKey: ["ctrl", "alt", "c"]
-  }
+  },
+  
+  /**declaring route for trawltruck dashboard */
+  // trawltruck: {
+  //   icon: "",
+  //   text: "",
+  //   route: "admin.master.trawltruck.dashboard",
+  //   children: {
+  //     registerDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.register"
+  //     },
+  //     accountDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.account"
+  //     },
+  //     suspendDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.suspend"
+  //     },
+  //     trackingOrder: {
+  //       route: "admin.master.trawltruck.dashboard.tracking.order"
+  //     }
+  //   }
+  // }
 };
 
 export default main;
