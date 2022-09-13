@@ -194,7 +194,7 @@ class MotorBikeController extends Controller
             'length' => [Rule::requiredIf($request->handling != null), 'numeric'],
             'width' => [Rule::requiredIf($request->handling != null), 'numeric'],
 
-            'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX,
+            'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX . ',' . Transporter::TYPE_PICKUP,
             'partner_code' => ['required', 'exists:partners,code']
         ], $messages);
 
