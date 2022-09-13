@@ -1,12 +1,12 @@
 <template>
   <content-layout>
     <template slot="title">
-      <div class="red-color">Account Driver</div>
+      <div class="red-color">Mitra Kurir Motor</div>
     </template>
     <template slot="content">
       <a-table
-        :loading="loading"
         :class="['trawl']"
+        :loading="loading"
         :data-source="data"
         :columns="columns"
         rowKey="id"
@@ -85,138 +85,26 @@
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import axios from "axios";
-const data = [
-  {
-    id: "DRV864783496",
-    name: "Bagas",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "gery",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "danang",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-  {
-    id: "DRV864783496",
-    name: "tegar",
-    phone: "089766786868",
-    address: "JL. rasamala 35",
-  },
-];
+
+const data = [];
 
 export default {
-  name: "account-driver",
+  name: "mitra-kurir-motor",
   components: {
     ContentLayout,
   },
   data() {
     return {
+      loading: false,
       data,
       searchText: "",
       searchInput: null,
       searchedColumn: "",
       columns: [
         {
-          title: "Id Driver",
-          dataIndex: "id",
-          key: "id",
-        },
-        {
           title: "Nama",
-          dataIndex: "name",
-          key: "name",
+          dataIndex: "full_name",
+          key: "full_name",
           scopedSlots: {
             filterDropdown: "filterDropdown",
             filterIcon: "filterIcon",
@@ -234,18 +122,50 @@ export default {
         },
         {
           title: "Nomor Telepon",
-          dataIndex: "phone",
-          key: "phone",
+          dataIndex: "phone_number",
+          key: "phone_number",
         },
         {
-          title: "Alamat Domisili",
+          title: "Email",
+          dataIndex: "email",
+          key: "email",
+        },
+        {
+          title: "Alamat",
           dataIndex: "address",
           key: "address",
+        },
+        {
+          title: "Kota",
+          dataIndex: "city",
+          key: "city",
         },
       ],
     };
   },
+  created() {
+    this.getAccountList();
+  },
   methods: {
+    getAccountList() {
+      this.loading = true;
+      const options = {
+        method: "GET",
+        url: "https://apiv2.trawlbens.co.id/mitra",
+        params: { code: "mkm" },
+      };
+      axios
+        .request(options)
+        .then((res) => {
+          this.data = res.data.data.user;
+          // console.log(res.data.data.user);
+          this.loading = false;
+        })
+        .catch(function (error) {
+          console.error(error);
+          this.loading = false;
+        });
+    },
     handleSearch(selectedKeys, confirm, dataIndex) {
       confirm();
       this.searchText = selectedKeys[0];
@@ -257,9 +177,7 @@ export default {
       this.searchText = "";
     },
   },
-  mounted() {
-    console.log("tes", this.$laravel.jwt_token);
-  },
+  mounted() {},
 };
 </script>
 <style scoped>

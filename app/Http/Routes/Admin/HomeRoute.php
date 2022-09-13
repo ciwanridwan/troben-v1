@@ -17,7 +17,7 @@ class HomeRoute extends BaseRoute
      */
     protected $name = 'admin.home';
 
-    
+
     /**
      * Register routes handled by this class.
      *
@@ -35,7 +35,7 @@ class HomeRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('accountexecutive'), [
-            'as' => $this->name('accountexecutive'), 
+            'as' => $this->name('accountexecutive'),
             'uses' => $this->uses('accountExecutive'), //ini manggil home controller
         ]);
 
@@ -47,6 +47,36 @@ class HomeRoute extends BaseRoute
         $this->router->get($this->prefix('accountexecutive/teamdetail/{code}'), [
             'as' => $this->name('accountexecutive.teamdetail'),
             'uses' => $this->uses('teamDetail'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/trawlbens-corporat'), [
+            'as' => $this->name('formregister.trawlbenscorporat'),
+            'uses' => $this->uses('trawlbensCorporat'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-bisnis'), [
+            'as' => $this->name('formregister.mitrabisnis'),
+            'uses' => $this->uses('mitraBisnis'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-space'), [
+            'as' => $this->name('formregister.mitraspace'),
+            'uses' => $this->uses('mitraSpace'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-pool-warehouse'), [
+            'as' => $this->name('formregister.mitrapoolwarehouse'),
+            'uses' => $this->uses('mitraPoolWarehouse'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-kurir-motor'), [
+            'as' => $this->name('formregister.mitrakurirmotor'),
+            'uses' => $this->uses('mitraKurirMotor'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-kurir-mobil'), [
+            'as' => $this->name('formregister.mitrakurirmobil'),
+            'uses' => $this->uses('mitraKurirMobil'),
         ]);
 
         $this->router->post($this->prefix('receipt/{package_hash}'), [

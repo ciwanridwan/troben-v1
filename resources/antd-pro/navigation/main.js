@@ -103,6 +103,49 @@ const main = {
           }
         }
       },
+      formRegister: {
+        title: "Permohonan Pendaftaran",
+        text: "Permohonan Pendaftaran",
+        route: "admin.home.formregister.trawlbenscorporat",
+        children: {
+          trawlbensCorporat: {
+            title: "Mitra Corporat",
+            text: "Mitra Corporat",
+            route: "admin.home.formregister.trawlbenscorporat",
+            children: null
+          },
+          MB: {
+            title: "Mitra Bisnis",
+            text: "Mitra Bisnis",
+            route: "admin.home.formregister.mitrabisnis",
+            children: null
+          },
+          MS: {
+            title: "Mitra Space",
+            text: "Mitra Space",
+            route: "admin.home.formregister.mitraspace",
+            children: null
+          },
+          MPW: {
+            title: "Mitra Pool Warehouse",
+            text: "Mitra Pool Warehouse",
+            route: "admin.home.formregister.mitrapoolwarehouse",
+            children: null
+          },
+          MKM: {
+            title: "Mitra Kurir Motor",
+            text: "Mitra Kurir Motor",
+            route: "admin.home.formregister.mitrakurirmotor",
+            children: null
+          },
+          MKB: {
+            title: "Mitra Kurir Mobil",
+            text: "Mitra Kurir Mobil",
+            route: "admin.home.formregister.mitrakurirmobil",
+            children: null
+          },
+        }
+      },
       resi: {
         title: "All Resi",
         text: "Resi",
