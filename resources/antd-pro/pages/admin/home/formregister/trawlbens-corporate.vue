@@ -1,7 +1,7 @@
 <template>
   <content-layout>
     <template slot="title">
-      <div class="red-color">Trawlbens Corporat</div>
+      <div class="red-color">Trawlbens Corporate</div>
     </template>
     <template slot="content">
       <a-table
@@ -89,7 +89,7 @@ import axios from "axios";
 const data = [];
 
 export default {
-  name: "Trawlbens-Corporat",
+  name: "Trawlbens-Corporate",
   components: {
     ContentLayout,
   },

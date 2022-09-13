@@ -106,12 +106,12 @@ const main = {
       formRegister: {
         title: "Pendaftaran Mitra",
         text: "Pendaftaran Mitra",
-        route: "admin.home.formregister.trawlbenscorporat",
+        route: "admin.home.formregister.trawlbenscorporate",
         children: {
-          trawlbensCorporat: {
-            title: "Mitra Corporat",
-            text: "Mitra Corporat",
-            route: "admin.home.formregister.trawlbenscorporat",
+          trawlbensCorporate: {
+            title: "Mitra Corporate",
+            text: "Mitra Corporate",
+            route: "admin.home.formregister.trawlbenscorporate",
             children: null,
           },
           MB: {
@@ -124,6 +124,12 @@ const main = {
             title: "Mitra Space",
             text: "Mitra Space",
             route: "admin.home.formregister.mitraspace",
+            children: null,
+          },
+          MP: {
+            title: "Mitra Pos",
+            text: "Mitra Pos",
+            route: "admin.home.formregister.mitrapos",
             children: null,
           },
           MPW: {

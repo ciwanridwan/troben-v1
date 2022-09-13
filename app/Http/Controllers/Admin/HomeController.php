@@ -104,9 +104,9 @@ class HomeController extends Controller
         return view('admin.home.account-executive.team-detail');
     }
 
-    public function trawlbensCorporat(Request $request)
+    public function trawlbensCorporate(Request $request)
     {
-        return view('admin.home.form-register.trawlbens-corporat');
+        return view('admin.home.form-register.trawlbens-corporate');
     }
 
     public function mitraBisnis(Request $request)
@@ -117,6 +117,11 @@ class HomeController extends Controller
     public function mitraSpace(Request $request)
     {
         return view('admin.home.form-register.mitra-space');
+    }
+
+    public function mitraPos(Request $request)
+    {
+        return view('admin.home.form-register.mitra-pos');
     }
 
     public function mitraPoolWarehouse(Request $request)
