@@ -66,6 +66,9 @@
                 <a-select-option value="approved">
                   Approved
                 </a-select-option>
+                <a-select-option value="transferred">
+                  Transferred
+                </a-select-option>
                 <a-select-option value="requested">
                   Request
                 </a-select-option>
@@ -92,12 +95,28 @@
               placeholder="End Date" />
           </a-col>
           <a-col :span="2">
-            <a-space>
-              <a-button type="success" class="trawl-button-success h-button" :disabled="filter.start_date == null || filter.end_date == null" @click="exportData()">
-                <a-icon type="download"></a-icon>
+            <a-dropdown :disabled="filter.start_date == null || filter.end_date == null" :trigger="['click']">
+              <a-button type="success" class="trawl-button-success h-button" @click.prevent>
                 Export
+                <a-icon type="down"></a-icon>
+                <DownOutlined />
               </a-button>
-            </a-space>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="1">
+                    <a href="javascript:void(0)" class="export-menu" @click="exportDataRequest()">
+                      Resi Paid
+                    </a>
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="2">
+                    <a href="javascript:void(0)" class="export-menu" @click="exportDataApproved()">
+                      Pencairan Mitra
+                    </a>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
           </a-col>
         </a-row>
       </a-card>
@@ -107,7 +126,7 @@
         :dataSource="filteredItems"
         :loading="loading"
         :class="['trawl']"
-        rowKey="id"
+        class="mb-table"
       >
         <span slot="number" slot-scope="number" class="fw-bold">{{ number }}.</span>
         <span slot="code" slot-scope="record">
@@ -129,6 +148,11 @@
           <template v-if="record.status == 'approved'">
             <div class="tag green">
               Approved
+            </div>
+          </template>
+          <template v-else-if="record.status == 'transferred'">
+            <div class="tag blue">
+              Transferred
             </div>
           </template>
           <template v-else>
@@ -164,7 +188,8 @@ export default {
     requestColumns,
     loading: false,
     numbers: [],
-    data_excel: null,
+    data_excel_request: null,
+    data_excel_approve: null,
   }),
   created() {
     this.getDisbursmentList()
@@ -192,11 +217,8 @@ export default {
     },
     getDisbursmentList(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.list")
+      this.$http.get(uri)
       .then((res)=>{
           this.loading = false
           this.lists = res.data.data
@@ -211,11 +233,8 @@ export default {
     },
     getTotalRequest(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count/amount`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countAmountDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.total_request = res.data.data
           this.loading = false
@@ -226,11 +245,8 @@ export default {
     },
     getRequestDisbursment(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/count`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.countDisbursment")
+      this.$http.get(uri)
       .then((res)=>{
           this.request_disbursment = res.data.data
           this.loading = false
@@ -241,13 +257,11 @@ export default {
     },
     filterCode(){
       this.loading = true
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list/partners`, {
-        headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        }
-      })
+      let uri = this.routeUri("admin.payment.withdraw.request.listPartners")
+      this.$http.get(uri)
       .then((res)=>{
           this.codes = res.data.data
+          this.loading = false
       }).catch(function (error) {
           console.error(error);
           this.loading = false
@@ -256,15 +270,11 @@ export default {
     filterDate(){
       if(this.filter.start_date == null || this.filter.end_date == null){
         this.loading = true
-        axios.get(`https://api.staging.trawlbens.co.id/internal/finance/list`, {
-          headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-          }
-        })
+        let uri = this.routeUri("admin.payment.withdraw.request.list")
+        this.$http.get(uri)
         .then((res)=>{
             this.loading = false
             this.lists = res.data.data
-            this.filterCode()
             let numbering = 1;
             this.lists.forEach((o, k) => {
                 o.number = numbering++;
@@ -275,13 +285,11 @@ export default {
         });
       }else{
         this.loading = true
-        axios.get(`https://api.staging.trawlbens.co.id/internal/finance/find/date`, {
+        let uri = this.routeUri("admin.payment.withdraw.request.findByDate")
+        this.$http.get(uri, {
           params: {
             start_date: this.filter.start_date,
             end_date: this.filter.end_date
-          },
-          headers: {
-            Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
           }
         })
         .then((res)=>{
@@ -298,19 +306,17 @@ export default {
         });
       }
     },
-    exportData(){
-      axios.get(`https://api.staging.trawlbens.co.id/internal/finance/report`, {
+    exportDataRequest(){
+      let uri = this.routeUri("admin.payment.withdraw.request.report")
+      this.$http.get(uri, {
         params: {
           start: this.filter.start_date,
           end: this.filter.end_date
         },
-        headers: {
-          Authorization: 'Bearer 33550|wAGPf6c1hwsIHEzmvsaewakN1wKy0Sd2FVGSTkSi'
-        },
         responseType: 'blob'
       })
       .then((res)=>{
-        this.data_excel = res.data
+        this.data_excel_request = res.data
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -321,7 +327,29 @@ export default {
       }).catch(function (error) {
           console.error(error);
       });
-    }
+    },
+    exportDataApproved(){
+      let uri = this.routeUri("admin.payment.withdraw.request.export")
+      this.$http.get(uri, {
+        params: {
+          start: this.filter.start_date,
+          end: this.filter.end_date
+        },
+        responseType: 'blob'
+      })
+      .then((res)=>{
+        this.data_excel_approve = res.data
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'file.xls');
+        document.body.appendChild(link);
+        link.click();
+
+      }).catch(function (error) {
+          console.error(error);
+      });
+    },
   },
 };
 </script>
@@ -352,11 +380,17 @@ export default {
     &.yellow{
       background-color: #FB9727;
     }
+    &.blue{
+      background-color: #0d6efd;
+    }
   }
   .text-black{
     color: #000;
   }
   .text-gray{
     color: #61616A;
+  }
+  .export-menu{
+    color: #000 !important;
   }
 </style>

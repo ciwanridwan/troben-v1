@@ -34,4 +34,6 @@ return [
         'token' => env('TELEGRAM_BOT_TOKEN', '2122704563:AAHa9ovq8fAez4gmxqrlQzQfOadkfJdbtrk'),
     ],
 
+    'maps' => env('MAPS_KEY'),
+
 ];

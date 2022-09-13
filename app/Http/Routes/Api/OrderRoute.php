@@ -5,6 +5,7 @@ namespace App\Http\Routes\Api;
 use App\Http\Controllers\Api\Order\CancelController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
+use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Http\Controllers\Api\Order\OrderController;
 
 class OrderRoute extends BaseRoute
@@ -28,6 +29,16 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix(), [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),
+        ]);
+
+        $this->router->post($this->prefix('/motorbike/store'), [
+            'as' => $this->name('store-motorbike'),
+            'uses' => $this->uses('store', MotorBikeController::class),
+        ]);
+
+        $this->router->post($this->prefix('/motorbike/store/item/{package_hash}'), [
+            'as' => $this->name('store.motorbike.item'),
+            'uses' => $this->uses('storeItem', MotorBikeController::class),
         ]);
 
         $this->router->get($this->prefix('find/{code_content}'), [
@@ -93,6 +104,11 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('{package_hash}/item'), [
             'as' => $this->name('item.store'),
             'uses' => $this->uses('store', ItemController::class),
+        ]);
+
+        $this->router->post($this->prefix('{package_hash}/item-motorbike'), [
+            'as' => $this->name('item.store-motorbike'),
+            'uses' => $this->uses('storeItem', MotorBikeController::class),
         ]);
 
         $this->router->put($this->prefix('{package_hash}/item'), [

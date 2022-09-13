@@ -100,6 +100,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
+ * @property-read \App\Models\Packages\MotorBike|null $moto_bikes
  */
 class Package extends Model implements AttachableContract
 {
@@ -342,7 +343,8 @@ class Package extends Model implements AttachableContract
         if ($amount == null) {
             return 0;
         } else {
-            return $amount - $discount;
+            // return $amount - $discount;
+            return $amount;
         }
     }
 
@@ -440,6 +442,11 @@ class Package extends Model implements AttachableContract
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'package_id', 'id');
+    }
+
+    public function motoBikes(): HasOne
+    {
+        return $this->hasOne(MotorBike::class, 'package_id', 'id');
     }
 
     public function tarif(): HasMany

@@ -42,6 +42,8 @@ class Item extends Model implements AttachableContract
     use HashableId, HasCode, HasFactory, attachable, CustomSerializeDate;
 
     public const ATTACHMENT_PACKAGE_ITEM = 'package_item';
+    public const TYPE_ITEM = 'item';
+    public const TYPE_BIKE = 'bike';
 
     /**
      * The table associated with the model.
@@ -180,6 +182,15 @@ class Item extends Model implements AttachableContract
 
     private function getHandling()
     {
-        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+        return !empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+    }
+
+    /**Declare Type of item */
+    public function getAvailableTypes()
+    {
+        return [
+            self::TYPE_ITEM,
+            self::TYPE_BIKE
+        ];
     }
 }

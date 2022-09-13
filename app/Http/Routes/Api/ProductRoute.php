@@ -32,6 +32,12 @@ class ProductRoute extends BaseRoute
                 'uses' => $this->uses('list'),
             ]
         );
+
+        // public route
+        $this->router->get('public/'.$this->prefix(), [
+            'as' => 'promot.'.$this->name,
+            'uses' => $this->uses('list'),
+        ])->withoutMiddleware('api');
     }
 
     /**

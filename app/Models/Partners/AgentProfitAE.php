@@ -14,6 +14,7 @@ class AgentProfitAE extends Model
     protected $fillable = [
         'user_id',
         'voucher_claim_id',
+        'package_id',
         'profit_type',
         'commission',
     ];

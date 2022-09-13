@@ -40,13 +40,13 @@ if ( ! function_exists('date_parse_rvs')) {
             <th>Harga Barang</th>
             <th>Total Biaya Kirim</th>
             <th>Diskon</th>
-            <th>Komisi Mitra Asal (Service)</th>
-            <th>Komisi Tambahan Mitra Asal</th>
-            <th>Total Komisi</th>
+            {{-- <th>Total Komisi</th> --}}
             <th>Biaya packing</th>
             <th>Biaya asuransi</th>
             <th>Biaya pickup</th>
             <th>Biaya total</th>
+            <th>Komisi Mitra Asal (Service)</th>
+            <th>Komisi Tambahan Mitra Asal</th>
         </tr>
     </thead>
     <tbody>
@@ -72,13 +72,13 @@ if ( ! function_exists('date_parse_rvs')) {
         <td>{{to_rp_rvs($d->item_price)}}</td>
         <td>{{to_rp_rvs($d->total_delivery_price)}}</td>
         <td>{{to_rp_rvs($d->discount_delivery)}}</td>
-        <td>{{to_rp_rvs($d->commission_manual)}}</td>
-        <td>{{to_rp_rvs($d->extra_commission)}}</td>
-        <td>{{to_rp_rvs($d->total_commission)}}</td>
+        {{-- <td>{{to_rp_rvs($d->total_commission)}}</td> --}}
         <td>{{to_rp_rvs($d->receipt_total_packing_price)}}</td>
         <td>{{to_rp_rvs($d->receipt_insurance_price)}}</td>
         <td>{{to_rp_rvs($d->receipt_pickup_price)}}</td>
         <td>{{to_rp_rvs($d->receipt_total_amount)}}</td>
+        <td>{{to_rp_rvs($d->commission_manual)}}</td>
+        <td>{{to_rp_rvs($d->extra_commission)}}</td>
     </tr>
     @endforeach
     </tbody>

@@ -2,6 +2,7 @@
 
 namespace App\Supports;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -36,20 +37,42 @@ class DistanceMatrix
 
     public static function calculateDistance(string $origin, string $destination)
     {
-        $response = Http::withHeaders([
+        $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
+
+        if ($k == 'distance.invalid') return 0;
+        if (Cache::has($k)) return Cache::get($k);
+
+        $distance = DistanceMatrix::callDistanceMatrix($origin, $destination);
+        Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
+
+        return $distance;
+    }
+
+
+    protected static function callDistanceMatrix(string $origin, string $destination)
+    {
+        $headers = [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->get('https://maps.googleapis.com/maps/api/distancematrix/json?destinations='.$destination.'&origins='.$origin.'&units=metric&key=AIzaSyAo47e4Aymv12UNMv8uRfgmzjGx75J1GVs');
-        $response = json_decode($response->body());
+        ];
+        $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
+
+        $response = Http::withHeaders($headers)->get($url);
+
+        $result = json_decode($response->body());
+
+        if ($response->status() != 200) {
+            Log::info('distance400', ['dest' => $destination, 'origin' => $origin, 'body' => $response->body(), 'status' => $response->status(), 'ok' => $response->ok()]);
+        }
 
         $distance = 0;
-        if (count($response->rows)
-            && count($response->rows[0]->elements)
-            && isset($response->rows[0]->elements[0]->distance)) {
-            $distance = $response->rows[0]->elements[0]->distance->value;
+        if (count($result->rows)
+            && count($result->rows[0]->elements)
+            && isset($result->rows[0]->elements[0]->distance)) {
+            $distance = $result->rows[0]->elements[0]->distance->value;
             $distance = $distance / 1000;
         } else {
-            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
+            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin, 'response' => json_decode($response->body(), true)]);
         }
 
         return $distance;

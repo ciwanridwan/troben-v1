@@ -3,14 +3,16 @@
 namespace App\Models\Payments;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Partner;
 use App\Models\User;
-use Attribute;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Withdrawal.
@@ -41,11 +43,11 @@ class Withdrawal extends Model
     // public const STATUS_REJECTED = 'rejected';
     // public const STATUS_CONFIRMED = 'accepted';
     // public const STATUS_SUCCESS = 'success';
-    
+
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
-    public const STATUS_PENDING = 'pending';
+    public const STATUS_TRANSFERRED = 'transferred';
     // End Todo
 
     protected $table = 'partner_balance_disbursement';
@@ -59,10 +61,12 @@ class Withdrawal extends Model
         'bank_id',
         'account_name',
         'account_number',
+        'attachment_transfer',
         'status',
         'notes',
         'charge_admin',
-        'fee_charge_admin'
+        'fee_charge_admin',
+        'expired_at'
     ];
 
     protected $casts = [
@@ -72,7 +76,7 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash'
+        'hash','attachment_transfer_url'
     ];
 
     // protected $attributes =
@@ -84,6 +88,13 @@ class Withdrawal extends Model
      *
      * @return string[]
      */
+
+    public function getAttachmentTransferUrlAttribute() {
+        $attachment = $this->attributes['attachment_transfer'];
+        if($attachment == null) return null;
+        return Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$attachment, Carbon::now()->addMinutes(60));
+    }
+
     public static function getAvailableStatus(): array
     {
         return [
@@ -91,9 +102,9 @@ class Withdrawal extends Model
             // self::STATUS_CONFIRMED,
             // self::STATUS_REJECTED,
             // self::STATUS_SUCCESS,
+            self::STATUS_TRANSFERRED,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
-            self::STATUS_PENDING,
         ];
     }
 
@@ -110,5 +121,10 @@ class Withdrawal extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'admin', 'id');
+    }
+
+    public function disbursmentHistories(): BelongsTo
+    {
+        return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
     }
 }

@@ -17,6 +17,7 @@ class CreateAppBannersTable extends Migration
             $table->id();
             $table->string('filename');
             $table->string('app_code');
+            $table->string('author');
             $table->text('meta');
             $table->boolean('status')->default(false);
             $table->timestamps();
