@@ -95,7 +95,7 @@ class PartnerController extends Controller
         }
 
         $q = "SELECT p.id, p.longitude, p.latitude,
-            6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT)) 
+            6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT))
                 * cos(radians(longitude::FLOAT) - radians(%f))
                 + sin(radians(%f))
                 * sin(radians(latitude::FLOAT))) AS distance_radian
@@ -193,7 +193,7 @@ class PartnerController extends Controller
         LIMIT 1";
         $q = sprintf($q, $userId);
         $check = DB::select($q);
-        
+
         if (count($check) == 0) {
             throw new \Exception("Partner not Found");
         }

@@ -157,6 +157,19 @@ class Transporter extends Model
         ];
     }
 
+    public static function getAvailableCubicTypes(): array
+    {
+        return [
+            self::TYPE_PICKUP,
+            self::TYPE_PICKUP_BOX,
+            self::TYPE_CDE_ENGKEL_BOX,
+            self::TYPE_CDE_ENGKEL_BAK,
+            self::TYPE_CDD_DOUBLE_BAK,
+            self::TYPE_CDD_DOUBLE_BOX,
+            self::TYPE_FUSO_BAK
+        ];
+    }
+
     public static function getGeneralType($type)
     {
         foreach (self::getAvailableGeneralTypes() as $key => $value) {
@@ -239,6 +252,84 @@ class Transporter extends Model
                 'weight' => 300,
                 'path_icons' => '',
             ],
+            [
+                'name' => self::TYPE_PICKUP,
+                'length' => 210,
+                'width' => 150,
+                'height' => 150,
+                'weight' => 700,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_PICKUP_BOX,
+                'length' => 200,
+                'width' => 130,
+                'height' => 120,
+                'weight' => 1000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDE_ENGKEL_BOX,
+                'length' => 370,
+                'width' => 169,
+                'height' => 200,
+                'weight' => 2500,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDE_ENGKEL_BAK,
+                'length' => 370,
+                'width' => 169,
+                'height' => 212,
+                'weight' => 2500,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDD_DOUBLE_BAK,
+                'length' => 530,
+                'width' => 200,
+                'height' => 200,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_CDD_DOUBLE_BOX,
+                'length' => 530,
+                'width' => 200,
+                'height' => 220,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            [
+                'name' => self::TYPE_FUSO_BAK,
+                'length' => 630,
+                'width' => 210,
+                'height' => 200,
+                'weight' => 5000,
+                'path_icons' => '',
+            ],
+            // [
+            //     'name' => self::TYPE_VAN,
+            //     'length' => 220,
+            //     'width' => 135,
+            //     'height' => 130,
+            //     'weight' => 750,
+            //     'path_icons' => '',
+            // ],
+            // [
+            //     'name' => self::TYPE_FUSO_BOX,
+            //     'length' => 700,
+            //     'width' => 250,
+            //     'height' => 260,
+            //     'weight' => 10000,
+            //     'path_icons' => '',
+            // ],
+        ];
+    }
+
+    public static function getDetailCubicTypes(): array
+    {
+        return [
             [
                 'name' => self::TYPE_PICKUP,
                 'length' => 210,

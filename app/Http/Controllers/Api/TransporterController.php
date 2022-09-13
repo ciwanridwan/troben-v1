@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Partners\Transporter;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
+use App\Models\Service;
 
 class TransporterController extends Controller
 {
@@ -31,13 +32,28 @@ class TransporterController extends Controller
     public function list(Request $request): JsonResponse
     {
         $this->attributes = Validator::make($request->all(), [
-            'details' => ['nullable','boolean'],
+            'details' => ['nullable', 'boolean'],
+            'type' => ['nullable', 'exists:services,code']
         ])->validate();
 
         if ($request->details) {
-            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
+            switch ($request->type) {
+                case Service::TRAWLPACK_STANDARD:
+                    return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
+                    break;
+                case Service::TRAWLPACK_CUBIC:
+                    return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
+                    break;
+            }
         }
 
-        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
+        switch ($request->type) {
+            case Service::TRAWLPACK_STANDARD:
+                return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
+                break;
+            case Service::TRAWLPACK_CUBIC:
+                return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
+                break;
+        }
     }
 }
