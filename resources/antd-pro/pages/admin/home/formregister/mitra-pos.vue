@@ -1,7 +1,7 @@
 <template>
   <content-layout>
     <template slot="title">
-      <div class="red-color">Mitra Space</div>
+      <div class="red-color">Mitra Pos</div>
     </template>
     <template slot="content">
       <a-table
