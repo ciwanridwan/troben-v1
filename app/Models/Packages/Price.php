@@ -31,6 +31,8 @@ class Price extends Model
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_OTHER = 'other';
     public const TYPE_DELIVERY = 'delivery';
+    public const DESCRIPTION_TYPE_BIKE = 'bike';
+    public const DESCRIPTION_TYPE_WOOD = 'wood';
 
     /**
      * The table associated with the model.
@@ -82,7 +84,9 @@ class Price extends Model
             self::TYPE_DISCOUNT,
             self::TYPE_PICKUP,
             self::TYPE_OTHER,
-            self::TYPE_DELIVERY
+            self::TYPE_DELIVERY,
+            self::DESCRIPTION_TYPE_BIKE,
+            self::DESCRIPTION_TYPE_WOOD
         ];
     }
 

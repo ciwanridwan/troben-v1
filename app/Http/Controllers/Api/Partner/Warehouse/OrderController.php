@@ -40,7 +40,8 @@ class OrderController extends Controller
             'estimator',
             'packager',
             'code.scanned_by',
-            'partner_performance'
+            'partner_performance',
+            'motoBikes'
         ]);
 
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page', 15))), null, true);
@@ -105,6 +106,7 @@ class OrderController extends Controller
 
     public function estimating(Package $package): JsonResponse
     {
+        $package->load('motoBikes');
         event(new WarehouseIsEstimatingPackage($package));
 
         return $this->jsonSuccess(PackageResource::make($package));
@@ -112,6 +114,7 @@ class OrderController extends Controller
 
     public function estimated(Package $package): JsonResponse
     {
+        $package->load('motoBikes');
         event(new PackageEstimatedByWarehouse($package));
 
         return $this->jsonSuccess(PackageResource::make($package));

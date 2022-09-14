@@ -49,6 +49,41 @@ class HomeRoute extends BaseRoute
             'uses' => $this->uses('teamDetail'),
         ]);
 
+        $this->router->get($this->prefix('form-register/trawlbens-corporate'), [
+            'as' => $this->name('formregister.trawlbenscorporate'),
+            'uses' => $this->uses('trawlbensCorporate'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-bisnis'), [
+            'as' => $this->name('formregister.mitrabisnis'),
+            'uses' => $this->uses('mitraBisnis'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-space'), [
+            'as' => $this->name('formregister.mitraspace'),
+            'uses' => $this->uses('mitraSpace'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-pos'), [
+            'as' => $this->name('formregister.mitrapos'),
+            'uses' => $this->uses('mitraPos'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-pool-warehouse'), [
+            'as' => $this->name('formregister.mitrapoolwarehouse'),
+            'uses' => $this->uses('mitraPoolWarehouse'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-kurir-motor'), [
+            'as' => $this->name('formregister.mitrakurirmotor'),
+            'uses' => $this->uses('mitraKurirMotor'),
+        ]);
+
+        $this->router->get($this->prefix('form-register/mitra-kurir-mobil'), [
+            'as' => $this->name('formregister.mitrakurirmobil'),
+            'uses' => $this->uses('mitraKurirMobil'),
+        ]);
+
         $this->router->post($this->prefix('receipt/{package_hash}'), [
             'as' => $this->name('receipt.log.store'),
             'uses' => $this->uses('storeLog'),

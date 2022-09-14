@@ -20,6 +20,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FinanceController extends Controller
 {
@@ -82,7 +83,13 @@ class FinanceController extends Controller
 
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
+            $attachment = $result->attachment_transfer ?
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                null;
+
             $data = [
+                'transferred_at' => $result->transferred_at,
+                'attachment_transfer' => $attachment,
                 'rows' => $getPendingReceipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
@@ -127,7 +134,13 @@ class FinanceController extends Controller
 
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
+            $attachment = $result->attachment_transfer ?
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                null;
+
             $data = [
+                'transferred_at' => $result->transferred_at,
+                'attachment_transfer' => $attachment,
                 'rows' => $receipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
@@ -370,8 +383,8 @@ class FinanceController extends Controller
             r.receipt,
             (r.pickup_fee + r.packing_fee + r.insurance_fee + r.partner_fee + r.extra_charge - r.discount) as total_accepted
             from (
-            SELECT 
-            p.total_amount total_payment, 
+            SELECT
+            p.total_amount total_payment,
             c.content receipt,
             coalesce(pp.amount, 0) as pickup_fee,
             coalesce(packing_fee, 0) as packing_fee,
@@ -469,14 +482,14 @@ class FinanceController extends Controller
         and p3.payable_type = 'App\Models\Packages\Package'
         and p3.status = 'success'
       left join geo_sub_districts gsd on
-        p.destination_sub_district_id = gsd.id 
+        p.destination_sub_district_id = gsd.id
       left join geo_districts gd on
           gsd.district_id = gd.id
       left join geo_regencies gr on
           gd.regency_id = gr.id
       left join geo_provinces gp on
           gr.province_id = gp.id
-      left join geo_regencies gr2 on 
+      left join geo_regencies gr2 on
           p.origin_regency_id = gr2.id
       where
         d2.type = 'pickup'
@@ -507,7 +520,7 @@ class FinanceController extends Controller
     private function getApprovedReceipt($request)
     {
         $query =
-            "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as total_accepted, dh.created_at as approved_at 
+            "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as total_accepted, dh.created_at as approved_at
         from disbursment_histories dh
         left join partner_balance_disbursement pbd on dh.disbursment_id = pbd.id
         left join codes c on dh.receipt = c.content
@@ -535,16 +548,16 @@ class FinanceController extends Controller
         r.commision,
         (r.pickup_fee+r.packing_fee+r.insurance_fee+r.partner_fee+r.commision-r.discount_fee) as total
     FROM (
-    
-    select p.code as partner_name, 
-    b.name as bank_name, 
-    pbd.account_number as bank_number, 
-    dh.receipt, 
+
+    select p.code as partner_name,
+    b.name as bank_name,
+    pbd.account_number as bank_number,
+    dh.receipt,
     dh.created_at,
     c.codeable_id,
     weight,
     COALESCE(pp.amount, 0) as pickup_fee,
-    COALESCE(packing_fee, 0) as packing_fee, 
+    COALESCE(packing_fee, 0) as packing_fee,
     COALESCE(insurance_fee, 0) insurance_fee,
     COALESCE(pp5.amount * 0.3, 0) as partner_fee,
     COALESCE(pp4.amount, 0) as discount_fee,
@@ -557,20 +570,20 @@ class FinanceController extends Controller
     left join partners p on pbd.partner_id = p.id
     left join bank b on pbd.bank_id = b.id
     left join codes c on dh.receipt = c.content
-    left join (	select pi2.package_id, sum(pi2.weight) as weight 
-                from package_items pi2 where weight notnull group by 1) pi2 
+    left join (	select pi2.package_id, sum(pi2.weight) as weight
+                from package_items pi2 where weight notnull group by 1) pi2
                 on pi2.package_id = c.codeable_id
-    left join (	select pp.package_id, pp.amount 
-                from package_prices pp where type = 'delivery' and description = 'pickup')pp 
+    left join (	select pp.package_id, pp.amount
+                from package_prices pp where type = 'delivery' and description = 'pickup')pp
                 on pp.package_id = c.codeable_id
-    left join (	select pp2.package_id, sum(pp2.amount) as packing_fee 
-                from package_prices pp2 where type = 'handling' group by 1) pp2 
+    left join (	select pp2.package_id, sum(pp2.amount) as packing_fee
+                from package_prices pp2 where type = 'handling' group by 1) pp2
                 on pp2.package_id = c.codeable_id
-    left join (	select pp3.package_id, sum(pp3.amount) as insurance_fee 
+    left join (	select pp3.package_id, sum(pp3.amount) as insurance_fee
                 from package_prices pp3 where type = 'insurance' and description = 'insurance' group by 1) pp3
                 on pp3.package_id = c.codeable_id
-    left join (	select pp4.package_id, pp4.amount 
-                from package_prices pp4 where type = 'discount' and description = 'service') pp4 
+    left join (	select pp4.package_id, pp4.amount
+                from package_prices pp4 where type = 'discount' and description = 'service') pp4
                 on pp4.package_id = c.codeable_id
     left join ( select pp5.package_id, pp5.amount from package_prices pp5 where type = 'service' and description = 'service') pp5
                 on pp5.package_id  = c.codeable_id

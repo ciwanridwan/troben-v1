@@ -75,7 +75,7 @@ export default {
         },
         getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/agent/teamDetail`, {
+            axios.get(`https://ae.trawlbens.co.id/agent/teamDetail`, {
                 params: {
                     code:this.code_item
                 },

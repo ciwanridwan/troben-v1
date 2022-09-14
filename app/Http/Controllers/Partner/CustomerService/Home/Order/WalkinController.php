@@ -9,8 +9,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Province;
 use App\Models\Packages\Package;
@@ -25,6 +27,8 @@ use libphonenumber\PhoneNumberUtil;
 
 class WalkinController extends Controller
 {
+    protected string $bike = 'bike';
+
     public function create(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
@@ -46,8 +50,11 @@ class WalkinController extends Controller
         $request->validate([
             'items' => ['required'],
             'photos' => ['required'],
-            'photos.*' => ['required', 'image']
+            'photos.*' => ['required', 'image', 'max:10240'],
+            'order_type' => ['nullable', 'in:bike,other'], // for check condition bike or not
         ]);
+
+        $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
 
         $inputs = $request->except('photos');
         foreach ($inputs as $key => $value) {
@@ -74,12 +81,16 @@ class WalkinController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
-        $job = new CreateWalkinOrder($inputs, $items);
-
-        $this->dispatchNow($job);
+        if ($request->input('order_type') === $this->bike) {
+            $isSeparate = false;
+            $job = new CreateWalkinOrderTypeBike($inputs, $item, $isSeparate, $bikes);
+            $this->dispatchNow($job);
+        } else {
+            $job = new CreateWalkinOrder($inputs, $items);
+            $this->dispatchNow($job);
+        }
 
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
-
         $this->dispatchNow($uploadJob);
 
         // Copy from walkin order
@@ -137,7 +148,7 @@ class WalkinController extends Controller
         /** @var Regency $regency */
         $regency = $partner->regency;
 
-        throw_if(! $regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
+        throw_if(!$regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
 
         /** @var Price $price */
         $price = PricingCalculator::getPrice($regency->province_id, $regency->id, $request->destination_id);

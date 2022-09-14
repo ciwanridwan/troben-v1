@@ -38,6 +38,8 @@ use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\Packages\BikePrices;
+use App\Models\Packages\MotorBike;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
 use App\Supports\Geo;
@@ -66,7 +68,7 @@ class OrderController extends Controller
 
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district');
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
 
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
@@ -113,6 +115,7 @@ class OrderController extends Controller
             $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
         }
 
+        /** Old script */
         $package->load(
             'code',
             'prices',
@@ -120,6 +123,7 @@ class OrderController extends Controller
             'items',
             'items.attachments',
             'items.prices',
+            'motoBikes',
             'deliveries.partner',
             'deliveries.assigned_to.userable',
             'deliveries.assigned_to.user',
@@ -129,28 +133,50 @@ class OrderController extends Controller
             'destination_sub_district'
         )->append('transporter_detail');
 
+        /** Price Of Item */
         $price = Price::query()
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)
             ->first();
+
+        /** Price for motobikes */
+        $bikePrice = BikePrices::query()
+            ->where('origin_regency_id', $package->origin_regency_id)
+            ->where('destination_id', $package->destination_sub_district_id)->first();
+            
+
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        
+        /**Set condition for retrieve type by motobikes or items */
+        if ($package['motoBikes'] !== null) {
+            $result['type'] = 'bike';    
+            $result['notes'] = $bikePrice->notes;
+            $result['packing_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_BIKE)->get()->sum('amount');
+            $result['packing_additional_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_WOOD)->get()->sum('amount');
+        } else {    
+            $result['type'] = 'item';
+            $result['notes'] = $price->notes;
+            $result['packing_price'] = $prices['packing_price'];
+        }
+        
         $data = [
-            'notes' => $price->notes,
+            'type' => $result['type'],
+            'notes' => $result['notes'],
             'service_price' => $service_price,
             'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
             'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
-            'packing_price' => $prices['packing_price'] ?? 0,
+            'packing_price' => $result['packing_price'] ?? 0,
+            'packing_additional_price' => $result['packing_additional_price'] ?? 0,
             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
             'pickup_price' => $prices['pickup_price'] ?? 0,
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
-
-            // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
-
+        
+        // return $this->jsonSuccess(DataDiscountResource::make($data));
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
     }
 
@@ -235,24 +261,24 @@ class OrderController extends Controller
             ]);
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-            $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
-            }
+            $resultOrigin = Geo::getRegional($coordOrigin, true);
+            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-            $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-            }
+            $resultDestination = Geo::getRegional($coordDestination, true);
+            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
 
             $origin_regency_id = $resultOrigin['regency'];
             $destination_id = $resultDestination['district'];
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
-                'destination_regency_id' => $destination_id,
+                'destination_regency_id' => $resultDestination['regency'],
+                'destination_district_id' => $destination_id,
+                'destination_sub_district_id' => $resultDestination['subdistrict'],
                 'sender_latitude' => $request->get('origin_lat'),
-                'sender_longitude' => $request->get('origin_lon')
+                'sender_longitude' => $request->get('origin_lon'),
+                'receiver_latitude' => $request->get('destination_lat'),
+                'receiver_longitude' => $request->get('destination_lon')
             ]);
         }
 
@@ -290,14 +316,20 @@ class OrderController extends Controller
 
         $this->dispatchNow($uploadJob);
 
-        return $this->jsonSuccess(new PackageResource($job->package->load(
-            'items',
-            'prices',
-            'origin_regency',
-            'destination_regency',
-            'destination_district',
-            'destination_sub_district'
-        )));
+        /**Simple response with needed frontend */
+        $data = ['hash' => $job->package->hash];
+
+        return (new Response(Response::RC_CREATED, $data))->json();
+        
+        /** Old response */
+        // return $this->jsonSuccess(new PackageResource($job->package->load(
+        //     'items',
+        //     'prices',
+        //     'origin_regency',
+        //     'destination_regency',
+        //     'destination_district',
+        //     'destination_sub_district'
+        // )));
     }
 
     // deprecated, move to MotorBikeController
@@ -617,4 +649,146 @@ class OrderController extends Controller
 
         return $builder;
     }
+
+    /** Todo New Script */
+    // public function show(Request $request, Package $package): JsonResponse
+    // {
+    //     $this->authorize('view', $package);
+    //     $request->validate([
+    //         'promotion_hash' => ['nullable'],
+    //         'voucher_code' => ['nullable'],
+    //         'partner_id' => ['nullable'],
+    //     ]);
+
+    //     $prices = PricingCalculator::getDetailPricingPackage($package);
+    //     $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+    //     $prices['voucher_price_discount'] = 0;
+    //     if ($request->promotion_hash && $service_discount == 0) {
+    //         $promo = $this->check($request->promotion_hash, $package);
+    //         $prices['service_price_fee'] = $promo['service_price_fee'];
+    //         $prices['service_price_discount'] = $promo['service_price_discount'];
+    //     } elseif ($request->voucher_code && $request->promotion_hash == null) {
+    //         $voucher = $this->claimVoucher($request->voucher_code, $package, $request->get('partner_id'));
+    //         $prices['service_price_fee'] = 0;
+    //         $prices['service_price_discount'] = $voucher['service_price_discount'];
+    //         $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+    //         if (isset($voucher['pickup_price_discount'])) { // free pickup
+    //             $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
+    //         }
+    //     }
+
+    //     // override if already inputed
+    //     if ($package->claimed_voucher && $package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
+    //         $aevoucher = $package->claimed_voucher->voucher->aevoucher;
+    //         $voucher = $this->claimVoucher($aevoucher->code, $package, $aevoucher->partner_id);
+    //         $prices['service_price_fee'] = 0;
+    //         $prices['service_price_discount'] = $voucher['service_price_discount'];
+    //         $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
+    //         $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
+    //     }
+
+    //     /** Old script */
+    //     // $package->load(
+    //     //     'code',
+    //     //     'prices',
+    //     //     'attachments',
+    //     //     'items',
+    //     //     'items.attachments',
+    //     //     'items.prices',
+    //     //     'motoBikes',
+    //     //     'deliveries.partner',
+    //     //     'deliveries.assigned_to.userable',
+    //     //     'deliveries.assigned_to.user',
+    //     //     'origin_regency',
+    //     //     'destination_regency',
+    //     //     'destination_district',
+    //     //     'destination_sub_district'
+    //     // )->append('transporter_detail');
+
+    //     $package->load(
+    //         'attachments',
+    //         'items',
+    //         'motoBikes',
+    //         'deliveries.partner',
+    //         'deliveries.assigned_to.userable',
+    //         'deliveries.assigned_to.user'
+    //     )->append('transporter_detail');
+
+    //     /** Price Of Item */
+    //     $price = Price::query()
+    //         ->where('origin_regency_id', $package->origin_regency_id)
+    //         ->where('destination_id', $package->destination_sub_district_id)
+    //         ->first();
+
+    //     /** Price for motobikes */
+    //     $bikePrice = BikePrices::query()
+    //         ->where('origin_regency_id', $package->origin_regency_id)
+    //         ->where('destination_id', $package->destination_sub_district_id)->first();
+            
+
+    //     $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        
+    //     /**Set condition for retrieve type by motobikes or items */
+    //     if ($package['motoBikes'] !== null) {
+    //         $result['type'] = 'bike';    
+    //         $result['notes'] = $bikePrice->notes;
+    //         $package['items'] = [
+    //             'qty' => $package['items'][0]->qty,
+    //             'height' => $package['items'][0]->height,
+    //             'length' => $package['items'][0]->length,
+    //             'width' => $package['items'][0]->width,
+    //             'is_insured' => $package['items'][0]->is_insured,
+    //             'handling' => $package['items'][0]->handling,
+    //         ];    
+    //     } else {
+    //         $result['type'] = 'item';
+    //         $result['notes'] = $price->notes;
+    //     }
+
+    //     $attachment = $package['attachments']->map(function ($r) {    
+    //         $arr['url'] = $r->uri;
+    //         return $arr;
+    //     })->values();
+        
+        
+    //     $data = [
+    //         'sender_name' => $package['sender_name'],
+    //         'sender_address' => $package['sender_address'],
+    //         'sender_phone' => $package['sender_phone'],
+    //         'receiver_name' => $package['receiver_name'],
+    //         'receiver_address' => $package['receiver_address'],
+    //         'receiver_phone' => $package['receiver_phone'],
+            
+    //         'type' => $result['type'],
+    //         'moto_bikes' => $package['motoBikes'] ?? null,
+    //         'items' => $package['items'],
+    //         'attachments' => $attachment,
+    //         'transporter_detail' => $package['transporter_detail'],
+    //         'deliveries' => [
+    //             'partner_code' => $package['deliveries'][0]->partner->code,
+    //             'partner_address' =>  $package['deliveries'][0]->partner->address
+
+    //         ],
+
+    //         'notes' => $result['notes'],
+    //         'pricings' => [
+    //             'service_price' => $package['service_price'] ?? $service_price,
+    //             'service_price_discount' => $prices['service_price_discount'] ?? 0,
+    //             'insurance_price' => $prices['insurance_price'] ?? 0,
+    //             'packing_price' => $prices['packing_price'] ?? 0,
+    //             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
+    //             'pickup_price' => $prices['pickup_price'] ?? 0,
+    //             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
+    //             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+    //             'total_amount' => $package['total_amount'],
+    //         ],
+    //         // 'service_price' => $service_price,
+    //         // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
+    //         // 'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
+    //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
+    //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
+    //     ];
+        
+    //     return $this->jsonSuccess(DataDiscountResource::make($data));
+    //     // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
 }

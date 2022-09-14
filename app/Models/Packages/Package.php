@@ -100,6 +100,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
+ * @property-read \App\Models\Packages\MotorBike|null $moto_bikes
  */
 class Package extends Model implements AttachableContract
 {
@@ -141,6 +142,10 @@ class Package extends Model implements AttachableContract
 
     public const TYPE_WALKIN = 'walkin';
     public const TYPE_APP = 'app';
+
+    /**Define type for different bike or pack */
+    public const TYPE_BIKE = 'bike';
+    public const TYPE_ITEM = 'item';
 
     /**
      * Phone number column.
@@ -239,6 +244,7 @@ class Package extends Model implements AttachableContract
         'service_price',
         'discount_service_price',
         'type',
+        'order_type'
     ];
 
     /**
@@ -443,6 +449,11 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function motoBikes(): HasOne
+    {
+        return $this->hasOne(MotorBike::class, 'package_id', 'id');
+    }
+
     public function tarif(): HasMany
     {
         return $this->hasMany(\App\Models\Price::class, 'destination_id', 'destination_sub_district_id');
@@ -575,7 +586,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -712,7 +723,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (! $transporterType) {
+        if (!$transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -732,5 +743,16 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(\App\Models\Partners\Performances\Package::class, 'package_id', 'id')
             ->where('status', PerformanceModel::STATUS_ON_PROCESS)
             ->orderBy('created_at', 'desc');
+    }
+
+    public function getOrderTypeAttribute()
+    {
+        $motoBikes = $this->motoBikes()->first();
+
+        if (is_null($motoBikes)) {
+            return self::TYPE_ITEM;
+        } else {
+            return self::TYPE_BIKE;
+        }
     }
 }

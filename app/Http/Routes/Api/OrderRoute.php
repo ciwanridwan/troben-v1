@@ -7,6 +7,7 @@ use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
 use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Http\Controllers\Api\Order\OrderController;
+use App\Http\Controllers\Partner\CustomerService\Home\Order\WalkinController;
 
 class OrderRoute extends BaseRoute
 {
@@ -34,6 +35,11 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('/motorbike/store'), [
             'as' => $this->name('store-motorbike'),
             'uses' => $this->uses('store', MotorBikeController::class),
+        ]);
+
+        $this->router->post($this->prefix('/motorbike/store/item/{package_hash}'), [
+            'as' => $this->name('store.motorbike.item'),
+            'uses' => $this->uses('storeItem', MotorBikeController::class),
         ]);
 
         $this->router->get($this->prefix('find/{code_content}'), [
@@ -119,6 +125,12 @@ class OrderRoute extends BaseRoute
         $this->router->get($this->prefix('ship/schedule'), [
             'as' => $this->name('shipSchedule'),
             'uses' => $this->uses('shipSchedule'),
+        ]);
+
+        /**Temporary url */
+        $this->router->post($this->prefix('walkin'), [
+            'as' => $this->name('walkin'),
+            'uses' => $this->uses('store', WalkinController::class),
         ]);
     }
 

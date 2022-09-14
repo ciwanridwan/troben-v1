@@ -7,6 +7,7 @@ use App\Models\Packages\Package;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
+use App\Models\Packages\MotorBike;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,11 +25,11 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (! $this->resource->relationLoaded('updated_by')) {
+        if (!$this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
 
-        if (! $this->resource->relationLoaded('code')) {
+        if (!$this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -47,14 +48,14 @@ class PackageResource extends JsonResource
         if ($this->resource->relationLoaded('partner_performance')) {
             if ($this->resource->partner_performance) {
                 $dataPerformance = [
-                'level' => $this->resource->partner_performance->level,
-                'deadline_time' => $this->resource->partner_performance->deadline
-            ];
+                    'level' => $this->resource->partner_performance->level,
+                    'deadline_time' => $this->resource->partner_performance->deadline
+                ];
             } else {
                 $dataPerformance = [
-                'level' => null,
-                'deadline_time' => null
-            ];
+                    'level' => null,
+                    'deadline_time' => null
+                ];
             }
             $this->resource->unsetRelation('partner_performance');
         }
@@ -63,10 +64,10 @@ class PackageResource extends JsonResource
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district) : null,
-            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
+            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)
         ]);
 
-        if (! empty($dataPerformance)) {
+        if (!empty($dataPerformance)) {
             $data = array_merge($data, $dataPerformance);
         }
 
@@ -78,6 +79,38 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        return $data;
+        if (!$this->resource->motoBikes()) {
+            $this->resource->load('motoBikes');
+        }
+
+        /**Set type bike or item */
+        if ($data['moto_bikes'] !== null) {
+            $data['type'] = 'bike';
+        } else {
+            $data['type'] = 'item';
+        }
+
+        /**New script for response */
+        $result = [
+            'hash' => $data['hash'],
+            'created_at' => $data['created_at'],
+            'content' => $data['code']['content'],
+            'origin_regency' => $data['origin_regency']['name'],
+            'destination_regency' => $data['destination_regency']['name'],
+            'status' => $data['status'],
+            'type' => $data['type'],
+            'picked_up_by' => null,
+        ];
+
+        if (isset($data['picked_up_by'])) {
+            $result['picked_up_by'] = [
+                'code' => $data['picked_up_by']['code'],
+                'contact_email' => $data['picked_up_by']['contact_email'],
+                'contact_phone' => $data['picked_up_by']['contact_phone'],
+                'address' => $data['picked_up_by']['address'],
+            ];
+        }
+
+        return $result;
     }
 }
