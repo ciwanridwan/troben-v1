@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 use App\Concerns\Controllers\HasResource;
 use App\Events\Partners\Balance\WithdrawalRequested;
 use App\Exports\WithdrawalExport;
-use App\Http\Controllers\Api\Internal\FinanceController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\UserBankResource;
 use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
@@ -24,12 +23,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use Str;
-use function PHPUnit\Framework\isNull;
 
 class WithdrawalController extends Controller
 {
@@ -108,7 +104,7 @@ class WithdrawalController extends Controller
             event(new WithdrawalRequested($job->withdrawal));
 
             return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
-        } else if (!empty($withdrawal)) {
+        } elseif (! empty($withdrawal)) {
             if ($currentDate < $withdrawal->expired_at) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
@@ -232,9 +228,9 @@ class WithdrawalController extends Controller
             ->leftJoin('partner_balance_disbursement as pbd', 'disbursment_histories.disbursment_id', '=', 'pbd.id')
             ->where('pbd.partner_id', $withdrawal->partner_id)->where('disbursment_histories.disbursment_id', $withdrawal->id)
             ->get()->map(function ($row, $index) {
-            $row->no = $index + 1;
-            return $row;
-        });
+                $row->no = $index + 1;
+                return $row;
+            });
 
         return (new WithdrawalExport($result))->download('Withdrawal-Histories.xlsx');
     }

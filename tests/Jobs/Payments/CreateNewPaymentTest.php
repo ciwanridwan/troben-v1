@@ -36,7 +36,6 @@ class CreateNewPaymentTest extends TestCase
      */
     public function test_on_create_payment()
     {
-
         /** @var Package $package */
         $package = Package::all()->random()->first();
         /** @var Authenticatable $customer */

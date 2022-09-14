@@ -19,7 +19,6 @@ class TermAndConditionRoute extends BaseRoute
      *
      * @var string
      */
-
     protected $name = 'api.term.conditions';
     /**
      * Register routes handled by this class.
@@ -32,7 +31,7 @@ class TermAndConditionRoute extends BaseRoute
             'as' => $this->name('index'),
             'uses' => $this->uses('index'),
         ]);
-        
+
         $this->router->post($this->prefix('/store'), [
             'as' => $this->name('store'),
             'uses' => $this->uses('store'),

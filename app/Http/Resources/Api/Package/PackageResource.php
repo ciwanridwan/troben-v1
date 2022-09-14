@@ -112,6 +112,5 @@ class PackageResource extends JsonResource
         }
 
         return $result;
-        // return $data;
     }
 }

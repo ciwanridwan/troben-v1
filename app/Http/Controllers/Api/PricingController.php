@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Models\Partners\ScheduleTransportation;
 use App\Supports\Geo;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
 class PricingController extends Controller
@@ -79,11 +78,15 @@ class PricingController extends Controller
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
             $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
 
             $origin_regency_id = $resultOrigin['regency'];
             $destination_id = $resultDestination['district'];
@@ -126,7 +129,9 @@ class PricingController extends Controller
 
         $coordLocation = sprintf('%s,%s', $request->get('location_lat'), $request->get('location_lon'));
         $resultLocation = Geo::getRegional($coordLocation);
-        if ($resultLocation == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
+        if ($resultLocation == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
+        }
 
         return (new Response(Response::RC_SUCCESS, $resultLocation))->json();
     }
@@ -214,11 +219,15 @@ class PricingController extends Controller
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
             $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
 
             $origin_regency_id = $resultOrigin['regency'];
             $destination_regency_id = $resultDestination['regency'];
