@@ -3,7 +3,7 @@
 namespace App\Jobs\Packages\Motobikes;
 
 
-use Illuminate\Contracts\Queue\ShouldQueue;
+
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
@@ -13,6 +13,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
 use App\Casts\Package\Items\Handling;
 use App\Events\Packages\WalkinPackageBikeCreated;
+use App\Models\Packages\MotorBike;
 use Illuminate\Support\Facades\Validator;
 
 class CreateWalkinOrderTypeBike
@@ -41,6 +42,14 @@ class CreateWalkinOrderTypeBike
      */
     protected array $items;
 
+
+    /**
+     * Package bikes array.
+     *
+     * @var array
+     */
+    protected array $bikes;
+
     /**
      * Item separation flag.
      *
@@ -63,7 +72,7 @@ class CreateWalkinOrderTypeBike
      *
      * @return void
      */
-    public function __construct(array $inputs, array $items, bool $isSeparate = false)
+    public function __construct(array $inputs, array $items, bool $isSeparate = false, array $bikes)
     {
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
@@ -85,7 +94,7 @@ class CreateWalkinOrderTypeBike
             'receiver_longitude' => ['nullable'],
 
             'handling' => ['nullable', 'array'],
-            'handling.*' => ['string', Rule::in(Handling::getTypes())],
+            'handling.*' => ['string', Rule::in(Handling::TYPE_WOOD)],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
@@ -97,20 +106,31 @@ class CreateWalkinOrderTypeBike
             '*.qty' => ['nullable', 'numeric'],
             '*.name' => 'required',
             '*.desc' => 'nullable',
-            '*.weight' => ['nullable', 'numeric'],
-            '*.height' => ['nullable', 'numeric'],
-            '*.length' => ['nullable', 'numeric'],
-            '*.width' => ['nullable', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+            '*.handling.*' => ['string', Rule::in(Handling::TYPE_WOOD)],
+            '*.height' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.length' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.width' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.weight' => ['nullable', 'numeric'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
+
+        $this->bikes = Validator::make($bikes, [
+            "moto_cc" => ['required', 'numeric'],
+            "moto_type" => ['required', 'in:kopling,gigi,matic'],
+            "moto_merk" => ['required'],
+            "moto_year" => ['required', 'numeric'],
+            "package_id" => ['required', 'exists:packages,id'],
+            "package_item_id" => ['required', 'exists:package_items,id']
+        ]);
 
         $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
+        $this->motoBike = new MotorBike();
+
         Log::info('prepared finished. ', [$this->attributes['sender_name']]);
     }
 
@@ -138,12 +158,20 @@ class CreateWalkinOrderTypeBike
             foreach ($this->items as $attributes) {
                 $item = new Item();
                 $attributes['package_id'] = $this->package->id;
+                $item->qty = 1;
+                $item->weight = 0;
 
                 $item->fill($attributes);
                 $item->save();
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
+
+            $this->motoBike->fill($this->bikes);
+            $this->motoBike->package_id = $this->package->id;
+            $this->motoBike->package_item_id = $item->id;
+            $this->motoBike->save();
+
             event(new WalkinPackageBikeCreated($this->package, $this->attributes['partner_code']));
         }
         return $this->package->exists;

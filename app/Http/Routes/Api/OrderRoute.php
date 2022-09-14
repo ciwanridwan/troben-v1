@@ -128,7 +128,7 @@ class OrderRoute extends BaseRoute
         ]);
 
         /**Temporary url */
-        $this->router->get($this->prefix('walkin'), [
+        $this->router->post($this->prefix('walkin'), [
             'as' => $this->name('walkin'),
             'uses' => $this->uses('store', WalkinController::class),
         ]);
