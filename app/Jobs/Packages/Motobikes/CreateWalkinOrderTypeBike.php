@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Jobs\Packages\Motobikes;
+
+
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\Geo\Regency;
+use App\Models\Packages\Item;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+use App\Models\Packages\Package;
+use App\Models\Partners\Transporter;
+use App\Casts\Package\Items\Handling;
+use App\Events\Packages\WalkinPackageBikeCreated;
+use Illuminate\Support\Facades\Validator;
+
+class CreateWalkinOrderTypeBike
+{
+    use Dispatchable;
+
+    public const MIN_TOL = .3;
+
+    /**
+     * Package instance.
+     *
+     * @var \App\Models\Packages\Package
+     */
+    public Package $package;
+    /**
+     * Package attributes.
+     *
+     * @var array
+     */
+    protected array $attributes;
+
+    /**
+     * Package items array.
+     *
+     * @var array
+     */
+    protected array $items;
+
+    /**
+     * Item separation flag.
+     *
+     * @var bool
+     */
+    protected bool $isSeparate;
+
+    /**
+     * CreateNewPackage constructor.
+     *
+     * @param array $inputs
+     * @param array $items
+     * @param bool  $isSeparate
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct(array $inputs, array $items, bool $isSeparate = false)
+    {
+        $this->attributes = Validator::make($inputs, [
+            'customer_id' => ['required', 'exists:customers,id'],
+            'service_code' => ['required', 'exists:services,code'],
+            'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
+            'sender_name' => ['required'],
+            'sender_phone' => ['required'],
+            'sender_address' => ['nullable'],
+            'sender_way_point' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
+            'partner_code' => ['required'],
+
+            'receiver_name' => ['required'],
+            'receiver_phone' => ['required'],
+            'receiver_address' => ['required'],
+            'receiver_way_point' => ['nullable'],
+            'receiver_latitude' => ['nullable'],
+            'receiver_longitude' => ['nullable'],
+
+            'handling' => ['nullable', 'array'],
+            'handling.*' => ['string', Rule::in(Handling::getTypes())],
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+        ])->validate();
+        Log::info('validate package success', [$this->attributes['sender_name']]);
+
+        $this->items = Validator::make($items, [
+            '*.qty' => ['nullable', 'numeric'],
+            '*.name' => 'required',
+            '*.desc' => 'nullable',
+            '*.weight' => ['nullable', 'numeric'],
+            '*.height' => ['nullable', 'numeric'],
+            '*.length' => ['nullable', 'numeric'],
+            '*.width' => ['nullable', 'numeric'],
+            '*.is_insured' => ['nullable', 'boolean'],
+            '*.price' => ['required_if:*.is_insured,true', 'numeric'],
+            '*.handling' => ['nullable', 'array'],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+        ])->validate();
+        Log::info('validate package items success', [$this->attributes['sender_name']]);
+
+        $this->items = $items;
+        $this->isSeparate = $isSeparate;
+        $this->package = new Package();
+        Log::info('prepared finished. ', [$this->attributes['sender_name']]);
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        Log::info('Running job. ', [$this->attributes['sender_name']]);
+        if (is_null($this->attributes['sender_address'])) {
+            /** @var Regency $regency */
+            $regency = Regency::query()->find($this->attributes['origin_regency_id']);
+            $this->attributes['sender_address'] = $regency->name.', '.$regency->province->name;
+        }
+
+        $this->package->fill($this->attributes);
+        $this->package->is_separate_item = $this->isSeparate;
+        $this->package->created_by = auth()->user()->id;
+        $this->package->save();
+        Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
+
+        if ($this->package->exists) {
+            foreach ($this->items as $attributes) {
+                $item = new Item();
+                $attributes['package_id'] = $this->package->id;
+
+                $item->fill($attributes);
+                $item->save();
+            }
+            Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
+            Log::info('triggering event. ', [$this->attributes['sender_name']]);
+            event(new WalkinPackageBikeCreated($this->package, $this->attributes['partner_code']));
+        }
+        return $this->package->exists;
+    }
+}

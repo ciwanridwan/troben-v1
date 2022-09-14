@@ -82,6 +82,12 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
+
+        WalkinPackageBikeCreated::class => [
+            GeneratePackageBikePrices::class,
+            WriteCodeLog::class
+        ],
+
         PackageUpdated::class => [
             UpdatePackageTotalWeightByEvent::class,
             UpdatePackageStatusByEvent::class,
@@ -275,6 +281,7 @@ class EventServiceProvider extends ServiceProvider
         PackageBikeCreated::class => [
             GeneratePackagePickupPrices::class,
             GeneratePackageBikePrices::class,
+            WriteCodeLog::class
         ],
     ];
 

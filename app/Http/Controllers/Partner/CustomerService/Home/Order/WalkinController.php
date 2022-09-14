@@ -12,6 +12,7 @@ use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
 use App\Models\Customers\Customer;
 use App\Models\Geo\Province;
 use App\Models\Packages\Package;
@@ -26,6 +27,8 @@ use libphonenumber\PhoneNumberUtil;
 
 class WalkinController extends Controller
 {
+    protected string $bike = 'bike';
+
     public function create(Request $request, PartnerRepository $partnerRepository)
     {
         if ($request->expectsJson()) {
@@ -47,7 +50,8 @@ class WalkinController extends Controller
         $request->validate([
             'items' => ['required'],
             'photos' => ['required'],
-            'photos.*' => ['required', 'image']
+            'photos.*' => ['required', 'image'],
+            'order_type'=> ['nullable', 'in:bike,other'], // for check condition bike or not
         ]);
 
         $inputs = $request->except('photos');
@@ -74,8 +78,12 @@ class WalkinController extends Controller
         foreach ($items as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();
         }
-        
-        $job = new CreateWalkinOrder($inputs, $items);
+
+        if ($request->input('order_type') === $this->bike) {
+            $job = new CreateWalkinOrderTypeBike($inputs, $item);
+        } else {
+            $job = new CreateWalkinOrder($inputs, $items);
+        }
 
         $this->dispatchNow($job);
 
