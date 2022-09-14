@@ -62,7 +62,10 @@ class HomeController extends Controller
 
     public function dataRelation()
     {
-        $this->query->with(['items', 'prices', 'payments', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments']);
+        $this->query->with(
+            ['items', 'prices', 'payments', 'items.prices', 'origin_regency',
+            'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
+            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']);
         // $this->query->orderBy('status','desc');
 
         return $this;

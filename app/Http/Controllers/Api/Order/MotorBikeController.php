@@ -228,6 +228,7 @@ class MotorBikeController extends Controller
 
         $partner = Partner::where('code', $request->input('partner_code'))->first();
         $transporters = $partner->transporters()->where('type', $request->input('transporter_type'))->first();
+
         if (is_null($transporters)) {
             $message = ['message' => 'Mitra tidak menyediakan armada yang anda pilih, silahkan pilih type armada yang lain'];
 

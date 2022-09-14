@@ -64,7 +64,7 @@ class PackageResource extends JsonResource
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district) : null,
-            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district) 
+            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)
         ]);
 
         if (!empty($dataPerformance)) {
@@ -101,7 +101,7 @@ class PackageResource extends JsonResource
             'type' => $data['type'],
             'picked_up_by' => null,
         ];
-        
+
         if (isset($data['picked_up_by'])) {
             $result['picked_up_by'] = [
                 'code' => $data['picked_up_by']['code'],
