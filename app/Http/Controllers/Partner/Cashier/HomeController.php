@@ -65,7 +65,7 @@ class HomeController extends Controller
                 );
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
             $this->attributes = $request->validate($this->rules);
 
@@ -152,7 +152,7 @@ class HomeController extends Controller
             return $this->getPartners($request);
         }
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
         });
 
         $this->query->where($status_condition);
@@ -176,7 +176,7 @@ class HomeController extends Controller
             $this->query->where('status', '!=', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -199,7 +199,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_CANCEL);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -222,7 +222,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);

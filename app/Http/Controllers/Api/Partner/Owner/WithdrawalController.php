@@ -18,14 +18,12 @@ use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
-use Google\Cloud\Storage\Connection\Rest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 
 class WithdrawalController extends Controller
 {
@@ -92,7 +90,6 @@ class WithdrawalController extends Controller
         $currentDate = Carbon::now();
 
         if (is_null($withdrawal)) {
-
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
             $request['expired_at'] = $expiredTime;
@@ -124,13 +121,13 @@ class WithdrawalController extends Controller
         }
     }
 
-    public function attachmentTransfer(Request $request,Withdrawal $wd,$id): JsonResponse
+    public function attachmentTransfer(Request $request, Withdrawal $wd, $id): JsonResponse
     {
         $request->validate([
             'attachment_transfer' => ['required','image','mimes:png,jpg,jpeg']
         ]);
-        $withdrawal = Withdrawal::where('id',$id)->first();
-        if($withdrawal->status == Withdrawal::STATUS_APPROVED) {
+        $withdrawal = Withdrawal::where('id', $id)->first();
+        if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
             $path = 'attachment_transfer';
             $attachment_extension = $attachment->getClientOriginalExtension();
@@ -147,9 +144,9 @@ class WithdrawalController extends Controller
                 'attachment' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60))
                 // 'attachment_transfer' => $fileName,
             ];
-            return (new Response(Response::RC_CREATED,$data))->json();
+            return (new Response(Response::RC_CREATED, $data))->json();
         } else {
-            return (new Response(Response::RC_INVALID_DATA,[]))->json();
+            return (new Response(Response::RC_INVALID_DATA, []))->json();
         }
     }
 

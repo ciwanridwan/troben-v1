@@ -7,7 +7,6 @@ use App\Models\Packages\Package;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
-use App\Models\Packages\MotorBike;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -25,11 +24,11 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('updated_by')) {
+        if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
 
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -67,7 +66,7 @@ class PackageResource extends JsonResource
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)
         ]);
 
-        if (!empty($dataPerformance)) {
+        if (! empty($dataPerformance)) {
             $data = array_merge($data, $dataPerformance);
         }
 
@@ -79,7 +78,7 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (!$this->resource->motoBikes()) {
+        if (! $this->resource->motoBikes()) {
             $this->resource->load('motoBikes');
         }
 

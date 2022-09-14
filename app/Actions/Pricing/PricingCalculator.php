@@ -107,7 +107,7 @@ class PricingCalculator
         $pickup_price = $package->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->get()->sum('amount');
 
         $handlingBikePrices = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', Handling::TYPE_BIKES)->get()->sum('amount');
-        
+
         if ($is_approved == true) {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices - ($pickup_discount_price + $service_discount_price);
         } else {
@@ -599,6 +599,16 @@ class PricingCalculator
         return $default;
     }
 
+    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
+        $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
+
+        return $price;
+    }
+
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
@@ -610,15 +620,5 @@ class PricingCalculator
         }
 
         return $handling;
-    }
-
-    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
-    {
-        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-
-        $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
-
-        return $price;
     }
 }

@@ -13,7 +13,7 @@ class BikePrices extends Model
     public const MIDDLE_CC = '151-250';
     public const HIGH_CC = '999';
 
-    
+
 
     protected $table = 'bike_prices';
 

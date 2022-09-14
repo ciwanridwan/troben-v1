@@ -87,10 +87,12 @@ class Withdrawal extends Model
      *
      * @return string[]
      */
-
-    public function getAttachmentTransferUrlAttribute() {
+    public function getAttachmentTransferUrlAttribute()
+    {
         $attachment = $this->attributes['attachment_transfer'];
-        if($attachment == null) return null;
+        if ($attachment == null) {
+            return null;
+        }
         return Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$attachment, Carbon::now()->addMinutes(60));
     }
 
