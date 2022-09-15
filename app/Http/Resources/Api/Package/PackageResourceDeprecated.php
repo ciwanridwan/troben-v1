@@ -59,6 +59,12 @@ class PackageResourceDeprecated extends JsonResource
             $this->resource->unsetRelation('partner_performance');
         }
 
+        if (isset($this->resource['order_type']) && $this->resource['order_type'] == 'bike') {
+            $this->resource->load('motoBikes');
+        } else {
+            $this->resource['moto_bikes'] = null;
+        }
+
         $data = array_merge(parent::toArray($request), [
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
