@@ -83,7 +83,7 @@ class PackageResource extends JsonResource
         }
 
         /**Set type bike or item */
-        if ($data['moto_bikes'] !== null) {
+        if (isset($data['moto_bikes']) && $data['moto_bikes'] !== null) {
             $data['type'] = 'bike';
         } else {
             $data['type'] = 'item';
