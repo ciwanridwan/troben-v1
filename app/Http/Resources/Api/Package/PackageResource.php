@@ -47,14 +47,14 @@ class PackageResource extends JsonResource
         if ($this->resource->relationLoaded('partner_performance')) {
             if ($this->resource->partner_performance) {
                 $dataPerformance = [
-                    'level' => $this->resource->partner_performance->level,
-                    'deadline_time' => $this->resource->partner_performance->deadline
-                ];
+                'level' => $this->resource->partner_performance->level,
+                'deadline_time' => $this->resource->partner_performance->deadline
+            ];
             } else {
                 $dataPerformance = [
-                    'level' => null,
-                    'deadline_time' => null
-                ];
+                'level' => null,
+                'deadline_time' => null
+            ];
             }
             $this->resource->unsetRelation('partner_performance');
         }
@@ -63,7 +63,7 @@ class PackageResource extends JsonResource
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district) : null,
-            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)
+            'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
 
         if (! empty($dataPerformance)) {
@@ -78,38 +78,6 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (! $this->resource->motoBikes()) {
-            $this->resource->load('motoBikes');
-        }
-
-        /**Set type bike or item */
-        if (isset($data['moto_bikes']) && $data['moto_bikes'] !== null) {
-            $data['type'] = 'bike';
-        } else {
-            $data['type'] = 'item';
-        }
-
-        /**New script for response */
-        $result = [
-            'hash' => $data['hash'],
-            'created_at' => $data['created_at'],
-            'content' => $data['code']['content'],
-            'origin_regency' => $data['origin_regency']['name'],
-            'destination_regency' => $data['destination_regency']['name'],
-            'status' => $data['status'],
-            'type' => $data['type'],
-            'picked_up_by' => null,
-        ];
-
-        if (isset($data['picked_up_by'])) {
-            $result['picked_up_by'] = [
-                'code' => $data['picked_up_by']['code'],
-                'contact_email' => $data['picked_up_by']['contact_email'],
-                'contact_phone' => $data['picked_up_by']['contact_phone'],
-                'address' => $data['picked_up_by']['address'],
-            ];
-        }
-
-        return $result;
+        return $data;
     }
 }
