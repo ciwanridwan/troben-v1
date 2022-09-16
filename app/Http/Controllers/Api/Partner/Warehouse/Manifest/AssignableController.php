@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Resources\Api\Transporter\TransporterDriverResource;
 
 class AssignableController extends Controller
@@ -87,6 +88,6 @@ class AssignableController extends Controller
 
         $query->with('estimator', 'packager', 'items', 'partner_performance');
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
+        return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
 }

@@ -153,7 +153,7 @@ class PricingCalculator
             'items.*.qty' => ['required', 'numeric'],
             'items.*.handling' => ['nullable']
         ]);
-        
+
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);

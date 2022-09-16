@@ -30,7 +30,7 @@ class GeneratePackagePickupPrices
         $partner = Partner::where('code', $event->partner_code)->first();
         $destination = $partner->latitude.', '.$partner->longitude;
         $distance = DistanceMatrix::calculateDistance($origin, $destination);
-        
+
         if ($package->transporter_type == null) {
             $pickup_price = 0;
         } elseif ($package->transporter_type == Transporter::GENERAL_TYPE_BIKE) {
@@ -48,7 +48,7 @@ class GeneratePackagePickupPrices
                 $pickup_price = 15000 + (4000 * $substraction);
             }
         }
-        
+
         // generate pickup price
         $job = new UpdateOrCreatePriceFromExistingPackage($package, [
             'type' => Price::TYPE_DELIVERY,

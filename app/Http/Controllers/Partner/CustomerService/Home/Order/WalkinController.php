@@ -145,7 +145,6 @@ class WalkinController extends Controller
 
     public function checkPrice(Request $request, Partner $partner): JsonResponse
     {
-
         /** @var Regency $regency */
         $regency = $partner->regency;
 

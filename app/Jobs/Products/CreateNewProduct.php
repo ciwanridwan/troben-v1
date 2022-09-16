@@ -72,7 +72,6 @@ class CreateNewProduct
         $this->product->fill($this->attributes);
 
         if ($this->product->save()) {
-
 //            if (isset($attachment)) {
 //                $this->product->attachments()->attach($attachment->id);
 //            }

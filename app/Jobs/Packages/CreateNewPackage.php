@@ -145,7 +145,6 @@ class CreateNewPackage
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            // event(new WalkinPackageCreated($this->package, $this->attributes['partner_code']));
             event(new PackageCreated($this->package, $this->attributes['partner_code']));
         }
         return $this->package->exists;

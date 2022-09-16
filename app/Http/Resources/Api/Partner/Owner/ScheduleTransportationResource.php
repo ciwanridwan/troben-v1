@@ -20,7 +20,6 @@ class ScheduleTransportationResource extends JsonResource
      */
     public function toArray($request)
     {
-
         /** @var ScheduleTransportation $this */
         $data = [
             'id' => $this->id,

@@ -170,7 +170,7 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\RepositoryRegistrarServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        
+
 
         /*
          * Application Service Providers...

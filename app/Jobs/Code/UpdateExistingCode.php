@@ -33,7 +33,6 @@ class UpdateExistingCode
     public function handle()
     {
         switch (true) {
-
             case $this->model instanceof Item:
                 $codes = $this->model->codes;
 

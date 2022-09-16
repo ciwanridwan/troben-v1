@@ -11,7 +11,7 @@ class MotorBike extends Model
 
     protected $table = 'package_bikes';
 
-    protected $fillable = 
+    protected $fillable =
     [
         'type',
         'merk',
@@ -32,7 +32,7 @@ class MotorBike extends Model
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
     }
-    
+
     public function packageItems()
     {
         return $this->belongsTo(Package::class, 'package_item_id', 'id');
