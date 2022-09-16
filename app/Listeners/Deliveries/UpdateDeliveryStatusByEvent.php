@@ -34,7 +34,7 @@ class UpdateDeliveryStatusByEvent
             case $event instanceof PackageCanceledByDriver:
                 $user = auth()->user();
                 $event->delivery->setAttribute('type', Delivery::TYPE_PICKUP)->save();
-                $event->delivery->setAttribute('status', Delivery::STATUS_REJECTED)->save();
+                $event->delivery->setAttribute('status', Delivery::STATUS_CANCELLED)->save();
                 $event->delivery->setAttribute('updated_by', $user->id)->save();
                 break;
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:
