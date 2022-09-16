@@ -227,6 +227,13 @@ class MotorBikeController extends Controller
         $this->dispatchNow($uploadJob);
 
         $partner = Partner::where('code', $request->input('partner_code'))->first();
+        $transporters = $partner->transporters()->where('type', $request->input('transporter_type'))->first();
+
+        if (is_null($transporters)) {
+            $message = ['message' => 'Mitra tidak menyediakan armada yang anda pilih, silahkan pilih type armada yang lain'];
+
+            return (new Response(Response::RC_BAD_REQUEST, $message))->json();
+        }
 
         event(new PackageBikeCreated($package, $partner->code));
 
@@ -313,8 +320,8 @@ class MotorBikeController extends Controller
         $type = $request->get('handling');
 
         $handlingAdditionalPrice = 0;
-        $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-
+        // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
+        $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
         $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
@@ -368,6 +375,12 @@ class MotorBikeController extends Controller
 
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
 
+        return $price;
+    }
+
+    private static function getHandlingWoodPrice($type, $height, $length, $width)
+    {
+        $price = 50000;
         return $price;
     }
 }

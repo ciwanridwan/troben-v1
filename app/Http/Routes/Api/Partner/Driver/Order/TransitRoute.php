@@ -24,7 +24,6 @@ class TransitRoute extends BaseRoute
      */
     public function register()
     {
-
         // driver go to customer
         $this->router->patch($this->prefix('arrived'), [
             'as' => $this->name('arrived'),

@@ -30,5 +30,4 @@ class DisbursmentHistory extends Model
             self::STATUS_WAITING_FOR_APPROVE
         ];
     }
-    
 }

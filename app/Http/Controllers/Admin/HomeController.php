@@ -62,7 +62,10 @@ class HomeController extends Controller
 
     public function dataRelation()
     {
-        $this->query->with(['items', 'prices', 'payments', 'items.prices', 'origin_regency', 'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district', 'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments']);
+        $this->query->with(
+            ['items', 'prices', 'payments', 'items.prices', 'origin_regency',
+            'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
+            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']);
         // $this->query->orderBy('status','desc');
 
         return $this;
@@ -104,9 +107,9 @@ class HomeController extends Controller
         return view('admin.home.account-executive.team-detail');
     }
 
-    public function trawlbensCorporat(Request $request)
+    public function trawlbensCorporate(Request $request)
     {
-        return view('admin.home.form-register.trawlbens-corporat');
+        return view('admin.home.form-register.trawlbens-corporate');
     }
 
     public function mitraBisnis(Request $request)
@@ -117,6 +120,11 @@ class HomeController extends Controller
     public function mitraSpace(Request $request)
     {
         return view('admin.home.form-register.mitra-space');
+    }
+
+    public function mitraPos(Request $request)
+    {
+        return view('admin.home.form-register.mitra-pos');
     }
 
     public function mitraPoolWarehouse(Request $request)

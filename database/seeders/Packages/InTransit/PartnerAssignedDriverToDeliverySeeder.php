@@ -24,8 +24,6 @@ class PartnerAssignedDriverToDeliverySeeder extends Seeder
         $deliveries = Delivery::query()->where('type', Delivery::TYPE_TRANSIT)->where('status', Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER)->get();
 
         $deliveries->each(function (Delivery $delivery) {
-
-
             /** @var User $owner */
             $owner = $delivery->driver;
 

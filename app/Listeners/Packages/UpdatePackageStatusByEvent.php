@@ -22,6 +22,7 @@ use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageUpdated;
 use App\Models\Customers\Customer;
 use App\Events\Deliveries\Transit;
+use App\Events\Packages\PackageCanceledByDriver;
 use App\Models\User;
 use App\Models\Packages\Price as PackagesPrice;
 
@@ -73,6 +74,12 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageCanceledByCustomer || $event instanceof PackageCanceledByAdmin:
                 $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
                 $event->package->setAttribute('updated_by', User::USER_SYSTEM_ID);
+                break;
+            case $event instanceof PackageCanceledByDriver:
+                $user = auth()->user();
+                $event->delivery->packages()
+                    ->cursor()
+                    ->each(fn (Package $package) => $event->delivery->type === Delivery::TYPE_PICKUP && $package->setAttribute('status', Package::STATUS_CANCEL)->setAttribute('updated_by', $user->id)->save());
                 break;
             case $event instanceof PackageCheckedByCashier:
                 $user = auth()->user();

@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Resources\Api\Partner\VoucherAEResource;
 use App\Models\Notifications\NotificationAgent;
 use App\Models\Partners\VoucherAE;
@@ -73,7 +74,7 @@ class OrderController extends Controller
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
         $this->query->with(['items', 'items.prices', 'estimator', 'packager']);
-        return $this->jsonSuccess(PackageResource::collection($this->query->paginate($request->input('per_page'))));
+        return $this->jsonSuccess(PackageResourceDeprecated::collection($this->query->paginate($request->input('per_page'))));
     }
 
     /**

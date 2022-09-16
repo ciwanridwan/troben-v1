@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -12,7 +11,6 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use PhpOffice\PhpSpreadsheet\Style\Style;
 use Illuminate\Support\Collection;
 
 class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormatting, WithColumnWidths, WithStyles, WithMapping
@@ -22,17 +20,16 @@ class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormat
     protected $rowsData;
 
     /**
-    * @var DisbursmentHistories $withdrawal
-    */
-
+     * @var DisbursmentHistories $withdrawal
+     */
     public function __construct($rowsData)
     {
         $this->rowsData = $rowsData;
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return new Collection($this->rowsData);
@@ -68,7 +65,7 @@ class WithdrawalExport implements FromCollection, WithHeadings, WithColumnFormat
         return [
             'A' => 10,
             'B' => 25,
-            'C' => 20,            
+            'C' => 20,
         ];
     }
 

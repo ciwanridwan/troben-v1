@@ -37,13 +37,17 @@ class DistanceMatrix
 
     public static function calculateDistance(string $origin, string $destination)
     {
-        $k = DistanceMatrix::cacheKeyBuilder($origin, $destination);
+        $k = self::cacheKeyBuilder($origin, $destination);
 
-        if ($k == 'distance.invalid') return 0;
-        if (Cache::has($k)) return Cache::get($k);
+        if ($k == 'distance.invalid') {
+            return 0;
+        }
+        if (Cache::has($k)) {
+            return Cache::get($k);
+        }
 
-        $distance = DistanceMatrix::callDistanceMatrix($origin, $destination);
-        Cache::put($k, $distance, DistanceMatrix::TEN_MINUTES);
+        $distance = self::callDistanceMatrix($origin, $destination);
+        Cache::put($k, $distance, self::TEN_MINUTES);
 
         return $distance;
     }

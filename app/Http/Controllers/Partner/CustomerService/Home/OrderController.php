@@ -68,6 +68,7 @@ class OrderController extends Controller
                 'packages.destination_regency',
                 'packages.destination_district',
                 'packages.destination_sub_district',
+                'packages.attachments'
             ]);
 
             $this->getDeliveryForAssignDriver();

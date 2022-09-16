@@ -54,6 +54,7 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
 use App\Events\Packages\PackageBikeCreated;
+use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
@@ -82,6 +83,12 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
+
+        WalkinPackageBikeCreated::class => [
+            GeneratePackageBikePrices::class,
+            WriteCodeLog::class
+        ],
+
         PackageUpdated::class => [
             UpdatePackageTotalWeightByEvent::class,
             UpdatePackageStatusByEvent::class,
@@ -101,6 +108,11 @@ class EventServiceProvider extends ServiceProvider
             //
         ],
         DeliveryPickup\PackageLoadedByDriver::class => [
+            UpdateDeliveryStatusByEvent::class,
+            UpdatePackageStatusByEvent::class,
+            WriteCodeLog::class
+        ],
+        PackageCanceledByDriver::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             WriteCodeLog::class
@@ -275,6 +287,7 @@ class EventServiceProvider extends ServiceProvider
         PackageBikeCreated::class => [
             GeneratePackagePickupPrices::class,
             GeneratePackageBikePrices::class,
+            WriteCodeLog::class
         ],
     ];
 

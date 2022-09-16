@@ -24,11 +24,15 @@ class PickupRoute extends BaseRoute
      */
     public function register()
     {
-
         // driver go to customer
         $this->router->patch($this->prefix('arrived'), [
             'as' => $this->name('arrived'),
             'uses' => $this->uses('arrived'),
+        ]);
+
+        $this->router->patch($this->prefix('cancel'), [
+            'as' => $this->name('cancel'),
+            'uses' => $this->uses('cancel'),
         ]);
 
         // driver load an items from customer
