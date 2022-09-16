@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Jobs\Packages;
+namespace App\Jobs\Packages\Motobikes;
 
+
+
+use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
 use Illuminate\Support\Facades\Log;
@@ -9,11 +12,11 @@ use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
 use App\Casts\Package\Items\Handling;
-use App\Events\Packages\PackageCreated;
+use App\Events\Packages\WalkinPackageBikeCreated;
+use App\Models\Packages\MotorBike;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Bus\Dispatchable;
 
-class CreateNewPackage
+class CreateWalkinOrderTypeBike
 {
     use Dispatchable;
 
@@ -39,6 +42,14 @@ class CreateNewPackage
      */
     protected array $items;
 
+
+    /**
+     * Package bikes array.
+     *
+     * @var array
+     */
+    protected array $bikes;
+
     /**
      * Item separation flag.
      *
@@ -55,7 +66,13 @@ class CreateNewPackage
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(array $inputs, array $items, bool $isSeparate = false)
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct(array $inputs, array $items, bool $isSeparate = false, array $bikes)
     {
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
@@ -77,7 +94,7 @@ class CreateNewPackage
             'receiver_longitude' => ['nullable'],
 
             'handling' => ['nullable', 'array'],
-            'handling.*' => ['string', Rule::in(Handling::getTypes())],
+            'handling.*' => ['string', Rule::in(Handling::TYPE_WOOD)],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
@@ -86,41 +103,43 @@ class CreateNewPackage
         Log::info('validate package success', [$this->attributes['sender_name']]);
 
         $this->items = Validator::make($items, [
-            '*.qty' => ['required', 'numeric'],
+            '*.qty' => ['nullable', 'numeric'],
             '*.name' => 'required',
             '*.desc' => 'nullable',
-            '*.weight' => ['required', 'numeric'],
-            '*.height' => ['required', 'numeric'],
-            '*.length' => ['required', 'numeric'],
-            '*.width' => ['required', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+            '*.handling.*' => ['string', Rule::in(Handling::TYPE_WOOD)],
+            '*.height' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.length' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.width' => ['required_if:*.handling.*,wood', 'numeric'],
+            '*.weight' => ['nullable', 'numeric'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
-        $items = [];
-        foreach ($this->items as $item) {
-            $item['height'] = ceil($item['height']);
-            $item['length'] = ceil($item['length']);
-            $item['width'] = ceil($item['width']);
-            $item['weight'] = $this->ceilByTolerance($item['weight']);
+        $this->bikes = Validator::make($bikes, [
+            "moto_cc" => ['required', 'numeric'],
+            "moto_type" => ['required', 'in:kopling,gigi,matic'],
+            "moto_merk" => ['required'],
+            "moto_year" => ['required', 'numeric'],
+            "package_id" => ['required', 'exists:packages,id'],
+            "package_item_id" => ['required', 'exists:package_items,id']
+        ]);
 
-            array_push($items, $item);
-        }
         $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
+        $this->motoBike = new MotorBike();
+
         Log::info('prepared finished. ', [$this->attributes['sender_name']]);
     }
 
     /**
-     * Handle the job.
+     * Execute the job.
      *
-     * @return bool
+     * @return void
      */
-    public function handle(): bool
+    public function handle()
     {
         Log::info('Running job. ', [$this->attributes['sender_name']]);
         if (is_null($this->attributes['sender_address'])) {
@@ -139,30 +158,22 @@ class CreateNewPackage
             foreach ($this->items as $attributes) {
                 $item = new Item();
                 $attributes['package_id'] = $this->package->id;
+                $item->qty = 1;
+                $item->weight = 0;
 
                 $item->fill($attributes);
                 $item->save();
             }
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            event(new PackageCreated($this->package, $this->attributes['partner_code']));
+
+            $this->motoBike->fill($this->bikes);
+            $this->motoBike->package_id = $this->package->id;
+            $this->motoBike->package_item_id = $item->id;
+            $this->motoBike->save();
+
+            event(new WalkinPackageBikeCreated($this->package, $this->attributes['partner_code']));
         }
         return $this->package->exists;
-    }
-
-
-    public static function ceilByTolerance(float $weight = 0)
-    {
-        // decimal tolerance .3
-        $whole = $weight;
-        $maj = (int) $whole; //get major
-        $min = $whole - $maj; //get after point
-
-        // check with tolerance
-        $min = (int) ($min >= self::MIN_TOL ? 1 : 0);
-
-        $weight = $maj + $min;
-
-        return $weight;
     }
 }

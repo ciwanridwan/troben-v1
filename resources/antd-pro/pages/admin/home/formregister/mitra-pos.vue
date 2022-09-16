@@ -1,7 +1,7 @@
 <template>
   <content-layout>
     <template slot="title">
-      <div class="red-color">Trawlbens Corporat</div>
+      <div class="red-color">Mitra Pos</div>
     </template>
     <template slot="content">
       <a-table
@@ -89,7 +89,7 @@ import axios from "axios";
 const data = [];
 
 export default {
-  name: "Trawlbens-Corporat",
+  name: "mitra-space",
   components: {
     ContentLayout,
   },
@@ -102,14 +102,9 @@ export default {
       searchedColumn: "",
       columns: [
         {
-          title: "Nama Perusahaan",
-          dataIndex: "name",
-          key: "name",
-        },
-        {
           title: "Nama",
-          dataIndex: "contact_person",
-          key: "contact_person",
+          dataIndex: "full_name",
+          key: "full_name",
           scopedSlots: {
             filterDropdown: "filterDropdown",
             filterIcon: "filterIcon",
@@ -156,12 +151,13 @@ export default {
       this.loading = true;
       const options = {
         method: "GET",
-        url: "https://apiv2.trawlbens.co.id/corporate",
+        url: "https://apiv2.trawlbens.co.id/mitra",
+        params: { code: "mp" },
       };
       axios
         .request(options)
         .then((res) => {
-          this.data = res.data.data;
+          this.data = res.data.data.user;
           // console.log(res.data.data.user);
           this.loading = false;
         })

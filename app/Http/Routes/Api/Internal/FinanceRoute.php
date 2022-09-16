@@ -67,7 +67,7 @@ class FinanceRoute extends BaseRoute
             'as' => $this->name('detailAjax'),
             'uses' => $this->uses('detail', FinanceController::class),
         ]);
-        
+
         $this->router->post($this->prefix('/detail/{id}/approve'), [
             'as' => $this->name('approve'),
             'uses' => $this->uses('approve', FinanceController::class),

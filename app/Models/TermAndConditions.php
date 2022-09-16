@@ -14,7 +14,7 @@ class TermAndConditions extends Model
 
 
     /**Declare attribute can be filled */
-    protected $fillable = 
+    protected $fillable =
     [
         'title',
         'content',
@@ -23,7 +23,7 @@ class TermAndConditions extends Model
     ];
 
     /** Declaring hidden attributes when showing in json */
-    protected $hidden = 
+    protected $hidden =
     [
         'created_at',
         'updated_at'

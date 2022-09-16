@@ -762,7 +762,7 @@ class PricingCalculator
     {
         $price = CubicPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
         $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
-        
+
         throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
 
         return $price;
@@ -807,7 +807,7 @@ class PricingCalculator
                 'handling' => !empty($packing) ? array_column($packing, 'type') : null
             ];
         }
-        
+
         foreach ($items as $item) {
             $calculateCubic = $item['height'] * $item['width'] * $item['length'] / 1000000;
             $cubic[] = $calculateCubic;
@@ -817,7 +817,7 @@ class PricingCalculator
         if ($cubicResult <= 3) {
             $cubicResult = 3;
         }
-        
+
         $servicePrice = $cubicResult * $price->amount;
 
         return $servicePrice;
