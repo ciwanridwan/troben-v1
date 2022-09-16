@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Response;
 use App\Jobs\Packages\SelectCancelPickupMethod;
+use App\Models\CancelOrder;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CancelController extends Controller
 {
@@ -18,11 +20,24 @@ class CancelController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException|\Throwable
      */
-    public function cancel(Package $package): JsonResponse
+    // public function cancel(Package $package): JsonResponse
+    // {
+    //     $this->authorize('update', $package);
+
+    //     event(new PackageCanceledByCustomer($package));
+
+    //     return $this->jsonSuccess(PackageResource::make($package->fresh()));
+    // }
+
+    public function cancel(Package $package, Request $request): JsonResponse
     {
+        $request->validate([
+            'type' => ['required', Rule::in(CancelOrder::getCancelTypes())]
+        ]);
+
         $this->authorize('update', $package);
 
-        event(new PackageCanceledByCustomer($package));
+        event(new PackageCanceledByCustomer($package, $request->type));
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -47,7 +62,7 @@ class CancelController extends Controller
         if ($package->status == 'pending' && $package->payment_status == 'draft' || $package->status == 'created' && $package->payment_status == 'draft') {
             $this->authorize('update', $package);
 
-            event(new PackageCanceledByCustomer($package));
+            event(new PackageCanceledByCustomer($package, ''));
 
             return $this->jsonSuccess(PackageResource::make($package->fresh()));
         } else {

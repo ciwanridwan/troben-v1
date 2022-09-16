@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CancelOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ class CreateCancelOrdersTable extends Migration
         Schema::create('cancel_orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('package_id');
-            $table->enum('type', []);
+            $table->enum('type', [CancelOrder::getCancelTypes()]);
             $table->timestamps();
         });
     }
