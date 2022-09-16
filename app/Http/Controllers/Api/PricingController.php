@@ -93,8 +93,8 @@ class PricingController extends Controller
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
                 'destination_id' => $destination_id,
-                'sender_latitude' => $request->get('destination_lat'),
-                'sender_longitude' => $request->get('destination_lon'),
+                'sender_latitude' => $request->get('origin_lat'),
+                'sender_longitude' => $request->get('origin_lon'),
             ]);
         }
 
