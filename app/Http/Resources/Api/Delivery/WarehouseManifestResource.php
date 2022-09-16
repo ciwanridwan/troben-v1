@@ -24,7 +24,9 @@ class WarehouseManifestResource extends DeliveryResource
         $itemCodes = $this->resource->item_codes->groupBy(fn (Code $code) => $code->codeable->package_id);
 
         $this->resource->packages->each(
-            fn (Package $package) => $package->setRelation('item_codes', $itemCodes->get($package->id))
+            fn (Package $package) => $package
+                ->setRelation('item_codes', $itemCodes->get($package->id))
+                ->load('motoBikes')
         );
 
         return parent::toArray($request);
