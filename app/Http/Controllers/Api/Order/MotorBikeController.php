@@ -320,8 +320,8 @@ class MotorBikeController extends Controller
         $type = $request->get('handling');
 
         $handlingAdditionalPrice = 0;
-        $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-
+        // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
+        $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
         $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
@@ -375,6 +375,12 @@ class MotorBikeController extends Controller
 
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
 
+        return $price;
+    }
+
+    private static function getHandlingWoodPrice($type, $height, $length, $width)
+    {
+        $price = 50000;
         return $price;
     }
 }
