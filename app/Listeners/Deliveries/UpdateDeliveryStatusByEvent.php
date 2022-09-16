@@ -9,6 +9,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
+use App\Events\Packages\PackageCanceledByDriver;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class UpdateDeliveryStatusByEvent
@@ -28,6 +29,12 @@ class UpdateDeliveryStatusByEvent
                 $user = auth()->user();
                 $event->delivery->setAttribute('type', Delivery::TYPE_PICKUP)->save();
                 $event->delivery->setAttribute('status', Delivery::STATUS_EN_ROUTE)->save();
+                $event->delivery->setAttribute('updated_by', $user->id)->save();
+                break;
+            case $event instanceof PackageCanceledByDriver:
+                $user = auth()->user();
+                $event->delivery->setAttribute('type', Delivery::TYPE_PICKUP)->save();
+                $event->delivery->setAttribute('status', Delivery::STATUS_REJECTED)->save();
                 $event->delivery->setAttribute('updated_by', $user->id)->save();
                 break;
             case $event instanceof Pickup\DriverUnloadedPackageInWarehouse:

@@ -30,6 +30,11 @@ class PickupRoute extends BaseRoute
             'uses' => $this->uses('arrived'),
         ]);
 
+        $this->router->patch($this->prefix('cancel'), [
+            'as' => $this->name('cancel'),
+            'uses' => $this->uses('cancel'),
+        ]);
+
         // driver load an items from customer
         $this->router->patch($this->prefix('loaded'), [
             'as' => $this->name('loaded'),
