@@ -37,9 +37,15 @@ class CancelController extends Controller
 
         $this->authorize('update', $package);
 
-        event(new PackageCanceledByCustomer($package, $request->type));
+        event(new PackageCanceledByCustomer($package));
 
-        return $this->jsonSuccess(PackageResource::make($package->fresh()));
+        $data = new CancelOrder();
+        $data->package_id = $package->id;
+        $data->type = $request->input('type');
+        $data->save();
+
+        // return $this->jsonSuccess(PackageResource::make($package->fresh()));
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     /**

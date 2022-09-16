@@ -74,7 +74,6 @@ class UpdatePackageStatusByEvent
             case $event instanceof PackageCanceledByCustomer || $event instanceof PackageCanceledByAdmin:
                 $event->package->setAttribute('status', Package::STATUS_CANCEL)->save();
                 $event->package->setAttribute('updated_by', User::USER_SYSTEM_ID);
-                dd($event->type);
                 break;
             case $event instanceof PackageCanceledByDriver:
                 $user = auth()->user();
