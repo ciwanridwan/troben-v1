@@ -124,8 +124,6 @@ export default {
       if (!e.target.value) {
         this.form.type = "independent";
       }
-      console.log("radio checked", e.target.value);
-      console.log("form", this.form);
     },
     searchTransporter: _.debounce(async function () {
       this.loading = true;
