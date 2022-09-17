@@ -77,19 +77,19 @@ class PricingController extends Controller
             ]);
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-            $resultOrigin = Geo::getRegional($coordOrigin);
+            $resultOrigin = Geo::getRegional($coordOrigin, true);
             if ($resultOrigin == null) {
                 throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-            $resultDestination = Geo::getRegional($coordDestination);
+            $resultDestination = Geo::getRegional($coordDestination, true);
             if ($resultDestination == null) {
                 throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
             }
 
             $origin_regency_id = $resultOrigin['regency'];
-            $destination_id = $resultDestination['district'];
+            $destination_id = $resultDestination['subdistrict'];
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
                 'destination_id' => $destination_id,
