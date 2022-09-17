@@ -65,12 +65,15 @@
             </a-col>
           </a-row>
           <a-divider />
+
           <a-row type="flex">
             <a-col :span="16">
               <span class="trawl-text-bolder"> Total Charge Weight </span>
             </a-col>
             <a-col :span="8">
-              <span class="trawl-text-bolder"> {{ totalWeight }} Kg </span>
+              <span class="trawl-text-bolder">
+                {{ isMotorBike ? "-" : `${totalWeight} Kg` }}
+              </span>
             </a-col>
             <a-col :span="16">
               <span class="trawl-text-bolder"> Total Biaya </span>
@@ -134,6 +137,9 @@ export default {
     },
     getPaymentStatus() {
       return this.package?.payment_status;
+    },
+    isMotorBike() {
+      return this.package?.moto_bikes;
     },
   },
   methods: {
