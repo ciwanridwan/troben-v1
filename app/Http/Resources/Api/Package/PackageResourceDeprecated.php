@@ -28,6 +28,10 @@ class PackageResourceDeprecated extends JsonResource
             $this->resource->load('updated_by');
         }
 
+        if (! $this->resource->relationLoaded('fileuploads')) {
+            $this->resource->load('fileuploads');
+        }
+
         if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
