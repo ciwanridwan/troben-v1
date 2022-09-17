@@ -7,7 +7,7 @@
     @changeSizePage="changeSizePage"
   >
     <template v-if="record.driver" slot="driver" slot-scope="{ record }">
-      <span  class="trawl-text-bold"> {{ record.driver.partners[0].code }}</span>
+      <span class="trawl-text-bold"> {{ record.driver.partners[0].code }}</span>
       <p>Tarif Rp. 2000 / Kg</p>
     </template>
     <template slot="manifest" slot-scope="{ record }">
@@ -16,54 +16,67 @@
           {{ record.code.content }}
         </span>
         <span>
-         <a-timeline :class="['trawl-timeline']">
-        <a-timeline-item color="green">
-          <template v-if="record.origin_partner">
-            <span class="trawl-text-bold"> {{ record.origin_partner.address }}</span>
-          </template>
-        </a-timeline-item>
-        <a-timeline-item color="green">
-          <template v-if="record.partner">
-            <span class="trawl-text-bold"> {{ record.partner.address }}</span>
-          </template>
-        </a-timeline-item>
-      </a-timeline>
+          <a-timeline :class="['trawl-timeline']">
+            <a-timeline-item color="green">
+              <template v-if="record.origin_partner">
+                <span class="trawl-text-bold">
+                  {{ record.origin_partner.address }}</span
+                >
+              </template>
+            </a-timeline-item>
+            <a-timeline-item color="green">
+              <template v-if="record.partner">
+                <span class="trawl-text-bold">
+                  {{ record.partner.address }}</span
+                >
+              </template>
+            </a-timeline-item>
+          </a-timeline>
         </span>
-        <span class="trawl-text-bold">Berat Aktual : {{ record.weight_borne_total }} Kg</span>
+        <span class="trawl-text-bold"
+          >Berat Aktual : {{ record.weight_borne_total }} Kg</span
+        >
         <span> </span>
       </a-space>
     </template>
 
     <template slot="detail" slot-scope="{ record }">
       <span class="trawl-text-bolder">Full Customer Payment</span>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <span>
-        <li >
-          Biaya Pengantaran
-        </li>
+        <li>Biaya Pengantaran</li>
       </span>
     </template>
 
     <template slot="balance" slot-scope="{ record }">
-      <span class="trawl-text-bolder">{{ currency(record.packages.reduce((acc, curr) => acc + curr.total_amount, 0)) }}</span>
-      <br/>
-      <br/>
+      <span class="trawl-text-bolder">{{
+        currency(
+          record.packages.reduce((acc, curr) => acc + curr.total_amount, 0)
+        )
+      }}</span>
+      <br />
+      <br />
       <span>
-          <li>
-            {{ currency(record.packages.reduce((acc, curr) => acc + curr.transporter_funds, 0)) }}
-          </li>
+        <li>
+          {{
+            currency(
+              record.packages.reduce(
+                (acc, curr) => acc + curr.transporter_funds,
+                0
+              )
+            )
+          }}
+        </li>
       </span>
     </template>
 
     <span slot="expandedRowRender" slot-scope="{ record }">
       <a-row type="flex" justify="space-between">
+        <a-col :span="5"> </a-col>
         <a-col :span="5">
-
-        </a-col>
-        <a-col :span="5">
-            <span class="trawl-text-bold">Daftar Resi</span>
-          <br/>
+          <span class="trawl-text-bold">Daftar Resi</span>
+          <br />
           <span>
             <li v-for="item in record.packages" :key="item.message">
               {{ item.code.content }}
@@ -71,8 +84,8 @@
           </span>
         </a-col>
         <a-col :span="5">
-            <span class="trawl-text-bold">Berat Aktual</span>
-          <br/>
+          <span class="trawl-text-bold">Berat Aktual</span>
+          <br />
           <span>
             <li v-for="item in record.packages" :key="item.message">
               {{ item.total_weight }} Kg
@@ -80,7 +93,7 @@
           </span>
         </a-col>
         <a-col :span="5">
-          <br/>
+          <br />
           <span>
             <li v-for="item in record.packages" :key="item.message">
               {{ currency(item.transporter_funds) }}
@@ -88,7 +101,7 @@
           </span>
         </a-col>
         <a-col :span="4">
-          <br/>
+          <br />
           <span>
             <li v-for="item in record.packages" :key="item.message">
               {{ item.created_at }}
@@ -108,7 +121,6 @@
       <!--        </a-col>-->
       <!--      </a-row>-->
     </span>
-
   </trawl-table>
 </template>
 <script>
@@ -119,7 +131,7 @@ import AdminDeliveryActions from "../orders/actions/admin-delivery-actions.vue";
 export default {
   data() {
     return {
-      manifestColumns
+      manifestColumns,
     };
   },
   props: {
@@ -127,36 +139,40 @@ export default {
       type: Array,
       default: () => {
         return [];
-      }
+      },
     },
     getDataFunction: {
       type: Function,
-      default: () => {}
+      default: () => {},
     },
     pagination: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     changePage: {
       type: Function,
-      default: () => {}
+      default: () => {},
     },
     changeSizePage: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
-  computed : {
-  },
+  computed: {},
   mounted() {
-    console.log(record.packages.reduce((acc, curr) => acc + curr.history_transporter['balance'], 0))
+    console.log(
+      record.packages.reduce(
+        (acc, curr) => acc + curr.history_transporter["balance"],
+        0
+      )
+    );
   },
   methods: {
-    Sum(){
-      console.log("sum")
+    Sum() {
+      console.log("sum");
       // return this.record.packages.reduce( (Sum, packages) => packages.total_amount + Sum  ,0);
     },
   },
-  components: { trawlTable, DeliveryStatus, AdminDeliveryActions }
+  components: { trawlTable, DeliveryStatus, AdminDeliveryActions },
 };
 </script>

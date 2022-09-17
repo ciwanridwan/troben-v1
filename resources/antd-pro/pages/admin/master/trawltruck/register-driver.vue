@@ -293,7 +293,7 @@ export default {
     },
   },
   mounted() {
-    console.log("tes", this.$laravel.jwt_token);
+    // console.log("tes", this.$laravel.jwt_token);
   },
 };
 </script>
