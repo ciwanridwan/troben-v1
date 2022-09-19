@@ -120,13 +120,16 @@ class RegistrationPayment
 
         $firstNum = 9999;
         $vaNumber = rand(100, 1000000000);
-        // dd($vaNumber);
 
         $job = new Registration($this->package, $this->attributes);
         $this->dispatch($job);
 
         Log::debug('Nicepay response va: ', ['response' => $job->response]);
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
+
+        $this->package->status = Package::STATUS_WAITING_FOR_PACKING;
+        $this->package->payment_status = Package::PAYMENT_STATUS_PAID;
+        $this->package->save();
 
         return [
             'total_amount' => $this->attributes['amt'],
