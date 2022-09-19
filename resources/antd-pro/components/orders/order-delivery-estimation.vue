@@ -105,7 +105,7 @@
 
       <!-- sub total biaya motor-->
       <a-row type="flex" v-if="isMotorBike">
-        <a-col :span="leftColumn"> Biaya Kirim </a-col>
+        <a-col :span="leftColumn"> Packing </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(motorbikeDeliveryPrice) }}
         </a-col>
