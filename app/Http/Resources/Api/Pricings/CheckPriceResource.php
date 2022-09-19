@@ -30,6 +30,10 @@ class CheckPriceResource extends JsonResource
                 $data['delivery_method'] = 'Kubikasi';
                 return $data;
                 break;
+            case Service::TRAWLPACK_EXPRESS:
+                $data['delivery_method'] = 'Express';
+                return $data;
+                break;
         }
     }
 }

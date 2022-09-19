@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
+use App\Models\Packages\ExpressPrice;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -219,6 +220,28 @@ class PricingController extends Controller
                 $destination_id = (int) $this->attributes['destination_id'];
 
                 $prices = CubicPrice::where('origin_regency_id', $origin_id)
+                    ->where('destination_id', $destination_id)
+                    ->where('service_code', $this->attributes['service_code'])
+                    ->first();
+
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
+
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                $prices = ExpressPrice::query();
+
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+
+                $origin_id = (int) $this->attributes['origin_id'];
+                $destination_id = (int) $this->attributes['destination_id'];
+
+                $prices = ExpressPrice::where('origin_regency_id', $origin_id)
                     ->where('destination_id', $destination_id)
                     ->where('service_code', $this->attributes['service_code'])
                     ->first();

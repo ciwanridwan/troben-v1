@@ -19,6 +19,7 @@ use App\Http\Resources\Api\Pricings\CubicPriceResource;
 use App\Http\Resources\PriceResource;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\CubicPrice;
+use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -821,6 +822,79 @@ class PricingCalculator
         }
 
         $servicePrice = $cubicResult * $price->amount;
+
+        return $servicePrice;
+    }
+
+    /** Get Express Price */
+    public function getExpressPrices($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = ExpressPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+
+        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+
+        return $price;
+    }
+
+    public function getServiceExpressPrices(array $inputs, ?CubicPrice $price = null)
+    {
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'items' => ['required'],
+            'items.*.weight' => ['required', 'numeric'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['nullable']
+        ]);
+
+        if (!$price) {
+            /** @var Price $price */
+            $price = self::getExpressPrices($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        }
+
+        /**Todo calculate */
+        $items = [];
+        foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
+            $items[] = [
+                'weight' => $item['weight'],
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+            ];
+        }
+
+        foreach ($items as $item) {
+            $weight = array_sum($item['weight']);
+            $dimension = $item['height'] * $item['width'] * $item['length'] / 60000;
+
+            $express[] = $dimension;
+            $weightFromDimension = array_sum($express);
+        }
+
+        if ($weight > $weightFromDimension) {
+            $servicePrice = $weight * $price->amount;
+        } else if ($weight < $weightFromDimension) {
+            $servicePrice = $$weightFromDimension * $price->amount;
+        } else {
+            $servicePrice = 0;
+            $message = ['message' => 'Biaya service tidak dapat dihitung, silahkan coba kembali'];
+
+            throw_if($price === null, Error::make(Response::RC_BAD_REQUEST, $message));
+        }
 
         return $servicePrice;
     }
