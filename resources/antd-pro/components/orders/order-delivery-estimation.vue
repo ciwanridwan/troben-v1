@@ -89,7 +89,11 @@
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           <!-- {{ currency(total_weight * tierPrice) }} -->
-          {{ currency(motorbikeDeliveryPrice) }}
+          {{
+            isMotorBike
+              ? currency(motorbikeDeliveryPrice)
+              : currency(total_weight * tierPrice)
+          }}
         </a-col>
         <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
