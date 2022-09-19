@@ -21,6 +21,9 @@ use App\Exceptions\Error;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Response;
 use App\Models\Code;
+use App\Models\FileUpload;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -103,6 +106,39 @@ class OrderController extends Controller
         $this->dispatchNow($job);
 
         return $this->jsonSuccess(PackageResourceDeprecated::make($job->package));
+    }
+
+    public function upload(Request $request, Package $package): JsonResponse
+    {
+        $this->authorize('update', $package);
+
+        $this->attributes = Validator::make($request->all(), [
+            'photos' => 'required',
+            'photos.*' => 'required|file',
+        ])->validate();
+
+        $files = (array) $request->file('photos');
+        foreach ($files as $file) {
+            $meta = [
+                'title' => $file->getClientOriginalName(),
+                'mime' => $file->getMimeType(),
+                'ext' => $file->getClientOriginalExtension(),
+            ];
+
+            $filepath = Storage::disk('s3')->putFile('package_warehouse', $file);
+
+            $row = [
+                'package_id' => $package->getKey(),
+                'created_by_id' => auth()->id(),
+                'created_by_type' => 'user',
+                'file' => $filepath,
+                'file_type' => FileUpload::FILE_TYPE_WAREHOUSE,
+                'meta' => $meta,
+            ];
+            FileUpload::create($row);
+        }
+
+        return $this->jsonSuccess(PackageResourceDeprecated::make($package));
     }
 
     public function estimating(Package $package): JsonResponse

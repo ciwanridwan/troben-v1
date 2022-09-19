@@ -1,6 +1,6 @@
 <template>
-  <a-space v-if="type === 'sender'" direction="vertical" :size=".1">
-    <span v-if="title" :style='{ "font-size": ".7rem" }'>Pengirim</span>
+  <a-space v-if="type === 'sender'" direction="vertical" :size="0.1">
+    <span v-if="title" :style="{ 'font-size': '.7rem' }">Pengirim</span>
     <span class="trawl-text-bolder" :style="textStyle">{{ sender_name }}</span>
     <span class="trawl-text-bolder" :style="textStyle">
       {{ sender_phone }}
@@ -8,14 +8,10 @@
     <p class="trawl-text-bolder" :style="textStyle">
       {{ sender_address }}
     </p>
-    <span :style="textStyle">
-      Kode pos : {{ sender_zip_code }}
-    </span>
+    <span :style="textStyle"> Kode pos : {{ sender_zip_code }} </span>
   </a-space>
-  <a-space v-else direction="vertical" :size=".1">
-    <span v-if="title" :style='{ "font-size": ".7rem" }'>
-      Penerima
-    </span>
+  <a-space v-else direction="vertical" :size="0.1">
+    <span v-if="title" :style="{ 'font-size': '.7rem' }"> Penerima </span>
     <span class="trawl-text-bolder" :style="textStyle">
       {{ receiver_name }}
     </span>
@@ -25,19 +21,20 @@
     <p class="trawl-text-bolder" :style="textStyle">
       {{ receiver_address }}
     </p>
-    <span :style="textStyle">
-      Kode pos : {{ receiver_zip_code }}
-    </span>
+    <span :style="textStyle"> Kode pos : {{ receiver_zip_code }} </span>
   </a-space>
 </template>
 <script>
-import { getOriginAddress, getDestinationAddress } from "../../functions/orders";
+import {
+  getOriginAddress,
+  getDestinationAddress,
+} from "../../functions/orders";
 import orderModalRowLayout from "../orders/order-modal-row-layout.vue";
 export default {
   data() {
     return {
       textStyle: { "font-size": ".7rem" },
-    }
+    };
   },
   props: {
     package: {
@@ -59,7 +56,11 @@ export default {
       return this.package?.destination_sub_district?.zip_code;
     },
     receiver_address() {
-      return this.package?.receiver_address + ", Kota: " + getDestinationAddress(this.package);
+      return (
+        this.package?.receiver_address +
+        ", Kota: " +
+        getDestinationAddress(this.package)
+      );
     },
     receiver_phone() {
       return this.package?.receiver_phone;

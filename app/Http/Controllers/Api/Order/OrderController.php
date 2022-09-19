@@ -143,22 +143,22 @@ class OrderController extends Controller
         $bikePrice = BikePrices::query()
             ->where('origin_regency_id', $package->origin_regency_id)
             ->where('destination_id', $package->destination_sub_district_id)->first();
-            
+
 
         $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-        
+
         /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
-            $result['type'] = 'bike';    
+            $result['type'] = 'bike';
             $result['notes'] = $bikePrice->notes;
             $result['packing_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_BIKE)->get()->sum('amount');
             $result['packing_additional_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_WOOD)->get()->sum('amount');
-        } else {    
+        } else {
             $result['type'] = 'item';
             $result['notes'] = $price->notes;
             $result['packing_price'] = $prices['packing_price'];
         }
-        
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -175,7 +175,7 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
-        
+
         // return $this->jsonSuccess(DataDiscountResource::make($data));
         return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
     }
@@ -320,7 +320,7 @@ class OrderController extends Controller
         $data = ['hash' => $job->package->hash];
 
         return (new Response(Response::RC_CREATED, $data))->json();
-        
+
         /** Old response */
         // return $this->jsonSuccess(new PackageResource($job->package->load(
         //     'items',
@@ -724,13 +724,13 @@ class OrderController extends Controller
     //     $bikePrice = BikePrices::query()
     //         ->where('origin_regency_id', $package->origin_regency_id)
     //         ->where('destination_id', $package->destination_sub_district_id)->first();
-            
+
 
     //     $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-        
+
     //     /**Set condition for retrieve type by motobikes or items */
     //     if ($package['motoBikes'] !== null) {
-    //         $result['type'] = 'bike';    
+    //         $result['type'] = 'bike';
     //         $result['notes'] = $bikePrice->notes;
     //         $package['items'] = [
     //             'qty' => $package['items'][0]->qty,
@@ -739,18 +739,18 @@ class OrderController extends Controller
     //             'width' => $package['items'][0]->width,
     //             'is_insured' => $package['items'][0]->is_insured,
     //             'handling' => $package['items'][0]->handling,
-    //         ];    
+    //         ];
     //     } else {
     //         $result['type'] = 'item';
     //         $result['notes'] = $price->notes;
     //     }
 
-    //     $attachment = $package['attachments']->map(function ($r) {    
+    //     $attachment = $package['attachments']->map(function ($r) {
     //         $arr['url'] = $r->uri;
     //         return $arr;
     //     })->values();
-        
-        
+
+
     //     $data = [
     //         'sender_name' => $package['sender_name'],
     //         'sender_address' => $package['sender_address'],
@@ -758,7 +758,7 @@ class OrderController extends Controller
     //         'receiver_name' => $package['receiver_name'],
     //         'receiver_address' => $package['receiver_address'],
     //         'receiver_phone' => $package['receiver_phone'],
-            
+
     //         'type' => $result['type'],
     //         'moto_bikes' => $package['motoBikes'] ?? null,
     //         'items' => $package['items'],
@@ -788,7 +788,7 @@ class OrderController extends Controller
     //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
     //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
     //     ];
-        
+
     //     return $this->jsonSuccess(DataDiscountResource::make($data));
     //     // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
 }

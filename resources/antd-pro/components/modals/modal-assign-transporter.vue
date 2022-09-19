@@ -25,12 +25,8 @@
 
       <template slot="rightContent">
         <a-radio-group v-model="value" @change="onChange" :default-value="true">
-          <a-radio :value="true">
-            Driver Sendiri
-          </a-radio>
-          <a-radio :value="false">
-            Request Driver
-          </a-radio>
+          <a-radio :value="true"> Driver Sendiri </a-radio>
+          <a-radio :value="false"> Request Driver </a-radio>
         </a-radio-group>
         <a-icon v-if="loading" type="loading" />
         <a-empty v-else-if="transporters.length < 1" />
@@ -77,21 +73,21 @@ export default {
     TransporterRadioButton,
     TrawlRadioButton,
     TransporterRadioGroup,
-    TrawlModalConfirm
+    TrawlModalConfirm,
   },
   props: {
     value: {
       type: String,
-      default: null
+      default: null,
     },
     delivery: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     submitRoute: {
       type: String,
-      default: "partner.customer_service.home.order.assign"
-    }
+      default: "partner.customer_service.home.order.assign",
+    },
   },
   data() {
     return {
@@ -104,42 +100,40 @@ export default {
 
       form: {
         transporter_hash: null,
-        type: null
+        type: null,
       },
       rules: {
-        transporter_hash: [{ required: true, message: "Silahkan pilih mitra" }]
+        transporter_hash: [{ required: true, message: "Silahkan pilih mitra" }],
       },
 
       filter: {
         q: null,
         page: 1,
-        per_page: 2
+        per_page: 2,
       },
-      loading: false
+      loading: false,
     };
   },
   computed: {
     package() {
       return this.delivery?.package;
-    }
+    },
   },
   methods: {
     onChange(e) {
       if (!e.target.value) {
         this.form.type = "independent";
       }
-      console.log("radio checked", e.target.value);
-      console.log("form", this.form);
     },
-    searchTransporter: _.debounce(async function() {
+    searchTransporter: _.debounce(async function () {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), {
           params: {
             ...this.filter,
             transporter: true,
-            type: this.package.transporter_type
-          }
+            type: this.package.transporter_type,
+          },
         })
         .then(({ data }) => {
           this.transporters = data.data;
@@ -157,7 +151,7 @@ export default {
           this.routeUri(this.submitRoute, {
             delivery_hash: this.delivery.hash,
             userable_hash: this.form.transporter_hash,
-            type: this.form.type
+            type: this.form.type,
           })
         )
         .then(() => {
@@ -165,21 +159,21 @@ export default {
           this.confirmVisible = true;
           this.$emit("submit");
         });
-    }
+    },
   },
   watch: {
-    visible: function(value) {
+    visible: function (value) {
       if (value) {
         this.searchTransporter();
       }
     },
-    value: function(value) {
+    value: function (value) {
       this.transporter_hash = value;
       this.$emit("input", value);
     },
-    transporter_hash: function(value) {
+    transporter_hash: function (value) {
       this.$emit("input", value);
-    }
-  }
+    },
+  },
 };
 </script>

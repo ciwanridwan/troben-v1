@@ -210,10 +210,10 @@ export default {
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
       if (this.selectedFile) {
-        console.log("gambar masuk");
+        // console.log("gambar masuk");
       }
-      console.log("upload", event);
-      console.log("uploadData", event.target.files[0]);
+      // console.log("upload", event);
+      // console.log("uploadData", event.target.files[0]);
     },
 
     description(item) {
@@ -241,12 +241,12 @@ export default {
     getListRoom(value) {
       if (value === "reconnect") return this.consumeSocket(this.getListRoom);
       this.roomChat = value;
-      console.log("onmessage", this.roomChat);
+      // console.log("onmessage", this.roomChat);
       this.activeLoading = 1;
     },
 
     getListChat(value) {
-      console.log("masuk pak ekooo", value);
+      // console.log("masuk pak ekooo", value);
       this.dataChat = value;
       this.scrollToElement({ behavior: "smooth" });
     },
@@ -261,7 +261,7 @@ export default {
       );
 
       consumer.onopen = function (e) {
-        console.log("isOpen", consumer);
+        // console.log("isOpen", consumer);
 
         fetch("https://staging-chat.trawlbens.com/chat/list/partner/room", {
           method: "GET",

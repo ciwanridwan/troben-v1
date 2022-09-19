@@ -10,10 +10,40 @@
     </order-modal-row-layout>
     <order-modal-row-layout :afterLine="false">
       <template slot="icon">
-        <a-icon :component="ReceiveIcon" :style="{ 'font-size': '2rem' }"></a-icon>
+        <a-icon
+          :component="ReceiveIcon"
+          :style="{ 'font-size': '2rem' }"
+        ></a-icon>
       </template>
       <template slot="content">
         <package-address :package="package" type="receiver" />
+      </template>
+    </order-modal-row-layout>
+    <order-modal-row-layout :afterLine="false">
+      <template slot="icon">
+        <a-icon
+          :component="ReceiveIcon"
+          :style="{ 'font-size': '2rem' }"
+        ></a-icon>
+      </template>
+      <template slot="content">
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 1rem;
+          "
+        >
+          <a
+            v-for="(data, index) in bike_image"
+            :key="index"
+            target="_blank"
+            :href="data.uri"
+          >
+            <img style="height: 100px" :src="data.uri" />
+          </a>
+        </div>
       </template>
     </order-modal-row-layout>
   </div>
@@ -35,6 +65,14 @@ export default {
       SendIcon,
       ReceiveIcon,
     };
+  },
+  computed: {
+    isBike() {
+      return this.package?.order_type;
+    },
+    bike_image() {
+      return this.package?.attachments;
+    },
   },
 };
 </script>

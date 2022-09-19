@@ -71,7 +71,7 @@ export default {
   props: ["value"],
   data() {
     return {
-      visible: false
+      visible: false,
     };
   },
   methods: {
@@ -83,16 +83,16 @@ export default {
     },
     hasSlot(slotName) {
       return !!this.$slots[slotName];
-    }
+    },
   },
   watch: {
-    value: function(value) {
+    value: function (value) {
       this.visible = value;
       this.$emit("input", value);
     },
-    visible: function(value) {
+    visible: function (value) {
       this.$emit("input", value);
-    }
-  }
+    },
+  },
 };
 </script>

@@ -23,6 +23,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CancelOrder;
+use App\Models\FileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -762,5 +763,10 @@ class Package extends Model implements AttachableContract
     public function cancels(): HasOne
     {
         return $this->hasOne(CancelOrder::class, 'package_id', 'id');
+    }
+
+    public function fileuploads(): HasMany
+    {
+        return $this->hasMany(FileUpload::class, 'package_id');
     }
 }
