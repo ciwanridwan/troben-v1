@@ -1,6 +1,6 @@
 <template>
   <a-card :class="['borderless-header', 'normal-title']">
-    <template slot="extra">
+    <template slot="extra" v-if="!isMotorBike">
       <a-space>
         <order-modal-edit
           v-if="modifiable ? editable : false"
@@ -16,11 +16,13 @@
     </template>
     <template slot="title">
       <h4>{{ name }}</h4>
-      {{ length }} x {{ width }} x {{ height }} cm
+      <div v-if="!isMotorBike">
+        {{ length }} x {{ width }} x {{ height }} cm
+      </div>
     </template>
 
     <!-- detail -->
-    <a-row>
+    <a-row v-if="!isMotorBike">
       <!-- packing -->
       <a-col :span="16"> Detail Packing </a-col>
       <a-col :span="8">
@@ -52,8 +54,34 @@
       </a-col>
     </a-row>
 
+    <a-row v-if="isMotorBike">
+      <!-- cc motor -->
+      <a-col :span="16"> CC Motor </a-col>
+      <a-col :span="8">
+        <b>{{ BikeCC }}</b>
+      </a-col>
+
+      <!-- merk motor -->
+      <a-col :span="16"> Merk Motor </a-col>
+      <a-col :span="8">
+        <b>{{ BikeMerk }}</b>
+      </a-col>
+
+      <!-- type motor -->
+      <a-col :span="16"> type </a-col>
+      <a-col :span="8">
+        <b>{{ BikeType }}</b>
+      </a-col>
+
+      <!-- tahun motor -->
+      <a-col :span="16"> years </a-col>
+      <a-col :span="8">
+        <b>{{ BikeYears }}</b>
+      </a-col>
+    </a-row>
+
     <!-- summary -->
-    <a-row style="margin-top: 24px">
+    <a-row style="margin-top: 24px" v-if="!isMotorBike">
       <!-- total berat -->
       <a-col :span="16"> Total Charge Weight </a-col>
       <a-col :span="8">
@@ -67,16 +95,16 @@
       </a-col>
 
       <!-- asuransi -->
-<!--      <a-col :span="16"> Asuransi </a-col>-->
-<!--      <a-col :span="8">-->
-<!--        <b>{{currency(getInsurancePrice(prices))  }}</b>-->
-<!--      </a-col>-->
+      <!--      <a-col :span="16"> Asuransi </a-col>-->
+      <!--      <a-col :span="8">-->
+      <!--        <b>{{currency(getInsurancePrice(prices))  }}</b>-->
+      <!--      </a-col>-->
     </a-row>
   </a-card>
 </template>
 <script>
 import orderModalEdit from "./order-modal-edit.vue";
-import {getInsurancePrice} from "../../functions/orders";
+import { getInsurancePrice } from "../../functions/orders";
 export default {
   components: { orderModalEdit },
   props: {
@@ -98,7 +126,7 @@ export default {
     package: {
       type: Object,
       default: () => {},
-    }
+    },
   },
   data() {
     return {
@@ -145,12 +173,29 @@ export default {
       if (this.item?.handling) {
         let count = this.item?.handling.length;
         packing = "";
-        this.item?.handling.forEach((h,i) => {
-          packing += `${ h.type === "wood" ? 'kayu' : h.type }${ (count-1) === i ? '.' : ',' } `
-        })
+        this.item?.handling.forEach((h, i) => {
+          packing += `${h.type === "wood" ? "kayu" : h.type}${
+            count - 1 === i ? "." : ","
+          } `;
+        });
       }
       return packing;
-    }
+    },
+    isMotorBike() {
+      return this.package?.moto_bikes;
+    },
+    BikeCC() {
+      return this.package?.moto_bikes?.cc;
+    },
+    BikeMerk() {
+      return this.package?.moto_bikes?.merk;
+    },
+    BikeType() {
+      return this.package?.moto_bikes?.type;
+    },
+    BikeYears() {
+      return this.package?.moto_bikes?.years;
+    },
   },
   methods: {
     getInsurancePrice,

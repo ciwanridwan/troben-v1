@@ -421,9 +421,11 @@ class PricingCalculator
         }
         $totalWeightBorne = self::getTotalWeightBorne($items);
 
+
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
         $servicePrice = $tierPrice * $totalWeightBorne;
+
         return $servicePrice;
     }
 

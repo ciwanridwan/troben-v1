@@ -10,7 +10,9 @@
       <a-layout class="trawl-bg-transparent" :style="{ height: '100%' }">
         <a-layout-content class="trawl-bg-transparent">
           <a-space direction="vertical" size="large">
-            <span class="trawl-text-bold">No Resi : {{ record.code.content }}</span>
+            <span class="trawl-text-bold"
+              >No Resi : {{ record.code.content }}</span
+            >
 
             <order-modal-row-layout :afterLine="false" :iconPadding="false">
               <template slot="icon">
@@ -34,7 +36,9 @@
               <template slot="content">
                 <a-space direction="vertical" :size="1">
                   <span>Penerima</span>
-                  <span class="trawl-text-bold">{{ record.receiver_address }}</span>
+                  <span class="trawl-text-bold">{{
+                    record.receiver_address
+                  }}</span>
                   <p class="trawl-text-normal">
                     {{ getDestinationAddress(record) }}
                   </p>
@@ -54,13 +58,17 @@
     </template>
     <template slot="rightContent">
       <a-timeline>
-        <a-timeline-item v-for="(log, index) in record.code.logs" :key="index">{{
-          log.description
-        }}</a-timeline-item>
+        <a-timeline-item
+          v-for="(log, index) in record.code.logs"
+          :key="index"
+          >{{ log.description }}</a-timeline-item
+        >
       </a-timeline>
     </template>
     <template slot="rightFooter">
-      <a-button block class="trawl-button-success" @click="storeLog">Simpan</a-button>
+      <a-button block class="trawl-button-success" @click="storeLog"
+        >Simpan</a-button
+      >
     </template>
   </trawl-modal-split>
 </template>
