@@ -62,6 +62,7 @@ class DeliveryResource extends JsonResource
         }
 
         $this->resource->load('packages.motoBikes');
+        $this->resource->load('packages.attachments');
 
         if ($this->resource->relationLoaded('packages')) {
             //     $packages = PackageResource::collection($this->resource->packages->load('items'));
