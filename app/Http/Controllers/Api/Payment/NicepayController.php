@@ -116,6 +116,10 @@ class NicepayController extends Controller
         $firstNum = 9999;
         $vaNumber = rand(100, 1000000000);
 
+        $package->status = Package::STATUS_WAITING_FOR_PACKING;
+        $package->payment_status = Package::PAYMENT_STATUS_PAID;
+        $package->save();
+
         $data = [
             'total_amount' => $amt,
             'server_time' => $currentTime,
