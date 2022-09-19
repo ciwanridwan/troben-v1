@@ -45,9 +45,9 @@ class RegistrationPayment
         $this->expDate = Carbon::now()->addDay();
         $customer = $package->customer;
         $address = $customer->addresses()
-                ->with(['province','regency','district'])
-                ->where('is_default', true)
-                ->first() ?? null;
+            ->with(['province', 'regency', 'district'])
+            ->where('is_default', true)
+            ->first() ?? null;
 
         $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
         $now = date_format(Carbon::now(), 'YmdHis');
@@ -59,7 +59,7 @@ class RegistrationPayment
             'iMid' => config('nicepay.imid'),
             'currency' => 'IDR',
             'referenceNo' => $package->code->content,
-            'goodsNm' => 'Trawlpack Order '.$package->code->content,
+            'goodsNm' => 'Trawlpack Order ' . $package->code->content,
             'billingNm' => $customer->name,
             'billingPhone' => $this->validPhone($package->sender_phone),
             'billingEmail' => $customer->email,
@@ -80,19 +80,50 @@ class RegistrationPayment
      * @return array
      * @throws \Throwable
      */
+    // public function vaRegistration(): array
+    // {
+    //     $this->attributes = array_merge($this->attributes, [
+    //         'payMethod' => config('nicepay.payment_method_code.va'),
+    //         'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
+    //         'merFixAcctId' => config('nicepay.merchant_fix_account_id'),
+    //         'vacctValidDt' => $this->validDate(),
+    //         'vacctValidTm' => $this->validTime(),
+    //     ]);
+
+    //     Log::debug('Registration body va: ', ['body' => $this->attributes]);
+    //     $job = new Registration($this->package, $this->attributes);
+    //     throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
+
+    //     Log::debug('Nicepay response va: ', ['response' => $job->response]);
+    //     event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
+
+    //     return [
+    //         'total_amount' => $this->attributes['amt'],
+    //         'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
+    //         'expired_time' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
+    //         'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
+    //         'va_number' => $job->response->vacctNo,
+    //     ];
+    // }
+
     public function vaRegistration(): array
     {
         $this->attributes = array_merge($this->attributes, [
             'payMethod' => config('nicepay.payment_method_code.va'),
-            'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
+            'bankCd' => config('nicepay.bank_code.' . $this->gateway->channel),
             'merFixAcctId' => config('nicepay.merchant_fix_account_id'),
             'vacctValidDt' => $this->validDate(),
             'vacctValidTm' => $this->validTime(),
         ]);
 
         Log::debug('Registration body va: ', ['body' => $this->attributes]);
+
+        $firstNum = 9999;
+        $vaNumber = rand(100, 1000000000);
+        // dd($vaNumber);
+
         $job = new Registration($this->package, $this->attributes);
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
+        $this->dispatch($job);
 
         Log::debug('Nicepay response va: ', ['response' => $job->response]);
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
@@ -100,9 +131,9 @@ class RegistrationPayment
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_time' => date_format(date_create($job->response->vacctValidDt.$job->response->vacctValidTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->vacctValidDt . $job->response->vacctValidTm), 'Y-m-d H:i:s'),
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
-            'va_number' => $job->response->vacctNo,
+            'va_number' => $firstNum . $vaNumber,
         ];
     }
 
@@ -121,14 +152,14 @@ class RegistrationPayment
         Log::debug('Registration body qr: ', ['body' => $this->attributes]);
         $job = new Registration($this->package, $this->attributes);
 
-        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
+        throw_if(!$this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
         Log::debug('Nicepay response qr: ', ['response' => $job->response]);
         event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
 
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_time' => date_format(date_create($job->response->paymentExpDt.$job->response->paymentExpTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->paymentExpDt . $job->response->paymentExpTm), 'Y-m-d H:i:s'),
             'qr_content' => $job->response->qrContent,
         ];
     }
