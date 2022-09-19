@@ -15,12 +15,13 @@
                 {{ destination_regency_name }}
               </b>
             </h4>
-            <h5 v-if="!isMotorBike">
-              Harga perkilo yaitu Rp. {{ tierPrice }}/kg
-            </h5>
-            <h5 v-if="isMotorBike">
-              Harga pengiriman motor cc {{ BikeCC }} yaitu Rp.
-              {{ motorbikeDeliveryPrice }}
+            <h5>
+              {{
+                isMotorBike
+                  ? `Harga pengiriman motor cc ${BikeCC} yaitu Rp.
+              ${currency(servicePrice)}`
+                  : `Harga perkilo yaitu Rp. ${tierPrice}/kg`
+              }}
             </h5>
           </a-col>
         </a-row>
@@ -84,18 +85,38 @@
         <a-divider :key="index + '-divider'"></a-divider>
       </template>
 
-      <!-- sub total biaya -->
-      <a-row type="flex">
+      <!-- sub total biaya item-->
+      <a-row type="flex" v-if="!isMotorBike">
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          <!-- {{ currency(total_weight * tierPrice) }} -->
-          {{ currency(motorbikeDeliveryPrice) }}
+          {{ currency(total_weight * tierPrice) }}
         </a-col>
         <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(getPickupFee) }}
         </a-col>
 
+        <a-divider />
+        <a-col :span="leftColumn"> Sub total biaya </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(subTotalPrice) }}
+        </a-col>
+      </a-row>
+
+      <!-- sub total biaya motor-->
+      <a-row type="flex" v-if="isMotorBike">
+        <a-col :span="leftColumn"> Biaya Kirim </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(motorbikeDeliveryPrice) }}
+        </a-col>
+        <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(getPickupFee) }}
+        </a-col>
+        <a-col :span="leftColumn"> Harga Pengiriman </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(servicePrice) }}
+        </a-col>
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
