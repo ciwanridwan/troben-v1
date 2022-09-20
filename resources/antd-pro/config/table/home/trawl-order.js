@@ -5,13 +5,13 @@ export default [
     title: "No",
     dataIndex: "number",
     colspan: 1,
-    classes: ["trawl-text-center"]
+    classes: ["trawl-text-center"],
   },
   {
     title: "ID Order",
     scopedSlots: { customRender: "id_order" },
     colspan: 6,
-    classes: ["trawl-text-left"]
+    classes: ["trawl-text-left"],
   },
   {
     title: "Mitra Penerima",
@@ -20,18 +20,19 @@ export default [
     classes: "trawl-text-left",
     customRender: (text, row, index) => {
       return {
-        children: row.deliveries.length > 0 && row.deliveries[0]?.partner?.code
-          ? row.deliveries[0].partner.code
-          : ""
+        children:
+          row.deliveries.length > 0 && row.deliveries[0]?.partner?.code
+            ? row.deliveries[0].partner.code
+            : "",
       };
-    }
+    },
   },
   {
     title: "Lokasi Pengiriman",
     key: "address",
     classes: "trawl-text-left",
     colspan: 5,
-    scopedSlots: { customRender: "address" }
+    scopedSlots: { customRender: "address" },
   },
   {
     title: "Order By",
@@ -39,7 +40,7 @@ export default [
     scopedSlots: { customRender: "type" },
     sorter: true,
     classes: "trawl-text-center",
-    colspan: 2
+    colspan: 2,
   },
   {
     title: "Tanggal Order",
@@ -48,6 +49,6 @@ export default [
     classes: ["trawl-text-center"],
     customRender(text, row, index) {
       return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
-    }
-  }
+    },
+  },
 ];
