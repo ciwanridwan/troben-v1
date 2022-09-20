@@ -9,6 +9,8 @@ class ExpressPrice extends Model
 {
     use HasFactory;
 
+    public const TYPE_EXPRESS = 'express';
+
     protected $table = 'express_prices';
 
     protected $fillable = [

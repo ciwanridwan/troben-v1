@@ -13,6 +13,7 @@ use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\CubicPrice;
+use App\Models\Packages\ExpressPrice;
 use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Service;
@@ -91,6 +92,9 @@ class GeneratePackagePrices
                     case Service::TRAWLPACK_CUBIC:
                         $service_price = PricingCalculator::getServiceCubicPrice($service_input);
                         break;
+                    case Service::TRAWLPACK_EXPRESS:
+                        $service_price = PricingCalculator::getServiceExpressPrice($service_input);
+                        break;
                 }
             } catch (ValidationException $e) {
                 $service_price = 0;
@@ -108,7 +112,15 @@ class GeneratePackagePrices
                 case Service::TRAWLPACK_CUBIC:
                     $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                         'type' => Price::TYPE_SERVICE,
-                        'description' => CubicPrice::TYPE_CUBIC,
+                        'description' => Price::DESCRIPTION_TYPE_CUBIC,
+                        'amount' => $service_price,
+                    ]);
+                    $this->dispatch($job);
+                    break;
+                case Service::TRAWLPACK_EXPRESS:
+                    $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                        'type' => Price::TYPE_SERVICE,
+                        'description' => Price::DESCRIPTION_TYPE_EXPRESS,
                         'amount' => $service_price,
                     ]);
                     $this->dispatch($job);
@@ -189,7 +201,7 @@ class GeneratePackagePrices
             }
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
-            
+
             try {
                 switch ($serviceCode) {
                     case Service::TRAWLPACK_STANDARD:
@@ -201,6 +213,12 @@ class GeneratePackagePrices
                     case Service::TRAWLPACK_CUBIC:
                         $package->setAttribute('total_weight', 0)->save();
                         $package->setAttribute('tier_price', 0)->save();
+                        break;
+                    case Service::TRAWLPACK_EXPRESS:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getExpressPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = $price->amount;
+                        $package->setAttribute('tier_price', $tier)->save();
                         break;
                 }
             } catch (\Throwable $th) {

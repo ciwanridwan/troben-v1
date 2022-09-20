@@ -143,7 +143,7 @@ class Item extends Model implements AttachableContract
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight));
         }
-        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight);
+        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight, $this->service_code);
     }
 
     public function getWeightBorneTotalAttribute()
@@ -156,9 +156,9 @@ class Item extends Model implements AttachableContract
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension));
+            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->service_code));
         }
-        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width));
+        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->service_code));
     }
     public function getTierPriceAttribute()
     {
