@@ -69,6 +69,12 @@ class DeliveryResource extends JsonResource
             //     $this->resource->unsetRelation('packages');
             foreach ($this->resource->packages as $key => $package) {
                 $this->resource->packages[$key]->customer_hash = (string) $package->customer_id;
+
+                // make file mode stream
+                foreach ($this->resource->packages[$key]->attachments as $key2 => $attach) {
+                    $newUri = sprintf('%s?stream=true', $attach->uri);
+                    $this->resource->packages[$key]->attachments[$key2]->uri_stream = $newUri;
+                }
             }
         }
 
