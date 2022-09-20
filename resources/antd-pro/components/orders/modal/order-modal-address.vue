@@ -2,7 +2,7 @@
   <div>
     <order-modal-row-layout>
       <template slot="icon">
-        <trawl-red-icon size="3"/>
+        <trawl-red-icon size="3" />
       </template>
       <template slot="content">
         <a-space direction="vertical">
@@ -14,7 +14,7 @@
 
     <order-modal-row-layout>
       <template slot="icon">
-        <send-icon/>
+        <send-icon />
       </template>
       <template slot="content">
         <package-address :package="package" type="sender" />
@@ -23,17 +23,32 @@
 
     <order-modal-row-layout :afterLine="false">
       <template slot="icon">
-        <receive-icon/>
+        <receive-icon />
       </template>
       <template slot="content">
         <a-space direction="vertical" :size="1">
           <package-address :package="package" type="receiver" />
-          <order-estimation v-if="this.price" :price="this.price"/>
+          <order-estimation v-if="this.price" :price="this.price" />
         </a-space>
       </template>
       <template slot="addon">
         <a-empty v-if="package.attachments[0] == null" />
-        <enlargeable-image v-else :src="URIImage" />
+        <div
+          v-else
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 1rem;
+          "
+        >
+          <enlargeable-image
+            style="width: 50px !important"
+            v-for="(data, index) in URIImage"
+            :key="index"
+            :src="data.uri"
+          />
+        </div>
       </template>
     </order-modal-row-layout>
   </div>
@@ -41,12 +56,14 @@
 <script>
 import { TrawlRedIcon, SendIcon, ReceiveIcon } from "../../icons";
 import packageAddress from "../../packages/package-address.vue";
-import EnlargeableImage from '@diracleo/vue-enlargeable-image';
+import EnlargeableImage from "@diracleo/vue-enlargeable-image";
 export default {
   components: {
     EnlargeableImage,
     packageAddress,
-    TrawlRedIcon, SendIcon, ReceiveIcon
+    TrawlRedIcon,
+    SendIcon,
+    ReceiveIcon,
   },
   props: {
     package: {
@@ -56,12 +73,12 @@ export default {
     price: {
       type: Object,
       default: () => null,
-    }
+    },
   },
   data() {
     return {
       EnlargeableImage,
-      URIImage
+      URIImage,
     };
   },
   computed: {
@@ -69,16 +86,16 @@ export default {
       return this.package?.code?.content;
     },
     created_at() {
-      if (this.package?.attachments[0] == null){
-        this.URIImage = null
-      }else{
-        this.URIImage = this.package?.attachments[0].uri
+      if (this.package?.attachments[0] == null) {
+        this.URIImage = null;
+      } else {
+        this.URIImage = this.package?.attachments;
       }
       return this.package?.created_at;
     },
-    imagePacking(){
-      return this.package?.attachments[0]
-    }
+    imagePacking() {
+      return this.package?.attachments[0];
+    },
   },
 };
 </script>

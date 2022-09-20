@@ -13,9 +13,21 @@ export default [
     colspan: 6,
     classes: ["trawl-text-left"],
   },
+  // {
+  //   title: "Type",
+  //   colspan: 2,
+  //   classes: ["trawl-text-center"],
+  //   scopedSlots: {
+  //     customRender: (text, row, index) => {
+  //       return {
+  //         children: row.package.order_type,
+  //       };
+  //     },
+  //   },
+  // },
   {
     title: "Mitra Penerima",
-    colspan: 5,
+    colspan: 4,
     scopedSlots: { customRender: "partner" },
     classes: "trawl-text-left",
     customRender: (text, row, index) => {
@@ -45,7 +57,7 @@ export default [
   {
     title: "Tanggal Order",
     dataIndex: "created_at",
-    colspan: 4,
+    colspan: 3,
     classes: ["trawl-text-center"],
     customRender(text, row, index) {
       return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
