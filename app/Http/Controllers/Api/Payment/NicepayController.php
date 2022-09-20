@@ -15,10 +15,14 @@ use App\Models\Payments\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Concerns\Controllers\HasAdminCharge;
+use Carbon\Carbon;
 
 class NicepayController extends Controller
 {
-    use UsingNicepay;
+    use UsingNicepay,  HasAdminCharge;
+
+    protected Gateway $gateway;
 
     /**
      * @param Gateway $gateway
@@ -98,5 +102,32 @@ class NicepayController extends Controller
             ->first();
 
         return ! is_null($payment);
+    }
+
+    public function dummyRegistration(Gateway $gateway, Package $package): JsonResponse
+    {
+        $this->gateway = $gateway;
+
+        $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
+
+        $currentTime = Carbon::now();
+        $expiredTime = $currentTime->addDays(7);
+
+        $firstNum = 9999;
+        $vaNumber = rand(100, 1000000000);
+
+        $package->status = Package::STATUS_WAITING_FOR_PACKING;
+        $package->payment_status = Package::PAYMENT_STATUS_PAID;
+        $package->save();
+
+        $data = [
+            'total_amount' => $amt,
+            'server_time' => $currentTime,
+            'expired_time' => $expiredTime,
+            'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
+            'va_number' => $firstNum . $vaNumber,
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 }
