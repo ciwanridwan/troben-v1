@@ -380,7 +380,6 @@ class MotorBikeController extends Controller
 
     private static function getHandlingWoodPrice($type, $height, $length, $width)
     {
-
         if ($type == "" || $height == 0 || $length == 0 || $width == 0) {
             return 0;
         } else {
