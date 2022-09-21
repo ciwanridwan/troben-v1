@@ -304,13 +304,13 @@ class MotorBikeController extends Controller
         $handling_price = 0;
         switch ($req['moto_cc']) {
             case 150:
-                $handling_price = 150000;
+                $handling_price = 175000;
                 break;
             case 250:
                 $handling_price = 250000;
                 break;
             case 999:
-                $handling_price = 500000;
+                $handling_price = 450000;
                 break;
         }
 
