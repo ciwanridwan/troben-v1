@@ -102,7 +102,7 @@ class GeneratePackageBikePrices
                 'amount' => $servicePrice,
             ]);
             $this->dispatch($job);
-            
+
             $is_approved = false;
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
@@ -158,7 +158,7 @@ class GeneratePackageBikePrices
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
-            
+
             /** Inserting required handling prices of bikes */
             try {
                 $ccInput = [
@@ -166,27 +166,27 @@ class GeneratePackageBikePrices
                 ];
                 switch ($ccInput['moto_cc']) {
                     case 150:
-                        $handlingBikePrices = 150000;
+                        $handlingBikePrices = 175000;
                         break;
                     case 250:
                         $handlingBikePrices = 250000;
                         break;
                     case 999:
-                        $handlingBikePrices = 500000;
+                        $handlingBikePrices = 450000;
                         break;
                 }
-                
+
                 $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                     'type' => Price::TYPE_HANDLING,
                     'description' => Handling::TYPE_BIKES,
                     'amount' => $handlingBikePrices,
                 ]);
                 $this->dispatch($job);
-            
+
             } catch (\Throwable $th) {
                 throw $th;
             }
-            
+
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
             // try {

@@ -31,16 +31,16 @@ export default {
   props: {
     record: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     paymentVerfied: {
       type: Function,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
     return {
-      visible: false
+      visible: false,
     };
   },
   methods: {
@@ -53,7 +53,7 @@ export default {
     },
     onCancel() {
       this.visible = false;
-    }
-  }
+    },
+  },
 };
 </script>

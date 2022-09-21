@@ -29,20 +29,19 @@
       <template slot="content">
         <div
           style="
+            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-end;
             gap: 1rem;
           "
         >
-          <a
+          <enlargeable-image
+            style="width: 100px !important"
             v-for="(data, index) in bike_image"
             :key="index"
-            target="_blank"
-            :href="data.uri"
-          >
-            <img style="height: 100px" :src="data.uri" />
-          </a>
+            :src="data.uri"
+          ></enlargeable-image>
         </div>
       </template>
     </order-modal-row-layout>
@@ -51,6 +50,7 @@
 <script>
 import orderModalRowLayout from "../orders/order-modal-row-layout.vue";
 import PackageAddress from "./package-address.vue";
+import EnlargeableImage from "@diracleo/vue-enlargeable-image";
 import { SendIcon, ReceiveIcon } from "../icons";
 export default {
   props: {
@@ -59,7 +59,7 @@ export default {
       default: () => {},
     },
   },
-  components: { orderModalRowLayout, PackageAddress },
+  components: { orderModalRowLayout, PackageAddress, EnlargeableImage },
   data() {
     return {
       SendIcon,
