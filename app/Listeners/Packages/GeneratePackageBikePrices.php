@@ -2,13 +2,12 @@
 
 namespace App\Listeners\Packages;
 
-use App\Events\Packages\PackageBikeCreated;
-use App\Events\Partners\PartnerCashierDiscount;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
@@ -155,7 +154,7 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
                 $is_approved = true;
             }
-            if ($event instanceof PartnerCashierDiscount) {
+            if ($event instanceof PartnerCashierDiscountForBike) {
                 $is_approved = true;
             }
 

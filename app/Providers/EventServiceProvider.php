@@ -58,6 +58,7 @@ use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
 use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Listeners\Packages\GeneratePackageBikePrices;
 use Illuminate\Support\Facades\Event;
 
@@ -101,6 +102,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         PartnerCashierDiscount::class => [
             GeneratePackagePrices::class,
+            WriteCodeLog::class
+        ],
+
+        PartnerCashierDiscountForBike::class => [
+            GeneratePackageBikePrices::class,
             WriteCodeLog::class
         ],
 
