@@ -260,7 +260,7 @@ class MotorBikeController extends Controller
             'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
-            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -304,13 +304,13 @@ class MotorBikeController extends Controller
         $handling_price = 0;
         switch ($req['moto_cc']) {
             case 150:
-                $handling_price = 150000;
+                $handling_price = 175000;
                 break;
             case 250:
                 $handling_price = 250000;
                 break;
             case 999:
-                $handling_price = 500000;
+                $handling_price = 450000;
                 break;
         }
 
@@ -380,7 +380,11 @@ class MotorBikeController extends Controller
 
     private static function getHandlingWoodPrice($type, $height, $length, $width)
     {
-        $price = 50000;
-        return $price;
+        if ($type === null && $height === null && $length === null && $width === null) {
+            return 0;
+        } else {
+            $price = 50000;
+            return $price;
+        }
     }
 }
