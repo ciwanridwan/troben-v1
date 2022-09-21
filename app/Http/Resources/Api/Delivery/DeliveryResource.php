@@ -76,12 +76,6 @@ class DeliveryResource extends JsonResource
                 } else {
                     $this->resource->packages[$key]->moto_bikes = null;
                 }
-
-                // make file mode stream
-                foreach ($this->resource->packages[$key]->attachments as $key2 => $attach) {
-                    $newUri = sprintf('%s?stream=true', $attach->uri);
-                    $this->resource->packages[$key]->attachments[$key2]->uri_stream = $newUri;
-                }
             }
         }
 
