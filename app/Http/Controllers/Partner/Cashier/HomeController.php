@@ -18,6 +18,7 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 
@@ -126,7 +127,13 @@ class HomeController extends Controller
             ]);
             $this->dispatch($job);
 
-            event(new PartnerCashierDiscount($package));
+            $bikes = $package->motoBikes()->first();
+
+            if (is_null($bikes)) {
+                event(new PartnerCashierDiscount($package));
+            } else {
+                event(new PartnerCashierDiscountForBike($package));
+            }
         }
 
         event(new PackageCheckedByCashier($package));

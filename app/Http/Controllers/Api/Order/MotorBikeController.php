@@ -260,7 +260,7 @@ class MotorBikeController extends Controller
             'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
-            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -314,10 +314,10 @@ class MotorBikeController extends Controller
                 break;
         }
 
+        $type = $request->get('handling') ?? '';
         $height = $request->get('height');
         $length = $request->get('length');
         $width = $request->get('width');
-        $type = $request->get('handling');
 
         $handlingAdditionalPrice = 0;
         // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
@@ -380,7 +380,11 @@ class MotorBikeController extends Controller
 
     private static function getHandlingWoodPrice($type, $height, $length, $width)
     {
-        $price = 50000;
-        return $price;
+        if ($type == "" || $height == 0 || $length == 0 || $width == 0) {
+            return 0;
+        } else {
+            $price = 50000;
+            return $price;
+        }
     }
 }
