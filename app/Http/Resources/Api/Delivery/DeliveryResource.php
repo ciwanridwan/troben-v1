@@ -62,7 +62,7 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
-        $this->resource->load('packages.attachments');
+        $this->resource->load('packages.attachments', 'packages.items');
 
         if ($this->resource->relationLoaded('packages')) {
             //     $packages = PackageResource::collection($this->resource->packages->load('items'));
