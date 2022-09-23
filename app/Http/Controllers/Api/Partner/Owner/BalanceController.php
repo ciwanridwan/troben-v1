@@ -38,7 +38,7 @@ class BalanceController extends Controller
 
         $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id', $repository->getPartner()->id));
 
-        return $this->jsonSuccess(ReportResource::collection($this->query->paginate($request->input('per_page', 10))));
+        return $this->jsonSuccess(ReportResource::collection($this->query->orderby('created_at', 'desc')->paginate($request->input('per_page', 10))));
     }
 
     /**
