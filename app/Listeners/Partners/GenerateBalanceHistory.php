@@ -231,8 +231,9 @@ class GenerateBalanceHistory
                         }
 
                         /** Set balance partner*/
-                        $totalBalance = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
-                        $this->partner->balance = $totalBalance;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
+                        $balanceExisting = $this->partner->balance;
+                        $totalBalance = $balanceExisting + $newIncome;
                         $this->partner->update(['balance' => $totalBalance]);
                     }
                 }
