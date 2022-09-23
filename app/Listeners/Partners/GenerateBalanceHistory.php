@@ -229,7 +229,7 @@ class GenerateBalanceHistory
                                     ->recordHistory();
                             }
                         }
-                        
+
                         /** Set balance partner*/
                         $totalBalance = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
                         $this->partner->balance = $totalBalance;
@@ -733,7 +733,7 @@ class GenerateBalanceHistory
         } else {
             $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
-        
+
         $this
             ->setBalance($balance_service)
             ->setType(History::TYPE_DEPOSIT)

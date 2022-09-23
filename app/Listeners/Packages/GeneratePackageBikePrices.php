@@ -178,10 +178,14 @@ class GeneratePackageBikePrices
                 $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                     'type' => Price::TYPE_HANDLING,
                     'description' => Handling::TYPE_BIKES,
-                    'amount' => $handlingBikePrices,
+                    'amount' => $handlingBikePrices
                 ]);
                 $this->dispatch($job);
 
+                /** Set Packate item id to bike handling */
+                $itemId = $event->package->items()->first()->id;
+                $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+                $packagePrices->update(['package_item_id' => $itemId]);
             } catch (\Throwable $th) {
                 throw $th;
             }
