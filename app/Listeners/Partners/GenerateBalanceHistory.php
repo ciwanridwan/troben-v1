@@ -232,9 +232,13 @@ class GenerateBalanceHistory
 
                         /** Set balance partner*/
                         $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
-                        $balanceExisting = $this->partner->balance;
+
+                        $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
-                        $this->partner->update(['balance' => $totalBalance]);
+
+                        $this->partner->balance = $totalBalance;
+                        $this->partner->save();
+
                     }
                 }
 
