@@ -11,9 +11,7 @@
     <h5 v-if="hasSlot('phone')">
       <slot name="phone"></slot>
     </h5>
-    <h5 class="trawl-text-normal" v-else>
-      085694455935
-    </h5>
+    <h5 class="trawl-text-normal" v-else>085694455935</h5>
     <p v-if="hasSlot('address')">
       <slot name="address"> </slot>
     </p>
@@ -29,12 +27,12 @@ export default {
   computed: {
     hasTitleSlot() {
       return !!this.$slots.title;
-    }
+    },
   },
   methods: {
     hasSlot(slotName) {
       return !!this.$slots[slotName];
-    }
-  }
+    },
+  },
 };
 </script>

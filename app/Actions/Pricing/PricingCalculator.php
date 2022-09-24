@@ -39,6 +39,9 @@ class PricingCalculator
     public const INSURANCE_MUL = 0.2 / 100;
 
     public const INSURANCE_MUL_PARTNER = 0.0002;
+    
+    public const INSURANCE_PARTNER = 0.0006;
+
 
     public const MIN_TOL = .3;
     /**

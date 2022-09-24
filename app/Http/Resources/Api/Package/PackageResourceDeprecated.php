@@ -63,7 +63,7 @@ class PackageResourceDeprecated extends JsonResource
             $this->resource->unsetRelation('partner_performance');
         }
 
-        if (isset($this->resource['order_type']) && $this->resource['order_type'] == 'bike') {
+        if (isset($this->resource['order_type']) && $this->resource['order_type'] == Package::TYPE_BIKE) {
             $this->resource->load('motoBikes');
         } else {
             $this->resource['moto_bikes'] = null;

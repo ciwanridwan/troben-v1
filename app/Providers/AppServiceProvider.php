@@ -12,6 +12,7 @@ use Jalameta\Attachments\JPSAttachment;
 use App\Database\Schema\Grammars\PostgresGrammar;
 use App\Http\Resources\Account\JWTUserResource;
 use Firebase\JWT\JWT;
+use Illuminate\Routing\UrlGenerator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         JPSAttachment::$runMigrations = false;
+
+        if (in_array(env('APP_ENV', 'local'), ['production', 'staging'])) {
+            $this->app['request']->server->set('HTTPS', true);
+        }
     }
 
     /**
@@ -30,11 +35,15 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(UrlGenerator $url)
     {
         DB::connection('pgsql')->setSchemaGrammar(new PostgresGrammar());
 
         $this->loadViewsFrom(resource_path('/antd-pro/views'), 'antd');
+
+        if (in_array(env('APP_ENV', 'local'), ['production', 'staging'])) {
+            $url->formatScheme('https');
+        }
 
         if ($this->app->runningInConsole() === false) {
             // register view composer.
