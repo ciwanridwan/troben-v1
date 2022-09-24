@@ -181,12 +181,80 @@ class PricingController extends Controller
     public function tarif(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'origin_id' => ['required'],
-            'destination_id' => ['required'],
-            'service_code' => ['required'],
+            'origin_id' => ['required', 'numeric'],
+            'destination_id' => ['required', 'numeric'],
+            'service_code' => ['nullable', 'exists:services,code'],
         ]);
 
-        switch ($this->attributes['service_code']) {
+        $originId = $this->attributes['origin_id'];
+        $destinationId = $this->attributes['destination_id'];
+
+
+        if (isset($this->attributes['service_code'])) {
+            return $this->getPrice($this->attributes['service_code']);
+        } else {
+            return $this->getAllPrices($originId, $destinationId);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * Add Ship Schedule
+     */
+    public function shipSchedule(Request $request): JsonResponse
+    {
+        $origin_regency_id = $request->get('origin_regency_id');
+        $destination_regency_id = $request->get('destination_regency_id');
+        if ($origin_regency_id == null || $destination_regency_id == null) {
+            // add validation
+            $request->validate([
+                'origin_lat' => 'required|numeric',
+                'origin_lon' => 'required|numeric',
+                'destination_lat' => 'required|numeric',
+                'destination_lon' => 'required|numeric',
+            ]);
+
+            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+            $resultOrigin = Geo::getRegional($coordOrigin);
+            if ($resultOrigin == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            }
+
+            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            $resultDestination = Geo::getRegional($coordDestination);
+            if ($resultDestination == null) {
+                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            }
+
+            $origin_regency_id = $resultOrigin['regency'];
+            $destination_regency_id = $resultDestination['regency'];
+        } else {
+            $request->validate([
+                'origin_regency_id' => 'required|numeric',
+                'destination_regency_id' => 'required|numeric',
+            ]);
+        }
+
+        $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+            ->where('destination_regency_id', $destination_regency_id)
+            ->orderByRaw('updated_at - created_at desc')->first();
+
+        if ($schedules == null) {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        } else {
+            $result = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
+                ->where('destination_regency_id', $destination_regency_id)
+                ->orderByRaw('departed_at asc')->get();
+
+            $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
+    }
+
+    private function getPrice($serviceCode): JsonResponse
+    {
+        switch ($serviceCode) {
             case Service::TRAWLPACK_STANDARD:
                 $prices = Price::query();
                 !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
@@ -256,58 +324,41 @@ class PricingController extends Controller
         }
     }
 
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     * Add Ship Schedule
-     */
-    public function shipSchedule(Request $request): JsonResponse
+    private function getAllPrices($originId, $destinationId)
     {
-        $origin_regency_id = $request->get('origin_regency_id');
-        $destination_regency_id = $request->get('destination_regency_id');
-        if ($origin_regency_id == null || $destination_regency_id == null) {
-            // add validation
-            $request->validate([
-                'origin_lat' => 'required|numeric',
-                'origin_lon' => 'required|numeric',
-                'destination_lat' => 'required|numeric',
-                'destination_lon' => 'required|numeric',
-            ]);
+        $regularPrices = Price::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_STANDARD)
+            ->first();
 
-            $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-            $resultOrigin = Geo::getRegional($coordOrigin);
-            if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
-            }
-
-            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-            $resultDestination = Geo::getRegional($coordDestination);
-            if ($resultDestination == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-            }
-
-            $origin_regency_id = $resultOrigin['regency'];
-            $destination_regency_id = $resultDestination['regency'];
-        } else {
-            $request->validate([
-                'origin_regency_id' => 'required|numeric',
-                'destination_regency_id' => 'required|numeric',
-            ]);
+        if ($regularPrices !== null) {
+            $regularPrices = $regularPrices->only('tier_1', 'notes');
         }
 
-        $schedules = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
-            ->where('destination_regency_id', $destination_regency_id)
-            ->orderByRaw('updated_at - created_at desc')->first();
+        $cubicPrices = CubicPrice::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_CUBIC)
+            ->first();
 
-        if ($schedules == null) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
-        } else {
-            $result = ScheduleTransportation::where('origin_regency_id', $origin_regency_id)
-                ->where('destination_regency_id', $destination_regency_id)
-                ->orderByRaw('departed_at asc')->get();
-
-            $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
-            return (new Response(Response::RC_SUCCESS, $result))->json();
+        if ($cubicPrices !== null) {
+            $cubicPrices = $cubicPrices->only('amount', 'notes');
         }
+
+        $expressPrices = ExpressPrice::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_EXPRESS)
+            ->first();
+
+        if ($expressPrices !== null) {
+            $expressPrices = $expressPrices->only('amount', 'notes');
+        }
+
+        $data = [
+            "regular" => $regularPrices,
+            "kubikasi" => $cubicPrices,
+            "express" =>  $expressPrices
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 }
