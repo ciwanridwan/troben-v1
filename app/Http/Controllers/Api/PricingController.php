@@ -333,6 +333,9 @@ class PricingController extends Controller
 
         if ($regularPrices !== null) {
             $regularPrices = $regularPrices->only('tier_1', 'notes');
+
+            $resultPrices['amount'] = $regularPrices['tier_1'];
+            $resultPrices['notes'] = $regularPrices['notes'];
         }
 
         $cubicPrices = CubicPrice::where('origin_regency_id', $originId)
@@ -354,7 +357,7 @@ class PricingController extends Controller
         }
 
         $data = [
-            "regular" => $regularPrices,
+            "regular" => $resultPrices,
             "kubikasi" => $cubicPrices,
             "express" =>  $expressPrices
         ];
