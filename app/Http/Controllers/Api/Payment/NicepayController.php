@@ -94,16 +94,6 @@ class NicepayController extends Controller
         return $this->jsonSuccess();
     }
 
-    private function checkPaymentHasPaid(Package $package): bool
-    {
-        $payment = $package->payments()
-            ->where('status', Payment::STATUS_SUCCESS)
-            ->latest()
-            ->first();
-
-        return ! is_null($payment);
-    }
-
     public function dummyRegistration(Gateway $gateway, Package $package): JsonResponse
     {
         $this->gateway = $gateway;
@@ -125,9 +115,19 @@ class NicepayController extends Controller
             'server_time' => $currentTime,
             'expired_time' => $expiredTime,
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
-            'va_number' => $firstNum . $vaNumber,
+            'va_number' => $firstNum.$vaNumber,
         ];
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
+    }
+
+    private function checkPaymentHasPaid(Package $package): bool
+    {
+        $payment = $package->payments()
+            ->where('status', Payment::STATUS_SUCCESS)
+            ->latest()
+            ->first();
+
+        return ! is_null($payment);
     }
 }

@@ -62,11 +62,11 @@ class GeneratePackageBikePrices
             /** @var Package $package */
             $package = $event->package->refresh();
 
-            if (!$package->relationLoaded('origin_regency')) {
+            if (! $package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (!$package->relationLoaded('destination_sub_district')) {
+            if (! $package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -89,8 +89,8 @@ class GeneratePackageBikePrices
                     case 999:
                         $servicePrice = $result->high_cc;
                         break;
-                    }
-                    $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
+                }
+                $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
             } catch (ValidationException $e) {
                 $servicePrice = 0;
             }

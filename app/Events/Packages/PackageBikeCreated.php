@@ -2,7 +2,6 @@
 
 namespace App\Events\Packages;
 
-use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;

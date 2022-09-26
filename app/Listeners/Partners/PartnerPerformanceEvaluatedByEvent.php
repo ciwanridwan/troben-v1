@@ -98,7 +98,7 @@ class PartnerPerformanceEvaluatedByEvent
         $this->setAttributes();
         $is_package = $this->performance instanceof Performance\Package;
 
-        if (!empty($this->attributes)) {
+        if (! empty($this->attributes)) {
             $query = match ($is_package) {
                 true => $this->package->partner_performance(),
                 false => $this->delivery->partner_performance()

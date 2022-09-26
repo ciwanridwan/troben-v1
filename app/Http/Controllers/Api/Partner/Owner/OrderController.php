@@ -15,7 +15,6 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
-use App\Http\Resources\Api\Package\PackageResource;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Resources\Api\Partner\VoucherAEResource;
 use App\Models\Notifications\NotificationAgent;
