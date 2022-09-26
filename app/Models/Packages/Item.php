@@ -141,7 +141,7 @@ class Item extends Model implements AttachableContract
     {
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
-            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight));
+            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->service_code));
         }
         return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight, $this->service_code);
     }
