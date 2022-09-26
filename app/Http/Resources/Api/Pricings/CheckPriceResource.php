@@ -20,9 +20,11 @@ class CheckPriceResource extends JsonResource
             'notes' => $this->notes,
             'service_code' => $this->service_code,
         ];
+
         switch ($data['service_code']) {
             case Service::TRAWLPACK_STANDARD:
-                $data['delivery_method'] = 'Reguler';
+                $data['amount'] = $this->tier_1;
+                $data['delivery_method'] = 'Regular';
                 return $data;
                 break;
 

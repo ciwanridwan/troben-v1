@@ -181,20 +181,15 @@ class PricingController extends Controller
     public function tarif(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
-            'origin_id' => ['required', 'numeric'],
-            'destination_id' => ['required', 'numeric'],
-            'service_code' => ['nullable', 'exists:services,code'],
+            'origin_id' => ['nullable', 'numeric', 'exists:geo_regencies,id'],
+            'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
+            // 'service_code' => ['nullable', 'exists:services,code'],
         ]);
 
         $originId = $this->attributes['origin_id'];
         $destinationId = $this->attributes['destination_id'];
 
-
-        if (isset($this->attributes['service_code'])) {
-            return $this->getPrice($this->attributes['service_code']);
-        } else {
-            return $this->getAllPrices($originId, $destinationId);
-        }
+        return $this->getAllPrices($originId, $destinationId);
     }
 
     /**
@@ -250,6 +245,47 @@ class PricingController extends Controller
             $result->makeHidden(['created_at', 'updated_at', 'deleted_at', 'harbor_id']);
             return (new Response(Response::RC_SUCCESS, $result))->json();
         }
+    }
+
+    private function getAllPrices($originId, $destinationId)
+    {
+        $regularPrices = Price::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_STANDARD)
+            ->first();
+
+        if ($regularPrices !== null) {
+            $regularPrices = $regularPrices->only('tier_1', 'notes');
+
+            $resultPrices['amount'] = $regularPrices['tier_1'];
+            $resultPrices['notes'] = $regularPrices['notes'];
+        }
+
+        $cubicPrices = CubicPrice::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_CUBIC)
+            ->first();
+
+        if ($cubicPrices !== null) {
+            $cubicPrices = $cubicPrices->only('amount', 'notes');
+        }
+
+        $expressPrices = ExpressPrice::where('origin_regency_id', $originId)
+            ->where('destination_id', $destinationId)
+            ->where('service_code', Service::TRAWLPACK_EXPRESS)
+            ->first();
+
+        if ($expressPrices !== null) {
+            $expressPrices = $expressPrices->only('amount', 'notes');
+        }
+
+        $data = [
+            "regular" => $resultPrices,
+            "kubikasi" => $cubicPrices,
+            "express" =>  $expressPrices
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
     private function getPrice($serviceCode): JsonResponse
@@ -322,46 +358,5 @@ class PricingController extends Controller
                 return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
-    }
-
-    private function getAllPrices($originId, $destinationId)
-    {
-        $regularPrices = Price::where('origin_regency_id', $originId)
-            ->where('destination_id', $destinationId)
-            ->where('service_code', Service::TRAWLPACK_STANDARD)
-            ->first();
-
-        if ($regularPrices !== null) {
-            $regularPrices = $regularPrices->only('tier_1', 'notes');
-
-            $resultPrices['amount'] = $regularPrices['tier_1'];
-            $resultPrices['notes'] = $regularPrices['notes'];
-        }
-
-        $cubicPrices = CubicPrice::where('origin_regency_id', $originId)
-            ->where('destination_id', $destinationId)
-            ->where('service_code', Service::TRAWLPACK_CUBIC)
-            ->first();
-
-        if ($cubicPrices !== null) {
-            $cubicPrices = $cubicPrices->only('amount', 'notes');
-        }
-
-        $expressPrices = ExpressPrice::where('origin_regency_id', $originId)
-            ->where('destination_id', $destinationId)
-            ->where('service_code', Service::TRAWLPACK_EXPRESS)
-            ->first();
-
-        if ($expressPrices !== null) {
-            $expressPrices = $expressPrices->only('amount', 'notes');
-        }
-
-        $data = [
-            "regular" => $resultPrices,
-            "kubikasi" => $cubicPrices,
-            "express" =>  $expressPrices
-        ];
-
-        return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 }
