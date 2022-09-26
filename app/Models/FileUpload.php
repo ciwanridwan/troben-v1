@@ -11,7 +11,7 @@ class FileUpload extends Model
 {
     use HasFactory;
 
-    const FILE_TYPE_WAREHOUSE = 'warehouse';
+    public const FILE_TYPE_WAREHOUSE = 'warehouse';
 
     protected $fillable = [
         'package_id',
@@ -30,9 +30,12 @@ class FileUpload extends Model
         'meta' => 'array',
     ];
 
-    public function getFileUrlAttribute() {
+    public function getFileUrlAttribute()
+    {
         $file = $this->attributes['file'];
-        if($file == null) return null;
+        if ($file == null) {
+            return null;
+        }
 
         return Storage::disk('s3')->temporaryUrl($file, Carbon::now()->addMinutes(60));
     }

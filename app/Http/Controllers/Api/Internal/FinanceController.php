@@ -84,7 +84,7 @@ class FinanceController extends Controller
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
             $attachment = $result->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $result->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
             $data = [
@@ -135,7 +135,7 @@ class FinanceController extends Controller
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
             $attachment = $result->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $result->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$result->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
             $data = [
@@ -347,7 +347,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');

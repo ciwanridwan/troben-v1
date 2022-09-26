@@ -78,7 +78,7 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (!$this->resource->motoBikes()) {
+        if (! $this->resource->motoBikes()) {
             $this->resource->load('motoBikes');
         }
 

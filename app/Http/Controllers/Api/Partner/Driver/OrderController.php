@@ -21,7 +21,7 @@ class OrderController extends Controller
 
         // skip cancelled order
         $query->where('status', '!=', Delivery::STATUS_CANCELLED)
-        ->where(function($q) use ($request) {
+        ->where(function ($q) use ($request) {
             $q->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
             $q->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
         });

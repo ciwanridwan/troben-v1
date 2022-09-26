@@ -68,7 +68,7 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
             'J' => 25,
             'K' => 25,
             'L' => 25,
-            "M" => 25
+            'M' => 25
         ];
     }
 

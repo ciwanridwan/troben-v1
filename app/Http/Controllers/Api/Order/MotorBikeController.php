@@ -264,7 +264,7 @@ class MotorBikeController extends Controller
             'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
-            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:'.Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -388,7 +388,7 @@ class MotorBikeController extends Controller
 
     private static function getHandlingWoodPrice($type, $height, $length, $width)
     {
-        if ($type == "" || $height == 0 || $length == 0 || $width == 0) {
+        if ($type == '' || $height == 0 || $length == 0 || $width == 0) {
             return 0;
         } else {
             $price = 50000;
