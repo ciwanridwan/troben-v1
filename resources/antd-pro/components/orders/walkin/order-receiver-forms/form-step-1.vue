@@ -18,12 +18,8 @@
               prop="android"
             >
               <a-radio-group v-model="value" @change="onChange">
-                <a-radio :value="true">
-                  Ya, memiliki
-                </a-radio>
-                <a-radio :value="false">
-                  Tidak
-                </a-radio>
+                <a-radio :value="true"> Ya, memiliki </a-radio>
+                <a-radio :value="false"> Tidak </a-radio>
               </a-radio-group>
             </a-form-model-item>
           </a-col>
@@ -173,7 +169,7 @@
                 :filter-option="filterOptionMethod"
                 @focus="
                   getGeo('regency', {
-                    province_id: form.destination_province_id
+                    province_id: form.destination_province_id,
                   })
                 "
                 :loading="loading"
@@ -198,7 +194,7 @@
                 :filter-option="filterOptionMethod"
                 @focus="
                   getGeo('district', {
-                    regency_id: form.destination_regency_id
+                    regency_id: form.destination_regency_id,
                   })
                 "
                 :loading="loading"
@@ -228,7 +224,7 @@
                 :filter-option="filterOptionMethod"
                 @focus="
                   getGeo('sub_district', {
-                    district_id: form.destination_district_id
+                    district_id: form.destination_district_id,
                   })
                 "
                 @change="setZipCode"
@@ -286,7 +282,7 @@
 import {
   RC_OUT_OF_RANGE,
   RC_INVALID_DATA,
-  RC_INVALID_PHONE_NUMBER
+  RC_INVALID_PHONE_NUMBER,
 } from "../../../../data/response";
 import { getMessageByCode } from "../../../../functions/response";
 import trawlRadioButton from "../../../radio-buttons/trawl-radio-button";
@@ -322,7 +318,7 @@ export default {
         destination_district_id: null,
         destination_sub_district_id: null,
         destination_zip_code: null,
-        service_code: null
+        service_code: null,
       },
       rules: {
         customer_hash: [{ required: true, message: "sender phone required" }],
@@ -339,28 +335,28 @@ export default {
         destination_district_id: [{ required: false }],
         destination_sub_district_id: [{ required: false }],
         destination_zip_code: null,
-        service_code: [{ required: true }]
+        service_code: [{ required: true }],
       },
-      valid: false
+      valid: false,
     };
   },
   methods: {
-    onChange(e) {
-      console.log("radio checked", e.target.value);
-    },
+    // onChange(e) {
+    //   console.log("radio checked", e.target.value);
+    // },
     async validate() {
       this.valid = true;
       await this.$refs.formRules
         .validate()
-        ?.then(value => {
+        ?.then((value) => {
           if (!value) {
             this.valid = false;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.valid = false;
         });
-      await this.checkAvailableShipping().then(value => {
+      await this.checkAvailableShipping().then((value) => {
         if (!value) {
           this.valid = false;
         }
@@ -374,8 +370,8 @@ export default {
         .get(this.routeUri("partner.customer_service.home.order.walkin.geo"), {
           params: {
             type: status,
-            ...params
-          }
+            ...params,
+          },
         })
         .then(({ data }) => {
           let datas = data.data;
@@ -417,16 +413,16 @@ export default {
         .get(this.routeUri(this.getRoute()), {
           params: {
             check: true,
-            destination_id: this.form.destination_sub_district_id
-          }
+            destination_id: this.form.destination_sub_district_id,
+          },
         })
-        .catch(error => {
+        .catch((error) => {
           const { data } = error.response;
 
           let responseMessage = getMessageByCode(data.code);
           if ((data.code = RC_OUT_OF_RANGE)) {
             this.$notification.error({
-              message: responseMessage?.message
+              message: responseMessage?.message,
             });
           } else {
             this.onErrorResponse(error);
@@ -437,7 +433,7 @@ export default {
     },
     setZipCode() {
       let subDistrict = this.subDistricts.find(
-        o => o.id === this.form.destination_sub_district_id
+        (o) => o.id === this.form.destination_sub_district_id
       );
       this.form.destination_zip_code = subDistrict.zip_code;
       this.checkAvailableShipping();
@@ -448,8 +444,8 @@ export default {
           this.routeUri("partner.customer_service.home.order.walkin.customer"),
           {
             params: {
-              phone: this.form.sender_phone
-            }
+              phone: this.form.sender_phone,
+            },
           }
         )
         .then(({ data }) => {
@@ -458,11 +454,11 @@ export default {
           this.form.customer_hash = customer.hash;
           this.form.sender_name = customer.name;
         })
-        .catch(error => {
+        .catch((error) => {
           let code = error.response.data.code;
           let responseMessage = getMessageByCode(code);
           this.$notification.error({
-            message: responseMessage?.message
+            message: responseMessage?.message,
           });
         });
     },
@@ -472,8 +468,8 @@ export default {
           this.routeUri("partner.customer_service.home.order.walkin.customer"),
           {
             params: {
-              phone: this.form.sender_phone_mitra
-            }
+              phone: this.form.sender_phone_mitra,
+            },
           }
         )
         .then(({ data }) => {
@@ -482,28 +478,28 @@ export default {
           this.form.customer_hash = customer.hash;
           this.form.sender_name_mitra = customer.name;
         })
-        .catch(error => {
+        .catch((error) => {
           let code = error.response.data.code;
           let responseMessage = getMessageByCode(code);
           this.$notification.error({
-            message: responseMessage?.message
+            message: responseMessage?.message,
           });
         });
-    }
+    },
   },
 
   watch: {
     form: {
-      handler: function(value) {
+      handler: function (value) {
         this.$emit("change", { ...value, valid: this.valid });
         this.$emit("input", { ...value, valid: this.valid });
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
     this.getService();
-  }
+  },
 };
 </script>
 <style scoped>

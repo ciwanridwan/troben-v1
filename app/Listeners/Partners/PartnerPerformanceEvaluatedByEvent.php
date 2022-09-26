@@ -57,21 +57,25 @@ class PartnerPerformanceEvaluatedByEvent
                 foreach ($packages as $package) {
                     /** @var Package $package */
                     $this->package = $package;
-                    $this
+                    if ($this->package->partner_performance !== null) {
+                        $this
                         ->setPerformance($this->package->partner_performance)
                         ->updatePerformance();
+                    }
                 }
-
-                $this
+                if ($this->delivery->partner_performance !== null) {
+                    $this
                     ->setPerformance($this->delivery->partner_performance)
                     ->updatePerformance();
+                }
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
-
-                $this
+                if ($this->delivery->partner_performance !== null) {
+                    $this
                     ->setPerformance($this->delivery->partner_performance)
                     ->updatePerformance();
+                }
                 break;
         }
     }
@@ -94,7 +98,7 @@ class PartnerPerformanceEvaluatedByEvent
         $this->setAttributes();
         $is_package = $this->performance instanceof Performance\Package;
 
-        if (! empty($this->attributes)) {
+        if (!empty($this->attributes)) {
             $query = match ($is_package) {
                 true => $this->package->partner_performance(),
                 false => $this->delivery->partner_performance()

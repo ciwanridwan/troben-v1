@@ -36,7 +36,7 @@ export default {
   data() {
     return {
       partnerInventoryColumns,
-      form: []
+      form: [],
     };
   },
   components: { ContentLayout, PartnerAddInventory, ContentLayout },
@@ -45,17 +45,17 @@ export default {
       this.form.splice(index, 1);
     },
     addToInventories(value) {
-      console.log(this.form);
+      // console.log(this.form);
       this.form.push(value);
-    }
+    },
   },
   watch: {
     form: {
-      handler: function(value) {
+      handler: function (value) {
         this.$emit("input", value);
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 , DeleteButton

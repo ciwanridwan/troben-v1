@@ -32,7 +32,9 @@ export default {
   components: { orderModalRowLayout },
   computed: {
     receiver_address() {
-      return this.delivery?.partner?.geo_address ?? this.delivery?.partner?.address;
+      return (
+        this.delivery?.partner?.geo_address ?? this.delivery?.partner?.address
+      );
     },
     receiver_phone() {
       return this.delivery?.partner?.phone;

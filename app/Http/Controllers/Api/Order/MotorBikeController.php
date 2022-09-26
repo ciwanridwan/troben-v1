@@ -264,7 +264,7 @@ class MotorBikeController extends Controller
             'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
-            'handling.*' => 'nullable|in:'.Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -312,24 +312,24 @@ class MotorBikeController extends Controller
         $handling_price = 0;
         switch ($req['moto_cc']) {
             case 150:
-                $handling_price = 150000;
+                $handling_price = 175000;
                 break;
             case 250:
                 $handling_price = 250000;
                 break;
             case 999:
-                $handling_price = 500000;
+                $handling_price = 450000;
                 break;
         }
 
+        $type = $request->get('handling') ?? '';
         $height = $request->get('height');
         $length = $request->get('length');
         $width = $request->get('width');
-        $type = $request->get('handling');
 
         $handlingAdditionalPrice = 0;
-        $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-
+        // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
+        $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
         $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
@@ -384,5 +384,15 @@ class MotorBikeController extends Controller
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
 
         return $price;
+    }
+
+    private static function getHandlingWoodPrice($type, $height, $length, $width)
+    {
+        if ($type == "" || $height == 0 || $length == 0 || $width == 0) {
+            return 0;
+        } else {
+            $price = 50000;
+            return $price;
+        }
     }
 }

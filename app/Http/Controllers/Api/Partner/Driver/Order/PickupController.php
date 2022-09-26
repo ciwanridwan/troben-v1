@@ -10,6 +10,7 @@ use App\Events\Deliveries\Pickup\PackageLoadedByDriver;
 use App\Events\Deliveries\Pickup\DriverArrivedAtWarehouse;
 use App\Events\Deliveries\Pickup\DriverArrivedAtPickupPoint;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Packages\PackageCanceledByDriver;
 
 class PickupController extends Controller
 {
@@ -23,6 +24,13 @@ class PickupController extends Controller
     public function loaded(Delivery $delivery): JsonResponse
     {
         event(new PackageLoadedByDriver($delivery));
+
+        return $this->jsonSuccess(DeliveryResource::make($delivery));
+    }
+
+    public function cancel(Delivery $delivery): JsonResponse
+    {
+        event(new PackageCanceledByDriver($delivery));
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }

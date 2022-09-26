@@ -24,10 +24,8 @@
         ></a-input-search>
       </template>
 
-
       <template slot="rightContent">
-
-<!--        <div>
+        <!--        <div>
           <a-radio-group v-model="value" @change="onChange">
             <a-radio-button value="a">
               Hangzhou
@@ -42,7 +40,10 @@
         <a-empty v-else-if="partners.length < 1" />
         <a-form-model v-else ref="formRules" :model="form" :rules="rules">
           <a-form-model-item prop="partner_hash" />
-          <partner-radio-group :partners="partners" v-model="form.partner_hash" />
+          <partner-radio-group
+            :partners="partners"
+            v-model="form.partner_hash"
+          />
         </a-form-model>
       </template>
       <template slot="rightFooter">
@@ -95,7 +96,7 @@ export default {
   },
   data() {
     return {
-      value: 'a',
+      value: "a",
       SendIcon,
       partners: [],
       confirmVisible: false,
@@ -115,9 +116,9 @@ export default {
     };
   },
   methods: {
-    onChange(e) {
-      console.log(`checked = ${e.target.value}`);
-    },
+    // onChange(e) {
+    //   console.log(`checked = ${e.target.value}`);
+    // },
     searchPartner: _.debounce(async function () {
       this.loading = true;
       this.$http
@@ -134,7 +135,6 @@ export default {
     }),
     async assignPartner() {
       let valid = await this.$refs.formRules.validate();
-      console.log(valid);
       if (!valid) {
         return false;
       }

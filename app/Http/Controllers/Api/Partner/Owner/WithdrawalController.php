@@ -80,7 +80,7 @@ class WithdrawalController extends Controller
             $this->getSearch($request);
         }
 
-        return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+        return (new Response(Response::RC_SUCCESS, $this->query->orderBy('created_at', 'desc')->paginate(request('per_page', 15))))->json();
     }
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse

@@ -10,11 +10,11 @@ use App\Http\Resources\Geo\SubDistrictResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class PackageResource.
+ * Class PackageResourceDeprecated.
  *
  * @property  Package $resource
  */
-class PackageResource extends JsonResource
+class PackageResourceDeprecated extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -26,6 +26,10 @@ class PackageResource extends JsonResource
     {
         if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
+        }
+
+        if (! $this->resource->relationLoaded('fileuploads')) {
+            $this->resource->load('fileuploads');
         }
 
         if (! $this->resource->relationLoaded('code')) {
@@ -59,6 +63,12 @@ class PackageResource extends JsonResource
             $this->resource->unsetRelation('partner_performance');
         }
 
+        if (isset($this->resource['order_type']) && $this->resource['order_type'] == Package::TYPE_BIKE) {
+            $this->resource->load('motoBikes');
+        } else {
+            $this->resource['moto_bikes'] = null;
+        }
+
         $data = array_merge(parent::toArray($request), [
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
@@ -78,38 +88,6 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (!$this->resource->motoBikes()) {
-            $this->resource->load('motoBikes');
-        }
-
-        /**Set type bike or item */
-        if (isset($data['moto_bikes']) && $data['moto_bikes'] !== null) {
-            $data['type'] = 'bike';
-        } else {
-            $data['type'] = 'item';
-        }
-
-        /**New script for response */
-        $result = [
-            'hash' => $data['hash'],
-            'created_at' => $data['created_at'],
-            'content' => $data['code']['content'],
-            'origin_regency' => $data['origin_regency']['name'],
-            'destination_regency' => $data['destination_regency']['name'],
-            'status' => $data['status'],
-            'type' => $data['type'],
-            'picked_up_by' => null,
-        ];
-
-        if (isset($data['picked_up_by'])) {
-            $result['picked_up_by'] = [
-                'code' => $data['picked_up_by']['code'],
-                'contact_email' => $data['picked_up_by']['contact_email'],
-                'contact_phone' => $data['picked_up_by']['contact_phone'],
-                'address' => $data['picked_up_by']['address'],
-            ];
-        }
-
-        return $result;
+        return $data;
     }
 }

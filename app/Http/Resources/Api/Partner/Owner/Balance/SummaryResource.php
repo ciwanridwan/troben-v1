@@ -15,8 +15,8 @@ class SummaryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        $deposit = $this->getTotalBalance(History::TYPE_DEPOSIT);
-        $withdraw = $this->getTotalBalance(History::TYPE_WITHDRAW);
+        // $deposit = $this->getTotalBalance(History::TYPE_DEPOSIT);
+        // $withdraw = $this->getTotalBalance(History::TYPE_WITHDRAW);
         $deposit_today = $this->getTotalBalance(History::TYPE_DEPOSIT, true);
         $withdraw_today = $this->getTotalBalance(History::TYPE_WITHDRAW, true);
 

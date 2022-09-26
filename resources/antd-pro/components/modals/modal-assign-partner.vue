@@ -29,7 +29,10 @@
         <a-empty v-else-if="partners.length < 1" />
         <a-form-model v-else ref="formRules" :model="form" :rules="rules">
           <a-form-model-item prop="partner_hash" />
-          <partner-radio-group :partners="partners" v-model="form.partner_hash" />
+          <partner-radio-group
+            :partners="partners"
+            v-model="form.partner_hash"
+          />
         </a-form-model>
       </template>
       <template slot="rightFooter">
@@ -121,7 +124,6 @@ export default {
     }),
     async assignPartner() {
       let valid = await this.$refs.formRules.validate();
-      console.log(valid);
       if (!valid) {
         return false;
       }

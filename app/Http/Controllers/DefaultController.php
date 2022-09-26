@@ -14,6 +14,13 @@ class DefaultController extends Controller
 
     public function attachment(AttachmentResponse $response, Attachment $attachment)
     {
-        return $response->streamOrDownload($attachment);
+        try {
+            return $response->streamOrDownload($attachment);
+        } catch (\Exception $e) {
+            $p = public_path('assets/tb-logo.png');
+            return request()->has('stream') && (bool) request()->input('stream') === true
+            ? response()->stream($p)
+            : response()->download($p);
+        }
     }
 }

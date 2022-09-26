@@ -9,6 +9,7 @@ class Attachment extends BaseAttachment
 {
     protected $appends = [
         'uri',
+        'uri_stream',
     ];
 
     protected $hidden = [
@@ -33,6 +34,15 @@ class Attachment extends BaseAttachment
         return route('home.attachment', [
             'attachment_uuid' => $this->getKey(),
         ]);
+    }
+
+    public function getUriStreamAttribute()
+    {
+        $uri = route('home.attachment', [
+            'attachment_uuid' => $this->getKey(),
+        ]);
+
+        return sprintf('%s?stream=true', $uri);
     }
 
     /**
