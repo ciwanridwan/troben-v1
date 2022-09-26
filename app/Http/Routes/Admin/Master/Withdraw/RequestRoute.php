@@ -85,7 +85,7 @@ class RequestRoute extends BaseRoute
             'uses' => $this->uses('reportReceipt', FinanceController::class),
         ]);
 
-        $this->router->post($this->prefix('/attachment_transfer/{id}'),[
+        $this->router->post($this->prefix('/attachment_transfer/{id}'), [
             'as' => $this->name('attachmentTransfer'),
             'uses' => $this->uses('attachmentTransfer', WithdrawalController::class)
         ]);

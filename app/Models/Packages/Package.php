@@ -587,7 +587,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (!$this->transporter_type) {
+        if (! $this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -724,7 +724,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (!$transporterType) {
+        if (! $transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {

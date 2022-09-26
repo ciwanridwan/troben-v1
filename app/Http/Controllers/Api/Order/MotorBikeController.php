@@ -109,18 +109,22 @@ class MotorBikeController extends Controller
 
             'created_by' => ['nullable', 'exists:customers,id'],
         ], $messages);
-        $senderName = array($request->input('sender_name'));
+        $senderName = [$request->input('sender_name')];
         Log::info('validate package success', $senderName);
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
         $resultOrigin = Geo::getRegional($coordOrigin, true);
 
-        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
         $resultDestination = Geo::getRegional($coordDestination, true);
 
-        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
 
         $origin_regency_id = $resultOrigin['regency'];
         $destination_id = $resultDestination['district'];
@@ -189,12 +193,12 @@ class MotorBikeController extends Controller
             'price' => 'required_if:is_insured,true|numeric',
 
             'handling' => 'nullable',
-            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
+            'handling.*' => 'nullable|in:'.Handling::TYPE_WOOD,
             'height' => [Rule::requiredIf($request->handling != null), 'numeric'],
             'length' => [Rule::requiredIf($request->handling != null), 'numeric'],
             'width' => [Rule::requiredIf($request->handling != null), 'numeric'],
 
-            'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX . ',' . Transporter::TYPE_PICKUP,
+            'transporter_type' => 'required|in:'.Transporter::TYPE_CDD_DOUBLE_BAK.','.Transporter::TYPE_CDD_DOUBLE_BOX.','.Transporter::TYPE_CDE_ENGKEL_BAK.','.Transporter::TYPE_CDE_ENGKEL_BOX.','.Transporter::TYPE_PICKUP_BOX.','.Transporter::TYPE_PICKUP,
             'partner_code' => ['required', 'exists:partners,code']
         ], $messages);
 
@@ -276,17 +280,21 @@ class MotorBikeController extends Controller
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
         $resultOrigin = Geo::getRegional($coordOrigin, true);
-        if ($resultOrigin == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
 
         $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
         $resultDestination = Geo::getRegional($coordDestination, true);
-        if ($resultDestination == null) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
 
         $pickup_price = 0;
         if ($request->input('transporter_type') != null && $request->input('transporter_type') != '' && $request->input('partner_code') != '' && $request->input('partner_code') != null) {
             $partner = Partner::where('code', $request->input('partner_code'))->first();
-            $origin = $request->input('origin_lat') . ', ' . $request->input('origin_lon');
-            $destination = $partner->latitude . ', ' . $partner->longitude;
+            $origin = $request->input('origin_lat').', '.$request->input('origin_lon');
+            $destination = $partner->latitude.', '.$partner->longitude;
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($request->input('transporter_type') != 'bike') {

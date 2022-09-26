@@ -180,11 +180,6 @@ class Item extends Model implements AttachableContract
         return ['qty' => $this->attributes['qty']];
     }
 
-    private function getHandling()
-    {
-        return !empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
-    }
-
     /**Declare Type of item */
     public function getAvailableTypes()
     {
@@ -192,5 +187,10 @@ class Item extends Model implements AttachableContract
             self::TYPE_ITEM,
             self::TYPE_BIKE
         ];
+    }
+
+    private function getHandling()
+    {
+        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 }

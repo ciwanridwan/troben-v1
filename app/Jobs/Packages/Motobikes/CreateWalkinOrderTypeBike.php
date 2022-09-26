@@ -2,8 +2,6 @@
 
 namespace App\Jobs\Packages\Motobikes;
 
-
-
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
@@ -118,12 +116,12 @@ class CreateWalkinOrderTypeBike
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
         $this->bikes = Validator::make($bikes, [
-            "moto_cc" => ['required', 'numeric'],
-            "moto_type" => ['required', 'in:kopling,gigi,matic'],
-            "moto_merk" => ['required'],
-            "moto_year" => ['required', 'numeric'],
-            "package_id" => ['required', 'exists:packages,id'],
-            "package_item_id" => ['required', 'exists:package_items,id']
+            'moto_cc' => ['required', 'numeric'],
+            'moto_type' => ['required', 'in:kopling,gigi,matic'],
+            'moto_merk' => ['required'],
+            'moto_year' => ['required', 'numeric'],
+            'package_id' => ['required', 'exists:packages,id'],
+            'package_item_id' => ['required', 'exists:package_items,id']
         ]);
 
         $this->items = $items;

@@ -131,18 +131,22 @@ class Geo
             ];
         }
 
-        $subdistrict_check = $comps->filter(function($r) {
+        $subdistrict_check = $comps->filter(function ($r) {
             return in_array('administrative_area_level_4', $r->types);
         })->first();
         $subdistrict = null;
         if (! is_null($subdistrict_check)) {
             $subdistrict = [
                 'k' => $subdistrict_check->place_id,
-                'v' => collect($subdistrict_check->address_components)->filter(function($r) { return in_array('administrative_area_level_4', $r->types); })->first()->long_name,
+                'v' => collect($subdistrict_check->address_components)->filter(function ($r) {
+                    return in_array('administrative_area_level_4', $r->types);
+                })->first()->long_name,
             ];
         }
 
-        if ($province == null && $regency == null && $district == null) return null;
+        if ($province == null && $regency == null && $district == null) {
+            return null;
+        }
 
         $key = 'province';
         $provinceRegional = null;
@@ -200,7 +204,9 @@ class Geo
             if ($subdistrictRegional == null) { // subdistrict still null, fallback to province level
                 $subdistrictRegional = self::findInDB($key, $subdistrict, $coord, $provinceId);
             }
-            if ($subdistrictRegional == null) return null;
+            if ($subdistrictRegional == null) {
+                return null;
+            }
             $subdistrictId = $subdistrictRegional->regional_id;
 
             $result['subdistrict'] = $subdistrictId;
@@ -291,19 +297,30 @@ class Geo
         }
 
         switch ($type) {
-            case 'province': $t = 'geo_provinces'; break;
-            case 'regency': $t = 'geo_regencies'; break;
-            case 'district': $t = 'geo_districts'; break;
-            case 'subdistrict': $t = 'geo_sub_districts'; break;
-            default: throw new \Exception('Invalid type'); break;
+            case 'province': $t = 'geo_provinces';
+                break;
+            case 'regency': $t = 'geo_regencies';
+                break;
+            case 'district': $t = 'geo_districts';
+                break;
+            case 'subdistrict': $t = 'geo_sub_districts';
+                break;
+            default: throw new \Exception('Invalid type');
+                break;
         }
 
         // first check in local db
         $result = DB::table($t)->where('name', 'ilike', '%'.self::regionCleaner($place['v']).'%');
 
-        if ($provinceId != null) $result = $result->where('province_id', $provinceId);
-        if ($regencyId != null) $result = $result->where('regency_id', $regencyId);
-        if ($districtId != null) $result = $result->where('district_id', $districtId);
+        if ($provinceId != null) {
+            $result = $result->where('province_id', $provinceId);
+        }
+        if ($regencyId != null) {
+            $result = $result->where('regency_id', $regencyId);
+        }
+        if ($districtId != null) {
+            $result = $result->where('district_id', $districtId);
+        }
 
         $regionLocal = $result->first();
         if ($regionLocal != null) {
