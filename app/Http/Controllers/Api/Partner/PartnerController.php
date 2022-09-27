@@ -127,6 +127,9 @@ class PartnerController extends Controller
                     $dr = $dist->distance_radian;
                     $dm = $dist->distance_matrix;
                 }
+                if ($dm == 0) {
+                    $dm = $dr;
+                }
                 $r->distance_radian = $dr;
                 $r->distance_matrix = $dm;
                 return $r;
