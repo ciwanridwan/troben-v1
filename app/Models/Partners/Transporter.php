@@ -480,6 +480,7 @@ class Transporter extends Model
 
     public static function getDetailTransporterOfBike(): array
     {
+        $url = asset('storage/app/icons/pickup.png');
         return [
             [
                 'name' => self::TYPE_PICKUP,
@@ -488,7 +489,7 @@ class Transporter extends Model
                 'height' => 150,
                 'weight' => 700,
                 // 'path_icons' => storage_path('app/icons/pickup.png'),
-                'path_icons' => ''
+                'path_icons' => $url
             ],
             [
                 'name' => self::TYPE_PICKUP_BOX,
