@@ -31,28 +31,47 @@ class TransporterController extends Controller
      */
     public function list(Request $request): JsonResponse
     {
-        $this->attributes = Validator::make($request->all(), [
-            'details' => ['nullable', 'boolean'],
-            'type' => ['nullable', 'exists:services,code']
-        ])->validate();
-
-        if ($request->details) {
-            switch ($request->type) {
-                case Service::TRAWLPACK_STANDARD:
-                    return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
-                    break;
-                case Service::TRAWLPACK_CUBIC:
-                    return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
-                    break;
-            }
-        }
+        $request->validate(
+            [
+                "service_code" => ['nullable', 'exists:services,code'],
+                "type" => ['nullable', 'in:bike,other'],
+                "details" => ['nullable', 'boolean']
+            ]
+        );
 
         switch ($request->type) {
-            case Service::TRAWLPACK_STANDARD:
-                return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
+            case 'bike':
+                if ($request->details) {
+                    return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailTransporterOfBike()));
+                }
+                return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getTranporterOfBike()));
                 break;
-            case Service::TRAWLPACK_CUBIC:
-                return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
+            case 'other':
+                if ($request->details) {
+                    switch ($request->service_code) {
+                        case Service::TRAWLPACK_STANDARD:
+                            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
+                            break;
+                        case Service::TRAWLPACK_CUBIC:
+                            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
+                            break;
+                        case Service::TRAWLPACK_EXPRESS:
+                            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
+                            break;
+                    }
+                }
+
+                switch ($request->service_code) {
+                    case Service::TRAWLPACK_STANDARD:
+                        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
+                        break;
+                    case Service::TRAWLPACK_CUBIC:
+                        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
+                        break;
+                    case Service::TRAWLPACK_EXPRESS:
+                        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
+                        break;
+                }
                 break;
         }
     }
