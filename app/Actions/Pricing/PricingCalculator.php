@@ -275,6 +275,12 @@ class PricingCalculator
                 break;
         }
 
+        if ($serviceCode === Service::TRAWLPACK_STANDARD) {
+            $additionalCost = 0;
+        } else {
+            $additionalCost =
+        }
+
         $response = [
             'price' => $result['price'],
             'items' => $inputs['items'],
@@ -285,6 +291,7 @@ class PricingCalculator
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
                 'tier' => $result['tier'],
+                'additional_cost' => $additionalCost,
                 'service' => $servicePrice
             ]
         ];
