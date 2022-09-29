@@ -176,7 +176,7 @@ class OrderController extends Controller
             $result['packing_price'] = $prices['packing_price'];
         }
 
-        $getFeeAdditional = $package->prices()->where('tyoe', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first();
+        $getFeeAdditional = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first();
         if (is_null($getFeeAdditional)) {
             $feeAdditional = 0;
         } else {
