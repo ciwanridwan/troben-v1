@@ -274,7 +274,8 @@ class Geo
         $blacklist = [
             'Kota',
             'Kecamatan',
-            'Kabupaten'
+            'Kabupaten',
+            'Distrik',
         ];
 
         foreach ($blacklist as $b) {
@@ -283,6 +284,7 @@ class Geo
 
         $str = preg_replace('/[^A-Za-z0-9 ]/', '', $str);
 
+        $str = str_replace(' ', '', $str);
         $str = trim($str);
 
         return $str;
@@ -310,7 +312,8 @@ class Geo
         }
 
         // first check in local db
-        $result = DB::table($t)->where('name', 'ilike', '%'.self::regionCleaner($place['v']).'%');
+        $placeName = self::regionCleaner($place['v']);
+        $result = DB::table($t)->whereRaw("REPLACE(name, ' ', '') ilike '%".$placeName."%'");
 
         if ($provinceId != null) {
             $result = $result->where('province_id', $provinceId);
