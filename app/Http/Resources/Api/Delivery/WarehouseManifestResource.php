@@ -27,6 +27,9 @@ class WarehouseManifestResource extends DeliveryResource
             fn (Package $package) => $package->setRelation('item_codes', $itemCodes->get($package->id))
         );
 
+        return $this->resource->toArray();
+
+        // disable it
         return parent::toArray($request);
     }
 }
