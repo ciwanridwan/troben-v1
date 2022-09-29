@@ -127,10 +127,9 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('shipSchedule'),
         ]);
 
-        /**Temporary url */
-        $this->router->post($this->prefix('walkin'), [
-            'as' => $this->name('walkin'),
-            'uses' => $this->uses('store', WalkinController::class),
+        $this->router->get($this->prefix('personal/data'), [
+            'as' => $this->name('usePersonalData'),
+            'uses' => $this->uses('usePersonalData'),
         ]);
     }
 

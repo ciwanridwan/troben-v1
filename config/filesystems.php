@@ -74,6 +74,11 @@ return [
             'root' => storage_path('app/attachment_transfer'),
         ],
 
+        'icons' => [
+            'driver' => 'local',
+            'root' => storage_path('app/icons'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

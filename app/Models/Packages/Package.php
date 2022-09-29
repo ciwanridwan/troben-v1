@@ -450,6 +450,16 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function cubicPrices()
+    {
+        return $this->hasMany(CubicPrice::class, 'package_id', 'id');
+    }
+
+    public function expressPrices()
+    {
+        return $this->hasMany(ExpressPrice::class, 'package_id', 'id');
+    }
+
     public function motoBikes(): HasOne
     {
         return $this->hasOne(MotorBike::class, 'package_id', 'id');

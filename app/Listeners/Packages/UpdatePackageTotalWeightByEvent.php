@@ -41,7 +41,7 @@ class UpdatePackageTotalWeightByEvent
                 ];
             }
 
-            $totalWeight = PricingCalculator::getTotalWeightBorne($items);
+            $totalWeight = PricingCalculator::getTotalWeightBorne($items, $package->service_code);
             $package->setAttribute('total_weight', $totalWeight)->save();
         }
     }

@@ -41,10 +41,14 @@ use App\Models\CodeLogable;
 use App\Models\Packages\BikePrices;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Partners\VoucherAE;
+use App\Models\Service;
 use App\Supports\Geo;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Http\Resources\Api\Pricings\CheckPriceResource;
+use App\Models\Packages\CubicPrice;
+use App\Models\Packages\ExpressPrice;
 
 class OrderController extends Controller
 {
@@ -88,6 +92,7 @@ class OrderController extends Controller
         ]);
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
+
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
         $prices['voucher_price_discount'] = 0;
         if ($request->promotion_hash && $service_discount == 0) {
@@ -144,7 +149,20 @@ class OrderController extends Controller
             ->where('destination_id', $package->destination_sub_district_id)->first();
 
 
-        $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $serviceCode = $package->service_code;
+
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_CUBIC:
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->get()->sum('amount');
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->get()->sum('amount');
+                break;
+            case Service::TRAWLPACK_STANDARD:
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+                break;
+        }
 
         /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
@@ -198,7 +216,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (! $voucher) {
+        if (!$voucher) {
             $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
@@ -221,7 +239,7 @@ class OrderController extends Controller
             return $default;
         }
 
-        if (! is_null($voucher->aevoucher)) {
+        if (!is_null($voucher->aevoucher)) {
             return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
         }
 
@@ -292,10 +310,10 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
-        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $destination_id]);
+        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $resultDestination['subdistrict']]);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
@@ -335,55 +353,6 @@ class OrderController extends Controller
         // )));
     }
 
-    // deprecated, move to MotorBikeController
-    public function storeMotorbike(Request $request): JsonResponse
-    {
-        $handlers = [
-            Handling::TYPE_BUBBLE_WRAP,
-            Handling::TYPE_WOOD,
-            Handling::TYPE_PLASTIC,
-        ];
-
-        $request->validate([
-            'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_brand' => 'required',
-            'moto_cc' => 'required',
-            'moto_year' => 'required|numeric',
-            'moto_photo' => 'required|image',
-            'moto_price' => 'required|numeric',
-            'moto_handling' => 'required|in:'.implode(',', $handlers),
-
-            'origin_lat' => 'required|numeric',
-            'origin_lon' => 'required|numeric',
-            'destination_lat' => 'required|numeric',
-            'destination_lon' => 'required|numeric',
-        ]);
-
-        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
-        $resultOrigin = Geo::getRegional($coordOrigin);
-        if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
-        }
-
-        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination);
-        if ($resultDestination == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        }
-
-        $origin_regency_id = $resultOrigin['regency'];
-        $destination_id = $resultDestination['district'];
-        $request->merge([
-            'origin_regency_id' => $origin_regency_id,
-            'destination_id' => $destination_id,
-            'sender_latitude' => $request->get('destination_lat'),
-            'sender_longitude' => $request->get('destination_lon'),
-        ]);
-
-        $result = 'created';
-
-        return (new Response(Response::RC_SUCCESS, $result))->json();
-    }
 
     /**
      * @param \Illuminate\Http\Request $request
@@ -403,7 +372,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -452,7 +421,7 @@ class OrderController extends Controller
                 $pickup_discount_price->delete();
             }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (! $voucher) {
+            if (!$voucher) {
                 $partnerId = $request->get('partner_id');
                 if ($partnerId != null) {
                     // add fallback to Voucher AE
@@ -549,7 +518,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (! $code->exists) {
+        if (!$code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -560,7 +529,7 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
@@ -647,151 +616,100 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;
     }
 
-    /** Todo New Script */
-    // public function show(Request $request, Package $package): JsonResponse
-    // {
-    //     $this->authorize('view', $package);
-    //     $request->validate([
-    //         'promotion_hash' => ['nullable'],
-    //         'voucher_code' => ['nullable'],
-    //         'partner_id' => ['nullable'],
-    //     ]);
+    public function usePersonalData(Request $request)
+    {
+        $user = $request->user();
 
-    //     $prices = PricingCalculator::getDetailPricingPackage($package);
-    //     $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-    //     $prices['voucher_price_discount'] = 0;
-    //     if ($request->promotion_hash && $service_discount == 0) {
-    //         $promo = $this->check($request->promotion_hash, $package);
-    //         $prices['service_price_fee'] = $promo['service_price_fee'];
-    //         $prices['service_price_discount'] = $promo['service_price_discount'];
-    //     } elseif ($request->voucher_code && $request->promotion_hash == null) {
-    //         $voucher = $this->claimVoucher($request->voucher_code, $package, $request->get('partner_id'));
-    //         $prices['service_price_fee'] = 0;
-    //         $prices['service_price_discount'] = $voucher['service_price_discount'];
-    //         $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
-    //         if (isset($voucher['pickup_price_discount'])) { // free pickup
-    //             $prices['pickup_price_discount'] = $voucher['pickup_price_discount'];
-    //         }
-    //     }
+        $result = [
+            'name' => $user->name,
+            'phone' => $user->phone
+        ];
 
-    //     // override if already inputed
-    //     if ($package->claimed_voucher && $package->claimed_voucher->voucher && $package->claimed_voucher->voucher->aevoucher) {
-    //         $aevoucher = $package->claimed_voucher->voucher->aevoucher;
-    //         $voucher = $this->claimVoucher($aevoucher->code, $package, $aevoucher->partner_id);
-    //         $prices['service_price_fee'] = 0;
-    //         $prices['service_price_discount'] = $voucher['service_price_discount'];
-    //         $prices['voucher_price_discount'] = $voucher['voucher_price_discount'];
-    //         $prices['pickup_price_discount'] = $voucher['pickup_price_discount'] ?? 0; // free pickup
-    //     }
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
 
-    //     /** Old script */
-    //     // $package->load(
-    //     //     'code',
-    //     //     'prices',
-    //     //     'attachments',
-    //     //     'items',
-    //     //     'items.attachments',
-    //     //     'items.prices',
-    //     //     'motoBikes',
-    //     //     'deliveries.partner',
-    //     //     'deliveries.assigned_to.userable',
-    //     //     'deliveries.assigned_to.user',
-    //     //     'origin_regency',
-    //     //     'destination_regency',
-    //     //     'destination_district',
-    //     //     'destination_sub_district'
-    //     // )->append('transporter_detail');
+    public function chooseDeliveryMethod(Request $request): JsonResponse
+    {
+        $this->attributes = $request->validate(
+            [
+                "origin_lat" => ['nullable', 'numeric'],
+                "origin_lon" => ['nullable', 'numeric'],
+                "destination_lat" => ['nullable', 'numeric'],
+                "destination_lon" => ['nullable', 'numeric'],
+                "service_code" => ['nullable', 'exists:services,code']
+            ]
+        );
 
-    //     $package->load(
-    //         'attachments',
-    //         'items',
-    //         'motoBikes',
-    //         'deliveries.partner',
-    //         'deliveries.assigned_to.userable',
-    //         'deliveries.assigned_to.user'
-    //     )->append('transporter_detail');
+        $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
 
-    //     /** Price Of Item */
-    //     $price = Price::query()
-    //         ->where('origin_regency_id', $package->origin_regency_id)
-    //         ->where('destination_id', $package->destination_sub_district_id)
-    //         ->first();
+        if ($resultOrigin == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+        }
 
-    //     /** Price for motobikes */
-    //     $bikePrice = BikePrices::query()
-    //         ->where('origin_regency_id', $package->origin_regency_id)
-    //         ->where('destination_id', $package->destination_sub_district_id)->first();
+        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        $resultDestination = Geo::getRegional($coordDestination, true);
 
+        if ($resultDestination == null) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        }
 
-    //     $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+        $originRegencyId = $resultOrigin['regency'];
+        $destinationId = $resultDestination['subdistrict'];
+        $serviceCode = $this->attributes['service_code'];
 
-    //     /**Set condition for retrieve type by motobikes or items */
-    //     if ($package['motoBikes'] !== null) {
-    //         $result['type'] = 'bike';
-    //         $result['notes'] = $bikePrice->notes;
-    //         $package['items'] = [
-    //             'qty' => $package['items'][0]->qty,
-    //             'height' => $package['items'][0]->height,
-    //             'length' => $package['items'][0]->length,
-    //             'width' => $package['items'][0]->width,
-    //             'is_insured' => $package['items'][0]->is_insured,
-    //             'handling' => $package['items'][0]->handling,
-    //         ];
-    //     } else {
-    //         $result['type'] = 'item';
-    //         $result['notes'] = $price->notes;
-    //     }
+        return $this->getPrice($serviceCode, $originRegencyId, $destinationId);
+    }
 
-    //     $attachment = $package['attachments']->map(function ($r) {
-    //         $arr['url'] = $r->uri;
-    //         return $arr;
-    //     })->values();
+    private function getPrice($serviceCode, $originRegencyId, $destinationId): JsonResponse
+    {
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_STANDARD:
+                $prices = Price::where('origin_regency_id', $originRegencyId)
+                    ->where('destination_id', $destinationId)
+                    ->where('service_code', $serviceCode)
+                    ->first();
 
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
 
-    //     $data = [
-    //         'sender_name' => $package['sender_name'],
-    //         'sender_address' => $package['sender_address'],
-    //         'sender_phone' => $package['sender_phone'],
-    //         'receiver_name' => $package['receiver_name'],
-    //         'receiver_address' => $package['receiver_address'],
-    //         'receiver_phone' => $package['receiver_phone'],
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
+                break;
 
-    //         'type' => $result['type'],
-    //         'moto_bikes' => $package['motoBikes'] ?? null,
-    //         'items' => $package['items'],
-    //         'attachments' => $attachment,
-    //         'transporter_detail' => $package['transporter_detail'],
-    //         'deliveries' => [
-    //             'partner_code' => $package['deliveries'][0]->partner->code,
-    //             'partner_address' =>  $package['deliveries'][0]->partner->address
+            case Service::TRAWLPACK_CUBIC:
+                $prices = CubicPrice::where('origin_regency_id', $originRegencyId)
+                    ->where('destination_id', $destinationId)
+                    ->where('service_code', $serviceCode)
+                    ->first();
 
-    //         ],
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
 
-    //         'notes' => $result['notes'],
-    //         'pricings' => [
-    //             'service_price' => $package['service_price'] ?? $service_price,
-    //             'service_price_discount' => $prices['service_price_discount'] ?? 0,
-    //             'insurance_price' => $prices['insurance_price'] ?? 0,
-    //             'packing_price' => $prices['packing_price'] ?? 0,
-    //             'packing_price_discount' => $prices['packing_price_discount'] ?? 0,
-    //             'pickup_price' => $prices['pickup_price'] ?? 0,
-    //             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
-    //             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
-    //             'total_amount' => $package['total_amount'],
-    //         ],
-    //         // 'service_price' => $service_price,
-    //         // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
-    //         // 'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
-    //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['service_price_discount'] - $prices['pickup_price_discount'],
-    //         // 'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
-    //     ];
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                $prices = ExpressPrice::where('origin_regency_id', $originRegencyId)
+                    ->where('destination_id', $destinationId)
+                    ->where('service_code', $serviceCode)
+                    ->first();
 
-    //     return $this->jsonSuccess(DataDiscountResource::make($data));
-    //     // return $this->jsonSuccess(DataDiscountResource::make(array_merge($package->toArray(), $data)));
+                if (is_null($prices)) {
+                    $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+                    return (new Response(Response::RC_SUCCESS, $message))->json();
+                }
+
+                return $this->jsonSuccess(CheckPriceResource::make($prices));
+                break;
+        }
+    }
 }
