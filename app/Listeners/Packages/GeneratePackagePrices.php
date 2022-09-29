@@ -11,10 +11,6 @@ use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\CubicPrice;
-use App\Models\Packages\ExpressPrice;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Service;
 use Illuminate\Validation\ValidationException;
@@ -231,8 +227,11 @@ class GeneratePackagePrices
                         $package->setAttribute('tier_price', $tier)->save();
                         break;
                     case Service::TRAWLPACK_CUBIC:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getCubicPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = $price->amount;
                         $package->setAttribute('total_weight', 0)->save();
-                        $package->setAttribute('tier_price', 0)->save();
+                        $package->setAttribute('tier_price', $tier)->save();
                         break;
                     case Service::TRAWLPACK_EXPRESS:
                         $origin_regency = $package->origin_regency;
