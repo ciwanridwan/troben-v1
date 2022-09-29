@@ -66,7 +66,6 @@ class UpdateOrCreatePriceFromExistingPackage
             'type' => $this->attributes['type'],
             'description' => $this->attributes['description'],
         ], $this->attributes);
-
         $this->price = $price;
     }
 }

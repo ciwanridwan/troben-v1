@@ -331,7 +331,7 @@ class MotorBikeController extends Controller
         // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
         $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
-        $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
+        $getPrice = self::getBikePrice($resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
 
         switch ($request->get('moto_cc')) {
@@ -377,11 +377,34 @@ class MotorBikeController extends Controller
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }
 
-    private static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
-    {
-        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+    // private static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    // {
+    //     $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+    //     throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+
+    //     return $price;
+    // }
+
+    public static function getBikePrice($originRegencyId, $destinationId)
+    {
+        $acceptedRegency = [
+            58, 59, 60, 61, 62, //jakarta
+            94, //bekasi
+            95, //bogor kota
+            98, //depok
+            40, 39 //tangerang
+        ];
+
+        $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
+        throw_if(!in_array($originRegencyId, $acceptedRegency), Error::make(Response::RC_OUT_OF_RANGE, $messages));
+
+        // hardcode, set it to jabodetabek price
+        $price = BikePrices::where('destination_id', $destinationId)->first();
+
+        // $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
 
         return $price;
     }

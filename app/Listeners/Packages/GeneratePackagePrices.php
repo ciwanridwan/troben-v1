@@ -123,8 +123,28 @@ class GeneratePackagePrices
                         'description' => Price::DESCRIPTION_TYPE_EXPRESS,
                         'amount' => $service_price,
                     ]);
+
                     $this->dispatch($job);
                     break;
+            }
+
+            /** Additional Price */
+            // if ($package->prices->exists) {
+            //     # code...
+            // }
+            if ($package->prices) {
+                $serviceCode = $package->service_code;
+                $totalWeight = $package->total_weight;
+                $items = $package->items->toArray();
+
+                $additionalPrice = PricingCalculator::getAdditionalPrices($serviceCode, $items, $totalWeight);
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_SERVICE,
+                    'description' => Price::TYPE_ADDITIONAL,
+                    'amount' => $additionalPrice,
+                ]);
+                $this->dispatch($job);
             }
 
             $is_approved = false;
