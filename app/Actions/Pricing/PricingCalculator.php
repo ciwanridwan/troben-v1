@@ -609,10 +609,10 @@ class PricingCalculator
     {
         $acceptedRegency = [
             58, 59, 60, 61, 62, //jakarta
-            94, //bekasi
-            95, //bogor kota
+            94, 76, //bekasi
+            95, 77, //bogor
             98, //depok
-            40, 39 //tangerang
+            40, 39, 36, //tangerang
         ];
 
         $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
