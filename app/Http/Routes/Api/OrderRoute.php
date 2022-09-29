@@ -7,7 +7,6 @@ use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
 use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Http\Controllers\Api\Order\OrderController;
-use App\Http\Controllers\Partner\CustomerService\Home\Order\WalkinController;
 
 class OrderRoute extends BaseRoute
 {

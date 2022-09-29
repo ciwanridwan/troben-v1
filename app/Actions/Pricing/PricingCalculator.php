@@ -656,19 +656,6 @@ class PricingCalculator
         return $default;
     }
 
-    private static function checkHandling($handling = [])
-    {
-        $handling = Arr::wrap($handling);
-
-        if ($handling !== []) {
-            if (Arr::has($handling, 'type')) {
-                $handling = array_column($handling, 'type');
-            }
-        }
-
-        return $handling;
-    }
-
     /** Motobikes price */
     public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
     {
@@ -708,9 +695,9 @@ class PricingCalculator
     public static function getServiceCubicPrice(array $inputs, ?CubicPrice $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -719,7 +706,7 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        if (!$price) {
+        if (! $price) {
             /** @var Price $price */
             $price = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
@@ -740,7 +727,7 @@ class PricingCalculator
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
             ];
         }
 
@@ -773,9 +760,9 @@ class PricingCalculator
     public static function getServiceExpressPrice(array $inputs, ?ExpressPrice $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.height' => ['required', 'numeric'],
@@ -785,7 +772,7 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
-        if (!$price) {
+        if (! $price) {
             /** @var Price $price */
             $price = self::getExpressPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
         }
@@ -805,7 +792,7 @@ class PricingCalculator
                 'length' => $item['length'],
                 'width' => $item['width'],
                 'qty' => $item['qty'],
-                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+                'handling' => ! empty($packing) ? array_column($packing, 'type') : null
             ];
         }
         $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_EXPRESS);
@@ -813,5 +800,18 @@ class PricingCalculator
         $servicePrice = $price->amount * $totalWeightBorne;
 
         return $servicePrice;
+    }
+
+    private static function checkHandling($handling = [])
+    {
+        $handling = Arr::wrap($handling);
+
+        if ($handling !== []) {
+            if (Arr::has($handling, 'type')) {
+                $handling = array_column($handling, 'type');
+            }
+        }
+
+        return $handling;
     }
 }

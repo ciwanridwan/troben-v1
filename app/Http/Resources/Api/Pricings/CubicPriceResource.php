@@ -19,7 +19,7 @@ class CubicPriceResource extends JsonResource
             'notes' => $this->notes,
             'service_code' => $this->service_code,
         ];
-        
+
         return $data;
     }
 }

@@ -269,27 +269,6 @@ class Geo
         }
     }
 
-    private static function regionCleaner(string $str)
-    {
-        $blacklist = [
-            'Kota',
-            'Kecamatan',
-            'Kabupaten',
-            'Distrik',
-        ];
-
-        foreach ($blacklist as $b) {
-            $str = str_replace($b, '', $str);
-        }
-
-        $str = preg_replace('/[^A-Za-z0-9 ]/', '', $str);
-
-        $str = str_replace(' ', '', $str);
-        $str = trim($str);
-
-        return $str;
-    }
-
     public static function findInDB($type, $place, $coord, $provinceId = null, $regencyId = null, $districtId = null)
     {
         // find in mapping first
@@ -351,5 +330,26 @@ class Geo
         ]);
 
         return null;
+    }
+
+    private static function regionCleaner(string $str)
+    {
+        $blacklist = [
+            'Kota',
+            'Kecamatan',
+            'Kabupaten',
+            'Distrik',
+        ];
+
+        foreach ($blacklist as $b) {
+            $str = str_replace($b, '', $str);
+        }
+
+        $str = preg_replace('/[^A-Za-z0-9 ]/', '', $str);
+
+        $str = str_replace(' ', '', $str);
+        $str = trim($str);
+
+        return $str;
     }
 }

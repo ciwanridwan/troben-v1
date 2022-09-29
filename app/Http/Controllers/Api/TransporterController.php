@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Partners\Transporter;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Api\Transporter\AvailableTransporterResource;
 use App\Models\Service;
 
@@ -33,9 +32,9 @@ class TransporterController extends Controller
     {
         $request->validate(
             [
-                "service_code" => ['nullable', 'exists:services,code'],
-                "type" => ['nullable', 'in:bike,other'],
-                "details" => ['nullable', 'boolean']
+                'service_code' => ['nullable', 'exists:services,code'],
+                'type' => ['nullable', 'in:bike,other'],
+                'details' => ['nullable', 'boolean']
             ]
         );
 
