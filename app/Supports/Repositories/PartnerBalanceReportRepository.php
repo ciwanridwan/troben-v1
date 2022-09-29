@@ -173,6 +173,8 @@ class PartnerBalanceReportRepository
         $this->partnerBalanceReportQuery->when(Arr::has($this->attributes, 'sortBy'), fn ($q) => $q
             ->orderBy($this->attributes['sortBy'], Arr::get($this->attributes, 'sort', 'asc')));
 
+        $this->partnerBalanceReportQuery->where('package_created_at', '!=', null);
+
         return $this->partnerBalanceReportQuery;
     }
 
