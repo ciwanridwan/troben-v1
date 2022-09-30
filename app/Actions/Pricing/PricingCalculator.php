@@ -599,11 +599,11 @@ class PricingCalculator
         $pickup_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
-        $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
+        // $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
 
         return [
             'service_price' => $service_price,
-            'service_price_fee' => $service_fee,
+            // 'service_price_fee' => $service_fee,
             'service_price_discount' => $service_discount,
             'insurance_price' => $insurance_price ?? 0,
             'insurance_price_discount' => $insurance_discount,

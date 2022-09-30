@@ -187,7 +187,7 @@ class OrderController extends Controller
             'type' => $result['type'],
             'notes' => $result['notes'],
             'service_price' => $service_price,
-            'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
             'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
