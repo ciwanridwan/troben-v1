@@ -849,6 +849,10 @@ class PricingCalculator
 
     public static function getAdditionalPrices($serviceCode, $items, $totalWeight)
     {
+        foreach ($items as $item) {
+            $length = $item['length'];
+        }
+
         $price = 0;
         switch ($serviceCode) {
             case Service::TRAWLPACK_STANDARD:
@@ -871,7 +875,7 @@ class PricingCalculator
                 };
                 break;
             case Service::TRAWLPACK_CUBIC:
-                if ($items['length'] < 400) {
+                if ($length < 400) {
                     $price = 0;
                 } else {
                     $price = 0;
