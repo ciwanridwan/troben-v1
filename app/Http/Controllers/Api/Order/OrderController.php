@@ -167,12 +167,12 @@ class OrderController extends Controller
         /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
             $result['type'] = 'bike';
-            $result['notes'] = $bikePrice->notes;
+            $result['notes'] = $bikePrice->notes ?? '';
             $result['packing_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_BIKE)->get()->sum('amount');
             $result['packing_additional_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_WOOD)->get()->sum('amount');
         } else {
             $result['type'] = 'item';
-            $result['notes'] = $price->notes;
+            $result['notes'] = $price->notes ?? '';
             $result['packing_price'] = $prices['packing_price'];
         }
 
