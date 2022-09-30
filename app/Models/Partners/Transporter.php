@@ -244,7 +244,7 @@ class Transporter extends Model
                 'width' => 40,
                 'height' => 35,
                 'weight' => 40,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/bike.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_MPV,
@@ -252,7 +252,7 @@ class Transporter extends Model
                 'width' => 100,
                 'height' => 85,
                 'weight' => 300,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/van.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_PICKUP,
@@ -260,7 +260,7 @@ class Transporter extends Model
                 'width' => 150,
                 'height' => 150,
                 'weight' => 700,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_PICKUP_BOX,
@@ -268,7 +268,7 @@ class Transporter extends Model
                 'width' => 130,
                 'height' => 120,
                 'weight' => 1000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BOX,
@@ -276,7 +276,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 200,
                 'weight' => 2500,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BAK,
@@ -284,7 +284,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 212,
                 'weight' => 2500,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BAK,
@@ -292,7 +292,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 200,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BOX,
@@ -300,7 +300,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 220,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_FUSO_BAK,
@@ -308,7 +308,7 @@ class Transporter extends Model
                 'width' => 210,
                 'height' => 200,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/fuso.png', Carbon::now()->addMinutes(60)),
             ]
         ];
     }
@@ -322,7 +322,7 @@ class Transporter extends Model
                 'width' => 150,
                 'height' => 150,
                 'weight' => 700,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_PICKUP_BOX,
@@ -330,7 +330,7 @@ class Transporter extends Model
                 'width' => 130,
                 'height' => 120,
                 'weight' => 1000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BOX,
@@ -338,7 +338,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 200,
                 'weight' => 2500,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BAK,
@@ -346,7 +346,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 212,
                 'weight' => 2500,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BAK,
@@ -354,7 +354,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 200,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BOX,
@@ -362,7 +362,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 220,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_FUSO_BAK,
@@ -370,7 +370,7 @@ class Transporter extends Model
                 'width' => 210,
                 'height' => 200,
                 'weight' => 5000,
-                'path_icons' => '',
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/fuso.png', Carbon::now()->addMinutes(60)),
             ]
         ];
     }
@@ -489,8 +489,7 @@ class Transporter extends Model
                 'width' => 150,
                 'height' => 150,
                 'weight' => 700,
-                // 'path_icons' => storage_path('app/icons/pickup.png'),
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_PICKUP_BOX,
@@ -498,7 +497,7 @@ class Transporter extends Model
                 'width' => 130,
                 'height' => 120,
                 'weight' => 1000,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BOX,
@@ -506,7 +505,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 200,
                 'weight' => 2500,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDE_ENGKEL_BAK,
@@ -514,7 +513,7 @@ class Transporter extends Model
                 'width' => 169,
                 'height' => 212,
                 'weight' => 2500,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BAK,
@@ -522,7 +521,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 200,
                 'weight' => 5000,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_CDD_DOUBLE_BOX,
@@ -530,7 +529,7 @@ class Transporter extends Model
                 'width' => 200,
                 'height' => 220,
                 'weight' => 5000,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickup.jpeg', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ]
         ];
     }
