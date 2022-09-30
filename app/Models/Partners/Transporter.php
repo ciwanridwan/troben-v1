@@ -244,7 +244,7 @@ class Transporter extends Model
                 'width' => 40,
                 'height' => 35,
                 'weight' => 40,
-                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/bike.png', Carbon::now()->addMinutes(60)),
+                'path_icons' => Storage::disk('s3')->temporaryUrl('asset/motorcycle.png', Carbon::now()->addMinutes(60)),
             ],
             [
                 'name' => self::TYPE_MPV,
