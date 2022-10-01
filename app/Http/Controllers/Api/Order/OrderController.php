@@ -651,8 +651,7 @@ class OrderController extends Controller
             [
                 "origin_lat" => ['nullable', 'numeric'],
                 "origin_lon" => ['nullable', 'numeric'],
-                "destination_lat" => ['nullable', 'numeric'],
-                "destination_lon" => ['nullable', 'numeric'],
+                'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
                 "service_code" => ['nullable', 'exists:services,code']
             ]
         );
@@ -664,15 +663,15 @@ class OrderController extends Controller
             throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
-        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination, true);
+        // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        // $resultDestination = Geo::getRegional($coordDestination, true);
 
-        if ($resultDestination == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        }
+        // if ($resultDestination == null) {
+        //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        // }
 
         $originRegencyId = $resultOrigin['regency'];
-        $destinationId = $resultDestination['subdistrict'];
+        $destinationId = $this->attributes['destination_id'];
         $serviceCode = $this->attributes['service_code'];
 
         return $this->getPrice($serviceCode, $originRegencyId, $destinationId);
