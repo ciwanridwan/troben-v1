@@ -97,14 +97,14 @@ class MotorBikeController extends Controller
 
             'origin_lat' => ['required', 'numeric'],
             'origin_lon' => ['required', 'numeric'],
-            'destination_lat' => ['required', 'numeric'],
-            'destination_lon' => ['required', 'numeric'],
+            // 'destination_lat' => ['required', 'numeric'],
+            // 'destination_lon' => ['required', 'numeric'],
 
             /**Validation required for this attributes to get location */
             'origin_regency_id' => ['nullable', 'exists:geo_regencies,id'],
-            'destination_regency_id' => ['nullable', 'exists:geo_regencies,id'],
-            'destination_district_id' => ['nullable', 'exists:geo_districts,id'],
-            'destination_sub_district' => ['nullable', 'exists:geo_sub_districts,id'],
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
 
             'created_by' => ['nullable', 'exists:customers,id'],
         ], $messages);
@@ -118,15 +118,15 @@ class MotorBikeController extends Controller
             throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
-        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination, true);
+        // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        // $resultDestination = Geo::getRegional($coordDestination, true);
 
-        if ($resultDestination == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        }
+        // if ($resultDestination == null) {
+        //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        // }
 
         $origin_regency_id = $resultOrigin['regency'];
-        $destination_id = $resultDestination['district'];
+        $destination_id = $request->get('destination_sub_district_id');
         $request->merge([
             'origin_regency_id' => $origin_regency_id,
             'destination_id' => $destination_id,
@@ -149,9 +149,9 @@ class MotorBikeController extends Controller
         $data->total_amount = 0;
 
         $data->origin_regency_id = $origin_regency_id;
-        $data->destination_regency_id = $resultDestination['regency'];
-        $data->destination_district_id = $destination_id;
-        $data->destination_sub_district_id = $resultDestination['subdistrict'];
+        $data->destination_regency_id = $request->input('destination_regency_id');
+        $data->destination_district_id = $request->input('destination_district_id');
+        $data->destination_sub_district_id = $request->input('destination_sub_district_id');
         $data->sender_way_point = $request->input('sender_way_point');
         $data->sender_latitude = $request->input('origin_lat');
         $data->sender_longitude = $request->input('origin_lon');
