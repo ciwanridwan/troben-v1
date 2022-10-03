@@ -2,6 +2,7 @@
 
 namespace App\Events\Packages;
 
+use App\Models\CancelOrder;
 use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -21,8 +22,12 @@ class PackageCanceledByCustomer
      */
     public function __construct(Package $package)
     {
-        throw_if($package->status !== Package::STATUS_WAITING_FOR_APPROVAL || $package->payment_status !== Package::PAYMENT_STATUS_DRAFT, ValidationException::withMessages([
-            'package' => __('package should be in '.Package::STATUS_WAITING_FOR_APPROVAL.' status and payment status '.Package::PAYMENT_STATUS_DRAFT),
+        // throw_if($package->status !== Package::STATUS_WAITING_FOR_APPROVAL || $package->payment_status !== Package::PAYMENT_STATUS_DRAFT, ValidationException::withMessages([
+        //     'package' => __('package should be in '.Package::STATUS_WAITING_FOR_APPROVAL.' status and payment status '.Package::PAYMENT_STATUS_DRAFT),
+        // ]));
+
+        throw_if($package->payment_status !== Package::PAYMENT_STATUS_DRAFT, ValidationException::withMessages([
+            'package' => __('payment status '.Package::PAYMENT_STATUS_DRAFT),
         ]));
 
         $this->package = $package;
