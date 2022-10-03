@@ -11,7 +11,6 @@ use App\Http\Response;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
-use App\Models\Packages\BikePrices;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
@@ -331,7 +330,7 @@ class MotorBikeController extends Controller
         // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
         $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
-        $getPrice = self::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
+        $getPrice = PricingCalculator::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $resultDestination['subdistrict']);
         $service_price = 0; // todo get from regional mapping
 
         switch ($request->get('moto_cc')) {
@@ -375,15 +374,6 @@ class MotorBikeController extends Controller
     private static function getInsurancePrice($price)
     {
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
-    }
-
-    private static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
-    {
-        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
-
-        return $price;
     }
 
     private static function getHandlingWoodPrice($type, $height, $length, $width)
