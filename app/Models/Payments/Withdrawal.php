@@ -78,10 +78,6 @@ class Withdrawal extends Model
         'hash','attachment_transfer_url'
     ];
 
-    // protected $attributes =
-    // [
-    //     'fee_charge_admin' => 0
-    // ];
     /**
      * Get all available type on partner balance histories.
      *
@@ -89,7 +85,7 @@ class Withdrawal extends Model
      */
     public function getAttachmentTransferUrlAttribute()
     {
-        $attachment = $this->attributes['attachment_transfer'];
+        $attachment = $this->attachment_transfer;
         if ($attachment == null) {
             return null;
         }
