@@ -702,7 +702,7 @@ class PricingCalculator
     }
 
     /** Motobikes price */
-    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    public static function getBikePrice($originRegencyId, $destinationId)
     {
         $acceptedRegency = [
             58, 59, 60, 61, 62, //jakarta
