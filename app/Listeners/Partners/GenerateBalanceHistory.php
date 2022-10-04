@@ -114,14 +114,16 @@ class GenerateBalanceHistory
         $this->event = $event;
 
         switch (true) {
-            case $event instanceof WithdrawalRequested || $event instanceof WithdrawalApproved:
+            case $event instanceof WithdrawalRequested:
                 // case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
+                // dd($event->withdrawal->id);
                 $this
                     ->setWithdrawal($this->event->withdrawal)
                     ->setPartner($this->withdrawal->partner)
                     ->setBalance($this->withdrawal->amount)
                     ->setType(History::TYPE_WITHDRAW)
                     ->setDescription($this->getDescriptionByTypeWithdrawal())
+                    // ->setDisbursmentId($event->withdrawal->id)
                     ->setAttributes()
                     ->recordHistory();
                 break;
@@ -557,7 +559,7 @@ class GenerateBalanceHistory
             'partner_id' => $this->partner->id,
             'balance' => $this->balance,
             'type' => $this->type,
-            'description' => $this->description,
+            'description' => $this->description
         ];
 
         if ($this->type === History::TYPE_WITHDRAW) {
@@ -575,6 +577,12 @@ class GenerateBalanceHistory
     protected function setWithdrawal(Withdrawal $withdrawal): self
     {
         $this->withdrawal = $withdrawal;
+        return $this;
+    }
+
+    protected function setDisbursmentId(int $disbursmentId): self
+    {
+        $this->id = $disbursmentId;
         return $this;
     }
 

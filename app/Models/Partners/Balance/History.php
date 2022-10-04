@@ -59,6 +59,7 @@ class History extends Model
         'balance',
         'type',
         'description',
+        'disbursement_id'
     ];
 
     protected $casts = [

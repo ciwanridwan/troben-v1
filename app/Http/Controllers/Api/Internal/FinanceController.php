@@ -9,6 +9,7 @@ use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Carbon\Carbon;
@@ -599,5 +600,11 @@ class FinanceController extends Controller
         $q = sprintf($q, $param['start'], $param['end']);
 
         return $q;
+    }
+
+    /** New logic for get detail disbursment */
+    public function newDetail($disbursment_id)
+    {
+        $disbursment = DB::table('partner_balance_disbursment');
     }
 }

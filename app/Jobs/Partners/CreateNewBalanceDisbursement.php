@@ -64,7 +64,7 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
-            event(new NewBalanceDisbursementCreated($this->withdrawal));
+            // event(new NewBalanceDisbursementCreated($this->withdrawal));
             $this->partner->balance = 0;
             $this->partner->save();
         }
