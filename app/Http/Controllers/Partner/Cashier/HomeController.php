@@ -117,8 +117,8 @@ class HomeController extends Controller
                     $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
                     break;
             }
-            if ($request->discount > $check) {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
+	    if ($request->discount > $check) {
+                return (new Response(Response::RC_BAD_REQUEST, ['max_discount'=>$check]))->json();
             }
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                 'type' => Price::TYPE_DISCOUNT,
