@@ -118,7 +118,7 @@ class HomeController extends Controller
                     break;
             }
             if ($request->discount > $check) {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
+                return (new Response(Response::RC_BAD_REQUEST, ['max_discount'=>$check]))->json();
             }
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                 'type' => Price::TYPE_DISCOUNT,
