@@ -39,6 +39,8 @@ class History extends Model
     public const DESCRIPTION_DELIVERY = 'delivery'; // delivery fee for transit items (transporter)
     public const DESCRIPTION_DOORING = 'dooring'; // dooring fee to end user (transporter)
     public const DESCRIPTION_RETURN = 'return'; // return fee (transporter)
+    public const DESCRIPTION_ADDITIONAL = 'additional'; // charge
+
 
     /**LAST DESCRIPTION TO WITHDRAWAL */
     // public const DESCRIPTION_WITHDRAW_REJECT = 'reject';
@@ -96,6 +98,7 @@ class History extends Model
             self::DESCRIPTION_TRANSIT,
             self::DESCRIPTION_DELIVERY,
             self::DESCRIPTION_DOORING,
+            self::DESCRIPTION_ADDITIONAL,
             // self::DESCRIPTION_WITHDRAW_REJECT,
             // self::DESCRIPTION_WITHDRAW_SUCCESS,
             // self::DESCRIPTION_WITHDRAW_CONFIRMED,
