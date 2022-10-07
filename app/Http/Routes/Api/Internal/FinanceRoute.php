@@ -58,7 +58,7 @@ class FinanceRoute extends BaseRoute
             'uses' => $this->uses('findByDate', FinanceController::class),
         ]);
 
-        $this->router->get($this->prefix('/detail/{id}'), [
+        $this->router->get($this->prefix('/detail/{disbursment_id}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail', FinanceController::class),
         ]);
@@ -92,6 +92,11 @@ class FinanceRoute extends BaseRoute
             'as' => $this->name('export'),
             'uses' => $this->uses('export', FinanceController::class),
         ]);
+
+        // $this->router->get($this->prefix('/detail/{id}/new'), [
+        //     'as' => $this->name('new.detail'),
+        //     'uses' => $this->uses('newDetail', FinanceController::class),
+        // ]);
     }
 
     /**
