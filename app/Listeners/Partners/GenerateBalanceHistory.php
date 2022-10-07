@@ -5,14 +5,14 @@ namespace App\Listeners\Partners;
 use App\Actions\Pricing\PricingCalculator;
 use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
-use App\Events\Deliveries\Pickup as DeliveryPickup;
+// use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
-use App\Events\Partners\Balance\WithdrawalApproved;
-use App\Events\Partners\Balance\WithdrawalConfirmed;
-use App\Events\Partners\Balance\WithdrawalRejected;
+// use App\Events\Partners\Balance\WithdrawalApproved;
+// use App\Events\Partners\Balance\WithdrawalConfirmed;
+// use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
-use App\Events\Partners\Balance\WithdrawalSuccess;
+// use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Jobs\Partners\Balance\CreateNewFailedBalanceHistory;
@@ -178,12 +178,30 @@ class GenerateBalanceHistory
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() === 1) {
+                        /** Declare for default value */
+                        $servicePrice = 0;
+                        $balance_handling = 0;
+                        $balance_insurance = 0;
+                        $balancePickup = 0;
+                        $extraFee = 0;
+                        $bikeFeeHandling = 0;
+                        $feeAdditional = 0; 
+
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
-                            $this->saveServiceFee($this->partner->type, $variant);
+                            // $this->saveServiceFee($this->partner->type, $variant);
                             $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
+                            
+                            /** Get fee extra be as commission partners with 0.05*/
+                            if ($package->total_weight > 99) {
+                                $extraFee = $package->service_price * 0.05; 
+                            }
+
+                            /**Get fee additional */
+                            $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first();
                         }
+
                         # total balance insurance > record insurance fee
                         if ($this->partner->get_fee_insurance) {
                             $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
@@ -218,6 +236,10 @@ class GenerateBalanceHistory
                                     ->setAttributes()
                                     ->recordHistory();
                             }
+
+                            if ($package->moto_bikes !== null) {
+                                $bikeFeeHandling = $package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+                            }
                         }
                         /**Get Fee Pickup */
                         if ($this->partner->get_fee_pickup) {
@@ -232,8 +254,9 @@ class GenerateBalanceHistory
                             }
                         }
 
+
                         /** Set balance partner*/
-                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee + $feeAdditional;
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
