@@ -196,10 +196,22 @@ class GenerateBalanceHistory
                             /** Get fee extra be as commission partners with 0.05*/
                             if ($package->total_weight > 99) {
                                 $extraFee = $package->service_price * 0.05; 
+                                $this
+                                    ->setBalance($extraFee)
+                                    ->setType(History::TYPE_CHARGE)
+                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                    ->setAttributes()
+                                    ->recordHistory();
                             }
 
                             /**Get fee additional */
-                            $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first();
+                            $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+                            $this
+                                    ->setBalance($extraFee)
+                                    ->setType(History::TYPE_DEPOSIT)
+                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                    ->setAttributes()
+                                    ->recordHistory();
                         }
 
                         # total balance insurance > record insurance fee
