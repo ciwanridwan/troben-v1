@@ -633,10 +633,10 @@ class OrderController extends Controller
     {
         $this->attributes = $request->validate(
             [
-                "origin_lat" => ['nullable', 'numeric'],
-                "origin_lon" => ['nullable', 'numeric'],
+                'origin_lat' => ['nullable', 'numeric'],
+                'origin_lon' => ['nullable', 'numeric'],
                 'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
-                "service_code" => ['nullable', 'exists:services,code']
+                'service_code' => ['nullable', 'exists:services,code']
             ]
         );
 
