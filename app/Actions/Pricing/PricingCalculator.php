@@ -899,4 +899,17 @@ class PricingCalculator
 
         return $price;
     }
+
+    private static function checkHandling($handling = [])
+    {
+        $handling = Arr::wrap($handling);
+
+        if ($handling !== []) {
+            if (Arr::has($handling, 'type')) {
+                $handling = array_column($handling, 'type');
+            }
+        }
+
+        return $handling;
+    }
 }
