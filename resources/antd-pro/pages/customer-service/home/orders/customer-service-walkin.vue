@@ -281,7 +281,8 @@ export default {
             destination_regency_id: this.preparedData.destination_regency_id,
             destination_sub_district_id: this.preparedData
               .destination_sub_district_id,
-            items: this.preparedItems
+            items: this.preparedItems,
+            service_code: this.preparedData.service_code,
           };
           this.calculate(params)
             .then(({ data }) => {
