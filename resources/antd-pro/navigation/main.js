@@ -66,43 +66,43 @@ const main = {
           },
         },
       },
-      trawltruck: {
-        title: "Trawltruck",
-        text: "Trawltruck",
-        route: "admin.master.trawltruck.dashboard",
-        children: {
-          registerDriver: {
-            title: "Register Driver",
-            text: "Register Driver",
-            route: "admin.master.trawltruck.dashboard.driver.register",
-          },
-          accountDriver: {
-            title: "Account Driver",
-            text: "Account Driver",
-            route: "admin.master.trawltruck.dashboard.driver.account",
-          },
-          suspendDriver: {
-            title: "Suspend Driver",
-            text: "Suspend Driver",
-            route: "admin.master.trawltruck.dashboard.driver.suspend",
-          },
-          trackingOrder: {
-            title: "Tracking Order",
-            text: "Tracking Order",
-            route: "admin.master.trawltruck.dashboard.tracking.order",
-          },
-          accountDetail: {
-            title: "Account Detail",
-            text: "Account Detail",
-            route: "admin.master.trawltruck.dashboard.account.detail",
-          },
-          orderDetail: {
-            title: "Order Detail",
-            text: "Order Detail",
-            route: "admin.master.trawltruck.dashboard.order.detail",
-          },
-        },
-      },
+      // trawltruck: {
+      //   title: "Trawltruck",
+      //   text: "Trawltruck",
+      //   route: "admin.master.trawltruck.dashboard",
+      //   children: {
+      //     registerDriver: {
+      //       title: "Register Driver",
+      //       text: "Register Driver",
+      //       route: "admin.master.trawltruck.dashboard.driver.register",
+      //     },
+      //     accountDriver: {
+      //       title: "Account Driver",
+      //       text: "Account Driver",
+      //       route: "admin.master.trawltruck.dashboard.driver.account",
+      //     },
+      //     suspendDriver: {
+      //       title: "Suspend Driver",
+      //       text: "Suspend Driver",
+      //       route: "admin.master.trawltruck.dashboard.driver.suspend",
+      //     },
+      //     trackingOrder: {
+      //       title: "Tracking Order",
+      //       text: "Tracking Order",
+      //       route: "admin.master.trawltruck.dashboard.tracking.order",
+      //     },
+      //     accountDetail: {
+      //       title: "Account Detail",
+      //       text: "Account Detail",
+      //       route: "admin.master.trawltruck.dashboard.account.detail",
+      //     },
+      //     orderDetail: {
+      //       title: "Order Detail",
+      //       text: "Order Detail",
+      //       route: "admin.master.trawltruck.dashboard.order.detail",
+      //     },
+      //   },
+      // },
       formRegister: {
         title: "Pendaftaran Mitra",
         text: "Pendaftaran Mitra",
