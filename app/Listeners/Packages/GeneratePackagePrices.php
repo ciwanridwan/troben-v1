@@ -121,8 +121,28 @@ class GeneratePackagePrices
                         'description' => Price::DESCRIPTION_TYPE_EXPRESS,
                         'amount' => $service_price,
                     ]);
+
                     $this->dispatch($job);
                     break;
+            }
+
+            /** Additional Price */
+            // if ($package->prices->exists) {
+            //     # code...
+            // }
+            if ($package->prices) {
+                $serviceCode = $package->service_code;
+                $totalWeight = $package->total_weight;
+                $items = $package->items->toArray();
+
+                $additionalPrice = PricingCalculator::getAdditionalPrices($serviceCode, $items, $totalWeight);
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_SERVICE,
+                    'description' => Price::TYPE_ADDITIONAL,
+                    'amount' => $additionalPrice,
+                ]);
+                $this->dispatch($job);
             }
 
             $is_approved = false;
@@ -209,8 +229,11 @@ class GeneratePackagePrices
                         $package->setAttribute('tier_price', $tier)->save();
                         break;
                     case Service::TRAWLPACK_CUBIC:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getCubicPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = $price->amount;
                         $package->setAttribute('total_weight', 0)->save();
-                        $package->setAttribute('tier_price', 0)->save();
+                        $package->setAttribute('tier_price', $tier)->save();
                         break;
                     case Service::TRAWLPACK_EXPRESS:
                         $origin_regency = $package->origin_regency;

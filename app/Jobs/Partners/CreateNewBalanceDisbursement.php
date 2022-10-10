@@ -57,11 +57,6 @@ class CreateNewBalanceDisbursement
      */
     public function handle(): bool
     {
-        // $attachment = $this->input['attachment_transfer'];
-        // $attachment_extension = $attachment->getClientOriginalExtension();
-        // $fileName = bin2hex(random_bytes(20)).'.'.$attachment_extension;
-        // $attachment->move('attachment_transfer',$fileName);
-
         $this->withdrawal->fill($this->attributes);
         $this->withdrawal->partner_id = $this->partner->id;
         $this->withdrawal->first_balance = $this->partner->balance;
@@ -69,7 +64,7 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
-            event(new NewBalanceDisbursementCreated($this->withdrawal));
+            // event(new NewBalanceDisbursementCreated($this->withdrawal));
             $this->partner->balance = 0;
             $this->partner->save();
         }

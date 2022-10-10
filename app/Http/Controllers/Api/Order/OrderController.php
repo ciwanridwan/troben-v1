@@ -166,20 +166,27 @@ class OrderController extends Controller
         /**Set condition for retrieve type by motobikes or items */
         if ($package['motoBikes'] !== null) {
             $result['type'] = 'bike';
-            $result['notes'] = $bikePrice->notes;
+            $result['notes'] = $bikePrice->notes ?? '';
             $result['packing_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_BIKE)->get()->sum('amount');
             $result['packing_additional_price'] = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', PackagePrice::DESCRIPTION_TYPE_WOOD)->get()->sum('amount');
         } else {
             $result['type'] = 'item';
-            $result['notes'] = $price->notes;
+            $result['notes'] = $price->notes ?? '';
             $result['packing_price'] = $prices['packing_price'];
+        }
+
+        $getFeeAdditional = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first();
+        if (is_null($getFeeAdditional)) {
+            $feeAdditional = 0;
+        } else {
+            $feeAdditional = $getFeeAdditional->amount;
         }
 
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
             'service_price' => $service_price,
-            'service_price_fee' => $prices['service_price_fee'] ?? 0,
+            // 'service_price_fee' => $prices['service_price_fee'] ?? 0,
             'service_price_discount' => $prices['service_price_discount'] ?? 0,
             'insurance_price' => $prices['insurance_price'] ?? 0,
             'insurance_price_discount' => $prices['insurance_price_discount'] ?? 0,
@@ -189,6 +196,7 @@ class OrderController extends Controller
             'pickup_price' => $prices['pickup_price'] ?? 0,
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
+            'fee_additional' => $feeAdditional,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
         ];
 
@@ -262,18 +270,21 @@ class OrderController extends Controller
             'items' => ['required'],
             'items.*.is_insured' => ['nullable'],
             'photos' => ['nullable'],
-            'photos.*' => ['nullable', 'image']
+            'photos.*' => ['nullable', 'image'],
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ]);
 
         $origin_regency_id = $request->get('origin_regency_id');
-        $destination_id = $request->get('destination_regency_id');
-        if ($origin_regency_id == null || $destination_id == null) {
+        // $destination_id = $request->get('destination_regency_id');
+        if ($origin_regency_id == null) {
             // add validation
             $request->validate([
                 'origin_lat' => 'required|numeric',
                 'origin_lon' => 'required|numeric',
-                'destination_lat' => 'required|numeric',
-                'destination_lon' => 'required|numeric',
+                // 'destination_lat' => 'required|numeric',
+                // 'destination_lon' => 'required|numeric',
             ]);
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
@@ -282,19 +293,19 @@ class OrderController extends Controller
                 throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
-            $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-            $resultDestination = Geo::getRegional($coordDestination, true);
-            if ($resultDestination == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-            }
+            // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+            // $resultDestination = Geo::getRegional($coordDestination, true);
+            // if ($resultDestination == null) {
+            //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+            // }
 
             $origin_regency_id = $resultOrigin['regency'];
-            $destination_id = $resultDestination['district'];
+            // $destination_id = $resultDestination['district'];
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
-                'destination_regency_id' => $resultDestination['regency'],
-                'destination_district_id' => $destination_id,
-                'destination_sub_district_id' => $resultDestination['subdistrict'],
+                'destination_regency_id' => $request->get('destination_regency_id'),
+                'destination_district_id' => $request->get('destination_district_id'),
+                'destination_sub_district_id' => $request->get('destination_sub_district_id'),
                 'sender_latitude' => $request->get('origin_lat'),
                 'sender_longitude' => $request->get('origin_lon'),
                 'receiver_latitude' => $request->get('destination_lat'),
@@ -312,7 +323,7 @@ class OrderController extends Controller
         throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
-        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $resultDestination['subdistrict']]);
+        $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
@@ -622,11 +633,10 @@ class OrderController extends Controller
     {
         $this->attributes = $request->validate(
             [
-                'origin_lat' => ['nullable', 'numeric'],
-                'origin_lon' => ['nullable', 'numeric'],
-                'destination_lat' => ['nullable', 'numeric'],
-                'destination_lon' => ['nullable', 'numeric'],
-                'service_code' => ['nullable', 'exists:services,code']
+                "origin_lat" => ['nullable', 'numeric'],
+                "origin_lon" => ['nullable', 'numeric'],
+                'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
+                "service_code" => ['nullable', 'exists:services,code']
             ]
         );
 
@@ -637,15 +647,15 @@ class OrderController extends Controller
             throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
-        $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        $resultDestination = Geo::getRegional($coordDestination, true);
+        // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
+        // $resultDestination = Geo::getRegional($coordDestination, true);
 
-        if ($resultDestination == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        }
+        // if ($resultDestination == null) {
+        //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+        // }
 
         $originRegencyId = $resultOrigin['regency'];
-        $destinationId = $resultDestination['subdistrict'];
+        $destinationId = $this->attributes['destination_id'];
         $serviceCode = $this->attributes['service_code'];
 
         return $this->getPrice($serviceCode, $originRegencyId, $destinationId);

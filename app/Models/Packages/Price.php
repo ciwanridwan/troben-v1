@@ -87,6 +87,7 @@ class Price extends Model
             self::TYPE_PICKUP,
             self::TYPE_OTHER,
             self::TYPE_DELIVERY,
+            self::TYPE_ADDITIONAL,
             self::DESCRIPTION_TYPE_BIKE,
             self::DESCRIPTION_TYPE_WOOD,
             self::DESCRIPTION_TYPE_CUBIC,
