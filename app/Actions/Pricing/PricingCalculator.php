@@ -15,8 +15,12 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
+use App\Http\Resources\Api\Pricings\ExpressPriceResource;
+use App\Http\Resources\Api\Pricings\CubicPriceResource;
 use App\Http\Resources\PriceResource;
 use App\Models\Packages\BikePrices;
+use App\Models\Packages\CubicPrice;
+use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\Item;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -35,6 +39,9 @@ class PricingCalculator
     public const INSURANCE_MUL = 0.2 / 100;
 
     public const INSURANCE_MUL_PARTNER = 0.0002;
+
+    public const INSURANCE_PARTNER = 0.0006;
+
 
     public const MIN_TOL = .3;
     /**
@@ -141,11 +148,12 @@ class PricingCalculator
             'origin_province_id' => ['required', 'exists:geo_provinces,id'],
             'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'service_code' => ['required', 'exists:services,code'],
             'partner_code' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
             'fleet_name' => ['nullable'],
-            'items' => ['required'],
+            'items' => ['nullable'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
             'items.*.width' => ['required', 'numeric'],
@@ -154,11 +162,23 @@ class PricingCalculator
             'items.*.handling' => ['nullable']
         ]);
 
+        $serviceCode = $inputs['service_code'];
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_CUBIC:
+                $cubicPrice = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                $expressPrice = self::getExpressPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+                break;
+        }
+
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-        $totalWeightBorne = self::getTotalWeightBorne($inputs['items']);
+        $totalWeightBorne = self::getTotalWeightBorne($inputs['items'], $serviceCode);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
+
         if (array_key_exists('fleet_name', $inputs) && isset($inputs['partner_code']) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
@@ -192,9 +212,13 @@ class PricingCalculator
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
-                    $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
-                    $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $packingType = $packing;
+                    if (is_array($packingType) && isset($packingType['type'])) {
+                        $packingType = $packingType['type'];
+                    }
 
+                    $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handling_price += Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
@@ -217,21 +241,88 @@ class PricingCalculator
             $insurancePriceTotal += $item['insurance_price_total'];
         }
 
-        $tierPrice = self::getTier($price, $totalWeightBorne);
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_STANDARD:
+                $tierPrice = self::getTier($price, $totalWeightBorne);
+                $servicePrice = self::getServicePrice($inputs, $price);
+                $result['price'] = PriceResource::make($price);
+                $result['tier'] = $tierPrice;
+                $result['total_weight_borne'] = $totalWeightBorne;
+                switch ($totalWeightBorne) {
+                    case $totalWeightBorne < 100:
+                        $additionalCost = 0;
+                        break;
+                    case $totalWeightBorne < 300:
+                        $additionalCost = 100000;
+                        break;
+                    case $totalWeightBorne < 2000:
+                        $additionalCost = 250000;
+                        break;
+                    case $totalWeightBorne < 5000:
+                        $additionalCost = 1500000;
+                        break;
+                    case $totalWeightBorne > 5000:
+                        $additionalCost = 0;
+                        break;
+                };
+                break;
 
-        $servicePrice = self::getServicePrice($inputs, $price);
+            case Service::TRAWLPACK_CUBIC:
+                $servicePrice = self::getServiceCubicPrice($inputs, $cubicPrice);
+                $result['price'] = CubicPriceResource::make($cubicPrice);
+                $result['tier'] = $cubicPrice->amount;
+                $result['total_weight_borne'] = 0;
+                if ($item['length'] < 400) {
+                    $additionalCost = 0;
+                } else {
+                    $additionalCost = 0;
+                }
+                break;
+
+            case Service::TRAWLPACK_EXPRESS:
+                $servicePrice = self::getServiceExpressPrice($inputs, $expressPrice);
+                $result['price'] = ExpressPriceResource::make($expressPrice);
+                $result['tier'] = $expressPrice->amount;
+                $result['total_weight_borne'] = $totalWeightBorne;
+                switch ($totalWeightBorne) {
+                    case $totalWeightBorne < 100:
+                        $additionalCost = 0;
+                        break;
+                    case $totalWeightBorne < 300:
+                        $additionalCost = 100000;
+                        break;
+                    case $totalWeightBorne < 2000:
+                        $additionalCost = 250000;
+                        break;
+                    case $totalWeightBorne < 5000:
+                        $additionalCost = 1500000;
+                        break;
+                    case $totalWeightBorne > 5000:
+                        $additionalCost = 0;
+                        break;
+                }
+                break;
+        }
+
+        if ($serviceCode == Service::TRAWLPACK_STANDARD) {
+            $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal - $discount;
+        } else {
+            $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
+        }
 
         $response = [
-            'price' => PriceResource::make($price),
+            'price' => $result['price'],
             'items' => $inputs['items'],
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
-                'total_weight_borne' => $totalWeightBorne,
+                'total_weight_borne' => $result['total_weight_borne'],
                 'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
-                'tier' => $tierPrice,
-                'service' => $servicePrice
+                'tier' => $result['tier'],
+                'additional_price' => $additionalCost,
+                'service' => $servicePrice,
+                'total_amount' => $totalAmount
             ]
         ];
 
@@ -286,7 +377,7 @@ class PricingCalculator
 
             ];
         }
-        $totalWeightBorne = self::getTotalWeightBorne($items);
+        $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
 
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
@@ -297,7 +388,7 @@ class PricingCalculator
     }
 
 
-    public static function getTotalWeightBorne(array $items)
+    public static function getTotalWeightBorne(array $items, string $serviceCode)
     {
         $items =  Validator::validate($items, [
             '*.height' => ['required', 'numeric'],
@@ -317,24 +408,24 @@ class PricingCalculator
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
-            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
         }
 
         return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
     }
 
-    public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $service = Service::TRAWLPACK_STANDARD)
+    public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
         $handling = self::checkHandling($handling);
         if (in_array(Handling::TYPE_WOOD, $handling)) {
-            $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
+            $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
             $act_weight = $weight;
             $act_volume = self::getVolume(
                 $height,
                 $length,
                 $width,
-                $service
+                $serviceCode
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
@@ -354,11 +445,11 @@ class PricingCalculator
      *
      * @return float|int
      */
-    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $service = Service::TRAWLPACK_STANDARD, $handling = null)
+    public static function getDimensionCharge($origin_province_id, $origin_regency_id, $destination_id, $height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $serviceCode, $handling = null)
     {
         $price = self::getPrice($origin_province_id, $origin_regency_id, $destination_id);
         if ($handling === Handling::TYPE_WOOD) {
-            $weight = Handling::woodWeightBorne($height, $length, $width, $weight);
+            $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
             $act_weight = self::ceilByTolerance($weight);
             $act_volume = self::ceilByTolerance(
@@ -366,7 +457,7 @@ class PricingCalculator
                     $height,
                     $length,
                     $width,
-                    $service
+                    $serviceCode
                 )
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
@@ -470,17 +561,17 @@ class PricingCalculator
         return $weight;
     }
 
-    public static function getWeight($height = 0, $length = 0, $width = 0, $weight = 0)
+    public static function getWeight($height = 0, $length = 0, $width = 0, $weight = 0, $serviceCode)
     {
         $weight = self::ceilByTolerance($weight);
-        $volume = self::ceilByTolerance(self::getVolume($height, $length, $width));
+        $volume = self::ceilByTolerance(self::getVolume($height, $length, $width, $serviceCode));
         $weight = $weight > $volume ? $weight : $volume;
         return $weight;
     }
 
-    public static function getVolume($height, $length, $width, $service = Service::TRAWLPACK_STANDARD)
+    public static function getVolume($height, $length, $width, $serviceCode)
     {
-        switch ($service) {
+        switch ($serviceCode) {
             case Service::TRAWLPACK_EXPRESS:
                 $divider = Price::DIVIDER_UDARA;
                 break;
@@ -513,11 +604,11 @@ class PricingCalculator
         $pickup_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
 
-        $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
+        // $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
 
         return [
             'service_price' => $service_price,
-            'service_price_fee' => $service_fee,
+            // 'service_price_fee' => $service_fee,
             'service_price_discount' => $service_discount,
             'insurance_price' => $insurance_price ?? 0,
             'insurance_price_discount' => $insurance_discount,
@@ -615,12 +706,209 @@ class PricingCalculator
         return $handling;
     }
 
-    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    /** Motobikes price */
+    public static function getBikePrice($originRegencyId, $destinationId)
     {
-        $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        $acceptedRegency = [
+            58, 59, 60, 61, 62, //jakarta
+            94, 76, //bekasi
+            95, 77, //bogor
+            98, //depok
+            40, 39, 36, //tangerang
+        ];
 
         $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
+        throw_if(!in_array($originRegencyId, $acceptedRegency), Error::make(Response::RC_OUT_OF_RANGE, $messages));
+
+        // hardcode, set it to jabodetabek price
+        $price = BikePrices::where('destination_id', $destinationId)->first();
+
+        // $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+
         throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
+
+        return $price;
+    }
+
+    /** Cubic Price */
+    public static function getCubicPrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = CubicPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+
+        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+
+        return $price;
+    }
+
+    /**Calculating cubic price */
+    public static function getServiceCubicPrice(array $inputs, ?CubicPrice $price = null)
+    {
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'items' => ['required'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['nullable']
+        ]);
+
+        if (!$price) {
+            /** @var Price $price */
+            $price = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        }
+
+        /**Todo calculate */
+        $items = [];
+        foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
+            $items[] = [
+                'weight' => 0,
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+            ];
+        }
+
+        foreach ($items as $item) {
+            $calculateCubic = $item['height'] * $item['width'] * $item['length'] / 1000000;
+            $cubic[] = $calculateCubic;
+            $cubicResult = array_sum($cubic);
+        }
+
+        if ($cubicResult <= 3) {
+            $cubicResult = 3;
+        }
+
+        $servicePrice = $cubicResult * $price->amount;
+
+        return $servicePrice;
+    }
+
+    /** Get Express Price */
+    public static function getExpressPrice($originProvinceId, $originRegencyId, $destinationId)
+    {
+        $price = ExpressPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+
+        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+
+        return $price;
+    }
+
+    public static function getServiceExpressPrice(array $inputs, ?ExpressPrice $price = null)
+    {
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'items' => ['required'],
+            'items.*.weight' => ['required', 'numeric'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['nullable']
+        ]);
+
+        if (!$price) {
+            /** @var Price $price */
+            $price = self::getExpressPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        }
+
+        $items = [];
+        foreach ($inputs['items'] as $item) {
+            if ($item['handling']) {
+                foreach ($item['handling'] as $handling) {
+                    $packing[] = [
+                        'type' => $handling['type']
+                    ];
+                }
+            }
+            $items[] = [
+                'weight' => $item['weight'],
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'qty' => $item['qty'],
+                'handling' => !empty($packing) ? array_column($packing, 'type') : null
+            ];
+        }
+        $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_EXPRESS);
+
+        $servicePrice = $price->amount * $totalWeightBorne;
+
+        return $servicePrice;
+    }
+
+    public static function getAdditionalPrices($serviceCode, $items, $totalWeight)
+    {
+        foreach ($items as $item) {
+            $length = $item['length'];
+        }
+
+        $price = 0;
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_STANDARD:
+                switch ($totalWeight) {
+                    case $totalWeight < 100:
+                        $price = 0;
+                        break;
+                    case $totalWeight < 300:
+                        $price = 100000;
+                        break;
+                    case $totalWeight < 2000:
+                        $price = 250000;
+                        break;
+                    case $totalWeight < 5000:
+                        $price = 1500000;
+                        break;
+                    case $totalWeight > 5000:
+                        $price = 0;
+                        break;
+                };
+                break;
+            case Service::TRAWLPACK_CUBIC:
+                if ($length < 400) {
+                    $price = 0;
+                } else {
+                    $price = 0;
+                }
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                switch ($totalWeight) {
+                    case $totalWeight < 100:
+                        $price = 0;
+                        break;
+                    case $totalWeight < 300:
+                        $price = 100000;
+                        break;
+                    case $totalWeight < 2000:
+                        $price = 250000;
+                        break;
+                    case $totalWeight < 5000:
+                        $price = 1500000;
+                        break;
+                    case $totalWeight > 5000:
+                        $price = 0;
+                        break;
+                };
+                break;
+            default:
+                $price = 0;
+                break;
+        }
 
         return $price;
     }

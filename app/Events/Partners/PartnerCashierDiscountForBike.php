@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Events\Packages;
+namespace App\Events\Partners;
 
 use App\Models\Packages\Package;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PackageBikeCreated
+class PartnerCashierDiscountForBike
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -17,16 +17,14 @@ class PackageBikeCreated
      * @var \App\Models\Packages\Package
      */
     public Package $package;
-    public string $partner_code;
 
     /**
-     * PackageCreated constructor.
+     * Create a new event instance.
      *
-     * @param \App\Models\Packages\Package $package
+     * @return void
      */
-    public function __construct(Package $package, string $partner_code)
+    public function __construct(Package $package)
     {
         $this->package = $package;
-        $this->partner_code = $partner_code;
     }
 }

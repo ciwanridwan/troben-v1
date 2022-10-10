@@ -232,6 +232,18 @@ class Response implements Responsable
                     }
                 }
             }
+            if ($responseData['code'] === self::RC_BAD_REQUEST && $this->data) {
+                $msgs = '';
+                foreach ($this->data as $k => $v) {
+                    if (is_numeric($v)) {
+                        $v = 'Rp '.$v;
+                    }
+                    $msgs .= sprintf('%s %s, ', $k, $v);
+                }
+                if ($msgs != '') {
+                    $responseData['message'] = rtrim($msgs, ', ');
+                }
+            }
             $responseData['data'] = $this->data;
         }
 

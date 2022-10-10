@@ -64,7 +64,7 @@ class CreateMotorBike
             'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
-            
+
             'handling' => ['nullable', 'array'],
             'handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
@@ -106,7 +106,7 @@ class CreateMotorBike
         //     Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
         //     Log::info('triggering event. ', [$this->attributes['sender_name']]);
         //     // event(new PackageCreated($this->package, $this->attributes['partner_code']));
-            
+
         // }
         if ($this->package->exists) {
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);

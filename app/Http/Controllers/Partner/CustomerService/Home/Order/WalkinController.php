@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Response;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
-use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
@@ -148,7 +147,7 @@ class WalkinController extends Controller
         /** @var Regency $regency */
         $regency = $partner->regency;
 
-        throw_if(!$regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
+        throw_if(! $regency, Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
 
         /** @var Price $price */
         $price = PricingCalculator::getPrice($regency->province_id, $regency->id, $request->destination_id);

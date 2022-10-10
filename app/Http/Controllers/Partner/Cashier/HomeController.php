@@ -18,6 +18,7 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
 
@@ -65,7 +66,7 @@ class HomeController extends Controller
                 );
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
             $this->attributes = $request->validate($this->rules);
 
@@ -117,7 +118,7 @@ class HomeController extends Controller
                     break;
             }
             if ($request->discount > $check) {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
+                return (new Response(Response::RC_BAD_REQUEST, ['max_discount'=>$check]))->json();
             }
             $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                 'type' => Price::TYPE_DISCOUNT,
@@ -126,7 +127,13 @@ class HomeController extends Controller
             ]);
             $this->dispatch($job);
 
-            event(new PartnerCashierDiscount($package));
+            $bikes = $package->motoBikes()->first();
+
+            if (is_null($bikes)) {
+                event(new PartnerCashierDiscount($package));
+            } else {
+                event(new PartnerCashierDiscountForBike($package));
+            }
         }
 
         event(new PackageCheckedByCashier($package));
@@ -152,7 +159,7 @@ class HomeController extends Controller
             return $this->getPartners($request);
         }
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
         });
 
         $this->query->where($status_condition);
@@ -176,7 +183,7 @@ class HomeController extends Controller
             $this->query->where('status', '!=', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -199,7 +206,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_CANCEL);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -222,7 +229,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
+                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
             });
 
             $this->attributes = $request->validate($this->rules);

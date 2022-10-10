@@ -65,7 +65,8 @@ class HomeController extends Controller
         $this->query->with(
             ['items', 'prices', 'payments', 'items.prices', 'origin_regency',
             'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
-            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']);
+            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']
+        );
         // $this->query->orderBy('status','desc');
 
         return $this;
@@ -172,8 +173,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
-            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
+            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);

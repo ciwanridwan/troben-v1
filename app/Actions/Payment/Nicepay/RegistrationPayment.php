@@ -59,7 +59,7 @@ class RegistrationPayment
             'iMid' => config('nicepay.imid'),
             'currency' => 'IDR',
             'referenceNo' => $package->code->content,
-            'goodsNm' => 'Trawlpack Order ' . $package->code->content,
+            'goodsNm' => 'Trawlpack Order '.$package->code->content,
             'billingNm' => $customer->name,
             'billingPhone' => $this->validPhone($package->sender_phone),
             'billingEmail' => $customer->email,
@@ -121,14 +121,14 @@ class RegistrationPayment
         Log::debug('Registration body qr: ', ['body' => $this->attributes]);
         $job = new Registration($this->package, $this->attributes);
 
-        throw_if(!$this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
+        throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
         Log::debug('Nicepay response qr: ', ['response' => $job->response]);
         event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
 
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
-            'expired_time' => date_format(date_create($job->response->paymentExpDt . $job->response->paymentExpTm), 'Y-m-d H:i:s'),
+            'expired_time' => date_format(date_create($job->response->paymentExpDt.$job->response->paymentExpTm), 'Y-m-d H:i:s'),
             'qr_content' => $job->response->qrContent,
         ];
     }

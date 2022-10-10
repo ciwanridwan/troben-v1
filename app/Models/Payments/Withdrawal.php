@@ -78,19 +78,17 @@ class Withdrawal extends Model
         'hash','attachment_transfer_url'
     ];
 
-    // protected $attributes =
-    // [
-    //     'fee_charge_admin' => 0
-    // ];
     /**
      * Get all available type on partner balance histories.
      *
      * @return string[]
      */
-
-    public function getAttachmentTransferUrlAttribute() {
-        $attachment = $this->attributes['attachment_transfer'];
-        if($attachment == null) return null;
+    public function getAttachmentTransferUrlAttribute()
+    {
+        $attachment = $this->attachment_transfer;
+        if ($attachment == null) {
+            return null;
+        }
         return Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$attachment, Carbon::now()->addMinutes(60));
     }
 

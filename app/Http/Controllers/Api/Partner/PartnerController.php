@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Response;
-use App\Models\Customers\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -94,7 +93,7 @@ class PartnerController extends Controller
         }
 
         $q = "SELECT p.id, p.longitude, p.latitude,
-            6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT)) 
+            6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT))
                 * cos(radians(longitude::FLOAT) - radians(%f))
                 + sin(radians(%f))
                 * sin(radians(latitude::FLOAT))) AS distance_radian
@@ -128,6 +127,9 @@ class PartnerController extends Controller
                     $dr = $dist->distance_radian;
                     $dm = $dist->distance_matrix;
                 }
+                if ($dm == 0) {
+                    $dm = $dr;
+                }
                 $r->distance_radian = $dr;
                 $r->distance_matrix = $dm;
                 return $r;
@@ -147,7 +149,9 @@ class PartnerController extends Controller
         ])->validate();
 
         $notUser = ! (Auth::user() instanceof User);
-        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+        if ($notUser) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+        }
 
         try {
             $avail = $this->checkAvailability(Auth::id());
@@ -170,7 +174,9 @@ class PartnerController extends Controller
     public function availabilityGet(Request $request) : JsonResponse
     {
         $notUser = ! (Auth::user() instanceof User);
-        if ($notUser) throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+        if ($notUser) {
+            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+        }
 
         try {
             $result = $this->checkAvailability(Auth::id());
@@ -179,25 +185,6 @@ class PartnerController extends Controller
         }
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
-    }
-
-    private function checkAvailability(int $userId)
-    {
-        $q = "SELECT u.user_id, u.role, p.availability, p.id partner_id
-        FROM userables u
-        LEFT JOIN partners p ON u.userable_id = p.id
-        WHERE 1=1
-        AND userable_type = 'App\Models\Partners\Partner'
-        AND user_id = %d
-        LIMIT 1";
-        $q = sprintf($q, $userId);
-        $check = DB::select($q);
-        
-        if (count($check) == 0) {
-            throw new \Exception("Partner not Found");
-        }
-
-        return (array) $check[0];
     }
 
     protected function getPartnerData(): JsonResponse
@@ -215,6 +202,25 @@ class PartnerController extends Controller
         $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
 
         return $this->jsonSuccess(PartnerResource::collection($query->get()));
+    }
+
+    private function checkAvailability(int $userId)
+    {
+        $q = "SELECT u.user_id, u.role, p.availability, p.id partner_id
+        FROM userables u
+        LEFT JOIN partners p ON u.userable_id = p.id
+        WHERE 1=1
+        AND userable_type = 'App\Models\Partners\Partner'
+        AND user_id = %d
+        LIMIT 1";
+        $q = sprintf($q, $userId);
+        $check = DB::select($q);
+
+        if (count($check) == 0) {
+            throw new \Exception('Partner not Found');
+        }
+
+        return (array) $check[0];
     }
 
     /**

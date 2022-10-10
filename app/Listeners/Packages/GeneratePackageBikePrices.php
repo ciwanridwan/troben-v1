@@ -2,13 +2,12 @@
 
 namespace App\Listeners\Packages;
 
-use App\Events\Packages\PackageBikeCreated;
-use App\Events\Partners\PartnerCashierDiscount;
 use App\Models\Packages\Item;
 use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
@@ -63,11 +62,11 @@ class GeneratePackageBikePrices
             /** @var Package $package */
             $package = $event->package->refresh();
 
-            if (!$package->relationLoaded('origin_regency')) {
+            if (! $package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (!$package->relationLoaded('destination_sub_district')) {
+            if (! $package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -79,7 +78,7 @@ class GeneratePackageBikePrices
                     'moto_cc' => $package->motoBikes()->first()->cc
                 ];
 
-                $result = PricingCalculator::getBikePrice($service_input['origin_province_id'], $service_input['origin_regency_id'], $service_input['destination_id']);
+                $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
                 switch ($service_input['moto_cc']) {
                     case 150:
                         $servicePrice = $result->lower_cc;
@@ -90,8 +89,8 @@ class GeneratePackageBikePrices
                     case 999:
                         $servicePrice = $result->high_cc;
                         break;
-                    }
-                    $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
+                }
+                $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
             } catch (ValidationException $e) {
                 $servicePrice = 0;
             }
@@ -102,7 +101,7 @@ class GeneratePackageBikePrices
                 'amount' => $servicePrice,
             ]);
             $this->dispatch($job);
-            
+
             $is_approved = false;
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
@@ -155,10 +154,10 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
                 $is_approved = true;
             }
-            if ($event instanceof PartnerCashierDiscount) {
+            if ($event instanceof PartnerCashierDiscountForBike) {
                 $is_approved = true;
             }
-            
+
             /** Inserting required handling prices of bikes */
             try {
                 $ccInput = [
@@ -166,27 +165,31 @@ class GeneratePackageBikePrices
                 ];
                 switch ($ccInput['moto_cc']) {
                     case 150:
-                        $handlingBikePrices = 150000;
+                        $handlingBikePrices = 175000;
                         break;
                     case 250:
                         $handlingBikePrices = 250000;
                         break;
                     case 999:
-                        $handlingBikePrices = 500000;
+                        $handlingBikePrices = 450000;
                         break;
                 }
-                
+
                 $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
                     'type' => Price::TYPE_HANDLING,
                     'description' => Handling::TYPE_BIKES,
-                    'amount' => $handlingBikePrices,
+                    'amount' => $handlingBikePrices
                 ]);
                 $this->dispatch($job);
-            
+
+                /** Set Packate item id to bike handling */
+                $itemId = $event->package->items()->first()->id;
+                $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+                $packagePrices->update(['package_item_id' => $itemId]);
             } catch (\Throwable $th) {
                 throw $th;
             }
-            
+
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
             // try {

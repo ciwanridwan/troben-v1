@@ -51,6 +51,7 @@ class ManifestController extends Controller
     public function show(Delivery $delivery): JsonResponse
     {
         return $this->jsonSuccess(WarehouseManifestResource::make($delivery->load(
+            'origin_partner',
             'item_codes',
             'code',
             'partner',

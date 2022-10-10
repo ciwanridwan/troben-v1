@@ -62,7 +62,7 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
-        $this->resource->load('packages.attachments');
+        $this->resource->load('packages.attachments', 'packages.items');
 
         if ($this->resource->relationLoaded('packages')) {
             //     $packages = PackageResource::collection($this->resource->packages->load('items'));
@@ -75,12 +75,6 @@ class DeliveryResource extends JsonResource
                     $this->resource->packages[$key]->load('motoBikes');
                 } else {
                     $this->resource->packages[$key]->moto_bikes = null;
-                }
-
-                // make file mode stream
-                foreach ($this->resource->packages[$key]->attachments as $key2 => $attach) {
-                    $newUri = sprintf('%s?stream=true', $attach->uri);
-                    $this->resource->packages[$key]->attachments[$key2]->uri_stream = $newUri;
                 }
             }
         }
