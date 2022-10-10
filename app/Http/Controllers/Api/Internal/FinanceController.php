@@ -9,7 +9,6 @@ use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
 use App\Models\Partners\Balance\DisbursmentHistory;
-use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Carbon\Carbon;
@@ -431,6 +430,111 @@ class FinanceController extends Controller
         return $q;
     }
 
+    /** New logic for get detail disbursment */
+    public function detail($disbursment_id)
+    {
+        $disbursment = Withdrawal::where('id', $disbursment_id)->first();
+
+        if (is_null($disbursment)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
+        $packages = collect(DB::select($query));
+
+        $disbursHistory = DisbursmentHistory::all();
+
+        if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
+            $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
+                return $r->receipt;
+            })->values());
+
+            $getPendingReceipts = $receiptRequested->map(function ($r) {
+                $r->approved = 'pending';
+                $r->total_payment = intval($r->total_payment);
+                $r->total_accepted = intval($r->total_accepted);
+                $r->approved_at = null;
+                return $r;
+            })->values();
+
+            $totalUnApproved = $getPendingReceipts->where('approved', 'pending')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
+            $totalApproved = $getPendingReceipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
+            $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
+
+            $attachment = $disbursment->attachment_transfer ?
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                null;
+
+            $data = [
+                'transferred_at' => $disbursment->transferred_at,
+                'attachment_transfer' => $attachment,
+                'rows' => $getPendingReceipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        } else {
+            $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
+            $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $packages->pluck('receipt'))->get();
+            $receipts = $packages->filter(function ($r) use ($alreadyDis) {
+                $check = $alreadyDis->where('receipt', $r->receipt)->first();
+                if ($check) {
+                    return false;
+                }
+                return true;
+            })->map(function ($r) use ($getDisburs, $disbursment) {
+                $r->approved = 'pending';
+                $r->total_payment = intval($r->total_payment);
+                $r->total_accepted = intval($r->total_accepted);
+                $r->approved_at = null;
+
+                $check = $getDisburs->where('receipt', $r->receipt)->first();
+                if ($check) {
+                    $date = $getDisburs->map(function ($time) {
+                        return $time->created_at;
+                    })->first();
+
+                    $r->approved = 'success';
+                    $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
+                }
+                return $r;
+            })->values();
+
+            $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
+            $totalApproved = $receipts->where('approved', 'success')->map(function ($r) {
+                return $r;
+            })->sum('total_accepted');
+
+            $approvedAt = $receipts->whereNotNull('approved_at')->first();
+
+            $attachment = $disbursment->attachment_transfer ?
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                null;
+
+            $data = [
+                'transferred_at' => $disbursment->transferred_at,
+                'attachment_transfer' => $attachment,
+                'rows' => $receipts,
+                'total_unapproved' => $totalUnApproved,
+                'total_approved' => $totalApproved,
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $data))->json();
+        }
+    }
+
     private function reportReceiptQuery($param)
     {
         $q = "select
@@ -600,112 +704,6 @@ class FinanceController extends Controller
         $q = sprintf($q, $param['start'], $param['end']);
 
         return $q;
-    }
-
-    /** New logic for get detail disbursment */
-    public function detail($disbursment_id)
-    {
-        $disbursment = Withdrawal::where('id', $disbursment_id)->first();
-
-        if (is_null($disbursment)) {
-            return (new Response(Response::RC_SUCCESS, []))->json();
-        }
-
-        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
-        $packages = collect(DB::select($query));
-
-        $disbursHistory = DisbursmentHistory::all();        
-
-        if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
-            $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
-                return $r->receipt;
-            })->values());
-
-            $getPendingReceipts = $receiptRequested->map(function ($r) {
-                $r->approved = 'pending';
-                $r->total_payment = intval($r->total_payment);
-                $r->total_accepted = intval($r->total_accepted);
-                $r->approved_at = null;
-                return $r;
-            })->values();
-
-            $totalUnApproved = $getPendingReceipts->where('approved', 'pending')->map(function ($r) {
-                return $r;
-            })->sum('total_accepted');
-
-            $totalApproved = $getPendingReceipts->where('approved', 'success')->map(function ($r) {
-                return $r;
-            })->sum('total_accepted');
-
-            $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
-
-            $attachment = $disbursment->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
-                null;
-
-            $data = [
-                'transferred_at' => $disbursment->transferred_at,
-                'attachment_transfer' => $attachment,
-                'rows' => $getPendingReceipts,
-                'total_unapproved' => $totalUnApproved,
-                'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
-            ];
-
-            return (new Response(Response::RC_SUCCESS, $data))->json();
-        } else {
-            $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
-            $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $packages->pluck('receipt'))->get();
-            $receipts = $packages->filter(function ($r) use ($alreadyDis) {
-                $check = $alreadyDis->where('receipt', $r->receipt)->first();
-                if ($check) {
-                    return false;
-                }
-                return true;
-            })->map(function ($r) use ($getDisburs, $disbursment) {
-                $r->approved = 'pending';
-                $r->total_payment = intval($r->total_payment);
-                $r->total_accepted = intval($r->total_accepted);
-                $r->approved_at = null;
-
-                $check = $getDisburs->where('receipt', $r->receipt)->first();
-                if ($check) {
-                    $date = $getDisburs->map(function ($time) {
-                        return $time->created_at;
-                    })->first();
-
-                    $r->approved = 'success';
-                    $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
-                }
-                return $r;
-            })->values();
-
-            $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
-                return $r;
-            })->sum('total_accepted');
-
-            $totalApproved = $receipts->where('approved', 'success')->map(function ($r) {
-                return $r;
-            })->sum('total_accepted');
-
-            $approvedAt = $receipts->whereNotNull('approved_at')->first();
-
-            $attachment = $disbursment->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
-                null;
-
-            $data = [
-                'transferred_at' => $disbursment->transferred_at,
-                'attachment_transfer' => $attachment,
-                'rows' => $receipts,
-                'total_unapproved' => $totalUnApproved,
-                'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
-            ];
-
-            return (new Response(Response::RC_SUCCESS, $data))->json();
-        }
-
     }
 
     private function newQueryDetailDisbursment($partnerId)
