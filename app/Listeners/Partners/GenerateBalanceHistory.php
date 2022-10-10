@@ -206,13 +206,12 @@ class GenerateBalanceHistory
 
                             /**Get fee additional */
                             $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
-
                             $this
-                                    ->setBalance($extraFee)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                                ->setBalance($feeAdditional)
+                                ->setType(History::TYPE_DEPOSIT)
+                                ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                ->setAttributes()
+                                ->recordHistory();
                         }
 
                         # total balance insurance > record insurance fee
@@ -273,7 +272,6 @@ class GenerateBalanceHistory
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
-
                         $this->partner->balance = $totalBalance;
                         $this->partner->save();
                     }
