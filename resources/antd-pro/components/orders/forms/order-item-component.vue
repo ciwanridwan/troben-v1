@@ -7,7 +7,7 @@
   >
     <a-row type="flex" :gutter="[12, 12]">
       <a-col :span="6">
-        <a-form-model-item :label="item_desc" prop="desc">
+        <a-form-model-item label="Deskripsi Barang" prop="desc">
           <a-select
             v-model="value.name"
             size="large"
