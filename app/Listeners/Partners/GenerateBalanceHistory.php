@@ -185,17 +185,17 @@ class GenerateBalanceHistory
                         $balancePickup = 0;
                         $extraFee = 0;
                         $bikeFeeHandling = 0;
-                        $feeAdditional = 0; 
+                        $feeAdditional = 0;
 
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
                             // $this->saveServiceFee($this->partner->type, $variant);
                             $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
-                            
+
                             /** Get fee extra be as commission partners with 0.05*/
                             if ($package->total_weight > 99) {
-                                $extraFee = $package->service_price * 0.05; 
+                                $extraFee = $package->service_price * 0.05;
                                 $this
                                     ->setBalance($extraFee)
                                     ->setType(History::TYPE_CHARGE)
