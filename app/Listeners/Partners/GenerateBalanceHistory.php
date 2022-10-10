@@ -206,6 +206,7 @@ class GenerateBalanceHistory
 
                             /**Get fee additional */
                             $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+
                             $this
                                     ->setBalance($extraFee)
                                     ->setType(History::TYPE_DEPOSIT)
