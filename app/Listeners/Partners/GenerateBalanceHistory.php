@@ -178,6 +178,11 @@ class GenerateBalanceHistory
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() === 1) {
+                        $servicePrice = 0;
+                        $balancePickup = 0;
+                        $balance_handling = 0;
+                        $balance_insurance = 0;
+
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
