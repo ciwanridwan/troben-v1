@@ -205,13 +205,15 @@ class GenerateBalanceHistory
                             }
 
                             /**Get fee additional */
-                            $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
-                            $this
-                                ->setBalance($feeAdditional)
-                                ->setType(History::TYPE_DEPOSIT)
-                                ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                ->setAttributes()
-                                ->recordHistory();
+                            if ($package->total_weight > 100) {
+                                $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+                                $this
+                                    ->setBalance($feeAdditional)
+                                    ->setType(History::TYPE_DEPOSIT)
+                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                    ->setAttributes()
+                                    ->recordHistory();
+                            }
                         }
 
                         # total balance insurance > record insurance fee
@@ -247,10 +249,6 @@ class GenerateBalanceHistory
                                     ->setDescription(History::DESCRIPTION_HANDLING)
                                     ->setAttributes()
                                     ->recordHistory();
-                            }
-
-                            if ($package->moto_bikes !== null) {
-                                $bikeFeeHandling = $package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
                             }
                         }
                         /**Get Fee Pickup */
