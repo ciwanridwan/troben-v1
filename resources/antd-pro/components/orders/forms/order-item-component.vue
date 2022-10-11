@@ -108,7 +108,7 @@
 
     <a-row v-show="value.name == 'motor'" type="flex" :gutter="[12, 12]">
       <a-col :span="9">
-        <a-form-model-item label="Jenis Motor">
+        <a-form-model-item label="Jenis Motor" prop="moto_type">
           <a-select
             v-model="value.moto_type"
             size="large"
@@ -125,7 +125,7 @@
         </a-form-model-item>
       </a-col>
       <a-col :span="9">
-        <a-form-model-item label="Merek Motor">
+        <a-form-model-item label="Merek Motor" prop="moto_merk">
           <a-input
             v-model="value.moto_merk"
             type="text"
@@ -137,7 +137,7 @@
     </a-row>
     <a-row v-show="value.name == 'motor'" type="flex" :gutter="[12, 12]">
       <a-col :span="9">
-        <a-form-model-item label="CC Motor">
+        <a-form-model-item label="CC Motor" prop="moto_cc">
           <a-select
             v-model="value.moto_cc"
             size="large"
@@ -154,7 +154,7 @@
         </a-form-model-item>
       </a-col>
       <a-col :span="9">
-        <a-form-model-item label="Tahun Motor">
+        <a-form-model-item label="Tahun Motor" prop="moto_year">
           <a-input
             v-model="value.moto_year"
             type="number"
@@ -173,12 +173,16 @@ export default {
       rules: {
         name: [{ required: true }],
         desc: [{ required: true }],
-        length: [{ required: true }],
-        width: [{ required: true }],
-        height: [{ required: true }],
-        weight: [{ required: true }],
-        qty: [{ required: true }],
-        price: [{ required: true }],
+        length: [{ required: !this.isMotor }],
+        width: [{ required: !this.isMotor }],
+        height: [{ required: !this.isMotor }],
+        weight: [{ required: !this.isMotor }],
+        qty: [{ required: !this.isMotor }],
+        price: [{ required: !this.isMotor }],
+        moto_cc: [{ required: this.isMotor }],
+        moto_type: [{ required: this.isMotor }],
+        moto_merk: [{ required: this.isMotor }],
+        moto_year: [{ required: this.isMotor }],
       },
       items: [
         "Pakaian",
@@ -246,28 +250,16 @@ export default {
         } else {
           value.desc = value.name;
         }
-        // if (this.item_desc == "lainnya") {
-        //   value.name = this.item_desc;
-        // } else {
-        //   value.desc = this.item_desc;
-        //   value.name = value.desc;
-        // }
+        if (value.name == "motor") {
+          this.isMotor = true;
+        } else {
+          this.isMotor = false;
+        }
         this.onChange(value);
         this.$emit("change", value);
       },
       deep: true,
     },
   },
-  methods: {
-    setDesc() {
-      // this.value.name = this.item_desc;
-      if (this.item_desc == "motor") {
-        this.isMotor = true;
-      } else {
-        this.isMotor = false;
-      }
-    },
-  },
-  mounted() {},
 };
 </script>
