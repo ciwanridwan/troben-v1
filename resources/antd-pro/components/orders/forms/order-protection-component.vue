@@ -2,7 +2,7 @@
   <a-form-model ref="formRules" :rules="rules" :model="value">
     <a-row type="flex" :gutter="[12, 12]">
       <a-col :span="18">
-        <a-form-model-item prop="handling">
+        <a-form-model-item prop="is_protection">
           <a-space>
             <a-checkbox v-model="value.handling">
               Perlindungan tambahan diberikan untuk menambah keamanan barang di
@@ -83,8 +83,7 @@ export default {
         handling_type: null,
       },
       rules: {
-        handling: [{ required: true }],
-        handling_type: [{ required: false }],
+        is_protection: [{ required: false }],
       },
       items: [
         {
