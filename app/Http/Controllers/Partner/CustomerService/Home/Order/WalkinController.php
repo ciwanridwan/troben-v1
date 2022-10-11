@@ -119,7 +119,8 @@ class WalkinController extends Controller
             'origin_province_id' => $regency->province_id,
             'origin_regency_id' => $regency->id,
             'destination_id' => $request->destination_sub_district_id,
-            'items' => $request->items
+            'items' => $request->items,
+            'service_code' => $request->service_code,
         ];
 
         return PricingCalculator::calculate($paramsCalculator);

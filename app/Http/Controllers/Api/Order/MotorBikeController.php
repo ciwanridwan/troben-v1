@@ -258,7 +258,7 @@ class MotorBikeController extends Controller
             'origin_lon' => 'required|numeric',
             // 'destination_lat' => 'required|numeric',
             // 'destination_lon' => 'required|numeric',
-            'destination_id' => 'nullable|exists:geo_districts,id',
+            'destination_id' => 'nullable|exists:geo_sub_districts,id',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
             'moto_cc' => 'required|numeric|in:150,250,999',
@@ -331,7 +331,7 @@ class MotorBikeController extends Controller
         // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
         $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
-        $getPrice = PricingCalculator::getBikePrice($resultOrigin['province'], $resultOrigin['regency'], $req['destination_id']);
+        $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
         switch ($request->get('moto_cc')) {

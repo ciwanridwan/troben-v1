@@ -212,8 +212,13 @@ class PricingCalculator
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
-                    $handling = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
-                    $handling_price += Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $packingType = $packing;
+                    if (is_array($packingType) && isset($packingType['type'])) {
+                        $packingType = $packingType['type'];
+                    }
+
+                    $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handling_price += Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
@@ -702,7 +707,7 @@ class PricingCalculator
     }
 
     /** Motobikes price */
-    public static function getBikePrice($originProvinceId, $originRegencyId, $destinationId)
+    public static function getBikePrice($originRegencyId, $destinationId)
     {
         $acceptedRegency = [
             58, 59, 60, 61, 62, //jakarta
