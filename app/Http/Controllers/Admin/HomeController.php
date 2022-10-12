@@ -230,7 +230,7 @@ class HomeController extends Controller
 
     public function loginotherSubmit(Request $request)
     {
-        $rule = [ 'email' => 'required' ];
+        $rule = ['email' => 'required'];
         $this->validate($request, $rule);
 
         $user = User::where('email', $request->get('email'))->firstOrFail();
