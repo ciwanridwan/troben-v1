@@ -11,8 +11,6 @@ use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
-use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Service;
 use Illuminate\Validation\ValidationException;
@@ -128,7 +126,7 @@ class GeneratePackagePrices
 
             /** Additional Price */
             /** Temporary command script because not use realease
-             * but really push to prod, hold till can give permission to realese to production
+             * but really push to prod, hold till can give permission to realese to production.
              */
             // if ($package->prices) {
             //     $serviceCode = $package->service_code;
