@@ -110,7 +110,6 @@ class HomeRoute extends BaseRoute
             'as' => $this->name('loginotherSubmit'),
             'uses' => $this->uses('loginotherSubmit'),
         ]);
-        
     }
 
     /**
