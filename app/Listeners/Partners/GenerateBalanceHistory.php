@@ -161,10 +161,18 @@ class GenerateBalanceHistory
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $this->saveServiceFee($this->partner->type, $variant, true);
+                        // $this->saveServiceFee($this->partner->type, $variant, true);
+                        /**Set fee transit to be income partner */
+                        $income = $this->saveServiceFee($this->partner->type, $variant, true);
+                        $this->partner->balance += $income;
+                        $this->partner->save();
                     }
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
                         $this->saveServiceFee($this->partner->type, $variant, true);
+                        /**Set fee transit at dooring to be income partner */
+                        $income = $this->saveServiceFee($this->partner->type, $variant, true);
+                        $this->partner->balance += $income;
+                        $this->partner->save();
                     }
                 }
                 break;
@@ -278,6 +286,7 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
+                    // dd($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1);
                     if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
@@ -289,6 +298,7 @@ class GenerateBalanceHistory
                         if ($manifest_weight < 10) {
                             $manifest_weight = 10;
                         }
+
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
@@ -349,11 +359,16 @@ class GenerateBalanceHistory
                             }
                         }
                         $this->setBalance($manifest_weight * $price->value);
+                        $income = $manifest_weight * $price->value;
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
                             ->setAttributes(false)
                             ->recordHistory(false);
+
+                        $this->partner->balance += $income;
+                        $this->partner->save();
+
                         break;
                     }
 
