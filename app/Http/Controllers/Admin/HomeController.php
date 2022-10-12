@@ -17,6 +17,9 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class HomeController extends Controller
@@ -199,6 +202,43 @@ class HomeController extends Controller
     {
         event(new PackageCanceledByAdmin($package));
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
+    }
+
+    public function loginother(Request $request)
+    {
+        $users = [];
+
+        $search = $request->get('search');
+        if ($search) {
+            $q = "SELECT
+                u.id,
+                MAX(u.name) name,
+                MAX(username) username,
+                MAX(email) email,
+                STRING_AGG(p.code, ',') partner,
+                STRING_AGG(uu.role, ', ') roles
+            FROM users u
+            LEFT JOIN userables uu ON u.id = uu.user_id AND uu.userable_type = 'App\Models\Partners\Partner'
+            LEFT JOIN partners p ON uu.userable_id = p.id
+            WHERE u.email ILIKE '%".$search."%' OR u.username ILIKE '%".$search."%' OR u.name ILIKE '%".$search."%'
+            GROUP BY u.id";
+            $users = DB::select($q);
+        }
+
+        return view('admin.superadmin.loginother', compact('users'));
+    }
+
+    public function loginotherSubmit(Request $request)
+    {
+        $rule = [ 'email' => 'required' ];
+        $this->validate($request, $rule);
+
+        $user = User::where('email', $request->get('email'))->firstOrFail();
+
+        Auth::guard('web')->logout();
+        Auth::guard('web')->loginUsingId($user->getKey());
+
+        return redirect('/');
     }
 
     private function getPartners(Request $request, bool $hasTransporter = true): JsonResponse
