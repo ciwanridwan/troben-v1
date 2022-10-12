@@ -44,15 +44,20 @@ class ItemController extends Controller
     public function update(Request $request, Package $package): JsonResponse
     {
         $this->authorize('update', $package);
-
         $itemInputs = Arr::wrap($request->all());
         $items = new Collection();
-
         $rows = [];
         foreach ($itemInputs as $itemInput) {
             $item = Item::byHash($itemInput['hash']);
             if ($item == null) {
                 return (new Response(Response::RC_DATA_NOT_FOUND, $items->toArray()))->json();
+            }
+            if ($item->revision >= 3) {
+                $msg = [
+                    'message' => 'Max Revisi is 3',
+                    'total_revisi' => $item->revision
+                ];
+                return (new Response(Response::RC_ACCEPTED, $msg))->json();
             }
             $rows[] = [
                 'item' => $item,

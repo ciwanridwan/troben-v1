@@ -76,6 +76,7 @@ class Item extends Model implements AttachableContract
         'in_estimation',
         'is_insured',
         'handling',
+        'revision'
     ];
 
     /**
