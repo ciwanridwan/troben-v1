@@ -19,20 +19,12 @@ trait UsingNicepay
      */
     public function merchantToken(string $timestamp, string $refNo, int $amt): string
     {
-        // $item =  [
-        //     'timestamp' => $timestamp,
-        //     'imid' => config('nicepay.imid'),
-        //     'refNo' => $refNo,
-        //     'amt' => (string) $amt,
-        //     'merchant_key' => config('nicepay.merchant_key'),
-        // ];
-        // dd($item);
         return hash(
             'sha256',
             $timestamp.
             config('nicepay.imid').
             $refNo.
-            (string) $amt.
+            $amt.
             config('nicepay.merchant_key'),
         );
     }
