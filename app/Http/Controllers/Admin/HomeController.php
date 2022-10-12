@@ -220,7 +220,7 @@ class HomeController extends Controller
             FROM users u
             LEFT JOIN userables uu ON u.id = uu.user_id AND uu.userable_type = 'App\Models\Partners\Partner'
             LEFT JOIN partners p ON uu.userable_id = p.id
-            WHERE u.email ILIKE '%".$search."%' OR u.username ILIKE '%".$search."%' OR u.name ILIKE '%".$search."%'
+            WHERE u.email ILIKE '%".$search."%' OR u.username ILIKE '%".$search."%' OR u.name ILIKE '%".$search."%' OR p.code ILIKE '%".$search."%'
             GROUP BY u.id";
             $users = DB::select($q);
         }
