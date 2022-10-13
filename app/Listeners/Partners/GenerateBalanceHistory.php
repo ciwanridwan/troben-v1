@@ -286,7 +286,6 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
-                    // dd($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1);
                     if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
@@ -358,13 +357,14 @@ class GenerateBalanceHistory
                                 break;
                             }
                         }
+
                         $this->setBalance($manifest_weight * $price->value);
                         $income = $manifest_weight * $price->value;
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                            ->setAttributes(false)
-                            ->recordHistory(false);
+                            ->setAttributes()
+                            ->recordHistory();
 
                         $this->partner->balance += $income;
                         $this->partner->save();
