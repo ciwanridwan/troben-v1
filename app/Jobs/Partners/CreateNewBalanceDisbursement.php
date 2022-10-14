@@ -43,7 +43,8 @@ class CreateNewBalanceDisbursement
             'bank_id' => ['required','max:255', 'exists:bank,id'],
             'account_name' => ['required','max:255'],
             'account_number' => ['required', 'max:255'],
-            'expired_at' => ['required']
+            'expired_at' => ['required'],
+            'transaction_code' => ['nullable']
         ])->validate();
         $this->withdrawal = new Withdrawal();
         $this->partner = $partner;
@@ -61,6 +62,7 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->partner_id = $this->partner->id;
         $this->withdrawal->first_balance = $this->partner->balance;
         $this->withdrawal->amount = $this->partner->balance;
+        $this->withdrawal->transaction_code  = Withdrawal::generateCodeTransaction();
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
