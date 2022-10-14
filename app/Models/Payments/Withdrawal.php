@@ -51,7 +51,7 @@ class Withdrawal extends Model
     // End Todo
 
     /** Set unique code of transaction */
-    protected $codeTransaction = 'WTD';
+    public const TRANSACTION_CODE = 'WTD';
 
     protected $table = 'partner_balance_disbursement';
 
@@ -69,7 +69,8 @@ class Withdrawal extends Model
         'notes',
         'charge_admin',
         'fee_charge_admin',
-        'expired_at'
+        'expired_at',
+        'trx_code' // transaction code WTD2022101401
     ];
 
     protected $casts = [
@@ -80,8 +81,7 @@ class Withdrawal extends Model
 
     protected $appends = [
         'hash',
-        'attachment_transfer_url',
-        'trx_code'
+        'attachment_transfer_url'
     ];
 
     /**
@@ -109,11 +109,6 @@ class Withdrawal extends Model
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
         ];
-    }
-
-    public function getTrxCodeAttribute()
-    {
-        return $this->codeTransaction;
     }
 
     /**
