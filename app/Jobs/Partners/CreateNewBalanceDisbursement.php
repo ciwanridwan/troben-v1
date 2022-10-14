@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\NewBalanceDisbursementCreated;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
@@ -66,7 +65,6 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
-            // event(new NewBalanceDisbursementCreated($this->withdrawal));
             $this->partner->balance = 0;
             $this->partner->save();
         }
