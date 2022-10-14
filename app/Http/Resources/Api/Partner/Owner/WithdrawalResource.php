@@ -22,12 +22,11 @@ class WithdrawalResource extends JsonResource
         /** @var \App\Models\Payments\Withdrawal $this */
         $data = [
             'hash' => $this->hash,
+            'transaction_code' => $this->transaction_code,
             'user' => $partner,
             'status' => $this->status,
             'amount' => $this->amount,
             'created_at' => date('Y-m-d h:i:s', strtotime($this->created_at)),
-            // 'first_balance' => $this->first_balance,
-            // 'updated_at' => date('Y-m-d h:i:s', strtotime($this->updated_at)),
         ];
 
         return $data;

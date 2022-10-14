@@ -86,11 +86,9 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        // dump($repository->getPartner()->id);
         $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
             ->where('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-        // dd($withdrawal);
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
@@ -318,13 +316,5 @@ class WithdrawalController extends Controller
         where pbd.partner_id = $partnerId";
 
         return $q;
-    }
-
-    /** Set Generate Code Transaction And Unique */
-    private function codeTransaction($id, $requestAt)
-    {
-        $especiallyCode = 'WTD';
-        $trxCode = $especiallyCode . $requestAt. $id;
-        return $trxCode;
     }
 }
