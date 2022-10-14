@@ -54,14 +54,14 @@ class CancelController extends Controller
         } else {
             $pickupPrice = $price->amount;
         }
-        if ($package->status == Package::STATUS_CANCEL) {
-            $cancel = CancelOrder::where('package_id', $package->id)->first();
-            $msg = [
-                'message' => 'has been canceled',
-                'type_cancel' => $cancel->type
-            ];
-            return (new Response(Response::RC_ACCEPTED, $msg))->json();
-        }
+        // if ($package->status == Package::STATUS_CANCEL) {
+        //     $cancel = CancelOrder::where('package_id', $package->id)->first();
+        //     $msg = [
+        //         'message' => 'has been canceled',
+        //         'type_cancel' => $cancel->type
+        //     ];
+        //     return (new Response(Response::RC_ACCEPTED, $msg))->json();
+        // }
         event(new PackageCanceledByCustomer($package));
         $data = new CancelOrder();
         $data->package_id = $package->id;
@@ -95,6 +95,13 @@ class CancelController extends Controller
         } else {
             return (new Response(Response::RC_DATA_NOT_FOUND))->json();
         }
+    }
+
+    public function cancelOrder(Request $req, Package $package)
+    {
+        $package->status = 'cancel';
+        $package->save();
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     public function payForCancelDummy(Package $package, Gateway $gateway)

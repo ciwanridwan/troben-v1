@@ -86,6 +86,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('cancel', CancelController::class),
         ]);
 
+        $this->router->post($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancelOrder'),
+            'uses' => $this->uses('cancelOrder', CancelController::class),
+        ]);
+
         $this->router->patch($this->prefix('{package_hash}/cancel/method'), [
             'as' => $this->name('cancel.method'),
             'uses' => $this->uses('method', CancelController::class),
