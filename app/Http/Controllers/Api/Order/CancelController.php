@@ -18,6 +18,7 @@ use Illuminate\Validation\Rule;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
 use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
 
 class CancelController extends Controller
 {
@@ -138,5 +139,24 @@ class CancelController extends Controller
                 break;
         endswitch;
         return $this->jsonSuccess(new RegistrationResource($resource ?? []));
+    }
+
+    public function checkCancelPayment(Package $package)
+    {
+        $checkPayment = Payment::with('gateway')->where('payable_id', $package->id)
+            ->where('payable_type', Package::class)->first();
+        if(! is_null($checkPayment)) {
+            $content = [
+                'has_generate_payment' => true,
+                'data_payment' => $checkPayment,
+            ];
+            return (new Response(Response::RC_ACCEPTED, $content))->json();
+        } else {
+            $content = [
+                'has_generate_payment' => true,
+                'data_payment' => $checkPayment,
+            ];
+            return (new Response(Response::RC_ACCEPTED, $content))->json();
+        }
     }
 }

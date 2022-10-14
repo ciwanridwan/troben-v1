@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Order;
 
 use App\Actions\Pricing\PricingCalculator;
-use App\Casts\Package\Items\Handling;
 use App\Events\Partners\PartnerCashierDiscount;
 use App\Http\Resources\Account\CourierResource;
 use App\Http\Resources\FindReceiptResource;
@@ -49,6 +48,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Models\Payments\Payment;
 
 class OrderController extends Controller
 {
@@ -121,6 +121,7 @@ class OrderController extends Controller
 
         /** Old script */
         $package->load(
+            'canceled',
             'code',
             'prices',
             'attachments',
@@ -134,7 +135,7 @@ class OrderController extends Controller
             'origin_regency',
             'destination_regency',
             'destination_district',
-            'destination_sub_district'
+            'destination_sub_district',
         )->append('transporter_detail');
 
         /** Price Of Item */
@@ -182,7 +183,8 @@ class OrderController extends Controller
         } else {
             $feeAdditional = $getFeeAdditional->amount;
         }
-
+        $checkPayment = Payment::with('gateway')->where('payable_id', $package->id)
+            ->where('payable_type', Package::class)->first();
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -199,6 +201,10 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
+            'payments' => [
+                'has_generate_payment' => $checkPayment ? true : false,
+                'payment' => $checkPayment
+            ],
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
@@ -224,7 +230,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (!$voucher) {
+        if (! $voucher) {
             $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
@@ -247,7 +253,7 @@ class OrderController extends Controller
             return $default;
         }
 
-        if (!is_null($voucher->aevoucher)) {
+        if (! is_null($voucher->aevoucher)) {
             return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
         }
 
@@ -321,7 +327,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
@@ -383,7 +389,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -432,7 +438,7 @@ class OrderController extends Controller
                 $pickup_discount_price->delete();
             }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (!$voucher) {
+            if (! $voucher) {
                 $partnerId = $request->get('partner_id');
                 if ($partnerId != null) {
                     // add fallback to Voucher AE
@@ -529,7 +535,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (!$code->exists) {
+        if (! $code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -540,7 +546,7 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
+        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
@@ -618,21 +624,6 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * @param Builder $builder
-     * @return Builder
-     */
-    private function getBasicBuilder(Builder $builder): Builder
-    {
-        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
-        $builder->when(
-            request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
-        );
-
-        return $builder;
-    }
-
     public function usePersonalData(Request $request)
     {
         $user = $request->user();
@@ -649,10 +640,10 @@ class OrderController extends Controller
     {
         $this->attributes = $request->validate(
             [
-                "origin_lat" => ['nullable', 'numeric'],
-                "origin_lon" => ['nullable', 'numeric'],
+                'origin_lat' => ['nullable', 'numeric'],
+                'origin_lon' => ['nullable', 'numeric'],
                 'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
-                "service_code" => ['nullable', 'exists:services,code']
+                'service_code' => ['nullable', 'exists:services,code']
             ]
         );
 
@@ -675,6 +666,21 @@ class OrderController extends Controller
         $serviceCode = $this->attributes['service_code'];
 
         return $this->getPrice($serviceCode, $originRegencyId, $destinationId);
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     */
+    private function getBasicBuilder(Builder $builder): Builder
+    {
+        $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
+        $builder->when(
+            request()->has('q') and request()->has('id') === false,
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+        );
+
+        return $builder;
     }
 
     private function getPrice($serviceCode, $originRegencyId, $destinationId): JsonResponse

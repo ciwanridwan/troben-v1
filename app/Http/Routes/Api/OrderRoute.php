@@ -96,6 +96,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('cancelBefore', CancelController::class),
         ]);
 
+        $this->router->get($this->prefix('{package_hash}/check-cancel-payment'), [
+            'as' => $this->name('checkCancelPayment'),
+            'uses' => $this->uses('checkCancelPayment', CancelController::class)
+        ]);
+
         $this->router->post($this->prefix('{package_hash}/receipt'), [
             'as' => $this->name('receipt'),
             'uses' => $this->uses('receipt'),

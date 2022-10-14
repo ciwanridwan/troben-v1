@@ -74,7 +74,8 @@ class RegistrationPayment
             $this->package = $package;
             $this->gateway = $gateway;
         }
-        if ($package->status == Package::STATUS_CANCEL) {
+
+        if ($package->status === Package::STATUS_CANCEL) {
             $log = [
                 'package_code' => $package->code->content,
                 'channel' => $gateway->channel
@@ -87,7 +88,7 @@ class RegistrationPayment
                 ->first() ?? null;
 
 
-            $amt = (int) $package->canceled->pickup_price;
+            $amt = ceil($package->canceled->pickup_price + self::adminChargeCalculator($gateway, $package->canceled->pickup_price));
             $now = date_format(Carbon::now(), 'YmdHis');
             $this->attributes = [
                 'timeStamp' => $now,
@@ -107,6 +108,7 @@ class RegistrationPayment
                 'billingCountry' => 'Indonesia',
                 'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
                 'dbProcessUrl' => config('nicepay.db_process_url'),
+                'mitraCd'=>''
             ];
             $this->package = $package;
             $this->gateway = $gateway;
@@ -123,8 +125,10 @@ class RegistrationPayment
             'payMethod' => config('nicepay.payment_method_code.va'),
             'bankCd' => config('nicepay.bank_code.'.$this->gateway->channel),
             'merFixAcctId' => config('nicepay.merchant_fix_account_id'),
-            'vacctValidDt' => date_format(Carbon::now(), 'Ymd'),
-            'vacctValidTm' => date_format(Carbon::now(), 'His')
+            'vacctValidDt' => '',
+            'vacctValidTm' => ''
+            // 'vacctValidDt' => date_format(Carbon::now(), 'Ymd'),
+            // 'vacctValidTm' => date_format(Carbon::now(), 'His')
         ]);
         Log::debug('Registration body va: ', ['body' => $this->attributes]);
         $job = new Registration($this->package, $this->attributes);
