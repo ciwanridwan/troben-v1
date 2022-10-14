@@ -22,6 +22,7 @@ use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\CancelOrder;
 use App\Models\FileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -756,6 +757,7 @@ class Package extends Model implements AttachableContract
             ->orderBy('created_at', 'desc');
     }
 
+    /** List of type order */
     public function getOrderTypeAttribute()
     {
         $motoBikes = $this->motoBikes()->first();
@@ -767,8 +769,19 @@ class Package extends Model implements AttachableContract
         }
     }
 
+    /**Relation to cancel orders tables */
+    public function cancels(): HasOne
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id', 'id');
+    }
+
     public function fileuploads(): HasMany
     {
         return $this->hasMany(FileUpload::class, 'package_id');
+    }
+
+    public function canceled()
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id');
     }
 }

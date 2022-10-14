@@ -7,6 +7,7 @@ return [
      * base url api nicepay.
      */
     'uri' => 'https://www.nicepay.co.id/nicepay/direct/v2/',
+    // 'uri' => 'https://dev.nicepay.co.id/nicepay/direct/v2/',
 
     /*
      * endpoint registration.

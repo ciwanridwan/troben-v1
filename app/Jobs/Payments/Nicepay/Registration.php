@@ -52,7 +52,6 @@ class Registration
         $this->response = json_decode($client->post(config('nicepay.registration_url'), [
             'body' => json_encode($this->attributes, true)
         ])->getBody());
-
         return $this->response->resultCd === '0000';
     }
 }
