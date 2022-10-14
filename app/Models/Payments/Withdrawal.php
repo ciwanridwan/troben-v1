@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Support\Facades\Storage;
 
+
 /**
  * Class Withdrawal.
  *
@@ -49,6 +50,9 @@ class Withdrawal extends Model
     public const STATUS_TRANSFERRED = 'transferred';
     // End Todo
 
+    /** Set unique code of transaction */
+    public const TRANSACTION_CODE = 'WTD';
+
     protected $table = 'partner_balance_disbursement';
 
     protected $fillable = [
@@ -65,7 +69,8 @@ class Withdrawal extends Model
         'notes',
         'charge_admin',
         'fee_charge_admin',
-        'expired_at'
+        'expired_at',
+        'trx_code' // transaction code WTD2022101401
     ];
 
     protected $casts = [
@@ -75,7 +80,8 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash','attachment_transfer_url'
+        'hash',
+        'attachment_transfer_url'
     ];
 
     /**
@@ -124,4 +130,5 @@ class Withdrawal extends Model
     {
         return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
     }
+
 }

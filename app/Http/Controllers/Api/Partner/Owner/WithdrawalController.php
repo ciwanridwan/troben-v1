@@ -13,6 +13,7 @@ use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
@@ -85,10 +86,11 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_REQUESTED)
-            ->orWhere('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
+        // dump($repository->getPartner()->id);
+        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
+            ->where('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-
+        // dd($withdrawal);
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
@@ -187,7 +189,8 @@ class WithdrawalController extends Controller
             ];
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
-            $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            // $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
             $toCollect = collect(DB::select($pendingReceipts));
 
             $toCollect->map(function ($r) use ($withdrawal) {
@@ -210,13 +213,25 @@ class WithdrawalController extends Controller
             return (new Response(Response::RC_DATA_NOT_FOUND));
         }
 
-        $data = $code->codeable->prices;
-        $receipt = [
+        $balanceHistory = History::where('package_id', $code->codeable->id)->where('description', History::DESCRIPTION_TRANSIT)->where('partner_id', $this->withdrawal->partner_id)->first();
+
+        if ($balanceHistory) {
+            $type = History::DESCRIPTION_TRANSIT;
+            $data = null;
+            $totalAmount = $balanceHistory->balance;
+        } else {
+            $type = 'main';
+            $data = $code->codeable->prices;
+            $totalAmount = $data->sum('amount');
+        }
+        $result = [
+            'type_income' => $type,
             'receipt' => $receipt,
-            'total_amount' => $data->sum('amount')
+            'total_amount' => $totalAmount,
+            'detail' => $data
         ];
 
-        return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     public function export(Withdrawal $withdrawal)
@@ -285,5 +300,31 @@ class WithdrawalController extends Controller
                     ) r";
 
         return $query;
+    }
+
+    /** New Query For Get non approved receipt */
+    private function newQueryDetailDisbursment($partnerId)
+    {
+        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
+        left join (
+            select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
+            ) pbh
+            on pbd.partner_id = pbh.partner_id
+        left join (
+            select * from codes c where codeable_type = 'App\Models\Packages\Package'
+            ) c
+            on pbh.package_id = c.codeable_id
+        left join packages p on pbh.package_id = p.id
+        where pbd.partner_id = $partnerId";
+
+        return $q;
+    }
+
+    /** Set Generate Code Transaction And Unique */
+    private function codeTransaction($id, $requestAt)
+    {
+        $especiallyCode = 'WTD';
+        $trxCode = $especiallyCode . $requestAt. $id;
+        return $trxCode;
     }
 }

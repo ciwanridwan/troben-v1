@@ -42,7 +42,9 @@ class FinanceController extends Controller
         return $this->jsonSuccess(ListResource::collection($result));
     }
 
-    /**Detail disbursment */
+    /**Detail disbursment
+     * Old Script
+    */
     // public function detail(Withdrawal $withdrawal, Request $request): JsonResponse
     // {
     //     $result = Withdrawal::where('id', $request->id)->first();
@@ -152,67 +154,69 @@ class FinanceController extends Controller
     //     }
     // }
 
-    /**Submit Approved Disbursment */
-    public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
-    {
-        $receipt = (array) $request->get('receipt');
-        if (count($receipt) == 0) {
-            return (new Response(Response::RC_BAD_REQUEST))->json();
-        }
+    /**Submit Approved Disbursment
+     * Old Script
+    */
+    // public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
+    // {
+    //     $receipt = (array) $request->get('receipt');
+    //     if (count($receipt) == 0) {
+    //         return (new Response(Response::RC_BAD_REQUEST))->json();
+    //     }
 
-        $disbursment = Withdrawal::where('id', $request->id)->first();
-        if (is_null($disbursment)) {
-            return (new Response(Response::RC_SUCCESS, []))->json();
-        }
+    //     $disbursment = Withdrawal::where('id', $request->id)->first();
+    //     if (is_null($disbursment)) {
+    //         return (new Response(Response::RC_SUCCESS, []))->json();
+    //     }
 
-        $query = $this->detailDisbursment($disbursment);
-        $packages = collect(DB::select($query));
+    //     $query = $this->detailDisbursment($disbursment);
+    //     $packages = collect(DB::select($query));
 
-        $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
-            $r->total_accepted = ceil($r->total_accepted);
-            return $r;
-        })->values();
+    //     $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
+    //         $r->total_accepted = ceil($r->total_accepted);
+    //         return $r;
+    //     })->values();
 
-        if ($getReceipt->isNotEmpty()) {
-            $getReceipt->each(function ($r) use ($disbursment) {
-                $disbursHistory = new DisbursmentHistory();
-                $disbursHistory->disbursment_id = $disbursment->id;
-                $disbursHistory->receipt = $r->receipt;
-                $disbursHistory->amount = $r->total_accepted;
-                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
-                $disbursHistory->save();
-            });
+    //     if ($getReceipt->isNotEmpty()) {
+    //         $getReceipt->each(function ($r) use ($disbursment) {
+    //             $disbursHistory = new DisbursmentHistory();
+    //             $disbursHistory->disbursment_id = $disbursment->id;
+    //             $disbursHistory->receipt = $r->receipt;
+    //             $disbursHistory->amount = $r->total_accepted;
+    //             $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
+    //             $disbursHistory->save();
+    //         });
 
-            $total_accepted = $getReceipt->sum('total_accepted');
-            $calculate = $disbursment->first_balance - $total_accepted;
+    //         $total_accepted = $getReceipt->sum('total_accepted');
+    //         $calculate = $disbursment->first_balance - $total_accepted;
 
-            if ($disbursment->first_balance !== $calculate) {
-                $disbursment->amount = $total_accepted;
-                $disbursment->status = Withdrawal::STATUS_APPROVED;
-                $disbursment->action_by = Auth::id();
-                $disbursment->action_at = Carbon::now();
-                if ($disbursment->bank_id == 3) {
-                    $disbursment->charge_admin = false;
-                    $disbursment->fee_charge_admin = 0;
-                } else {
-                    $disbursment->charge_admin = true;
-                    $disbursment->fee_charge_admin = 6500;
-                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
-                }
-                $disbursment->save();
+    //         if ($disbursment->first_balance !== $calculate) {
+    //             $disbursment->amount = $total_accepted;
+    //             $disbursment->status = Withdrawal::STATUS_APPROVED;
+    //             $disbursment->action_by = Auth::id();
+    //             $disbursment->action_at = Carbon::now();
+    //             if ($disbursment->bank_id == 3) {
+    //                 $disbursment->charge_admin = false;
+    //                 $disbursment->fee_charge_admin = 0;
+    //             } else {
+    //                 $disbursment->charge_admin = true;
+    //                 $disbursment->fee_charge_admin = 6500;
+    //                 $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
+    //             }
+    //             $disbursment->save();
 
-                $partners = Partner::where('id', $disbursment->partner_id)->first();
-                $partners->balance = $calculate;
-                $partners->save();
-            } else {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
-            }
+    //             $partners = Partner::where('id', $disbursment->partner_id)->first();
+    //             $partners->balance = $calculate;
+    //             $partners->save();
+    //         } else {
+    //             return (new Response(Response::RC_BAD_REQUEST))->json();
+    //         }
 
-            return (new Response(Response::RC_UPDATED, $disbursment))->json();
-        } else {
-            return (new Response(Response::RC_BAD_REQUEST))->json();
-        }
-    }
+    //         return (new Response(Response::RC_UPDATED, $disbursment))->json();
+    //     } else {
+    //         return (new Response(Response::RC_BAD_REQUEST))->json();
+    //     }
+    // }
 
     /** Count Request Disbursment */
     public function countDisbursment(Withdrawal $withdrawal)
@@ -614,7 +618,7 @@ class FinanceController extends Controller
         $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
         $packages = collect(DB::select($query));
 
-        $disbursHistory = DisbursmentHistory::all();        
+        $disbursHistory = DisbursmentHistory::all();
 
         if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
             $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
@@ -708,20 +712,83 @@ class FinanceController extends Controller
 
     }
 
+    /** New Query For Get List Of Receipt within partner */
     private function newQueryDetailDisbursment($partnerId)
     {
-        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd 
+        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
         left join (
             select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
-            ) pbh 
+            ) pbh
             on pbd.partner_id = pbh.partner_id
         left join (
             select * from codes c where codeable_type = 'App\Models\Packages\Package'
-            ) c 
-            on pbh.package_id = c.codeable_id 
+            ) c
+            on pbh.package_id = c.codeable_id
         left join packages p on pbh.package_id = p.id
         where pbd.partner_id = $partnerId";
 
         return $q;
+    }
+
+    /** New Script Approve */
+    public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
+    {
+        $receipt = (array) $request->get('receipt');
+        if (count($receipt) == 0) {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+
+        $disbursment = Withdrawal::where('id', $request->id)->first();
+        if (is_null($disbursment)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
+        $packages = collect(DB::select($query));
+
+        $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
+            $r->total_accepted = ceil($r->total_accepted);
+            return $r;
+        })->values();
+
+        if ($getReceipt->isNotEmpty()) {
+            $getReceipt->each(function ($r) use ($disbursment) {
+                $disbursHistory = new DisbursmentHistory();
+                $disbursHistory->disbursment_id = $disbursment->id;
+                $disbursHistory->receipt = $r->receipt;
+                $disbursHistory->amount = $r->total_accepted;
+                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
+                $disbursHistory->save();
+            });
+
+            $total_accepted = $getReceipt->sum('total_accepted');
+            $calculate = $disbursment->first_balance - $total_accepted;
+
+            if ($disbursment->first_balance !== $calculate) {
+                $disbursment->amount = $total_accepted;
+                $disbursment->status = Withdrawal::STATUS_APPROVED;
+                $disbursment->action_by = Auth::id();
+                $disbursment->action_at = Carbon::now();
+                if ($disbursment->bank_id == 3) {
+                    $disbursment->charge_admin = false;
+                    $disbursment->fee_charge_admin = 0;
+                } else {
+                    $disbursment->charge_admin = true;
+                    $disbursment->fee_charge_admin = 6500;
+                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
+                }
+                $disbursment->save();
+
+                $partners = Partner::where('id', $disbursment->partner_id)->first();
+                $partners->balance = $calculate;
+                $partners->save();
+            } else {
+                return (new Response(Response::RC_BAD_REQUEST))->json();
+            }
+
+            return (new Response(Response::RC_UPDATED, $disbursment))->json();
+        } else {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
     }
 }
