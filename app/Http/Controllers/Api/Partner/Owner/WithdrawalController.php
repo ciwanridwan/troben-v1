@@ -221,7 +221,7 @@ class WithdrawalController extends Controller
                 $totalAmount = $balanceHistory->balance;
                 break;
             case History::DESCRIPTION_DELIVERY:
-                $type = 'delivery';
+                $type = History::DESCRIPTION_DELIVERY;
                 $data = null;
                 $totalAmount = $balanceHistory->balance;
                 break;
