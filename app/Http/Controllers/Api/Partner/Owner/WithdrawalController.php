@@ -225,6 +225,11 @@ class WithdrawalController extends Controller
                 $data = null;
                 $totalAmount = $balanceHistory->balance;
                 break;
+            case History::DESCRIPTION_DOORING:
+                $type = History::DESCRIPTION_DOORING;
+                $data = null;
+                $totalAmount = $balanceHistory->balance;
+                break;
             default:
                 $type = 'main';
                 $data = $code->codeable->prices;
