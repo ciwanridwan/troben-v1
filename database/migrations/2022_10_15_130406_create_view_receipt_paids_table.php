@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class CreateViewReceiptPaidsTable extends Migration
 {
@@ -14,7 +12,7 @@ class CreateViewReceiptPaidsTable extends Migration
      */
     public function up()
     {
-        $q = "DROP VIEW IF EXISTS view_receipt_paid";
+        $q = 'DROP VIEW IF EXISTS view_receipt_paid';
         DB::statement($q);
         $q = "CREATE VIEW view_receipt_paid AS
             SELECT c.content AS receipt_code,
@@ -93,7 +91,7 @@ class CreateViewReceiptPaidsTable extends Migration
      */
     public function down()
     {
-        $q = "DROP VIEW IF EXISTS view_receipt_paid";
+        $q = 'DROP VIEW IF EXISTS view_receipt_paid';
         DB::statement($q);
     }
 }
