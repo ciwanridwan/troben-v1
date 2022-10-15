@@ -63,11 +63,18 @@ class CancelController extends Controller
         //     return (new Response(Response::RC_ACCEPTED, $msg))->json();
         // }
         event(new PackageCanceledByCustomer($package));
-        $data = new CancelOrder();
-        $data->package_id = $package->id;
-        $data->type = $request->input('type');
-        $data->pickup_price = $pickupPrice;
-        $data->save();
+        $check = CancelOrder::where('package_id', $package->id)->first();
+        if(is_null($check)) {
+            $data = new CancelOrder();
+            $data->package_id = $package->id;
+            $data->type = $request->input('type');
+            $data->pickup_price = $pickupPrice;
+            $data->save();
+        } else {
+            $check->type = $request->input('type');
+            $check->pickup_price = $pickupPrice;
+            $check->save();
+        }
 
         // return $this->jsonSuccess(PackageResource::make($package->fresh()));
         return (new Response(Response::RC_SUCCESS))->json();
