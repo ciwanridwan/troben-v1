@@ -11,6 +11,7 @@ use App\Http\Response;
 use App\Jobs\Payments\Nicepay\Registration;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Log;
@@ -135,7 +136,7 @@ class RegistrationPayment
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
         Log::debug('Nicepay response va: ', ['response' => $job->response]);
         event(new NewVacctRegistration($this->package, $this->gateway, $job->response));
-
+        $this->createWhenAlreadyGeneratePayment($this->package);
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -163,12 +164,25 @@ class RegistrationPayment
         throw_if(! $this->dispatchNow($job), Error::make(Response::RC_FAILED_REGISTRATION_PAYMENT, [$job->response]));
         Log::debug('Nicepay response qr: ', ['response' => $job->response]);
         event(new NewQrisRegistration($this->package, $this->gateway, $job->response));
-
+        $this->createWhenAlreadyGeneratePayment($this->package);
         return [
             'total_amount' => $this->attributes['amt'],
             'server_time' => Carbon::now()->format('Y-m-d H:i:s'),
             'expired_time' => date_format(date_create($job->response->paymentExpDt.$job->response->paymentExpTm), 'Y-m-d H:i:s'),
             'qr_content' => $job->response->qrContent,
         ];
+    }
+    private function createWhenAlreadyGeneratePayment($package)
+    {
+        if ($package->status === Package::STATUS_CANCEL) {
+            $package->status = Package::STATUS_WAITING_FOR_CANCEL_PAYMENT;
+            $package->save();
+            $pay = Payment::where('payable_id', $package->id)
+                ->where('payable_type', Package::class)
+                ->first();
+            $pay->payment_amount = $package->canceled->pickup_price;
+            $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
+            $pay->save();
+        }
     }
 }
