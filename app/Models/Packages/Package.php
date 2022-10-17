@@ -509,6 +509,11 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(Office::class, 'updated_by', 'id');
     }
 
+    public function updated_by_office(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
+    }
+
     public function packager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'packager_id', 'id');

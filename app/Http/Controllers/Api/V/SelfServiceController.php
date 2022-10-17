@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V;
 
 use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\SelfServices\PackageResource;
 use App\Http\Response;
 use App\Jobs\Operations\CancelPackage;
 use App\Jobs\Packages\UpdateExistingPackageByOffice;
