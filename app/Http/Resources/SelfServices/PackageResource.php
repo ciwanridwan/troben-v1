@@ -19,11 +19,6 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        // if (! $this->resource->relationLoaded('code')) {
-        //     $this->resource->load('code');
-        // }
-
         $data = [
             'content' => $this->code->content,
             'transporter_type' => $this->transporter_type,
