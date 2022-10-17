@@ -19,6 +19,12 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = $this->updated_by_office;
+
+        if (is_null($user)) {
+            $user = $this->updated_by_user ?? $this->updated_by_customer;
+        }
+
         $data = [
             'content' => $this->code->content,
             'transporter_type' => $this->transporter_type,
@@ -30,7 +36,7 @@ class PackageResource extends JsonResource
             'receiver_phone' => $this->receiver_phone,
             'status' => $this->status,
             'payment_status' => $this->payment_status,
-            'updated_by' => $this->updated_by_office->name,
+            'updated_by' => $user->name ?? '',
             'updated_at' => $this->updated_at->format('Y-m-d')
         ];
 
