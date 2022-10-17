@@ -132,6 +132,7 @@ class CancelController extends Controller
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $firstNum.$vaNumber,
         ];
+        $this->createWhenAlreadyGeneratePayment($package);
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
@@ -171,6 +172,21 @@ class CancelController extends Controller
                 'data_payment' => $checkPayment,
             ];
             return (new Response(Response::RC_ACCEPTED, $content))->json();
+        }
+    }
+    private function createWhenAlreadyGeneratePayment($package)
+    {
+        if ($package->status === Package::STATUS_CANCEL) {
+            $package->status = Package::STATUS_WAITING_FOR_CANCEL_PAYMENT;
+            $package->save();
+            $pay = Payment::where('payable_id', $package->id)
+                ->where('payable_type', Package::class)
+                ->first();
+            if ($pay) {
+                $pay->payment_amount = $package->canceled->pickup_price;
+                $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
+                $pay->save();
+            }
         }
     }
 }

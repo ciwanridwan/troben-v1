@@ -180,9 +180,11 @@ class RegistrationPayment
             $pay = Payment::where('payable_id', $package->id)
                 ->where('payable_type', Package::class)
                 ->first();
-            $pay->payment_amount = $package->canceled->pickup_price;
-            $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
-            $pay->save();
+            if ($pay) {
+                $pay->payment_amount = $package->canceled->pickup_price;
+                $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
+                $pay->save();
+            }
         }
     }
 }
