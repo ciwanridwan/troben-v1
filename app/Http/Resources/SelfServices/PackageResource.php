@@ -33,8 +33,10 @@ class PackageResource extends JsonResource
             'receiver_name' => $this->receiver_name,
             'receiver_address' => $this->receiver_address,
             'receiver_phone' => $this->receiver_phone,
+            'status' => $this->status,
+            'payment_status' => $this->payment_status,
             'updated_by' => $this->updated_by_office->name,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at->format('Y-m-d')
         ];
 
         return $data;
