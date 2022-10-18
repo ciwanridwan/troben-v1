@@ -22,6 +22,7 @@ class HistoryResource extends JsonResource
             'description' => $this->description,
             'package_code' => isInstanceOf(PartnerBalanceReport::class) ? $this->package_code : $this->package->code->content,
             'type' => $this->type,
+            'weight' => $this->package->total_weight // add total_weight
         ];
     }
 }
