@@ -11,8 +11,10 @@ use App\Jobs\Operations\UpdateDeliveryStatus;
 use App\Jobs\Operations\UpdatePackageStatus as OperationsUpdatePackageStatus;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Price;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class PackageController extends Controller
 {
@@ -208,7 +210,7 @@ class PackageController extends Controller
     /** End Todo */
 
 
-    /** Todo Declare Variable with array type to define status in CS 
+    /** Todo Declare Variable with array type to define status in CS
      * CS Scale.
      */
     private function assignDriver(Request $request)
@@ -221,4 +223,22 @@ class PackageController extends Controller
         return $status;
     }
     /** End Todo */
+
+    // this function for update Fee Pickup (biaya penjemputan)
+    public function updatePickupFee(Request $request, string $content)
+    {
+        $attributes = $request->validate([
+            'amount' => ['required', 'numeric']
+        ]);
+
+        $code = Code::where('content', $content)->where('codeable_type', Package::class)->first();
+        $pickupPrice = $code->codeable->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
+
+        $pickupPrice->amount = $attributes['amount'];
+        $pickupPrice->save();
+
+        $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+
+        return (new Response(Response::RC_UPDATED))->json();
+    }
 }
