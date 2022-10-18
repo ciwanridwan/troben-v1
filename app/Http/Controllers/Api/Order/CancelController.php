@@ -127,8 +127,8 @@ class CancelController extends Controller
         $amt = $package->canceled->pickup_price;
         $data = [
             'total_amount' => $amt,
-            'server_time' => $currentTime,
-            'expired_time' => $expiredTime,
+            'server_time' => $currentTime->format('Y-m-d H:i:s'),
+            'expired_time' => $expiredTime->format('Y-m-d H:i:s'),
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $firstNum.$vaNumber,
         ];
