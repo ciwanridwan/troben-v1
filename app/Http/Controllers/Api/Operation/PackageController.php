@@ -209,21 +209,6 @@ class PackageController extends Controller
     /** End Todo */
 
 
-    /** Todo Declare Variable with array type to define status in CS
-     * CS Scale.
-     */
-    private function assignDriver(Request $request)
-    {
-        $status = [
-            'package_status' => Package::STATUS_WAITING_FOR_PICKUP,
-            'develiry_status' => Delivery::STATUS_ACCEPTED
-        ];
-
-        return $status;
-    }
-    /** End Todo */
-
-
     // this function for update Fee Pickup (biaya penjemputan)
     public function updatePickupFee(Request $request, string $content)
     {
@@ -240,5 +225,20 @@ class PackageController extends Controller
         $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
 
         return (new Response(Response::RC_UPDATED))->json();
+    }
+    /** End Todo */
+
+
+    /** Todo Declare Variable with array type to define status in CS
+     * CS Scale.
+     */
+    private function assignDriver(Request $request)
+    {
+        $status = [
+            'package_status' => Package::STATUS_WAITING_FOR_PICKUP,
+            'develiry_status' => Delivery::STATUS_ACCEPTED
+        ];
+
+        return $status;
     }
 }
