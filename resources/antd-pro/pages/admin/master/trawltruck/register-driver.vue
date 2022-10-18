@@ -289,6 +289,7 @@ export default {
 
     handleReset(clearFilters) {
       clearFilters();
+      console.log();
       this.searchText = "";
     },
   },
