@@ -17,6 +17,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
+use App\Models\CodeLogable;
+use App\Models\Customers\Customer;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 
@@ -64,16 +66,31 @@ class CancelController extends Controller
         // }
         event(new PackageCanceledByCustomer($package));
         $check = CancelOrder::where('package_id', $package->id)->first();
-        if(is_null($check)) {
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)
+            ->whereIn('status', [CancelOrder::TYPE_SENDER_TO_WAREHOUSE,CancelOrder::TYPE_RETURN_TO_SENDER_ADDRESS])
+            ->first();
+        if(is_null($check) and is_null($existCodeLogable)) {
             $data = new CancelOrder();
             $data->package_id = $package->id;
             $data->type = $request->input('type');
             $data->pickup_price = $pickupPrice;
             $data->save();
+            CodeLogable::create([
+                'code_id' => $package->code->id,
+                'code_logable_type' => Customer::class,
+                'code_logable_id' => $request->user()->id,
+                'type' => 'info',
+                'showable' => json_decode(json_encode(['admin','customer'])),
+                'status' => $request->input('type'),
+                'description' => $request->input('type') == CancelOrder::TYPE_RETURN_TO_SENDER_ADDRESS ? 'Barang dikembalikan ke alamat pengirim.' : 'Barang dikembalikan ke Mitra',
+            ]);
         } else {
             $check->type = $request->input('type');
             $check->pickup_price = $pickupPrice;
             $check->save();
+            $existCodeLogable->status = $request->input('type');
+            $existCodeLogable->description = $request->input('type') == CancelOrder::TYPE_RETURN_TO_SENDER_ADDRESS ? 'Barang dikembalikan ke alamat pengirim.' : 'Barang dikembalikan ke Mitra';
+            $existCodeLogable->save();
         }
 
         // return $this->jsonSuccess(PackageResource::make($package->fresh()));
@@ -108,6 +125,16 @@ class CancelController extends Controller
     {
         $package->status = 'cancel';
         $package->save();
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)->first();
+        CodeLogable::create([
+            'code_id' => $package->code->id,
+            'code_logable_type' => Customer::class,
+            'code_logable_id' => $existCodeLogable->code_logable_id,
+            'type' => $existCodeLogable->type,
+            'showable' => $existCodeLogable->showable,
+            'status' => Package::STATUS_CANCEL,
+            'description' => 'Pesanan dibatalkan',
+        ]);
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
@@ -127,8 +154,8 @@ class CancelController extends Controller
         $amt = $package->canceled->pickup_price;
         $data = [
             'total_amount' => $amt,
-            'server_time' => $currentTime,
-            'expired_time' => $expiredTime,
+            'server_time' => $currentTime->format('Y-m-d H:i:s'),
+            'expired_time' => $expiredTime->format('Y-m-d H:i:s'),
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $firstNum.$vaNumber,
         ];
