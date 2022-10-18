@@ -7,7 +7,6 @@ use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
 use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Http\Controllers\Api\Order\OrderController;
-use App\Http\Controllers\Partner\CustomerService\Home\Order\WalkinController;
 
 class OrderRoute extends BaseRoute
 {
@@ -87,6 +86,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('cancel', CancelController::class),
         ]);
 
+        $this->router->post($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancelOrder'),
+            'uses' => $this->uses('cancelOrder', CancelController::class),
+        ]);
+
         $this->router->patch($this->prefix('{package_hash}/cancel/method'), [
             'as' => $this->name('cancel.method'),
             'uses' => $this->uses('method', CancelController::class),
@@ -95,6 +99,11 @@ class OrderRoute extends BaseRoute
         $this->router->patch($this->prefix('{package_hash}/cancelBefore'), [
             'as' => $this->name('cancelBefore'),
             'uses' => $this->uses('cancelBefore', CancelController::class),
+        ]);
+
+        $this->router->get($this->prefix('{package_hash}/check-cancel-payment'), [
+            'as' => $this->name('checkCancelPayment'),
+            'uses' => $this->uses('checkCancelPayment', CancelController::class)
         ]);
 
         $this->router->post($this->prefix('{package_hash}/receipt'), [

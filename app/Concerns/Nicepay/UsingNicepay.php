@@ -25,7 +25,7 @@ trait UsingNicepay
             config('nicepay.imid').
             $refNo.
             $amt.
-            config('nicepay.merchant_key')
+            config('nicepay.merchant_key'),
         );
     }
 

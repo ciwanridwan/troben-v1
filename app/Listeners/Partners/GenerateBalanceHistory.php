@@ -5,14 +5,14 @@ namespace App\Listeners\Partners;
 use App\Actions\Pricing\PricingCalculator;
 use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
-use App\Events\Deliveries\Pickup as DeliveryPickup;
+// use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
-use App\Events\Partners\Balance\WithdrawalApproved;
-use App\Events\Partners\Balance\WithdrawalConfirmed;
-use App\Events\Partners\Balance\WithdrawalRejected;
+// use App\Events\Partners\Balance\WithdrawalApproved;
+// use App\Events\Partners\Balance\WithdrawalConfirmed;
+// use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
-use App\Events\Partners\Balance\WithdrawalSuccess;
+// use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Jobs\Partners\Balance\CreateNewFailedBalanceHistory;
@@ -161,10 +161,18 @@ class GenerateBalanceHistory
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
-                        $this->saveServiceFee($this->partner->type, $variant, true);
+                        // $this->saveServiceFee($this->partner->type, $variant, true);
+                        /**Set fee transit to be income partner */
+                        $income = $this->saveServiceFee($this->partner->type, $variant, true);
+                        $this->partner->balance += $income;
+                        $this->partner->save();
                     }
                     if ($this->delivery->type === Delivery::TYPE_DOORING) {
                         $this->saveServiceFee($this->partner->type, $variant, true);
+                        /**Set fee transit at dooring to be income partner */
+                        $income = $this->saveServiceFee($this->partner->type, $variant, true);
+                        $this->partner->balance += $income;
+                        $this->partner->save();
                     }
                 }
                 break;
@@ -178,17 +186,44 @@ class GenerateBalanceHistory
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
                     if ($this->countDeliveryTransitOfPackage() === 1) {
+                        /** Declare for default value */
                         $servicePrice = 0;
-                        $balancePickup = 0;
                         $balance_handling = 0;
                         $balance_insurance = 0;
+                        $balancePickup = 0;
+                        $extraFee = 0;
+                        $bikeFeeHandling = 0;
+                        $feeAdditional = 0;
 
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
-                            $this->saveServiceFee($this->partner->type, $variant);
+                            // $this->saveServiceFee($this->partner->type, $variant);
                             $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
+
+                            /** Get fee extra be as commission partners with 0.05*/
+                            if ($package->total_weight > 99) {
+                                $extraFee = $package->service_price * 0.05;
+                                $this
+                                    ->setBalance($extraFee)
+                                    ->setType(History::TYPE_CHARGE)
+                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                    ->setAttributes()
+                                    ->recordHistory();
+                            }
+
+                            /**Get fee additional */
+                            if ($package->total_weight > 100) {
+                                $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+                                $this
+                                    ->setBalance($feeAdditional)
+                                    ->setType(History::TYPE_DEPOSIT)
+                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                                    ->setAttributes()
+                                    ->recordHistory();
+                            }
                         }
+
                         # total balance insurance > record insurance fee
                         if ($this->partner->get_fee_insurance) {
                             $balance_insurance = $package->items()->where('is_insured', true)->get()->sum(function ($item) {
@@ -237,12 +272,12 @@ class GenerateBalanceHistory
                             }
                         }
 
+
                         /** Set balance partner*/
-                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee + $feeAdditional;
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
-
                         $this->partner->balance = $totalBalance;
                         $this->partner->save();
                     }
@@ -262,6 +297,7 @@ class GenerateBalanceHistory
                         if ($manifest_weight < 10) {
                             $manifest_weight = 10;
                         }
+
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
@@ -321,12 +357,18 @@ class GenerateBalanceHistory
                                 break;
                             }
                         }
+
                         $this->setBalance($manifest_weight * $price->value);
+                        $income = $manifest_weight * $price->value;
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                            ->setAttributes(false)
-                            ->recordHistory(false);
+                            ->setAttributes()
+                            ->recordHistory();
+
+                        $this->partner->balance += $income;
+                        $this->partner->save();
+
                         break;
                     }
 

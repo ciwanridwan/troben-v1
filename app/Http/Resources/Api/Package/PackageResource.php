@@ -27,6 +27,9 @@ class PackageResource extends JsonResource
         if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
+        if (! $this->resource->relationLoaded('canceled')) {
+            $this->resource->load('canceled');
+        }
 
         if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
@@ -98,6 +101,7 @@ class PackageResource extends JsonResource
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
             'type' => $data['type'],
+            'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
         ];
 

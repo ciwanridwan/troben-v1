@@ -13,6 +13,7 @@ use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\BankAccount;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
@@ -85,10 +86,9 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_REQUESTED)
-            ->orWhere('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
+        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
+            ->where('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
@@ -101,7 +101,7 @@ class WithdrawalController extends Controller
             event(new WithdrawalRequested($job->withdrawal));
 
             return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
-        } elseif (! empty($withdrawal)) {
+        } elseif (!empty($withdrawal)) {
             if ($currentDate < $withdrawal->expired_at) {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
@@ -124,14 +124,14 @@ class WithdrawalController extends Controller
     public function attachmentTransfer(Request $request, Withdrawal $wd, $id): JsonResponse
     {
         $request->validate([
-            'attachment_transfer' => ['required','image','mimes:png,jpg,jpeg']
+            'attachment_transfer' => ['required', 'image', 'mimes:png,jpg,jpeg']
         ]);
         $withdrawal = Withdrawal::where('id', $id)->first();
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
             $path = 'attachment_transfer';
             $attachment_extension = $attachment->getClientOriginalExtension();
-            $fileName = bin2hex(random_bytes(20)).'.'.$attachment_extension;
+            $fileName = bin2hex(random_bytes(20)) . '.' . $attachment_extension;
             Storage::disk('s3')->putFileAs($path, $attachment, $fileName);
 
             // Update table partner_balance_disbursement and attach the image
@@ -141,7 +141,7 @@ class WithdrawalController extends Controller
             $withdrawal->save();
 
             $data = [
-                'attachment' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60))
+                'attachment' => Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $withdrawal->attachment_transfer, Carbon::now()->addMinutes(60))
                 // 'attachment_transfer' => $fileName,
             ];
             return (new Response(Response::RC_CREATED, $data))->json();
@@ -182,12 +182,13 @@ class WithdrawalController extends Controller
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
             $data = [
-                'attachment_transfer' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60)),
+                'attachment_transfer' => Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $withdrawal->attachment_transfer, Carbon::now()->addMinutes(60)),
                 'result' => $result
             ];
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
-            $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            // $pendingReceipts = $this->getPendingReceipt($withdrawal);
+            $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
             $toCollect = collect(DB::select($pendingReceipts));
 
             $toCollect->map(function ($r) use ($withdrawal) {
@@ -210,13 +211,40 @@ class WithdrawalController extends Controller
             return (new Response(Response::RC_DATA_NOT_FOUND));
         }
 
-        $data = $code->codeable->prices;
-        $receipt = [
+        $balanceHistory = History::where('package_id', $code->codeable->id)
+            ->where('partner_id', $this->withdrawal->partner_id)->first();
+
+        switch ($balanceHistory->description) {
+            case History::DESCRIPTION_TRANSIT:
+                $type = History::DESCRIPTION_TRANSIT;
+                $data = null;
+                $totalAmount = $balanceHistory->balance;
+                break;
+            case History::DESCRIPTION_DELIVERY:
+                $type = History::DESCRIPTION_DELIVERY;
+                $data = null;
+                $totalAmount = $balanceHistory->balance;
+                break;
+            case History::DESCRIPTION_DOORING:
+                $type = History::DESCRIPTION_DOORING;
+                $data = null;
+                $totalAmount = $balanceHistory->balance;
+                break;
+            default:
+                $type = 'main';
+                $data = $code->codeable->prices;
+                $totalAmount = $data->sum('amount');
+                break;
+        }
+
+        $result = [
+            'type_income' => $type,
             'receipt' => $receipt,
-            'total_amount' => $data->sum('amount')
+            'total_amount' => $totalAmount,
+            'detail' => $data
         ];
 
-        return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     public function export(Withdrawal $withdrawal)
@@ -285,5 +313,23 @@ class WithdrawalController extends Controller
                     ) r";
 
         return $query;
+    }
+
+    /** New Query For Get non approved receipt */
+    private function newQueryDetailDisbursment($partnerId)
+    {
+        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
+        left join (
+            select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
+            ) pbh
+            on pbd.partner_id = pbh.partner_id
+        left join (
+            select * from codes c where codeable_type = 'App\Models\Packages\Package'
+            ) c
+            on pbh.package_id = c.codeable_id
+        left join packages p on pbh.package_id = p.id
+        where pbd.partner_id = $partnerId";
+
+        return $q;
     }
 }
