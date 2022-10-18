@@ -9,6 +9,8 @@ use App\Events\Payment\Nicepay\Registration\NewVacctRegistration;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Jobs\Payments\Nicepay\Registration;
+use App\Models\CodeLogable;
+use App\Models\Customers\Customer;
 use App\Models\Packages\Package;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
@@ -185,6 +187,20 @@ class RegistrationPayment
                 $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
                 $pay->save();
             }
+            $this->generateCodeLogable($package);
         }
+    }
+    private function generateCodeLogable($package)
+    {
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)->first();
+        CodeLogable::create([
+            'code_id' => $package->code->id,
+            'code_logable_type' => Customer::class,
+            'code_logable_id' => $existCodeLogable->code_logable_id,
+            'type' => $existCodeLogable->type,
+            'showable' => json_decode(json_encode(['customer','partner','admin'])),
+            'status' => 'accepted_pending',
+            'description' => 'Menunggu pembayaran customer',
+        ]);
     }
 }
