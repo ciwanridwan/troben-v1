@@ -140,4 +140,22 @@ class PartnerController extends Controller
 
         return (new Response(Response::RC_SUCCESS, $job->partner))->json();
     }
+
+    /** The purpose function for change property is_show in partners table
+     * to manage show or not in list of customers apps
+     */
+    public function updateShowPartner(Request $request)
+    {
+        $partner = Partner::where('hash', $request->hash)->first();
+
+        if ($partner->is_show == null) {
+            $partner->is_show = true;
+            $partner->save();
+        } else {
+            $partner->is_show = false;
+            $partner->save();
+        }
+
+        return (new Response(Response::RC_UPDATED))->json();
+    }
 }

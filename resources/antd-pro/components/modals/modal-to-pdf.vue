@@ -105,6 +105,9 @@ export default {
     receiver_address() {
       return `${this.package?.receiver_address} ${getDestinationAddress(this.package)}`;
     },
+    receiver_way_point() {
+      return this.package?.receiver_way_point;
+    },
     receiver_phone() {
       return this.package?.receiver_phone;
     },
@@ -122,6 +125,9 @@ export default {
     },
     sender_name() {
       return this.package?.sender_name;
+    },
+    sender_way_point() {
+      return this.package?.sender_way_point;
     },
     origin_regency_name() {
       return this.package?.origin_regency?.name;
@@ -184,7 +190,7 @@ export default {
           doc.setFontSize(9);
           doc.text('TRAWL', 13, 13); // brand title
           // doc.text(`Kode pos: ${ this.sender_zip_code() }`, 9, 112) // postcode pengirim
-          doc.text(`Kode pos: ${ this.receiver_zip_code() }`, 55, 112) // postcode penerima
+          doc.text(`Kode pos: ${ this.receiver_zip_code() }`, 55, 115) // postcode penerima
           doc.setFontSize(8);
           doc.text('Ket Barang       :', 55, 120)
           doc.text('Berat            :', 58, 126) // label only
@@ -210,11 +216,13 @@ export default {
           doc.text(this.sender_name(), 9, 82)
           doc.text(this.sender_phone(), 9, 86)
           doc.text(this.sender_address(), 9, 90, { maxWidth: 36 })
+          doc.text(`Note: ${this.sender_way_point()}`, 9, 105, {maxWidth: 36});
 
           // penerima / receiver
           doc.text(this.receiver_name(), 55, 82)
           doc.text(this.receiver_phone(), 55, 86)
           doc.text(this.receiver_address(), 55, 90, { maxWidth: 36 })
+          doc.text(`Note: ${this.receiver_way_point()}`, 55, 105, {maxWidth: 36});
 
           doc.setFontSize(8)
           //no. barang
