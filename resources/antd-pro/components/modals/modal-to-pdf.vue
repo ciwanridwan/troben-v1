@@ -103,7 +103,8 @@ export default {
       return this.package?.destination_sub_district?.zip_code;
     },
     receiver_address() {
-      return `${this.package?.receiver_address} ${getDestinationAddress(this.package)}`;
+      // return `${this.package?.receiver_address} ${getDestinationAddress(this.package)}`;
+      return this.package?.receiver_address;
     },
     receiver_way_point() {
         return this.package?.receiver_way_point;
