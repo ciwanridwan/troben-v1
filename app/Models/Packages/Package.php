@@ -226,7 +226,6 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'customer_id',
         'estimator_id',
         'packager_id',
@@ -382,6 +381,11 @@ class Package extends Model implements AttachableContract
     public function payments(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
+    }
+
+    public function payment_pay()
+    {
+        return $this->morphOne(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
     /**

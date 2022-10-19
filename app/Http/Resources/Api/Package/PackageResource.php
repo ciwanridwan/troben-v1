@@ -7,6 +7,7 @@ use App\Models\Packages\Package;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
+use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -30,8 +31,8 @@ class PackageResource extends JsonResource
         if (! $this->resource->relationLoaded('canceled')) {
             $this->resource->load('canceled');
         }
-        if (! $this->resource->relationLoaded('payments')) {
-            $this->resource->load('payments');
+        if (! $this->resource->relationLoaded('payment_pay')) {
+            $this->resource->load('payment_pay');
         }
 
         if (! $this->resource->relationLoaded('code')) {
@@ -94,7 +95,11 @@ class PackageResource extends JsonResource
         } else {
             $data['type'] = 'item';
         }
-
+        $checkIfPaymentHasGenerate = Payment::with('gateway')->where('payable_type', Package::class)
+            ->where('payable_id', $data['id'])
+            ->where('service_type', 'pay')
+            ->where('status', ['pending','success'])
+            ->first() ?? null;
         /**New script for response */
         $result = [
             'hash' => $data['hash'],
@@ -104,7 +109,7 @@ class PackageResource extends JsonResource
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
             'type' => $data['type'],
-            'has_generate_payment' => $data['payments'],
+            'has_generate_payment' => $checkIfPaymentHasGenerate,
             'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
         ];
