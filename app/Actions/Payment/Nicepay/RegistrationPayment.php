@@ -185,6 +185,9 @@ class RegistrationPayment
                 $pay->total_payment = $package->canceled->pickup_price + $pay->payment_admin_charges;
                 $pay->save();
             }
+        } else {
+            $package->status = Package::STATUS_WAITING_FOR_PAYMENT;
+            $package->save();
         }
     }
 }
