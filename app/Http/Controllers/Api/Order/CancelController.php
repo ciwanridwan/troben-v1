@@ -163,12 +163,12 @@ class CancelController extends Controller
         if(! is_null($checkPayment)) {
             $content = [
                 'has_generate_payment' => true,
-                'data_payment' => $checkPayment,
+                'data_payment' => array_merge($checkPayment->toArray(), ['server_time' => Carbon::now()->format('Y-m-d H:i:s')]),
             ];
             return (new Response(Response::RC_ACCEPTED, $content))->json();
         } else {
             $content = [
-                'has_generate_payment' => true,
+                'has_generate_payment' => false,
                 'data_payment' => $checkPayment,
             ];
             return (new Response(Response::RC_ACCEPTED, $content))->json();
