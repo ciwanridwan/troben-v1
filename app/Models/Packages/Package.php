@@ -112,6 +112,7 @@ class Package extends Model implements AttachableContract
 
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
+    public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -225,7 +226,6 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'customer_id',
         'estimator_id',
         'packager_id',
@@ -383,6 +383,11 @@ class Package extends Model implements AttachableContract
         return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
+    public function payment_pay()
+    {
+        return $this->morphOne(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
+    }
+
     /**
      * Define `belongsTo` relationship with Customer model.
      *
@@ -509,6 +514,16 @@ class Package extends Model implements AttachableContract
     public function updated_by_office(): BelongsTo
     {
         return $this->belongsTo(Office::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'updated_by', 'id');
     }
 
     public function updated_by(): BelongsTo
