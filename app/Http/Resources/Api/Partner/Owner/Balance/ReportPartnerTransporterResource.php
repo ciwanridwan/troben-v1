@@ -21,6 +21,7 @@ class ReportPartnerTransporterResource extends JsonResource
             'detail' => [
                 'amount' => $this->balance,
                 'date' => $this->created_at->format('Y-m-d h:i'),
+                'description' => $this->description,
                 'package_code' => $this->deliveries->code->content,
                 'type' => $this->type,
                 'weight' => $this->deliveries->packages->first()->total_weight
