@@ -825,11 +825,13 @@ class Package extends Model implements AttachableContract
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
 
                 $serviceFee = $item->weight * $this->tier_price;
+                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
                 $result = [
                     'handling_fee' => $handlingFee,
                     'insurance_fee' => $insuranceFee,
-                    'service_fee' => $serviceFee
+                    'service_fee' => $serviceFee,
+                    'sub_total_amount' => $subTotalAmount
                 ];
 
                 array_push($results, $result);
