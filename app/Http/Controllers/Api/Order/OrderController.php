@@ -201,10 +201,10 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
-            'payments' => [
-                'has_generate_payment' => $checkPayment ? true : false,
-                'payment' => $checkPayment
-            ],
+            // 'payments' => [
+            //     'has_generate_payment' => $checkPayment ? true : false,
+            //     'payment' => $checkPayment
+            // ],
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));

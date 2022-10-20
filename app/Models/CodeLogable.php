@@ -33,6 +33,7 @@ class CodeLogable extends MorphPivot
         self::SHOW_ADMIN
     ];
 
+    public const STATUS_CANCEL_ORDER_COMPLETED = 'cancel_order_completed';
     public const STATUS_CREATED_DRAFT = 'created_draft';
     public const STATUS_PICKUP_WAITING_ASSIGN_PACKAGE = 'pickup_waiting_assign_package';
     public const STATUS_PICKUP_EN_ROUTE = 'pickup_en-route';

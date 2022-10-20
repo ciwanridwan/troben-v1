@@ -108,8 +108,9 @@ class PackageResource extends JsonResource
             'origin_regency' => $data['origin_regency']['name'],
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
+            'status_payment' => $data['payment_status'],
             'type' => $data['type'],
-            'has_generate_payment' => $checkIfPaymentHasGenerate,
+            // 'has_generate_payment' => $checkIfPaymentHasGenerate,
             'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
         ];
