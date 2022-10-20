@@ -17,10 +17,10 @@ class ReportPartnerTransporterResource extends JsonResource
         return [
             'package_code' => $this->deliveries->code->content,
             'total_amount' => $this->balance,
-            'created_at' => $this->created_at->format('Y-m-d h:i'),
+            'created_at' => $this->created_at->format('Y-m-d h:i:s'),
             'detail' => [
                 'amount' => $this->balance,
-                'date' => $this->created_at->format('Y-m-d h:i'),
+                'date' => $this->created_at->format('Y-m-d h:i:s'),
                 'description' => $this->description,
                 'package_code' => $this->deliveries->code->content,
                 'type' => $this->type,
