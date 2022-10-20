@@ -66,7 +66,7 @@ class HomeController extends Controller
                 );
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
             $this->attributes = $request->validate($this->rules);
 
@@ -99,33 +99,75 @@ class HomeController extends Controller
 
     public function packageChecked(Package $package, Request $request)
     {
+        $request->validate(
+            [
+                'type' => ['nullable', 'in:service,pickup']
+            ]
+        );
+
+        $type = $request->type;
+
         if ($request->has('discount')) {
-            switch ($request->user()->partners[0]['type']) {
-                case Partner::TYPE_BUSINESS:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
-                    break;
-                case Partner::TYPE_SPACE:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_SPACE, $package);
-                    break;
-                case Partner::TYPE_POS:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
-                    break;
-                case Partner::TYPE_HEADSALES:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
-                    break;
-                case Partner::TYPE_SALES:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
-                    break;
+            if ($type == Price::TYPE_SERVICE) {
+                switch ($request->user()->partners[0]['type']) {
+                    case Partner::TYPE_BUSINESS:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
+                        break;
+                    case Partner::TYPE_SPACE:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_SPACE, $package);
+                        break;
+                    case Partner::TYPE_POS:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
+                        break;
+                    case Partner::TYPE_HEADSALES:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                        break;
+                    case Partner::TYPE_SALES:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
+                        break;
+                }
+
+                if ($request->discount > $check) {
+                    return (new Response(Response::RC_BAD_REQUEST, ['max_discount' => $check]))->json();
+                }
+            } else {
+                switch ($request->user()->partners[0]['type']) {
+                    case Partner::TYPE_BUSINESS:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
+                        break;
+                    case Partner::TYPE_SPACE:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_SPACE, $package);
+                        break;
+                    case Partner::TYPE_POS:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_POS, $package);
+                        break;
+                    case Partner::TYPE_HEADSALES:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                        break;
+                    case Partner::TYPE_SALES:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_SALES, $package);
+                        break;
+                }
+                if ($request->discount > $checkPickup) {
+                    return (new Response(Response::RC_BAD_REQUEST, ['max_discount' => $checkPickup]))->json();
+                }
             }
-            if ($request->discount > $check) {
-                return (new Response(Response::RC_BAD_REQUEST, ['max_discount'=>$check]))->json();
+
+            if ($type == Price::TYPE_SERVICE) {
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_DISCOUNT,
+                    'description' => Price::TYPE_SERVICE,
+                    'amount' => $request->discount,
+                ]);
+                $this->dispatch($job);
+            } else {
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_DISCOUNT,
+                    'description' => Price::TYPE_DELIVERY,
+                    'amount' => $request->discount,
+                ]);
+                $this->dispatch($job);
             }
-            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                'type' => Price::TYPE_DISCOUNT,
-                'description' => Price::TYPE_SERVICE,
-                'amount' => $request->discount,
-            ]);
-            $this->dispatch($job);
 
             $bikes = $package->motoBikes()->first();
 
@@ -147,6 +189,15 @@ class HomeController extends Controller
         return $service_price * $fee_percentage;
     }
 
+    /** Check the price is pickup_fee 
+     * And set calculate
+     */
+    public function checkPickup(float $feePercentage, Package $package): float
+    {
+        $pickupPrice = $package->prices->where('type', Price::TYPE_DELIVERY)->first()->amount;
+        return $pickupPrice * $feePercentage;
+    }
+
     public function getUserInfo(Request $request)
     {
         $account = $request->user();
@@ -159,7 +210,7 @@ class HomeController extends Controller
             return $this->getPartners($request);
         }
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
         });
 
         $this->query->where($status_condition);
@@ -183,7 +234,7 @@ class HomeController extends Controller
             $this->query->where('status', '!=', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -206,7 +257,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_CANCEL);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -229,7 +280,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
