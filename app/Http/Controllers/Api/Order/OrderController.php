@@ -68,7 +68,6 @@ class OrderController extends Controller
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
             fn (Builder $query) => $query->orderByDesc('created_at')
         );
-
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');

@@ -625,7 +625,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (!$this->transporter_type) {
+        if (! $this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -762,7 +762,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (!$transporterType) {
+        if (! $transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -812,7 +812,7 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(CancelOrder::class, 'package_id');
     }
 
-    /**Attributes for show estimation prices if service_code values is tpx 
+    /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
      */
     public function getEstimationExpressPricesAttribute()
@@ -820,10 +820,13 @@ class Package extends Model implements AttachableContract
         if ($this->service_code == Service::TRAWLPACK_EXPRESS) {
             $items = $this->items()->get();
             $results = [];
-
             foreach ($items as $item) {
-                foreach ($item->handling as $packing) {
-                    $handlingFee = $packing['price'] * $item->qty;
+                if ($item->handling) {
+                    foreach ($item->handling as $packing) {
+                        $handlingFee = $packing['price'] * $item->qty;
+                    }
+                } else {
+                    $handlingFee = 0;
                 }
 
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
@@ -840,7 +843,7 @@ class Package extends Model implements AttachableContract
 
                 array_push($results, $result);
             }
-            
+
             return $results;
         } else {
             return null;
