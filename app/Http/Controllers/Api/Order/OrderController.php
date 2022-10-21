@@ -68,7 +68,6 @@ class OrderController extends Controller
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
             fn (Builder $query) => $query->orderByDesc('created_at')
         );
-
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
@@ -201,10 +200,10 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
-            'payments' => [
-                'has_generate_payment' => $checkPayment ? true : false,
-                'payment' => $checkPayment
-            ],
+            // 'payments' => [
+            //     'has_generate_payment' => $checkPayment ? true : false,
+            //     'payment' => $checkPayment
+            // ],
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));

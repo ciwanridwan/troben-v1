@@ -24,6 +24,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CancelOrder;
 use App\Models\FileUpload;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -110,8 +111,13 @@ class Package extends Model implements AttachableContract
 
     public const PACKAGE_SYSTEM_ID = 0;
 
+
+    // Status for Cancel
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
+    public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
+    public const STATUS_PAID_CANCEL = 'paid_cancel';
+
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -225,7 +231,6 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'customer_id',
         'estimator_id',
         'packager_id',
@@ -247,7 +252,8 @@ class Package extends Model implements AttachableContract
         'service_price',
         'discount_service_price',
         'type',
-        'order_type'
+        'order_type',
+        'estimation_express_prices'
     ];
 
     /**
@@ -383,6 +389,11 @@ class Package extends Model implements AttachableContract
         return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
+    public function payment_pay()
+    {
+        return $this->morphOne(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
+    }
+
     /**
      * Define `belongsTo` relationship with Customer model.
      *
@@ -509,6 +520,16 @@ class Package extends Model implements AttachableContract
     public function updated_by_office(): BelongsTo
     {
         return $this->belongsTo(Office::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'updated_by', 'id');
     }
 
     public function updated_by(): BelongsTo
@@ -789,5 +810,43 @@ class Package extends Model implements AttachableContract
     public function canceled()
     {
         return $this->hasOne(CancelOrder::class, 'package_id');
+    }
+
+    /**Attributes for show estimation prices if service_code values is tpx
+     * useful for admin page
+     */
+    public function getEstimationExpressPricesAttribute()
+    {
+        if ($this->service_code == Service::TRAWLPACK_EXPRESS) {
+            $items = $this->items()->get();
+            $results = [];
+            foreach ($items as $item) {
+                if ($item->handling) {
+                    foreach ($item->handling as $packing) {
+                        $handlingFee = $packing['price'] * $item->qty;
+                    }
+                } else {
+                    $handlingFee = 0;
+                }
+
+                $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+
+                $serviceFee = $item->weight * $this->tier_price;
+                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+
+                $result = [
+                    'handling_fee' => $handlingFee,
+                    'insurance_fee' => $insuranceFee,
+                    'service_fee' => $serviceFee,
+                    'sub_total_amount' => $subTotalAmount
+                ];
+
+                array_push($results, $result);
+            }
+
+            return $results;
+        } else {
+            return null;
+        }
     }
 }

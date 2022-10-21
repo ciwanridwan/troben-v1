@@ -17,8 +17,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
+use App\Models\CodeLogable;
+use App\Models\Customers\Customer;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
+use App\Services\Tracker\CancelOrderTracker;
 
 class CancelController extends Controller
 {
@@ -54,29 +57,31 @@ class CancelController extends Controller
         } else {
             $pickupPrice = $price->amount;
         }
-        // if ($package->status == Package::STATUS_CANCEL) {
-        //     $cancel = CancelOrder::where('package_id', $package->id)->first();
-        //     $msg = [
-        //         'message' => 'has been canceled',
-        //         'type_cancel' => $cancel->type
-        //     ];
-        //     return (new Response(Response::RC_ACCEPTED, $msg))->json();
-        // }
         event(new PackageCanceledByCustomer($package));
         $check = CancelOrder::where('package_id', $package->id)->first();
-        if(is_null($check)) {
-            $data = new CancelOrder();
-            $data->package_id = $package->id;
-            $data->type = $request->input('type');
-            $data->pickup_price = $pickupPrice;
-            $data->save();
-        } else {
-            $check->type = $request->input('type');
-            $check->pickup_price = $pickupPrice;
-            $check->save();
-        }
-
-        // return $this->jsonSuccess(PackageResource::make($package->fresh()));
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)
+            ->whereIn('status', [CancelOrder::TYPE_SENDER_TO_WAREHOUSE,CancelOrder::TYPE_RETURN_TO_SENDER_ADDRESS])
+            ->first();
+        (is_null($check) and is_null($existCodeLogable)) ?
+            $exist = false :
+            $exist = true;
+        $arr = [
+            'cancel_order' => [
+                'get_class' => new CancelOrder(),
+                'package' => $package
+            ],
+            'codelogable' => [
+                'code_id' => $package->code->id,
+                'code_logable_type' => Customer::class,
+                'code_logable_id' => $request->user()->id,
+                'type' => 'info',
+                'showable' => json_decode(json_encode(['admin','customer'])),
+            ],
+            'pickup_price' => $pickupPrice,
+            'package_status' => $request->input('type'),
+            'status_description' => 'Pesanan sedang dalam proses pengembalian'
+        ];
+        CancelOrderTracker::cancelService($exist, $existCodeLogable, $check, $arr);
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
@@ -108,6 +113,13 @@ class CancelController extends Controller
     {
         $package->status = 'cancel';
         $package->save();
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)->first();
+        $arr = [
+            'package_status' => Package::STATUS_CANCEL,
+            'status_description' => 'Pesanan dalam proses pembatalan'
+        ];
+        CancelOrderTracker::CancelOrder($existCodeLogable, $arr);
+
         return (new Response(Response::RC_SUCCESS))->json();
     }
 
@@ -127,8 +139,8 @@ class CancelController extends Controller
         $amt = $package->canceled->pickup_price;
         $data = [
             'total_amount' => $amt,
-            'server_time' => $currentTime,
-            'expired_time' => $expiredTime,
+            'server_time' => $currentTime->format('Y-m-d H:i:s'),
+            'expired_time' => $expiredTime->format('Y-m-d H:i:s'),
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $firstNum.$vaNumber,
         ];
@@ -163,17 +175,47 @@ class CancelController extends Controller
         if(! is_null($checkPayment)) {
             $content = [
                 'has_generate_payment' => true,
-                'data_payment' => $checkPayment,
+                'data_payment' => array_merge($checkPayment->toArray(), ['server_time' => Carbon::now()->format('Y-m-d H:i:s')]),
             ];
             return (new Response(Response::RC_ACCEPTED, $content))->json();
         } else {
             $content = [
-                'has_generate_payment' => true,
+                'has_generate_payment' => false,
                 'data_payment' => $checkPayment,
             ];
             return (new Response(Response::RC_ACCEPTED, $content))->json();
         }
     }
+
+    public function paymentCash(Request $req, Package $package)
+    {
+        if(is_null($package->canceled())) {
+            return (new Response(Response::RC_ACCEPTED, ['message' => 'Order Not Canceled']))->json();
+        } else {
+            $package->status = Package::STATUS_WAITING_FOR_CANCEL_PAYMENT;
+            $package->payment_status = Package::PAYMENT_STATUS_PENDING;
+            $package->save();
+            return (new Response(Response::RC_SUCCESS))->json();
+        }
+    }
+
+    public function claimOrder(Request $req, Package $package)
+    {
+        $package->status = Package::STATUS_PAID_CANCEL;
+        $package->payment_status = Package::PAYMENT_STATUS_PAID;
+        $package->save();
+
+        $existCodeLogable = CodeLogable::where('code_id', $package->code->id)
+            ->latest()
+            ->first();
+        $arr = [
+            'status' => CodeLogable::STATUS_CANCEL_ORDER_COMPLETED,
+            'status_description' => 'Pesanan sudah sampai kepada customer',
+        ];
+        CancelOrderTracker::PayThenClaimOrder($package, $existCodeLogable, $arr);
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Claim Order Success']))->json();
+    }
+
     private function createWhenAlreadyGeneratePayment($package)
     {
         if ($package->status === Package::STATUS_CANCEL) {

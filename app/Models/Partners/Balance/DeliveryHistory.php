@@ -3,6 +3,7 @@
 namespace App\Models\Partners\Balance;
 
 use App\Concerns\Controllers\CustomSerializeDate;
+use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -112,4 +113,11 @@ class DeliveryHistory extends Model
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
     }
+
+    /** Relation to deliveries tables as a manifest */
+    public function deliveries(): BelongsTo
+    {
+        return $this->belongsTo(Delivery::class, 'delivery_id', 'id');
+    }
+
 }
