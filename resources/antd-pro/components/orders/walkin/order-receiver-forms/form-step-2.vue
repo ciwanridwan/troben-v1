@@ -14,7 +14,11 @@
               @click="removeItem(index)"
             />
           </trawl-divider>
-          <order-item-form :key="index" ref="itemForm" v-model="form.items[index]" />
+          <order-item-form
+            :key="index"
+            ref="itemForm"
+            v-model="form.items[index]"
+          />
         </template>
 
         <trawl-divider orientation="right">

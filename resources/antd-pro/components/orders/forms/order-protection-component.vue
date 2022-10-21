@@ -39,7 +39,7 @@
               ></a-input> -->
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Panjang (cm)" prop="length">
           <a-input
             type="number"
@@ -49,7 +49,7 @@
           ></a-input>
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Lebar (cm)" prop="width">
           <a-input
             type="number"
@@ -59,7 +59,7 @@
           ></a-input>
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Tinggi (cm)" prop="height">
           <a-input
             type="number"

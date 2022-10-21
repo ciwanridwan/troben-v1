@@ -123,7 +123,55 @@ class WalkinController extends Controller
             'service_code' => $request->service_code,
         ];
 
-        return PricingCalculator::calculate($paramsCalculator);
+        if (count($paramsCalculator['items']) && $paramsCalculator['items'][0]['desc'] == 'bike') {
+            $getPrice = PricingCalculator::getBikePrice($paramsCalculator['origin_regency_id'], $paramsCalculator['destination_id']);
+            $pickup_price = 0;
+            $insurance = 0;
+
+            $handling_price = 0;
+            $service_price = 0;
+            switch ($paramsCalculator['items'][0]['moto_cc']) {
+                case 150:
+                    $handling_price = 175000;
+                    $service_price = $getPrice->lower_cc;
+                    break;
+                case 250:
+                    $handling_price = 250000;
+                    $service_price = $getPrice->middle_cc;
+                    break;
+                case 999:
+                    $handling_price = 450000;
+                    $service_price = $getPrice->high_cc;
+                    break;
+            }
+
+            $handlingAdditionalPrice = 0; // todo buat packing tambahin
+            // if ($paramsCalculator['items'][0]['handling']) {}
+
+            $insurance = 0; //todo buat biaya asuransi
+
+
+            $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
+
+
+            $result = [
+                'details' => [
+                    'pickup_price' => $pickup_price,
+                    'insurance_price' => $insurance,
+                    'handling_price' => $handling_price,
+                    'handling_additional_price' => $handlingAdditionalPrice,
+                    'service_price' => intval($service_price)
+                ],
+                'total_amount' => $total_amount,
+                'notes' => $getPrice->notes
+            ];
+
+            return $result;
+
+
+        } else {
+            return PricingCalculator::calculate($paramsCalculator);
+        }
     }
 
     public function customer(Request $request)

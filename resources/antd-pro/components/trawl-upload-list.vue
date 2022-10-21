@@ -30,21 +30,21 @@ function getBase64(file) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 }
 export default {
   props: {
     maxFile: {
       type: Number,
-      default: 5
-    }
+      default: 5,
+    },
   },
   data() {
     return {
       previewVisible: false,
       previewImage: "",
-      fileList: []
+      fileList: [],
     };
   },
   methods: {
@@ -60,15 +60,15 @@ export default {
     },
     handleChange({ fileList }) {
       this.fileList = fileList;
-    }
+    },
   },
   watch: {
     fileList: {
-      handler: function(value) {
+      handler: function (value) {
         this.$emit("change", value);
         this.$emit("input", value);
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

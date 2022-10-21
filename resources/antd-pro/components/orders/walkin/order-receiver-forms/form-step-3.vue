@@ -7,7 +7,9 @@
           <span class="trawl-text-muted"> Penjemputan Dari </span>
           <p class="trawl-text-bold trawl-text-normal">{{ sender.address }}</p>
           <span></span>
-          <p class="trawl-text-normal">{{ sender.name }} | {{ sender.phone }}</p>
+          <p class="trawl-text-normal">
+            {{ sender.name }} | {{ sender.phone }}
+          </p>
           <trawl-divider />
         </a-space>
       </a-timeline-item>
@@ -17,14 +19,20 @@
         <a-space direction="vertical" :size="1" :style="{ width: '100%' }">
           <a-space>
             <span class="trawl-text-muted"> Pengiriman Ke </span>
-            <a-icon :component="EditIcon" class="trawl-click" @click="receiverEdit" />
+            <a-icon
+              :component="EditIcon"
+              class="trawl-click"
+              @click="receiverEdit"
+            />
           </a-space>
 
           <p class="trawl-text-bold trawl-text-normal">
             {{ receiver.address }}
           </p>
           <span></span>
-          <p class="trawl-text-normal">{{ receiver.name }} | {{ receiver.phone }}</p>
+          <p class="trawl-text-normal">
+            {{ receiver.name }} | {{ receiver.phone }}
+          </p>
           <trawl-divider />
         </a-space>
       </a-timeline-item>
@@ -34,7 +42,11 @@
         <a-col :offset="1" :span="10">
           <a-space>
             <span class="trawl-text-bolder">Daftar Barang</span>
-            <a-icon :component="EditIcon" class="trawl-click" @click="itemEdit" />
+            <a-icon
+              :component="EditIcon"
+              class="trawl-click"
+              @click="itemEdit"
+            />
           </a-space>
           <a-skeleton v-if="loading" active />
           <a-row v-else type="flex" v-for="(item, index) in items" :key="index">
@@ -42,14 +54,18 @@
               <span>{{ index + 1 }}. {{ item.desc }}</span>
             </a-col>
             <a-col :span="12">
-              <span class="trawl-text-bold">{{ item.weight_borne_total }} Kg</span>
+              <span class="trawl-text-bold"
+                >{{ item.weight_borne_total }} Kg</span
+              >
             </a-col>
           </a-row>
         </a-col>
       </a-row>
       <h3 class="trawl-text-bolder">Total Tarif Pengiriman</h3>
       <span class="trawl-text-bolder">{{ currency(tier) }} / Kg</span>
-      <small class="trawl-text-muted">Tidak termasuk packing, asuransi, dan PPN.</small>
+      <small class="trawl-text-muted"
+        >Tidak termasuk packing, asuransi, dan PPN.</small
+      >
     </a-space>
   </div>
 </template>
