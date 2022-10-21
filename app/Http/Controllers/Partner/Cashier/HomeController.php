@@ -163,7 +163,7 @@ class HomeController extends Controller
             } else {
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_DISCOUNT,
-                    'description' => Price::TYPE_DELIVERY,
+                    'description' => Price::TYPE_PICKUP,
                     'amount' => $request->discount,
                 ]);
                 $this->dispatch($job);
@@ -189,7 +189,7 @@ class HomeController extends Controller
         return $service_price * $fee_percentage;
     }
 
-    /** Check the price is pickup_fee 
+    /** Check the price is pickup_fee
      * And set calculate
      */
     public function checkPickup(float $feePercentage, Package $package): float
