@@ -22,9 +22,14 @@ class CancelOrder extends Model
 
     protected $table = 'cancel_orders';
 
+    protected $casts = [
+        'pickup_price' => 'integer',
+    ];
+
     protected $fillable = [
         'package_id',
-        "type"
+        'type',
+        'pickup_price'
     ];
 
     public static function getCancelTypes()
