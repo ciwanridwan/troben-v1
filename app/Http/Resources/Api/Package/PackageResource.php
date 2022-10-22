@@ -31,9 +31,6 @@ class PackageResource extends JsonResource
         if (! $this->resource->relationLoaded('canceled')) {
             $this->resource->load('canceled');
         }
-        if (! $this->resource->relationLoaded('payment_pay')) {
-            $this->resource->load('payment_pay');
-        }
 
         if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
@@ -65,7 +62,6 @@ class PackageResource extends JsonResource
             }
             $this->resource->unsetRelation('partner_performance');
         }
-
         $data = array_merge(parent::toArray($request), [
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
@@ -108,6 +104,7 @@ class PackageResource extends JsonResource
             'origin_regency' => $data['origin_regency']['name'],
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
+            'status_payment' => $data['payment_status'],
             'type' => $data['type'],
             'has_generate_payment' => $checkIfPaymentHasGenerate,
             'has_cancel' => $data['canceled'],

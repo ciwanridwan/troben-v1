@@ -112,9 +112,13 @@ class Package extends Model implements AttachableContract
 
     public const PACKAGE_SYSTEM_ID = 0;
 
+
+    // Status for Cancel
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
     public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
+    public const STATUS_PAID_CANCEL = 'paid_cancel';
+
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -623,7 +627,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (!$this->transporter_type) {
+        if (! $this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -760,7 +764,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (!$transporterType) {
+        if (! $transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -819,10 +823,13 @@ class Package extends Model implements AttachableContract
 
             $items = $this->items()->get();
             $results = [];
-
             foreach ($items as $item) {
-                foreach ($item->handling as $packing) {
-                    $handlingFee = $packing['price'] * $item->qty;
+                if ($item->handling) {
+                    foreach ($item->handling as $packing) {
+                        $handlingFee = $packing['price'] * $item->qty;
+                    }
+                } else {
+                    $handlingFee = 0;
                 }
 
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
