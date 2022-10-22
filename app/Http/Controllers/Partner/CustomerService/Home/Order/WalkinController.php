@@ -145,14 +145,19 @@ class WalkinController extends Controller
                     break;
             }
 
-            $handlingAdditionalPrice = 0; // todo buat packing tambahin
-            // if ($paramsCalculator['items'][0]['handling']) {}
+            if ($paramsCalculator['items'] !== null) {
+                $handlingAdditionalPrice = 50000;
+            } else {
+                $handlingAdditionalPrice = 0;
+            }
 
-            $insurance = 0; //todo buat biaya asuransi
-
+            foreach ($paramsCalculator['items'] as $item) {
+                if ($item['is_insured'] == true) {
+                    $insurance = $item['price'] * 0.002;
+                }
+            }
 
             $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
-
 
             $result = [
                 'details' => [
@@ -166,8 +171,8 @@ class WalkinController extends Controller
                 'notes' => $getPrice->notes
             ];
 
-            return $result;
-
+            // return $result;
+            return (new Response(Response::RC_SUCCESS, $result))->json();
 
         } else {
             return PricingCalculator::calculate($paramsCalculator);
