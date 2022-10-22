@@ -154,6 +154,8 @@ class WalkinController extends Controller
             foreach ($paramsCalculator['items'] as $item) {
                 if ($item['is_insured'] == true) {
                     $insurance = $item['price'] * 0.002;
+                } else {
+                    $insurance = 0;
                 }
             }
 
