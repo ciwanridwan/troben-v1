@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
@@ -253,7 +254,8 @@ class Package extends Model implements AttachableContract
         'discount_service_price',
         'type',
         'order_type',
-        'estimation_express_prices'
+        'estimation_prices',
+        'estimation_cubic_prices'
     ];
 
     /**
@@ -815,9 +817,10 @@ class Package extends Model implements AttachableContract
     /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
      */
-    public function getEstimationExpressPricesAttribute()
+    public function getEstimationPricesAttribute()
     {
-        if ($this->service_code == Service::TRAWLPACK_EXPRESS) {
+        if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
+
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
@@ -830,7 +833,6 @@ class Package extends Model implements AttachableContract
                 }
 
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-
                 $serviceFee = $item->weight * $this->tier_price;
                 $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
@@ -848,5 +850,42 @@ class Package extends Model implements AttachableContract
         } else {
             return null;
         }
+    }
+
+    public function getEstimationCubicPricesAttribute()
+    {
+        $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
+
+        $items = $this->items()->get();
+
+        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+
+        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
+
+        foreach ($items as $item) {
+            $calculateCubic = $item->height * $item->width * $item->length / 1000000;
+            $cubic[] = $calculateCubic;
+            $cubicResult = array_sum($cubic);
+        }
+
+        if ($cubicResult <= 3) {
+            $cubicResult = 3;
+        }
+
+        if (is_null($cubicPrice)) {
+            $serviceFee = 0;
+        } else {
+            $serviceFee = $cubicResult * $cubicPrice->amount;
+        }
+
+        $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+
+        $result = [
+            'handling_fee' => intval($handlingFee),
+            'insurance_fee' => intval($insuranceFee),
+            'service_fee' => $serviceFee,
+            'sub_total_amount' => $subTotalAmount
+        ];
+        return $result;
     }
 }
