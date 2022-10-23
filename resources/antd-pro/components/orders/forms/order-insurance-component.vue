@@ -13,10 +13,11 @@
           />
         </a-space>
         <a-form-model-item
-          v-if="value.is_insured && isMotor == 'motor'"
+          v-if="value.is_insured && isMotor == 'bike'"
           label="Asuransi Motor"
         >
           <a-input
+            v-model.number="value.price"
             type="number"
             size="large"
             placeholder="Masukan harga motor anda"
@@ -48,6 +49,7 @@ export default {
       default: () => {
         return {
           is_insured: false,
+          price: null,
         };
       },
     },
@@ -63,6 +65,9 @@ export default {
   watch: {
     value: {
       handler: function (value) {
+        if (!this.value.is_insured) {
+          value.price = null;
+        }
         this.$emit("change", value);
       },
       deep: true,
