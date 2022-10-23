@@ -160,7 +160,6 @@ export default {
   watch: {
     value: {
       handler: function () {
-        console.log("data>", this.value);
         this.form = this.value;
       },
       deep: true,

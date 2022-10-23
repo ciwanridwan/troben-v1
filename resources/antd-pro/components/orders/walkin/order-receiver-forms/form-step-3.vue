@@ -38,7 +38,7 @@
       </a-timeline-item>
     </a-timeline>
     <a-space direction="vertical" :style="{ width: '100%' }">
-      <a-row type="flex">
+      <a-row v-if="!bike" type="flex">
         <a-col :offset="1" :span="10">
           <a-space>
             <span class="trawl-text-bolder">Daftar Barang</span>
@@ -62,10 +62,13 @@
         </a-col>
       </a-row>
       <h3 class="trawl-text-bolder">Total Tarif Pengiriman</h3>
-      <span class="trawl-text-bolder">{{ currency(tier) }} / Kg</span>
+      <span class="trawl-text-bolder"
+        >{{ tier ? `${currency(tier)} / Kg` : currency(bike) }}
+      </span>
       <small class="trawl-text-muted"
         >Tidak termasuk packing, asuransi, dan PPN.</small
       >
+      <small v-if="bike" class="trawl-text-muted">{{ note }}</small>
     </a-space>
   </div>
 </template>
@@ -133,6 +136,12 @@ export default {
     },
     tier() {
       return this.data?.result?.tier;
+    },
+    bike() {
+      return this.data?.total_amount;
+    },
+    note() {
+      return this.data?.notes;
     },
   },
 };
