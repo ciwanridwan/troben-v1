@@ -4,7 +4,7 @@
       <a-col :span="18">
         <a-form-model-item prop="is_protection">
           <a-space>
-            <a-checkbox v-model="value.handling">
+            <a-checkbox v-model="value.handling" @change="handleReset">
               Perlindungan tambahan diberikan untuk menambah keamanan barang di
               saat...
             </a-checkbox>
@@ -23,6 +23,7 @@
             v-model="form.handling_type"
             size="large"
             placeholder="Perlindungan Tambahan"
+            @change="handleSet"
           >
             <a-select-option
               v-for="(item, index) in items"
@@ -39,7 +40,7 @@
               ></a-input> -->
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Panjang (cm)" prop="length">
           <a-input
             type="number"
@@ -49,7 +50,7 @@
           ></a-input>
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Lebar (cm)" prop="width">
           <a-input
             type="number"
@@ -59,7 +60,7 @@
           ></a-input>
         </a-form-model-item>
       </a-col>
-      <a-col v-if="form.handling_type == 'wood'" :span="4">
+      <a-col v-if="form.handling_type == 'wood' && value.handling" :span="4">
         <a-form-model-item label="Tinggi (cm)" prop="height">
           <a-input
             type="number"
@@ -120,6 +121,20 @@ export default {
       Object.keys(this.form).forEach((k) => {
         this.form[k] = this.defaultValue[k];
       });
+    },
+    handleReset() {
+      if (!this.value.handling) {
+        this.form.handling_type = null;
+        this.value.length = null;
+        this.value.width = null;
+        this.value.height = null;
+      }
+    },
+    handleSet() {
+      if (this.value.handling) {
+        this.value.handling_type = [];
+        this.value.handling_type.push(this.form.handling_type);
+      }
     },
   },
   watch: {

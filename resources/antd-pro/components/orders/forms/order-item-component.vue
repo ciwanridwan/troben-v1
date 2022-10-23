@@ -12,6 +12,7 @@
             v-model="value.name"
             size="large"
             placeholder="Deskripsi Barang"
+            @change="toggleType"
           >
             <a-select-option
               v-for="(item, index) in items"
@@ -173,16 +174,16 @@ export default {
       rules: {
         name: [{ required: true }],
         desc: [{ required: true }],
-        length: [{ required: !this.isMotor }],
-        width: [{ required: !this.isMotor }],
-        height: [{ required: !this.isMotor }],
-        weight: [{ required: !this.isMotor }],
-        qty: [{ required: !this.isMotor }],
-        price: [{ required: !this.isMotor }],
-        moto_cc: [{ required: this.isMotor }],
-        moto_type: [{ required: this.isMotor }],
-        moto_merk: [{ required: this.isMotor }],
-        moto_year: [{ required: this.isMotor }],
+        length: [{ required: true }],
+        width: [{ required: true }],
+        height: [{ required: true }],
+        weight: [{ required: true }],
+        qty: [{ required: true }],
+        price: [{ required: true }],
+        moto_cc: [{ required: true }],
+        moto_type: [{ required: true }],
+        moto_merk: [{ required: true }],
+        moto_year: [{ required: true }],
       },
       items: [
         "Pakaian",
@@ -247,18 +248,45 @@ export default {
       handler: function (value) {
         if (value.name == "lainnya") {
           value.desc = this.item_desc;
+        } else if (value.name == "motor") {
+          value.desc = "bike";
         } else {
           value.desc = value.name;
         }
-        if (value.name == "motor") {
-          this.isMotor = true;
-        } else {
-          this.isMotor = false;
-        }
+        // this.toggleType(value.name);
         this.onChange(value);
         this.$emit("change", value);
       },
       deep: true,
+    },
+  },
+  methods: {
+    toggleType(type) {
+      if (type == "motor") {
+        this.isMotor = true;
+        this.value.length = 0;
+        this.value.width = 0;
+        this.value.height = 0;
+        this.value.weight = 0;
+        this.value.qty = 0;
+        this.value.price = 0;
+        this.value.moto_cc = null;
+        this.value.moto_type = null;
+        this.value.moto_merk = null;
+        this.value.moto_year = null;
+      } else {
+        this.isMotor = false;
+        this.value.length = null;
+        this.value.width = null;
+        this.value.height = null;
+        this.value.weight = null;
+        this.value.qty = null;
+        this.value.price = null;
+        this.value.moto_cc = 0;
+        this.value.moto_type = 0;
+        this.value.moto_merk = 0;
+        this.value.moto_year = 0;
+      }
     },
   },
 };

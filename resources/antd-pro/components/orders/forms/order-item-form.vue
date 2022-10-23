@@ -5,7 +5,7 @@
       <order-item-component :ref="`itemComponent`" v-model="form.item" />
     </div>
 
-    <div v-if="form.item.desc != 'motor'">
+    <div v-if="form.item.desc != 'bike'">
       <h3 class="trawl-text-bolder">Rekomendasi Packing</h3>
       <order-handlings-component
         :ref="`handlingComponent`"
@@ -20,7 +20,7 @@
         v-model="form.insurance"
       />
     </div>
-    <div v-if="form.item.desc == 'motor'">
+    <div v-if="form.item.desc == 'bike'">
       <h3 class="trawl-text-bolder">Perlindungan Tambahan</h3>
       <order-protection-component
         :ref="`protectionComponent`"
