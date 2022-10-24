@@ -33,8 +33,7 @@ trait HasPartnerCode
         $last_code = Partner::where('code', 'LIKE', $code.'%')->latest()->first();
 
         if ($last_code === null) {
-            $code = $code.str_pad(0, 3, '0', STR_PAD_LEFT);
-            $code_number = (int) substr($last_code, strlen($code));
+            $code_number = str_pad('0', 3, '0', STR_PAD_LEFT);
         } else {
             $last_code = $last_code->code;
             $code_number = (int) substr($last_code, strlen($code));
