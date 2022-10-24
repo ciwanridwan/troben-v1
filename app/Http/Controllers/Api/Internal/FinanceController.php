@@ -8,8 +8,8 @@ use App\Http\Resources\Api\Internal\Finance\ListResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
-use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Carbon\Carbon;
@@ -259,29 +259,6 @@ class FinanceController extends Controller
         return $q;
     }
 
-    /**Query for get approved disbursement */
-    private function getApprovedDisbursment($receipts)
-    {
-        $q = "SELECT * FROM disbursment_histories WHERE receipt IN ('%s')";
-        $q = sprintf($q, implode(',', $receipts));
-
-        return $q;
-    }
-    /**End query */
-
-    private function getApprovedReceipt($request)
-    {
-        $query =
-            "SELECT p.total_amount as total_payment, dh.receipt as receipt, dh.amount as total_accepted, dh.created_at as approved_at
-        from disbursment_histories dh
-        left join partner_balance_disbursement pbd on dh.disbursment_id = pbd.id
-        left join codes c on dh.receipt = c.content
-        left join packages p on c.codeable_id = p.id
-        where dh.disbursment_id = $request->id";
-
-        return $query;
-    }
-
     /**Query for get all disbursment with spesific data */
     private function getQueryExports($param)
     {
@@ -360,6 +337,12 @@ class FinanceController extends Controller
 
         if (is_null($disbursment)) {
             return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        $partner = $disbursment->partner()->first();
+        if ($partner->type == Partner::TYPE_TRANSPORTER) {
+            $result = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
@@ -575,5 +558,34 @@ class FinanceController extends Controller
         $q = sprintf($q, $param['start'], $param['end']);
 
         return $q;
+    }
+
+    private function queryPartnerTransporter($partnerId)
+    {
+        $q = "select c.content as receipt, pbdh.balance as total_accepted from partner_balance_delivery_histories pbdh
+        left join (select * from codes where codeable_type = 'App\Models\Deliveries\Delivery') c on pbdh.delivery_id = c.codeable_id
+        where partner_id = $partnerId";
+
+        return $q;
+    }
+
+    private function getDetailDisbursmentTransporter($partnerId)
+    {
+        $queryTransporter = $this->queryPartnerTransporter($partnerId);
+        $packages = collect(DB::select($queryTransporter));
+
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
+            ->map(function ($q) use ($packages) {
+                $amount = $q->deliveries->packages->sum('total_amount');
+                $res = [
+                    'receipt' => $q->deliveries->code->content,
+                    'total_accepted' => $q->balance,
+                    'total_payment' => $amount
+                ];
+
+                return $res;
+            });
+
+        return $deliveryHistory;
     }
 }
