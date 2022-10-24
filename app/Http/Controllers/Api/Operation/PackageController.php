@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Operation;
 
 use App\Models\Code;
+use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
@@ -208,7 +209,27 @@ class PackageController extends Controller
     /** End Todo */
 
 
-    /** Todo Declare Variable with array type to define status in CS 
+    // this function for update Fee Pickup (biaya penjemputan)
+    public function updatePickupFee(Request $request, string $content)
+    {
+        $attributes = $request->validate([
+            'amount' => ['required', 'numeric']
+        ]);
+
+        $code = Code::where('content', $content)->where('codeable_type', Package::class)->first();
+        $pickupPrice = $code->codeable->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
+
+        $pickupPrice->amount = $attributes['amount'];
+        $pickupPrice->save();
+
+        $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+
+        return (new Response(Response::RC_UPDATED))->json();
+    }
+    /** End Todo */
+
+
+    /** Todo Declare Variable with array type to define status in CS
      * CS Scale.
      */
     private function assignDriver(Request $request)
@@ -220,5 +241,4 @@ class PackageController extends Controller
 
         return $status;
     }
-    /** End Todo */
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\SelfServices;
 
+use App\Models\Packages\Price;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -25,6 +26,8 @@ class PackageResource extends JsonResource
             $user = $this->updated_by_user ?? $this->updated_by_customer;
         }
 
+        $prices = $this->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
+
         $data = [
             'content' => $this->code->content,
             'transporter_type' => $this->transporter_type,
@@ -37,7 +40,8 @@ class PackageResource extends JsonResource
             'status' => $this->status,
             'payment_status' => $this->payment_status,
             'updated_by' => $user->name ?? '',
-            'updated_at' => $this->updated_at->format('Y-m-d')
+            'updated_at' => $this->updated_at->format('Y-m-d'),
+            'prices' => $prices
         ];
 
         return $data;

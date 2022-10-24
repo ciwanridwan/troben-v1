@@ -8,7 +8,7 @@
     <p class="trawl-text-bolder" :style="textStyle">
       {{ sender_address }}
     </p>
-    <span :style="textStyle"> Kode pos : {{ sender_zip_code }} </span>
+    <!-- <span :style="textStyle"> Kode pos : {{ sender_zip_code }} </span> -->
     <span :style="textStyle"> <strong>Note :</strong> {{ sender_note }} </span>
   </a-space>
   <a-space v-else direction="vertical" :size="0.1">
@@ -58,11 +58,16 @@ export default {
       return this.package?.destination_sub_district?.zip_code;
     },
     receiver_address() {
-      return (
-        this.package?.receiver_address +
-        ", Kota: " +
-        getDestinationAddress(this.package)
-      );
+      // return (
+      //   this.package?.receiver_address +
+      //   ", Kota: " +
+      //   getDestinationAddress(this.package)
+      // );
+      if (this.package?.receiver_way_point == null || this.package?.receiver_way_point == '') {
+        return this.package?.receiver_address;
+      } else {
+        return this.package?.receiver_way_point + ', ' + this.package?.receiver_address;
+      }
     },
     receiver_phone() {
       return this.package?.receiver_phone;
@@ -78,7 +83,12 @@ export default {
       return this.package?.origin_sub_district?.zip_code;
     },
     sender_address() {
-      return this.package?.sender_address + getOriginAddress(this.package);
+      // return this.package?.sender_address + getOriginAddress(this.package);
+      if (this.package?.sender_way_point == null || this.package?.sender_way_point == '') {
+        return this.package?.sender_address;
+      } else {
+        return this.package?.sender_way_point + ', ' + this.package?.sender_address;
+      }
     },
     sender_phone() {
       return this.package?.sender_phone;
