@@ -90,7 +90,14 @@ class NicepayController extends Controller
 //        $this->dispatchNow($job);
 
         $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
-
+        if($package->status == Package::STATUS_WAITING_FOR_CANCEL_PAYMENT) {
+            $package->status = Package::STATUS_CANCEL;
+            $package->save();
+        }
+        if($package->status == Package::STATUS_WAITING_FOR_PAYMENT) {
+            $package->status = Package::STATUS_ACCEPTED;
+            $package->save();
+        }
         return $this->jsonSuccess();
     }
 

@@ -7,6 +7,7 @@ use App\Models\Packages\Package;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
+use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -26,6 +27,9 @@ class PackageResource extends JsonResource
     {
         if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
+        }
+        if (! $this->resource->relationLoaded('canceled')) {
+            $this->resource->load('canceled');
         }
 
         if (! $this->resource->relationLoaded('code')) {
@@ -58,7 +62,6 @@ class PackageResource extends JsonResource
             }
             $this->resource->unsetRelation('partner_performance');
         }
-
         $data = array_merge(parent::toArray($request), [
             'origin_regency' => $this->resource->origin_regency ? RegencyResource::make($this->resource->origin_regency) : null,
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency) : null,
@@ -88,7 +91,11 @@ class PackageResource extends JsonResource
         } else {
             $data['type'] = 'item';
         }
-
+        $checkIfPaymentHasGenerate = Payment::with('gateway')->where('payable_type', Package::class)
+            ->where('payable_id', $data['id'])
+            ->where('service_type', 'pay')
+            ->where('status', ['pending','success'])
+            ->first() ?? null;
         /**New script for response */
         $result = [
             'hash' => $data['hash'],
@@ -97,7 +104,10 @@ class PackageResource extends JsonResource
             'origin_regency' => $data['origin_regency']['name'],
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],
+            'status_payment' => $data['payment_status'],
             'type' => $data['type'],
+            'has_generate_payment' => $checkIfPaymentHasGenerate,
+            'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
         ];
 

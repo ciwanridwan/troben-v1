@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Balance\DetailResource;
+use App\Http\Resources\Api\Partner\Owner\Balance\ReportPartnerTransporterResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\ReportResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\SummaryResource;
+use App\Models\Partners\Balance\DeliveryHistory;
+use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,16 +32,28 @@ class BalanceController extends Controller
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
         $inputs = array_merge($request->all(), [
-            'group' => ['package_code','package_id','package_created_at'],
+            'group' => ['package_code', 'package_id', 'package_created_at'],
             'partner_id' => $repository->getPartner()->id,
             'is_package_created' => true
         ]);
 
-        $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
+        $partnerType = $repository->getPartner()->type;
 
-        $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id', $repository->getPartner()->id));
+        switch ($partnerType) {
+            case Partner::TYPE_TRANSPORTER:
+                $this->query = DeliveryHistory::where('partner_id', $repository->getPartner()->id);
+                $this->query->with('deliveries');
 
-        return $this->jsonSuccess(ReportResource::collection($this->query->orderBy('package_created_at', 'desc')->paginate($request->input('per_page', 10))));
+                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($this->query->orderBy('created_at', 'desc')->paginate($request->input('per_page', 10))));
+                break;
+            default:
+                $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
+
+                $this->query->with('balanceHistories', fn ($q) => $q->where('partner_id', $repository->getPartner()->id));
+
+                return $this->jsonSuccess(ReportResource::collection($this->query->orderBy('package_created_at', 'desc')->paginate($request->input('per_page', 10))));
+                break;
+        }
     }
 
     /**
@@ -70,6 +85,7 @@ class BalanceController extends Controller
 
         return $this->jsonSuccess(DetailResource::make([
             'data' => $this->query->paginate($request->input('per_page', 10)),
-            'total_amount' => $sumQuery->sum('balance')]));
+            'total_amount' => $sumQuery->sum('balance')
+        ]));
     }
 }

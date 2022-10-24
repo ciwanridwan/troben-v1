@@ -166,7 +166,7 @@ class PricingCalculator
 
         switch ($serviceCode) {
             case Service::TRAWLPACK_CUBIC:
-                $cubicPrice = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+                $cubicPrice = self::getCubicPrice($inputs['origin_regency_id'], $inputs['destination_id']);
                 break;
             case Service::TRAWLPACK_EXPRESS:
                 $expressPrice = self::getExpressPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
@@ -718,13 +718,12 @@ class PricingCalculator
     }
 
     /** Cubic Price */
-    public static function getCubicPrice($originProvinceId, $originRegencyId, $destinationId)
+    public static function getCubicPrice($originRegencyId, $destinationId)
     {
-        $price = CubicPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-        $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+        $price = CubicPrice::where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
+        // $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
 
-        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
-
+        // throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
         return $price;
     }
 
@@ -732,9 +731,9 @@ class PricingCalculator
     public static function getServiceCubicPrice(array $inputs, ?CubicPrice $price = null)
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => [Rule::requiredIf(! $price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
+            // 'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
+            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -745,7 +744,7 @@ class PricingCalculator
 
         if (! $price) {
             /** @var Price $price */
-            $price = self::getCubicPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+            $price = self::getCubicPrice($inputs['origin_regency_id'], $inputs['destination_id']);
         }
 
         /**Todo calculate */

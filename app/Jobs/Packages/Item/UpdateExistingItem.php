@@ -38,7 +38,6 @@ class UpdateExistingItem
         ]));
 
         $this->item = $item;
-
         $this->attributes = Validator::make($inputs, [
             'qty' => ['nullable', 'numeric'],
             'name' => 'nullable',
@@ -63,7 +62,9 @@ class UpdateExistingItem
 //            $this->attributes['handling'] = null;
 //        }
         $this->item->fill($this->attributes);
-
+        $this->item->fill([
+            'revision'=>$this->item->revision + 1
+        ]);
         $this->item->save();
 
         event(new PackageUpdated($this->item->package));

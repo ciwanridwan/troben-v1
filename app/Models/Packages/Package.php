@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
@@ -22,7 +23,9 @@ use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\CancelOrder;
 use App\Models\FileUpload;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -109,7 +112,13 @@ class Package extends Model implements AttachableContract
 
     public const PACKAGE_SYSTEM_ID = 0;
 
+
+    // Status for Cancel
     public const STATUS_CANCEL = 'cancel';
+    public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
+    public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
+    public const STATUS_PAID_CANCEL = 'paid_cancel';
+
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
@@ -223,7 +232,6 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'customer_id',
         'estimator_id',
         'packager_id',
@@ -245,7 +253,9 @@ class Package extends Model implements AttachableContract
         'service_price',
         'discount_service_price',
         'type',
-        'order_type'
+        'order_type',
+        'estimation_prices',
+        'estimation_cubic_prices'
     ];
 
     /**
@@ -381,6 +391,11 @@ class Package extends Model implements AttachableContract
         return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
+    public function payment_pay()
+    {
+        return $this->morphOne(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
+    }
+
     /**
      * Define `belongsTo` relationship with Customer model.
      *
@@ -502,6 +517,21 @@ class Package extends Model implements AttachableContract
     public function estimator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'estimator_id', 'id');
+    }
+
+    public function updated_by_office(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'updated_by', 'id');
     }
 
     public function updated_by(): BelongsTo
@@ -771,6 +801,7 @@ class Package extends Model implements AttachableContract
             ->orderBy('created_at', 'desc');
     }
 
+    /** List of type order */
     public function getOrderTypeAttribute()
     {
         $motoBikes = $this->motoBikes()->first();
@@ -782,8 +813,94 @@ class Package extends Model implements AttachableContract
         }
     }
 
+    /**Relation to cancel orders tables */
+    public function cancels(): HasOne
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id', 'id');
+    }
+
     public function fileuploads(): HasMany
     {
         return $this->hasMany(FileUpload::class, 'package_id');
+    }
+
+    public function canceled()
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id');
+    }
+
+    /**Attributes for show estimation prices if service_code values is tpx
+     * useful for admin page
+     */
+    public function getEstimationPricesAttribute()
+    {
+        if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
+
+            $items = $this->items()->get();
+            $results = [];
+            foreach ($items as $item) {
+                if ($item->handling) {
+                    foreach ($item->handling as $packing) {
+                        $handlingFee = $packing['price'] * $item->qty;
+                    }
+                } else {
+                    $handlingFee = 0;
+                }
+
+                $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+                $serviceFee = $item->weight * $this->tier_price;
+                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+
+                $result = [
+                    'handling_fee' => $handlingFee,
+                    'insurance_fee' => $insuranceFee,
+                    'service_fee' => $serviceFee,
+                    'sub_total_amount' => $subTotalAmount
+                ];
+
+                array_push($results, $result);
+            }
+
+            return $results;
+        } else {
+            return null;
+        }
+    }
+
+    public function getEstimationCubicPricesAttribute()
+    {
+        $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
+
+        $items = $this->items()->get();
+
+        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+
+        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
+
+        foreach ($items as $item) {
+            $calculateCubic = $item->height * $item->width * $item->length / 1000000;
+            $cubic[] = $calculateCubic;
+            $cubicResult = array_sum($cubic);
+        }
+
+        if ($cubicResult <= 3) {
+            $cubicResult = 3;
+        }
+
+        if (is_null($cubicPrice)) {
+            $serviceFee = 0;
+        } else {
+            $serviceFee = $cubicResult * $cubicPrice->amount;
+        }
+
+        $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+
+        $result = [
+            'handling_fee' => intval($handlingFee),
+            'insurance_fee' => intval($insuranceFee),
+            'service_fee' => $serviceFee,
+            'sub_total_amount' => $subTotalAmount
+        ];
+        return $result;
     }
 }

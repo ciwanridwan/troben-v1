@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Support\Facades\Storage;
 
+
 /**
  * Class Withdrawal.
  *
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
  * @property string $account_number
  * @property string $status
  * @property string $notes
+ * @property string $transaction_code
  * @property Carbon                      $created_at
  * @property Carbon                      $updated_at
  *
@@ -49,6 +51,9 @@ class Withdrawal extends Model
     public const STATUS_TRANSFERRED = 'transferred';
     // End Todo
 
+    /** Set unique code of transaction */
+    public const TRANSACTION_CODE = 'WTD';
+
     protected $table = 'partner_balance_disbursement';
 
     protected $fillable = [
@@ -65,7 +70,8 @@ class Withdrawal extends Model
         'notes',
         'charge_admin',
         'fee_charge_admin',
-        'expired_at'
+        'expired_at',
+        'transaction_code' // transaction code WTD14102200000
     ];
 
     protected $casts = [
@@ -75,7 +81,8 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash','attachment_transfer_url'
+        'hash',
+        'attachment_transfer_url'
     ];
 
     /**
@@ -123,5 +130,23 @@ class Withdrawal extends Model
     public function disbursmentHistories(): BelongsTo
     {
         return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
+    }
+
+    /** Set Generate Code Transaction And Unique */
+    public static function generateCodeTransaction()
+    {
+        $query = self::query();
+        $pre = Withdrawal::TRANSACTION_CODE;
+        $pre .= Carbon::now()->format('dmy');
+        $last_order = $query->where('transaction_code', 'LIKE', $pre.'%')->orderBy('transaction_code', 'desc')->first();
+        $inc_number = $last_order ? substr($last_order->transaction_code, strlen($pre)) : 0;
+        $inc_number = (int) $inc_number;
+        $inc_number = $last_order ? $inc_number + 1 : $inc_number;
+
+        // assume 100.000/day
+        $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
+
+
+        return  $pre.$inc_number;
     }
 }

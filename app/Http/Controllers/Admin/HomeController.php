@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use App\Events\Packages\PackageCanceledByAdmin;
-use App\Events\Packages\PackagePaymentVerified;
 use App\Jobs\Codes\Logs\CreateNewLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -20,6 +19,7 @@ use App\Models\CodeLogable;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Service;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class HomeController extends Controller
@@ -66,9 +66,11 @@ class HomeController extends Controller
     public function dataRelation()
     {
         $this->query->with(
-            ['items', 'prices', 'payments', 'items.prices', 'origin_regency',
-            'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
-            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']
+            [
+                'items', 'prices', 'payments', 'items.prices', 'origin_regency',
+                'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
+                'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes'
+            ]
         );
         // $this->query->orderBy('status','desc');
 
@@ -84,11 +86,8 @@ class HomeController extends Controller
 
             $this->getSearch($request);
 
-            // dont show canceled order
-            // $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->dataRelation($request);
             $this->query->orderBy('created_at', 'desc');
-            // $this->query->whereDoesntHave('deliveries');
 
             return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
         }
@@ -176,8 +175,8 @@ class HomeController extends Controller
         ]);
 
         if ($inputs['statusType'] === Code::TYPE_MANIFEST) {
-            $inputs['status'] = $inputs['deliveryType'].'_'.$inputs['status'];
-            $inputs['description'] = '[ADMIN]['.$partner->code.'] '.$inputs['description'];
+            $inputs['status'] = $inputs['deliveryType'] . '_' . $inputs['status'];
+            $inputs['description'] = '[ADMIN][' . $partner->code . '] ' . $inputs['description'];
         }
         $job = new CreateNewLog($package->code, $partner, $inputs);
         $this->dispatch($job);

@@ -86,6 +86,21 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('cancel', CancelController::class),
         ]);
 
+        $this->router->post($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancelOrder'),
+            'uses' => $this->uses('cancelOrder', CancelController::class),
+        ]);
+
+        $this->router->post($this->prefix('payment/cash/{package_hash}'), [
+            'as' => $this->name('paymentCash'),
+            'uses' => $this->uses('paymentCash', CancelController::class)
+        ]);
+
+        $this->router->post($this->prefix('claim-order/{package_hash}'), [
+            'as' => $this->name('claimOrder'),
+            'uses' => $this->uses('claimOrder', CancelController::class)
+        ]);
+
         $this->router->patch($this->prefix('{package_hash}/cancel/method'), [
             'as' => $this->name('cancel.method'),
             'uses' => $this->uses('method', CancelController::class),
@@ -94,6 +109,11 @@ class OrderRoute extends BaseRoute
         $this->router->patch($this->prefix('{package_hash}/cancelBefore'), [
             'as' => $this->name('cancelBefore'),
             'uses' => $this->uses('cancelBefore', CancelController::class),
+        ]);
+
+        $this->router->get($this->prefix('{package_hash}/check-cancel-payment'), [
+            'as' => $this->name('checkCancelPayment'),
+            'uses' => $this->uses('checkCancelPayment', CancelController::class)
         ]);
 
         $this->router->post($this->prefix('{package_hash}/receipt'), [

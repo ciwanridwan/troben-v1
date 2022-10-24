@@ -48,6 +48,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Models\Payments\Payment;
 
 class OrderController extends Controller
 {
@@ -67,7 +68,6 @@ class OrderController extends Controller
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
             fn (Builder $query) => $query->orderByDesc('created_at')
         );
-
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
         $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
@@ -120,6 +120,7 @@ class OrderController extends Controller
 
         /** Old script */
         $package->load(
+            'canceled',
             'code',
             'prices',
             'attachments',
@@ -133,7 +134,7 @@ class OrderController extends Controller
             'origin_regency',
             'destination_regency',
             'destination_district',
-            'destination_sub_district'
+            'destination_sub_district',
         )->append('transporter_detail');
 
         /** Price Of Item */
@@ -181,7 +182,8 @@ class OrderController extends Controller
         } else {
             $feeAdditional = $getFeeAdditional->amount;
         }
-
+        $checkPayment = Payment::with('gateway')->where('payable_id', $package->id)
+            ->where('payable_type', Package::class)->first();
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -198,6 +200,10 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
+            // 'payments' => [
+            //     'has_generate_payment' => $checkPayment ? true : false,
+            //     'payment' => $checkPayment
+            // ],
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));

@@ -107,6 +107,9 @@ export default {
       return this.package?.receiver_address;
     },
     receiver_way_point() {
+      return this.package?.receiver_way_point;
+    },
+    receiver_way_point() {
         return this.package?.receiver_way_point;
       },
     receiver_phone() {
@@ -128,8 +131,8 @@ export default {
       return this.package?.sender_name;
     },
     sender_way_point() {
-        return this.package?.sender_way_point;
-      },
+      return this.package?.sender_way_point;
+    },
     origin_regency_name() {
       return this.package?.origin_regency?.name;
     },

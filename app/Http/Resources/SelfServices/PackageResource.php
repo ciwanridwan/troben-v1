@@ -21,7 +21,6 @@ class PackageResource extends JsonResource
     public function toArray($request)
     {
         $user = $this->updated_by_office;
-
         if (is_null($user)) {
             $user = $this->updated_by_user ?? $this->updated_by_customer;
         }
