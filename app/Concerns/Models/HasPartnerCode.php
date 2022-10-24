@@ -30,7 +30,7 @@ trait HasPartnerCode
         $partner_regency = Regency::find($this->geo_regency_id);
 
         $code = $partner_code.'-'.($partner_regency->province_id == 1084 ? 'JKT' : $partner_regency->bsn_code).'-';
-        $last_code = Partner::where('code', 'LIKE', $code.'%')->latest()->first();
+        $last_code = Partner::where('code', 'LIKE', $code.'%')->withTrashed()->latest()->first();
 
         if ($last_code === null) {
             $code_number = str_pad('0', 3, '0', STR_PAD_LEFT);
