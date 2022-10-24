@@ -341,8 +341,8 @@ class FinanceController extends Controller
 
         $partner = $disbursment->partner()->first();
         if ($partner->type == Partner::TYPE_TRANSPORTER) {
-            $test = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
-            dd($test);
+            $result = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
@@ -383,7 +383,8 @@ class FinanceController extends Controller
                 'rows' => $getPendingReceipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
+                'partner_code' => $disbursment->partner->code
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -434,7 +435,8 @@ class FinanceController extends Controller
                 'rows' => $receipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
+                'partner_code' => $disbursment->partner->code
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -567,5 +569,25 @@ class FinanceController extends Controller
         where partner_id = $partnerId";
 
         return $q;
+    }
+
+    private function getDetailDisbursmentTransporter($partnerId)
+    {
+        $queryTransporter = $this->queryPartnerTransporter($partnerId);
+        $packages = collect(DB::select($queryTransporter));
+
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
+            ->map(function ($q) use ($packages) {
+                $amount = $q->deliveries->packages->sum('total_amount');
+                $res = [
+                    'receipt' => $q->deliveries->code->content,
+                    'total_accepted' => $q->balance,
+                    'total_payment' => $amount
+                ];
+
+                return $res;
+            });
+
+        return $deliveryHistory;
     }
 }

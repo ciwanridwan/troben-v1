@@ -4,6 +4,12 @@
             <a-card>
                 <a-row type="flex" justify="space-between" :gutter="[64, 10]">
                     <a-col>
+                        <h3 class="text-gray">Mitra</h3>
+                        <h2 class="mb-0 title-price">
+                            <b>{{ partner_code }}</b>
+                        </h2>
+                    </a-col>
+                    <a-col>
                         <h3 class="text-gray">Total</h3>
                         <h2 class="mb-0 title-price">
                             <b>Rp.{{ formatPrice(data_total.total_approved + data_total.total_unapproved) }}</b>
@@ -184,7 +190,8 @@ export default {
         images: null,
         imageData: "",
         visible: false,
-        attachment_transfer: ''
+        attachment_transfer: '',
+        partner_code: ''
     }),
     created() {
         this.getDatas()
@@ -227,6 +234,7 @@ export default {
             .then((res)=>{
                 this.lists = res.data.data.rows
                 this.data_total = res.data.data
+                this.partner_code = res.data.data.partner_code
                 this.approved_at = res.data.data.approved_at
                 this.transferred_at = res.data.data.transferred_at
                 this.attachment_transfer = res.data.data.attachment_transfer
