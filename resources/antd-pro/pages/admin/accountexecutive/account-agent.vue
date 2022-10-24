@@ -2,20 +2,29 @@
     <div>
         <content-layout>
             <template slot="head-tools">
-                <a-row type="flex" justify="end" :gutter="3">
-                    <a-select
-                        ref="select"
-                        v-model="check_status"
-                        style="width: 250px"
-                        size="large"
-                    >
-                        <a-select-option :value="null">Pilih status</a-select-option>
-                        <a-select-option :value="true">Active</a-select-option>
-                        <a-select-option :value="false">Non Active</a-select-option>
-                    </a-select>
-                </a-row>
             </template>
             <template slot="content">
+                <a-card>
+                    <a-row :gutter="[24]">
+                        <a-col :span="12">
+                            <a-input-search
+                                placeholder="Cari nama"
+                                v-model="keyword"
+                            ></a-input-search>
+                        </a-col>
+                        <a-col :span="12">
+                            <a-select
+                                ref="select"
+                                v-model="check_status"
+                                size="large"
+                            >
+                                <a-select-option :value="null">Pilih status</a-select-option>
+                                <a-select-option :value="true">Active</a-select-option>
+                                <a-select-option :value="false">Non Active</a-select-option>
+                            </a-select>
+                        </a-col>
+                    </a-row>
+                </a-card>
                 <!-- table -->
                 <a-table
                     :columns="accountAgentColumns"
@@ -134,7 +143,8 @@ export default {
             },
             data_modal: {},
             check_status: null,
-            is_active: false
+            is_active: false,
+            keyword: ''
         };
     },
     created() {
@@ -144,9 +154,9 @@ export default {
         filteredItems() {
             return this.lists.data.filter(item => {
                 if(this.check_status != null){
-                    return item.is_active == this.check_status
+                    return item.is_active == this.check_status && this.keyword.toLowerCase().split(' ').every(v => item.name.toLowerCase().includes(v))
                 }else{
-                    return true
+                    return this.keyword.toLowerCase().split(' ').every(v => item.name.toLowerCase().includes(v))
                 }
             })
         }
@@ -205,12 +215,12 @@ export default {
         padding: 0 23px;
         height: 40px;
         border: 2px solid #3D8824;
-        color: #fff;
+        color: #3D8824;
         border-radius: 50px !important;
         &:hover{
             background-color: #fff;
             border: 2px solid #3D8824;
-            color: #fff;
+            color: #3D8824;
             border-radius: 50px !important;
         }
     }
