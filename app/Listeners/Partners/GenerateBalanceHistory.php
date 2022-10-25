@@ -294,6 +294,7 @@ class GenerateBalanceHistory
                                 return $item->weight_borne_total;
                             });
                         }
+
                         if ($manifest_weight < 10) {
                             $manifest_weight = 10;
                         }
@@ -307,6 +308,7 @@ class GenerateBalanceHistory
                                 ->where('destination_regency_id', $this->delivery->destination_regency_id)
                                 ->where('type', $tier)
                                 ->first();
+
 
                             if (!$price || $price->value == 0) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
@@ -336,6 +338,7 @@ class GenerateBalanceHistory
                                 ->where('destination_regency_id', $this->delivery->destination_regency_id)
                                 ->where('type', PartnerPrice::TYPE_FLAT)
                                 ->first();
+
                             if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
@@ -360,11 +363,12 @@ class GenerateBalanceHistory
 
                         $this->setBalance($manifest_weight * $price->value);
                         $income = $manifest_weight * $price->value;
+
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                            ->setAttributes()
-                            ->recordHistory();
+                            ->setAttributes(false)
+                            ->recordHistory(false);
 
                         $this->partner->balance += $income;
                         $this->partner->save();
