@@ -20,7 +20,7 @@ class ReportPartnerTransporterResource extends JsonResource
             'description' => $this->description,
             'package_code' => $this->deliveries->code->content,
             'type' => $this->type,
-            'weight' => $this->deliveries->packages->first()->total_weight
+            'weight' => $this->deliveries->packages->sum('total_weight')
         ];
         $detail = array($detail);
 
