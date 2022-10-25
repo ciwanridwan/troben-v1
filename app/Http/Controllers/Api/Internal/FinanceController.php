@@ -392,53 +392,17 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
-        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
-        $packages = collect(DB::select($query));
-
-        $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
-            $r->total_accepted = ceil($r->total_accepted);
-            return $r;
-        })->values();
-
-        if ($getReceipt->isNotEmpty()) {
-            $getReceipt->each(function ($r) use ($disbursment) {
-                $disbursHistory = new DisbursmentHistory();
-                $disbursHistory->disbursment_id = $disbursment->id;
-                $disbursHistory->receipt = $r->receipt;
-                $disbursHistory->amount = $r->total_accepted;
-                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
-                $disbursHistory->save();
-            });
-
-            $total_accepted = $getReceipt->sum('total_accepted');
-            $calculate = $disbursment->first_balance - $total_accepted;
-
-            if ($disbursment->first_balance !== $calculate) {
-                $disbursment->amount = $total_accepted;
-                $disbursment->status = Withdrawal::STATUS_APPROVED;
-                $disbursment->action_by = Auth::id();
-                $disbursment->action_at = Carbon::now();
-                if ($disbursment->bank_id == 3) {
-                    $disbursment->charge_admin = false;
-                    $disbursment->fee_charge_admin = 0;
-                } else {
-                    $disbursment->charge_admin = true;
-                    $disbursment->fee_charge_admin = 6500;
-                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
-                }
-                $disbursment->save();
-
-                $partners = Partner::where('id', $disbursment->partner_id)->first();
-                $partners->balance = $calculate;
-                $partners->save();
-            } else {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
-            }
-
-            return (new Response(Response::RC_UPDATED, $disbursment))->json();
-        } else {
-            return (new Response(Response::RC_BAD_REQUEST))->json();
+        $partnerType = $disbursment->partner->type;
+        switch ($partnerType) {
+            case Partner::TYPE_TRANSPORTER:
+                return $this->approveForDeliveries($disbursment, $receipt);
+                break;
+            default:
+                return $this->approveForPackages($disbursment, $receipt);
+                break;
         }
+
+
     }
 
     /**
@@ -714,6 +678,112 @@ class FinanceController extends Controller
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
+        }
+    }
+
+    /**
+     * Approve packages by receipt code
+     */
+    private function approveForPackages($disbursment, $receipt): JsonResponse
+    {
+        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
+        $packages = collect(DB::select($query));
+
+        $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
+            $r->total_accepted = ceil($r->total_accepted);
+            return $r;
+        })->values();
+
+        if ($getReceipt->isNotEmpty()) {
+            $getReceipt->each(function ($r) use ($disbursment) {
+                $disbursHistory = new DisbursmentHistory();
+                $disbursHistory->disbursment_id = $disbursment->id;
+                $disbursHistory->receipt = $r->receipt;
+                $disbursHistory->amount = $r->total_accepted;
+                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
+                $disbursHistory->save();
+            });
+
+            $total_accepted = $getReceipt->sum('total_accepted');
+            $calculate = $disbursment->first_balance - $total_accepted;
+
+            if ($disbursment->first_balance !== $calculate) {
+                $disbursment->amount = $total_accepted;
+                $disbursment->status = Withdrawal::STATUS_APPROVED;
+                $disbursment->action_by = Auth::id();
+                $disbursment->action_at = Carbon::now();
+                if ($disbursment->bank_id == 3) {
+                    $disbursment->charge_admin = false;
+                    $disbursment->fee_charge_admin = 0;
+                } else {
+                    $disbursment->charge_admin = true;
+                    $disbursment->fee_charge_admin = 6500;
+                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
+                }
+                $disbursment->save();
+
+                $partners = Partner::where('id', $disbursment->partner_id)->first();
+                $partners->balance = $calculate;
+                $partners->save();
+            } else {
+                return (new Response(Response::RC_BAD_REQUEST))->json();
+            }
+
+            return (new Response(Response::RC_UPDATED, $disbursment))->json();
+        } else {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+    }
+
+    /**
+     * Approve deliveries by with manifest code
+     */
+    private function approveForDeliveries($disbursment, $receipt): JsonResponse
+    {
+        $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+        $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
+            $r->total_accepted = ceil($r->total_accepted);
+            return $r;
+        })->values();
+
+        if ($getReceipt->isNotEmpty()) {
+            $getReceipt->each(function ($r) use ($disbursment) {
+                $disbursHistory = new DisbursmentHistory();
+                $disbursHistory->disbursment_id = $disbursment->id;
+                $disbursHistory->receipt = $r->receipt;
+                $disbursHistory->amount = $r->total_accepted;
+                $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
+                $disbursHistory->save();
+            });
+
+            $total_accepted = $getReceipt->sum('total_accepted');
+            $calculate = $disbursment->first_balance - $total_accepted;
+
+            if ($disbursment->first_balance !== $calculate) {
+                $disbursment->amount = $total_accepted;
+                $disbursment->status = Withdrawal::STATUS_APPROVED;
+                $disbursment->action_by = Auth::id();
+                $disbursment->action_at = Carbon::now();
+                if ($disbursment->bank_id == 3) {
+                    $disbursment->charge_admin = false;
+                    $disbursment->fee_charge_admin = 0;
+                } else {
+                    $disbursment->charge_admin = true;
+                    $disbursment->fee_charge_admin = 6500;
+                    $disbursment->amount = $disbursment->amount - $disbursment->fee_charge_admin;
+                }
+                $disbursment->save();
+
+                $partners = Partner::where('id', $disbursment->partner_id)->first();
+                $partners->balance = $calculate;
+                $partners->save();
+            } else {
+                return (new Response(Response::RC_BAD_REQUEST))->json();
+            }
+
+            return (new Response(Response::RC_UPDATED, $disbursment))->json();
+        } else {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
         }
     }
 }
