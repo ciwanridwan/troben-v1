@@ -11,10 +11,13 @@ use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
 use App\Http\Response;
 use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Code;
+use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\BankAccount;
+use App\Models\Partners\Partner;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
@@ -187,17 +190,22 @@ class WithdrawalController extends Controller
             ];
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
-            // $pendingReceipts = $this->getPendingReceipt($withdrawal);
-            $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
-            $toCollect = collect(DB::select($pendingReceipts));
+            if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
+                $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);
+                $data = $this->paginate($pendingReceipts);
+                return (new Response(Response::RC_SUCCESS, $data))->json();
+            } else {
+                $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
+                $toCollect = collect(DB::select($pendingReceipts));
 
-            $toCollect->map(function ($r) use ($withdrawal) {
-                $r->created_at = $withdrawal->created_at;
-                return $r;
-            })->values();
+                $toCollect->map(function ($r) use ($withdrawal) {
+                    $r->created_at = $withdrawal->created_at;
+                    return $r;
+                })->values();
 
-            $data = $this->paginate($toCollect);
-            return (new Response(Response::RC_SUCCESS, $data))->json();
+                $data = $this->paginate($toCollect);
+                return (new Response(Response::RC_SUCCESS, $data))->json();
+            }
         }
         /** End todo */
     }
@@ -206,45 +214,65 @@ class WithdrawalController extends Controller
     {
         $this->withdrawal = $withdrawal;
 
-        $code = Code::where('content', $receipt)->where('codeable_type', Package::class)->first();
-        if (is_null($code)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND));
-        }
+        if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
+            $code = Code::where('content', $receipt)->where('codeable_type', Delivery::class)->first();
+            if (is_null($code)) {
+                return (new Response(Response::RC_DATA_NOT_FOUND));
+            }
 
-        $balanceHistory = History::where('package_id', $code->codeable->id)
+            $deliveryBalanceHistory = DeliveryHistory::where('delivery_id', $code->codeable->id)
             ->where('partner_id', $this->withdrawal->partner_id)->first();
 
-        switch ($balanceHistory->description) {
-            case History::DESCRIPTION_TRANSIT:
-                $type = History::DESCRIPTION_TRANSIT;
-                $data = null;
-                $totalAmount = $balanceHistory->balance;
-                break;
-            case History::DESCRIPTION_DELIVERY:
-                $type = History::DESCRIPTION_DELIVERY;
-                $data = null;
-                $totalAmount = $balanceHistory->balance;
-                break;
-            case History::DESCRIPTION_DOORING:
-                $type = History::DESCRIPTION_DOORING;
-                $data = null;
-                $totalAmount = $balanceHistory->balance;
-                break;
-            default:
-                $type = 'main';
-                $data = $code->codeable->prices;
-                $totalAmount = $data->sum('amount');
-                break;
+            $result = [
+                'type_income' => DeliveryHistory::DESCRIPTION_DELIVERY,
+                'receipt' => $receipt,
+                'total_amount' => $deliveryBalanceHistory->balance,
+                'detail' => null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        } else {
+
+            $code = Code::where('content', $receipt)->where('codeable_type', Package::class)->first();
+            if (is_null($code)) {
+                return (new Response(Response::RC_DATA_NOT_FOUND));
+            }
+
+            $balanceHistory = History::where('package_id', $code->codeable->id)
+                ->where('partner_id', $this->withdrawal->partner_id)->first();
+
+            switch ($balanceHistory->description) {
+                case History::DESCRIPTION_TRANSIT:
+                    $type = History::DESCRIPTION_TRANSIT;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                case History::DESCRIPTION_DELIVERY:
+                    $type = History::DESCRIPTION_DELIVERY;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                case History::DESCRIPTION_DOORING:
+                    $type = History::DESCRIPTION_DOORING;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                default:
+                    $type = 'main';
+                    $data = $code->codeable->prices;
+                    $totalAmount = $data->sum('amount');
+                    break;
+            }
+
+            $result = [
+                'type_income' => $type,
+                'receipt' => $receipt,
+                'total_amount' => $totalAmount,
+                'detail' => $data
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
-
-        $result = [
-            'type_income' => $type,
-            'receipt' => $receipt,
-            'total_amount' => $totalAmount,
-            'detail' => $data
-        ];
-
-        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     public function export(Withdrawal $withdrawal)
@@ -331,5 +359,23 @@ class WithdrawalController extends Controller
         where pbd.partner_id = $partnerId";
 
         return $q;
+    }
+
+    private function getDetailDisbursmentTransporter($partnerId, $created_at)
+    {
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
+            ->map(function ($q) use ($created_at) {
+                $amount = $q->deliveries->packages->sum('total_amount');
+                $res = [
+                    'receipt' => $q->deliveries->code->content,
+                    'total_accepted' => $q->balance,
+                    'total_payment' => $amount,
+                    'created_at' => $created_at->format('Y-m-d H:i:s')
+                ];
+
+                return $res;
+            });
+
+        return $deliveryHistory;
     }
 }
