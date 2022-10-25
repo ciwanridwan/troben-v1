@@ -254,7 +254,10 @@ class PricingController extends Controller
             ->where('destination_id', $destinationId)
             ->where('service_code', Service::TRAWLPACK_STANDARD)
             ->first();
-
+	$resultPrices = [
+		'amount'=>0,
+		'notes'=>'',
+	];
         if ($regularPrices !== null) {
             $regularPrices = $regularPrices->only('tier_1', 'notes');
 
