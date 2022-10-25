@@ -571,11 +571,11 @@ class FinanceController extends Controller
 
     private function getDetailDisbursmentTransporter($partnerId)
     {
-        $queryTransporter = $this->queryPartnerTransporter($partnerId);
-        $packages = collect(DB::select($queryTransporter));
+        // $queryTransporter = $this->queryPartnerTransporter($partnerId);
+        // $packages = collect(DB::select($queryTransporter));
 
         $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
-            ->map(function ($q) use ($packages) {
+            ->map(function ($q) {
                 $amount = $q->deliveries->packages->sum('total_amount');
                 $res = [
                     'receipt' => $q->deliveries->code->content,
