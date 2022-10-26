@@ -16,7 +16,6 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
-use App\Exceptions\Error;
 use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Response;

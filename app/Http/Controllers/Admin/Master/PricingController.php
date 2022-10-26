@@ -6,7 +6,6 @@ use App\Jobs\Price\BulkCreateOrUpdatePrice;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
-use App\Exceptions\Error;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use Illuminate\Http\JsonResponse;

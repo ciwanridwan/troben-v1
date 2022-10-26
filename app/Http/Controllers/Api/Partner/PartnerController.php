@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
-use App\Exceptions\Error;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerNearbyResource;
