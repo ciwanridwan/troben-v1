@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
+use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\PriceResource;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\CubicPrice;
@@ -486,7 +487,7 @@ class PricingCalculator
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($price === null, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         return $price;
     }
@@ -705,14 +706,14 @@ class PricingCalculator
         ];
 
         $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
-        throw_if(! in_array($originRegencyId, $acceptedRegency), Error::make(Response::RC_OUT_OF_RANGE, $messages));
+        throw_if(! in_array($originRegencyId, $acceptedRegency), OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $messages));
 
         // hardcode, set it to jabodetabek price
         $price = BikePrices::where('destination_id', $destinationId)->first();
 
         // $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
+        throw_if($price === null, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $messages));
 
         return $price;
     }

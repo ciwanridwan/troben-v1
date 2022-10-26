@@ -5,6 +5,7 @@ namespace App\Supports\Repositories;
 use App\Models\User;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Partners\Partner;
@@ -109,7 +110,7 @@ class PartnerRepository
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof User, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof User, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         if (! $user->relationLoaded('partners')) {
             $user->load('partners');

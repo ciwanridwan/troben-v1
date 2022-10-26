@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 
 use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Response;
 use App\Jobs\Packages\Item\WarehouseUploadItem;
 use App\Models\Packages\Price;
@@ -48,7 +49,7 @@ class ItemController extends Controller
         $inputs = $request->all();
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $package instanceof Package, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         $job = new CreateNewItemFromExistingPackage($package, $inputs);
 
