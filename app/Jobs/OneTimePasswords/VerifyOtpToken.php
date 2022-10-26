@@ -4,7 +4,6 @@ namespace App\Jobs\OneTimePasswords;
 
 use Carbon\Carbon;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
 use App\Models\OneTimePassword;
 use Illuminate\Foundation\Bus\Dispatchable;

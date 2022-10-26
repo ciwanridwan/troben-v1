@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Exceptions\UserUnauthorizedException;
 use Illuminate\Http\Request;
 use App\Models\Customers\Customer;

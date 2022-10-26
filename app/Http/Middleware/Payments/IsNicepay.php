@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware\Payments;
 
-use App\Exceptions\Error;
 use App\Exceptions\UserUnauthorizedException;
 use App\Http\Response;
 use Closure;
