@@ -17,6 +17,7 @@ use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Response;
 use App\Models\Code;
@@ -75,7 +76,7 @@ class OrderController extends Controller
     public function showByReceipt(Code $code): JsonResponse
     {
         if (! $code->codeable instanceof Package) {
-            throw_if(true, Error::make(Response::RC_INVALID_DATA));
+            throw_if(true, InvalidDataException::make(Response::RC_INVALID_DATA));
         }
 
         $package = $code->codeable;

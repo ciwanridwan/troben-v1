@@ -24,6 +24,8 @@ class Handler extends ExceptionHandler
         OtpVerifyException::class,
         OutOfRangePricingException::class,
         UserUnauthorizedException::class,
+        NumberParseException::class,
+        InvalidDataException::class,
     ];
 
     /**

@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\OutOfRangePricingException;
 use App\Exceptions\UserUnauthorizedException;
 use App\Http\Resources\Api\Package\PackageResource;
@@ -292,7 +293,7 @@ class OrderController extends Controller
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin, true);
             if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
             // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
@@ -646,7 +647,7 @@ class OrderController extends Controller
         $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
         // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));

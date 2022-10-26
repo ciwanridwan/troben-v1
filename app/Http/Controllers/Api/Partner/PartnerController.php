@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Partner;
 
 use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerNearbyResource;
 use App\Http\Resources\Api\Partner\PartnerResource;
@@ -157,13 +158,14 @@ class PartnerController extends Controller
 
         $notUser = ! (Auth::user() instanceof User);
         if ($notUser) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
         }
 
         try {
             $avail = $this->checkAvailability(Auth::id());
         } catch (\Exception $e) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+            report($e);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
         }
 
         $availStatus = $request->get('availability');
@@ -182,13 +184,14 @@ class PartnerController extends Controller
     {
         $notUser = ! (Auth::user() instanceof User);
         if ($notUser) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
         }
 
         try {
             $result = $this->checkAvailability(Auth::id());
         } catch (\Exception $e) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
+            report($e);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => $e->getMessage()]);
         }
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
