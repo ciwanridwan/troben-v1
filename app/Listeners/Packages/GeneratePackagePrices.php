@@ -124,10 +124,7 @@ class GeneratePackagePrices
                     break;
             }
 
-            /** Additional Price */
-            // if ($package->prices->exists) {
-            //     # code...
-            // }
+            // Set Additional Price
             if ($package->prices) {
                 $serviceCode = $package->service_code;
                 $totalWeight = $package->total_weight;
@@ -144,22 +141,6 @@ class GeneratePackagePrices
             }
 
             $is_approved = false;
-            // generate pickup price
-            //            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-            //                'type' => Price::TYPE_DELIVERY,
-            //                'description' => Delivery::TYPE_PICKUP,
-            //                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            //            ]);
-            //            $this->dispatch($job);
-
-            //            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-            //                'type' => Price::TYPE_DISCOUNT,
-            //                'description' => Delivery::TYPE_PICKUP,
-            //                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            //            ]);
-            // generate pickup price discount
-            // $this->dispatch($job);
-
 
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
