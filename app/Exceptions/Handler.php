@@ -21,6 +21,9 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         FileNotFoundException::class,
+        OtpVerifyException::class,
+        OutOfRangePricingException::class,
+        UserUnauthorizedException::class,
     ];
 
     /**

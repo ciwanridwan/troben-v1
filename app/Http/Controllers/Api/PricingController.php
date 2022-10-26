@@ -16,6 +16,7 @@ use App\Actions\Pricing\PricingCalculator;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Exceptions\OutOfRangePricingException;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -110,7 +111,7 @@ class PricingController extends Controller
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
         return PricingCalculator::calculate($payload);
     }
 

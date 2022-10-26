@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Exceptions\OutOfRangePricingException;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
@@ -320,14 +322,14 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;
 
@@ -382,7 +384,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
