@@ -4,7 +4,6 @@ namespace App\Supports\Repositories;
 
 use App\Models\User;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Exceptions\UserUnauthorizedException;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;

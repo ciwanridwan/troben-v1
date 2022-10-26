@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Partner\Driver\Order;
 
 use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
 use App\Events\Deliveries\Dooring\PackageLoadedByDriver;
-use App\Exceptions\Error;
 use App\Exceptions\UserUnauthorizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;

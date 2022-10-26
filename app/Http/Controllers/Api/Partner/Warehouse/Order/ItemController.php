@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Order;
 
-use App\Exceptions\Error;
 use App\Exceptions\UserUnauthorizedException;
 use App\Http\Response;
 use App\Jobs\Packages\Item\WarehouseUploadItem;
