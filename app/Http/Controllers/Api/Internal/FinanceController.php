@@ -529,25 +529,25 @@ class FinanceController extends Controller
                 $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
                 $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $deliveries->pluck('receipt'))->get();
                 $receipts = $deliveries->filter(function ($r) use ($alreadyDis) {
-                    $check = $alreadyDis->where('receipt', $r->receipt)->first();
+                    $check = $alreadyDis->where('receipt', $r['receipt'])->first();
                     if ($check) {
                         return false;
                     }
                     return true;
                 })->map(function ($r) use ($getDisburs, $disbursment) {
-                    $r->approved = 'pending';
-                    $r->total_payment = intval($r->total_payment);
-                    $r->total_accepted = intval($r->total_accepted);
-                    $r->approved_at = null;
+                    $r['approved'] = 'pending';
+                    $r['total_payment'] = intval($r['total_payment']);
+                    $r['total_accepted'] = intval($r['total_accepted']);
+                    $r['approved_at'] = null;
 
-                    $check = $getDisburs->where('receipt', $r->receipt)->first();
+                    $check = $getDisburs->where('receipt', $r['receipt'])->first();
                     if ($check) {
                         $date = $getDisburs->map(function ($time) {
                             return $time->created_at;
                         })->first();
 
-                        $r->approved = 'success';
-                        $r->approved_at = date('Y-m-d H:i:s', strtotime($date));
+                        $r['approved'] = 'success';
+                        $r['approved_at'] = date('Y-m-d H:i:s', strtotime($date));
                     }
                     return $r;
                 })->values();
@@ -572,7 +572,7 @@ class FinanceController extends Controller
                     'rows' => $receipts,
                     'total_unapproved' => $totalUnApproved,
                     'total_approved' => $totalApproved,
-                    'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                    'approved_at' => $approvedAt ? $approvedAt['approved_at'] : null
                 ];
 
                 return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -742,7 +742,7 @@ class FinanceController extends Controller
     {
         $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
         $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
-            $r->total_accepted = ceil($r->total_accepted);
+            $r['total_accepted'] = ceil($r['total_accepted']);
             return $r;
         })->values();
 
@@ -750,8 +750,8 @@ class FinanceController extends Controller
             $getReceipt->each(function ($r) use ($disbursment) {
                 $disbursHistory = new DisbursmentHistory();
                 $disbursHistory->disbursment_id = $disbursment->id;
-                $disbursHistory->receipt = $r->receipt;
-                $disbursHistory->amount = $r->total_accepted;
+                $disbursHistory->receipt = $r['receipt'];
+                $disbursHistory->amount = $r['total_accepted'];
                 $disbursHistory->status = DisbursmentHistory::STATUS_APPROVE;
                 $disbursHistory->save();
             });
