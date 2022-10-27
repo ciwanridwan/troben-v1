@@ -51,6 +51,12 @@ class OrderController extends Controller
         return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page', 15))), null, true);
     }
 
+    public function allResiCancel(Request $req, PartnerRepository $repository)
+    {
+        $query = $repository->queries()->getCancelResi();
+        return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($req->input('per_page', 15))), null, true);
+    }
+
     /**
      * @param \App\Models\Packages\Package $package
      * @return \Illuminate\Http\JsonResponse

@@ -134,6 +134,26 @@ class Queries
         return $query;
     }
 
+    public function getCancelResi(): Builder
+    {
+        $query = Package::query();
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled'
+        ]);
+        $query->whereHas('canceled');
+        $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
+
     public function getPackagesQuery(): Builder
     {
         $query = Package::query();
@@ -256,6 +276,10 @@ class Queries
                     ->orWhere(fn (Builder $builder) => $builder
                         ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)
                         ->whereNull('estimator_id'))
+
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->where('status', Package::STATUS_CANCEL))
+
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
