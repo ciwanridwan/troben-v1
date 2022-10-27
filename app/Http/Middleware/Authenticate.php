@@ -34,7 +34,6 @@ class Authenticate extends Middleware
                     $guards = ['customer'];
                 }
             } catch (\Exception $e) {
-                report($e);
             }
         }
 
