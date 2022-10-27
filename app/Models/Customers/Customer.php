@@ -9,7 +9,6 @@ use App\Models\Packages\Package;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
-use Laravel\Sanctum\HasApiTokens;
 use App\Auditor\Concerns\Auditable;
 use Illuminate\Auth\Authenticatable;
 use App\Concerns\Models\HasPhoneNumber;
@@ -56,7 +55,6 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         Notifiable,
         HasPhoneNumber,
         VerifiableByOtp,
-        HasApiTokens,
         HasFactory,
         Auditable,
         attachable,

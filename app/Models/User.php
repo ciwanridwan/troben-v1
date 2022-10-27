@@ -11,7 +11,6 @@ use App\Contracts\HasOtpToken;
 use App\Models\Partners\Partner;
 use Jalameta\Attachments\Concerns\Attachable;
 use Jalameta\Attachments\Contracts\AttachableContract;
-use Laravel\Sanctum\HasApiTokens;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use App\Concerns\Models\HasPhoneNumber;
@@ -58,7 +57,6 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract, J
 {
     use HasFactory,
         Notifiable,
-        HasApiTokens,
         HasPhoneNumber,
         VerifiableByOtp,
         SoftDeletes,
