@@ -303,13 +303,15 @@ class GenerateBalanceHistory
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $price = PartnerTransitPrice::query()
-                                ->where('partner_id', $this->transporter->partner->id)
+                                // ->where('partner_id', $this->transporter->partner->id)
                                 ->where('origin_regency_id', $this->delivery->origin_regency_id)
                                 ->where('destination_regency_id', $this->delivery->destination_regency_id)
-                                ->where('type', $tier)
+                                ->where('type', $package->transit_count)
                                 ->first();
 
-
+                            dd($package->transit_count);
+                            dump($this->delivery->origin_regency_id);
+                            dump($this->delivery->destination_regency_id);
                             if (!$price || $price->value == 0) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
