@@ -163,7 +163,7 @@ class Queries
         $query->with([
             'deliveries' => $queryPartnerId,
             'deliveries.origin_partner',
-            'deliveries.partner'
+            'deliveries.partner',
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
@@ -278,7 +278,7 @@ class Queries
                         ->whereNull('estimator_id'))
 
                     ->orWhere(fn (Builder $builder) => $builder
-                        ->where('status', Package::STATUS_CANCEL))
+                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL]))
 
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
