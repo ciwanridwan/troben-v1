@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 /**
  * Customer model.
@@ -46,7 +47,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  *
  * @property-read \App\Models\Customers\Address[]|\Illuminate\Database\Eloquent\Collection $addresses
  */
-class Customer extends Model implements AttachableContract, AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract
+class Customer extends Model implements AttachableContract, AuthenticatableContract, CanResetPasswordContract, HasOtpToken, AuditableContract, JWTSubject
 {
     use SoftDeletes,
         HashableId,
@@ -60,6 +61,8 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         Auditable,
         attachable,
         CustomSerializeDate;
+
+    const API_ROLE = 'customer';
 
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 
@@ -131,6 +134,34 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        $iss = 'TBCore';
+        if (config('app.env') != 'production') {
+            $iss .= '-'.config('app.env');
+        }
+
+        return [
+            'role' => self::API_ROLE,
+            'iss' => $iss
+        ];
     }
 
     /**

@@ -42,19 +42,19 @@ return [
         ],
 
         'customer' => [
-            'driver' => 'token',
+            'driver' => 'jwt',
             'provider' => 'customers',
             'hash' => false,
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'jwt',
             'provider' => 'users',
             'hash' => false,
         ],
 
         'office' => [
-            'driver' => 'token',
+            'driver' => 'jwt',
             'provider' => 'offices',
             'hash' => false,
         ],

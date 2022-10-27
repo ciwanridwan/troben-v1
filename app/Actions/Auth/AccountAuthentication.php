@@ -23,6 +23,7 @@ use libphonenumber\PhoneNumberUtil;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\Customers\CreateNewCustomer;
 use App\Jobs\OneTimePasswords\SmsMasking\SendMessage;
+use App\Supports\JwtAuth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
@@ -129,17 +130,6 @@ class AccountAuthentication
             $authenticatable = $query->where($column, $this->attributes['username'])->first();
         }
 
-        $payload = [];
-
-        if ($authenticatable) {
-            $now = time();
-            $payload = [
-                'iat' => $now,
-                'exp' => $now + (((60 * 60) * 24) * 30),
-                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-            ];
-        }
-
         if (in_array($column, self::getAvailableSocialLogin())) {
             if (! $authenticatable) {
                 switch ($column) {
@@ -164,18 +154,20 @@ class AccountAuthentication
             }
 
             if ($authenticatable->phone_verified_at == null) {
+                $jwt = JwtAuth::generateJwt($authenticatable);
                 return (new Response(Response::RC_ACCOUNT_NOT_VERIFIED, [
                     'message' => 'Harap lengkapi data anda!',
-                    'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                    'access_token' => $jwt,
                     'fcm_token' => $authenticatable->fcm_token ?? null,
-                    'jwt_token' => JWT::encode($payload, self::JWT_KEY)
+                    'jwt_token' => $jwt
                 ]))->json();
             }
 
+            $jwt = JwtAuth::generateJwt($authenticatable);
             return (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'access_token' => $jwt,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
-                'jwt_token' => JWT::encode($payload, self::JWT_KEY)
+                'jwt_token' => $jwt
             ]))->json();
             // TODO: get authenticatable
         }
@@ -214,16 +206,10 @@ class AccountAuthentication
         //         'jwt_token' => JWT::encode($payload, $key)
         //     ]))->json();
         // }
-        $now = time();
-        $payload = [
-            'iat' => $now,
-            'exp' => $now + (((60 * 60) * 24) * 30),
-            'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-        ];
-        $jwt = JWT::encode($payload, self::JWT_KEY);
 
+        $jwt = JwtAuth::generateJwt($authenticatable);
         return (new Response(Response::RC_SUCCESS, [
-            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            'access_token' => $jwt,
             'fcm_token' => $authenticatable->fcm_token ?? null,
             'jwt_token' => $jwt
         ]))->json();
@@ -262,10 +248,12 @@ class AccountAuthentication
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
+        $jwt = JwtAuth::generateJwt($authenticatable);
+
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'access_token' => $jwt,
                 'fcm_token' => $authenticatable->fcm_token ?? null
             ]))->json();
     }
@@ -299,10 +287,13 @@ class AccountAuthentication
         if ($authenticatable instanceof Customer || $authenticatable instanceof User) {
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
+
+        $jwt = JwtAuth::generateJwt($authenticatable);
+
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'access_token' => $jwt,
                 'fcm_token' => $authenticatable->fcm_token ?? null
             ]))->json();
     }
@@ -335,10 +326,12 @@ class AccountAuthentication
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
+        $jwt = JwtAuth::generateJwt($authenticatable);
+
         return $this->attributes['otp']
             ? $this->askingOtpResponse($authenticatable, $this->attributes['otp_channel'], $authenticatable, $column)
             : (new Response(Response::RC_SUCCESS, [
-                'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+                'access_token' => $jwt,
                 'fcm_token' => $authenticatable->fcm_token ?? null,
             ]))->json();
     }
@@ -379,20 +372,12 @@ class AccountAuthentication
         $column = $this->attributes['guard'] === 'customer' ? self::CREDENTIAL_PHONE : self::CREDENTIAL_USERNAME;
         $authenticatable = $query->where($column, $this->attributes['username'])->firstOrFail();
 
-        $payload = [];
+        $jwt = JwtAuth::generateJwt($authenticatable);
 
-        if ($authenticatable) {
-            $now = time();
-            $payload = [
-                'iat' => $now,
-                'exp' => $now + (((60 * 60) * 24) * 30),
-                'data' => $this->attributes['guard'] === 'user' ? new JWTUserResource($authenticatable) : new JWTCustomerResource($authenticatable)
-            ];
-        }
         return (new Response(Response::RC_SUCCESS, [
-            'access_token' => $authenticatable->createToken($this->attributes['device_name'])->plainTextToken,
+            'access_token' => $jwt,
             'fcm_token' => $authenticatable->fcm_token ?? null,
-            'jwt_token' => JWT::encode($payload, self::JWT_KEY)
+            'jwt_token' => $jwt
         ]))->json();
     }
 
@@ -413,13 +398,8 @@ class AccountAuthentication
                 'username' => ['The provided credentials are incorrect.'],
             ]);
         }
-        $now = time();
-        $payload = [
-            'iat' => $now,
-            'exp' => $now + (((60 * 60) * 24) * 30),
-            'data' => new JWTOfficeResource($authenticatable)
-        ];
-        $jwt = JWT::encode($payload, self::JWT_KEY);
+
+        $jwt = JwtAuth::generateJwt($authenticatable);
         return (new Response(Response::RC_SUCCESS, [
             'jwt_token' => $jwt
         ]))->json();

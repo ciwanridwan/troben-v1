@@ -9,7 +9,7 @@
 return [
     'groups' => [
         'api' => [
-            'middleware' => ['api', 'auth:sanctum'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
             'domain' => env('API_DOMAIN')
         ],
@@ -34,12 +34,12 @@ return [
             'prefix' => 'partner/customer-service',
         ],
         'self_service' => [
-            'middleware' => ['jwt'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
             'domain' => env('API_DOMAIN')
         ],
         'operation' => [
-            'middleware' => ['jwt'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/operation' : 'operation',
             'domain' => env('API_DOMAIN')
         ]

@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 /**
  * User instance.
@@ -53,7 +54,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read  \Illuminate\Database\Eloquent\Collection|Relations\MorphMany notifications
  * @method static  Builder partnerRole($types, $roles)
  */
-class User extends Authenticatable implements HasOtpToken, AttachableContract
+class User extends Authenticatable implements HasOtpToken, AttachableContract, JWTSubject
 {
     use HasFactory,
         Notifiable,
@@ -64,6 +65,8 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
         HashableId,
         attachable,
         CanSearch;
+
+    const API_ROLE = 'user';
 
     public const USER_SYSTEM_ID = 0;
 
@@ -133,6 +136,34 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        $iss = 'TBCore';
+        if (config('app.env') != 'production') {
+            $iss .= '-'.config('app.env');
+        }
+
+        return [
+            'role' => self::API_ROLE,
+            'iss' => $iss
+        ];
     }
 
     public function partners(): Relations\MorphToMany

@@ -9,6 +9,7 @@ use App\Jobs\OneTimePasswords\SmsMasking\SendMessage;
 use App\Models\OneTimePassword;
 use Illuminate\Http\JsonResponse;
 use App\Jobs\OneTimePasswords\VerifyOtpToken;
+use App\Supports\JwtAuth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class OtpVerification
@@ -46,8 +47,10 @@ class OtpVerification
 
         $account = AccountAuthentication::validationFcmToken($account);
 
+        $jwt = JwtAuth::generateJwt($account);
+
         return (new Response(Response::RC_SUCCESS, [
-            'access_token' => $account->createToken($this->attributes['device_name'])->plainTextToken,
+            'access_token' => $jwt,
             'fcm_token' => $account->fcm_token ?? null
         ]))->json();
     }
