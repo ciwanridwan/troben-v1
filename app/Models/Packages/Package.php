@@ -213,6 +213,7 @@ class Package extends Model implements AttachableContract
         'destination_sub_district_id',
         'received_by',
         'received_at',
+        'transit_count'
     ];
 
     protected $search_columns = [
@@ -270,6 +271,7 @@ class Package extends Model implements AttachableContract
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
+        'transit_count' => 'int'
     ];
 
     /**
