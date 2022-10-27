@@ -341,6 +341,15 @@ class OrderController extends Controller
                 $items[$key]['is_insured'] = true;
             }
         }
+
+        // validate partner code
+        if (isset($items['partner_code'])) {
+            $partner = Partner::where('code', $items['partner_code'])->findOrFail();
+            if (is_null($partner)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner not found', 'code' => $items['partner_code']]);
+            }
+        }
+
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
