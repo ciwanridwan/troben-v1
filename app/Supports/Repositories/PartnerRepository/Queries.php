@@ -108,6 +108,32 @@ class Queries
         return $query;
     }
 
+    public function getCancelQuery(string $type): Builder
+    {
+        $query = Package::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled' => function ($q) use ($type) {
+                $q->where('type', $type);
+            },
+        ]);
+
+        $query->whereHas('canceled', function ($q) use ($type) {
+            $q->where('type', $type);
+        });
+        $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
+
     public function getPackagesQuery(): Builder
     {
         $query = Package::query();

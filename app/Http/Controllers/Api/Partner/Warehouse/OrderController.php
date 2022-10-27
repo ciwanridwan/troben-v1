@@ -33,6 +33,7 @@ class OrderController extends Controller
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder
             ->whereIn('status', Arr::wrap($status)));
 
+
         $query->when($request->input('delivery_type'), fn (Builder $builder, $deliveryType) => $builder
             ->whereHas('deliveries', fn (Builder $builder) => $builder
                 ->whereIn('type', Arr::wrap($deliveryType))));
@@ -213,14 +214,22 @@ class OrderController extends Controller
             ->where('status', Package::STATUS_CANCEL_SELF_PICKUP)
             ->count();
 
+        $return_to_sender_address = $repository->queries()
+            ->getCancelQuery('return_to_sender_address')
+            ->count();
+
+        $sender_to_warehouse = $repository->queries()
+            ->getCancelQuery('sender_to_warehouse')
+            ->count();
+
         return $this->jsonSuccess(DashboardResource::make([
             'estimating' => $this->resolveItemsCount($estimating),
             'estimated' => $this->resolveItemsCount($estimated),
             'packing' => $this->resolveItemsCount($packing),
             'packed' => $this->resolveItemsCount($packed),
             'item_count' => $this->resolveItemsCount($items),
-            'return_with_transporter' => $returnWith,
-            'return_without_transporter' => $returnWithout,
+            'return_with_transporter' => $sender_to_warehouse,
+            'return_without_transporter' => $return_to_sender_address,
         ]));
     }
 
