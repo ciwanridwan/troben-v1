@@ -20,4 +20,30 @@ class Authenticate extends Middleware
 
         return null;
     }
+
+    protected function authenticate($request, array $guards)
+    {
+        if (empty($guards)) {
+            $guards = [null];
+        }
+
+        if ($this->auth->guard('api')->parser()->setRequest($request)->hasToken()) {
+            try {
+                $token = $this->auth->guard('api')->payload();
+                if ($token['role'] == 'customer') {
+                    $guards = ['customer'];
+                }
+            } catch (\Exception $e) {
+                report($e);
+            }
+        }
+
+        foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
+                return $this->auth->shouldUse($guard);
+            }
+        }
+
+        $this->unauthenticated($request, $guards);
+    }
 }
