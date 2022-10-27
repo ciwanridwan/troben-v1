@@ -30,7 +30,7 @@ class OrderRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('resi-cancel'), [
-            'as' => $this->name,
+            'as' => $this->name('allResiCancel'),
             'uses' => $this->uses('allResiCancel')
         ]);
 
