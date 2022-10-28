@@ -814,13 +814,13 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(CancelOrder::class, 'package_id');
     }
 
+
     /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
      */
     public function getEstimationPricesAttribute()
     {
         if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
-
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
