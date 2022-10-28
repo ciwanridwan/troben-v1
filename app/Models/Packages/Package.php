@@ -862,6 +862,7 @@ class Package extends Model implements AttachableContract
 
         $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
 
+        $cubicResult = 0;
         foreach ($items as $item) {
             $calculateCubic = $item->height * $item->width * $item->length / 1000000;
             $cubic[] = $calculateCubic;
