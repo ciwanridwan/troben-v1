@@ -144,7 +144,7 @@ class Queries
             'canceled'
         ]);
         $query->whereHas('canceled');
-        $query->whereHas('deliveries', $queryPartnerId);
+        // $query->whereHas('deliveries', $queryPartnerId);
 
 
         $this->resolvePackagesQueryByRole($query);
@@ -278,7 +278,7 @@ class Queries
                         ->whereNull('estimator_id'))
 
                     ->orWhere(fn (Builder $builder) => $builder
-                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL]))
+                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL,Package::STATUS_WAITING_FOR_CANCEL_PAYMENT]))
 
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
