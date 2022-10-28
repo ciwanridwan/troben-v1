@@ -9,6 +9,7 @@ use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 
 class UpdateExistingPackage
 {
@@ -73,6 +74,12 @@ class UpdateExistingPackage
         }
 
         $this->package->fill($this->attributes);
+
+        Log::info('update-pkg', [
+            'req' => request()->all(),
+            'attr' => $this->attributes,
+            'chg' => $this->package->getChanges()
+        ]);
 
         $this->package->save();
 

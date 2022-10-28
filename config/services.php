@@ -36,4 +36,6 @@ return [
 
     'maps' => env('MAPS_KEY'),
 
+    'jwt_secret' => env('JWT_SECRET'),
+
 ];

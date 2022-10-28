@@ -29,7 +29,7 @@ class JwtMiddleware
         throw_if(! $token, new Error(Response::RC_MISSING_AUTHENTICATION_HEADER));
 
         try {
-            $credentials = JWT::decode($token, AccountAuthentication::JWT_KEY, ['HS256']);
+            $credentials = JWT::decode($token, config('services.jwt_secret'), ['HS256']);
         } catch (ExpiredException $e) {
             throw new Error(Response::RC_JWT_EXPIRED);
         } catch (\Exception $e) {

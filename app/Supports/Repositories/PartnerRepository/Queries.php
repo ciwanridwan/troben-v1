@@ -108,6 +108,52 @@ class Queries
         return $query;
     }
 
+    public function getCancelQuery(string $type): Builder
+    {
+        $query = Package::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled' => function ($q) use ($type) {
+                $q->where('type', $type);
+            },
+        ]);
+
+        $query->whereHas('canceled', function ($q) use ($type) {
+            $q->where('type', $type);
+        });
+        $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
+
+    public function getCancelResi(): Builder
+    {
+        $query = Package::query();
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled'
+        ]);
+        $query->whereHas('canceled');
+        // $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
+
     public function getPackagesQuery(): Builder
     {
         $query = Package::query();
@@ -117,10 +163,10 @@ class Queries
         $query->with([
             'deliveries' => $queryPartnerId,
             'deliveries.origin_partner',
-            'deliveries.partner'
+            'deliveries.partner',
         ]);
 
-        $query->whereHas('deliveries', $queryPartnerId);
+        // $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
 
@@ -230,6 +276,10 @@ class Queries
                     ->orWhere(fn (Builder $builder) => $builder
                         ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)
                         ->whereNull('estimator_id'))
+
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL,Package::STATUS_WAITING_FOR_CANCEL_PAYMENT]))
+
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
