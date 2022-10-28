@@ -45,7 +45,8 @@ class OrderController extends Controller
             'packager',
             'code.scanned_by',
             'partner_performance',
-            'motoBikes'
+            'motoBikes',
+            'canceled'
         ]);
 
         return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page', 15))), null, true);
