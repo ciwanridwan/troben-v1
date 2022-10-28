@@ -59,6 +59,10 @@ class UpdateExistingItem
         if (! isset($this->attributes['qty']) || $this->attributes['qty'] == null) {
             $this->attributes['qty'] = 0;
         }
+        if (isset($this->attributes['qty']) && $this->attributes['qty'] == 0) {
+            // remove 0 qty item
+            unset($this->attributes['qty']);
+        }
 //        if (count($this->attributes['handling']) < 1) {
 //            $this->attributes['handling'] = null;
 //        }
