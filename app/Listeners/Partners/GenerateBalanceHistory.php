@@ -283,9 +283,9 @@ class GenerateBalanceHistory
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $originRegencyId = $this->delivery->origin_regency_id;
-                            $destinationRegencyId = $this->delivery->destination_regency_id;
+                            $destinationDistrictId = $this->delivery->destination_district_id;
 
-                            $price = $this->getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationRegencyId);
+                            $price = $this->getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId);
 
                             if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
@@ -314,9 +314,9 @@ class GenerateBalanceHistory
                             $tier = PricingCalculator::getTierType($manifest_weight);
 
                             $originRegencyId = $this->delivery->origin_regency_id;
-                            $destinationRegencyId = $this->delivery->destination_regency_id;
+                            $destinationDistrictId = $this->delivery->destination_district_id;
 
-                            $price = $this->getTransitPriceWithMultiplePackages($this->packages, $originRegencyId, $destinationRegencyId);
+                            $price = $this->getTransitPriceWithMultiplePackages($this->packages, $originRegencyId, $destinationDistrictId);
 
                             if (!$price || $price->isEmpty()) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
@@ -768,7 +768,7 @@ class GenerateBalanceHistory
         return $balance_service;
     }
 
-    /** 
+    /**
      * Get Transit Tier Price Of Partner Transporter
      */
     protected function getTransitTierPrice($price, $tier): float
@@ -838,11 +838,11 @@ class GenerateBalanceHistory
         }
     }
 
-    /** 
+    /**
      * Get Transit Price By Type MTAK
      * With A Single Packages
      */
-    protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationRegencyId): PartnerTransitPrice
+    protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId): PartnerTransitPrice
     {
         $transitCount = $package->transit_count;
 
@@ -850,7 +850,7 @@ class GenerateBalanceHistory
             case 1:
                 $price = PartnerTransitPrice::query()
                     ->where('origin_regency_id', $originRegencyId)
-                    ->where('destination_regency_id', $destinationRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
 
@@ -859,7 +859,7 @@ class GenerateBalanceHistory
             case 2:
                 $price = PartnerTransitPrice::query()
                     ->where('origin_regency_id', $originRegencyId)
-                    ->where('destination_regency_id', $destinationRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
 
@@ -868,7 +868,7 @@ class GenerateBalanceHistory
             case 3:
                 $price = PartnerTransitPrice::query()
                     ->where('origin_regency_id', $originRegencyId)
-                    ->where('destination_regency_id', $destinationRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
 
@@ -881,7 +881,7 @@ class GenerateBalanceHistory
      * Get Transit Price By Type MTAK
      * With A Multiple Packages
      */
-    protected function getTransitPriceWithMultiplePackages($package, $originRegencyId, $destinationRegencyId)
+    protected function getTransitPriceWithMultiplePackages($package, $originRegencyId, $destinationDistrictId)
     {
         $transitCount = [];
 
@@ -892,7 +892,7 @@ class GenerateBalanceHistory
 
         $price = PartnerTransitPrice::query()
             ->where('origin_regency_id', $originRegencyId)
-            ->where('destination_regency_id', $destinationRegencyId)
+            ->where('destination_district_id', $destinationDistrictId)
             ->whereIn('type', $transitCount)
             ->get();
 
