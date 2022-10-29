@@ -50,8 +50,7 @@ class BulkTransitPrice extends Command
     public function handle()
     {
         $header = [
-            'id', 'prov', 'kota_kab', 'kec', 'kel', 'zipcode', 'vendor_1', 'vendor_2', 'vendor_3',
-            'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "ket"
+            'id', 'prov', 'kota_kab', 'kec', 'kel', 'zip_code', 'vendor', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "ket"
         ];
 
         $this->type = $this->argument('type');
@@ -158,7 +157,7 @@ class BulkTransitPrice extends Command
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 1,
-            'vendor' => $d['vendor_1'],
+            'vendor' => $d['vendor'],
             'tier_1' => $d['tier_1'],
             'tier_2' => $d['tier_2'],
             'tier_3' => $d['tier_3'],
@@ -183,7 +182,7 @@ class BulkTransitPrice extends Command
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 2,
-            'vendor' => $d['vendor_2'],
+            'vendor' => $d['vendor'],
             'tier_1' => $d['tier_1'],
             'tier_2' => $d['tier_2'],
             'tier_3' => $d['tier_3'],
@@ -208,7 +207,7 @@ class BulkTransitPrice extends Command
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 3,
-            'vendor' => $d['vendor_3'],
+            'vendor' => $d['vendor'],
             'tier_1' => $d['tier_1'],
             'tier_2' => $d['tier_2'],
             'tier_3' => $d['tier_3'],
