@@ -28,8 +28,9 @@ class RevampPartnerPricesTable extends Migration
 
             $table->unsignedBigInteger('origin_regency_id');
             $table->unsignedBigInteger('destination_regency_id');
+            $table->unsignedBigInteger('destination_district_id');
             $table->unsignedSmallInteger('type')->comment($this->typeComment());
-            $table->char('vendor', 6);
+            $table->char('vendor', 15);
             $table->decimal('tier_1', 14, 2)->default(0);
             $table->decimal('tier_2', 14, 2)->default(0);
             $table->decimal('tier_3', 14, 2)->default(0);
@@ -52,7 +53,13 @@ class RevampPartnerPricesTable extends Migration
                 ->on('geo_regencies')
                 ->cascadeOnDelete();
 
-            $table->primary(['origin_regency_id', 'destination_regency_id', 'type']);
+            $table
+                ->foreign('destination_district_id')
+                ->references('id')
+                ->on('geo_districts')
+                ->cascadeOnDelete();
+
+            $table->primary(['origin_regency_id', 'destination_regency_id', 'destination_district_id', 'type']);
         });
     }
 
@@ -67,7 +74,7 @@ class RevampPartnerPricesTable extends Migration
         (new CreatePartnerPricesTable())->up();
     }
 
-     /**
+    /**
      * type of partner transporter
      * @return string
      */
