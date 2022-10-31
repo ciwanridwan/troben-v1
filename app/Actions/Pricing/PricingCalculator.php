@@ -365,7 +365,7 @@ class PricingCalculator
         ]);
 
         $totalWeightBorne = 0;
-        $result = [];
+        // $result = [];
         foreach ($items as  $item) {
             if (! Arr::has($item, 'handling')) {
                 $item['handling'] = [];
@@ -374,17 +374,17 @@ class PricingCalculator
                 $item['handling'] = self::checkHandling($item['handling']);
             }
             // $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
-            $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
-            if (count($totalWeightBorne) > 1) {
-                array_push($result, $totalWeightBorne['weight']);
-                $totalWeight = array_sum($result);
-            } else {
-                $totalWeight = $totalWeightBorne;
-            }
+            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            // if (count($totalWeightBorne) > 1) {
+            //     array_push($result, $totalWeightBorne['weight']);
+            //     $totalWeight = array_sum($result);
+            // } else {
+            //     $totalWeight = $totalWeightBorne;
+            // }
         }
 
-        // return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
-        return $totalWeight > Price::MIN_WEIGHT ? $totalWeight : Price::MIN_WEIGHT;
+        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
+        // return $totalWeight > Price::MIN_WEIGHT ? $totalWeight : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
@@ -408,12 +408,12 @@ class PricingCalculator
                 $type = 'kg';
             }
         }
-        $result = [
-            'weight' => self::ceilByTolerance($weight) * $qty,
-            'type' => $type
-        ];
-        // return (self::ceilByTolerance($weight) * $qty);
-        return $result;
+        // $result = [
+        //     'weight' => self::ceilByTolerance($weight) * $qty,
+        //     'type' => $type
+        // ];
+        return (self::ceilByTolerance($weight) * $qty);
+        // return $result;
     }
 
     public static function getInsurancePrice($price)
@@ -827,27 +827,19 @@ class PricingCalculator
         $additionalPrice = [];
 
         foreach ($items as $item) {
-            $charge = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             $item['additional_price'] = 0;
 
-            switch ($charge['type']) {
-                case 'dimension':
-                    $item['additional_price'] = 0;
-                    break;
-
-                default:
-                    if ($charge['weight'] < 100) {
-                        $item['additional_price'] = 0;
-                    } elseif ($charge['weight'] < 300) {
-                        $item['additional_price'] = 100000;
-                    } elseif ($charge['weight'] < 2000) {
-                        $item['additional_price'] = 250000;
-                    } elseif ($charge['weight'] < 5000) {
-                        $item['additional_price'] = 1500000;
-                    } else {
-                        $item['additional_price'] = 0;
-                    }
-                    break;
+            if ($totalWeight < 100) {
+                $item['additional_price'] = 0;
+            } elseif ($totalWeight < 300) {
+                $item['additional_price'] = 100000;
+            } elseif ($totalWeight < 2000) {
+                $item['additional_price'] = 250000;
+            } elseif ($totalWeight < 5000) {
+                $item['additional_price'] = 1500000;
+            } else {
+                $item['additional_price'] = 0;
             }
             array_push($additionalPrice, $item['additional_price']);
         }
