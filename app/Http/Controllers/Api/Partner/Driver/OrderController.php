@@ -26,7 +26,7 @@ class OrderController extends Controller
             $q->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
         });
 
-        $query->with(['packages.origin_district','packages.origin_sub_district','packages.destination_sub_district','packages.code','item_codes.codeable','partner_performance']);
+        $query->with(['packages.canceled','packages.origin_district','packages.origin_sub_district','packages.destination_sub_district','packages.code','item_codes.codeable','partner_performance']);
 
         $query->orderByDesc('created_at');
 

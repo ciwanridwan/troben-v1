@@ -72,7 +72,7 @@ class OrderController extends Controller
             ->whereHas('deliveries', fn (Builder $builder) => $builder
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
-        $this->query->with(['items', 'items.prices', 'estimator', 'packager']);
+        $this->query->with(['items', 'items.prices', 'estimator', 'packager','canceled']);
         return $this->jsonSuccess(PackageResourceDeprecated::collection($this->query->paginate($request->input('per_page'))));
     }
 

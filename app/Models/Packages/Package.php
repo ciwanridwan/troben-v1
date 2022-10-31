@@ -213,6 +213,7 @@ class Package extends Model implements AttachableContract
         'destination_sub_district_id',
         'received_by',
         'received_at',
+        'transit_count'
     ];
 
     protected $search_columns = [
@@ -270,6 +271,7 @@ class Package extends Model implements AttachableContract
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
+        'transit_count' => 'int'
     ];
 
     /**
@@ -627,7 +629,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -764,7 +766,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (! $transporterType) {
+        if (!$transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -814,13 +816,13 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(CancelOrder::class, 'package_id');
     }
 
+
     /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
      */
     public function getEstimationPricesAttribute()
     {
         if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
-
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
@@ -862,15 +864,23 @@ class Package extends Model implements AttachableContract
 
         $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
 
+        $cubicResult = 0;
         foreach ($items as $item) {
             $calculateCubic = $item->height * $item->width * $item->length / 1000000;
             $cubic[] = $calculateCubic;
             $cubicResult = array_sum($cubic);
         }
 
-        if ($cubicResult <= 3) {
-            $cubicResult = 3;
+        if (isset($cubicResult)) {
+            if ($cubicResult <= 3) {
+                $cubicResult = 3;
+            } else {
+                $cubicResult;
+            }
+        } else {
+            $cubicResult = 0;
         }
+
 
         if (is_null($cubicPrice)) {
             $serviceFee = 0;

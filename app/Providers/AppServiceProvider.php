@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Jalameta\Attachments\JPSAttachment;
 use App\Database\Schema\Grammars\PostgresGrammar;
 use App\Http\Resources\Account\JWTUserResource;
+use App\Supports\JwtAuth;
 use Firebase\JWT\JWT;
 use Illuminate\Routing\UrlGenerator;
 
@@ -58,14 +59,15 @@ class AppServiceProvider extends ServiceProvider
                 });
 
                 if (! array_key_exists('laravelJs', $view->getData())) {
+                    $iss = 'TBCore';
+                    if (config('app.env') != 'production') {
+                        $iss .= '-'.config('app.env');
+                    }
+
                     $view->with('laravelJs', [
                         'is_authenticated' => auth()->check(),
                         'jwt_token' => auth()->user()
-                            ? JWT::encode([
-                                'iat' => time(),
-                                'exp' => time() + (((60 * 60) * 24) * 30),
-                                'data' => new JWTUserResource(auth()->user())
-                            ], 'trawlbensJWTSecretK')
+                            ? JwtAuth::generateJwt(auth()->user())
                             : null,
                         'user' => auth()->user(),
                         'routes' => $collection,

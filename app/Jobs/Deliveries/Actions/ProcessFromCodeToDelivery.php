@@ -14,6 +14,7 @@ use App\Models\Deliveries\Deliverable;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Packages\PackageAttachedToDelivery;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -59,7 +60,7 @@ class ProcessFromCodeToDelivery
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->codes = Code::query()->whereIn('content', is_array($inputs['code']) ? $inputs['code'] : [$inputs['code']])->with('codeable')->get();
-
+        $this->package_codes = Code::query()->where('codeable_type', Package::class)->whereIn('content', is_array($inputs['code']) ? $inputs['code'] : [$inputs['code']])->with('codeable')->get();
         $this->status = $inputs['status'];
         $this->role = $inputs['role'];
     }
@@ -74,6 +75,14 @@ class ProcessFromCodeToDelivery
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
+
+        $partner = $this->delivery->origin_partner()->first();
+
+        if ($partner->type == Partner::TYPE_POOL) {
+            $this->package_codes->each(function (Code $packageCode) {
+                $this->setTransitCount($packageCode);
+            });    
+        }
 
         event(new PackagesAttachedToDelivery($this->delivery));
     }
@@ -102,6 +111,7 @@ class ProcessFromCodeToDelivery
             event(new CodeScanned($this->delivery, $this->code, $this->role));
         }
     }
+
     public function checkAndAttachPackageToDelivery($package)
     {
         $this->mustLogging($package);
@@ -137,5 +147,22 @@ class ProcessFromCodeToDelivery
     {
         $this->logging = $package->deliveries()->where('type', Delivery::TYPE_TRANSIT)->count() > 1
             || $this->delivery->type === Delivery::TYPE_DOORING;
+    }
+
+    /**
+     * Set transit count of packages 
+     * */
+    private function setTransitCount($packageCode)
+    {
+        $this->code = $packageCode;
+        $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
+
+        if ($packages->transit_count == null || $packages->transit_count == 0) {
+            $packages->transit_count = 1;
+            $packages->save();
+        } else {
+            $packages->transit_count += 1;
+            $packages->save();
+        }
     }
 }
