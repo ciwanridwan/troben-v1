@@ -1,18 +1,47 @@
 <template>
   <div>
-    <order-modal-row-layout>
+    <order-modal-row-layout :alignItem="{ 'align-items': 'center' }">
       <template slot="icon">
-        <trawl-red-icon size="3" />
+        <trawl-icon size="3" />
       </template>
       <template slot="content">
         <a-space direction="vertical">
-          <span class="trawl-text-bolder"> {{ code }} </span>
+          <span class="trawl-text-bolder">Mitra Businnes</span>
+          <span class="trawl-text-bolder"> {{ partner_code }} </span>
           <span>{{ dateSimpleFormat(created_at) }}</span>
         </a-space>
       </template>
+      <template slot="addon">
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 1rem;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 19px;
+            color: #000000;
+            align-items: center;
+          "
+        >
+          {{ code }}
+          <div
+            style="
+              background: rgba(61, 136, 36, 0.25);
+              width: 113px;
+              height: 30px;
+              padding: 4px 23px;
+            "
+          >
+            {{ service_code }}
+          </div>
+        </div>
+      </template>
     </order-modal-row-layout>
 
-    <order-modal-row-layout>
+    <order-modal-row-layout :afterLine="false">
       <template slot="icon">
         <send-icon />
       </template>
@@ -28,7 +57,6 @@
       <template slot="content">
         <a-space direction="vertical" :size="1">
           <package-address :package="package" type="receiver" />
-          <order-estimation v-if="this.price" :price="this.price" />
         </a-space>
       </template>
       <template slot="addon">
@@ -42,26 +70,29 @@
             gap: 1rem;
           "
         >
-          <enlargeable-image
+          <!-- <enlargeable-image
             style="width: 50px !important"
             v-for="(data, index) in URIImage"
             :key="index"
             :src="data.uri"
-          />
+          /> -->
         </div>
       </template>
     </order-modal-row-layout>
+    <div class="estimation">
+      <order-estimation v-if="this.price" :price="this.price" />
+    </div>
   </div>
 </template>
 <script>
-import { TrawlRedIcon, SendIcon, ReceiveIcon } from "../../icons";
+import { TrawlIcon, SendIcon, ReceiveIcon } from "../../icons";
 import packageAddress from "../../packages/package-address.vue";
 import EnlargeableImage from "@diracleo/vue-enlargeable-image";
 export default {
   components: {
     EnlargeableImage,
     packageAddress,
-    TrawlRedIcon,
+    TrawlIcon,
     SendIcon,
     ReceiveIcon,
   },
@@ -82,6 +113,17 @@ export default {
     };
   },
   computed: {
+    partner_code() {
+      return this.package?.deliveries[0]?.partner.code;
+    },
+    service_code() {
+      if (this.package?.service_code == "tpx") {
+        return "Express";
+      }
+      if (this.package?.service_code == "tps") {
+        return "REG";
+      }
+    },
     code() {
       return this.package?.code?.content;
     },
@@ -99,3 +141,17 @@ export default {
   },
 };
 </script>
+<style scoped>
+.estimation {
+  background: rgba(61, 136, 36, 0.25);
+  border: 1px solid #3d8824;
+  border-radius: 10px;
+  width: -webkit-fill-available;
+  height: 81px;
+  margin-left: 25px;
+  padding: 18px 0px 0px 25px;
+  margin-top: 35px;
+  margin-bottom: 20px;
+  margin-right: 10px;
+}
+</style>

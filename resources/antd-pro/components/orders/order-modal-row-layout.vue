@@ -1,6 +1,10 @@
 <template>
   <div>
-    <a-row type="flex" class="trawl-order-row-layout--container">
+    <a-row
+      type="flex"
+      class="trawl-order-row-layout--container"
+      :style="alignItem"
+    >
       <a-col
         v-if="hasSlot('icon')"
         :span="iconSize"
@@ -25,9 +29,9 @@
             <slot name="addon"></slot>
           </a-col>
         </a-row>
-        <a-divider v-if="afterLine === true" />
       </a-col>
     </a-row>
+    <a-divider v-if="afterLine === true" />
   </div>
 </template>
 <script>
@@ -45,11 +49,15 @@ export default {
       type: String,
       default: "center",
     },
+    alignItem: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
       iconSize: 4,
-      addonSize: 4,
+      addonSize: 10,
     };
   },
   computed: {
