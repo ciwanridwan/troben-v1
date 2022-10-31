@@ -1,26 +1,60 @@
 <template>
-  <order-modal-row-layout>
-    <template slot="icon"> &nbsp; </template>
-    <template slot="content">
+  <div>
+    <a-radio-group
+      v-if="!isMotorBike"
+      v-model="selectCalculatePrice"
+      default-value="kg"
+      style="width: 811px; margin-left: 25px"
+    >
       <a-row type="flex" :gutter="[12, 12]">
-        <a-col v-for="(item, index) in value" :key="index" :span="12">
-          <order-item-card
-            v-model="value[index]"
-            @change="onChange"
-            :modifiable="modifiable"
-            :editable="editable"
-            :deletable="deletable"
-            :package="package"
-          />
+        <a-col :span="12">
+          <a-radio class="radio" value="kg"
+            >Perhitungan Menggunakan Kilogram ( KG )</a-radio
+          >
+        </a-col>
+        <a-col :span="12">
+          <a-radio class="radio" value="cubic"
+            >Perhitungan Menggunakan Kubikasi</a-radio
+          >
         </a-col>
       </a-row>
-    </template>
-  </order-modal-row-layout>
+    </a-radio-group>
+    <a-row type="flex" :gutter="[12, 12]">
+      <a-col v-for="(item, index) in value" :key="index" :span="24">
+        <order-item-card
+          v-model="value[index]"
+          @change="onChange"
+          :modifiable="modifiable"
+          :editable="editable"
+          :deletable="deletable"
+          :package="package"
+          :estPrice="package.estimation_prices[index]"
+          :estCubPrice="package.estimation_cubic_prices[index]"
+          :selectCalculate="selectCalculatePrice"
+        />
+      </a-col>
+      <!-- <a-col v-for="(item, index) in value" :key="index" :span="12">
+        <order-item-card
+          v-model="value[index]"
+          @change="onChange"
+          :modifiable="modifiable"
+          :editable="editable"
+          :deletable="deletable"
+          :package="package"
+        />
+      </a-col> -->
+    </a-row>
+  </div>
 </template>
 <script>
 import OrderItemCard from "../order-item-card.vue";
 import orderModalRowLayout from "../order-modal-row-layout.vue";
 export default {
+  data() {
+    return {
+      selectCalculatePrice: "kg",
+    };
+  },
   props: {
     value: {
       type: Array,
@@ -44,8 +78,8 @@ export default {
       type: Object,
       default: () => {
         return {};
-      }
-    }
+      },
+    },
   },
   methods: {
     onChange() {
@@ -53,5 +87,21 @@ export default {
     },
   },
   components: { orderModalRowLayout, OrderItemCard },
+  computed: {
+    isMotorBike() {
+      return this.package?.moto_bikes;
+    },
+  },
 };
 </script>
+<style scoped>
+.radio {
+  padding: 6px;
+  background: rgba(61, 136, 36, 0.15);
+  border: 1px solid #3d8824;
+  border-radius: 2px;
+  width: -webkit-fill-available;
+  height: 36px;
+  box-sizing: border-box;
+}
+</style>

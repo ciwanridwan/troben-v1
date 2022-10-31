@@ -28,9 +28,13 @@ import RadioCheckedIcon from "./radioCheckedIcon";
 import RadioUncheckedIcon from "./radioUncheckedIcon";
 import TrawlLabelImage from "./trawlLabelImage";
 import PeopleIcon from "./peopleIcon";
+import TrawlIcon from "./trawlIcon";
+import CartIcon from "./cartIcon";
+import PickupBox from "./pickupBox";
 
 export {
   CarIcon,
+  PickupBox,
   InformationIcon,
   InformationCircleIcon,
   TrawlRedIcon,
@@ -59,5 +63,7 @@ export {
   RadioCheckedIcon,
   RadioUncheckedIcon,
   TrawlLabelImage,
-  PeopleIcon
+  PeopleIcon,
+  TrawlIcon,
+  CartIcon,
 };

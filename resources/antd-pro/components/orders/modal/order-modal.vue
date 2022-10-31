@@ -36,7 +36,7 @@
           :package="package"
         />
 
-        <order-modal-estimations :package="package" :price="price" />
+        <!-- <order-modal-estimations :package="package" :price="price" /> -->
 
         <order-modal-delivery :package="package" />
       </a-space>
