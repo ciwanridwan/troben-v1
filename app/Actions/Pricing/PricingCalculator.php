@@ -248,23 +248,7 @@ class PricingCalculator
                 $result['price'] = PriceResource::make($price);
                 $result['tier'] = $tierPrice;
                 $result['total_weight_borne'] = $totalWeightBorne;
-                switch ($totalWeightBorne) {
-                    case $totalWeightBorne < 100:
-                        $additionalCost = 0;
-                        break;
-                    case $totalWeightBorne < 300:
-                        $additionalCost = 100000;
-                        break;
-                    case $totalWeightBorne < 2000:
-                        $additionalCost = 250000;
-                        break;
-                    case $totalWeightBorne < 5000:
-                        $additionalCost = 1500000;
-                        break;
-                    case $totalWeightBorne > 5000:
-                        $additionalCost = 0;
-                        break;
-                };
+                $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
 
             case Service::TRAWLPACK_CUBIC:
@@ -272,11 +256,7 @@ class PricingCalculator
                 $result['price'] = CubicPriceResource::make($cubicPrice);
                 $result['tier'] = $cubicPrice->amount;
                 $result['total_weight_borne'] = 0;
-                if ($item['length'] < 400) {
-                    $additionalCost = 0;
-                } else {
-                    $additionalCost = 0;
-                }
+                $additionalCost = 0;
                 break;
 
             case Service::TRAWLPACK_EXPRESS:
@@ -284,23 +264,7 @@ class PricingCalculator
                 $result['price'] = ExpressPriceResource::make($expressPrice);
                 $result['tier'] = $expressPrice->amount;
                 $result['total_weight_borne'] = $totalWeightBorne;
-                switch ($totalWeightBorne) {
-                    case $totalWeightBorne < 100:
-                        $additionalCost = 0;
-                        break;
-                    case $totalWeightBorne < 300:
-                        $additionalCost = 100000;
-                        break;
-                    case $totalWeightBorne < 2000:
-                        $additionalCost = 250000;
-                        break;
-                    case $totalWeightBorne < 5000:
-                        $additionalCost = 1500000;
-                        break;
-                    case $totalWeightBorne > 5000:
-                        $additionalCost = 0;
-                        break;
-                }
+                $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
 
@@ -315,7 +279,7 @@ class PricingCalculator
             'items' => $inputs['items'],
             'result' => [
                 'insurance_price_total' => $insurancePriceTotal,
-                'total_weight_borne' => $result['total_weight_borne'],
+                'total_weight_borne' => $totalWeightBorne,
                 'handling' => $handling_price,
                 'pickup_price' => $pickup_price,
                 'discount' => $discount,
@@ -408,15 +372,24 @@ class PricingCalculator
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
-            $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+
+            $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            if (count($totalWeightBorne) > 1) {
+                array_push($result, $totalWeightBorne['weight']);
+                $totalWeight = array_sum($result);
+            } else {
+                $totalWeight = $totalWeightBorne;
+            }
         }
 
-        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
+        // return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
+        return $totalWeight > Price::MIN_WEIGHT ? $totalWeight : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
         $handling = self::checkHandling($handling);
+        $type = '';
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
@@ -428,9 +401,18 @@ class PricingCalculator
                 $serviceCode
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
+            if ($weight == $act_volume) {
+                $type = 'dimension';
+            } else {
+                $type = 'kg';
+            }
         }
-
-        return (self::ceilByTolerance($weight) * $qty);
+        $result = [
+            'weight' => self::ceilByTolerance($weight) * $qty,
+            'type' => $type
+        ];
+        // return (self::ceilByTolerance($weight) * $qty);
+        return $result;
     }
 
     public static function getInsurancePrice($price)
@@ -851,64 +833,37 @@ class PricingCalculator
         return $servicePrice;
     }
 
-    public static function getAdditionalPrices($serviceCode, $items, $totalWeight)
+    public static function getAdditionalPrices($items, $serviceCode)
     {
+        $additionalPrice = [];
+
         foreach ($items as $item) {
-            $length = $item['length'];
+            $charge = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            $item['additional_price'] = 0;
+
+            switch ($charge['type']) {
+                case 'dimension':
+                    $item['additional_price'] = 0;
+                    break;
+
+                default:
+                    if ($charge['weight'] < 100) {
+                        $item['additional_price'] = 0;
+                    } elseif ($charge['weight'] < 300) {
+                        $item['additional_price'] = 100000;
+                    } elseif ($charge['weight'] < 2000) {
+                        $item['additional_price'] = 250000;
+                    } elseif ($charge['weight'] < 5000) {
+                        $item['additional_price'] = 1500000;
+                    } else {
+                        $item['additional_price'] = 0;
+                    }
+                    break;
+            }
+            array_push($additionalPrice, $item['additional_price']);
         }
 
-        $price = 0;
-        switch ($serviceCode) {
-            case Service::TRAWLPACK_STANDARD:
-                switch ($totalWeight) {
-                    case $totalWeight < 100:
-                        $price = 0;
-                        break;
-                    case $totalWeight < 300:
-                        $price = 100000;
-                        break;
-                    case $totalWeight < 2000:
-                        $price = 250000;
-                        break;
-                    case $totalWeight < 5000:
-                        $price = 1500000;
-                        break;
-                    case $totalWeight > 5000:
-                        $price = 0;
-                        break;
-                };
-                break;
-            case Service::TRAWLPACK_CUBIC:
-                if ($length < 400) {
-                    $price = 0;
-                } else {
-                    $price = 0;
-                }
-                break;
-            case Service::TRAWLPACK_EXPRESS:
-                switch ($totalWeight) {
-                    case $totalWeight < 100:
-                        $price = 0;
-                        break;
-                    case $totalWeight < 300:
-                        $price = 100000;
-                        break;
-                    case $totalWeight < 2000:
-                        $price = 250000;
-                        break;
-                    case $totalWeight < 5000:
-                        $price = 1500000;
-                        break;
-                    case $totalWeight > 5000:
-                        $price = 0;
-                        break;
-                };
-                break;
-            default:
-                $price = 0;
-                break;
-        }
-
+        $price = array_sum($additionalPrice);
         return $price;
     }
 }
