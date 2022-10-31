@@ -144,7 +144,7 @@ class Queries
             'canceled'
         ]);
         $query->whereHas('canceled');
-        // $query->whereHas('deliveries', $queryPartnerId);
+        $query->whereHas('deliveries', $queryPartnerId);
 
 
         $this->resolvePackagesQueryByRole($query);
