@@ -365,7 +365,7 @@ class PricingCalculator
         ]);
 
         $totalWeightBorne = 0;
-
+        $result = [];
         foreach ($items as  $item) {
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
@@ -375,9 +375,16 @@ class PricingCalculator
             }
             // $totalWeightBorne += self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            if (count($totalWeightBorne) > 1) {
+                array_push($result, $totalWeightBorne['weight']);
+                $totalWeight = array_sum($result);
+            } else {
+                $totalWeight = $totalWeightBorne;
+            }
         }
+
         // return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
-        return $totalWeightBorne['weight'] > Price::MIN_WEIGHT ? $totalWeightBorne['weight'] : Price::MIN_WEIGHT;
+        return $totalWeight > Price::MIN_WEIGHT ? $totalWeight : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
