@@ -47,29 +47,32 @@ class TransporterController extends Controller
                 return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getTranporterOfBike()));
                 break;
             case 'other':
+            default:
                 if ($request->details) {
                     switch ($request->service_code) {
-                        case Service::TRAWLPACK_STANDARD:
-                            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
-                            break;
                         case Service::TRAWLPACK_CUBIC:
                             return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
                             break;
                         case Service::TRAWLPACK_EXPRESS:
                             return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailCubicTypes()));
                             break;
+                        case Service::TRAWLPACK_STANDARD:
+                        default:
+                            return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getDetailAvailableTypes()));
+                            break;
                     }
                 }
 
                 switch ($request->service_code) {
-                    case Service::TRAWLPACK_STANDARD:
-                        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
-                        break;
                     case Service::TRAWLPACK_CUBIC:
                         return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
                         break;
                     case Service::TRAWLPACK_EXPRESS:
                         return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableCubicTypes()));
+                        break;
+                    case Service::TRAWLPACK_STANDARD:
+                    default:
+                        return $this->jsonSuccess(AvailableTransporterResource::collection(Transporter::getAvailableTypes()));
                         break;
                 }
                 break;
