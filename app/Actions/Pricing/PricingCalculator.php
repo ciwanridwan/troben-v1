@@ -375,8 +375,7 @@ class PricingCalculator
 
             $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             if (count($totalWeightBorne) > 1) {
-                array_push($result, $totalWeightBorne['weight']);
-                $totalWeight = array_sum($result);
+                $totalWeight = $totalWeightBorne['weight'];
             } else {
                 $totalWeight = $totalWeightBorne;
             }
