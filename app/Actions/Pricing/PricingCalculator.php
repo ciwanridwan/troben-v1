@@ -816,6 +816,12 @@ class PricingCalculator
         return $servicePrice;
     }
 
+    /**
+     * To add additional price to package_prices tables
+     * @return int $price
+     * @param array $items
+     * @param string $serviceCode
+     */
     public static function getAdditionalPrices($items, $serviceCode)
     {
         $additionalPrice = [];
