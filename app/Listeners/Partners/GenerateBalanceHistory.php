@@ -5,14 +5,9 @@ namespace App\Listeners\Partners;
 use App\Actions\Pricing\PricingCalculator;
 use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
-// use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
-// use App\Events\Partners\Balance\WithdrawalApproved;
-// use App\Events\Partners\Balance\WithdrawalConfirmed;
-// use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
-// use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Jobs\Partners\Balance\CreateNewFailedBalanceHistory;
@@ -32,11 +27,8 @@ use App\Models\User;
 use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-
-use function PHPUnit\Framework\isEmpty;
 
 class GenerateBalanceHistory
 {
@@ -241,14 +233,18 @@ class GenerateBalanceHistory
                         }
                         /**Get Fee Pickup */
                         if ($this->partner->get_fee_pickup) {
-                            $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
-                            if ($balancePickup !== 0) {
-                                $this
-                                    ->setBalance($balancePickup)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_PICKUP)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                            if ($package->type == Package::TYPE_APP) {
+                                $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                if ($balancePickup !== 0) {
+                                    $this
+                                        ->setBalance($balancePickup)
+                                        ->setType(History::TYPE_DEPOSIT)
+                                        ->setDescription(History::DESCRIPTION_PICKUP)
+                                        ->setAttributes()
+                                        ->recordHistory();
+                                }
+                            } else {
+                                $balancePickup = 0;
                             }
                         }
 
@@ -308,7 +304,8 @@ class GenerateBalanceHistory
                                 break;
                             }
 
-                            $tierPrice = $this->getTransitTierPrice($price, $tier);
+                            $tierPrice = $this->getTransitTierPrice($package_count, $price, $tier);
+
                         } else {
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $tier = PricingCalculator::getTierType($manifest_weight);
@@ -339,7 +336,7 @@ class GenerateBalanceHistory
                                 break;
                             }
 
-                            $tierPrice = $this->getTransitTierPrice($price, $tier);
+                            $tierPrice = $this->getTransitTierPrice($package_count, $price, $tier);
                         }
 
                         $this->setBalance($manifest_weight * $tierPrice);
@@ -771,9 +768,9 @@ class GenerateBalanceHistory
     /**
      * Get Transit Tier Price Of Partner Transporter
      */
-    protected function getTransitTierPrice($price, $tier): float
+    protected function getTransitTierPrice($package_count, $price, $tier): float
     {
-        if ($price->count() > 1) {
+        if ($package_count > 1) {
             switch ($tier) {
                 case 1:
                     return $price->sum('tier_1');
@@ -841,8 +838,9 @@ class GenerateBalanceHistory
     /**
      * Get Transit Price By Type MTAK
      * With A Single Packages
+     * @return PartnerTransitPrice $price
      */
-    protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId): PartnerTransitPrice
+    protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId)
     {
         $transitCount = $package->transit_count;
 
@@ -854,8 +852,13 @@ class GenerateBalanceHistory
                     ->where('type', $transitCount)
                     ->first();
 
-                return $price;
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
                 break;
+
             case 2:
                 $price = PartnerTransitPrice::query()
                     ->where('origin_regency_id', $originRegencyId)
@@ -863,16 +866,25 @@ class GenerateBalanceHistory
                     ->where('type', $transitCount)
                     ->first();
 
-                return $price;
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
                 break;
-            case 3:
+
+            default:
                 $price = PartnerTransitPrice::query()
                     ->where('origin_regency_id', $originRegencyId)
                     ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
 
-                return $price;
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
                 break;
         }
     }

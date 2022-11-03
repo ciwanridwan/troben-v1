@@ -18,8 +18,9 @@ class BulkTransitPrice extends Command
      * @var string
      */
     protected $signature = 'price:transit
-                            {type : MTAK Type 1, 2 Or 3 (possible values: 1,2,3)}
-                            {--F|file= : File path location, the type must be csv}';
+                            {--T|type= : MTAK Type 1, 2 Or 3 (possible values: 1,2,3)}
+                            {--F|file= : File path location, the type must be csv}
+                            {--R|regency= : exists id from geo regencies}';
 
     /**
      * The console command description.
@@ -31,6 +32,8 @@ class BulkTransitPrice extends Command
     private string $type;
 
     private string $file_path;
+
+    private int $regencyId;
 
     /**
      * Create a new command instance.
@@ -53,15 +56,27 @@ class BulkTransitPrice extends Command
             'id', 'prov', 'kota_kab', 'kec', 'kel', 'zip_code', 'vendor', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "ket"
         ];
 
-        $this->type = $this->argument('type');
-        if (! in_array($this->type, self::getAvailableType())) {
-            $this->error('Wrong type argument');
+        // $this->type = $this->argument('type');
+        // if (! in_array($this->type, self::getAvailableType())) {
+        //     $this->error('Wrong type argument');
+        //     return;
+        // }
+
+        $this->type = $this->option('type');
+        if (! $this->type && !in_array($this->type, self::getAvailableType())) {
+            $this->error('Option type is required');
             return;
         }
 
         $this->file_path = $this->option('file');
         if (! $this->file_path) {
             $this->error('Option file is required');
+            return;
+        }
+
+        $this->regencyId = $this->option('regency');
+        if (! $this->regencyId) {
+            $this->error('Option ID of regency is required');
             return;
         }
 
@@ -76,7 +91,7 @@ class BulkTransitPrice extends Command
         foreach ($data as $k => $d) {
             if ($k == 0) continue;
 
-            if (($k % 100) == 0) $this->info($k);
+            if (($k % 5000) == 0) $this->info($k);
 
             $q = "SELECT * FROM geo_districts WHERE name ILIKE '%s' LIMIT 1";
             $q = sprintf($q, pg_escape_string($d['kec']));
@@ -91,11 +106,11 @@ class BulkTransitPrice extends Command
             $r = $z[0];
 
             if ($this->type === self::TYPE_MTAK_1) {
-                $rows[] = $this->firstType($r, $d);
+                $rows[] = $this->firstType($this->regencyId, $r, $d);
             } elseif ($this->type === self::TYPE_MTAK_2) {
-                $rows[] = $this->secondType($r, $d);
+                $rows[] = $this->secondType($this->regencyId, $r, $d);
             } elseif ($this->type === self::TYPE_MTAK_3) {
-                $rows[] = $this->thirdType($r, $d);
+                $rows[] = $this->thirdType($this->regencyId, $r, $d);
             }
 
 
@@ -150,10 +165,10 @@ class BulkTransitPrice extends Command
      * @return array
      * This rows for inserting to tables
      */
-    private function firstType($r, $d): array
+    private function firstType($regencyId, $r, $d): array
     {
         return [
-            'origin_regency_id' => 1,
+            'origin_regency_id' => $regencyId,
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 1,
@@ -175,10 +190,10 @@ class BulkTransitPrice extends Command
      * @return array
      * This rows for inserting to tables
      */
-    private function secondType($r, $d): array
+    private function secondType($regencyId, $r, $d): array
     {
         return [
-            'origin_regency_id' => 1,
+            'origin_regency_id' => $regencyId,
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 2,
@@ -200,10 +215,10 @@ class BulkTransitPrice extends Command
      * @return array
      * This rows for inserting to tables
      */
-    private function thirdType($r, $d): array
+    private function thirdType($regencyId, $r, $d): array
     {
         return [
-            'origin_regency_id' => 1,
+            'origin_regency_id' => $regencyId,
             'destination_regency_id' => $r->regency_id,
             'destination_district_id' => $r->id,
             'type' => 3,

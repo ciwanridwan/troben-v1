@@ -236,7 +236,7 @@
         <h4>Foto Barang</h4>
       </a-col>
     </a-row>
-    <a-empty v-if="package.attachments[0] == null" />
+    <a-empty style="width: 100px" v-if="package.attachments[0] == null" />
     <div
       v-else
       style="
@@ -282,10 +282,6 @@ export default {
       default: () => {},
     },
     estPrice: {
-      type: Object,
-      default: () => {},
-    },
-    estCubPrice: {
       type: Object,
       default: () => {},
     },
@@ -464,7 +460,6 @@ export default {
     this.item = this.value;
     console.log("item", this.item);
     console.log("package", this.package);
-    console.log("cubePrice", this.estCubPrice);
     console.log("estPrice", this.estPrice);
     console.log(">>", this.estPrice?.insurance_fee.toString().split(".")[0]);
   },

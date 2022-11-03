@@ -63,7 +63,9 @@ export default {
       });
 
       if (localStorage.getItem("getDiscount") > 0) {
-        url += `?discount=${localStorage.getItem("getDiscount")}`;
+        url += `?discount=${localStorage.getItem(
+          "getDiscount"
+        )}&type=${localStorage.getItem("type")}`;
       }
       this.$http
         .patch(url)
@@ -74,6 +76,7 @@ export default {
           this.visible = false;
           this.$emit("submit");
           localStorage.removeItem("getDiscount");
+          localStorage.removeItem("type");
         })
         .catch((error) => {
           this.onErrorResponse(error);
