@@ -34,8 +34,8 @@
               (getStatus == 'estimated' || getStatus == 'revamp')
             "
           >
-            <a-radio-group v-model="discountType" default-value="delivery">
-              <a-radio value="delivery">Pengiriman</a-radio>
+            <a-radio-group v-model="discountType" default-value="service">
+              <a-radio value="service">Pengiriman</a-radio>
               <a-radio value="pickup">Penjemputan</a-radio>
             </a-radio-group>
           </a-col>
@@ -116,7 +116,7 @@ export default {
       PickupBox,
       checkedDiscount: false,
       discount: 0,
-      discountType: "delivery",
+      discountType: "service",
     };
   },
   props: {
@@ -161,6 +161,10 @@ export default {
     },
     getPickupFee() {
       var pickupPrice = this.package?.prices;
+      if (!this.package?.transporter_type) {
+        this.pickup = 0;
+        return this.pickup;
+      }
       pickupPrice.forEach((pickupFee) => {
         if (pickupFee.type === "delivery") {
           this.pickup = pickupFee.amount;
@@ -175,6 +179,7 @@ export default {
     },
     localStorage() {
       localStorage.setItem("getDiscount", this.discount);
+      localStorage.setItem("type", this.discountType);
     },
   },
 };
