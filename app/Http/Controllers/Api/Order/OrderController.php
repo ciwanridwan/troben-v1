@@ -184,6 +184,9 @@ class OrderController extends Controller
         }
         $checkPayment = Payment::with('gateway')->where('payable_id', $package->id)
             ->where('payable_type', Package::class)->first();
+
+        $isWalkin = is_null($package->transporter_type) ? 'walkin' : 'app';
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -199,6 +202,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
+            'is_walkin' => $isWalkin,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
             // 'payments' => [
             //     'has_generate_payment' => $checkPayment ? true : false,
