@@ -233,14 +233,18 @@ class GenerateBalanceHistory
                         }
                         /**Get Fee Pickup */
                         if ($this->partner->get_fee_pickup) {
-                            $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
-                            if ($balancePickup !== 0) {
-                                $this
-                                    ->setBalance($balancePickup)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_PICKUP)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                            if ($package->type == Package::TYPE_APP) {
+                                $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                if ($balancePickup !== 0) {
+                                    $this
+                                        ->setBalance($balancePickup)
+                                        ->setType(History::TYPE_DEPOSIT)
+                                        ->setDescription(History::DESCRIPTION_PICKUP)
+                                        ->setAttributes()
+                                        ->recordHistory();
+                                }
+                            } else {
+                                $balancePickup = 0;
                             }
                         }
 

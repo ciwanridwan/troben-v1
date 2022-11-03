@@ -26,6 +26,7 @@ class ProcessFromCodeToDelivery
     private Code $code;
     private ?string $role;
     private bool $logging;
+    private bool $isTransit;
 
     /**
      * @var mixed
@@ -78,10 +79,21 @@ class ProcessFromCodeToDelivery
 
         $partner = $this->delivery->origin_partner()->first();
 
-        if ($partner->type == Partner::TYPE_POOL) {
+        if ($partner->type == Partner::TYPE_POOL && $this->delivery->status !== Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
             $this->package_codes->each(function (Code $packageCode) {
-                $this->setTransitCount($packageCode);
-            });    
+                $this->isTransit = true;
+                $this->setTransitCount($packageCode, $this->isTransit);
+            });
+        } elseif ($partner->type == Partner::TYPE_POOL && $this->delivery->status === Delivery::STATUS_ACCEPTED) {
+            $this->package_codes->each(function (Code $packageCode) {
+                $this->isTransit = true;
+                $this->setTransitCount($packageCode, $this->isTransit);
+            });
+        } else {
+            $this->package_codes->each(function (Code $packageCode) {
+                $this->isTransit = false;
+                $this->setTransitCount($packageCode, $this->isTransit);
+            });
         }
 
         event(new PackagesAttachedToDelivery($this->delivery));
@@ -150,19 +162,21 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     * Set transit count of packages 
+     * Set transit count of packages
      * */
-    private function setTransitCount($packageCode)
+    private function setTransitCount($packageCode, $isTransit)
     {
-        $this->code = $packageCode;
-        $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
+        if ($isTransit) {
+            $this->code = $packageCode;
+            $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
-        if ($packages->transit_count == null || $packages->transit_count == 0) {
-            $packages->transit_count = 1;
-            $packages->save();
-        } else {
-            $packages->transit_count += 1;
-            $packages->save();
+            if ($packages->transit_count == null || $packages->transit_count == 0) {
+                $packages->transit_count = 1;
+                $packages->save();
+            } else {
+                $packages->transit_count += 1;
+                $packages->save();
+            }
         }
     }
 }
