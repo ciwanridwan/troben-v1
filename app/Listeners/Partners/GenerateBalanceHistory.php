@@ -156,7 +156,7 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     $variant = '1';
                     # total balance service > record service balance
-                    if (! $this->partner->get_fee_transit) {
+                    if (!$this->partner->get_fee_transit) {
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
@@ -225,14 +225,18 @@ class GenerateBalanceHistory
                         }
                         /**Get Fee Pickup */
                         if ($this->partner->get_fee_pickup) {
-                            $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
-                            if ($balancePickup !== 0) {
-                                $this
-                                    ->setBalance($balancePickup)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_PICKUP)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                            if ($package->type == Package::TYPE_APP) {
+                                $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                if ($balancePickup !== 0) {
+                                    $this
+                                        ->setBalance($balancePickup)
+                                        ->setType(History::TYPE_DEPOSIT)
+                                        ->setDescription(History::DESCRIPTION_PICKUP)
+                                        ->setAttributes()
+                                        ->recordHistory();
+                                }
+                            } else {
+                               $balancePickup = 0;
                             }
                         }
 
@@ -271,7 +275,7 @@ class GenerateBalanceHistory
                                 ->where('type', $tier)
                                 ->first();
 
-                            if (! $price || $price->value == 0) {
+                            if (!$price || $price->value == 0) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -299,7 +303,7 @@ class GenerateBalanceHistory
                                 ->where('destination_regency_id', $this->delivery->destination_regency_id)
                                 ->where('type', PartnerPrice::TYPE_FLAT)
                                 ->first();
-                            if (! $price) {
+                            if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -383,7 +387,7 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                if (! $this->partner->get_fee_dooring) {
+                if (!$this->partner->get_fee_dooring) {
                     break;
                 }
 
@@ -401,7 +405,7 @@ class GenerateBalanceHistory
                     ->where('type', $tier)
                     ->first();
 
-                if (! $price) {
+                if (!$price) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -410,7 +414,7 @@ class GenerateBalanceHistory
                             'manifest_code' => $this->delivery->code->content,
                             'package_code' => $this->package->code->content,
                             'origin' => $this->partner->regency->name,
-                            'destination' => $this->package->destination_regency->name.', '.$this->package->destination_district->name.', '.$this->package->destination_sub_district->name,
+                            'destination' => $this->package->destination_regency->name . ', ' . $this->package->destination_district->name . ', ' . $this->package->destination_sub_district->name,
                             'package_weight' => $weight,
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
@@ -454,7 +458,7 @@ class GenerateBalanceHistory
 
         /** @var Template $notification */
         $notification = Template::query()->firstWhere('type', '=', Template::TYPE_PARTNER_BALANCE_UPDATED);
-        if (! is_null($owner->fcm_token)) {
+        if (!is_null($owner->fcm_token)) {
             return new PrivateChannel($owner, $notification);
         }
     }
