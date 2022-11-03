@@ -1,19 +1,30 @@
 <template>
   <div>
     <a-radio-group
-      v-if="!isMotorBike"
       v-model="selectCalculatePrice"
       default-value="kg"
       style="width: 811px; margin-left: 25px"
     >
       <a-row type="flex" :gutter="[12, 12]">
         <a-col :span="12">
-          <a-radio class="radio" value="kg"
+          <a-radio
+            v-if="
+              !isMotorBike &&
+              (getStatus == 'estimated' || getStatus == 'revamp')
+            "
+            class="radio"
+            value="kg"
             >Perhitungan Menggunakan Kilogram ( KG )</a-radio
           >
         </a-col>
         <a-col :span="12">
-          <a-radio class="radio" value="cubic"
+          <a-radio
+            v-if="
+              !isMotorBike &&
+              (getStatus == 'estimated' || getStatus == 'revamp')
+            "
+            class="radio"
+            value="cubic"
             >Perhitungan Menggunakan Kubikasi</a-radio
           >
         </a-col>
@@ -29,7 +40,6 @@
           :deletable="deletable"
           :package="package"
           :estPrice="package.estimation_prices[index]"
-          :estCubPrice="package.estimation_cubic_prices[index]"
           :selectCalculate="selectCalculatePrice"
         />
       </a-col>
@@ -90,6 +100,9 @@ export default {
   computed: {
     isMotorBike() {
       return this.package?.moto_bikes;
+    },
+    getStatus() {
+      return this.package?.status;
     },
   },
 };
