@@ -30,7 +30,7 @@ class RevampPartnerPricesTable extends Migration
             $table->unsignedBigInteger('destination_regency_id');
             $table->unsignedBigInteger('destination_district_id');
             $table->unsignedSmallInteger('type')->comment($this->typeComment());
-            $table->char('vendor', 15);
+            $table->string('vendor', 15);
             $table->decimal('tier_1', 14, 2)->default(0);
             $table->decimal('tier_2', 14, 2)->default(0);
             $table->decimal('tier_3', 14, 2)->default(0);

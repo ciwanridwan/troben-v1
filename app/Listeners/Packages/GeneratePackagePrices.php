@@ -130,7 +130,7 @@ class GeneratePackagePrices
                 $totalWeight = $package->total_weight;
                 $items = $package->items->toArray();
 
-                $additionalPrice = PricingCalculator::getAdditionalPrices($serviceCode, $items, $totalWeight);
+                $additionalPrice = PricingCalculator::getAdditionalPrices($items, $serviceCode);
 
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_SERVICE,
