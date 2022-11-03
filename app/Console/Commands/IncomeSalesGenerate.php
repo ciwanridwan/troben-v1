@@ -62,7 +62,7 @@ class IncomeSalesGenerate extends Command
         AND pr.package_id IS NULL
         AND d.created_at >= now() - INTERVAL '30 DAYS'";
 
-        $result = collect(DB::select($q))->each(function($r) {
+        $result = collect(DB::select($q))->each(function ($r) {
             $profitMitra = $r->amount * 0.3; // for mitra
             $profitHO = $r->amount * 0.7; // for ho
             $profitAgent = $profitMitra * 0.3; // for agent

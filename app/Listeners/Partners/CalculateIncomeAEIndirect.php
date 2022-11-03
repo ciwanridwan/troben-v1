@@ -3,9 +3,7 @@
 namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
-use App\Models\Partners\AgentProfitAE;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 
 class CalculateIncomeAEIndirect
 {
