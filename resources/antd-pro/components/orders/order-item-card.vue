@@ -458,10 +458,10 @@ export default {
   },
   mounted() {
     this.item = this.value;
-    console.log("item", this.item);
-    console.log("package", this.package);
-    console.log("estPrice", this.estPrice);
-    console.log(">>", this.estPrice?.insurance_fee.toString().split(".")[0]);
+    // console.log("item", this.item);
+    // console.log("package", this.package);
+    // console.log("estPrice", this.estPrice);
+    // console.log(">>", this.estPrice?.insurance_fee.toString().split(".")[0]);
   },
 };
 </script>

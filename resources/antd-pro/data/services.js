@@ -3,12 +3,17 @@ const services = [
   {
     code: "tps",
     title: "Darat",
-    icon: ShippingIcon
+    icon: ShippingIcon,
   },
   {
     code: "tpi",
     title: "Instant",
-    icon: ShippingIcon
+    icon: ShippingIcon,
+  },
+  {
+    code: "tpx",
+    title: "Express",
+    icon: ShippingIcon,
   },
 ];
 
