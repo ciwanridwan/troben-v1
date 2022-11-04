@@ -305,7 +305,6 @@ class GenerateBalanceHistory
                             }
 
                             $tierPrice = $this->getTransitTierPrice($package_count, $price, $tier);
-
                         } else {
                             /** @var \App\Models\Partners\Prices\Transit $price */
                             $tier = PricingCalculator::getTierType($manifest_weight);
@@ -397,9 +396,6 @@ class GenerateBalanceHistory
                     break;
                 }
 
-                //                $weight = $this->package->items->sum(function ($item) {
-                //                    return $item->weight_borne_total;
-                //                });
                 $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
@@ -434,6 +430,7 @@ class GenerateBalanceHistory
                     }
                     break;
                 }
+
                 /**Insert dooring income to balance partner */
                 $existingBalance = $this->partner->balance;
                 $income = $weight * $price->value;
@@ -447,7 +444,50 @@ class GenerateBalanceHistory
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
                     ->recordHistory();
-                //                $this->pushNotificationToOwner();
+
+                // Set Income Delivery
+                if ($this->partner->get_fee_delivery) {
+                    $weight = $this->package->total_weight;
+                    $tier = PricingCalculator::getTierType($weight);
+                    $originPartner = $this->delivery->origin_partner()->first();
+                    
+
+                    $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
+
+                    if (!$price) {
+                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
+                        $this->dispatchNow($job);
+                        $payload = [
+                            'data' => [
+                                'package_code' => $this->package->code->content,
+                                'total_weight' => $weight,
+                                'partner_code' => $this->partner->code,
+                                'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
+                            ]
+                        ];
+                        try {
+                            Notification::send($payload, new TransporterBalance());
+                        } catch (\Exception $e) {
+                            report($e);
+                            Log::error('TransporterBalance-tlg-err', $payload);
+                        }
+                        break;
+                    }
+
+                    $tierPrice = $this->getTransitTierPrice(1, $price, $tier);
+
+                    $this->setBalance($weight * $tierPrice);
+                    $income = $weight * $tierPrice;
+
+                    $this
+                        ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                        ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                        ->setAttributes(false)
+                        ->recordHistory(false);
+
+                    $this->partner->balance += $income;
+                    $this->partner->save();
+                }
                 break;
         }
     }
@@ -851,7 +891,6 @@ class GenerateBalanceHistory
                     ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
-
                 if (is_null($price)) {
                     return 0;
                 } else {

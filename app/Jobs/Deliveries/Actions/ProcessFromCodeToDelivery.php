@@ -68,33 +68,16 @@ class ProcessFromCodeToDelivery
 
     public function handle(): void
     {
+        $this->transitOfPackage();
+
         if ($this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE && $this->delivery->userable_id === null) {
             $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER);
             $this->delivery->save();
         }
-
+        
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
-
-        $partner = $this->delivery->origin_partner()->first();
-
-        if ($partner->type == Partner::TYPE_POOL && $this->delivery->status !== Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
-            $this->package_codes->each(function (Code $packageCode) {
-                $this->isTransit = true;
-                $this->setTransitCount($packageCode, $this->isTransit);
-            });
-        } elseif ($partner->type == Partner::TYPE_POOL && $this->delivery->status === Delivery::STATUS_ACCEPTED) {
-            $this->package_codes->each(function (Code $packageCode) {
-                $this->isTransit = true;
-                $this->setTransitCount($packageCode, $this->isTransit);
-            });
-        } else {
-            $this->package_codes->each(function (Code $packageCode) {
-                $this->isTransit = false;
-                $this->setTransitCount($packageCode, $this->isTransit);
-            });
-        }
 
         event(new PackagesAttachedToDelivery($this->delivery));
     }
@@ -162,11 +145,11 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     * Set transit count of packages
+     * Set transit count of packages 
+     * @return int $transit_count
      * */
-    private function setTransitCount($packageCode, $isTransit)
+    private function setTransitCount($packageCode)
     {
-        if ($isTransit) {
             $this->code = $packageCode;
             $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
@@ -176,6 +159,28 @@ class ProcessFromCodeToDelivery
             } else {
                 $packages->transit_count += 1;
                 $packages->save();
+            }
+    }
+
+    /**
+     * List transit of package
+     */
+    private function transitOfPackage()
+    {
+        // one time transit
+        if ($this->delivery->type === Delivery::TYPE_DOORING && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
+            $partner = $this->delivery->origin_partner()->first();
+            if ($partner->type == Partner::TYPE_POOL) {
+                $this->package_codes->each(function (Code $packageCode) {
+                    $this->setTransitCount($packageCode);
+                });    
+            }
+        } elseif ($this->delivery->type === Delivery::TYPE_TRANSIT && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
+            $partner = $this->delivery->origin_partner()->first();
+            if ($partner->type == Partner::TYPE_POOL) {
+                $this->package_codes->each(function (Code $packageCode) {
+                    $this->setTransitCount($packageCode);
+                });    
             }
         }
     }

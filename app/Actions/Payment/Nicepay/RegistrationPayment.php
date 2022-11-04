@@ -78,44 +78,45 @@ class RegistrationPayment
             $this->gateway = $gateway;
         }
 
-        if ($package->status === Package::STATUS_CANCEL) {
-            $log = [
-                'package_code' => $package->code->content,
-                'channel' => $gateway->channel
-            ];
-            Log::debug('CancelController: ', $log);
-            $customer = $package->customer;
-            $address = $customer->addresses()
-                ->with(['province', 'regency', 'district'])
-                ->where('is_default', true)
-                ->first() ?? null;
+        // Unuseable
+        // if ($package->status === Package::STATUS_CANCEL) {
+        //     $log = [
+        //         'package_code' => $package->code->content,
+        //         'channel' => $gateway->channel
+        //     ];
+        //     Log::debug('CancelController: ', $log);
+        //     $customer = $package->customer;
+        //     $address = $customer->addresses()
+        //         ->with(['province', 'regency', 'district'])
+        //         ->where('is_default', true)
+        //         ->first() ?? null;
 
 
-            $amt = ceil($package->canceled->pickup_price + self::adminChargeCalculator($gateway, $package->canceled->pickup_price));
-            $now = date_format(Carbon::now(), 'YmdHis');
-            $this->attributes = [
-                'timeStamp' => $now,
-                'merchantToken' => $this->merchantToken($now, $package->code->content, $amt),
-                'amt' => (string) $amt,
-                'iMid' => config('nicepay.imid'),
-                'currency' => 'IDR',
-                'referenceNo' => $package->code->content,
-                'goodsNm' => 'Trawlpack Cancel '.$package->code->content,
-                'billingNm' => $customer->name,
-                'billingPhone' => $this->validPhone($package->sender_phone),
-                'billingEmail' => $customer->email,
-                'billingAddr' => $address->address ?? 'Jl. alamat',
-                'billingCity' => $address->regency->name ?? 'Jakarta',
-                'billingState' => $address->district->name ?? 'DKI Jakarta',
-                'billingPostCd' => $address->sub_district->zip_code ?? '12345',
-                'billingCountry' => 'Indonesia',
-                'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
-                'dbProcessUrl' => config('nicepay.db_process_url'),
-                'mitraCd'=>''
-            ];
-            $this->package = $package;
-            $this->gateway = $gateway;
-        }
+        //     $amt = ceil($package->canceled->pickup_price + self::adminChargeCalculator($gateway, $package->canceled->pickup_price));
+        //     $now = date_format(Carbon::now(), 'YmdHis');
+        //     $this->attributes = [
+        //         'timeStamp' => $now,
+        //         'merchantToken' => $this->merchantToken($now, $package->code->content, $amt),
+        //         'amt' => (string) $amt,
+        //         'iMid' => config('nicepay.imid'),
+        //         'currency' => 'IDR',
+        //         'referenceNo' => $package->code->content,
+        //         'goodsNm' => 'Trawlpack Cancel '.$package->code->content,
+        //         'billingNm' => $customer->name,
+        //         'billingPhone' => $this->validPhone($package->sender_phone),
+        //         'billingEmail' => $customer->email,
+        //         'billingAddr' => $address->address ?? 'Jl. alamat',
+        //         'billingCity' => $address->regency->name ?? 'Jakarta',
+        //         'billingState' => $address->district->name ?? 'DKI Jakarta',
+        //         'billingPostCd' => $address->sub_district->zip_code ?? '12345',
+        //         'billingCountry' => 'Indonesia',
+        //         'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
+        //         'dbProcessUrl' => config('nicepay.db_process_url'),
+        //         'mitraCd'=>''
+        //     ];
+        //     $this->package = $package;
+        //     $this->gateway = $gateway;
+        // }
     }
 
     /**

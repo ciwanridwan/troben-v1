@@ -267,12 +267,8 @@ class PricingCalculator
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
-
-        if ($serviceCode == Service::TRAWLPACK_STANDARD) {
-            $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal - $discount;
-        } else {
-            $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
-        }
+        
+        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
 
         $response = [
             'price' => $result['price'],
