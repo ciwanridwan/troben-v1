@@ -61,13 +61,18 @@ class DeadlineCreatedByEvent
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $delivery = $event->delivery;
                 $partnerDestination = $delivery->partner;
-
                 $deadline = Carbon::now()->addHours(2);
-                $performanceQuery = PartnerDeliveryPerformance::query()->create([
-                    'partner_id' => $partnerDestination->id,
-                    'delivery_id' => $delivery->id,
-                    'deadline' => $deadline,
-                ]);
+            
+                $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
+                if (!$performanceDelivery || is_null($performanceDelivery)) {
+                    $performanceQuery = PartnerDeliveryPerformance::query()->create([
+                        'partner_id' => $partnerDestination->id,
+                        'delivery_id' => $delivery->id,
+                        'deadline' => $deadline,
+                    ]);
+                } else {
+                    break;
+                }
 
                 Log::debug('Deadline delivery created Listen to driver unload in destination warehouse: ', [$performanceQuery]);
                 break;

@@ -450,8 +450,9 @@ class GenerateBalanceHistory
                     $weight = $this->package->total_weight;
                     $tier = PricingCalculator::getTierType($weight);
                     $originPartner = $this->delivery->origin_partner()->first();
+                    
 
-                    $price = $this->getTransitPriceByTypeOfSinglePackage($this->packages, $originPartner->geo_regency_id, $this->package->destination_district_id);
+                    $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
                     if (!$price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
@@ -890,7 +891,6 @@ class GenerateBalanceHistory
                     ->where('destination_district_id', $destinationDistrictId)
                     ->where('type', $transitCount)
                     ->first();
-
                 if (is_null($price)) {
                     return 0;
                 } else {
