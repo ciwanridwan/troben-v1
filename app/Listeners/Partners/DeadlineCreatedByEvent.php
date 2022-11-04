@@ -44,11 +44,17 @@ class DeadlineCreatedByEvent
                 $partnerOrigin = $delivery->origin_partner;
 
                 $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
-                $performanceQuery = PartnerDeliveryPerformance::query()->create([
-                    'partner_id' => $partnerOrigin->id,
-                    'delivery_id' => $delivery->id,
-                    'deadline' => $deadline
-                ]);
+                $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
+                
+                if (!$performanceDelivery || is_null($performanceDelivery)) {
+                    $performanceQuery = PartnerDeliveryPerformance::query()->create([
+                        'partner_id' => $partnerOrigin->id,
+                        'delivery_id' => $delivery->id,
+                        'deadline' => $deadline
+                    ]);                    
+                } else {
+                    break;
+                }
 
                 Log::debug('Deadline Delivery Created Listener: ', [$performanceQuery]);
                 break;

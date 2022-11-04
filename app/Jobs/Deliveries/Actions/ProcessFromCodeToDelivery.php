@@ -76,13 +76,14 @@ class ProcessFromCodeToDelivery
             $this->assignToDelivery($code);
         });
 
-        $partner = $this->delivery->origin_partner()->first();
+        // $partner = $this->delivery->origin_partner()->first();
 
-        if ($partner->type == Partner::TYPE_POOL) {
-            $this->package_codes->each(function (Code $packageCode) {
-                $this->setTransitCount($packageCode);
-            });    
-        }
+        // if ($partner->type == Partner::TYPE_POOL) {
+        //     $this->package_codes->each(function (Code $packageCode) {
+        //         $this->setTransitCount($packageCode);
+        //     });    
+        // }
+        $this->transitOfPackage();
 
         event(new PackagesAttachedToDelivery($this->delivery));
     }
@@ -151,6 +152,7 @@ class ProcessFromCodeToDelivery
 
     /**
      * Set transit count of packages 
+     * @return int $transit_count
      * */
     private function setTransitCount($packageCode)
     {
@@ -163,6 +165,22 @@ class ProcessFromCodeToDelivery
         } else {
             $packages->transit_count += 1;
             $packages->save();
+        }
+    }
+
+    /**
+     * List transit of package
+     */
+    private function transitOfPackage()
+    {
+        // one time transit
+        if ($this->delivery->type == Delivery::TYPE_DOORING && $this->delivery->status == Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
+            $partner = $this->delivery->origin_partner()->first();
+            if ($partner->type == Partner::TYPE_POOL) {
+                $this->package_codes->each(function (Code $packageCode) {
+                    $this->setTransitCount($packageCode);
+                });    
+            }
         }
     }
 }
