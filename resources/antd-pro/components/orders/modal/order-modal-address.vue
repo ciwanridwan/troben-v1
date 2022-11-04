@@ -59,7 +59,7 @@
           <package-address :package="package" type="receiver" />
         </a-space>
       </template>
-      <template slot="addon">
+      <!-- <template slot="addon">
         <a-empty v-if="package.attachments[0] == null" />
         <div
           v-else
@@ -70,14 +70,14 @@
             gap: 1rem;
           "
         >
-          <!-- <enlargeable-image
+          <enlargeable-image
             style="width: 50px !important"
             v-for="(data, index) in URIImage"
             :key="index"
             :src="data.uri"
-          /> -->
+          />
         </div>
-      </template>
+      </template> -->
     </order-modal-row-layout>
     <div class="estimation">
       <order-estimation v-if="this.price" :price="this.price" />

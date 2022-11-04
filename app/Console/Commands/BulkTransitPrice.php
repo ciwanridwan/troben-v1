@@ -91,7 +91,7 @@ class BulkTransitPrice extends Command
         foreach ($data as $k => $d) {
             if ($k == 0) continue;
 
-            if (($k % 100) == 0) $this->info($k);
+            if (($k % 5000) == 0) $this->info($k);
 
             $q = "SELECT * FROM geo_districts WHERE name ILIKE '%s' LIMIT 1";
             $q = sprintf($q, pg_escape_string($d['kec']));

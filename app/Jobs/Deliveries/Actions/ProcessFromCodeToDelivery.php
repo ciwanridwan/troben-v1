@@ -26,6 +26,7 @@ class ProcessFromCodeToDelivery
     private Code $code;
     private ?string $role;
     private bool $logging;
+    private bool $isTransit;
 
     /**
      * @var mixed
@@ -71,18 +72,11 @@ class ProcessFromCodeToDelivery
             $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER);
             $this->delivery->save();
         }
-
+        
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
 
-        // $partner = $this->delivery->origin_partner()->first();
-
-        // if ($partner->type == Partner::TYPE_POOL) {
-        //     $this->package_codes->each(function (Code $packageCode) {
-        //         $this->setTransitCount($packageCode);
-        //     });    
-        // }
         $this->transitOfPackage();
 
         event(new PackagesAttachedToDelivery($this->delivery));
@@ -156,16 +150,16 @@ class ProcessFromCodeToDelivery
      * */
     private function setTransitCount($packageCode)
     {
-        $this->code = $packageCode;
-        $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
+            $this->code = $packageCode;
+            $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
-        if ($packages->transit_count == null || $packages->transit_count == 0) {
-            $packages->transit_count = 1;
-            $packages->save();
-        } else {
-            $packages->transit_count += 1;
-            $packages->save();
-        }
+            if ($packages->transit_count == null || $packages->transit_count == 0) {
+                $packages->transit_count = 1;
+                $packages->save();
+            } else {
+                $packages->transit_count += 1;
+                $packages->save();
+            }
     }
 
     /**
