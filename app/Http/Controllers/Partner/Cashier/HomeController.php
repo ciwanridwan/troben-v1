@@ -101,7 +101,8 @@ class HomeController extends Controller
     {
         $request->validate(
             [
-                'type' => ['nullable', 'in:service,pickup']
+                'type' => ['nullable', 'in:service,pickup'],
+                'calculate_type' => ['nullable', 'in:kg,cubic']
             ]
         );
 
@@ -178,6 +179,10 @@ class HomeController extends Controller
             }
         }
 
+        if ($request->calculate_type === 'cubic') {
+            $this->changePriceToCubic($package);
+        }
+
         event(new PackageCheckedByCashier($package));
 
         return (new Response(Response::RC_SUCCESS))->json();
@@ -185,7 +190,7 @@ class HomeController extends Controller
 
     public function check(float $fee_percentage, Package $package): float
     {
-        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
         return $service_price * $fee_percentage;
     }
 
@@ -290,5 +295,25 @@ class HomeController extends Controller
         }
 
         return view('partner.cashier.home.index');
+    }
+
+    /** Get estimation calculate cubic prices
+     * And change pricing
+     */
+    private function changePriceToCubic($package)
+    {
+        $cubicPrice = $package->estimation_cubic_prices;
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_SERVICE,
+            'description' => Price::DESCRIPTION_TYPE_CUBIC,
+            'amount' => $cubicPrice['service_fee'],
+        ]);
+        $this->dispatch($job);
+
+        $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
+        $servicePrice->delete();
+
+        $totalAmount = $package->prices()->get()->sum('amount');
+        $package->setAttribute('total_amount', $totalAmount)->save();
     }
 }
