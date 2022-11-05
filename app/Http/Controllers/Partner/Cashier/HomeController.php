@@ -143,7 +143,7 @@ class HomeController extends Controller
 
     public function check(float $fee_percentage, Package $package): float
     {
-        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
+        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
         return $service_price * $fee_percentage;
     }
 
