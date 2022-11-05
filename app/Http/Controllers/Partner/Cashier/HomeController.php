@@ -21,6 +21,7 @@ use App\Events\Packages\PackageCheckedByCashier;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use App\Models\Service;
 
 class HomeController extends Controller
 {
@@ -190,8 +191,19 @@ class HomeController extends Controller
 
     public function check(float $fee_percentage, Package $package): float
     {
-        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
-        return $service_price * $fee_percentage;
+        $serviceCode = $package->service_code;
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_EXPRESS:
+                $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+                return $service_price * $fee_percentage;
+                break;
+
+            default:
+                $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
+                return $service_price * $fee_percentage;
+                break;
+        }
     }
 
     /** Check the price is pickup_fee
@@ -310,8 +322,18 @@ class HomeController extends Controller
         ]);
         $this->dispatch($job);
 
-        $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
-        $servicePrice->delete();
+        $serviceCode = $package->service_code;
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_EXPRESS:
+                $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first();
+                $servicePrice->delete();
+                break;
+
+            default:
+                $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
+                $servicePrice->delete();
+                break;
+        }
 
         $totalAmount = $package->prices()->get()->sum('amount');
         $package->setAttribute('total_amount', $totalAmount)->save();
