@@ -356,22 +356,18 @@ class Package extends Model implements AttachableContract
             ->first();
         $discount = ($discount == null) ? 0 : $discount['amount'];
 
+        $cubicPrice = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
+
         switch ($this->service_code) {
             case Service::TRAWLPACK_STANDARD:
-                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount ?? 0;
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount ?? $cubicPrice;
+                return $amount;
                 break;
-            case Service::TRAWLPACK_EXPRESS:
-                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? 0;
-                break;
-            default:
-                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
-                break;
-        }
 
-        if ($amount == null) {
-            return 0;
-        } else {
-            return $amount;
+            default:
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? $cubicPrice;
+                return $amount;
+                break;
         }
     }
 
