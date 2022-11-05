@@ -93,6 +93,14 @@
             {{ currency(getPickupFee) }}
           </span>
         </a-col>
+        <a-col v-if="isSenderToAddress" :span="16">
+          <span class="trawl-text-bolder"> Biaya Pengantaran </span>
+        </a-col>
+        <a-col v-if="isSenderToAddress" :span="8">
+          <span class="trawl-text-bolder">
+            {{ currency(getPickupFee) }}
+          </span>
+        </a-col>
         <a-divider />
         <a-col :span="16">
           <span class="trawl-text-bolder"> Total Biaya </span>
@@ -130,7 +138,13 @@ export default {
     transporter_type() {
       return this.package?.transporter_type;
     },
-    totalAmount() {
+    isSenderToAddress() {
+      return this.package.canceled.type == "return_to_sender_address";
+    },
+    totalAmount(pickup_price) {
+      if (this.package.canceled) {
+        return this.package.canceled.pickup_price;
+      }
       return this.package?.total_amount + this.bankCharge - this.discount;
     },
     packageStatus() {
