@@ -22,8 +22,6 @@ class BulkCubicPrice extends Command
      */
     protected $description = 'Bulk data cubic price (insert or update)';
 
-    private string $type;
-
     private string $file_path;
 
     private int $regencyId;
