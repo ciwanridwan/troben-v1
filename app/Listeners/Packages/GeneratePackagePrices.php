@@ -127,7 +127,6 @@ class GeneratePackagePrices
             // Set Additional Price
             if ($package->prices) {
                 $serviceCode = $package->service_code;
-                $totalWeight = $package->total_weight;
                 $items = $package->items->toArray();
 
                 $additionalPrice = PricingCalculator::getAdditionalPrices($items, $serviceCode);
