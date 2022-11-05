@@ -4,6 +4,7 @@
       v-model="selectCalculatePrice"
       default-value="kg"
       style="width: 811px; margin-left: 25px"
+      @change="localStorage"
     >
       <a-row type="flex" :gutter="[12, 12]">
         <a-col :span="12">
@@ -94,6 +95,9 @@ export default {
   methods: {
     onChange() {
       this.$emit("change");
+    },
+    localStorage() {
+      localStorage.setItem("calculateType", this.selectCalculatePrice);
     },
   },
   components: { orderModalRowLayout, OrderItemCard },

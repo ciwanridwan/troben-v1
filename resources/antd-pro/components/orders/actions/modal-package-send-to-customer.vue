@@ -65,7 +65,12 @@ export default {
       if (localStorage.getItem("getDiscount") > 0) {
         url += `?discount=${localStorage.getItem(
           "getDiscount"
-        )}&type=${localStorage.getItem("type")}`;
+        )}&type=${localStorage.getItem(
+          "type"
+        )}&calculate_type=${localStorage.getItem("calculateType")}`;
+      }
+      if (localStorage.getItem("getDiscount") == 0) {
+        url += `?calculate_type=${localStorage.getItem("calculateType")}`;
       }
       this.$http
         .patch(url)
