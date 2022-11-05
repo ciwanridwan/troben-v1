@@ -11,7 +11,7 @@
           <span class="trawl-text-bolder">{{ transporter_type }}</span
           ><br />
           <span>Dimensi Max • 200 x 130 x 120</span><br />
-          <span>Berat Max • 700 kg</span>
+          <span>Berat Max • 700 kg tes</span>
         </div>
       </a-space>
     </a-col>
@@ -139,11 +139,11 @@ export default {
       return this.package?.transporter_type;
     },
     isSenderToAddress() {
-      return this.package.canceled.type == "return_to_sender_address";
+      return this.package?.canceled?.type == "return_to_sender_address";
     },
-    totalAmount(pickup_price) {
-      if (this.package.canceled) {
-        return this.package.canceled.pickup_price;
+    totalAmount() {
+      if (this.package?.canceled) {
+        return this.package?.canceled?.pickup_price;
       }
       return this.package?.total_amount + this.bankCharge - this.discount;
     },
