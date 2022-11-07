@@ -93,10 +93,10 @@
             {{ currency(getPickupFee) }}
           </span>
         </a-col>
-        <a-col v-if="isSenderToAddress" :span="16">
+        <a-col :span="16">
           <span class="trawl-text-bolder"> Biaya Pengantaran </span>
         </a-col>
-        <a-col v-if="isSenderToAddress" :span="8">
+        <a-col :span="8">
           <span class="trawl-text-bolder">
             {{ currency(getPickupFee) }}
           </span>
@@ -142,6 +142,12 @@ export default {
       return this.package?.canceled?.type == "return_to_sender_address";
     },
     totalAmount() {
+      // console.log(
+      //   "package>",
+      //   localStorage.getItem("calculateType"),
+      //   this.package
+      // );
+
       if (this.package?.canceled) {
         return this.package?.canceled?.pickup_price;
       }
@@ -172,6 +178,12 @@ export default {
     },
     isMotorBike() {
       return this.package?.moto_bikes;
+    },
+    getDeliveryFee() {
+      if (this.package?.canceled?.type == "sender_to_warehouse") {
+        return 0;
+      }
+      return this.getPickupFee;
     },
     getPickupFee() {
       var pickupPrice = this.package?.prices;
