@@ -147,7 +147,7 @@ export default {
     },
     isSenderToAddress() {
       return (
-        this.package?.canceled?.type == "return_to_sender_address" ||
+        this.package?.canceled?.type == "return_to_sender_address" &&
         this.package?.status == "paid_cancel"
       );
     },
