@@ -865,9 +865,9 @@ class Package extends Model implements AttachableContract
 
         $items = $this->items()->get();
 
-        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount') ?? 0;
 
-        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
+        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount') ?? 0;
 
         $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
 
