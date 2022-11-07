@@ -7,16 +7,12 @@ use App\Http\Resources\Api\Partner\Owner\Balance\DetailResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\ReportPartnerTransporterResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\ReportResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\SummaryResource;
-use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Response;
-use App\Models\Code;
-use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\DB;
 
 class BalanceController extends Controller

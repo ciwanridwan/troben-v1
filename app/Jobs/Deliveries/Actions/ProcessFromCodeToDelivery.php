@@ -26,7 +26,6 @@ class ProcessFromCodeToDelivery
     private Code $code;
     private ?string $role;
     private bool $logging;
-    private bool $isTransit;
 
     /**
      * @var mixed
@@ -74,7 +73,7 @@ class ProcessFromCodeToDelivery
             $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_TRANSPORTER);
             $this->delivery->save();
         }
-        
+
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
@@ -145,21 +144,21 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     * Set transit count of packages 
+     * Set transit count of packages
      * @return int $transit_count
      * */
     private function setTransitCount($packageCode)
     {
-            $this->code = $packageCode;
-            $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
+        $this->code = $packageCode;
+        $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
 
-            if ($packages->transit_count == null || $packages->transit_count == 0) {
-                $packages->transit_count = 1;
-                $packages->save();
-            } else {
-                $packages->transit_count += 1;
-                $packages->save();
-            }
+        if ($packages->transit_count == null || $packages->transit_count == 0) {
+            $packages->transit_count = 1;
+            $packages->save();
+        } else {
+            $packages->transit_count += 1;
+            $packages->save();
+        }
     }
 
     /**
@@ -167,20 +166,28 @@ class ProcessFromCodeToDelivery
      */
     private function transitOfPackage()
     {
-        // one time transit
         if ($this->delivery->type === Delivery::TYPE_DOORING && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
             $partner = $this->delivery->origin_partner()->first();
             if ($partner->type == Partner::TYPE_POOL) {
                 $this->package_codes->each(function (Code $packageCode) {
                     $this->setTransitCount($packageCode);
-                });    
+                });
             }
         } elseif ($this->delivery->type === Delivery::TYPE_TRANSIT && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
             $partner = $this->delivery->origin_partner()->first();
             if ($partner->type == Partner::TYPE_POOL) {
                 $this->package_codes->each(function (Code $packageCode) {
                     $this->setTransitCount($packageCode);
-                });    
+                });
+            } else {
+                $originPartner = $this->delivery->origin_partner()->first();
+                $destinationPartner = $this->delivery->partner()->first();
+
+                if ($originPartner->geo_regency_id !== $destinationPartner->geo_regency_id) {
+                    $this->package_codes->each(function (Code $packageCode) {
+                        $this->setTransitCount($packageCode);
+                    });
+                }
             }
         }
     }
