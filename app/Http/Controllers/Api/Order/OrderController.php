@@ -151,16 +151,14 @@ class OrderController extends Controller
 
         $serviceCode = $package->service_code;
 
-
+        $cubicPrice = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
         switch ($serviceCode) {
-            case Service::TRAWLPACK_CUBIC:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->get()->sum('amount');
-                break;
-            case Service::TRAWLPACK_EXPRESS:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->get()->sum('amount');
-                break;
             case Service::TRAWLPACK_STANDARD:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $cubicPrice;
+                break;
+
+            default:
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? $cubicPrice;
                 break;
         }
 
