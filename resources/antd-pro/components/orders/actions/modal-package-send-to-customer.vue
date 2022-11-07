@@ -69,7 +69,7 @@ export default {
           "type"
         )}&calculate_type=${localStorage.getItem("calculateType")}`;
       }
-      if (localStorage.getItem("getDiscount") == 0) {
+      if (localStorage.getItem("getDiscount") == null) {
         url += `?calculate_type=${localStorage.getItem("calculateType")}`;
       }
       this.$http
