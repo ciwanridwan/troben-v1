@@ -135,19 +135,10 @@ class HomeController extends Controller
             } else {
                 switch ($request->user()->partners[0]['type']) {
                     case Partner::TYPE_BUSINESS:
-                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
+                        $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
                         break;
-                    case Partner::TYPE_SPACE:
-                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_SPACE, $package);
-                        break;
-                    case Partner::TYPE_POS:
-                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_POS, $package);
-                        break;
-                    case Partner::TYPE_HEADSALES:
-                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
-                        break;
-                    case Partner::TYPE_SALES:
-                        $checkPickup = $this->checkPickup(Delivery::FEE_PERCENTAGE_SALES, $package);
+                        default:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
                         break;
                 }
                 if ($request->discount > $checkPickup) {
