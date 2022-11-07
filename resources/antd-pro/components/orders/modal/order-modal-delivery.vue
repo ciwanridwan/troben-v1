@@ -148,7 +148,7 @@ export default {
     isSenderToAddress() {
       return (
         this.package?.canceled?.type == "return_to_sender_address" &&
-        this.package?.status == "cancel"
+        this.package?.status == "waiting_for_cancel_payment" || this.package?.status == "paid_cancel"
       );
     },
     totalAmount() {
