@@ -101,7 +101,7 @@ class BulkCubicPrice extends Command
         }
 
         if (count($rows)) {
-            DB::table('partner_transit_prices')->insert($rows);
+            DB::table('cubic_prices')->insert($rows);
             $this->info(count($rows));
         }
 
