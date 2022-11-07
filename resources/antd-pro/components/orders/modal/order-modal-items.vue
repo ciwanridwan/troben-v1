@@ -44,16 +44,6 @@
           :selectCalculate="selectCalculatePrice"
         />
       </a-col>
-      <!-- <a-col v-for="(item, index) in value" :key="index" :span="12">
-        <order-item-card
-          v-model="value[index]"
-          @change="onChange"
-          :modifiable="modifiable"
-          :editable="editable"
-          :deletable="deletable"
-          :package="package"
-        />
-      </a-col> -->
     </a-row>
   </div>
 </template>
@@ -97,8 +87,16 @@ export default {
       this.$emit("change");
     },
     localStorage() {
-      // console.log("calculateType", this.selectCalculatePrice);
+      this.$emit("select", this.selectCalculatePrice);
       localStorage.setItem("calculateType", this.selectCalculatePrice);
+    },
+    totalAmount() {
+      if (this.package?.canceled) {
+        return this.package?.canceled?.pickup_price;
+      }
+      if (selectCalculatePrice == "cubic") {
+      }
+      return this.package?.total_amount + this.bankCharge - this.discount;
     },
   },
   components: { orderModalRowLayout, OrderItemCard },
