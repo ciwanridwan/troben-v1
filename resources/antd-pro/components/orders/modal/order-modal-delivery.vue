@@ -93,12 +93,12 @@
             {{ currency(getPickupFee) }}
           </span>
         </a-col>
-        <a-col :span="16">
+        <a-col v-if="isSenderToAddress" :span="16">
           <span class="trawl-text-bolder"> Biaya Pengantaran </span>
         </a-col>
-        <a-col :span="8">
+        <a-col v-if="isSenderToAddress" :span="8">
           <span class="trawl-text-bolder">
-            {{ currency(getPickupFee) }}
+            {{ currency(getDeliveryFee) }}
           </span>
         </a-col>
         <a-divider />
@@ -107,7 +107,11 @@
         </a-col>
         <a-col :span="8">
           <span class="trawl-text-bolder">
-            {{ currency(totalAmount) }}
+            {{
+              select == "kg"
+                ? currency(totalAmount)
+                : currency(totalAmountCubic)
+            }}
           </span>
         </a-col>
       </a-row>
@@ -132,6 +136,9 @@ export default {
       type: Object,
       default: () => {},
     },
+    select: {
+      type: String,
+    },
   },
   components: { orderModalRowLayout },
   computed: {
@@ -139,19 +146,20 @@ export default {
       return this.package?.transporter_type;
     },
     isSenderToAddress() {
-      return this.package?.canceled?.type == "return_to_sender_address";
+      return (
+        this.package?.canceled?.type == "return_to_sender_address" ||
+        this.package?.status == "paid_cancel"
+      );
     },
     totalAmount() {
-      // console.log(
-      //   "package>",
-      //   localStorage.getItem("calculateType"),
-      //   this.package
-      // );
-
+      console.log(this.package);
       if (this.package?.canceled) {
         return this.package?.canceled?.pickup_price;
       }
       return this.package?.total_amount + this.bankCharge - this.discount;
+    },
+    totalAmountCubic() {
+      return this.package?.estimation_cubic_prices?.total_amount;
     },
     packageStatus() {
       return this.package?.status;
