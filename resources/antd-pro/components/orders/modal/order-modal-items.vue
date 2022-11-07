@@ -97,6 +97,7 @@ export default {
       this.$emit("change");
     },
     localStorage() {
+      // console.log("calculateType", this.selectCalculatePrice);
       localStorage.setItem("calculateType", this.selectCalculatePrice);
     },
   },
@@ -108,6 +109,9 @@ export default {
     getStatus() {
       return this.package?.status;
     },
+  },
+  mounted() {
+    localStorage.setItem("calculateType", this.selectCalculatePrice);
   },
 };
 </script>

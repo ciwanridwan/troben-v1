@@ -82,6 +82,7 @@ export default {
           this.$emit("submit");
           localStorage.removeItem("getDiscount");
           localStorage.removeItem("type");
+          localStorage.removeItem("calculateType");
         })
         .catch((error) => {
           this.onErrorResponse(error);
