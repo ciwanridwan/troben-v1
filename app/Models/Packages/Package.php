@@ -873,6 +873,10 @@ class Package extends Model implements AttachableContract
 
         $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
 
+        $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+
+        $additionalFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
         $cubicResult = 0;
         foreach ($items as $item) {
             $calculateCubic = $item->height * $item->width * $item->length / 1000000;
@@ -899,11 +903,14 @@ class Package extends Model implements AttachableContract
 
         $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
+        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee;
+
         $result = [
             'handling_fee' => intval($handlingFee),
             'insurance_fee' => intval($insuranceFee),
             'service_fee' => $serviceFee,
-            'sub_total_amount' => $subTotalAmount
+            'sub_total_amount' => $subTotalAmount,
+            'total_amount' => $totalAmount
         ];
         return $result;
     }

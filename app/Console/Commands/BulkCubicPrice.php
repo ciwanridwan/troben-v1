@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class BulkCubicPrice extends Command
 {
@@ -44,7 +46,7 @@ class BulkCubicPrice extends Command
     public function handle()
     {
         $header = [
-            'id', 'prov', 'kota_kab', 'kec', 'destination', 'zip_code', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "notes", 'service_code'
+            'id', 'prov', 'kota_kab', 'kec', 'destination', 'zip_code', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "notes"
         ];
 
         $this->file_path = $this->option('file');
@@ -65,6 +67,8 @@ class BulkCubicPrice extends Command
             return;
         }
 
+        $provinceId = DB::table('geo_regencies')->leftJoin('geo_provinces', 'geo_regencies.province_id', 'geo_provinces.id')->where('geo_regencies.id', $this->regencyId)->first();
+
         $rows = [];
         $data = $this->csv_to_array($this->file_path, $header);
         foreach ($data as $k => $d) {
@@ -84,7 +88,7 @@ class BulkCubicPrice extends Command
 
             $r = $z[0];
 
-            $rows[] = $this->cubicRows($this->regencyId, $r, $d);
+            $rows[] = $this->cubicRows($provinceId, $this->regencyId, $r, $d);
 
             if (count($rows) == 100) {
                 try {
@@ -125,23 +129,15 @@ class BulkCubicPrice extends Command
      * @return array
      * This rows for inserting to tables
      */
-    private function cubicRows($regencyId, $r, $d): array
+    private function cubicRows($provinceId, $regencyId, $r, $d): array
     {
         return [
+            'origin_province_id' => $provinceId->id,
             'origin_regency_id' => $regencyId,
-            'destination_regency_id' => $r->regency_id,
-            'destination_district_id' => $r->id,
-            'destination_sub_district_id' => $r->id,
+            'destination_id' => $r->id,
             'zip_code' => $d['zip_code'],
             'service_code' => 'tpc',
-            'tier_1' => $d['tier_1'],
-            'tier_2' => $d['tier_2'],
-            'tier_3' => $d['tier_3'],
-            'tier_4' => $d['tier_4'],
-            'tier_5' => $d['tier_5'],
-            'tier_6' => $d['tier_6'],
-            'tier_7' => $d['tier_7'],
-            'tier_8' => $d['tier_8'],
+            'amount' => $d['tier_1'],
             'notes' => $d['notes'],
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
