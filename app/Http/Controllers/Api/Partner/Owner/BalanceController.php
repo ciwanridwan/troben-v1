@@ -14,6 +14,10 @@ use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Response;
+use App\Models\Code;
+use App\Models\Deliveries\Delivery;
+use Illuminate\Support\Facades\DB;
 
 class BalanceController extends Controller
 {
@@ -41,10 +45,10 @@ class BalanceController extends Controller
 
         switch ($partnerType) {
             case Partner::TYPE_TRANSPORTER:
-                $this->query = DeliveryHistory::where('partner_id', $repository->getPartner()->id);
-                $this->query->with('deliveries');
+                $query = $this->getMtakIncome($repository->getPartner()->id);
+                $result = DB::select($query);
 
-                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($this->query->orderBy('created_at', 'desc')->paginate($request->input('per_page', 10))));
+                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
                 break;
             default:
                 $this->query = (new PartnerBalanceReportRepository($inputs))->getQuery();
@@ -87,5 +91,27 @@ class BalanceController extends Controller
             'data' => $this->query->paginate($request->input('per_page', 10)),
             'total_amount' => $sumQuery->sum('balance')
         ]));
+    }
+
+    /** Get Income MTAK By Query
+     *  Delivery &
+     * Dooring Income
+     */
+    private function getMtakIncome($partnerId)
+    {
+        $q = "select pbdh.partner_id, pbdh.delivery_id as codeable_id, pbdh.balance as total_amount, c.content as package_code, pbdh.created_at, pbdh.description, pbdh.type,
+        sum(p.total_weight) as total_weight
+        from partner_balance_delivery_histories pbdh
+        left join (select * from codes where codeable_type = 'App\Models\Deliveries\Delivery') c on pbdh.delivery_id = c.codeable_id
+        left join (select * from deliverables where deliverable_type = 'App\Models\Packages\Package') d on pbdh.delivery_id = d.delivery_id
+        left join packages p on d.deliverable_id = p.id
+        where pbdh.partner_id = $partnerId group by pbdh.partner_id, pbdh.delivery_id, pbdh.balance, c.content, pbdh.created_at, pbdh.description, pbdh.type
+        union all
+        select pbh.partner_id, pbh.package_id as codeable_id, pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
+        left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
+        left join packages p2 on c2.codeable_id = p2.id
+        where pbh.partner_id = $partnerId ";
+
+        return $q;
     }
 }
