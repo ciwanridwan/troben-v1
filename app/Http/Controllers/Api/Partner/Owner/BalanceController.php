@@ -110,7 +110,7 @@ class BalanceController extends Controller
     private function getMtakIncome($partnerId)
     {
         $q = "select pbdh.partner_id, pbdh.delivery_id as codeable_id, pbdh.balance as total_amount, c.content as package_code, pbdh.created_at, pbdh.description, pbdh.type,
-        total_weight as total_weight
+        total_weight
         from partner_balance_delivery_histories pbdh
         left join (select * from codes where codeable_type = 'App\Models\Deliveries\Delivery') c on pbdh.delivery_id = c.codeable_id
         left join (select delivery_id, sum(p.total_weight) total_weight, count(*) from deliverables
