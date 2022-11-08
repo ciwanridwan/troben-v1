@@ -83,7 +83,7 @@ class AssignationController extends Controller
             )
             group by package_id
             )";
-            $idPackages = collect(DB::select(sprintf($q. implode(',', $inputs))))->pluck('content')->toArray();
+            $idPackages = collect(DB::select(sprintf($q, implode(',', $inputs))))->pluck('content')->toArray();
 
             foreach ($idPackages as $idp) {
                 $inputs[] = $idp;
