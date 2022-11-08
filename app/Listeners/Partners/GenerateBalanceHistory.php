@@ -282,7 +282,7 @@ class GenerateBalanceHistory
                             $destinationDistrictId = $this->delivery->destination_district_id;
 
                             $price = $this->getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId);
-                            
+
                             if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
@@ -455,7 +455,7 @@ class GenerateBalanceHistory
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
                     if (!$price) {
-                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
+                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
                         $payload = [
                             'data' => [
