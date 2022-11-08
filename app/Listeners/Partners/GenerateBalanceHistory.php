@@ -406,8 +406,8 @@ class GenerateBalanceHistory
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->where('type', $tier)
                     ->first();
-
-                if (!$price) {
+		
+                if (!$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -455,7 +455,7 @@ class GenerateBalanceHistory
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
                     if (!$price) {
-                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
+                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
                         $payload = [
                             'data' => [
