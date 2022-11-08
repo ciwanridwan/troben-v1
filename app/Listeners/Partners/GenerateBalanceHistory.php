@@ -262,7 +262,7 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
-                    if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
+                    if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() >= 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
                         foreach ($this->packages as $package) {
@@ -406,8 +406,8 @@ class GenerateBalanceHistory
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->where('type', $tier)
                     ->first();
-
-                if (!$price) {
+		
+                if (!$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -450,12 +450,12 @@ class GenerateBalanceHistory
                     $weight = $this->package->total_weight;
                     $tier = PricingCalculator::getTierType($weight);
                     $originPartner = $this->delivery->origin_partner()->first();
-                    
+
 
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
                     if (!$price) {
-                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
+                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
                         $payload = [
                             'data' => [
