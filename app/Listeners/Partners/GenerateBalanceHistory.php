@@ -406,8 +406,8 @@ class GenerateBalanceHistory
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->where('type', $tier)
                     ->first();
-
-                if (!$price) {
+		
+                if (!$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
