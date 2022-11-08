@@ -14,6 +14,9 @@ use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class BalanceController extends Controller
@@ -45,7 +48,7 @@ class BalanceController extends Controller
                 $query = $this->getMtakIncome($repository->getPartner()->id);
                 $result = DB::select($query);
 
-                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
+                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($this->paginate($result)));
                 break;
             default:
 
@@ -65,7 +68,7 @@ class BalanceController extends Controller
                    ];
                 })->values();
 
-                return (new Response(Response::RC_SUCCESS, $result))->json();
+                return (new Response(Response::RC_SUCCESS, $this->paginate($result)))->json();
                 break;
         }
     }
@@ -146,5 +149,12 @@ class BalanceController extends Controller
         where pbh.partner_id = $partnerId and pbh.type != 'withdraw'";
 
         return $q;
+    }
+
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 }
