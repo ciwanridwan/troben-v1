@@ -48,7 +48,7 @@ class BalanceController extends Controller
                 $query = $this->getMtakIncome($repository->getPartner()->id);
                 $result = DB::select($query);
 
-                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($this->paginate($result)));
+                return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
                 break;
             default:
 
@@ -66,7 +66,7 @@ class BalanceController extends Controller
                     'created_at' => $k[0]->date,
                     'detail' => $k
                    ];
-                })->values()->paginate(15);
+                })->values();
 
                 return (new Response(Response::RC_SUCCESS, $result))->json();
                 break;
@@ -112,7 +112,7 @@ class BalanceController extends Controller
      */
     private function getMtakIncome($partnerId)
     {
-        $q = "select pbdh.partner_id, pbdh.delivery_id as codeable_id, pbdh.balance as total_amount, c.content as package_code, pbdh.created_at, pbdh.description, pbdh.type,
+        $q = "select pbdh.partner_id, pbdh.delivery_id as codeable_id, pbdh.balance as total_amount, c.content as package_code, pbdh.created_at as created_at, pbdh.description, pbdh.type,
         total_weight
         from partner_balance_delivery_histories pbdh
         left join (select * from codes where codeable_type = 'App\Models\Deliveries\Delivery') c on pbdh.delivery_id = c.codeable_id
@@ -124,7 +124,7 @@ class BalanceController extends Controller
         select pbh.partner_id, pbh.package_id as codeable_id, pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
         left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
         left join packages p2 on c2.codeable_id = p2.id
-        where pbh.partner_id = $partnerId and pbh.description = 'dooring' ";
+        where pbh.partner_id = $partnerId and pbh.description = 'dooring' order by created_at desc";
 
         return $q;
     }
@@ -146,7 +146,7 @@ class BalanceController extends Controller
         select pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
         left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
         left join packages p2 on c2.codeable_id = p2.id
-        where pbh.partner_id = $partnerId and pbh.type != 'withdraw'";
+        where pbh.partner_id = $partnerId and pbh.type != 'withdraw' order by date desc";
 
         return $q;
     }
