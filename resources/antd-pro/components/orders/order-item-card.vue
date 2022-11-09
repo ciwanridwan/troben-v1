@@ -88,7 +88,7 @@
       </a-col>
       <a-col :span="12">
         <a-row>
-          <a-col :span="12">Biaya Packing Bubble Warp</a-col>
+          <a-col :span="12">Biaya Packing {{ packing }}</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(handlingPrice) }}</b></a-col
@@ -104,12 +104,20 @@
         </a-row>
 
         <a-row>
+          <a-col :span="12">Biaya Tambahan</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ currency(extraCharge) }}</b></a-col
+          >
+        </a-row>
+
+        <!-- <a-row>
           <a-col :span="12">Biaya Pengiriman</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(servicePrice) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
 
         <a-divider />
 
@@ -381,6 +389,15 @@ export default {
       return this.selectCalculate == "kg"
         ? this.estPrice?.service_fee
         : this.cubicServicePrice;
+    },
+    extraCharge() {
+      let extraCharge = this.package?.prices;
+      extraCharge.forEach((el) => {
+        if (el.description == "additional" && el.type == "service") {
+          this.charge = el.amount;
+        }
+      });
+      return this.charge;
     },
     subTotalAmount() {
       return this.selectCalculate == "kg"
