@@ -11,7 +11,7 @@
           <span class="trawl-text-bolder">{{ transporter_type }}</span
           ><br />
           <span>Dimensi Max • 200 x 130 x 120</span><br />
-          <span>Berat Max • 700 kg tes</span>
+          <span>Berat Max • 700 kg</span>
         </div>
       </a-space>
     </a-col>
@@ -54,11 +54,17 @@
             prefix="Rp"
           />
         </a-col>
+      </a-row>
+      <a-divider v-if="getStatus == 'estimated' || getStatus == 'revamp'" />
+
+      <a-row type="flex">
         <a-col v-if="getPaymentStatus != 'draft'" :span="16">
           <span> Biaya Admin</span>
         </a-col>
         <a-col v-if="getPaymentStatus != 'draft'" :span="8">
-          <span> {{ currency(bankCharge) }} </span>
+          <span>
+            {{ currency(bankCharge) }}
+          </span>
         </a-col>
         <!--discount sebelum dikirim ke customer -->
         <a-col
@@ -73,10 +79,24 @@
         >
           {{ currency(serviceDiscount) }}
         </a-col>
-      </a-row>
-      <a-divider />
-
-      <a-row type="flex">
+        <a-col
+          v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+          :span="16"
+        >
+          <span>Diskon Penjemputan</span>
+        </a-col>
+        <a-col
+          v-if="getStatus != 'estimated' && getStatus != 'revamp'"
+          :span="8"
+        >
+          {{ currency(pickupDiscount) }}
+        </a-col>
+        <a-col :span="16">
+          <span>Biaya Pengiriman</span>
+        </a-col>
+        <a-col :span="8">
+          {{ currency(servicePrice) }}
+        </a-col>
         <a-col :span="16">
           <span class="trawl-text-bolder"> Total Charge Weight </span>
         </a-col>
@@ -140,7 +160,9 @@ export default {
       type: String,
     },
   },
-  components: { orderModalRowLayout },
+  components: {
+    orderModalRowLayout,
+  },
   computed: {
     transporter_type() {
       return this.package?.transporter_type;
@@ -179,7 +201,22 @@ export default {
       return this.package?.status;
     },
     serviceDiscount() {
-      return this.package?.discount_service_price;
+      var discountServicePrice = this.package?.prices;
+      discountServicePrice.forEach((el) => {
+        if (el.description == "service" && el.type == "discount") {
+          this.servicePriceDiscount = el.amount;
+        }
+      });
+      return this.servicePriceDiscount ? this.servicePriceDiscount : 0;
+    },
+    pickupDiscount() {
+      var discountPickupPrice = this.package?.prices;
+      discountPickupPrice.forEach((el) => {
+        if (el.description == "pickup" && el.type == "discount") {
+          this.pickupPriceDiscount = el.amount;
+        }
+      });
+      return this.pickupPriceDiscount ? this.pickupPriceDiscount : 0;
     },
     getPaymentStatus() {
       return this.package?.payment_status;
@@ -205,6 +242,9 @@ export default {
         }
       });
       return this.pickup;
+    },
+    servicePrice() {
+      return this.package?.service_price;
     },
   },
   methods: {

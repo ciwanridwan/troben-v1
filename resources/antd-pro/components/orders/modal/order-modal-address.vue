@@ -121,7 +121,7 @@ export default {
         return "Express";
       }
       if (this.package?.service_code == "tps") {
-        return "REG";
+        return "Reguler";
       }
     },
     code() {

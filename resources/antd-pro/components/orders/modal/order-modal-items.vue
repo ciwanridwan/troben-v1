@@ -11,6 +11,7 @@
           <a-radio
             v-if="
               !isMotorBike &&
+              isReguler &&
               (getStatus == 'estimated' || getStatus == 'revamp')
             "
             class="radio"
@@ -22,6 +23,7 @@
           <a-radio
             v-if="
               !isMotorBike &&
+              isReguler &&
               (getStatus == 'estimated' || getStatus == 'revamp')
             "
             class="radio"
@@ -106,6 +108,9 @@ export default {
     },
     getStatus() {
       return this.package?.status;
+    },
+    isReguler() {
+      return this.package?.service_code == "tps";
     },
   },
   mounted() {
