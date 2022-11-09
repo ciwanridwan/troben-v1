@@ -66,9 +66,9 @@ class BalanceController extends Controller
                     'created_at' => $k[0]->date,
                     'detail' => $k
                    ];
-                })->values();
+                })->values()->paginate(15);
 
-                return (new Response(Response::RC_SUCCESS, $this->paginate($result)->toArray()))->json();
+                return (new Response(Response::RC_SUCCESS, $result))->json();
                 break;
         }
     }
