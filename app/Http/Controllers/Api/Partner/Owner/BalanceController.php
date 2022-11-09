@@ -68,7 +68,7 @@ class BalanceController extends Controller
                    ];
                 })->values();
 
-                return (new Response(Response::RC_SUCCESS, $this->paginate($result)))->json();
+                return (new Response(Response::RC_SUCCESS, $this->paginate($result)->toArray()))->json();
                 break;
         }
     }
