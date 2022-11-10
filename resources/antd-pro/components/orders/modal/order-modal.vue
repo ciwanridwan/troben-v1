@@ -28,6 +28,7 @@
 
       <a-space direction="vertical" size="middle">
         <order-modal-items
+          @select="onSelectChange"
           @change="onItemChange"
           v-model="package.items"
           :modifiable="modifiable"
@@ -36,9 +37,9 @@
           :package="package"
         />
 
-        <order-modal-estimations :package="package" :price="price" />
+        <!-- <order-modal-estimations :package="package" :price="price" /> -->
 
-        <order-modal-delivery :package="package" />
+        <order-modal-delivery :package="package" :select="select" />
       </a-space>
 
       <template v-if="hasSlot('footer')" slot="footer">
@@ -106,6 +107,7 @@ export default {
       CarIcon,
       footer: undefined,
       price: null,
+      select: "kg",
     };
   },
   methods: {
@@ -124,6 +126,10 @@ export default {
     },
     onItemChange() {
       this.$emit("change");
+    },
+    onSelectChange(data) {
+      console.log("data", data);
+      this.select = data;
     },
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;

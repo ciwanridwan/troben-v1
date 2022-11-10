@@ -53,7 +53,7 @@ class WalkinController extends Controller
             'order_type' => ['nullable', 'in:bike,other'], // for check condition bike or not
         ]);
 
-        $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
+        // $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
 
         $inputs = $request->except('photos');
         foreach ($inputs as $key => $value) {
@@ -80,9 +80,18 @@ class WalkinController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
-        if ($request->input('order_type') === $this->bike) {
+        $bikes = [
+            'type' => $item->moto_type,
+            'merk' => $item->moto_merk,
+            'cc' => $item->moto_cc,
+            'years' => $item->moto_year,
+            'package_id' => null,
+            'package_item_id' => null
+        ];
+
+        if ($item->order_type === $this->bike) {
             $isSeparate = false;
-            $job = new CreateWalkinOrderTypeBike($inputs, $item, $isSeparate, $bikes);
+            $job = new CreateWalkinOrderTypeBike($inputs, $items[$key], $isSeparate, $bikes);
             $this->dispatchNow($job);
         } else {
             $job = new CreateWalkinOrder($inputs, $items);
@@ -91,10 +100,6 @@ class WalkinController extends Controller
 
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
-
-        // Copy from walkin order
-        /** @var Package $package */
-        // $package = $job->package;
 
         $job = new AssignFirstPartnerToPackage($job->package, $partner);
 
@@ -152,7 +157,8 @@ class WalkinController extends Controller
             }
 
             foreach ($paramsCalculator['items'] as $item) {
-                if ($item['is_insured'] == true) {
+                if (isset($item['is_insured']) && $item['is_insured'] == true){
+                // if ($item['is_insured'] == true) {
                     $insurance = $item['price'] * 0.002;
                 } else {
                     $insurance = 0;

@@ -5,14 +5,9 @@ namespace App\Listeners\Partners;
 use App\Actions\Pricing\PricingCalculator;
 use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
-// use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
 use App\Events\Deliveries\Dooring as DeliveryDooring;
-// use App\Events\Partners\Balance\WithdrawalApproved;
-// use App\Events\Partners\Balance\WithdrawalConfirmed;
-// use App\Events\Partners\Balance\WithdrawalRejected;
 use App\Events\Partners\Balance\WithdrawalRequested;
-// use App\Events\Partners\Balance\WithdrawalSuccess;
 use App\Jobs\Partners\Balance\CreateNewBalanceDeliveryHistory;
 use App\Jobs\Partners\Balance\CreateNewBalanceHistory;
 use App\Jobs\Partners\Balance\CreateNewFailedBalanceHistory;
@@ -32,7 +27,6 @@ use App\Models\User;
 use App\Notifications\Telegram\TelegramMessages\Finance\TransporterBalance;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -115,37 +109,15 @@ class GenerateBalanceHistory
 
         switch (true) {
             case $event instanceof WithdrawalRequested:
-                // case $event instanceof WithdrawalRequested || $event instanceof WithdrawalConfirmed || $event instanceof WithdrawalSuccess || $event instanceof WithdrawalRejected:
-                // dd($event->withdrawal->id);
                 $this
                     ->setWithdrawal($this->event->withdrawal)
                     ->setPartner($this->withdrawal->partner)
                     ->setBalance($this->withdrawal->amount)
                     ->setType(History::TYPE_WITHDRAW)
                     ->setDescription($this->getDescriptionByTypeWithdrawal())
-                    // ->setDisbursmentId($event->withdrawal->id)
                     ->setAttributes()
                     ->recordHistory();
                 break;
-
-                // case $event instanceof DeliveryPickup\DriverUnloadedPackageInWarehouse:
-                // if ($this->event->delivery->transporter) {
-                //     $this
-                //         ->setDelivery()
-                //         ->setPackages()
-                //         ->setTransporter()
-                //         ->setPartner($this->transporter->partner);
-                //     if ($this->partner->get_fee_pickup) {
-                //         $this
-                //             ->setPackage($this->packages[0])
-                //             ->setBalance($this->getPickupFee())
-                //             ->setType(History::TYPE_DEPOSIT)
-                //             ->setDescription(History::DESCRIPTION_PICKUP)
-                //             ->setAttributes()
-                //             ->recordHistory();
-                //     }
-                // }
-                // break;
             case $event instanceof DeliveryTransit\PackageLoadedByDriver || $event instanceof DeliveryDooring\PackageLoadedByDriver:
                 $this
                     ->setDelivery()
@@ -261,14 +233,18 @@ class GenerateBalanceHistory
                         }
                         /**Get Fee Pickup */
                         if ($this->partner->get_fee_pickup) {
-                            $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
-                            if ($balancePickup !== 0) {
-                                $this
-                                    ->setBalance($balancePickup)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_PICKUP)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                            if ($package->type == Package::TYPE_APP) {
+                                $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                if ($balancePickup !== 0) {
+                                    $this
+                                        ->setBalance($balancePickup)
+                                        ->setType(History::TYPE_DEPOSIT)
+                                        ->setDescription(History::DESCRIPTION_PICKUP)
+                                        ->setAttributes()
+                                        ->recordHistory();
+                                }
+                            } else {
+                                $balancePickup = 0;
                             }
                         }
 
@@ -286,7 +262,7 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
-                    if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() > 1) {
+                    if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() >= 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
                         foreach ($this->packages as $package) {
@@ -294,6 +270,7 @@ class GenerateBalanceHistory
                                 return $item->weight_borne_total;
                             });
                         }
+
                         if ($manifest_weight < 10) {
                             $manifest_weight = 10;
                         }
@@ -301,14 +278,12 @@ class GenerateBalanceHistory
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
-                            $price = PartnerTransitPrice::query()
-                                ->where('partner_id', $this->transporter->partner->id)
-                                ->where('origin_regency_id', $this->delivery->origin_regency_id)
-                                ->where('destination_regency_id', $this->delivery->destination_regency_id)
-                                ->where('type', $tier)
-                                ->first();
+                            $originRegencyId = $this->delivery->origin_regency_id;
+                            $destinationDistrictId = $this->delivery->destination_district_id;
 
-                            if (! $price || $price->value == 0) {
+                            $price = $this->getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId);
+
+                            if (!$price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -328,15 +303,18 @@ class GenerateBalanceHistory
                                 }
                                 break;
                             }
+
+                            $tierPrice = $this->getTransitTierPrice($package_count, $price, $tier);
                         } else {
                             /** @var \App\Models\Partners\Prices\Transit $price */
-                            $price = PartnerTransitPrice::query()
-                                ->where('partner_id', $this->transporter->partner->id)
-                                ->where('origin_regency_id', $this->delivery->origin_regency_id)
-                                ->where('destination_regency_id', $this->delivery->destination_regency_id)
-                                ->where('type', PartnerPrice::TYPE_FLAT)
-                                ->first();
-                            if (! $price) {
+                            $tier = PricingCalculator::getTierType($manifest_weight);
+
+                            $originRegencyId = $this->delivery->origin_regency_id;
+                            $destinationDistrictId = $this->delivery->destination_district_id;
+
+                            $price = $this->getTransitPriceWithMultiplePackages($this->packages, $originRegencyId, $destinationDistrictId);
+
+                            if (!$price || $price->isEmpty()) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -356,15 +334,18 @@ class GenerateBalanceHistory
                                 }
                                 break;
                             }
+
+                            $tierPrice = $this->getTransitTierPrice($package_count, $price, $tier);
                         }
 
-                        $this->setBalance($manifest_weight * $price->value);
-                        $income = $manifest_weight * $price->value;
+                        $this->setBalance($manifest_weight * $tierPrice);
+                        $income = $manifest_weight * $tierPrice;
+
                         $this
                             ->setType(DeliveryHistory::TYPE_DEPOSIT)
                             ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                            ->setAttributes()
-                            ->recordHistory();
+                            ->setAttributes(false)
+                            ->recordHistory(false);
 
                         $this->partner->balance += $income;
                         $this->partner->save();
@@ -404,21 +385,6 @@ class GenerateBalanceHistory
                     }
                 }
                 break;
-                //            case $event instanceof DeliveryDooring\PackageLoadedByDriver:
-                //                $this
-                //                    ->setDelivery()
-                //                    ->setPackages()
-                //                    ->setTransporter()
-                //                    ->setPartner($this->transporter->partner);
-                //
-                //                foreach ($this->packages as $package) {
-                //                    $this->setPackage($package);
-                //
-                //                    # total balance service > record service balance
-                //                    $this->saveServiceFee();
-                //                }
-                ////                $this->pushNotificationToOwner();
-                //                break;
             case $event instanceof DeliveryDooring\DriverUnloadedPackageInDooringPoint:
                 $this
                     ->setDelivery()
@@ -430,9 +396,6 @@ class GenerateBalanceHistory
                     break;
                 }
 
-                //                $weight = $this->package->items->sum(function ($item) {
-                //                    return $item->weight_borne_total;
-                //                });
                 $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
@@ -444,7 +407,7 @@ class GenerateBalanceHistory
                     ->where('type', $tier)
                     ->first();
 
-                if (! $price) {
+                if (!$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -467,6 +430,7 @@ class GenerateBalanceHistory
                     }
                     break;
                 }
+
                 /**Insert dooring income to balance partner */
                 $existingBalance = $this->partner->balance;
                 $income = $weight * $price->value;
@@ -480,7 +444,50 @@ class GenerateBalanceHistory
                     ->setDescription(History::DESCRIPTION_DOORING)
                     ->setAttributes()
                     ->recordHistory();
-                //                $this->pushNotificationToOwner();
+
+                // Set Income Delivery
+                if ($this->partner->get_fee_delivery) {
+                    $weight = $this->package->total_weight;
+                    $tier = PricingCalculator::getTierType($weight);
+                    $originPartner = $this->delivery->origin_partner()->first();
+
+
+                    $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
+
+                    if (!$price) {
+                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
+                        $this->dispatchNow($job);
+                        $payload = [
+                            'data' => [
+                                'package_code' => $this->package->code->content,
+                                'total_weight' => $weight,
+                                'partner_code' => $this->partner->code,
+                                'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
+                            ]
+                        ];
+                        try {
+                            Notification::send($payload, new TransporterBalance());
+                        } catch (\Exception $e) {
+                            report($e);
+                            Log::error('TransporterBalance-tlg-err', $payload);
+                        }
+                        break;
+                    }
+
+                    $tierPrice = $this->getTransitTierPrice(1, $price, $tier);
+
+                    $this->setBalance($weight * $tierPrice);
+                    $income = $weight * $tierPrice;
+
+                    $this
+                        ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                        ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                        ->setAttributes(false)
+                        ->recordHistory(false);
+
+                    $this->partner->balance += $income;
+                    $this->partner->save();
+                }
                 break;
         }
     }
@@ -638,20 +645,6 @@ class GenerateBalanceHistory
      */
     protected function getDescriptionByTypeWithdrawal(): string
     {
-        // LAST SCRIPT
-        // if ($this->withdrawal->status === Withdrawal::STATUS_CREATED) {
-        //     return History::DESCRIPTION_WITHDRAW_REQUEST;
-        // }
-        // if ($this->withdrawal->status === Withdrawal::STATUS_CONFIRMED) {
-        //     return History::DESCRIPTION_WITHDRAW_CONFIRMED;
-        // }
-        // if ($this->withdrawal->status === Withdrawal::STATUS_REJECTED) {
-        //     return History::DESCRIPTION_WITHDRAW_REJECT;
-        // }
-        // return History::DESCRIPTION_WITHDRAW_SUCCESS;
-        // END LAST
-
-        // TODO NEW SCRIPT
         switch ($this->withdrawal->status) {
             case Withdrawal::STATUS_REQUESTED:
                 return History::DESCRIPTION_WITHDRAW_REQUESTED;
@@ -782,24 +775,23 @@ class GenerateBalanceHistory
      */
     protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
+        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
         if ($variant == '0') {
             $discount = 0;
-            $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
-            $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
-                ->where('description', Price::TYPE_SERVICE)->first();
+            $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
             if (is_null($check)) {
                 $discount = 0;
             } else {
-                $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
-                    ->where('description', Price::TYPE_SERVICE)->first()->amount;
+                $discount = $check->amount;
             }
             // if ($check) {
             //     $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
             //         ->where('description', Price::TYPE_SERVICE)->first()->amount;
             // }
-            $balance_service = $service_price * $this->getServiceFee($type) - $discount;
+            $balance_service = ($service_price - $discount) * $this->getServiceFee($type);
         } else {
-            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+            // $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
+            $balance_service = $service_price * $this->getServiceFee($type);
         }
 
         $this
@@ -810,5 +802,150 @@ class GenerateBalanceHistory
             ->recordHistory();
 
         return $balance_service;
+    }
+
+    /**
+     * Get Transit Tier Price Of Partner Transporter
+     */
+    protected function getTransitTierPrice($package_count, $price, $tier): float
+    {
+        if ($package_count > 1) {
+            switch ($tier) {
+                case 1:
+                    return $price->sum('tier_1');
+                    break;
+                case 2:
+                    return $price->sum('tier_2');
+                    break;
+                case 3:
+                    return $price->sum('tier_3');
+                    break;
+                case 4:
+                    return $price->sum('tier_4');
+                    break;
+                case 5:
+                    return $price->sum('tier_5');
+                    break;
+                case 6:
+                    return $price->sum('tier_6');
+                    break;
+                case 7:
+                    return $price->sum('tier_7');
+                    break;
+                case 8:
+                    return $price->sum('tier_8');
+                    break;
+
+                default:
+                    return 0;
+                    break;
+            }
+        } else {
+            switch ($tier) {
+                case 1:
+                    return $price->tier_1;
+                    break;
+                case 2:
+                    return $price->tier_2;
+                    break;
+                case 3:
+                    return $price->tier_3;
+                    break;
+                case 4:
+                    return $price->tier_4;
+                    break;
+                case 5:
+                    return $price->tier_5;
+                    break;
+                case 6:
+                    return $price->tier_6;
+                    break;
+                case 7:
+                    return $price->tier_7;
+                    break;
+                case 8:
+                    return $price->tier_8;
+                    break;
+
+                default:
+                    return 0;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Get Transit Price By Type MTAK
+     * With A Single Packages
+     * @return PartnerTransitPrice $price
+     */
+    protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId)
+    {
+        $transitCount = $package->transit_count;
+
+        switch ($transitCount) {
+            case 1:
+                $price = PartnerTransitPrice::query()
+                    ->where('origin_regency_id', $originRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
+                    ->where('type', $transitCount)
+                    ->first();
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
+                break;
+
+            case 2:
+                $price = PartnerTransitPrice::query()
+                    ->where('origin_regency_id', $originRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
+                    ->where('type', $transitCount)
+                    ->first();
+
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
+                break;
+
+            default:
+                $price = PartnerTransitPrice::query()
+                    ->where('origin_regency_id', $originRegencyId)
+                    ->where('destination_district_id', $destinationDistrictId)
+                    ->where('type', $transitCount)
+                    ->first();
+
+                if (is_null($price)) {
+                    return 0;
+                } else {
+                    return $price;
+                }
+                break;
+        }
+    }
+
+    /**
+     * Get Transit Price By Type MTAK
+     * With A Multiple Packages
+     */
+    protected function getTransitPriceWithMultiplePackages($package, $originRegencyId, $destinationDistrictId)
+    {
+        $transitCount = [];
+
+        foreach ($package as $p) {
+            $count = $p['transit_count'];
+            array_push($transitCount, $count);
+        }
+
+        $price = PartnerTransitPrice::query()
+            ->where('origin_regency_id', $originRegencyId)
+            ->where('destination_district_id', $destinationDistrictId)
+            ->whereIn('type', $transitCount)
+            ->get();
+
+        return $price;
     }
 }

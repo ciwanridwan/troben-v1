@@ -15,19 +15,19 @@ class ReportPartnerTransporterResource extends JsonResource
     public function toArray($request)
     {
         $detail = [
-            'amount' => $this->balance,
-                'date' => $this->created_at->format('Y-m-d h:i:s'),
-                'description' => $this->description,
-                'package_code' => $this->deliveries->code->content,
-                'type' => $this->type,
-                'weight' => $this->deliveries->packages->first()->total_weight
+            'package_code' => $this->package_code,
+            'amount' => intval($this->total_amount),
+            'weight' => intval($this->total_weight),
+            'date' => $this->created_at,
+            'type' => $this->type,
+            'description' => $this->description,
         ];
         $detail = array($detail);
 
         return [
-            'package_code' => $this->deliveries->code->content,
-            'total_amount' => $this->balance,
-            'created_at' => $this->created_at->format('Y-m-d h:i:s'),
+            'package_code' => $this->package_code,
+            'total_amount' => intval($this->total_amount),
+            'created_at' => $this->created_at,
             'detail' => $detail
         ];
     }

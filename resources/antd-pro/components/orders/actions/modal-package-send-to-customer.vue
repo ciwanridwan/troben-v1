@@ -63,7 +63,14 @@ export default {
       });
 
       if (localStorage.getItem("getDiscount") > 0) {
-        url += `?discount=${localStorage.getItem("getDiscount")}`;
+        url += `?discount=${localStorage.getItem(
+          "getDiscount"
+        )}&type=${localStorage.getItem(
+          "type"
+        )}&calculate_type=${localStorage.getItem("calculateType")}`;
+      }
+      if (localStorage.getItem("getDiscount") == null) {
+        url += `?calculate_type=${localStorage.getItem("calculateType")}`;
       }
       this.$http
         .patch(url)
@@ -74,6 +81,8 @@ export default {
           this.visible = false;
           this.$emit("submit");
           localStorage.removeItem("getDiscount");
+          localStorage.removeItem("type");
+          localStorage.removeItem("calculateType");
         })
         .catch((error) => {
           this.onErrorResponse(error);

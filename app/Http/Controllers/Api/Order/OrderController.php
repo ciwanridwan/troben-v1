@@ -151,16 +151,14 @@ class OrderController extends Controller
 
         $serviceCode = $package->service_code;
 
-
+        $cubicPrice = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
         switch ($serviceCode) {
-            case Service::TRAWLPACK_CUBIC:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->get()->sum('amount');
-                break;
-            case Service::TRAWLPACK_EXPRESS:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->get()->sum('amount');
-                break;
             case Service::TRAWLPACK_STANDARD:
-                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $cubicPrice;
+                break;
+
+            default:
+                $service_price = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? $cubicPrice;
                 break;
         }
 
@@ -184,6 +182,9 @@ class OrderController extends Controller
         }
         $checkPayment = Payment::with('gateway')->where('payable_id', $package->id)
             ->where('payable_type', Package::class)->first();
+
+        $isWalkin = is_null($package->transporter_type) ? 'walkin' : 'app';
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -199,6 +200,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
+            'is_walkin' => $isWalkin,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
             // 'payments' => [
             //     'has_generate_payment' => $checkPayment ? true : false,

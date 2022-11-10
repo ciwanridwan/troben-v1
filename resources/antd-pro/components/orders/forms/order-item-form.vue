@@ -70,6 +70,7 @@ export default {
             moto_type: null,
             moto_merk: null,
             moto_year: null,
+            order_type: null
           },
           handling: {
             handling: false,
@@ -109,6 +110,7 @@ export default {
           moto_type: null,
           moto_merk: null,
           moto_year: null,
+          order_type:null
         },
         handling: {
           handling: false,

@@ -213,6 +213,7 @@ class Package extends Model implements AttachableContract
         'destination_sub_district_id',
         'received_by',
         'received_at',
+        'transit_count'
     ];
 
     protected $search_columns = [
@@ -270,6 +271,7 @@ class Package extends Model implements AttachableContract
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
+        'transit_count' => 'int'
     ];
 
     /**
@@ -354,13 +356,18 @@ class Package extends Model implements AttachableContract
             ->first();
         $discount = ($discount == null) ? 0 : $discount['amount'];
 
-        // return $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
-        $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount ?? 0;
-        if ($amount == null) {
-            return 0;
-        } else {
-            // return $amount - $discount;
-            return $amount;
+        $cubicPrice = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
+
+        switch ($this->service_code) {
+            case Service::TRAWLPACK_STANDARD:
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount ?? $cubicPrice;
+                return $amount;
+                break;
+
+            default:
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? $cubicPrice;
+                return $amount;
+                break;
         }
     }
 
@@ -627,7 +634,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -764,7 +771,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (! $transporterType) {
+        if (!$transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -814,13 +821,13 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(CancelOrder::class, 'package_id');
     }
 
+
     /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
      */
     public function getEstimationPricesAttribute()
     {
         if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
-
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
@@ -858,19 +865,31 @@ class Package extends Model implements AttachableContract
 
         $items = $this->items()->get();
 
-        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount');
+        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount') ?? 0;
 
-        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount');
+        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount') ?? 0;
 
+        $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
+
+        $additionalFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->sum('amount') ?? 0;
+
+        $cubicResult = 0;
         foreach ($items as $item) {
             $calculateCubic = $item->height * $item->width * $item->length / 1000000;
             $cubic[] = $calculateCubic;
             $cubicResult = array_sum($cubic);
         }
 
-        if ($cubicResult <= 3) {
-            $cubicResult = 3;
+        if (isset($cubicResult)) {
+            if ($cubicResult <= 3) {
+                $cubicResult = 3;
+            } else {
+                $cubicResult;
+            }
+        } else {
+            $cubicResult = 0;
         }
+
 
         if (is_null($cubicPrice)) {
             $serviceFee = 0;
@@ -880,11 +899,14 @@ class Package extends Model implements AttachableContract
 
         $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
+        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee;
+
         $result = [
             'handling_fee' => intval($handlingFee),
             'insurance_fee' => intval($insuranceFee),
             'service_fee' => $serviceFee,
-            'sub_total_amount' => $subTotalAmount
+            'sub_total_amount' => $subTotalAmount,
+            'total_amount' => $totalAmount
         ];
         return $result;
     }

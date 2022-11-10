@@ -173,6 +173,7 @@ export default {
     return {
       rules: {
         name: [{ required: true }],
+        order_type: [{required: true}],
         desc: [{ required: true }],
         length: [{ required: true }],
         width: [{ required: true }],
@@ -228,6 +229,7 @@ export default {
       default: () => {
         return {
           name: null,
+          order_type: null,
           desc: null,
           length: null,
           width: null,
@@ -239,6 +241,7 @@ export default {
           moto_type: null,
           moto_merk: null,
           moto_year: null,
+          order_type: null
         };
       },
     },
@@ -248,8 +251,10 @@ export default {
       handler: function (value) {
         if (value.name == "lainnya") {
           value.desc = this.item_desc;
+          value.order_type="other"
         } else if (value.name == "motor") {
           value.desc = "bike";
+          value.order_type= "bike"
         } else {
           value.desc = value.name;
         }
@@ -274,6 +279,7 @@ export default {
         this.value.moto_type = null;
         this.value.moto_merk = null;
         this.value.moto_year = null;
+        this.value.order_type = 'bike';
       } else {
         this.isMotor = false;
         this.value.length = null;
@@ -286,6 +292,7 @@ export default {
         this.value.moto_type = 0;
         this.value.moto_merk = 0;
         this.value.moto_year = 0;
+        this.value.order_type = 'other'
       }
     },
   },
