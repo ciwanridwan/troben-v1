@@ -832,9 +832,16 @@ class Package extends Model implements AttachableContract
             $results = [];
             foreach ($items as $item) {
                 if ($item->handling) {
-                    foreach ($item->handling as $packing) {
-                        $handlingFee = $packing['price'] * $item->qty;
-                    }
+                    $a = collect($item->handling)->map(function ($q) use ($item) {
+                        $p = $q['price'] * $item->qty;
+                        $r = [
+                            'type' => $q['type'],
+                            'price' => $p
+                        ];
+                        return $r;
+                    })->toArray();
+
+                    $handlingFee = array_sum(array_column($a, 'price'));
                 } else {
                     $handlingFee = 0;
                 }
@@ -844,7 +851,7 @@ class Package extends Model implements AttachableContract
                 $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
                 $result = [
-                    'handling_fee' => $handlingFee,
+                    'handling_fee' => $a,
                     'insurance_fee' => $insuranceFee,
                     'service_fee' => $serviceFee,
                     'sub_total_amount' => $subTotalAmount
