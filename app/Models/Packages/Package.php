@@ -831,6 +831,7 @@ class Package extends Model implements AttachableContract
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
+                $packingFee = 0;
                 if ($item->handling) {
                     $packingFee = collect($item->handling)->map(function ($q) use ($item) {
                         $p = $q['price'] * $item->qty;
