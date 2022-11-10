@@ -262,6 +262,12 @@ class GenerateBalanceHistory
                 # fee transporter
                 if ($this->partner->code !== $this->transporter->partner->code) {
                     $this->setPartner($this->transporter->partner);
+
+                    // except this partner, cant get income MTAK
+                    if ($this->partner->code === 'MTM-CGK-00') {
+                        break;
+                    }
+
                     if ($this->partner->get_fee_delivery && $this->countDeliveryTransitOfPackage() >= 1) {
                         $package_count = $this->delivery->packages->count();
                         $manifest_weight = 0;
