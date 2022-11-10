@@ -2,21 +2,30 @@
     <div>
         <content-layout>
             <template slot="head-tools">
-                <a-row type="flex" justify="end" :gutter="3" style="margin-top: 7px;">
-                    <a-select
-                        ref="select"
-                        v-model="check_status"
-                        style="width: 250px"
-                        size="large"
-                    >
-                        <a-select-option :value="null">Pilih status</a-select-option>
-                        <a-select-option value="transferred">Transferred</a-select-option>
-                        <a-select-option value="waiting">Waiting</a-select-option>
-                        <a-select-option value="ongoing">Ongoing</a-select-option>
-                    </a-select>
-                </a-row>
             </template>
             <template slot="content">
+                <a-card>
+                    <a-row :gutter="[24]">
+                        <a-col :span="12">
+                            <a-input-search
+                                placeholder="Cari nama agen"
+                                v-model="keyword"
+                            ></a-input-search>
+                        </a-col>
+                        <a-col :span="12">
+                            <a-select
+                                ref="select"
+                                v-model="check_status"
+                                size="large"
+                            >
+                                <a-select-option :value="null">Pilih status</a-select-option>
+                                <a-select-option value="transferred">Transferred</a-select-option>
+                                <a-select-option value="waiting">Waiting</a-select-option>
+                                <a-select-option value="on_going">Ongoing</a-select-option>
+                            </a-select>
+                        </a-col>
+                    </a-row>
+                </a-card>
                 <a-table
                     class="mt-3 mb-table"
                     :columns="disbursement"
@@ -46,7 +55,7 @@
                                 Transferred
                             </span>
                         </template>
-                        <template v-if="record.status == 'ongoing'">
+                        <template v-if="record.status == 'on_going'">
                             <input type="checkbox" disabled>
                             <span class="text-gray">On Going</span>
                         </template>
@@ -98,6 +107,7 @@ export default {
             req: {
                 checked: []
             },
+            keyword: ''
         };
     },
     created() {
@@ -107,9 +117,11 @@ export default {
         filteredItems() {
             return this.datas.filter(item => {
                 if(this.check_status != null){
-                    return item.status == this.check_status
+                    return (
+                        item.status == this.check_status && this.keyword.toLowerCase().split(' ').every(v => item.name.toLowerCase().includes(v))
+                    )
                 }else{
-                    return true
+                    return this.keyword.toLowerCase().split(' ').every(v => item.name.toLowerCase().includes(v))
                 }
             })
         }
@@ -163,7 +175,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .text-green{
         color: #3D8824;
     }
@@ -183,5 +195,8 @@ export default {
     }
     .ml-auto{
         margin-left: auto;
+    }
+    .ant-input{
+        height: 38px;
     }
 </style>

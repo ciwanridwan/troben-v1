@@ -1,9 +1,8 @@
 <?php
-if (!function_exists('to_rp_rvs')) {
-    function to_rp_rvs($value)
-    {
-        return number_format($value, 0, ',', '.');
-    }
+if ( ! function_exists('to_rp_rvs')) {
+	function to_rp_rvs($value) {
+		return number_format( $value, 0 , ',' , '.' );
+	}
 }
 if (!function_exists('date_parse_rvs')) {
     function date_parse_rvs($value)

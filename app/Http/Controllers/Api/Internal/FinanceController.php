@@ -623,7 +623,8 @@ class FinanceController extends Controller
                 'rows' => $getPendingReceipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
+                'partner_code' => $disbursment->partner->code
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -674,7 +675,8 @@ class FinanceController extends Controller
                 'rows' => $receipts,
                 'total_unapproved' => $totalUnApproved,
                 'total_approved' => $totalApproved,
-                'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
+                'partner_code' => $disbursment->partner->code
             ];
 
             return (new Response(Response::RC_SUCCESS, $data))->json();

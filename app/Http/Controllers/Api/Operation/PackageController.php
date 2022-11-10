@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Operation;
 
 use App\Models\Code;
+use App\Models\Packages\Price;
 use App\Models\Packages\Package;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
@@ -11,7 +12,6 @@ use App\Jobs\Operations\UpdateDeliveryStatus;
 use App\Jobs\Operations\UpdatePackageStatus as OperationsUpdatePackageStatus;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Price;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -210,20 +210,6 @@ class PackageController extends Controller
     /** End Todo */
 
 
-    /** Todo Declare Variable with array type to define status in CS
-     * CS Scale.
-     */
-    private function assignDriver(Request $request)
-    {
-        $status = [
-            'package_status' => Package::STATUS_WAITING_FOR_PICKUP,
-            'develiry_status' => Delivery::STATUS_ACCEPTED
-        ];
-
-        return $status;
-    }
-    /** End Todo */
-
     // this function for update Fee Pickup (biaya penjemputan)
     public function updatePickupFee(Request $request, string $content)
     {
@@ -241,4 +227,22 @@ class PackageController extends Controller
 
         return (new Response(Response::RC_UPDATED))->json();
     }
+    /** End Todo */
+
+
+    /** Todo Declare Variable with array type to define status in CS
+     * CS Scale.
+     */
+    private function assignDriver(Request $request)
+    {
+        $status = [
+            'package_status' => Package::STATUS_WAITING_FOR_PICKUP,
+            'develiry_status' => Delivery::STATUS_ACCEPTED
+        ];
+
+        return $status;
+    }
+    /** End Todo */
+
+    // this function for update Fee Pickup (biaya penjemputan)
 }

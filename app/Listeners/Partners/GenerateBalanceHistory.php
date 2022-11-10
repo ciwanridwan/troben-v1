@@ -129,7 +129,7 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     $variant = '1';
                     # total balance service > record service balance
-                    if (!$this->partner->get_fee_transit) {
+                    if (! $this->partner->get_fee_transit) {
                         break;
                     }
                     if ($this->countDeliveryTransitOfPackage() > 1) {
@@ -392,7 +392,7 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                if (!$this->partner->get_fee_dooring) {
+                if (! $this->partner->get_fee_dooring) {
                     break;
                 }
 
@@ -406,7 +406,7 @@ class GenerateBalanceHistory
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->where('type', $tier)
                     ->first();
-		
+
                 if (!$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
@@ -416,7 +416,7 @@ class GenerateBalanceHistory
                             'manifest_code' => $this->delivery->code->content,
                             'package_code' => $this->package->code->content,
                             'origin' => $this->partner->regency->name,
-                            'destination' => $this->package->destination_regency->name . ', ' . $this->package->destination_district->name . ', ' . $this->package->destination_sub_district->name,
+                            'destination' => $this->package->destination_regency->name.', '.$this->package->destination_district->name.', '.$this->package->destination_sub_district->name,
                             'package_weight' => $weight,
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
@@ -504,7 +504,7 @@ class GenerateBalanceHistory
 
         /** @var Template $notification */
         $notification = Template::query()->firstWhere('type', '=', Template::TYPE_PARTNER_BALANCE_UPDATED);
-        if (!is_null($owner->fcm_token)) {
+        if (! is_null($owner->fcm_token)) {
             return new PrivateChannel($owner, $notification);
         }
     }
@@ -775,9 +775,9 @@ class GenerateBalanceHistory
      */
     protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
+        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
         if ($variant == '0') {
             $discount = 0;
-            $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
             $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
             if (is_null($check)) {
                 $discount = 0;
@@ -790,7 +790,8 @@ class GenerateBalanceHistory
             // }
             $balance_service = ($service_price - $discount) * $this->getServiceFee($type);
         } else {
-            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+            // $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
+            $balance_service = $service_price * $this->getServiceFee($type);
         }
 
         $this

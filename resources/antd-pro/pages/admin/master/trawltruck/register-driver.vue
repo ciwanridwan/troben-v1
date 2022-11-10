@@ -213,12 +213,12 @@ export default {
   padding: 0 23px;
   height: 40px;
   border: 2px solid #3d8824;
-  color: #fff;
+  color: #3d8824;
   border-radius: 50px !important;
   &:hover {
     background-color: #fff;
     border: 2px solid #3d8824;
-    color: #fff;
+    color: #3d8824;
     border-radius: 50px !important;
   }
 }
