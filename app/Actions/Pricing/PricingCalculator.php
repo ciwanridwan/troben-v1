@@ -267,7 +267,7 @@ class PricingCalculator
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
-        
+
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
 
         $response = [
@@ -837,6 +837,7 @@ class PricingCalculator
             } else {
                 $item['additional_price'] = 0;
             }
+
             array_push($additionalPrice, $item['additional_price']);
         }
 
