@@ -50,7 +50,7 @@
           <a-col :span="9">Berat Barang</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ weight }}</b></a-col
+            ><b>{{ weight }} kg</b></a-col
           >
         </a-row>
 
@@ -66,7 +66,7 @@
           <a-col :span="9">Berat Volume</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ weight_volume }}</b></a-col
+            ><b>{{ weight_volume }} kg</b></a-col
           >
         </a-row>
 
@@ -87,11 +87,19 @@
         </a-row>
       </a-col>
       <a-col :span="12">
-        <a-row>
-          <a-col :span="12">Biaya Packing {{ packing }}</a-col>
+        <a-row v-for="(item, index) in handlingPrice" :key="index">
+          <a-col :span="12">Biaya Packing {{ item.type }}</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ currency(handlingPrice) }}</b></a-col
+            ><b>{{ currency(item.price) }}</b></a-col
+          >
+        </a-row>
+
+        <a-row>
+          <a-col :span="12">Total Packing</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ currency(totalHandlingPrice) }}</b></a-col
           >
         </a-row>
 
@@ -376,14 +384,23 @@ export default {
       return this.pickup;
     },
     handlingPrice() {
-      return this.selectCalculate == "kg"
-        ? this.estPrice?.handling_fee
-        : this.cubicHandlingPrice;
+      // return this.selectCalculate == "kg"
+      //   ? this.estPrice?.handling_fee
+      //   : this.cubicHandlingPrice;
+      return this.estPrice?.handling_fee;
+    },
+    totalHandlingPrice() {
+      let total_price = 0;
+      this.handlingPrice.forEach((el) => {
+        total_price += el.price;
+      });
+      return total_price;
     },
     insurancePrice() {
-      return this.selectCalculate == "kg"
-        ? this.estPrice?.insurance_fee.toString().split(".")[0]
-        : this.cubicInsurancePrice;
+      // return this.selectCalculate == "kg"
+      //   ? this.estPrice?.insurance_fee.toString().split(".")[0]
+      //   : this.cubicInsurancePrice;
+      return this.estPrice?.insurance_fee.toString().split(".")[0];
     },
     servicePrice() {
       return this.selectCalculate == "kg"
@@ -391,18 +408,20 @@ export default {
         : this.cubicServicePrice;
     },
     extraCharge() {
-      let extraCharge = this.package?.prices;
-      extraCharge.forEach((el) => {
-        if (el.description == "additional" && el.type == "service") {
-          this.charge = el.amount;
-        }
-      });
-      return this.charge;
+      // let extraCharge = this.package?.prices;
+      // extraCharge.forEach((el) => {
+      //   if (el.description == "additional" && el.type == "service") {
+      //     this.charge = el.amount;
+      //   }
+      // });
+      // return this.charge;
+      return this.estPrice?.additional_fee;
     },
     subTotalAmount() {
-      return this.selectCalculate == "kg"
-        ? this.estPrice?.sub_total_amount.toString().split(".")[0]
-        : this.cubicSubTotalAmount;
+      // return this.selectCalculate == "kg"
+      //   ? this.estPrice?.sub_total_amount.toString().split(".")[0]
+      //   : this.cubicSubTotalAmount;
+      return this.estPrice?.sub_total_amount.toString().split(".")[0];
     },
     cubicHandlingPrice() {
       return this.package?.estimation_cubic_prices?.handling_fee;
