@@ -824,6 +824,7 @@ class PricingCalculator
             } else {
                 $item['additional_price'] = 0;
             }
+
             array_push($additionalPrice, $item['additional_price']);
         }
 

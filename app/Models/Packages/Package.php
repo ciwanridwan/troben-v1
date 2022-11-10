@@ -832,20 +832,30 @@ class Package extends Model implements AttachableContract
             $results = [];
             foreach ($items as $item) {
                 if ($item->handling) {
-                    foreach ($item->handling as $packing) {
-                        $handlingFee = $packing['price'] * $item->qty;
-                    }
+                    $packingFee = collect($item->handling)->map(function ($q) use ($item) {
+                        $p = $q['price'] * $item->qty;
+                        $r = [
+                            'type' => $q['type'],
+                            'price' => $p
+                        ];
+                        return $r;
+                    })->toArray();
+
+                    $handlingFee = array_sum(array_column($packingFee, 'price'));
                 } else {
                     $handlingFee = 0;
                 }
 
+                $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
+
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
                 $serviceFee = $item->weight * $this->tier_price;
-                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee + $additionalFee;
 
                 $result = [
-                    'handling_fee' => $handlingFee,
+                    'handling_fee' => $packingFee,
                     'insurance_fee' => $insuranceFee,
+                    'additional_fee' => $additionalFee,
                     'service_fee' => $serviceFee,
                     'sub_total_amount' => $subTotalAmount
                 ];
@@ -909,5 +919,33 @@ class Package extends Model implements AttachableContract
             'total_amount' => $totalAmount
         ];
         return $result;
+    }
+
+    /**
+     * @param Item $items
+     * @param string $serviceCode
+     * @return array $price
+     */
+    private function getAdditionalFeePerItem($item, $serviceCode)
+    {
+        $additionalPrice = 0;
+        $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+        $item['additional_price'] = 0;
+
+        if ($totalWeight < 100) {
+            $item['additional_price'] = 0;
+        } elseif ($totalWeight < 300) {
+            $item['additional_price'] = 100000;
+        } elseif ($totalWeight < 2000) {
+            $item['additional_price'] = 250000;
+        } elseif ($totalWeight < 5000) {
+            $item['additional_price'] = 1500000;
+        } else {
+            $item['additional_price'] = 0;
+        }
+
+        $additionalPrice = $item['additional_price'];
+
+        return $additionalPrice;
     }
 }
