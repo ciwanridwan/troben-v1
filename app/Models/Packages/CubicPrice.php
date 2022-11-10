@@ -24,8 +24,8 @@ class CubicPrice extends Model
         'notes',
         'service_code'
     ];
-    
-    
+
+
     protected $casts = [
         'amount' => 'float',
         'zip_code' => 'int'

@@ -109,6 +109,9 @@ export default {
     receiver_way_point() {
       return this.package?.receiver_way_point;
     },
+    receiver_way_point() {
+        return this.package?.receiver_way_point;
+      },
     receiver_phone() {
       return this.package?.receiver_phone;
     },

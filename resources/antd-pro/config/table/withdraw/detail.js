@@ -1,6 +1,6 @@
 export default [
     {
-      title: "No Resi",
+      title: "Code",
       key: "code",
       scopedSlots: { customRender: "code" }
     },

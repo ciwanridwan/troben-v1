@@ -162,7 +162,7 @@ export default {
     getDriverList() {
       this.loading = true;
       axios
-        .get(`https://ae.trawlbens.com/account/accountList`, {
+        .get(process.env.MIX_TB_AE_URL + `/account/accountList`, {
           headers: {
             Authorization: `Bearer ${this.$laravel.jwt_token}`,
           },
@@ -187,7 +187,7 @@ export default {
     changeStatus(id) {
       var data = { is_active: this.is_active };
       axios
-        .patch(`https://ae.trawlbens.com/account/setAccountStatus`, data, {
+        .patch(process.env.MIX_TB_AE_URL + `/account/setAccountStatus`, data, {
           params: {
             id: id,
           },
@@ -213,12 +213,12 @@ export default {
   padding: 0 23px;
   height: 40px;
   border: 2px solid #3d8824;
-  color: #fff;
+  color: #3d8824;
   border-radius: 50px !important;
   &:hover {
     background-color: #fff;
     border: 2px solid #3d8824;
-    color: #fff;
+    color: #3d8824;
     border-radius: 50px !important;
   }
 }

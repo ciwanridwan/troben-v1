@@ -10,20 +10,32 @@
                       </h2>
                     </a-col>
                     <a-col :span="7">
-                      <a-select
-                        ref="select"
-                        v-model="sort_by"
-                        size="large"
-                    >
-                        <a-select-option :value="null">Sort by</a-select-option>
-                        <a-select-option :value="true">Koordinator</a-select-option>
-                        <a-select-option :value="false">Agen Trawlbens</a-select-option>
-                      </a-select>
                     </a-col>
                   </a-row>
                 </div>
+                <a-card class="mt-3">
+                    <a-row :gutter="[24]">
+                        <a-col :span="12">
+                            <a-input-search
+                                placeholder="Cari nama"
+                                v-model="keyword"
+                            ></a-input-search>
+                        </a-col>
+                        <a-col :span="12">
+                          <a-select
+                            ref="select"
+                            v-model="sort_by"
+                            size="large"
+                        >
+                            <a-select-option :value="null">Sort by</a-select-option>
+                            <a-select-option :value="true">Koordinator</a-select-option>
+                            <a-select-option :value="false">Agen Trawlbens</a-select-option>
+                          </a-select>
+                        </a-col>
+                    </a-row>
+                </a-card>
                 <a-table
-                    class="mt-3"
+                    class="mt-1"
                     :columns="teamAgentColumns"
                     :loading="loading"
                     :data-source="filteredItems"
@@ -88,7 +100,8 @@ export default {
                 data: [],
             },
             sort_by: null,
-            is_coordinator: false
+            is_coordinator: false,
+            keyword: ''
         };
     },
     created() {
@@ -98,9 +111,9 @@ export default {
         filteredItems() {
             return this.lists.data.filter(item => {
                 if(this.sort_by != null){
-                    return item.is_coordinator == this.sort_by
+                    return item.is_coordinator == this.sort_by && this.keyword.toLowerCase().split(' ').every(v => item.coordinator_name.toLowerCase().includes(v))
                 }else{
-                    return true
+                    return this.keyword.toLowerCase().split(' ').every(v => item.coordinator_name.toLowerCase().includes(v))
                 }
             })
         }
@@ -112,7 +125,7 @@ export default {
         },
         getTeamList(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/agent/teamList`, {
+            axios.get(process.env.MIX_TB_AE_URL + `/agent/teamList`, {
                 headers: {
                     Authorization: `Bearer ${this.$laravel.jwt_token}`
                 }
@@ -130,7 +143,7 @@ export default {
             });
         },
         changeStatus(code){
-            axios.patch(`https://ae.trawlbens.com/agent/setCoordinator`, null, {
+            axios.patch(process.env.MIX_TB_AE_URL + `/agent/setCoordinator`, null, {
                 params: {
                     code: code
                 },

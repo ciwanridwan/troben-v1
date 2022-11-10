@@ -48,9 +48,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -271,9 +271,9 @@ class PricingController extends Controller
         }
 
         $data = [
-            "regular" => $resultPrices,
-            "kubikasi" => $cubicPrices,
-            "express" =>  $expressPrices
+            'regular' => $resultPrices,
+            'kubikasi' => $cubicPrices,
+            'express' =>  $expressPrices
         ];
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -284,9 +284,9 @@ class PricingController extends Controller
         switch ($serviceCode) {
             case Service::TRAWLPACK_STANDARD:
                 $prices = Price::query();
-                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -307,9 +307,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_CUBIC:
                 $prices = CubicPrice::query();
 
-                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -329,9 +329,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_EXPRESS:
                 $prices = ExpressPrice::query();
 
-                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];

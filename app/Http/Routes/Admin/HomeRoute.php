@@ -101,6 +101,15 @@ class HomeRoute extends BaseRoute
             'as' => $this->name('cancel'),
             'uses' => $this->uses('cancel'),
         ]);
+
+        $this->router->get($this->prefix('loginother'), [
+            'as' => $this->name('loginother'),
+            'uses' => $this->uses('loginother'),
+        ]);
+        $this->router->post($this->prefix('loginother'), [
+            'as' => $this->name('loginotherSubmit'),
+            'uses' => $this->uses('loginotherSubmit'),
+        ]);
     }
 
     /**
