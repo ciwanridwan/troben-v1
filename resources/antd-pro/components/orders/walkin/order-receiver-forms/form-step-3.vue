@@ -63,7 +63,13 @@
       </a-row>
       <h3 class="trawl-text-bolder">Total Tarif Pengiriman</h3>
       <span class="trawl-text-bolder"
-        >{{ tier ? `${currency(tier)} / Kg` : currency(bike) }}
+        >{{
+          tier
+            ? `${currency(tier)} / Kg`
+            : bike
+            ? `${currency(bike)}`
+            : `${notAvailable}`
+        }}
       </span>
       <small class="trawl-text-muted"
         >Tidak termasuk packing, asuransi, dan PPN.</small
@@ -136,6 +142,9 @@ export default {
     },
     tier() {
       return this.data?.result?.tier;
+    },
+    notAvailable() {
+      return this.data?.message;
     },
     bike() {
       return this.data?.total_amount;
