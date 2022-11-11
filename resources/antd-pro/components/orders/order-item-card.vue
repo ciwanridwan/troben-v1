@@ -387,7 +387,18 @@ export default {
       // return this.selectCalculate == "kg"
       //   ? this.estPrice?.handling_fee
       //   : this.cubicHandlingPrice;
-      return this.estPrice?.handling_fee;
+      let result = [];
+      if (this.estPrice?.handling_fee) {
+        result = this.estPrice?.handling_fee;
+      } else {
+        result = [
+          {
+            type: "",
+            price: 0,
+          },
+        ];
+      }
+      return result;
     },
     totalHandlingPrice() {
       let total_price = 0;
