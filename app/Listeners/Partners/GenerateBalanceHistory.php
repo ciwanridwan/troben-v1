@@ -807,13 +807,8 @@ class GenerateBalanceHistory
             } else {
                 $discount = $check->amount;
             }
-            // if ($check) {
-            //     $discount = $this->package->prices->where('type', Price::TYPE_DISCOUNT)
-            //         ->where('description', Price::TYPE_SERVICE)->first()->amount;
-            // }
-            $balance_service = ($service_price - $discount) * $this->getServiceFee($type);
+            $balance_service = ($service_price  * $this->getServiceFee($type)) - $discount;
         } else {
-            // $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
             $balance_service = $service_price * $this->getServiceFee($type);
         }
 
