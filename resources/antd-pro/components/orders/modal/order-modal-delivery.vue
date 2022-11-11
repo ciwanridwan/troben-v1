@@ -95,7 +95,11 @@
           <span>Biaya Pengiriman</span>
         </a-col>
         <a-col :span="8">
-          {{ currency(servicePrice) }}
+          {{
+            select == "kg"
+              ? currency(servicePrice)
+              : currency(servicePriceCubic)
+          }}
         </a-col>
         <a-col :span="16">
           <span class="trawl-text-bolder"> Total Charge Weight </span>
@@ -169,8 +173,9 @@ export default {
     },
     isSenderToAddress() {
       return (
-        this.package?.canceled?.type == "return_to_sender_address" &&
-        this.package?.status == "waiting_for_cancel_payment" || this.package?.status == "paid_cancel"
+        (this.package?.canceled?.type == "return_to_sender_address" &&
+          this.package?.status == "waiting_for_cancel_payment") ||
+        this.package?.status == "paid_cancel"
       );
     },
     totalAmount() {
@@ -245,6 +250,9 @@ export default {
     },
     servicePrice() {
       return this.package?.service_price;
+    },
+    servicePriceCubic() {
+      return this.package?.estimation_cubic_prices?.service_fee;
     },
   },
   methods: {
