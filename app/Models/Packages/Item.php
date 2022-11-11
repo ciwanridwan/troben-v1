@@ -154,12 +154,15 @@ class Item extends Model implements AttachableContract
     }
     public function getWeightVolumeAttribute()
     {
+        $serviceCode = $this->package()->first()->service_code;
+
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->service_code));
+            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $serviceCode));
         }
-        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->service_code));
+
+        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $serviceCode));
     }
     public function getTierPriceAttribute()
     {
@@ -192,6 +195,6 @@ class Item extends Model implements AttachableContract
 
     private function getHandling()
     {
-        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+        return !empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 }
