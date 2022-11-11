@@ -75,6 +75,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $destination_regency_id
  * @property int $destination_district_id
  * @property int $destination_sub_district_id
+ * @property int $transit_count
  * @property string|null $received_by
  * @property \Carbon\Carbon|null $received_at
  * @property array $handling
@@ -850,14 +851,14 @@ class Package extends Model implements AttachableContract
                 $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
 
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-                $serviceFee = $item->weight * $this->tier_price;
-                $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee + $additionalFee;
+                // $serviceFee = $item->weight * $this->tier_price;
+                $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
 
                 $result = [
                     'handling_fee' => $packingFee,
                     'insurance_fee' => $insuranceFee,
                     'additional_fee' => $additionalFee,
-                    'service_fee' => $serviceFee,
+                    // 'service_fee' => $serviceFee,
                     'sub_total_amount' => $subTotalAmount
                 ];
 
