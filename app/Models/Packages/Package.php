@@ -75,6 +75,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $destination_regency_id
  * @property int $destination_district_id
  * @property int $destination_sub_district_id
+ * @property int $transit_count
  * @property string|null $received_by
  * @property \Carbon\Carbon|null $received_at
  * @property array $handling
@@ -831,6 +832,7 @@ class Package extends Model implements AttachableContract
             $items = $this->items()->get();
             $results = [];
             foreach ($items as $item) {
+                $packingFee = 0;
                 if ($item->handling) {
                     $packingFee = collect($item->handling)->map(function ($q) use ($item) {
                         $p = $q['price'] * $item->qty;
