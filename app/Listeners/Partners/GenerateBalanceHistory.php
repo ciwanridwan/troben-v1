@@ -415,9 +415,6 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                if (!$this->partner->get_fee_dooring) {
-                    break;
-                }
 
                 $weight = $this->package->total_weight;
 
@@ -430,7 +427,7 @@ class GenerateBalanceHistory
                     ->where('type', $tier)
                     ->first();
 
-                if (!$price || is_null($price)) {
+                if (!$this->partner->get_fee_dooring || !$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -451,22 +448,21 @@ class GenerateBalanceHistory
                         report($e);
                         Log::error('TransporterBalance-tlg-err', $payload);
                     }
-                    break;
+                } else {
+                    // set income dooring
+                    $existingBalance = $this->partner->balance;
+                    $income = $weight * $price->value;
+                    $balance = $existingBalance + $income;
+
+                    $this->partner->balance = $balance;
+                    $this->partner->save();
+                    $this
+                        ->setBalance($weight * $price->value)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_DOORING)
+                        ->setAttributes()
+                        ->recordHistory();
                 }
-
-                /**Insert dooring income to balance partner */
-                $existingBalance = $this->partner->balance;
-                $income = $weight * $price->value;
-                $balance = $existingBalance + $income;
-
-                $this->partner->balance = $balance;
-                $this->partner->save();
-                $this
-                    ->setBalance($weight * $price->value)
-                    ->setType(History::TYPE_DEPOSIT)
-                    ->setDescription(History::DESCRIPTION_DOORING)
-                    ->setAttributes()
-                    ->recordHistory();
 
                 // Set Income Delivery
                 if ($this->partner->get_fee_delivery) {
