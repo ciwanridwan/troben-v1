@@ -181,14 +181,52 @@ class ProcessFromCodeToDelivery
                 });
             } else {
                 $originPartner = $this->delivery->origin_partner()->first();
-                $destinationPartner = $this->delivery->partner()->first();
 
-                if ($originPartner->geo_regency_id !== $destinationPartner->geo_regency_id) {
+                if (in_array($originPartner->geo_regency_id, array_values($this->exceptRegency()))) {
+                    $this->package_codes->each(function (Code $packageCode) {
+                        $this->setDefaultTransitCount($packageCode);
+                    });
+                } else {
                     $this->package_codes->each(function (Code $packageCode) {
                         $this->setTransitCount($packageCode);
                     });
                 }
             }
         }
+    }
+
+    /**
+     *  Exception regencies
+     * @return array $data
+     */
+    private function exceptRegency()
+    {
+        return [
+            "jakbar" => 58,
+            "jakpus" => 59,
+            "jaksel" => 60,
+            "jaktim" => 61,
+            "jaksel" => 62,
+            'depok' =>  98,
+            'kota_bogor' =>  77,
+            'kab_bogor' =>  95,
+            'kab_bekasi' =>  76,
+            'kota_bekasi' =>  94,
+            'kab_tangerang' =>  36,
+            'kota_tangerang' =>  39,
+            'kota_tangsel' =>  40,
+        ];
+    }
+
+    /**
+     * @return int $transit_count
+     */
+    private function setDefaultTransitCount($packageCode)
+    {
+        $this->code = $packageCode;
+
+        $packages = $this->code->codeable instanceof Package ? $this->code->codeable : $this->code->codeable->package;
+        $packages->transit_count = 0;
+        $packages->save();
     }
 }
