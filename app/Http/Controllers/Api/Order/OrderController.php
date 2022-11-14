@@ -50,6 +50,7 @@ use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 class OrderController extends Controller
 {
@@ -734,15 +735,16 @@ class OrderController extends Controller
     /**
      * asdasds
     */
-    private function createMultiDestination(Request $request)
+    public function storeMultiDestination(Request $request)
     {
         $request->validate([
             'package_parent_hash' => ['nullable'],
             'package_child_hash' => ['nullable', 'array'],
         ]);
 
+        $a = Package::query()->byHash($request->package_child_hash)->get();
+        dd($a);
         $data = new MultiDestination();
-
         $data->save();
     }
 }
