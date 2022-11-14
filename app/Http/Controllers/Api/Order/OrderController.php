@@ -48,6 +48,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
 
 class OrderController extends Controller
@@ -231,7 +232,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (! $voucher) {
+        if (!$voucher) {
             $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
@@ -254,7 +255,7 @@ class OrderController extends Controller
             return $default;
         }
 
-        if (! is_null($voucher->aevoucher)) {
+        if (!is_null($voucher->aevoucher)) {
             return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
         }
 
@@ -281,7 +282,7 @@ class OrderController extends Controller
             'photos.*' => ['nullable', 'image'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
-            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id']
         ]);
 
         $origin_regency_id = $request->get('origin_regency_id');
@@ -328,7 +329,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
@@ -390,7 +391,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -439,7 +440,7 @@ class OrderController extends Controller
                 $pickup_discount_price->delete();
             }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (! $voucher) {
+            if (!$voucher) {
                 $partnerId = $request->get('partner_id');
                 if ($partnerId != null) {
                     // add fallback to Voucher AE
@@ -536,7 +537,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (! $code->exists) {
+        if (!$code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -547,7 +548,7 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
@@ -678,7 +679,7 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;
@@ -728,5 +729,20 @@ class OrderController extends Controller
                 return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
+    }
+
+    /**
+     * asdasds
+    */
+    private function createMultiDestination(Request $request)
+    {
+        $request->validate([
+            'package_parent_hash' => ['nullable'],
+            'package_child_hash' => ['nullable', 'array'],
+        ]);
+
+        $data = new MultiDestination();
+
+        $data->save();
     }
 }
