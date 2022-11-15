@@ -72,7 +72,7 @@ class OrderController extends Controller
         );
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes', 'multiDestination.packages');
 
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
@@ -137,6 +137,7 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district',
+            // 'multiParents'
         )->append('transporter_detail');
 
         /** Price Of Item */
