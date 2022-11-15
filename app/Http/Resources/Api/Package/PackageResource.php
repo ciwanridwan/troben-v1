@@ -9,6 +9,7 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
+use HashId\HashId;
 
 /**
  * Class PackageResource.
@@ -97,6 +98,23 @@ class PackageResource extends JsonResource
             ->where('status', ['pending', 'success'])
             ->first() ?? null;
 
+        $isMulti = false;
+        $isMultiChild = false;
+        $parentHash = null;
+        $childHash = [];
+
+        if ($this->resource->multiDestination->count()) {
+            $isMulti = true;
+            $isMultiChild = true;
+            $childHash = $this->resource->multiDestination->map(function($r) {
+                return ["package_hash" => Package::idToHash($r['child_id'])];
+            })->toArray();
+        }
+        if (! is_null($this->resource->parentDestination)) {
+            $isMulti = true;
+            $parentHash = $data['hash'];
+        }
+
         /**New script for response */
         $result = [
             'hash' => $data['hash'],
@@ -110,7 +128,10 @@ class PackageResource extends JsonResource
             'has_generate_payment' => $checkIfPaymentHasGenerate,
             'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
-            'multi_destination' => $this->resource->multiDestination ? MultiDestinationResource::make($this->resource->multiDestination) : null
+            'is_multi' => $isMulti,
+            'is_multi_child' => $isMultiChild,
+            'multi_hash' => $parentHash,
+            'multi_hash_child' => $childHash,
         ];
 
         if (isset($data['picked_up_by'])) {

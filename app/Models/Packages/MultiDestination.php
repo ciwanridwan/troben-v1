@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 class MultiDestination extends Model
 {
-    use HasFactory;
+    use HasFactory, HashableId;
 
     protected $table = 'multi_destination_packages';
 
     protected $fillable = ['parent_id', 'child_id'];
 
-    protected $hidden = ['id', 'parent_id', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'created_at', 'updated_at'];
 
     public function packages(): BelongsTo
     {

@@ -72,8 +72,7 @@ class OrderController extends Controller
         );
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes', 'multiDestination.packages');
-
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes', 'multiDestination', 'parentDestination');
         $paginate = $query->paginate();
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }

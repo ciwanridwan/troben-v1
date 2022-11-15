@@ -14,6 +14,9 @@ class MultiDestinationResource extends JsonResource
      */
     public function toArray($request)
     {
-        return $this->resource->load('packages') ?? null;
+        // return [
+        //     'parent_id' => $this->parent_id,
+        //     'child_id' => $this->child_id
+        // ];
     }
 }
