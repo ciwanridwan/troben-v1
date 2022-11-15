@@ -159,7 +159,8 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
-            'items.*.handling' => ['nullable']
+            'items.*.handling' => ['nullable'],
+            'is_multi' => ['nullable', 'boolean']
         ]);
 
         $serviceCode = $inputs['service_code'];
@@ -200,6 +201,12 @@ class PricingCalculator
                     $pickup_price = 15000 + (4000 * $substraction);
                 }
             }
+        }
+
+        if ($inputs['is_multi']) {
+            $pickup_price = 0;
+        } else {
+            $pickup_price;
         }
 
         $discount = 0;

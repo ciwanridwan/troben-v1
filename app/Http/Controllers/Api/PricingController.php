@@ -69,6 +69,10 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
+        $request->validate([
+            'is_multi' => ['nullable', 'boolean']
+        ]);
+
         $origin_regency_id = $request->get('origin_regency_id');
         $destination_id = $request->get('destination_id');
         if ($origin_regency_id == null) {
