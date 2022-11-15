@@ -734,17 +734,25 @@ class OrderController extends Controller
 
     /**
      * asdasds
-    */
+     */
     public function storeMultiDestination(Request $request)
     {
         $request->validate([
-            'package_parent_hash' => ['nullable'],
+            'package_parent_hash' => ['nullable', 'string'],
             'package_child_hash' => ['nullable', 'array'],
         ]);
 
-        $a = Package::query()->byHash($request->package_child_hash)->get();
-        dd($a);
-        $data = new MultiDestination();
-        $data->save();
+        $parentPackage = Package::hashToId($request->package_parent_hash);
+        $childPackage = $request->package_child_hash;
+
+        for ($i = 0; $i < count($childPackage); $i++) {
+
+            MultiDestination::create([
+                'parent_id' => $parentPackage,
+                'child_id' => Package::hashToId($childPackage[$i])
+            ]);
+        }
+
+        return (new Response(Response::RC_CREATED))->json();
     }
 }
