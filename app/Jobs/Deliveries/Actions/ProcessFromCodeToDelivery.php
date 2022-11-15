@@ -181,7 +181,6 @@ class ProcessFromCodeToDelivery
                 });
             } else {
                 $originPartner = $this->delivery->origin_partner()->first();
-
                 if (in_array($originPartner->geo_regency_id, array_values($this->exceptRegency()))) {
                     $this->package_codes->each(function (Code $packageCode) {
                         $this->setDefaultTransitCount($packageCode);
@@ -206,15 +205,15 @@ class ProcessFromCodeToDelivery
             "jakpus" => 59,
             "jaksel" => 60,
             "jaktim" => 61,
-            "jaksel" => 62,
-            'depok' =>  98,
-            'kota_bogor' =>  77,
-            'kab_bogor' =>  95,
-            'kab_bekasi' =>  76,
-            'kota_bekasi' =>  94,
-            'kab_tangerang' =>  36,
-            'kota_tangerang' =>  39,
-            'kota_tangsel' =>  40,
+            "jakut" => 62,
+            "depok" =>  98,
+            "kota_bogor" =>  77,
+            "kab_bogor" =>  95,
+            "kab_bekasi" =>  76,
+            "kota_bekasi" =>  94,
+            "kab_tangerang" =>  36,
+            "kota_tangerang" =>  39,
+            "kota_tangsel" =>  40,
         ];
     }
 

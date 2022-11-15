@@ -123,7 +123,6 @@ class GenerateBalanceHistory
                     ->setDelivery()
                     ->setPackages()
                     ->setPartner($this->delivery->origin_partner);
-
                 /** @var Package $package */
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
@@ -132,6 +131,7 @@ class GenerateBalanceHistory
                     if (!$this->partner->get_fee_transit) {
                         break;
                     }
+
                     if ($this->countDeliveryTransitOfPackage() > 1) {
                         // $this->saveServiceFee($this->partner->type, $variant, true);
                         /**Set fee transit to be income partner */
@@ -805,7 +805,7 @@ class GenerateBalanceHistory
             }
             $balance_service = ($service_price  * $this->getServiceFee($type)) - $discount;
         } else {
-            $balance_service = $service_price * $this->getServiceFee($type);
+            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
 
         $this
