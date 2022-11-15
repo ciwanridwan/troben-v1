@@ -106,13 +106,15 @@ class PackageResource extends JsonResource
         if ($this->resource->multiDestination->count()) {
             $isMulti = true;
             $isMultiChild = true;
-            $childHash = $this->resource->multiDestination->map(function($r) {
-                return ["package_hash" => Package::idToHash($r['child_id'])];
+            $childHash = $this->resource->multiDestination->map(function ($r) {
+                return [
+                    "package_hash" => Package::idToHash($r['child_id'])
+                ];
             })->toArray();
         }
-        if (! is_null($this->resource->parentDestination)) {
+        if (!is_null($this->resource->parentDestination)) {
             $isMulti = true;
-            $parentHash = $data['hash'];
+            $parentHash = Package::idToHash($this->resource->parentDestination->parent_id);
         }
 
         /**New script for response */
