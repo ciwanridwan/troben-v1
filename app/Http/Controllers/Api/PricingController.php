@@ -100,6 +100,7 @@ class PricingController extends Controller
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $additional = ['origin_province_id' => $regency->province_id, 'origin_regency_id' => $origin_regency_id, 'destination_id' => $destination_id];
+        $request->merge(['is_multi' => $request->is_multi ?? false]);
         $payload = array_merge($request->toArray(), $additional);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
