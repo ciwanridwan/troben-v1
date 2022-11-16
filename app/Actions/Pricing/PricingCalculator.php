@@ -202,11 +202,9 @@ class PricingCalculator
                 }
             }
         }
-
         if ($inputs['is_multi']) {
             $pickup_price = 0;
         } else {
-            $pickup_price;
         }
 
         $discount = 0;
@@ -700,8 +698,8 @@ class PricingCalculator
     {
         $inputs =  Validator::validate($inputs, [
             // 'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -807,7 +805,7 @@ class PricingCalculator
     }
 
     /**
-     * To add additional price to package_prices tables
+     * To add additional price to package_prices tables.
      * @return int $price
      * @param array $items
      * @param string $serviceCode
