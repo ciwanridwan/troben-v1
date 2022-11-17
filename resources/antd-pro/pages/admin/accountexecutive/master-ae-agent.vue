@@ -12,7 +12,7 @@
                         <a-select-option :value="null">Pilih status</a-select-option>
                         <a-select-option value="transferred">Transferred</a-select-option>
                         <a-select-option value="waiting">Waiting</a-select-option>
-                        <a-select-option value="ongoing">Ongoing</a-select-option>
+                        <a-select-option value="on_going">Ongoing</a-select-option>
                     </a-select>
                 </a-row>
             </template>
@@ -46,7 +46,7 @@
                                 Transferred
                             </span>
                         </template>
-                        <template v-if="record.status == 'ongoing'">
+                        <template v-if="record.status == 'on_going'">
                             <input type="checkbox" disabled>
                             <span class="text-gray">On Going</span>
                         </template>
