@@ -78,6 +78,7 @@ class OrderController extends Controller
 
         $paginate = $query->paginate();
         $itemCollection = $paginate->getCollection()->filter(function ($r) {
+            // todo if status is paid return true
             if ($r->multiDestination->count()) {
                 return true;
             }
@@ -109,8 +110,14 @@ class OrderController extends Controller
 
         $multiDestination = $package->multiDestination()->get();
 
+        $multiPrices = null;
+        $multiItems = null;
+        $isMulti = false;
+
         if ($multiDestination) {
-            $this->showMultiDestination($request, $package);
+            $isMulti = true;
+            $multiPrices = PricingCalculator::getDetailMultiPricing($package);
+            $multiItems = PricingCalculator::getDetailMultiItems($package);
         }
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
@@ -226,10 +233,9 @@ class OrderController extends Controller
             'fee_additional' => $feeAdditional,
             'is_walkin' => $isWalkin,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
-            // 'payments' => [
-            //     'has_generate_payment' => $checkPayment ? true : false,
-            //     'payment' => $checkPayment
-            // ],
+            'is_multi' => $isMulti,
+            'multi_price' => $multiPrices,
+            'multi_items' => $multiItems
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
@@ -780,6 +786,36 @@ class OrderController extends Controller
 
     public function showMultiDestination(Request $request, $package)
     {
+        $pickupPrice = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first()->amount ?? 0;
+        $a = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
 
+        $prices = [];
+        foreach ($a as $r) {
+            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+            $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+            $insurancePrice = $r->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+            $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount') ?? 0;
+
+            $price = [
+                'service_price' => $servicePrice,
+                'handling_price' => $handlingPrice,
+                'insurance_price' => $insurancePrice,
+                'additional_price' => $additionalPrice,
+                'discount' => $discount
+            ];
+            array_push($prices, $price);
+        }
+        $data = [
+            'service_code' => $package->service_code,
+            'pickup_price' => $pickupPrice,
+            'multi_price' => $prices
+        ];
+
+        return $data;
     }
 }
