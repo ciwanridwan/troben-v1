@@ -849,4 +849,14 @@ class PricingCalculator
 
         return $handling;
     }
+
+    // public static function getDetailPricingPackage($package)
+    // {
+    //     $package->
+
+    //     $data = [
+    //         ''
+    //     ];
+    //     return
+    // }
 }

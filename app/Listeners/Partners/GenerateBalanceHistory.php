@@ -961,4 +961,9 @@ class GenerateBalanceHistory
 
         return $price;
     }
+
+    protected function getTierDooringPrices()
+    {
+
+    }
 }
