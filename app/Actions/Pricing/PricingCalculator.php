@@ -850,13 +850,70 @@ class PricingCalculator
         return $handling;
     }
 
-    // public static function getDetailPricingPackage($package)
-    // {
-    //     $package->
+    public static function getDetailMultiPricing($package)
+    {
+        $pickupPrice = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first()->amount ?? 0;
+        $childPackage = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
 
-    //     $data = [
-    //         ''
-    //     ];
-    //     return
-    // }
+        $prices = [];
+        foreach ($childPackage as $r) {
+            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+            $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+            $insurancePrice = $r->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+            $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount') ?? 0;
+
+            $price = [
+                'service_price' => $servicePrice,
+                'handling_price' => $handlingPrice,
+                'insurance_price' => $insurancePrice,
+                'additional_price' => $additionalPrice,
+                'discount' => $discount
+            ];
+
+            array_push($prices, $price);
+        }
+
+        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') ?? 0;
+
+        $data = [
+            'service_code' => $package->service_code,
+            'pickup_price' => $pickupPrice,
+            'prices' => $prices,
+            'total_amount' => $totalAmount
+        ];
+
+        return $data;
+    }
+
+    public static function getDetailMultiItems($package)
+    {
+        $childPackage = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
+
+        $items = [];
+        foreach ($childPackage as $r) {
+            $item = $r->items()->get();
+            $attachments = $r->attachments()->get();
+            $notes = Price::query()
+            ->where('origin_regency_id', $r->origin_regency_id)
+            ->where('destination_id', $r->destination_sub_district_id)
+            ->first()->notes ?? null;
+
+            $result = [
+                'sender_address' => $r->sender_address,
+                'sender_way_point' => $r->sender_way_point,
+                'hash' => $r->hash,
+                'attachments' => $attachments,
+                'items' => $item,
+                'notes' => $notes
+            ];
+            array_push($items, $result);
+        }
+
+        return $items;
+    }
 }
