@@ -202,7 +202,7 @@ class PricingCalculator
                 }
             }
         }
-        if ($inputs['is_multi']) {
+        if (isset($inputs['is_multi']) && $inputs['is_multi']) {
             $pickup_price = 0;
         } else {
         }
