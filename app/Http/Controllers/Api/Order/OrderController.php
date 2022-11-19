@@ -166,6 +166,8 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district',
+
+            'multiDestination.packages.code',
             // 'multiParents'
         )->append('transporter_detail');
 
