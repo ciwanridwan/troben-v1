@@ -85,7 +85,7 @@
 export default {
   data() {
     return {
-      current: 1
+      current: 1,
     };
   },
   props: {
@@ -93,22 +93,22 @@ export default {
       type: Array,
       default: () => {
         return [];
-      }
+      },
     },
     dataSource: {
       type: Array,
       default: () => {
         return [];
-      }
+      },
     },
     pagination: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   computed: {
     defaultColumnSize() {
       let spanLeft = 24;
-      this.columns.forEach(column => {
+      this.columns.forEach((column) => {
         if (column.colspan) {
           spanLeft -= column.colspan;
         }
@@ -124,7 +124,7 @@ export default {
       return this.pagination
         ? this.pagination.pageSize
         : this.getDefaultPagination().total;
-    }
+    },
   },
   mounted() {},
   methods: {
@@ -135,7 +135,7 @@ export default {
       return !!this.$scopedSlots[scopedSlotName];
     },
     resolve(path, obj) {
-      return path.split(".").reduce(function(prev, curr) {
+      return path.split(".").reduce(function (prev, curr) {
         return prev ? prev[curr] : null;
       }, obj || self);
     },
@@ -153,7 +153,7 @@ export default {
     },
     changePerPage(current, size) {
       this.$emit("changeSizePage", size);
-    }
-  }
+    },
+  },
 };
 </script>
