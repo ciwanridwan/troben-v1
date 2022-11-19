@@ -898,7 +898,7 @@ class PricingCalculator
             'pickup_price' => $pickupPrice,
             'total_handling_prices' => $totalHandling,
             'total_insurance_prices' => $totalInsurance,
-            'total_service_fee' => $totalServiceFee,
+            'total_service_price' => $totalServiceFee,
             'total_additional_price' => $totalAdditional,
             'discount' => $discount,
             'total_amount' => $totalAmount
