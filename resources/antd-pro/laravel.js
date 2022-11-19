@@ -6,13 +6,13 @@ const laravel = {
   data() {
     return {
       socketBaseUrl: "wss://pulsar.trawlbens.com",
-      chatBaseUrl: "https://chat.trawlbens.com", 
+      chatBaseUrl: "https://chat.trawlbens.com",
       // socketBaseUrl: "wss://staging-ws.trawlbens.com",
       // chatBaseUrl: "https://staging-chat.trawlbens.com",
       filter: {
         q: null,
-        per_page: 10
-      }
+        per_page: 10,
+      },
     };
   },
   computed: {
@@ -30,9 +30,9 @@ const laravel = {
         showSizeChanger: true,
         current: this.items?.current_page ? this.items.current_page : 1,
         pageSize: parseInt(this.items?.per_page ? this.items.per_page : 10),
-        total: this.items?.total ? this.items.total : 0
+        total: this.items?.total ? this.items.total : 0,
       };
-    }
+    },
   },
   methods: {
     moment,
@@ -40,68 +40,68 @@ const laravel = {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), { params: this.filter })
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponse(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getFinanceDataDaily() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterDaily })
-        .then(res => this.onSuccessResponseDaily(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponseDaily(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getFinanceDataMonthly() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterMonthly })
-        .then(res => this.onSuccessResponseMonthly(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponseMonthly(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getFinanceDataChart() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterChart })
-        .then(res => this.onSuccessResponseChart(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponseChart(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getDataPartner() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterPartner })
-        .then(res => this.onSuccessResponsePartner(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponsePartner(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getRegency() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponse(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     getProvince() {
       this.loading = true;
       this.$http
         .get(this.routeUri(uriDataFinance), { params: this.filterGeo })
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(err => this.onErrorResponse(err))
+        .then((res) => this.onSuccessResponse(res.data))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     onErrorResponse(error) {
       this.$notification.error({
-        message: error.response.data.message
+        message: error.response.data.message,
       });
     },
     onErrorValidation(err) {
       let messages = err.response.data.data;
-      _.map(messages, message => {
+      _.map(messages, (message) => {
         this.$notification.error({
-          message
+          message,
         });
       });
     },
@@ -116,7 +116,7 @@ const laravel = {
         .then(() => {
           this.getItems();
         })
-        .catch(err => this.onErrorResponse(err))
+        .catch((err) => this.onErrorResponse(err))
         .finally(() => (this.loading = false));
     },
     handleTableChanged(pagination) {
@@ -153,7 +153,7 @@ const laravel = {
     },
     roles() {
       let roles = [];
-      this.$laravel.user?.partners?.forEach(o =>
+      this.$laravel.user?.partners?.forEach((o) =>
         roles.push(o?.pivot?.role ?? null)
       );
       return roles;
@@ -210,7 +210,8 @@ const laravel = {
     currency(number) {
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
-        currency: "IDR"
+        currency: "IDR",
+        minimumFractionDigits: 0,
       }).format(number);
     },
     capitalizeFirstLetter(string) {
@@ -230,7 +231,7 @@ const laravel = {
         per_page: 15,
         prev_page_url: null,
         to: 1,
-        total: 0
+        total: 0,
       };
     },
     handleXhrError(error) {
@@ -240,26 +241,26 @@ const laravel = {
           : "UNKNOWN",
         description: error.response.data.message
           ? error.response.data.message
-          : ""
+          : "",
       });
     },
     notify(notification) {
       this.$notification[notification.type]({
         key: notification.id,
         message: notification.title,
-        description: notification.message
+        description: notification.message,
       });
-    }
+    },
   },
   watch: {
     config: {
-      handler: function(value) {
+      handler: function (value) {
         localStorage.setItem("antd_config", JSON.stringify(value.layout));
       },
       deep: true,
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 };
 
 export default laravel;
