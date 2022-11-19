@@ -62,7 +62,8 @@ class HomeController extends Controller
                 ->with(
                     [
                         'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
-                        'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments', 'motoBikes'
+                        'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments', 'motoBikes',
+                        'multiDestination', 'parentDestination',
                     ]
                 );
 
@@ -74,7 +75,38 @@ class HomeController extends Controller
             $this->query->orderBy('created_at', 'desc');
             $this->getResource();
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            $result = $this->query->paginate(request('per_page', 15));
+
+            $itemCollection = $result->getCollection()->map(function ($r) {
+                $shipping_method = 'Standart';
+                $order_mode = false;
+                // todo if status is paid return true
+                if ($r->multiDestination->count()) {
+                    $order_mode = true;
+                }
+                if (!is_null($r->parentDestination)) {
+                    $order_mode = false;
+                }
+
+                if ($r->service_code == Service::TRAWLPACK_EXPRESS) {
+                    $shipping_method = 'Express';
+                }
+                if ($r->service_code == Service::TRAWLPACK_CUBIC) {
+                    $shipping_method = 'Cubic';
+                }
+
+                $r->order_mode = $order_mode ? 'Single' : 'Multiple';
+                $r->shipping_method = $shipping_method;
+
+                unset($r->multiDestination);
+                unset($r->parentDestination);
+    
+                return $r;
+            })->values();
+    
+            $result->setCollection($itemCollection);
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         return view('partner.cashier.home.index');
