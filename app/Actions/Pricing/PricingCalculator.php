@@ -878,12 +878,18 @@ class PricingCalculator
             array_push($prices, $price);
         }
 
-        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') ?? 0;
+        $totalHandling = array_sum(array_column($prices, 'handling_price'));
+        $totalInsurance =  array_sum(array_column($prices, 'insurance_price'));
+        $totalServiceFee = array_sum(array_column($prices, 'service_price')); 
+        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount ?? 0;
 
         $data = [
             'service_code' => $package->service_code,
-            'pickup_price' => $pickupPrice,
             'prices' => $prices,
+            'pickup_price' => $pickupPrice,
+            'total_handling_prices' => $totalHandling,
+            'total_insurance_prices' => $totalInsurance,
+            'total_service_fee' => $totalServiceFee,
             'total_amount' => $totalAmount
         ];
 
@@ -906,6 +912,8 @@ class PricingCalculator
             $result = [
                 'sender_address' => $r->sender_address,
                 'sender_way_point' => $r->sender_way_point,
+                'receiver_address' => $r->receiver_address,
+                'reveiver_way_point' => $r->receiver_way_point,
                 'hash' => $r->hash,
                 'attachments' => $attachments,
                 'items' => $item,
