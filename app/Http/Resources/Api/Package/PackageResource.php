@@ -9,6 +9,7 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
+use HashId\HashId;
 
 /**
  * Class PackageResource.
@@ -25,14 +26,14 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (! $this->resource->relationLoaded('updated_by')) {
+        if (!$this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
-        if (! $this->resource->relationLoaded('canceled')) {
+        if (!$this->resource->relationLoaded('canceled')) {
             $this->resource->load('canceled');
         }
 
-        if (! $this->resource->relationLoaded('code')) {
+        if (!$this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -51,14 +52,14 @@ class PackageResource extends JsonResource
         if ($this->resource->relationLoaded('partner_performance')) {
             if ($this->resource->partner_performance) {
                 $dataPerformance = [
-                'level' => $this->resource->partner_performance->level,
-                'deadline_time' => $this->resource->partner_performance->deadline
-            ];
+                    'level' => $this->resource->partner_performance->level,
+                    'deadline_time' => $this->resource->partner_performance->deadline
+                ];
             } else {
                 $dataPerformance = [
-                'level' => null,
-                'deadline_time' => null
-            ];
+                    'level' => null,
+                    'deadline_time' => null
+                ];
             }
             $this->resource->unsetRelation('partner_performance');
         }
@@ -69,7 +70,7 @@ class PackageResource extends JsonResource
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
 
-        if (! empty($dataPerformance)) {
+        if (!empty($dataPerformance)) {
             $data = array_merge($data, $dataPerformance);
         }
 
@@ -81,7 +82,7 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (! $this->resource->motoBikes()) {
+        if (!$this->resource->motoBikes()) {
             $this->resource->load('motoBikes');
         }
 
@@ -94,8 +95,28 @@ class PackageResource extends JsonResource
         $checkIfPaymentHasGenerate = Payment::with('gateway')->where('payable_type', Package::class)
             ->where('payable_id', $data['id'])
             ->where('service_type', 'pay')
-            ->where('status', ['pending','success'])
+            ->where('status', ['pending', 'success'])
             ->first() ?? null;
+
+        $isMulti = false;
+        $isMultiChild = false;
+        $parentHash = null;
+        $childHash = [];
+
+        if ($this->resource->multiDestination->count()) {
+            $isMulti = true;
+            $isMultiChild = true;
+            $childHash = $this->resource->multiDestination->map(function ($r) {
+                return [
+                    "package_hash" => Package::idToHash($r['child_id'])
+                ];
+            })->toArray();
+        }
+        if (!is_null($this->resource->parentDestination)) {
+            $isMulti = true;
+            $parentHash = Package::idToHash($this->resource->parentDestination->parent_id);
+        }
+
         /**New script for response */
         $result = [
             'hash' => $data['hash'],
@@ -109,6 +130,10 @@ class PackageResource extends JsonResource
             'has_generate_payment' => $checkIfPaymentHasGenerate,
             'has_cancel' => $data['canceled'],
             'picked_up_by' => null,
+            'is_multi' => $isMulti,
+            'is_multi_child' => $isMultiChild,
+            'multi_hash' => $parentHash,
+            'multi_hash_child' => $childHash,
         ];
 
         if (isset($data['picked_up_by'])) {

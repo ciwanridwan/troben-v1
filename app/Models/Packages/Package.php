@@ -552,6 +552,16 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(User::class, 'packager_id', 'id');
     }
 
+    public function multiDestination(): HasMany
+    {
+        return $this->hasMany(MultiDestination::class, 'parent_id');
+    }
+
+    public function parentDestination(): HasOne
+    {
+        return $this->hasOne(MultiDestination::class, 'child_id', 'id');
+    }
+
     /**
      * Define `belongsTo` relationship with Regency model.
      *

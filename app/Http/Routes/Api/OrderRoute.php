@@ -150,6 +150,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('usePersonalData'),
             'uses' => $this->uses('usePersonalData'),
         ]);
+
+        $this->router->post($this->prefix('store/multi-destination'), [
+            'as' => $this->name('storeMultiDestination'),
+            'uses' => $this->uses('storeMultiDestination'),
+        ]);
     }
 
     /**

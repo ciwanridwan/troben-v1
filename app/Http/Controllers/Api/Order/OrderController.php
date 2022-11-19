@@ -48,7 +48,9 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 class OrderController extends Controller
 {
@@ -66,13 +68,29 @@ class OrderController extends Controller
         $query->when(
             $request->input('order'),
             fn (Builder $query, string $order) => $query->orderBy($order, $request->input('order_direction', 'asc')),
-            fn (Builder $query) => $query->orderByDesc('created_at')
+            fn (Builder $query) => $query->orderByDesc('created_at'),
         );
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder->whereIn('status', Arr::wrap($status)));
 
-        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes');
+        $query->with('origin_regency', 'destination_regency', 'destination_district', 'destination_sub_district', 'motoBikes', 'multiDestination', 'parentDestination');
+
+        // $query->whereDoesntHave('parentDestination');
 
         $paginate = $query->paginate();
+        $itemCollection = $paginate->getCollection()->filter(function ($r) {
+            // todo if status is paid return true
+            if ($r->multiDestination->count()) {
+                return true;
+            }
+
+            if (!is_null($r->parentDestination)) {
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        $paginate->setCollection($itemCollection);
         return $this->jsonSuccess(PackageResource::collection($paginate));
     }
 
@@ -89,6 +107,18 @@ class OrderController extends Controller
             'voucher_code' => ['nullable'],
             'partner_id' => ['nullable'],
         ]);
+
+        $multiDestination = $package->multiDestination()->get();
+
+        $multiPrices = null;
+        $multiItems = null;
+        $isMulti = false;
+
+        if ($multiDestination) {
+            $isMulti = true;
+            $multiPrices = PricingCalculator::getDetailMultiPricing($package);
+            $multiItems = PricingCalculator::getDetailMultiItems($package);
+        }
 
         $prices = PricingCalculator::getDetailPricingPackage($package);
 
@@ -135,6 +165,7 @@ class OrderController extends Controller
             'destination_regency',
             'destination_district',
             'destination_sub_district',
+            // 'multiParents'
         )->append('transporter_detail');
 
         /** Price Of Item */
@@ -202,10 +233,9 @@ class OrderController extends Controller
             'fee_additional' => $feeAdditional,
             'is_walkin' => $isWalkin,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
-            // 'payments' => [
-            //     'has_generate_payment' => $checkPayment ? true : false,
-            //     'payment' => $checkPayment
-            // ],
+            'is_multi' => $isMulti,
+            'multi_price' => $multiPrices,
+            'multi_items' => $multiItems
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
@@ -231,7 +261,7 @@ class OrderController extends Controller
     {
         $voucher = Voucher::where('code', $voucher_code)->first();
 
-        if (! $voucher) {
+        if (!$voucher) {
             $default =  [
                 'service_price_fee' =>  0,
                 'voucher_price_discount' => 0,
@@ -254,7 +284,7 @@ class OrderController extends Controller
             return $default;
         }
 
-        if (! is_null($voucher->aevoucher)) {
+        if (!is_null($voucher->aevoucher)) {
             return PricingCalculator::getCalculationVoucherPackageAE($voucher->aevoucher, $package);
         }
 
@@ -281,7 +311,7 @@ class OrderController extends Controller
             'photos.*' => ['nullable', 'image'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
-            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id']
         ]);
 
         $origin_regency_id = $request->get('origin_regency_id');
@@ -328,7 +358,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
@@ -390,7 +420,7 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
 
@@ -439,7 +469,7 @@ class OrderController extends Controller
                 $pickup_discount_price->delete();
             }
             $voucher = Voucher::where('code', $request->voucher_code)->first();
-            if (! $voucher) {
+            if (!$voucher) {
                 $partnerId = $request->get('partner_id');
                 if ($partnerId != null) {
                     // add fallback to Voucher AE
@@ -536,7 +566,7 @@ class OrderController extends Controller
      */
     public function findReceipt(Request $request, Code $code): JsonResponse
     {
-        if (! $code->exists) {
+        if (!$code->exists) {
             $request->validate([
                 'code' => ['required', 'exists:codes,content']
             ]);
@@ -547,7 +577,7 @@ class OrderController extends Controller
 
         $codeable = $code->codeable;
 
-        throw_if(! $codeable instanceof Package, ValidationException::withMessages([
+        throw_if(!$codeable instanceof Package, ValidationException::withMessages([
             'code' => __('Code not instance of Package'),
         ]));
 
@@ -678,7 +708,7 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;
@@ -728,5 +758,64 @@ class OrderController extends Controller
                 return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
+    }
+
+    /**
+     * asdasds
+     */
+    public function storeMultiDestination(Request $request)
+    {
+        $request->validate([
+            'package_parent_hash' => ['nullable', 'string'],
+            'package_child_hash' => ['nullable', 'array'],
+        ]);
+
+        $parentPackage = Package::hashToId($request->package_parent_hash);
+        $childPackage = $request->package_child_hash;
+
+        for ($i = 0; $i < count($childPackage); $i++) {
+
+            MultiDestination::create([
+                'parent_id' => $parentPackage,
+                'child_id' => Package::hashToId($childPackage[$i])
+            ]);
+        }
+
+        return (new Response(Response::RC_CREATED))->json();
+    }
+
+    public function showMultiDestination(Request $request, $package)
+    {
+        $pickupPrice = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first()->amount ?? 0;
+        $a = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
+
+        $prices = [];
+        foreach ($a as $r) {
+            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+            $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+            $insurancePrice = $r->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+            $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount') ?? 0;
+
+            $price = [
+                'service_price' => $servicePrice,
+                'handling_price' => $handlingPrice,
+                'insurance_price' => $insurancePrice,
+                'additional_price' => $additionalPrice,
+                'discount' => $discount
+            ];
+            array_push($prices, $price);
+        }
+        $data = [
+            'service_code' => $package->service_code,
+            'pickup_price' => $pickupPrice,
+            'multi_price' => $prices
+        ];
+
+        return $data;
     }
 }

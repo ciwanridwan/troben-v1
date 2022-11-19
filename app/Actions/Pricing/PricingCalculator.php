@@ -159,7 +159,8 @@ class PricingCalculator
             'items.*.width' => ['required', 'numeric'],
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
-            'items.*.handling' => ['nullable']
+            'items.*.handling' => ['nullable'],
+            'is_multi' => ['nullable', 'boolean']
         ]);
 
         $serviceCode = $inputs['service_code'];
@@ -200,6 +201,10 @@ class PricingCalculator
                     $pickup_price = 15000 + (4000 * $substraction);
                 }
             }
+        }
+        if ($inputs['is_multi']) {
+            $pickup_price = 0;
+        } else {
         }
 
         $discount = 0;
@@ -693,8 +698,8 @@ class PricingCalculator
     {
         $inputs =  Validator::validate($inputs, [
             // 'origin_province_id' => [Rule::requiredIf(!$price), 'exists:geo_provinces,id'],
-            'origin_regency_id' => [Rule::requiredIf(!$price), 'exists:geo_regencies,id'],
-            'destination_id' => [Rule::requiredIf(!$price), 'exists:geo_sub_districts,id'],
+            'origin_regency_id' => [Rule::requiredIf(! $price), 'exists:geo_regencies,id'],
+            'destination_id' => [Rule::requiredIf(! $price), 'exists:geo_sub_districts,id'],
             'items' => ['required'],
             'items.*.height' => ['required', 'numeric'],
             'items.*.length' => ['required', 'numeric'],
@@ -800,7 +805,7 @@ class PricingCalculator
     }
 
     /**
-     * To add additional price to package_prices tables
+     * To add additional price to package_prices tables.
      * @return int $price
      * @param array $items
      * @param string $serviceCode
@@ -843,5 +848,96 @@ class PricingCalculator
         }
 
         return $handling;
+    }
+
+    public static function getDetailMultiPricing($package)
+    {
+        $pickupPrice = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first()->amount ?? 0;
+        $childPackage = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
+
+        $prices = [];
+        foreach ($childPackage as $r) {
+            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+            $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+            $insurancePrice = $r->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+            $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? 0;
+
+            $price = [
+                'service_price' => $servicePrice,
+                'handling_price' => $handlingPrice,
+                'insurance_price' => $insurancePrice,
+                'additional_price' => $additionalPrice,
+                'discount' => $discount
+            ];
+
+            array_push($prices, $price);
+        }
+
+        $totalHandling = array_sum(array_column($prices, 'handling_price')) + $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+        $totalInsurance =  array_sum(array_column($prices, 'insurance_price')) + $package->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+        $serviceFee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+        $totalServiceFee = array_sum(array_column($prices, 'service_price')) + $serviceFee ?? 0; 
+
+        $totalAdditional = array_sum(array_column($prices, 'additional_price')) + $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+        $discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? array_sum(array_column($prices, 'discount'));
+
+        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount - $discount;
+
+        $data = [
+            'service_code' => $package->service_code,
+            'prices' => $prices,
+            'pickup_price' => $pickupPrice,
+            'total_handling_prices' => $totalHandling,
+            'total_insurance_prices' => $totalInsurance,
+            'total_service_price' => $totalServiceFee,
+            'total_additional_price' => $totalAdditional,
+            'discount' => $discount,
+            'total_amount' => $totalAmount
+        ];
+
+        return $data;
+    }
+
+    public static function getDetailMultiItems($package)
+    {
+        $childPackage = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
+
+        $items = [];
+        foreach ($childPackage as $r) {
+            $item = $r->items()->get();
+            $attachments = $r->attachments()->get();
+            $notes = Price::query()
+            ->where('origin_regency_id', $r->origin_regency_id)
+            ->where('destination_id', $r->destination_sub_district_id)
+            ->first()->notes ?? null;
+
+            $codePackage = $r->code->content;
+
+            $result = [
+                'sender_name' => $r->sender_name,
+                'sender_address' => $r->sender_address,
+                'sender_way_point' => $r->sender_way_point,
+                'receiver_name' => $r->receiver_name,
+                'receiver_address' => $r->receiver_address,
+                'reveiver_way_point' => $r->receiver_way_point,
+                'hash' => $r->hash,
+                'code' => $codePackage,
+                'attachments' => $attachments,
+                'items' => $item,
+                'notes' => $notes
+            ];
+            array_push($items, $result);
+        }
+
+        return $items;
     }
 }

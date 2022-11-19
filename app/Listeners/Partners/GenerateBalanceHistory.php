@@ -123,7 +123,6 @@ class GenerateBalanceHistory
                     ->setDelivery()
                     ->setPackages()
                     ->setPartner($this->delivery->origin_partner);
-
                 /** @var Package $package */
                 foreach ($this->packages as $package) {
                     $this->setPackage($package);
@@ -132,6 +131,7 @@ class GenerateBalanceHistory
                     if (!$this->partner->get_fee_transit) {
                         break;
                     }
+
                     if ($this->countDeliveryTransitOfPackage() > 1) {
                         // $this->saveServiceFee($this->partner->type, $variant, true);
                         /**Set fee transit to be income partner */
@@ -415,9 +415,6 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
-                if (!$this->partner->get_fee_dooring) {
-                    break;
-                }
 
                 $weight = $this->package->total_weight;
 
@@ -425,12 +422,11 @@ class GenerateBalanceHistory
                 /** @var Dooring $price */
                 $price = Dooring::query()
                     ->where('partner_id', $this->partner->id)
-                    ->where('origin_regency_id', $this->package->destination_regency_id)
+                    ->where('origin_regency_id', $this->package->origin_regency_id)
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
-                    ->where('type', $tier)
                     ->first();
 
-                if (!$price || is_null($price)) {
+                if (!$this->partner->get_fee_dooring || !$price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -451,22 +447,21 @@ class GenerateBalanceHistory
                         report($e);
                         Log::error('TransporterBalance-tlg-err', $payload);
                     }
-                    break;
+                } else {
+                    // set income dooring
+                    $existingBalance = $this->partner->balance;
+                    $income = $weight * $price->value;
+                    $balance = $existingBalance + $income;
+
+                    $this->partner->balance = $balance;
+                    $this->partner->save();
+                    $this
+                        ->setBalance($weight * $price->value)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_DOORING)
+                        ->setAttributes()
+                        ->recordHistory();
                 }
-
-                /**Insert dooring income to balance partner */
-                $existingBalance = $this->partner->balance;
-                $income = $weight * $price->value;
-                $balance = $existingBalance + $income;
-
-                $this->partner->balance = $balance;
-                $this->partner->save();
-                $this
-                    ->setBalance($weight * $price->value)
-                    ->setType(History::TYPE_DEPOSIT)
-                    ->setDescription(History::DESCRIPTION_DOORING)
-                    ->setAttributes()
-                    ->recordHistory();
 
                 // Set Income Delivery
                 if ($this->partner->get_fee_delivery) {
@@ -809,7 +804,7 @@ class GenerateBalanceHistory
             }
             $balance_service = ($service_price  * $this->getServiceFee($type)) - $discount;
         } else {
-            $balance_service = $service_price * $this->getServiceFee($type);
+            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
         }
 
         $this
@@ -965,5 +960,10 @@ class GenerateBalanceHistory
             ->get();
 
         return $price;
+    }
+
+    protected function getTierDooringPrices()
+    {
+
     }
 }
