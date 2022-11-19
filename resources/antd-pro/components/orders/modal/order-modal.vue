@@ -128,7 +128,7 @@ export default {
       this.$emit("change");
     },
     onSelectChange(data) {
-      console.log("data", data);
+      // console.log("data", data);
       this.select = data;
     },
     setFooter() {
