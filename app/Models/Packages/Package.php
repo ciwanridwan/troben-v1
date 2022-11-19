@@ -895,11 +895,20 @@ class Package extends Model implements AttachableContract
 
         $additionalFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->sum('amount') ?? 0;
 
+        $weightVolume = [];
         $cubicResult = 0;
         foreach ($items as $item) {
             $calculateCubic = $item->height * $item->width * $item->length / 1000000;
             $cubic[] = $calculateCubic;
             $cubicResult = array_sum($cubic);
+
+            $weightVol = $item->getWeightVolumeAttribute();
+
+            $weightVolumeResult = [
+                'weight_volume' => $weightVol
+            ];
+
+            array_push($weightVolume, $weightVolumeResult);
         }
 
         if (isset($cubicResult)) {
@@ -928,7 +937,8 @@ class Package extends Model implements AttachableContract
             'insurance_fee' => intval($insuranceFee),
             'service_fee' => $serviceFee,
             'sub_total_amount' => $subTotalAmount,
-            'total_amount' => $totalAmount
+            'total_amount' => $totalAmount,
+            'items' => $weightVolume
         ];
         return $result;
     }
