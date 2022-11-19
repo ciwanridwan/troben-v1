@@ -26,21 +26,21 @@
 
       <order-modal-address :package="package" :price="price" />
 
-      <a-space direction="vertical" size="middle">
-        <order-modal-items
-          @select="onSelectChange"
-          @change="onItemChange"
-          v-model="package.items"
-          :modifiable="modifiable"
-          :editable="editable"
-          :deletable="deletable"
-          :package="package"
-        />
+      <!-- <a-space direction="vertical" size="middle"> -->
+      <order-modal-items
+        @select="onSelectChange"
+        @change="onItemChange"
+        v-model="package.items"
+        :modifiable="modifiable"
+        :editable="editable"
+        :deletable="deletable"
+        :package="package"
+      />
 
-        <!-- <order-modal-estimations :package="package" :price="price" /> -->
+      <!-- <order-modal-estimations :package="package" :price="price" /> -->
 
-        <order-modal-delivery :package="package" :select="select" />
-      </a-space>
+      <order-modal-delivery :package="package" :select="select" />
+      <!-- </a-space> -->
 
       <template v-if="hasSlot('footer')" slot="footer">
         <slot name="footer"></slot>
