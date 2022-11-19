@@ -3,7 +3,7 @@
     <a-radio-group
       v-model="selectCalculatePrice"
       default-value="kg"
-      style="width: 811px; margin-left: 25px"
+      style="width: -webkit-fill-available; margin-left: 25px"
       @change="localStorage"
     >
       <a-row type="flex" :gutter="[12, 12]">
