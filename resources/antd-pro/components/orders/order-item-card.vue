@@ -329,7 +329,20 @@ export default {
       return this.item?.weight;
     },
     weight_volume() {
-      return this.item?.weight_volume;
+      let volume = this.length * this.width * this.height;
+      if (this.selectCalculate == "kg" && this.package?.service_code == "tps") {
+        return volume / 4000;
+      }
+      if (
+        this.selectCalculate == "cubic" &&
+        this.package?.service_code == "tps"
+      ) {
+        return volume / 1000000;
+      }
+      if (this.selectCalculate == "kg" && this.package?.service_code == "tpx") {
+        return volume / 6000;
+      }
+      // return this.item?.weight_volume;
     },
     weight_borne() {
       return this.item?.weight_borne;
