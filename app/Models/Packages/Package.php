@@ -902,7 +902,11 @@ class Package extends Model implements AttachableContract
             $cubic[] = $calculateCubic;
             $cubicResult = array_sum($cubic);
 
-            $weightVol = $item->getWeightVolumeAttribute();
+            $weightVol = $item->height * $item->length * $item->width / 1000000;
+            
+            if ($weightVol < 3) {
+                $weightVol = 3;
+            }
 
             $weightVolumeResult = [
                 'weight_volume' => $weightVol
