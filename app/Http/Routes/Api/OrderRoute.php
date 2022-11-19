@@ -155,6 +155,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('storeMultiDestination'),
             'uses' => $this->uses('storeMultiDestination'),
         ]);
+
+        $this->router->post($this->prefix('assign/partner/{partner_hash}'), [
+            'as' => $this->name('multiOrderAssignation'),
+            'uses' => $this->uses('multiOrderAssignation'),
+        ]);
     }
 
     /**

@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
+use App\Jobs\Packages\Actions\MultiAssignFirstPartner;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\MultiDestination;
@@ -784,38 +785,24 @@ class OrderController extends Controller
         return (new Response(Response::RC_CREATED))->json();
     }
 
-    public function showMultiDestination(Request $request, $package)
+    public function multiOrderAssignation(Request $request, Partner $partner)
     {
-        $pickupPrice = $package->prices()->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first()->amount ?? 0;
-        $a = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get();
+        $inputs = $request->validate([
+            'package_hash' => ['nullable', 'array']
+        ]);
 
-        $prices = [];
-        foreach ($a as $r) {
-            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+        $package = $inputs['package_hash'];
+        $packages = []; 
+        for ($i = 0; $i < count($package); $i++) {
 
-            $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+            $data = ['package_id' => Package::hashToId($package[$i])];
 
-            $insurancePrice = $r->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
-
-            $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
-
-            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount') ?? 0;
-
-            $price = [
-                'service_price' => $servicePrice,
-                'handling_price' => $handlingPrice,
-                'insurance_price' => $insurancePrice,
-                'additional_price' => $additionalPrice,
-                'discount' => $discount
-            ];
-            array_push($prices, $price);
+            array_push($packages, $data);
         }
-        $data = [
-            'service_code' => $package->service_code,
-            'pickup_price' => $pickupPrice,
-            'multi_price' => $prices
-        ];
 
-        return $data;
+        $job = new MultiAssignFirstPartner($packages, $partner);
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, $job->packages))->json();
     }
 }
