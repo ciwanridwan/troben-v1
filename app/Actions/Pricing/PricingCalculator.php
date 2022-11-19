@@ -865,7 +865,7 @@ class PricingCalculator
 
             $additionalPrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
 
-            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount') ?? 0;
+            $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? 0;
 
             $price = [
                 'service_price' => $servicePrice,
@@ -878,10 +878,19 @@ class PricingCalculator
             array_push($prices, $price);
         }
 
-        $totalHandling = array_sum(array_column($prices, 'handling_price'));
-        $totalInsurance =  array_sum(array_column($prices, 'insurance_price'));
-        $totalServiceFee = array_sum(array_column($prices, 'service_price')); 
-        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount ?? 0;
+        $totalHandling = array_sum(array_column($prices, 'handling_price')) + $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
+
+        $totalInsurance =  array_sum(array_column($prices, 'insurance_price')) + $package->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
+
+        $serviceFee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+
+        $totalServiceFee = array_sum(array_column($prices, 'service_price')) + $serviceFee ?? 0; 
+
+        $totalAdditional = array_sum(array_column($prices, 'additional_price')) + $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->first()->amount ?? 0;
+
+        $discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? array_sum(array_column($prices, 'discount'));
+
+        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount - $discount;
 
         $data = [
             'service_code' => $package->service_code,
@@ -890,6 +899,8 @@ class PricingCalculator
             'total_handling_prices' => $totalHandling,
             'total_insurance_prices' => $totalInsurance,
             'total_service_fee' => $totalServiceFee,
+            'total_additional_price' => $totalAdditional,
+            'discount' => $discount,
             'total_amount' => $totalAmount
         ];
 
@@ -909,12 +920,17 @@ class PricingCalculator
             ->where('destination_id', $r->destination_sub_district_id)
             ->first()->notes ?? null;
 
+            $codePackage = $r->code->content;
+
             $result = [
+                'sender_name' => $r->sender_name,
                 'sender_address' => $r->sender_address,
                 'sender_way_point' => $r->sender_way_point,
+                'receiver_name' => $r->receiver_name,
                 'receiver_address' => $r->receiver_address,
                 'reveiver_way_point' => $r->receiver_way_point,
                 'hash' => $r->hash,
+                'code' => $codePackage,
                 'attachments' => $attachments,
                 'items' => $item,
                 'notes' => $notes
