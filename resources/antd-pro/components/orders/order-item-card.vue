@@ -301,6 +301,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    weightVolCubic: {
+      type: Object,
+      default: () => {},
+    },
     selectCalculate: {
       type: String,
       default: "kg",
@@ -329,20 +333,20 @@ export default {
       return this.item?.weight;
     },
     weight_volume() {
-      let volume = this.length * this.width * this.height;
-      if (this.selectCalculate == "kg" && this.package?.service_code == "tps") {
-        return volume / 4000;
-      }
+      // let volume = this.length * this.width * this.height;
+      // if (this.selectCalculate == "kg" && this.package?.service_code == "tps") {
+      //   return volume / 4000;
+      // }
+      // if (this.selectCalculate == "kg" && this.package?.service_code == "tpx") {
+      //   return volume / 6000;
+      // }
       if (
         this.selectCalculate == "cubic" &&
         this.package?.service_code == "tps"
       ) {
-        return volume / 1000000;
+        return this.weightVolCubic.weight_volume;
       }
-      if (this.selectCalculate == "kg" && this.package?.service_code == "tpx") {
-        return volume / 6000;
-      }
-      // return this.item?.weight_volume;
+      return this.item?.weight_volume;
     },
     weight_borne() {
       return this.item?.weight_borne;
