@@ -4,6 +4,7 @@ namespace App\Jobs\Packages\Actions;
 
 use App\Events\Packages\PartnerAssigned;
 use App\Jobs\Deliveries\CreateNewDelivery;
+use App\Jobs\Deliveries\CreateNewDeliveryMultipleOrder;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -47,45 +48,20 @@ class MultiAssignFirstPartner
      */
     public function handle()
     {
-        $this->packages->each(function ($q) {
-            if ($q->deliveries()->count() === 0) {
+        $job = new CreateNewDeliveryMultipleOrder([
+            'type' => Delivery::TYPE_PICKUP,
+        ], $this->partner);
 
-                $job = new CreateNewDelivery([
-                    'type' => Delivery::TYPE_PICKUP,
-                ], $this->partner);
+        dispatch_now($job);
 
-                dispatch_now($job);
+        $this->delivery = $job->delivery;
 
-                $job->delivery->packages()->attach($q);
-
-                $this->delivery = $job->delivery;
-
-                $q->status = Package::STATUS_PENDING;
-                $q->save();
-
-                event(new PartnerAssigned($q, $this->partner));
-            }
-        });
-
-        $this->packages->each(function ($q) {
-            /** @var Delivery $firstDelivery */
-            $firstDelivery = $q->deliveries()->first();
-            $firstDelivery->partner()->associate($this->partner);
-            $firstDelivery->save();
-
-            $this->updatePackageStatusToPending();
-
-            $this->delivery = $firstDelivery;
-
-            event(new PartnerAssigned($q, $this->partner));
-        });
-    }
-
-    public function updatePackageStatusToPending()
-    {
-        $this->packages->each(function ($q) {
+        $this->delivery->packages()->attach($this->packages->each(function ($q) {
             $q->status = Package::STATUS_PENDING;
             $q->save();
-        });
+
+            event(new PartnerAssigned($q, $this->partner));
+            return $q;
+        }));
     }
 }

@@ -104,8 +104,16 @@ class NicepayController extends Controller
     public function dummyRegistration(Gateway $gateway, Package $package): JsonResponse
     {
         $this->gateway = $gateway;
+        $amt = 0;
 
-        $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
+        if ($package->multiDestination()->exists()) {
+            $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+            $totalAmountChild = Package::whereIn('id', $childId)->get()->sum('total_amount');
+            $totalAmount = $package->total_amount + $totalAmountChild;
+            $amt = ceil($totalAmount + self::adminChargeCalculator($gateway, $totalAmount));
+        } else {
+            $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
+        }
 
         $currentTime = Carbon::now();
         $expiredTime = $currentTime->addDays(7);

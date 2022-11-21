@@ -91,10 +91,12 @@ class AssignationController extends Controller
         }
         $inputs['code'] = array_unique($inputs['code']);
 
-            $inputs['status'] = Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE;
-            $inputs['role'] = UserablePivot::ROLE_WAREHOUSE;
-        $job = new ProcessFromCodeToDelivery($delivery, $inputs
-);
+        $inputs['status'] = Deliverable::STATUS_PREPARED_BY_ORIGIN_WAREHOUSE;
+        $inputs['role'] = UserablePivot::ROLE_WAREHOUSE;
+        $job = new ProcessFromCodeToDelivery(
+            $delivery,
+            $inputs
+        );
 
         $this->dispatchNow($job);
 
