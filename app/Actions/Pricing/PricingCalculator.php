@@ -881,8 +881,6 @@ class PricingCalculator
 
         $totalInsurance =  array_sum(array_column($prices, 'insurance_price')) + $package->prices()->where('type', PackagePrice::TYPE_INSURANCE)->get()->sum('amount') ?? 0;
 
-        // $serviceFee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first() ?? $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first();
-
         $serviceFee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first() ?? $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first();
         if (is_null($serviceFee)) {
             $serviceFee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first();

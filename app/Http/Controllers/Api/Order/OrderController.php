@@ -53,6 +53,8 @@ use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
+use function PHPUnit\Framework\isEmpty;
+
 class OrderController extends Controller
 {
     /**
@@ -115,7 +117,7 @@ class OrderController extends Controller
         $multiItems = null;
         $isMulti = false;
 
-        if ($multiDestination) {
+        if ($multiDestination->isNotEmpty()) {
             $isMulti = true;
             $multiPrices = PricingCalculator::getDetailMultiPricing($package);
             $multiItems = PricingCalculator::getDetailMultiItems($package);
@@ -794,7 +796,7 @@ class OrderController extends Controller
         ]);
 
         $package = $inputs['package_hash'];
-        $packages = []; 
+        $packages = [];
         for ($i = 0; $i < count($package); $i++) {
 
             $data = ['package_id' => Package::hashToId($package[$i])];
