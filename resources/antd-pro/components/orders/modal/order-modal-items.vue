@@ -43,6 +43,7 @@
           :deletable="deletable"
           :package="package"
           :estPrice="package.estimation_prices[index]"
+          :weightVolCubic="package.estimation_cubic_prices.items[index]"
           :selectCalculate="selectCalculatePrice"
         />
       </a-col>
