@@ -134,7 +134,7 @@ class GeoController extends Controller
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
         /** List Regency For Showing Apps */
-        $q = "SELECT origin_regency_id FROM prices GROUP BY origin_regency_id";
+        $q = 'SELECT origin_regency_id FROM prices GROUP BY origin_regency_id';
         $regencyId = collect(DB::select($q))->pluck('origin_regency_id')->toArray();
         $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', $regencyId));
 
