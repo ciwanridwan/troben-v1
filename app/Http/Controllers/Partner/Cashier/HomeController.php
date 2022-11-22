@@ -21,6 +21,7 @@ use App\Events\Packages\PackageCheckedByCashier;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use App\Models\Packages\MultiDestination;
 use App\Models\Service;
 
 class HomeController extends Controller
@@ -100,10 +101,10 @@ class HomeController extends Controller
 
                 unset($r->multiDestination);
                 unset($r->parentDestination);
-    
+
                 return $r;
             })->values();
-    
+
             $result->setCollection($itemCollection);
 
             return (new Response(Response::RC_SUCCESS, $result))->json();
@@ -138,7 +139,6 @@ class HomeController extends Controller
                 'calculate_type' => ['nullable', 'in:kg,cubic']
             ]
         );
-
         $type = $request->type;
 
         if ($request->has('discount')) {
@@ -169,7 +169,7 @@ class HomeController extends Controller
                     case Partner::TYPE_BUSINESS:
                         $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
                         break;
-                        default:
+                    default:
                         $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
                         break;
                 }
@@ -179,19 +179,73 @@ class HomeController extends Controller
             }
 
             if ($type == Price::TYPE_SERVICE) {
-                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                    'type' => Price::TYPE_DISCOUNT,
-                    'description' => Price::TYPE_SERVICE,
-                    'amount' => $request->discount,
-                ]);
-                $this->dispatch($job);
+                if ($package->multiDestination()->exists()) {
+                    $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get();
+                    $packageChild->each(function ($q) {
+                        $this->insertDiscountService($q, 0);
+                        event(new PackageCheckedByCashier($q));
+                    });
+
+                    $this->insertDiscountService($package, $request->discount);
+                } elseif ($package->parentDestination()->exists()) {
+                    $parentId = $package->parentDestination()->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+
+                    $this->insertDiscountService($packageParent, 0);
+                    event(new PackageCheckedByCashier($packageParent));
+
+                    $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
+                        if ($q->child_id === $package->id) {
+                            return false;
+                        }
+                        return true;
+                    })->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
+                        $this->insertDiscountService($q, 0);
+                        event(new PackageCheckedByCashier($q));
+                    });
+
+                    $this->insertDiscountService($package, $request->discount);
+                } else {
+                    $this->insertDiscountService($package, $request->discount);
+                }
             } else {
-                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                    'type' => Price::TYPE_DISCOUNT,
-                    'description' => Price::TYPE_PICKUP,
-                    'amount' => $request->discount,
-                ]);
-                $this->dispatch($job);
+                if ($package->multiDestination()->exists()) {
+                    $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get();
+                    $packageChild->each(function ($q) {
+                        $this->insertDiscountPickup($q, 0);
+                        event(new PackageCheckedByCashier($q));
+                    });
+
+                    $this->insertDiscountPickup($package, $request->discount);
+                } elseif ($package->parentDestination()->exists()) {
+                    $parentId = $package->parentDestination()->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+
+                    $this->insertDiscountPickup($packageParent, 0);
+                    event(new PackageCheckedByCashier($packageParent));
+
+                    $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
+                        if ($q->child_id === $package->id) {
+                            return false;
+                        }
+                        return true;
+                    })->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
+                        $this->insertDiscountPickup($q, 0);
+                        event(new PackageCheckedByCashier($q));
+                    });
+
+                    $this->insertDiscountPickup($package, $request->discount);
+                } else {
+                    $this->insertDiscountPickup($package, $request->discount);
+                }
             }
 
             $bikes = $package->motoBikes()->first();
@@ -360,5 +414,26 @@ class HomeController extends Controller
 
         $totalAmount = $package->prices()->get()->sum('amount');
         $package->setAttribute('total_amount', $totalAmount)->save();
+    }
+
+    private function insertDiscountService($package, $amount)
+    {
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_DISCOUNT,
+            'description' => Price::TYPE_SERVICE,
+            'amount' => $amount,
+        ]);
+        $this->dispatch($job);
+    }
+
+
+    private function insertDiscountPickup($package, $amount)
+    {
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_DISCOUNT,
+            'description' => Price::TYPE_PICKUP,
+            'amount' => $amount,
+        ]);
+        $this->dispatch($job);
     }
 }
