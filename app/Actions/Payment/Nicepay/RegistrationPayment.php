@@ -52,8 +52,17 @@ class RegistrationPayment
                 ->with(['province', 'regency', 'district'])
                 ->where('is_default', true)
                 ->first() ?? null;
+            // todo get total amount child package of multi destination
+            $amt = 0.0;
+            if ($package->multiDestination()->exists()) {
+                $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+                $totalAmountChild = Package::whereIn('id', $childId)->get()->sum('total_amount');
+                $totalAmount = $package->total_amount + $totalAmountChild;
+                $amt = ceil($totalAmount + self::adminChargeCalculator($gateway, $totalAmount));
+            } else {
+                $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
+            }
 
-            $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
             $now = date_format(Carbon::now(), 'YmdHis');
             $this->attributes = [
                 'timeStamp' => $now,
