@@ -185,16 +185,13 @@ class HomeController extends Controller
                     $packageChild = Package::whereIn('id', $childId)->get();
                     $packageChild->each(function ($q) {
                         $this->insertDiscountService($q, 0);
-                        event(new PackageCheckedByCashier($q));
                     });
 
                     $this->insertDiscountService($package, $request->discount);
                 } elseif ($package->parentDestination()->exists()) {
                     $parentId = $package->parentDestination()->first()->parent_id;
                     $packageParent = Package::where('id', $parentId)->first();
-
                     $this->insertDiscountService($packageParent, 0);
-                    event(new PackageCheckedByCashier($packageParent));
 
                     $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
                         if ($q->child_id === $package->id) {
@@ -205,7 +202,6 @@ class HomeController extends Controller
 
                     $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
                         $this->insertDiscountService($q, 0);
-                        event(new PackageCheckedByCashier($q));
                     });
 
                     $this->insertDiscountService($package, $request->discount);
@@ -215,20 +211,16 @@ class HomeController extends Controller
             } else {
                 if ($package->multiDestination()->exists()) {
                     $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
-
                     $packageChild = Package::whereIn('id', $childId)->get();
                     $packageChild->each(function ($q) {
                         $this->insertDiscountPickup($q, 0);
-                        event(new PackageCheckedByCashier($q));
                     });
 
                     $this->insertDiscountPickup($package, $request->discount);
                 } elseif ($package->parentDestination()->exists()) {
                     $parentId = $package->parentDestination()->first()->parent_id;
                     $packageParent = Package::where('id', $parentId)->first();
-
                     $this->insertDiscountPickup($packageParent, 0);
-                    event(new PackageCheckedByCashier($packageParent));
 
                     $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
                         if ($q->child_id === $package->id) {
@@ -239,7 +231,6 @@ class HomeController extends Controller
 
                     $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
                         $this->insertDiscountPickup($q, 0);
-                        event(new PackageCheckedByCashier($q));
                     });
 
                     $this->insertDiscountPickup($package, $request->discount);
