@@ -30,13 +30,24 @@ class DeliveryPickupResource extends JsonResource
                 'packages.destination_sub_district',
             ]);
         }
+        $packageMulti = $this->resource->packages()->get();
+        $multiDestination = null;
 
+        if ($packageMulti->isNotEmpty()) {
+            $multiDestination = $packageMulti->map(function ($q) {
+                $result = [
+                    'code' => $q->code->content
+                ];
+                return $result;
+            })->values()->toArray();
+        }
 
         $package =  $this->resource->packages->first()->toArray();
         $this->resource->unsetRelations('packages');
 
         $data = parent::toArray($request);
         if (isset($package)) {
+            $data['package_multi'] = $multiDestination;
             $data['package'] = $package;
         }
         return $data;

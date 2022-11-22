@@ -111,6 +111,13 @@ class NicepayController extends Controller
             $totalAmountChild = Package::whereIn('id', $childId)->get()->sum('total_amount');
             $totalAmount = $package->total_amount + $totalAmountChild;
             $amt = ceil($totalAmount + self::adminChargeCalculator($gateway, $totalAmount));
+
+            $packageChildUpdate = Package::whereIn('id', $childId)->get();
+            $packageChildUpdate->each(function ($q) {
+                $q->status = Package::STATUS_WAITING_FOR_PACKING;
+                $q->payment_status = Package::PAYMENT_STATUS_PAID;
+                $q->save();
+            });
         } else {
             $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
         }
