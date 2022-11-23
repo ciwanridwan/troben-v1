@@ -778,14 +778,25 @@ class OrderController extends Controller
         $parentPackage = Package::hashToId($request->package_parent_hash);
         $childPackage = $request->package_child_hash;
 
+        $childIds = [];
         for ($i = 0; $i < count($childPackage); $i++) {
+            $childId = Package::hashToId($childPackage[$i]);
+            array_push($childIds, $childId);
 
             MultiDestination::create([
                 'parent_id' => $parentPackage,
-                'child_id' => Package::hashToId($childPackage[$i])
+                'child_id' => $childId
             ]);
         }
+        $packageChild = Package::whereIn('id', $childIds)->get()->each(function ($q) {
+            $pickupFee = $q->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
 
+            $q->total_amount -= $pickupFee->amount;
+            $q->save();
+
+            $pickupFee->amount = 0;
+            $pickupFee->save();
+        });
         return (new Response(Response::RC_CREATED))->json();
     }
 
