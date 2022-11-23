@@ -448,9 +448,9 @@ class GenerateBalanceHistory
                         Log::error('TransporterBalance-tlg-err', $payload);
                     }
                 } else {
-                    // set income dooring
+                    $tierPrice = $this->getTierTypeDooring($tier, $price);
                     $existingBalance = $this->partner->balance;
-                    $income = $weight * $price->value;
+                    $income = $weight * $tierPrice;
                     $balance = $existingBalance + $income;
 
                     $this->partner->balance = $balance;
@@ -962,8 +962,36 @@ class GenerateBalanceHistory
         return $price;
     }
 
-    protected function getTierDooringPrices()
+    protected function getTierTypeDooring($tier, $price)
     {
-
+        switch ($tier) {
+            case 1:
+                return $price->tier_1;
+                break;
+            case 2:
+                return $price->tier_2;
+                break;
+            case 3:
+                return $price->tier_3;
+                break;
+            case 4:
+                return $price->tier_4;
+                break;
+            case 5:
+                return $price->tier_5;
+                break;
+            case 6:
+                return $price->tier_6;
+                break;
+            case 7:
+                return $price->tier_7;
+                break;
+            case 8:
+                return $price->tier_8;
+                break;
+            default:
+                return 0;
+                break;
+        }
     }
 }
