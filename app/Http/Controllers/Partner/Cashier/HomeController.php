@@ -80,10 +80,20 @@ class HomeController extends Controller
 
             $itemCollection = $result->getCollection()->map(function ($r) {
                 $shipping_method = 'Standart';
-                $order_mode = false;
+                $order_mode = true;
+                $servicePriceTotal = 0;
+                $serviceFeeParent = 0;
+                $serviceFeeChild = 0;
                 // todo if status is paid return true
                 if ($r->multiDestination->count()) {
-                    $order_mode = true;
+                    $order_mode = false;
+
+                    $parentId = $r->multiDestination->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+                    $serviceFeeParent = $packageParent->service_price;
+
+                    $childId = $r->multiDestination->pluck('child_id')->toArray();
+                    $serviceFeeChild = Package::whereIn('id', $childId)->get()->sum('service_price');
                 }
                 if (!is_null($r->parentDestination)) {
                     $order_mode = false;
@@ -96,8 +106,13 @@ class HomeController extends Controller
                     $shipping_method = 'Cubic';
                 }
 
+                $hasDiscount = $this->activeDisableDiscount($r);
+
                 $r->order_mode = $order_mode ? 'Single' : 'Multiple';
                 $r->shipping_method = $shipping_method;
+                $servicePriceTotal = $serviceFeeParent + $serviceFeeChild;
+                $r->service_price_total = $servicePriceTotal;
+                $r->has_discount = $hasDiscount;
 
                 unset($r->multiDestination);
                 unset($r->parentDestination);
@@ -426,5 +441,27 @@ class HomeController extends Controller
             'amount' => $amount,
         ]);
         $this->dispatch($job);
+    }
+
+    private function activeDisableDiscount($package)
+    {
+        if ($package->multiDestination->count() || !is_null($package->parentDestination)) {
+            $discountService =  $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+            $discountPickup = $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
+
+            if (!is_null($discountService) && $discountService !== 0) {
+                return false;
+            } else {
+                return true;
+            }
+
+            if (!is_null($discountPickup) && $discountPickup !== 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 }
