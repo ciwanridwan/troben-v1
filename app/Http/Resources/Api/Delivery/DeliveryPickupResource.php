@@ -69,7 +69,7 @@ class DeliveryPickupResource extends JsonResource
             $shipping_method = 'Cubic';
         }
         if (isset($package['multi_destination']) && count($package['multi_destination'])) {
-            $order_mode = true;
+            $order_mode = false;
         }
 
         $data['shipping_method'] = $shipping_method;
