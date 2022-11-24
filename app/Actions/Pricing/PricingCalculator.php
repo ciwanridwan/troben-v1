@@ -924,7 +924,7 @@ class PricingCalculator
                 ->first()->notes ?? null;
 
             $codePackage = $r->code->content;
-
+            // package child
             $result = [
                 'sender_name' => $r->sender_name,
                 'sender_address' => $r->sender_address,
@@ -940,11 +940,20 @@ class PricingCalculator
             ];
             array_push($items, $result);
         }
-
+        // package parent
         $parentData = [
             'parent' => [
+                'sender_name' => $package->sender_name,
+                'sender_address' => $package->sender_address,
+                'sender_way_point' => $package->sender_way_point,
+                'receiver_name' => $package->receiver_name,
+                'receiver_address' => $package->receiver_address,
+                'reveiver_way_point' => $package->receiver_way_point,
+                'hash' => $package->hash,
                 'code' => $package->code->content,
-                'hash' => $package->hash
+                'attachments' => $package->attachments,
+                'items' => $package->items,
+                'notes' => $notes
             ]
         ];
 
