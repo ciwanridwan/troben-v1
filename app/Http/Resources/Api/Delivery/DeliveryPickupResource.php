@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Delivery;
 
+use App\Models\Service;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -28,6 +29,7 @@ class DeliveryPickupResource extends JsonResource
                 'packages.destination_regency',
                 'packages.destination_district',
                 'packages.destination_sub_district',
+                'packages.multiDestination',
             ]);
         }
         $packageMulti = $this->resource->packages()->get();
@@ -42,6 +44,13 @@ class DeliveryPickupResource extends JsonResource
             })->values()->toArray();
         }
 
+        $order_mode = true;
+        // if (!is_null($r->parentDestination)) {
+        //     $order_mode = false;
+        // }
+
+        
+
         $package =  $this->resource->packages->first()->toArray();
         $this->resource->unsetRelations('packages');
 
@@ -50,6 +59,22 @@ class DeliveryPickupResource extends JsonResource
             $data['package_multi'] = $multiDestination;
             $data['package'] = $package;
         }
+
+        $shipping_method = 'Standart';
+        $order_mode = true;
+        if ($package['service_code'] == Service::TRAWLPACK_EXPRESS) {
+            $shipping_method = 'Express';
+        }
+        if ($package['service_code'] == Service::TRAWLPACK_CUBIC) {
+            $shipping_method = 'Cubic';
+        }
+        if (isset($package['multi_destination']) && count($package['multi_destination'])) {
+            $order_mode = true;
+        }
+
+        $data['shipping_method'] = $shipping_method;
+        $data['order_mode'] = $order_mode ? 'Single' : 'Multiple';
+
         return $data;
     }
 }
