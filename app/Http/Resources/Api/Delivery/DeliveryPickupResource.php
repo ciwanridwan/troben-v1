@@ -30,6 +30,8 @@ class DeliveryPickupResource extends JsonResource
                 'packages.destination_district',
                 'packages.destination_sub_district',
                 'packages.multiDestination',
+                'packages.items',
+                'packages.prices'
             ]);
         }
         $packageMulti = $this->resource->packages()->get();
@@ -45,11 +47,6 @@ class DeliveryPickupResource extends JsonResource
         }
 
         $order_mode = true;
-        // if (!is_null($r->parentDestination)) {
-        //     $order_mode = false;
-        // }
-
-        
 
         $package =  $this->resource->packages->first()->toArray();
         $this->resource->unsetRelations('packages');
