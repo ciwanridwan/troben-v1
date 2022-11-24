@@ -363,7 +363,7 @@ class PricingCalculator
             '*.handling' => ['nullable']
         ]);
 
-        $totalWeightBorne = 0;
+        $totalWeightBorne = [];
 
         foreach ($items as  $item) {
             if (!Arr::has($item, 'handling')) {
@@ -373,10 +373,11 @@ class PricingCalculator
                 $item['handling'] = self::checkHandling($item['handling']);
             }
 
-            $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            array_push($totalWeightBorne, $totalWeight);
         }
-
-        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
+        $total = array_sum($totalWeightBorne);
+        return $total > Price::MIN_WEIGHT ? $total : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
