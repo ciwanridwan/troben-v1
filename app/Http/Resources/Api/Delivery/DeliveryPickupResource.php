@@ -68,7 +68,7 @@ class DeliveryPickupResource extends JsonResource
         if ($package['service_code'] == Service::TRAWLPACK_CUBIC) {
             $shipping_method = 'Cubic';
         }
-        if (! is_null($multiDestination) && count($multiDestination)) {
+        if (! is_null($multiDestination) && count($multiDestination) > 1) {
             $order_mode = false;
         }
 
