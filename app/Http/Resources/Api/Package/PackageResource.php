@@ -104,8 +104,11 @@ class PackageResource extends JsonResource
         $childHash = [];
 
         if ($this->resource->multiDestination->count()) {
-            $isMulti = true;
-            $isMultiChild = true;
+            if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
+                $isMulti = true;
+                $isMultiChild = true;
+            }
+
             $childHash = $this->resource->multiDestination->map(function ($r) {
                 return [
                     "package_hash" => Package::idToHash($r['child_id'])
@@ -113,7 +116,10 @@ class PackageResource extends JsonResource
             })->toArray();
         }
         if (!is_null($this->resource->parentDestination)) {
-            $isMulti = true;
+            if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
+                $isMulti = true;
+            }
+
             $parentHash = Package::idToHash($this->resource->parentDestination->parent_id);
         }
 

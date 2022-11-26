@@ -121,7 +121,9 @@ class OrderController extends Controller
         $isMulti = false;
 
         if ($multiDestination->isNotEmpty()) {
-            $isMulti = true;
+            if ($package->payment_status !== Package::PAYMENT_STATUS_PAID) {
+                $isMulti = true;
+            }
             $multiPrices = PricingCalculator::getDetailMultiPricing($package);
             $multiItems = PricingCalculator::getDetailMultiItems($package);
         }
