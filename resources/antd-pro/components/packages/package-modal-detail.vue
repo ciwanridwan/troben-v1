@@ -19,7 +19,7 @@
         <package-address :package="package" type="receiver" />
       </template>
     </order-modal-row-layout>
-    <order-modal-row-layout :afterLine="false">
+    <!-- <order-modal-row-layout :afterLine="false"> //di table cs
       <template slot="icon">
         <a-icon
           :component="ReceiveIcon"
@@ -44,7 +44,7 @@
           ></enlargeable-image>
         </div>
       </template>
-    </order-modal-row-layout>
+    </order-modal-row-layout> -->
   </div>
 </template>
 <script>
