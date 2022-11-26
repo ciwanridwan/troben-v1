@@ -88,13 +88,15 @@ export default [
     colSpan: 2,
     customRender: (text, row, index) => {
       let result = 0;
-      row.prices.forEach((el) => {
-        if (el.type == "delivery" && el.description == "pickup") {
-          result = el.amount;
-        }
-      });
+      if (row.package?.prices?.length > 0) {
+        row.package?.prices?.forEach((el) => {
+          if (el.type == "delivery" && el.description == "pickup") {
+            result = el.amount;
+          }
+        });
+      }
       return {
-        children: row.package.service_price,
+        children: result,
       };
     },
   },
