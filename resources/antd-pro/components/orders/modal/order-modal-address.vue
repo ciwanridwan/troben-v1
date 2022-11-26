@@ -37,6 +37,19 @@
           >
             {{ service_code }}
           </div>
+          <br />
+          <div
+            style="
+              width: -webkit-fill-available;
+              height: 30px;
+              padding: 4px 23px;
+              text-align: center;
+              margin: 0px 16px;
+              background: rgba(251, 151, 39, 0.25);
+            "
+          >
+            {{ order_mode }}
+          </div>
         </div>
       </template>
     </order-modal-row-layout>
@@ -137,6 +150,9 @@ export default {
     },
     imagePacking() {
       return this.package?.attachments[0];
+    },
+    order_mode() {
+      return this.package?.order_mode;
     },
   },
 };

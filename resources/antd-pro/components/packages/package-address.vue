@@ -65,18 +65,19 @@ export default {
       //   ", Kota: " +
       //   getDestinationAddress(this.package)
       // );
-      if (
-        this.package?.receiver_way_point == null ||
-        this.package?.receiver_way_point == ""
-      ) {
-        return this.package?.receiver_address;
-      } else {
-        return (
-          this.package?.receiver_way_point +
-          ", " +
-          this.package?.receiver_address
-        );
-      }
+      // if (
+      //   this.package?.receiver_way_point == null ||
+      //   this.package?.receiver_way_point == ""
+      // ) {
+      //   return this.package?.receiver_address;
+      // } else {
+      //   return (
+      //     this.package?.receiver_way_point +
+      //     ", " +
+      //     this.package?.receiver_address
+      //   );
+      // }
+      return this.package?.receiver_address;
     },
     receiver_phone() {
       return this.package?.receiver_phone;

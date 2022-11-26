@@ -322,7 +322,6 @@ export default {
     length() {
       return this.item?.length;
     },
-
     width() {
       return this.item?.width;
     },
