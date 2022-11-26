@@ -87,9 +87,12 @@ class OrderController extends Controller
             }
 
             if (!is_null($r->parentDestination)) {
-                return false;
+                if ($r->payment_status === Package::PAYMENT_STATUS_PAID) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
-
             return true;
         })->values();
 
@@ -523,8 +526,12 @@ class OrderController extends Controller
             $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
             $this->dispatchNow($job);
         }
-        event(new PackageApprovedByCustomer($package));
-        //        event(new PartnerCashierDiscount($package));
+
+        if ($package->multiDestination()->exists()) {
+            $this->updatePackageMultiStatus($package);
+        } else {
+            event(new PackageApprovedByCustomer($package));
+        }
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -819,5 +826,26 @@ class OrderController extends Controller
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->packages))->json();
+    }
+
+    private function updatePackageMultiStatus($package)
+    {
+        $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+        $packageChild = Package::whereIn('id', $childId)->get();
+
+        $packageChild->each(function ($q) {
+            throw_if($q->status !== Package::STATUS_WAITING_FOR_APPROVAL, ValidationException::withMessages([
+                'package' => __('package should be in ' . Package::STATUS_WAITING_FOR_APPROVAL . ' status'),
+            ]));
+
+            $q->setAttribute('status', Package::STATUS_ACCEPTED)
+                ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                ->setAttribute('updated_by', User::USER_SYSTEM_ID)
+                ->save();
+
+            return $q;
+        });
+
+        event(new PackageApprovedByCustomer($package));
     }
 }
