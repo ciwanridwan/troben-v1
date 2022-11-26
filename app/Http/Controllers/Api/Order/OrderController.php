@@ -87,9 +87,12 @@ class OrderController extends Controller
             }
 
             if (!is_null($r->parentDestination)) {
-                return false;
+                if ($r->payment_status === Package::PAYMENT_STATUS_PAID) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
-
             return true;
         })->values();
 
