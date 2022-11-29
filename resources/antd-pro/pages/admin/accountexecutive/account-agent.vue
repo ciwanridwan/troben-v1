@@ -128,10 +128,10 @@ import ContentLayout from "../../../layouts/content-layout.vue";
 import axios from "axios";
 
 export default {
-    name: "account-agent",
-    components: {
-        ContentLayout,
-    },
+  name: "account-agent",
+  components: {
+      ContentLayout,
+  },
 
     data() {
         return {

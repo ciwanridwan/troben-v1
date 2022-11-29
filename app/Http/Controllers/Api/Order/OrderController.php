@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Exceptions\InvalidDataException;
+use App\Exceptions\OutOfRangePricingException;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
@@ -338,7 +341,7 @@ class OrderController extends Controller
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin, true);
             if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
             // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
@@ -368,14 +371,14 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;
 
@@ -386,6 +389,15 @@ class OrderController extends Controller
                 $items[$key]['is_insured'] = true;
             }
         }
+
+        // validate partner code
+        if (isset($items['partner_code'])) {
+            $partner = Partner::where('code', $items['partner_code'])->findOrFail();
+            if (is_null($partner)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner not found', 'code' => $items['partner_code']]);
+            }
+        }
+
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
@@ -696,7 +708,7 @@ class OrderController extends Controller
         $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
         // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));

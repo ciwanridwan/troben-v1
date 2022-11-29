@@ -247,6 +247,7 @@ class HomeController extends Controller
                 MAX(username) username,
                 MAX(email) email,
                 STRING_AGG(p.code, ',') partner,
+                MAX(u.deleted_at) deleted_at,
                 STRING_AGG(uu.role, ', ') roles
             FROM users u
             LEFT JOIN userables uu ON u.id = uu.user_id AND uu.userable_type = 'App\Models\Partners\Partner'

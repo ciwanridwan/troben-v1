@@ -6,7 +6,6 @@ use App\Jobs\Price\BulkCreateOrUpdatePrice;
 use App\Models\Price;
 use App\Http\Response;
 use App\Models\Service;
-use App\Exceptions\Error;
 use App\Models\Geo\Regency;
 use App\Models\Geo\District;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +17,7 @@ use App\Http\Resources\PriceResource;
 use App\Jobs\Price\DeleteExistingPrice;
 use App\Jobs\Price\UpdateExistingPrice;
 use App\Concerns\Controllers\HasResource;
+use App\Exceptions\InvalidDataException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -128,7 +128,7 @@ class PricingController extends Controller
     {
         // insert all of sub district
         $district = District::find($request->destination_district_id);
-        throw_if($district === null, Error::make(Response::RC_INVALID_DATA));
+        throw_if($district === null, InvalidDataException::make(Response::RC_INVALID_DATA));
         $price_input = $request->all();
         $price_inputs = [];
         foreach ($district->sub_districts as $key => $sub_district) {

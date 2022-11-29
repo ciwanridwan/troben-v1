@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
+use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\PriceResource;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\CubicPrice;
@@ -397,6 +398,7 @@ class PricingCalculator
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
         return (self::ceilByTolerance($weight) * $qty);
+        // return $result;
     }
 
     public static function getInsurancePrice($price)
