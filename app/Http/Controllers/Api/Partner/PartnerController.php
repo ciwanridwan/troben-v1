@@ -269,24 +269,4 @@ class PartnerController extends Controller
 
         return $builder;
     }
-
-    /** Get partner data by selected show for customer */
-    public function getPartnerShowInCustomer()
-    {
-
-        $query = $this->getBasicBuilder(Partner::query());
-
-        // MITRA MB
-        $query->where('type', Partner::TYPE_BUSINESS);
-        $query->whereNotNull(['latitude', 'longitude']);
-        $query->where('availability', 'open');
-        $query->where('is_show', true); // show if select true
-
-        $query->when(request()->has('type'), fn ($q) => $q->whereHas('transporters', function (Builder $query) {
-            $query->where('type', 'like', $this->attributes['type']);
-        }));
-        $query->when(request()->has('origin'), fn ($q) => $q->where('geo_regency_id', $this->attributes['origin']));
-
-        return $this->jsonSuccess(PartnerResource::collection($query->get()));
-    }
 }
