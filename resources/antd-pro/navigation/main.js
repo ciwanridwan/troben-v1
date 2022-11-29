@@ -109,8 +109,8 @@ const main = {
         route: "admin.home.formregister.trawlbenscorporate",
         children: {
           trawlbensCorporate: {
-            title: "Mitra Corporate",
-            text: "Mitra Corporate",
+            title: "Pelanggan Corporate",
+            text: "Pelanggan Corporate",
             route: "admin.home.formregister.trawlbenscorporate",
             children: null,
           },
