@@ -46,7 +46,7 @@ class BulkCubicPrice extends Command
     public function handle()
     {
         $header = [
-            'id', 'prov', 'kota_kab', 'kec', 'destination', 'zip_code', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', "notes"
+            'id', 'prov', 'kota_kab', 'kec', 'destination', 'zip_code', 'tier_1', 'tier_2', 'tier_3', 'tier_4', 'tier_5', 'tier_6', 'tier_7', 'tier_8', 'notes'
         ];
 
         $this->file_path = $this->option('file');
@@ -62,7 +62,7 @@ class BulkCubicPrice extends Command
         }
 
         $f = \Illuminate\Support\Facades\File::exists($this->file_path);
-        if (!$f) {
+        if (! $f) {
             $this->info('file not found');
             return;
         }
@@ -72,9 +72,13 @@ class BulkCubicPrice extends Command
         $rows = [];
         $data = $this->csv_to_array($this->file_path, $header);
         foreach ($data as $k => $d) {
-            if ($k == 0) continue;
+            if ($k == 0) {
+                continue;
+            }
 
-            if (($k % 5000) == 0) $this->info($k);
+            if (($k % 5000) == 0) {
+                $this->info($k);
+            }
 
             $q = "SELECT * FROM geo_sub_districts WHERE name ILIKE '%s' LIMIT 1";
             $q = sprintf($q, pg_escape_string($d['destination']));
@@ -111,10 +115,11 @@ class BulkCubicPrice extends Command
     private function csv_to_array($filename = '', $header)
     {
         $delimiter = ',';
-        if (!file_exists($filename) || !is_readable($filename))
+        if (! file_exists($filename) || ! is_readable($filename)) {
             return FALSE;
+        }
 
-        $data = array();
+        $data = [];
         if (($handle = fopen($filename, 'r')) !== FALSE) {
             while (($row = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
                 $data[] = array_combine($header, $row);

@@ -99,7 +99,7 @@ class HomeController extends Controller
                 if ($r->multiDestination->count()) {
                     $order_mode = true;
                 }
-                if (!is_null($r->parentDestination)) {
+                if (! is_null($r->parentDestination)) {
                     $order_mode = false;
                 }
 
@@ -115,10 +115,10 @@ class HomeController extends Controller
 
                 unset($r->multiDestination);
                 unset($r->parentDestination);
-    
+
                 return $r;
             })->values();
-    
+
             $result->setCollection($itemCollection);
 
             return (new Response(Response::RC_SUCCESS, $result))->json();

@@ -9,7 +9,6 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
-use HashId\HashId;
 
 /**
  * Class PackageResource.
@@ -26,14 +25,14 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('updated_by')) {
+        if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
-        if (!$this->resource->relationLoaded('canceled')) {
+        if (! $this->resource->relationLoaded('canceled')) {
             $this->resource->load('canceled');
         }
 
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -70,7 +69,7 @@ class PackageResource extends JsonResource
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
 
-        if (!empty($dataPerformance)) {
+        if (! empty($dataPerformance)) {
             $data = array_merge($data, $dataPerformance);
         }
 
@@ -82,7 +81,7 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (!$this->resource->motoBikes()) {
+        if (! $this->resource->motoBikes()) {
             $this->resource->load('motoBikes');
         }
 
@@ -111,11 +110,11 @@ class PackageResource extends JsonResource
 
             $childHash = $this->resource->multiDestination->map(function ($r) {
                 return [
-                    "package_hash" => Package::idToHash($r['child_id'])
+                    'package_hash' => Package::idToHash($r['child_id'])
                 ];
             })->toArray();
         }
-        if (!is_null($this->resource->parentDestination)) {
+        if (! is_null($this->resource->parentDestination)) {
             if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
                 $isMulti = true;
             }

@@ -2,7 +2,6 @@
 
 namespace App\Actions\Auth;
 
-use App\Http\Resources\Account\JWTOfficeResource;
 use App\Jobs\Customers\Actions\CreateNewCustomerByFacebook;
 use App\Jobs\Customers\Actions\CreateNewCustomerByGoogle;
 use App\Jobs\Customers\UpdateExistingCustomer;
@@ -11,8 +10,6 @@ use App\Models\Offices\Office;
 use App\Mail\SendMailOTP;
 use App\Models\User;
 use App\Http\Response;
-use App\Http\Resources\Account\JWTCustomerResource;
-use App\Http\Resources\Account\JWTUserResource;
 use App\Contracts\HasOtpToken;
 use Illuminate\Http\JsonResponse;
 use App\Models\Customers\Customer;

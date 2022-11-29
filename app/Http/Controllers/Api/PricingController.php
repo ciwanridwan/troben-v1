@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\Geo\Regency;
 use App\Models\Price;

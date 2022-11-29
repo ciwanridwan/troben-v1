@@ -128,7 +128,7 @@ class GenerateBalanceHistory
                     $this->setPackage($package);
                     $variant = '1';
                     # total balance service > record service balance
-                    if (!$this->partner->get_fee_transit) {
+                    if (! $this->partner->get_fee_transit) {
                         break;
                     }
 
@@ -306,7 +306,7 @@ class GenerateBalanceHistory
 
                             $price = $this->getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId);
 
-                            if (!$price) {
+                            if (! $price) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -337,7 +337,7 @@ class GenerateBalanceHistory
 
                             $price = $this->getTransitPriceWithMultiplePackages($this->packages, $originRegencyId, $destinationDistrictId);
 
-                            if (!$price || $price->isEmpty()) {
+                            if (! $price || $price->isEmpty()) {
                                 $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner);
                                 $this->dispatchNow($job);
                                 $payload = [
@@ -426,7 +426,7 @@ class GenerateBalanceHistory
                     ->where('destination_sub_district_id', $this->package->destination_sub_district_id)
                     ->first();
 
-                if (!$this->partner->get_fee_dooring || !$price || is_null($price)) {
+                if (! $this->partner->get_fee_dooring || ! $price || is_null($price)) {
                     $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                     $this->dispatchNow($job);
 
@@ -435,7 +435,7 @@ class GenerateBalanceHistory
                             'manifest_code' => $this->delivery->code->content,
                             'package_code' => $this->package->code->content,
                             'origin' => $this->partner->regency->name,
-                            'destination' => $this->package->destination_regency->name . ', ' . $this->package->destination_district->name . ', ' . $this->package->destination_sub_district->name,
+                            'destination' => $this->package->destination_regency->name.', '.$this->package->destination_district->name.', '.$this->package->destination_sub_district->name,
                             'package_weight' => $weight,
                             'partner_code' => $this->partner->code,
                             'type' => TransporterBalance::MESSAGE_TYPE_PACKAGE,
@@ -472,7 +472,7 @@ class GenerateBalanceHistory
 
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
-                    if (!$price) {
+                    if (! $price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
                         $payload = [
@@ -522,7 +522,7 @@ class GenerateBalanceHistory
 
         /** @var Template $notification */
         $notification = Template::query()->firstWhere('type', '=', Template::TYPE_PARTNER_BALANCE_UPDATED);
-        if (!is_null($owner->fcm_token)) {
+        if (! is_null($owner->fcm_token)) {
             return new PrivateChannel($owner, $notification);
         }
     }
@@ -818,7 +818,7 @@ class GenerateBalanceHistory
     }
 
     /**
-     * Get Transit Tier Price Of Partner Transporter
+     * Get Transit Tier Price Of Partner Transporter.
      */
     protected function getTransitTierPrice($package_count, $price, $tier): float
     {
@@ -889,7 +889,7 @@ class GenerateBalanceHistory
 
     /**
      * Get Transit Price By Type MTAK
-     * With A Single Packages
+     * With A Single Packages.
      * @return PartnerTransitPrice $price
      */
     protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId)
@@ -942,7 +942,7 @@ class GenerateBalanceHistory
 
     /**
      * Get Transit Price By Type MTAK
-     * With A Multiple Packages
+     * With A Multiple Packages.
      */
     protected function getTransitPriceWithMultiplePackages($package, $originRegencyId, $destinationDistrictId)
     {

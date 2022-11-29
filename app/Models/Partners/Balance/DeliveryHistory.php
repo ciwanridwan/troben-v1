@@ -119,5 +119,4 @@ class DeliveryHistory extends Model
     {
         return $this->belongsTo(Delivery::class, 'delivery_id', 'id');
     }
-
 }

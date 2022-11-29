@@ -153,10 +153,10 @@ class PartnerController extends Controller
             Partner::AVAIL_CLOSE,
         ];
         $this->attributes = Validator::make($request->all(), [
-            'availability' => 'required|in:' . implode(',', $availList),
+            'availability' => 'required|in:'.implode(',', $availList),
         ])->validate();
 
-        $notUser = !(Auth::user() instanceof User);
+        $notUser = ! (Auth::user() instanceof User);
         if ($notUser) {
             throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
         }
@@ -174,7 +174,7 @@ class PartnerController extends Controller
         DB::statement($q);
 
         $result = [
-            'result' => 'availability set to: ' . $request->get('availability')
+            'result' => 'availability set to: '.$request->get('availability')
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
@@ -182,7 +182,7 @@ class PartnerController extends Controller
 
     public function availabilityGet(Request $request): JsonResponse
     {
-        $notUser = !(Auth::user() instanceof User);
+        $notUser = ! (Auth::user() instanceof User);
         if ($notUser) {
             throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Role not match']);
         }
@@ -264,7 +264,7 @@ class PartnerController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('name', 'like', '%' . $this->attributes['q'] . '%')
+            fn ($q) => $q->where('name', 'like', '%'.$this->attributes['q'].'%')
         );
 
         return $builder;
