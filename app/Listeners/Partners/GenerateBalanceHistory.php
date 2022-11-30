@@ -475,8 +475,20 @@ class GenerateBalanceHistory
                     if (! $price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
+
+                        $manifest_weight = 0;
+                        try {
+                            $this->package->items->each(function ($item) use (&$manifest_weight) {
+                                $manifest_weight += $item->weight_borne_total;
+                            });
+                        } catch (\Exception $e) {
+                            report($e);
+                        }
                         $payload = [
                             'data' => [
+                                'manifest_weight' => $manifest_weight,
+                                'manifest_code' => $this->delivery->code->content,
+                                'package_count' => 1, // only first item
                                 'package_code' => $this->package->code->content,
                                 'total_weight' => $weight,
                                 'partner_code' => $this->partner->code,
