@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Balance\DetailResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\ReportPartnerTransporterResource;
-use App\Http\Resources\Api\Partner\Owner\Balance\ReportResource;
 use App\Http\Resources\Api\Partner\Owner\Balance\SummaryResource;
 use App\Http\Response;
 use App\Models\Partners\Partner;
@@ -55,8 +54,8 @@ class BalanceController extends Controller
                 $query = $this->getIncome($repository->getPartner()->id);
                 $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
                     $k->map(function ($q) {
-                      $q->amount = intval($q->amount);
-                      $q->weight = intval($q->weight);
+                        $q->amount = intval($q->amount);
+                        $q->weight = intval($q->weight);
                     });
 
                     $totalAmount = $k->sum('amount');
@@ -106,9 +105,16 @@ class BalanceController extends Controller
         ]));
     }
 
+    public function paginate($items, $perPage = 15, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
     /** Get Income MTAK By Query
      *  Delivery &
-     * Dooring Income
+     * Dooring Income.
      */
     private function getMtakIncome($partnerId)
     {
@@ -149,12 +155,5 @@ class BalanceController extends Controller
         where pbh.partner_id = $partnerId and pbh.type != 'withdraw' order by date desc";
 
         return $q;
-    }
-
-    public function paginate($items, $perPage = 15, $page = null, $options = [])
-    {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 }

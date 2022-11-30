@@ -176,7 +176,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');
@@ -259,6 +259,101 @@ class FinanceController extends Controller
         return $q;
     }
 
+    /**
+     * Get a detail of disbursment.
+     * @param $disbursment_id
+     * */
+    public function detail($disbursment_id)
+    {
+        $disbursment = Withdrawal::where('id', $disbursment_id)->first();
+
+        if (is_null($disbursment)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        $partner = $disbursment->partner()->first();
+
+        switch ($partner->type) {
+            case Partner::TYPE_TRANSPORTER:
+                return $this->detailDisbursTransporter($partner->type, $disbursment);
+                break;
+            default:
+                return $this->detailDisburs($disbursment);
+                break;
+        }
+    }
+
+    /** New Script Approve
+     *  Approve some receipt or manifest code to disbursment.
+     *  @helloirfanaditya
+     *  @ryanda
+     */
+    public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
+    {
+        $receipt = (array) $request->get('receipt');
+        if (count($receipt) == 0) {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+
+        $disbursment = Withdrawal::where('id', $request->id)->first();
+        if (is_null($disbursment)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        $partnerType = $disbursment->partner->type;
+        switch ($partnerType) {
+            case Partner::TYPE_TRANSPORTER:
+                return $this->approveForDeliveries($disbursment, $receipt);
+                break;
+            default:
+                return $this->approveForPackages($disbursment, $receipt);
+                break;
+        }
+    }
+
+    /**
+     * Query for get reporting receipt of paid receipts.
+     * @ciwanridwan
+     */
+    public function reportReceiptQuery($param)
+    {
+        $q = "SELECT
+        receipt_code,
+        origin_city,
+        destination_province,
+        destination_city,
+        destination_district,
+        destination_sub_district,
+        zip_code,
+        type_order,
+        transporter_pickup_type,
+        unloaded_at,
+        origin_partner,
+        nicepay_trx_id,
+        nicepay_status,
+        payment_verified_at,
+        payment_request_at,
+        total_weight,
+        item_price,
+        total_delivery_price,
+        discount_delivery,
+        extra_commission,
+        commission_manual,
+        total_commission,
+        receipt_total_packing_price,
+        receipt_insurance_price,
+        receipt_pickup_price,
+        receipt_total_amount
+        FROM view_receipt_paid rp
+        WHERE 1=1
+        AND DATE(payment_verified_at) >= '%s'
+        AND DATE(payment_verified_at) <= '%s'";
+
+        $q = sprintf($q, $param['start'], $param['end']);
+
+        return $q;
+    }
+
     /**Query for get all disbursment with spesific data */
     private function getQueryExports($param)
     {
@@ -331,32 +426,8 @@ class FinanceController extends Controller
     }
 
     /**
-     * Get a detail of disbursment
-     * @param $disbursment_id
-     * */
-    public function detail($disbursment_id)
-    {
-        $disbursment = Withdrawal::where('id', $disbursment_id)->first();
-
-        if (is_null($disbursment)) {
-            return (new Response(Response::RC_SUCCESS, []))->json();
-        }
-
-        $partner = $disbursment->partner()->first();
-
-        switch ($partner->type) {
-            case Partner::TYPE_TRANSPORTER:
-                return $this->detailDisbursTransporter($partner->type, $disbursment);
-                break;
-            default:
-                return $this->detailDisburs($disbursment);
-                break;
-        }
-    }
-
-    /**
      * New Query For Get List Of Receipt
-     * Within Partner
+     * Within Partner.
      * */
     private function newQueryDetailDisbursment($partnerId)
     {
@@ -375,79 +446,6 @@ class FinanceController extends Controller
         return $q;
     }
 
-    /** New Script Approve
-     *  Approve some receipt or manifest code to disbursment
-     *  @helloirfanaditya
-     *  @ryanda
-     */
-    public function approve(Withdrawal $withdrawal, Request $request): JsonResponse
-    {
-        $receipt = (array) $request->get('receipt');
-        if (count($receipt) == 0) {
-            return (new Response(Response::RC_BAD_REQUEST))->json();
-        }
-
-        $disbursment = Withdrawal::where('id', $request->id)->first();
-        if (is_null($disbursment)) {
-            return (new Response(Response::RC_SUCCESS, []))->json();
-        }
-
-        $partnerType = $disbursment->partner->type;
-        switch ($partnerType) {
-            case Partner::TYPE_TRANSPORTER:
-                return $this->approveForDeliveries($disbursment, $receipt);
-                break;
-            default:
-                return $this->approveForPackages($disbursment, $receipt);
-                break;
-        }
-
-
-    }
-
-    /**
-     * Query for get reporting receipt of paid receipts
-     * @ciwanridwan
-     */
-    public function reportReceiptQuery($param)
-    {
-        $q = "SELECT
-        receipt_code,
-        origin_city,
-        destination_province,
-        destination_city,
-        destination_district,
-        destination_sub_district,
-        zip_code,
-        type_order,
-        transporter_pickup_type,
-        unloaded_at,
-        origin_partner,
-        nicepay_trx_id,
-        nicepay_status,
-        payment_verified_at,
-        payment_request_at,
-        total_weight,
-        item_price,
-        total_delivery_price,
-        discount_delivery,
-        extra_commission,
-        commission_manual,
-        total_commission,
-        receipt_total_packing_price,
-        receipt_insurance_price,
-        receipt_pickup_price,
-        receipt_total_amount
-        FROM view_receipt_paid rp
-        WHERE 1=1
-        AND DATE(payment_verified_at) >= '%s'
-        AND DATE(payment_verified_at) <= '%s'";
-
-        $q = sprintf($q, $param['start'], $param['end']);
-
-        return $q;
-    }
-
     private function queryPartnerTransporter($partnerId)
     {
         $q = "select c.content as receipt, pbdh.balance as total_accepted from partner_balance_delivery_histories pbdh
@@ -458,7 +456,7 @@ class FinanceController extends Controller
     }
 
     /**
-     * To get detail disbursment of partner transporter
+     * To get detail disbursment of partner transporter.
      * @param $partnerId
      */
     private function getDetailDisbursmentTransporter($partnerId)
@@ -479,7 +477,7 @@ class FinanceController extends Controller
     }
 
     /**
-     * Set detail disbursment of partner transporter
+     * Set detail disbursment of partner transporter.
      */
     private function detailDisbursTransporter($partnerType, $disbursment): JsonResponse
     {
@@ -512,7 +510,7 @@ class FinanceController extends Controller
                 $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -563,7 +561,7 @@ class FinanceController extends Controller
                 $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -581,7 +579,7 @@ class FinanceController extends Controller
     }
 
     /**
-     * Sub function for a get detail disburs
+     * Sub function for a get detail disburs.
      */
     private function detailDisburs($disbursment): JsonResponse
     {
@@ -614,7 +612,7 @@ class FinanceController extends Controller
             $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
             $attachment = $disbursment->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
             $data = [
@@ -666,7 +664,7 @@ class FinanceController extends Controller
             $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
             $attachment = $disbursment->attachment_transfer ?
-                Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                 null;
 
             $data = [
@@ -684,7 +682,7 @@ class FinanceController extends Controller
     }
 
     /**
-     * Approve packages by receipt code
+     * Approve packages by receipt code.
      */
     private function approveForPackages($disbursment, $receipt): JsonResponse
     {
@@ -738,7 +736,7 @@ class FinanceController extends Controller
     }
 
     /**
-     * Approve deliveries by with manifest code
+     * Approve deliveries by with manifest code.
      */
     private function approveForDeliveries($disbursment, $receipt): JsonResponse
     {

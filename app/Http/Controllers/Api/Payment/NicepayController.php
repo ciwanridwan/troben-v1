@@ -152,4 +152,21 @@ class NicepayController extends Controller
 
         return ! is_null($payment);
     }
+
+    /**
+     * SLA when customer after pay
+     */
+    private function setDeadline($package)
+    {
+        $partnerPickup = $package->picked_up_by->first()->partner;
+
+        $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
+        $performanceQuery = PartnerPackagePerformance::query()->create([
+            'partner_id' => $partnerPickup->id,
+            'package_id' => $package->id,
+            'deadline' => $deadline
+        ]);
+
+        Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
+    }
 }
