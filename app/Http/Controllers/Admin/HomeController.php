@@ -94,10 +94,10 @@ class HomeController extends Controller
 
             $itemCollection = $result->getCollection()->map(function ($r) {
                 $shipping_method = 'Standart';
-                $order_mode = false;
+                $order_mode = true;
                 // todo if status is paid return true
                 if ($r->multiDestination->count()) {
-                    $order_mode = true;
+                    $order_mode = false;
                 }
                 if (! is_null($r->parentDestination)) {
                     $order_mode = false;
