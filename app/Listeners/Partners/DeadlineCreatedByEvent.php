@@ -77,6 +77,7 @@ class DeadlineCreatedByEvent
 
                 Log::debug('Deadline delivery created Listen to driver unload in destination warehouse: ', [$performanceQuery]);
                 break;
+
         }
     }
 }
