@@ -456,7 +456,7 @@ class GenerateBalanceHistory
                     $this->partner->balance = $balance;
                     $this->partner->save();
                     $this
-                        ->setBalance($weight * $price->value)
+                        ->setBalance($income)
                         ->setType(History::TYPE_DEPOSIT)
                         ->setDescription(History::DESCRIPTION_DOORING)
                         ->setAttributes()
@@ -471,7 +471,6 @@ class GenerateBalanceHistory
 
 
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
-
                     if (!$price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
@@ -895,7 +894,6 @@ class GenerateBalanceHistory
     protected function getTransitPriceByTypeOfSinglePackage($package, $originRegencyId, $destinationDistrictId)
     {
         $transitCount = $package->transit_count;
-
         switch ($transitCount) {
             case 1:
                 $price = PartnerTransitPrice::query()
