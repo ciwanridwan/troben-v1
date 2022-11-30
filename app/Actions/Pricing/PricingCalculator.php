@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
+use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\PriceResource;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\CubicPrice;
@@ -363,7 +364,7 @@ class PricingCalculator
             '*.handling' => ['nullable']
         ]);
 
-        $totalWeightBorne = 0;
+        $totalWeightBorne = [];
 
         foreach ($items as  $item) {
             if (!Arr::has($item, 'handling')) {
@@ -373,10 +374,11 @@ class PricingCalculator
                 $item['handling'] = self::checkHandling($item['handling']);
             }
 
-            $totalWeightBorne = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            array_push($totalWeightBorne, $totalWeight);
         }
-
-        return $totalWeightBorne > Price::MIN_WEIGHT ? $totalWeightBorne : Price::MIN_WEIGHT;
+        $total = array_sum($totalWeightBorne);
+        return $total > Price::MIN_WEIGHT ? $total : Price::MIN_WEIGHT;
     }
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
@@ -396,6 +398,7 @@ class PricingCalculator
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
         return (self::ceilByTolerance($weight) * $qty);
+        // return $result;
     }
 
     public static function getInsurancePrice($price)
@@ -924,7 +927,7 @@ class PricingCalculator
                 ->first()->notes ?? null;
 
             $codePackage = $r->code->content;
-
+            // package child
             $result = [
                 'sender_name' => $r->sender_name,
                 'sender_address' => $r->sender_address,
@@ -940,11 +943,20 @@ class PricingCalculator
             ];
             array_push($items, $result);
         }
-
+        // package parent
         $parentData = [
             'parent' => [
+                'sender_name' => $package->sender_name,
+                'sender_address' => $package->sender_address,
+                'sender_way_point' => $package->sender_way_point,
+                'receiver_name' => $package->receiver_name,
+                'receiver_address' => $package->receiver_address,
+                'reveiver_way_point' => $package->receiver_way_point,
+                'hash' => $package->hash,
                 'code' => $package->code->content,
-                'hash' => $package->hash
+                'attachments' => $package->attachments,
+                'items' => $package->items,
+                'notes' => $notes
             ]
         ];
 

@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\CustomerUploadReceipt;
 use App\Jobs\Packages\UpdateExistingPackage;
 use App\Events\Packages\PackageApprovedByCustomer;
+use App\Exceptions\InvalidDataException;
+use App\Exceptions\OutOfRangePricingException;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Resources\Api\Package\PackageResource;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
@@ -87,9 +90,12 @@ class OrderController extends Controller
             }
 
             if (!is_null($r->parentDestination)) {
-                return false;
+                if ($r->payment_status === Package::PAYMENT_STATUS_PAID) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
-
             return true;
         })->values();
 
@@ -118,7 +124,9 @@ class OrderController extends Controller
         $isMulti = false;
 
         if ($multiDestination->isNotEmpty()) {
-            $isMulti = true;
+            if ($package->payment_status !== Package::PAYMENT_STATUS_PAID) {
+                $isMulti = true;
+            }
             $multiPrices = PricingCalculator::getDetailMultiPricing($package);
             $multiItems = PricingCalculator::getDetailMultiItems($package);
         }
@@ -333,7 +341,7 @@ class OrderController extends Controller
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin, true);
             if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
             // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
@@ -363,14 +371,14 @@ class OrderController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(!$user instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $user instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $payload = array_merge($request->toArray(), ['origin_province_id' => $regency->province_id, 'destination_id' => $request->get('destination_sub_district_id')]);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         $inputs['customer_id'] = $user->id;
 
@@ -381,6 +389,15 @@ class OrderController extends Controller
                 $items[$key]['is_insured'] = true;
             }
         }
+
+        // validate partner code
+        if (isset($items['partner_code'])) {
+            $partner = Partner::where('code', $items['partner_code'])->findOrFail();
+            if (is_null($partner)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner not found', 'code' => $items['partner_code']]);
+            }
+        }
+
         $job = new CreateNewPackage($inputs, $items);
 
         $this->dispatchNow($job);
@@ -523,8 +540,12 @@ class OrderController extends Controller
             $job = new ClaimDiscountVoucher($voucher, $package->id, $request->user()->id);
             $this->dispatchNow($job);
         }
-        event(new PackageApprovedByCustomer($package));
-        //        event(new PartnerCashierDiscount($package));
+
+        if ($package->multiDestination()->exists()) {
+            $this->updatePackageMultiStatus($package);
+        } else {
+            event(new PackageApprovedByCustomer($package));
+        }
 
         return $this->jsonSuccess(PackageResource::make($package->fresh()));
     }
@@ -687,7 +708,7 @@ class OrderController extends Controller
         $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
         // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
@@ -778,14 +799,25 @@ class OrderController extends Controller
         $parentPackage = Package::hashToId($request->package_parent_hash);
         $childPackage = $request->package_child_hash;
 
+        $childIds = [];
         for ($i = 0; $i < count($childPackage); $i++) {
+            $childId = Package::hashToId($childPackage[$i]);
+            array_push($childIds, $childId);
 
             MultiDestination::create([
                 'parent_id' => $parentPackage,
-                'child_id' => Package::hashToId($childPackage[$i])
+                'child_id' => $childId
             ]);
         }
+        $packageChild = Package::whereIn('id', $childIds)->get()->each(function ($q) {
+            $pickupFee = $q->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
 
+            $q->total_amount -= $pickupFee->amount;
+            $q->save();
+
+            $pickupFee->amount = 0;
+            $pickupFee->save();
+        });
         return (new Response(Response::RC_CREATED))->json();
     }
 
@@ -808,5 +840,26 @@ class OrderController extends Controller
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->packages))->json();
+    }
+
+    private function updatePackageMultiStatus($package)
+    {
+        $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+        $packageChild = Package::whereIn('id', $childId)->get();
+
+        $packageChild->each(function ($q) {
+            throw_if($q->status !== Package::STATUS_WAITING_FOR_APPROVAL, ValidationException::withMessages([
+                'package' => __('package should be in ' . Package::STATUS_WAITING_FOR_APPROVAL . ' status'),
+            ]));
+
+            $q->setAttribute('status', Package::STATUS_ACCEPTED)
+                ->setAttribute('payment_status', Package::PAYMENT_STATUS_PENDING)
+                ->setAttribute('updated_by', User::USER_SYSTEM_ID)
+                ->save();
+
+            return $q;
+        });
+
+        event(new PackageApprovedByCustomer($package));
     }
 }

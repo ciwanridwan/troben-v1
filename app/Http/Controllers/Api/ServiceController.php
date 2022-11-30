@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Response;
 use App\Models\Service;
 use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -41,7 +42,7 @@ class ServiceController extends Controller
     public function show($service): JsonResponse
     {
         $service = Service::find($service);
-        throw_if($service === null, Error::make(Response::RC_INVALID_DATA));
+        throw_if($service === null, InvalidDataException::make(Response::RC_INVALID_DATA));
 
         return $this->jsonSuccess(ServiceResource::make($service));
     }
@@ -83,7 +84,7 @@ class ServiceController extends Controller
     public function update($service, Request $request): JsonResponse
     {
         $service = Service::find($service);
-        throw_if($service === null, Error::make(Response::RC_INVALID_DATA));
+        throw_if($service === null, InvalidDataException::make(Response::RC_INVALID_DATA));
 
         $job = new UpdateExistingService($service, $request->all());
         $response = $this->dispatch($job);

@@ -61,6 +61,7 @@ use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Listeners\Packages\GeneratePackageBikePrices;
+use App\Listeners\Partners\CalculateIncomeAEIndirect;
 use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
@@ -241,6 +242,7 @@ class EventServiceProvider extends ServiceProvider
         DeliveryDooring\DriverDooringFinished::class => [
             PartnerPerformanceEvaluatedByEvent::class,
             CalculateIncomeAE::class,
+            CalculateIncomeAEIndirect::class,
         ],
         DriverAssigned::class => [
             PaymentCreatedByEvent::class

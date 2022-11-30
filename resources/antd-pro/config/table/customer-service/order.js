@@ -4,18 +4,22 @@ export default [
   {
     title: "No",
     dataIndex: "number",
+    colSpan: 1,
   },
 
   {
     title: "ID Order",
+    colSpan: 3,
     customRender: (text, row, index) => {
+      let temp = row.package_multi.map((element) => element.code);
       return {
-        children: row.package.code.content,
+        children: temp.join(" "),
       };
     },
   },
   {
     title: "Type",
+    colSpan: 2,
     customRender: (text, row, index) => {
       return {
         children: row.package.order_type,
@@ -25,6 +29,7 @@ export default [
   {
     title: "Armada",
     key: "transporter",
+    colSpan: 2,
     customRender: (text, row, index) => {
       return {
         children: row.package.transporter_type,
@@ -34,9 +39,30 @@ export default [
   {
     title: "Lokasi Penjemputan",
     key: "sender_address",
+    colSpan: 3,
     customRender: (text, row, index) => {
       return {
         children: row.package.sender_address,
+      };
+    },
+  },
+  // {
+  //   title: "metode Pengiriman",
+  //   key: "shipping_method",
+  //   colSpan: 2,
+  //   customRender: (text, row, index) => {
+  //     return {
+  //       children: row.shipping_method,
+  //     };
+  //   },
+  // },
+  {
+    title: "Jenis Order",
+    key: "order_mode",
+    colSpan: 2,
+    customRender: (text, row, index) => {
+      return {
+        children: row.order_mode,
       };
     },
   },
@@ -53,6 +79,24 @@ export default [
           colSpan: 2,
         },
         children: moment(text).format("ddd, DD MMM YYYY HH:mm:ss"),
+      };
+    },
+  },
+  {
+    title: "Biaya Penjemputan",
+    key: "service_price",
+    colSpan: 2,
+    customRender: (text, row, index) => {
+      let result = 0;
+      if (row.package?.prices?.length > 0) {
+        row.package?.prices?.forEach((el) => {
+          if (el.type == "delivery" && el.description == "pickup") {
+            result = el.amount;
+          }
+        });
+      }
+      return {
+        children: result,
       };
     },
   },

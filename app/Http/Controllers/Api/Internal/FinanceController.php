@@ -38,7 +38,7 @@ class FinanceController extends Controller
     /**List disbursment */
     public function list(): JsonResponse
     {
-        $result = Withdrawal::orderBy('created_at', 'desc')->get();
+        $result = Withdrawal::whereHas('partner')->orderBy('created_at', 'desc')->get();
         return $this->jsonSuccess(ListResource::collection($result));
     }
 

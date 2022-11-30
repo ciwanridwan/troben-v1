@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V;
 
 use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SelfServices\PackageResource;
 use App\Http\Response;
@@ -40,7 +41,7 @@ class SelfServiceController extends Controller
     {
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->first();
         if ($code == null) {
-            throw Error::make(Response::RC_INVALID_DATA);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA);
         }
         $package = Package::query()->find($code->codeable_id);
         return $this->jsonSuccess(new PackageResource($package));
@@ -134,7 +135,7 @@ class SelfServiceController extends Controller
             //            $input = array_merge($request->toArray(),['email_verified_at' => Carbon::now()]);
             /** @var User $user */
             $user = User::where('phone', $phoneNumber)->first();
-            throw_if($user == null, Error::make(Response::RC_INVALID_DATA));
+            throw_if($user == null, InvalidDataException::make(Response::RC_INVALID_DATA));
             $job = new VerifyExistingUser($user);
             $this->dispatch($job);
             $user->setAttribute('updated_by', $request->auth->id);
@@ -142,7 +143,7 @@ class SelfServiceController extends Controller
             //            $input = array_merge($request->toArray(),['phone_verified_at' => Carbon::now()]);
             /** @var Customer $customer */
             $customer = Customer::where('phone', $phoneNumber)->first();
-            throw_if($customer == null, Error::make(Response::RC_INVALID_DATA));
+            throw_if($customer == null, InvalidDataException::make(Response::RC_INVALID_DATA));
 
             $customer->{$customer->getVerifiedColumn()} = Carbon::now();
             $customer->save();
@@ -174,7 +175,7 @@ class SelfServiceController extends Controller
             $result = DB::select('call change_delivery_destination(?,?)', [$this->code->content, $input['partner_code']]);
         } catch (\Throwable $e) {
             Log::alert('error change destination delivery: '.$e->getMessage(), ['content' => $content, 'request' => $request->all()]);
-            throw Error::make(Response::RC_INVALID_DATA);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA);
         }
         Log::info("change destination $content done.", [$result]);
 
@@ -202,7 +203,7 @@ class SelfServiceController extends Controller
             $result = DB::select('call append_package_to_delivery(?,?,?)', [$input['package_code'], $this->code->content], $request->auth->id);
         } catch (\Throwable $e) {
             Log::alert('error delivery append package: '.$e->getMessage(), ['content' => $content, 'request' => $request->all()]);
-            throw Error::make(Response::RC_INVALID_DATA);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA);
         }
         Log::info("delivery append package $content done.", [$result]);
 

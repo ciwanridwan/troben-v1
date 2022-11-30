@@ -31,6 +31,8 @@
           :xl="12"
         >
           <slot name="left"></slot>
+          <a-divider />
+          <slot name="leftBottom"></slot>
         </a-col>
         <a-col
           class="trawl-modal-split--right-container"
