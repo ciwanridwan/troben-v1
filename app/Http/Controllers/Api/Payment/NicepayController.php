@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Concerns\Controllers\HasAdminCharge;
+use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use Carbon\Carbon;
 
 class NicepayController extends Controller
@@ -103,8 +104,11 @@ class NicepayController extends Controller
 
     public function dummyRegistration(Gateway $gateway, Package $package): JsonResponse
     {
+        event(new PayByNicePayDummy($package));
+
         $this->gateway = $gateway;
         $amt = 0;
+        dd($amt);
 
         if ($package->multiDestination()->exists()) {
             $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
@@ -151,22 +155,5 @@ class NicepayController extends Controller
             ->first();
 
         return ! is_null($payment);
-    }
-
-    /**
-     * SLA when customer after pay
-     */
-    private function setDeadline($package)
-    {
-        $partnerPickup = $package->picked_up_by->first()->partner;
-
-        $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
-        $performanceQuery = PartnerPackagePerformance::query()->create([
-            'partner_id' => $partnerPickup->id,
-            'package_id' => $package->id,
-            'deadline' => $deadline
-        ]);
-
-        Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
     }
 }
