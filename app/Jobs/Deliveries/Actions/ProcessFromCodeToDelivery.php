@@ -144,7 +144,7 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     * Set transit count of packages
+     * Set transit count of packages.
      * @return int $transit_count
      * */
     private function setTransitCount($packageCode)
@@ -162,7 +162,7 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     * List transit of package
+     * List transit of package.
      */
     private function transitOfPackage()
     {
@@ -195,25 +195,25 @@ class ProcessFromCodeToDelivery
     }
 
     /**
-     *  Exception regencies
+     *  Exception regencies.
      * @return array $data
      */
     private function exceptRegency()
     {
         return [
-            "jakbar" => 58,
-            "jakpus" => 59,
-            "jaksel" => 60,
-            "jaktim" => 61,
-            "jakut" => 62,
-            "depok" =>  98,
-            "kota_bogor" =>  77,
-            "kab_bogor" =>  95,
-            "kab_bekasi" =>  76,
-            "kota_bekasi" =>  94,
-            "kab_tangerang" =>  36,
-            "kota_tangerang" =>  39,
-            "kota_tangsel" =>  40,
+            'jakbar' => 58,
+            'jakpus' => 59,
+            'jaksel' => 60,
+            'jaktim' => 61,
+            'jakut' => 62,
+            'depok' =>  98,
+            'kota_bogor' =>  77,
+            'kab_bogor' =>  95,
+            'kab_bekasi' =>  76,
+            'kota_bekasi' =>  94,
+            'kab_tangerang' =>  36,
+            'kota_tangerang' =>  39,
+            'kota_tangsel' =>  40,
         ];
     }
 

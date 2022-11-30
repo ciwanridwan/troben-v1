@@ -17,6 +17,7 @@
                 <th>Name</th>
                 <th>Partner</th>
                 <th>Roles</th>
+                <th>Is Deleted</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -28,13 +29,16 @@
                 <td>{{$u->name}}</td>
                 <td>{{$u->partner}}</td>
                 <td>{{$u->roles}}</td>
+                <td>{{$u->deleted_at}}</td>
                 <td>
+                    @if(is_null($u->deleted_at))
                     <form method="POST">
                         {{csrf_field()}}
 
                         <input type="hidden" name="email" value="{{$u->email}}">
                         <button type="submit">LOGIN!</button>
                     </form>
+                    @endif
                 </td>
             </tr>
             @endforeach

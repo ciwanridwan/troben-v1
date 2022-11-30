@@ -9,6 +9,7 @@ use App\Events\Packages\PackageCreatedForBike;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Packages\Item;
@@ -115,7 +116,7 @@ class MotorBikeController extends Controller
         $resultOrigin = Geo::getRegional($coordOrigin, true);
 
         if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
         // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
@@ -281,7 +282,7 @@ class MotorBikeController extends Controller
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
         $resultOrigin = Geo::getRegional($coordOrigin, true);
         if ($resultOrigin == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
         // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));

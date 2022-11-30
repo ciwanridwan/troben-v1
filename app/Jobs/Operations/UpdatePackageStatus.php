@@ -57,8 +57,9 @@ class UpdatePackageStatus
             Package::STATUS_PICKED_UP,
             Package::STATUS_WAITING_FOR_ESTIMATING,
         ];
-        if (in_array($statusPackage, $childPackageSetter))
-        $childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
+        if (in_array($statusPackage, $childPackageSetter)) {
+            $childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
+        }
         if ($childs->count()) {
             foreach ($childs as $c) {
                 $packageChild = Package::find($c->child_id);

@@ -129,6 +129,8 @@ class CreateNewPackage
             $this->attributes['sender_address'] = $regency->name.', '.$regency->province->name;
         }
 
+        $this->attributes['sender_address'] = substr($this->attributes['sender_address'], 0, 255);
+
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
         $this->package->created_by = auth()->user()->id;

@@ -3,7 +3,6 @@
 namespace App\Supports;
 
 use Firebase\JWT\JWT;
-use App\Models\Customers\Customer;
 use App\Models\User;
 
 class JwtAuth

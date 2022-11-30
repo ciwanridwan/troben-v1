@@ -22,7 +22,7 @@ class ReportPartnerTransporterResource extends JsonResource
             'type' => $this->type,
             'description' => $this->description,
         ];
-        $detail = array($detail);
+        $detail = [$detail];
 
         return [
             'package_code' => $this->package_code,
