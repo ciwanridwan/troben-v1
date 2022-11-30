@@ -118,10 +118,23 @@ class OrderController extends Controller
         $multiPrices = null;
         $multiItems = null;
         $isMulti = false;
+        $isMultiApprove = false;
 
         if ($multiDestination->isNotEmpty()) {
             if ($package->payment_status !== Package::PAYMENT_STATUS_PAID) {
                 $isMulti = true;
+
+                $childId = $multiDestination->pluck('child_id')->toArray();
+                $check = Package::whereIn('id', $childId)->get()->filter(function ($q) {
+                    if ($q->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                if ($check->isEmpty() && $package->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                    $isMultiApprove = true;
+                }
             }
             $multiPrices = PricingCalculator::getDetailMultiPricing($package);
             $multiItems = PricingCalculator::getDetailMultiItems($package);
@@ -243,7 +256,8 @@ class OrderController extends Controller
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
             'is_multi' => $isMulti,
             'multi_price' => $multiPrices,
-            'multi_items' => $multiItems
+            'multi_items' => $multiItems,
+            'is_multi_approve' => $isMultiApprove
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
