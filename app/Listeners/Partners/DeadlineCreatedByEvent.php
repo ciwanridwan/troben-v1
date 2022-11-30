@@ -4,6 +4,7 @@ namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackagesAttachedToDelivery;
+use App\Events\Packages\WarehouseIsStartPacking;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
@@ -45,13 +46,13 @@ class DeadlineCreatedByEvent
 
                 $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
-                
+
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerOrigin->id,
                         'delivery_id' => $delivery->id,
                         'deadline' => $deadline
-                    ]);                    
+                    ]);
                 } else {
                     break;
                 }
@@ -62,7 +63,7 @@ class DeadlineCreatedByEvent
                 $delivery = $event->delivery;
                 $partnerDestination = $delivery->partner;
                 $deadline = Carbon::now()->addHours(2);
-            
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
