@@ -193,11 +193,11 @@ class Item extends Model implements AttachableContract
 
     private function getHandling()
     {
-        return !empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 
     /**
-     * To get serviceCode from packages
+     * To get serviceCode from packages.
      * @return string $serviceCode
      */
     private function getServiceCode()

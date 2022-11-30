@@ -14,7 +14,6 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class PackageController extends Controller
 {

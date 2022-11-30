@@ -142,7 +142,7 @@ class PartnerController extends Controller
     }
 
     /** The purpose function for change property is_show in partners table
-     * to manage show or not in list of customers apps
+     * to manage show or not in list of customers apps.
      */
     public function updateShowPartner(Request $request)
     {

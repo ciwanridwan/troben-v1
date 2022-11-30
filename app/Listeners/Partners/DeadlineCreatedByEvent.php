@@ -65,7 +65,7 @@ class DeadlineCreatedByEvent
                 $deadline = Carbon::now()->addHours(2);
 
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
-                if (!$performanceDelivery || is_null($performanceDelivery)) {
+                if (! $performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerDestination->id,
                         'delivery_id' => $delivery->id,

@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Support\Facades\Storage;
 
-
 /**
  * Class Withdrawal.
  *
@@ -136,7 +135,7 @@ class Withdrawal extends Model
     public static function generateCodeTransaction()
     {
         $query = self::query();
-        $pre = Withdrawal::TRANSACTION_CODE;
+        $pre = self::TRANSACTION_CODE;
         $pre .= Carbon::now()->format('dmy');
         $last_order = $query->where('transaction_code', 'LIKE', $pre.'%')->orderBy('transaction_code', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->transaction_code, strlen($pre)) : 0;

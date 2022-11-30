@@ -3,7 +3,6 @@
 namespace App\Jobs\Packages\Actions;
 
 use App\Events\Packages\PartnerAssigned;
-use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Jobs\Deliveries\CreateNewDeliveryMultipleOrder;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;

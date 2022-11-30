@@ -94,12 +94,12 @@ class HomeController extends Controller
 
             $itemCollection = $result->getCollection()->map(function ($r) {
                 $shipping_method = 'Standart';
-                $order_mode = false;
+                $order_mode = true;
                 // todo if status is paid return true
                 if ($r->multiDestination->count()) {
-                    $order_mode = true;
+                    $order_mode = false;
                 }
-                if (!is_null($r->parentDestination)) {
+                if (! is_null($r->parentDestination)) {
                     $order_mode = false;
                 }
 
@@ -115,10 +115,10 @@ class HomeController extends Controller
 
                 unset($r->multiDestination);
                 unset($r->parentDestination);
-    
+
                 return $r;
             })->values();
-    
+
             $result->setCollection($itemCollection);
 
             return (new Response(Response::RC_SUCCESS, $result))->json();
@@ -247,6 +247,7 @@ class HomeController extends Controller
                 MAX(username) username,
                 MAX(email) email,
                 STRING_AGG(p.code, ',') partner,
+                MAX(u.deleted_at) deleted_at,
                 STRING_AGG(uu.role, ', ') roles
             FROM users u
             LEFT JOIN userables uu ON u.id = uu.user_id AND uu.userable_type = 'App\Models\Partners\Partner'

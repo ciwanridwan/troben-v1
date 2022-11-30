@@ -60,7 +60,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         attachable,
         CustomSerializeDate;
 
-    const API_ROLE = 'customer';
+    public const API_ROLE = 'customer';
 
     public const ATTACHMENT_PHOTO_PROFILE = 'avatar';
 

@@ -117,7 +117,7 @@
           @click="assignTransporter"
           block
         >
-          Tugaskannnn
+          Tugaskan
         </a-button>
       </template>
     </trawl-modal-split>
@@ -216,7 +216,7 @@ export default {
       return this.package?.items[0]?.weight;
     },
     handling() {
-      return this.package?.items[0]?.handling[0]
+      return this.package?.items[0]?.handling?.[0]
         ? this.package?.items[0]?.handling[0]?.type
         : "Tidak ada ";
     },

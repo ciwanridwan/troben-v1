@@ -4,11 +4,11 @@ namespace App\Jobs\OneTimePasswords;
 
 use Carbon\Carbon;
 use App\Http\Response;
-use App\Exceptions\Error;
 use App\Contracts\HasOtpToken;
 use App\Models\OneTimePassword;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\OneTimePasswords\TokenVerified;
+use App\Exceptions\OtpVerifyException;
 
 class VerifyOtpToken
 {
@@ -53,13 +53,13 @@ class VerifyOtpToken
      */
     public function handle()
     {
-        throw_if(! ($this->otp->claimed_at === null), new Error(Response::RC_TOKEN_WAS_CLAIMED));
+        throw_if(! ($this->otp->claimed_at === null), new OtpVerifyException(Response::RC_TOKEN_WAS_CLAIMED));
 
-        throw_if(! ($this->account->getkey() === (int) $this->otp->verifiable_id) || ! ($this->account instanceof $this->otp->verifiable_type), new Error(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
+        throw_if(! ($this->account->getkey() === (int) $this->otp->verifiable_id) || ! ($this->account instanceof $this->otp->verifiable_type), new OtpVerifyException(Response::RC_MISMATCH_TOKEN_OWNERSHIP));
 
-        throw_if(! (Carbon::now()->lt($this->otp->expired_at)), new Error(Response::RC_TOKEN_HAS_EXPIRED));
+        throw_if(! (Carbon::now()->lt($this->otp->expired_at)), new OtpVerifyException(Response::RC_TOKEN_HAS_EXPIRED));
 
-        throw_if(! ($this->otp->token === $this->token), new Error(Response::RC_TOKEN_MISMATCH));
+        throw_if(! ($this->otp->token === $this->token), new OtpVerifyException(Response::RC_TOKEN_MISMATCH));
 
         // set otp claimed
         $this->otp->claimed_at = Carbon::now();

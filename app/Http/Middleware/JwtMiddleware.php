@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\Auth\AccountAuthentication;
 use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\Offices\Office;

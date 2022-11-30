@@ -70,7 +70,8 @@ class OrderController extends Controller
                 'packages.destination_sub_district',
                 'packages.attachments',
                 'packages.items',
-                'packages.prices'
+                'packages.prices',
+                'packages.multiDestination'
             ]);
 
             $this->getDeliveryForAssignDriver();

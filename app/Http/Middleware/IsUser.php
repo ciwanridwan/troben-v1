@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Http\Response;
-use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use Illuminate\Http\Request;
 use App\Models\Customers\Customer;
 
@@ -21,7 +21,7 @@ class IsUser
     public function handle(Request $request, Closure $next)
     {
         /** @noinspection PhpParamsInspection */
-        throw_if($request->user() instanceof Customer, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if($request->user() instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         return $next($request);
     }

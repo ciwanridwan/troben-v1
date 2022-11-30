@@ -164,31 +164,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .trawl-button-circle{
-        background-color: #E60013;
-        border: 2px solid #E60013;
-        color: #E60013;
-        border-radius: 50px !important;
-        &:hover{
-            background-color: #E60013;
-            border: 2px solid #E60013;
-            color: #E60013;
-            border-radius: 50px !important;
-        }
-    }
-    .ant-btn-primary{
-      &.disabled{
-        background-color: #D2D2D5;
-        border: 2px solid #D2D2D5;
-        border-radius: 50px !important;
+.trawl-button-circle{
+      background-color: #E60013;
+      border: 2px solid #E60013;
+      color: #E60013;
+      border-radius: 50px !important;
+      &:hover{
+          background-color: #E60013;
+          border: 2px solid #E60013;
+          color: #E60013;
+          border-radius: 50px !important;
       }
+  }
+  .ant-btn-primary{
+    &.disabled{
+      background-color: #D2D2D5;
+      border: 2px solid #D2D2D5;
+      border-radius: 50px !important;
     }
-    .mt-3{
-      margin-top: 30px;
-    }
-    .head-title{
-      color: #E60013 !important;
-      font-size: 25px;
-      font-weight: 600;
-    }
+  }
+  .mt-3{
+    margin-top: 30px;
+  }
+  .head-title{
+    color: #E60013 !important;
+    font-size: 25px;
+    font-weight: 600;
+  }
 </style>
