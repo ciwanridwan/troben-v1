@@ -456,7 +456,7 @@ class GenerateBalanceHistory
                     $this->partner->balance = $balance;
                     $this->partner->save();
                     $this
-                        ->setBalance($weight * $price->value)
+                        ->setBalance($income)
                         ->setType(History::TYPE_DEPOSIT)
                         ->setDescription(History::DESCRIPTION_DOORING)
                         ->setAttributes()
