@@ -117,7 +117,7 @@
           @click="assignTransporter"
           block
         >
-          Tugaskannnn
+          Tugaskan
         </a-button>
       </template>
     </trawl-modal-split>
