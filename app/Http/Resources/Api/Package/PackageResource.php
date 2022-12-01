@@ -101,11 +101,16 @@ class PackageResource extends JsonResource
         $isMultiChild = false;
         $parentHash = null;
         $childHash = [];
+        $isMultiApprove = false;
 
         if ($this->resource->multiDestination->count()) {
             if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
                 $isMulti = true;
                 $isMultiChild = true;
+
+                if ($this->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                    $isMultiApprove = $this->checkApproveForPackageMulti();
+                }
             }
 
             $childHash = $this->resource->multiDestination->map(function ($r) {
@@ -139,6 +144,7 @@ class PackageResource extends JsonResource
             'is_multi_child' => $isMultiChild,
             'multi_hash' => $parentHash,
             'multi_hash_child' => $childHash,
+            'is_multi_approve' => $isMultiApprove,
         ];
 
         if (isset($data['picked_up_by'])) {
@@ -151,5 +157,26 @@ class PackageResource extends JsonResource
         }
 
         return $result;
+    }
+
+
+    private function checkApproveForPackageMulti()
+    {
+        $canApprove = false;
+        $childId = $this->resource->multiDestination->map(function ($q) {
+            return $q->child_id;
+        })->toArray();
+
+        $check = Package::whereIn('id', $childId)->get()->filter(function ($q) {
+            if ($q->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                return false;
+            }
+            return true;
+        });
+        if ($check->isEmpty()) {
+            $canApprove = true;
+        }
+
+        return $canApprove;
     }
 }

@@ -166,7 +166,7 @@ class Queries
             'deliveries.partner',
         ]);
 
-        // $query->whereHas('deliveries', $queryPartnerId);
+        $query->whereHas('deliveries', $queryPartnerId);
 
         $this->resolvePackagesQueryByRole($query);
 
