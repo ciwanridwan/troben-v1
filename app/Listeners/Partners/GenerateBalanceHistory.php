@@ -170,7 +170,6 @@ class GenerateBalanceHistory
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
-                            // $this->saveServiceFee($this->partner->type, $variant);
                             $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
 
                             /** Get fee extra be as commission partners with 0.05*/
@@ -805,7 +804,39 @@ class GenerateBalanceHistory
      */
     protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
     {
-        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
+        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
+        if (is_null($service_price)) {
+           $this->servicePriceCubic($type, $variant, $isTransit);
+        } else {
+            if ($variant == '0') {
+                $discount = 0;
+                $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+                if (is_null($check)) {
+                    $discount = 0;
+                } else {
+                    $discount = $check->amount;
+                }
+                $balance_service = ($service_price->amount  * $this->getServiceFee($type)) - $discount;
+            } else {
+                $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+            }
+
+            $this
+                ->setBalance($balance_service)
+                ->setType(History::TYPE_DEPOSIT)
+                ->setDescription($isTransit ? History::DESCRIPTION_TRANSIT : History::DESCRIPTION_SERVICE)
+                ->setAttributes()
+                ->recordHistory();
+
+            return $balance_service;
+        }
+    }
+
+    protected function servicePriceCubic(string $type, string $variant, $isTransit)
+    {
+        $incomeCubic = 0.2;
+        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first();
+
         if ($variant == '0') {
             $discount = 0;
             $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
@@ -814,9 +845,9 @@ class GenerateBalanceHistory
             } else {
                 $discount = $check->amount;
             }
-            $balance_service = ($service_price  * $this->getServiceFee($type)) - $discount;
+            $balance_service = ($service_price->amount  * $incomeCubic) - $discount;
         } else {
-            $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+            $balance_service = $this->package->total_weight * $incomeCubic;
         }
 
         $this
