@@ -89,7 +89,7 @@ class DeadlineCreatedByEvent
                     'package_id' => $package->id,
                     'deadline' => $deadline,
                     'level' => 0,
-                    'status' => 0
+                    'status' => 1
                 ]);
 
                 Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);

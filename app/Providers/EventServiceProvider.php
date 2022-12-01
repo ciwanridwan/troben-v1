@@ -187,6 +187,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         WarehouseIsStartPacking::class => [
             UpdatePackageStatusByEvent::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
 
