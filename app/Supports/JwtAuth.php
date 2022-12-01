@@ -2,6 +2,7 @@
 
 namespace App\Supports;
 
+use App\Models\Customers\Customer;
 use Firebase\JWT\JWT;
 use App\Models\User;
 
@@ -16,13 +17,15 @@ class JwtAuth
 
         if ($user instanceof User) {
             $role = 'user';
-        } else {
+        } else if ($user instanceof Customer) {
             $role = 'customer';
+        } else {
+            $role = 'office';
         }
 
         return JWT::encode([
             'iat' => time(),
-            'exp' => time() + ((60 * 60) * 24), // 24 hour
+            'exp' => time() + (60 * config('jwt.ttl')),
             'role' => $role,
             'sub' => $user->getKey(),
             'iss' => $iss,
