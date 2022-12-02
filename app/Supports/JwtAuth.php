@@ -17,7 +17,7 @@ class JwtAuth
 
         if ($user instanceof User) {
             $role = 'user';
-        } else if ($user instanceof Customer) {
+        } elseif ($user instanceof Customer) {
             $role = 'customer';
         } else {
             $role = 'office';
