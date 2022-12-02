@@ -89,7 +89,13 @@ class NicepayController extends Controller
 //        ]);
 //        $this->dispatchNow($job);
 
-        $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+        if (is_null($payment)) {
+            $msg = sprintf('Payment pending not found for: %s', $package->getKey());
+            Log::error($msg, ['package' => $package, 'payments' => $package->payments()->get()]);
+            throw new \Exception($msg);
+        } else {
+            $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+        }
         if($package->status == Package::STATUS_WAITING_FOR_CANCEL_PAYMENT) {
             $package->status = Package::STATUS_CANCEL;
             $package->save();
