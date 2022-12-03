@@ -3,6 +3,7 @@
 namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
+use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackagesAttachedToDelivery;
 use App\Events\Packages\WarehouseIsStartPacking;
 use App\Events\Payment\Nicepay\PayByNicepay;
@@ -93,6 +94,19 @@ class DeadlineCreatedByEvent
                 ]);
 
                 Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
+                break;
+            case $event instanceof PackageAlreadyPackedByWarehouse:
+                $package = $event->package;
+                $deadline = Carbon::now()->endOfDay();
+                $partnerPickup = $package->picked_up_by->first()->partner;
+
+                $performanceQuery = PartnerPackagePerformance::query()->create([
+                    'partner_id' => $partnerPickup->id,
+                    'package_id' => $package->id,
+                    'deadline' => $deadline,
+                    'level' => 1,
+                    'status' => 1
+                ]);
                 break;
         }
     }
