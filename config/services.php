@@ -38,4 +38,9 @@ return [
 
     'jwt_secret' => env('JWT_SECRET'),
 
+    'api_v2' => [
+        'create_chat_room' => env('API_V2', 'https://apiv2.trawlbens.co.id').'/cb/create-chat-room',
+        'end-session' => env('API_V2', 'https://apiv2.trawlbens.co.id').'/cb/end-session/',
+    ]
+
 ];
