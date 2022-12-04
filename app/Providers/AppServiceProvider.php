@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Jalameta\Attachments\JPSAttachment;
 use App\Database\Schema\Grammars\PostgresGrammar;
-use App\Http\Resources\Account\JWTUserResource;
 use App\Supports\JwtAuth;
-use Firebase\JWT\JWT;
 use Illuminate\Routing\UrlGenerator;
 
 class AppServiceProvider extends ServiceProvider

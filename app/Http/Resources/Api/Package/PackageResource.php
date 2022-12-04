@@ -9,7 +9,6 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use App\Models\Payments\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
-use HashId\HashId;
 
 /**
  * Class PackageResource.
@@ -26,14 +25,14 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('updated_by')) {
+        if (! $this->resource->relationLoaded('updated_by')) {
             $this->resource->load('updated_by');
         }
-        if (!$this->resource->relationLoaded('canceled')) {
+        if (! $this->resource->relationLoaded('canceled')) {
             $this->resource->load('canceled');
         }
 
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -53,12 +52,12 @@ class PackageResource extends JsonResource
             if ($this->resource->partner_performance) {
                 $dataPerformance = [
                     'level' => $this->resource->partner_performance->level,
-                    'deadline_time' => $this->resource->partner_performance->deadline
+                    'deadline_at' => $this->resource->partner_performance->deadline
                 ];
             } else {
                 $dataPerformance = [
                     'level' => null,
-                    'deadline_time' => null
+                    'deadline_at' => null
                 ];
             }
             $this->resource->unsetRelation('partner_performance');
@@ -70,7 +69,7 @@ class PackageResource extends JsonResource
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district),
         ]);
 
-        if (!empty($dataPerformance)) {
+        if (! empty($dataPerformance)) {
             $data = array_merge($data, $dataPerformance);
         }
 
@@ -82,7 +81,7 @@ class PackageResource extends JsonResource
             $data['items'] = $items;
         }
 
-        if (!$this->resource->motoBikes()) {
+        if (! $this->resource->motoBikes()) {
             $this->resource->load('motoBikes');
         }
 
@@ -102,20 +101,25 @@ class PackageResource extends JsonResource
         $isMultiChild = false;
         $parentHash = null;
         $childHash = [];
+        $isMultiApprove = false;
 
         if ($this->resource->multiDestination->count()) {
             if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
                 $isMulti = true;
                 $isMultiChild = true;
+
+                if ($this->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                    $isMultiApprove = $this->checkApproveForPackageMulti();
+                }
             }
 
             $childHash = $this->resource->multiDestination->map(function ($r) {
                 return [
-                    "package_hash" => Package::idToHash($r['child_id'])
+                    'package_hash' => Package::idToHash($r['child_id'])
                 ];
             })->toArray();
         }
-        if (!is_null($this->resource->parentDestination)) {
+        if (! is_null($this->resource->parentDestination)) {
             if ($this->payment_status !== Package::PAYMENT_STATUS_PAID) {
                 $isMulti = true;
             }
@@ -140,6 +144,7 @@ class PackageResource extends JsonResource
             'is_multi_child' => $isMultiChild,
             'multi_hash' => $parentHash,
             'multi_hash_child' => $childHash,
+            'is_multi_approve' => $isMultiApprove,
         ];
 
         if (isset($data['picked_up_by'])) {
@@ -152,5 +157,26 @@ class PackageResource extends JsonResource
         }
 
         return $result;
+    }
+
+
+    private function checkApproveForPackageMulti()
+    {
+        $canApprove = false;
+        $childId = $this->resource->multiDestination->map(function ($q) {
+           return $q->child_id;
+        })->toArray();
+
+        $check = Package::whereIn('id', $childId)->get()->filter(function ($q) {
+            if ($q->status === Package::STATUS_WAITING_FOR_APPROVAL) {
+                return false;
+            }
+            return true;
+        });
+        if ($check->isEmpty()) {
+            $canApprove = true;
+        }
+
+        return $canApprove;
     }
 }

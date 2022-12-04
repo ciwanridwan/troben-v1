@@ -157,8 +157,8 @@ class WalkinController extends Controller
             }
 
             foreach ($paramsCalculator['items'] as $item) {
-                if (isset($item['is_insured']) && $item['is_insured'] == true){
-                // if ($item['is_insured'] == true) {
+                if (isset($item['is_insured']) && $item['is_insured'] == true) {
+                    // if ($item['is_insured'] == true) {
                     $insurance = $item['price'] * 0.002;
                 } else {
                     $insurance = 0;
@@ -181,7 +181,6 @@ class WalkinController extends Controller
 
             // return $result;
             return (new Response(Response::RC_SUCCESS, $result))->json();
-
         } else {
             return PricingCalculator::calculate($paramsCalculator);
         }

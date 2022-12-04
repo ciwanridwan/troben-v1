@@ -4,7 +4,9 @@ namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackagesAttachedToDelivery;
+use App\Events\Packages\WarehouseIsStartPacking;
 use App\Events\Payment\Nicepay\PayByNicepay;
+use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
 use App\Models\Partners\Performances\Package as PartnerPackagePerformance;
@@ -45,13 +47,13 @@ class DeadlineCreatedByEvent
 
                 $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
-                
+
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerOrigin->id,
                         'delivery_id' => $delivery->id,
                         'deadline' => $deadline
-                    ]);                    
+                    ]);
                 } else {
                     break;
                 }
@@ -62,7 +64,7 @@ class DeadlineCreatedByEvent
                 $delivery = $event->delivery;
                 $partnerDestination = $delivery->partner;
                 $deadline = Carbon::now()->addHours(2);
-            
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
@@ -75,6 +77,22 @@ class DeadlineCreatedByEvent
                 }
 
                 Log::debug('Deadline delivery created Listen to driver unload in destination warehouse: ', [$performanceQuery]);
+                break;
+            case $event instanceof PayByNicePayDummy:
+                $package = $event->package;
+                $deadline = Carbon::now()->addHour(2);
+
+                $partnerPickup = $package->picked_up_by->first()->partner;
+
+                $performanceQuery = PartnerPackagePerformance::query()->create([
+                    'partner_id' => $partnerPickup->id,
+                    'package_id' => $package->id,
+                    'deadline' => $deadline,
+                    'level' => 0,
+                    'status' => 1
+                ]);
+
+                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
                 break;
         }
     }

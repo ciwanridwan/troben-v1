@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Concerns\Controllers\HasAdminCharge;
+use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use Carbon\Carbon;
 
 class NicepayController extends Controller
@@ -68,27 +69,6 @@ class NicepayController extends Controller
             ->latest()
             ->first();
 
-//        $now = Carbon::now()->format('YmdHis');
-//        $job = new Cancel([
-//            'timeStamp' => $now,
-//            'tXid' => $payment->payment_ref_id,
-//            'iMid' => config('nicepay.imid'),
-//            'payMethod' => config('nicepay.payment_method_code.va'),
-//            'cancelType' => '1',
-//            'cancelMsg' => 'Request Cancel',
-//            'merchantToken' => $this->merchantToken($now,$payment->payment_ref_id,$payment->total_payment),
-//            'preauthToken' => '',
-//            'amt' => $payment->total_payment,
-//            'cancelServerIp' => '127.0.0.1',
-//            'cancelUserId' => 'admin',
-//            'cancelUserIp' => '127.0.0.1',
-//            'cancelUserInfo' => 'Test Cancel',
-//            'cancelRetryCnt' => '3',
-//            'referenceNo' =>  $package->code->content,
-//            'worker' => ''
-//        ]);
-//        $this->dispatchNow($job);
-
         $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
         if($package->status == Package::STATUS_WAITING_FOR_CANCEL_PAYMENT) {
             $package->status = Package::STATUS_CANCEL;
@@ -139,6 +119,8 @@ class NicepayController extends Controller
             'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
             'va_number' => $firstNum.$vaNumber,
         ];
+
+        event(new PayByNicePayDummy($package));
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }

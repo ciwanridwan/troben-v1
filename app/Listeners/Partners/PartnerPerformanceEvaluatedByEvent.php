@@ -5,6 +5,7 @@ namespace App\Listeners\Partners;
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
+use App\Events\Packages\WarehouseIsStartPacking;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Performances as Performance;
@@ -59,23 +60,28 @@ class PartnerPerformanceEvaluatedByEvent
                     $this->package = $package;
                     if ($this->package->partner_performance !== null) {
                         $this
-                        ->setPerformance($this->package->partner_performance)
-                        ->updatePerformance();
+                            ->setPerformance($this->package->partner_performance)
+                            ->updatePerformance();
                     }
                 }
                 if ($this->delivery->partner_performance !== null) {
                     $this
-                    ->setPerformance($this->delivery->partner_performance)
-                    ->updatePerformance();
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
                 }
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
                 if ($this->delivery->partner_performance !== null) {
                     $this
-                    ->setPerformance($this->delivery->partner_performance)
-                    ->updatePerformance();
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
                 }
+                break;
+            case $event instanceof WarehouseIsStartPacking:
+                $this->package = $event->package;
+
+                $this->setPerformance($this->package->partner_performance)->updatePerformance();
                 break;
         }
     }
@@ -98,7 +104,7 @@ class PartnerPerformanceEvaluatedByEvent
         $this->setAttributes();
         $is_package = $this->performance instanceof Performance\Package;
 
-        if (! empty($this->attributes)) {
+        if (!empty($this->attributes)) {
             $query = match ($is_package) {
                 true => $this->package->partner_performance(),
                 false => $this->delivery->partner_performance()

@@ -64,7 +64,7 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract, J
         attachable,
         CanSearch;
 
-    const API_ROLE = 'user';
+    public const API_ROLE = 'user';
 
     public const USER_SYSTEM_ID = 0;
 

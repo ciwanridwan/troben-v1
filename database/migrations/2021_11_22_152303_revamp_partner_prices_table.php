@@ -75,7 +75,7 @@ class RevampPartnerPricesTable extends Migration
     }
 
     /**
-     * type of partner transporter
+     * type of partner transporter.
      * @return string
      */
     private function typeComment(): string
