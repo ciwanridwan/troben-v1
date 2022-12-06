@@ -193,6 +193,7 @@ class EventServiceProvider extends ServiceProvider
 
         PackageAlreadyPackedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
+            DeadlineCreatedByEvent::class,
             WriteCodeLog::class
         ],
         PackagePaymentVerified::class => [
