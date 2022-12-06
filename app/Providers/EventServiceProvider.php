@@ -205,7 +205,7 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         PackagesAttachedToDelivery::class => [
-            DeadlineCreatedByEvent::class
+            // DeadlineCreatedByEvent::class
         ],
         DeliverableItemCodeUpdate::class => [
             WriteCodeLog::class
@@ -248,6 +248,7 @@ class EventServiceProvider extends ServiceProvider
             CalculateIncomeAEIndirect::class,
         ],
         DriverAssigned::class => [
+            DeadlineCreatedByEvent::class,
             PaymentCreatedByEvent::class
         ],
         PartnerRequested::class => [

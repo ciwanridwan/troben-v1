@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Partners\Performances\Delivery;
 use App\Models\Partners\Performances\Package;
 use App\Models\Partners\Performances\PerformanceModel;
 use Carbon\Carbon;
@@ -43,7 +44,7 @@ class AlertTwo extends Command
     {
         $now = Carbon::now();
 
-        $levelTwo = Package::query()->where('level', 1)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+        $levelTwo = Delivery::query()->where('level', 1)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
             'level' => 2,
             'deadline' => Carbon::now()->endOfDay()
         ]);

@@ -52,12 +52,12 @@ class PackageResourceDeprecated extends JsonResource
             if ($this->resource->partner_performance) {
                 $dataPerformance = [
                 'level' => $this->resource->partner_performance->level,
-                'deadline_at' => $this->resource->partner_performance->deadline
+                'deadline_at' => $this->resource->partner_performance->deadline,
             ];
             } else {
                 $dataPerformance = [
                 'level' => null,
-                'deadline_at' => null
+                'deadline_at' => null,
             ];
             }
             $this->resource->unsetRelation('partner_performance');

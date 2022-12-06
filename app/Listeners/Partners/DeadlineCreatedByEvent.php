@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Partners;
 
+use App\Events\Deliveries\DriverAssigned;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackagesAttachedToDelivery;
@@ -11,6 +12,7 @@ use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
 use App\Models\Partners\Performances\Package as PartnerPackagePerformance;
+use App\Models\Partners\Performances\PerformanceModel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -39,21 +41,33 @@ class DeadlineCreatedByEvent
 
                 Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
                 break;
-            case $event instanceof PackagesAttachedToDelivery:
+                // hold temporary
+                // case $event instanceof PackagesAttachedToDelivery:
+
+                //     break;
+            case $event instanceof DriverAssigned:
                 $delivery = $event->delivery;
-                if ($delivery->status === Delivery::STATUS_ACCEPTED) {
-                    break;
-                }
+                // if ($delivery->status === Delivery::STATUS_ACCEPTED) {
+                //     break;
+                // }
                 $partnerOrigin = $delivery->origin_partner;
 
-                $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
+                $startTimeAlert = Carbon::today()->addHours(18);
+                $now = Carbon::now();
+                if ($now < $startTimeAlert) {
+                    break;
+                }
+                // $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
+                $deadline = $now > $startTimeAlert ? Carbon::now()->endOfDay() : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
 
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerOrigin->id,
                         'delivery_id' => $delivery->id,
-                        'deadline' => $deadline
+                        'deadline' => $deadline,
+                        'level' => 1,
+                        'status' => PerformanceModel::STATUS_ON_PROCESS
                     ]);
                 } else {
                     break;
