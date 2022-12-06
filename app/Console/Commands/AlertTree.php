@@ -43,12 +43,12 @@ class AlertTree extends Command
     {
         $now = Carbon::now();
 
-        $levelTwo = Package::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+        $levelTree = Package::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
             'level' => 3,
             'deadline' => Carbon::now()->endOfDay()
         ]);
 
-        Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTwo));
+        Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTree));
         $this->info('Alert Level Tree Has Been Seen To Partners');
     }
 }
