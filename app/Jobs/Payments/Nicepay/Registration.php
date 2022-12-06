@@ -48,6 +48,18 @@ class Registration
      */
     public function handle(): bool
     {
+        // sanitize input
+        $payload = $this->attributes;
+        if (isset($payload['amt'])) {
+            $payload['amt'] = (int) $payload['amt'];
+        }
+        if (isset($payload['billingEmail'])
+            && is_null($payload['billingEmail'])
+            && isset($payload['billingPhone'])
+            && ! is_null($payload['billingPhone'])) {
+            $payload['billingEmail'] = sprintf('tb-%s@gmail.com', $payload['billingPhone']);
+        }
+
         $client = new Client(['base_uri' => config('nicepay.uri')]);
         $this->response = json_decode($client->post(config('nicepay.registration_url'), [
             'body' => json_encode($this->attributes, true)
