@@ -35,8 +35,7 @@ class Cancel
      */
     public function handle(): bool
     {
-
-// sanitize input
+        // sanitize input
         $payload = $this->attributes;
         if (isset($payload['amt'])) {
             $payload['amt'] = (int) $payload['amt'];
@@ -48,7 +47,7 @@ class Cancel
             $payload['billingEmail'] = sprintf('tb-%s@gmail.com', $payload['billingPhone']);
         }
 
-\Log::debug('Nicepay payload cancel final: ', ['payload' => $payload]);
+        \Log::debug('Nicepay payload cancel final: ', ['payload' => $payload]);
 
         $client = new Client(['base_uri' => config('nicepay.uri')]);
         $this->response = json_decode($client->post(config('nicepay.cancel_url'), [

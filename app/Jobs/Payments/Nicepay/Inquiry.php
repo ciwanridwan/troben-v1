@@ -34,7 +34,7 @@ class Inquiry
      */
     public function handle(): bool
     {
-// sanitize input
+        // sanitize input
         $payload = $this->attributes;
         if (isset($payload['amt'])) {
             $payload['amt'] = (int) $payload['amt'];
@@ -46,7 +46,7 @@ class Inquiry
             $payload['billingEmail'] = sprintf('tb-%s@gmail.com', $payload['billingPhone']);
         }
 
-\Log::debug('Nicepay payload inquiry final: ', ['payload' => $payload]);
+        \Log::debug('Nicepay payload inquiry final: ', ['payload' => $payload]);
 
         $client = new Client(['base_uri' => config('nicepay.uri')]);
         $this->response = json_decode($client->post(config('nicepay.inquiry_url'), [
