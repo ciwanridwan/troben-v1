@@ -43,6 +43,8 @@ use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Events\Deliveries\DeliveryCreated;
+use App\Events\Deliveries\DeliveryCreatedWithDeadline;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
@@ -53,6 +55,7 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
@@ -149,6 +152,11 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\DriverArrivedAtDestinationWarehouse::class => [
             //
         ],
+
+        DeliveryCreatedWithDeadline::class => [
+            DeadlineCreatedByEvent::class,
+        ],
+
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
@@ -250,6 +258,10 @@ class EventServiceProvider extends ServiceProvider
         DriverAssigned::class => [
             DeadlineCreatedByEvent::class,
             PaymentCreatedByEvent::class
+        ],
+
+        DriverAssignedOfTransit::class => [
+            PartnerPerformanceEvaluatedByEvent::class
         ],
         PartnerRequested::class => [
             //

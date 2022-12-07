@@ -2,6 +2,8 @@
 
 namespace App\Listeners\Partners;
 
+use App\Events\Deliveries\DeliveryCreated;
+use App\Events\Deliveries\DeliveryCreatedWithDeadline;
 use App\Events\Deliveries\DriverAssigned;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
@@ -78,14 +80,22 @@ class DeadlineCreatedByEvent
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $delivery = $event->delivery;
                 $partnerDestination = $delivery->partner;
-                $deadline = Carbon::now()->addHours(2);
 
+                $now = Carbon::now();
+                $endtime = Carbon::today()->addHours(18);
+                $firstTime = Carbon::today()->addHours(12);
+                if ($now < $firstTime) {
+                    break;
+                }
+
+                $deadline = $now < $endtime ? $endtime : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerDestination->id,
                         'delivery_id' => $delivery->id,
                         'deadline' => $deadline,
+                        'level' => 1,
                     ]);
                 } else {
                     break;
@@ -121,7 +131,30 @@ class DeadlineCreatedByEvent
                     'level' => 1,
                     'status' => 1
                 ]);
+
+                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
                 break;
+                case $event instanceof DeliveryCreatedWithDeadline:
+                    $delivery = $event->delivery;
+
+                    $now = Carbon::now();
+                    $firstTime = Carbon::today()->addHours(12);
+                    $endTime = Carbon::today()->addHours(18);
+                    if ($now < $firstTime) {
+                        break;
+                    }
+
+                    $originPartner = $delivery->origin_partner;
+                    $deadline = $now < $endTime ? $endTime : null;
+
+                    $performanceDelivery = PartnerDeliveryPerformance::query()->create([
+                        'partner_id' => $originPartner->id,
+                        'delivery_id' => $delivery->id,
+                        'deadline' => $deadline,
+                        'level' => 1,
+                        'status' => 1
+                    ]);
+                    break;
         }
     }
 }

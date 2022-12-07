@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Partners\Performances\Delivery;
 use Illuminate\Console\Command;
 use App\Models\Partners\Performances\Package;
 use App\Models\Partners\Performances\PerformanceModel;
@@ -43,7 +44,7 @@ class AlertTree extends Command
     {
         $now = Carbon::now();
 
-        $levelTree = Package::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+        $levelTree = Delivery::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
             'level' => 3,
             'deadline' => Carbon::now()->endOfDay()
         ]);
