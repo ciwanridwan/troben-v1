@@ -6,7 +6,7 @@
       </template>
       <template slot="content">
         <a-space direction="vertical">
-          <span class="trawl-text-bolder">Mitra Businnes</span>
+          <span class="trawl-text-bolder">Mitra business</span>
           <span class="trawl-text-bolder"> {{ partner_code }} </span>
           <span>{{ dateSimpleFormat(created_at) }}</span>
         </a-space>
@@ -93,7 +93,11 @@
       </template> -->
     </order-modal-row-layout>
     <div class="estimation">
-      <order-estimation v-if="this.price" :price="this.price" />
+      <order-estimation
+        v-if="this.price"
+        :price="this.price"
+        :package="this.package"
+      />
     </div>
   </div>
 </template>
