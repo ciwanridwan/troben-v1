@@ -184,11 +184,13 @@ class WithdrawalController extends Controller
     {
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
-            $data = [
-                'attachment_transfer' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60)),
-                'result' => $result
-            ];
-            return (new Response(Response::RC_SUCCESS, $data))->json();
+
+            $data = $result->map(function ($q) use ($withdrawal) {
+                $q->attachment_transfer = Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60));
+                return $q;
+            })->toArray();
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         } else {
             if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
                 $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);

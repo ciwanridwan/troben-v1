@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Deliveries\Actions;
 
+use App\Events\Deliveries\DeliveryDooringCreated;
 use App\Jobs\Deliveries\CreateNewDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Partner;
@@ -40,6 +41,8 @@ class CreateNewDooring
         $job = new CreateNewDelivery($this->attributes, null, $this->originPartner);
         dispatch_now($job);
         $this->delivery = $job->delivery;
+
+        event(new DeliveryDooringCreated($this->delivery));
 
         return $this->delivery->exists;
     }
