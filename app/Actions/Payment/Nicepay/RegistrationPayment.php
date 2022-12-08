@@ -74,7 +74,7 @@ class RegistrationPayment
                 'goodsNm' => 'Trawlpack Order '.$package->code->content,
                 'billingNm' => $customer->name,
                 'billingPhone' => $this->validPhone($package->sender_phone),
-                'billingEmail' => $customer->email ?? $this->validPhone($package->sender_phone),
+                'billingEmail' => $customer->email ?? 'tb-'.$this->validPhone($package->sender_phone).'@gmail.com',
                 'billingAddr' => $address->address ?? 'Jl. alamat',
                 'billingCity' => $address->regency->name ?? 'Jakarta',
                 'billingState' => $address->district->name ?? 'DKI Jakarta',
