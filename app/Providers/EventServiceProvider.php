@@ -43,8 +43,8 @@ use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
-use App\Events\Deliveries\DeliveryCreated;
 use App\Events\Deliveries\DeliveryCreatedWithDeadline;
+use App\Events\Deliveries\DeliveryDooringCreated;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
@@ -55,7 +55,9 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Deliveries\DriverAssignedDooring;
 use App\Events\Deliveries\DriverAssignedOfTransit;
+use App\Events\Deliveries\PartnerAssigned as DeliveriesPartnerAssigned;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
@@ -157,6 +159,10 @@ class EventServiceProvider extends ServiceProvider
             DeadlineCreatedByEvent::class,
         ],
 
+        DeliveryDooringCreated::class => [
+            DeadlineCreatedByEvent::class,
+        ],
+
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
@@ -248,6 +254,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverDooringFinished::class => [
@@ -261,7 +268,12 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         DriverAssignedOfTransit::class => [
-            PartnerPerformanceEvaluatedByEvent::class
+            PartnerPerformanceEvaluatedByEvent::class,
+            DeadlineCreatedByEvent::class,
+        ],
+
+        DriverAssignedDooring::class => [
+            //
         ],
         PartnerRequested::class => [
             //
@@ -316,6 +328,10 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         PayByNicePayDummy::class => [
+            DeadlineCreatedByEvent::class
+        ],
+
+        DeliveriesPartnerAssigned::class => [
             DeadlineCreatedByEvent::class
         ]
     ];

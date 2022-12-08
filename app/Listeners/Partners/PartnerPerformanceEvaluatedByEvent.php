@@ -3,6 +3,7 @@
 namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
+use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
 use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
@@ -85,6 +86,14 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->setPerformance($this->package->partner_performance)->updatePerformance();
                 break;
             case $event instanceof DriverAssignedOfTransit:
+                $this->delivery = $event->delivery;
+                if ($this->delivery->partner_performance !== null) {
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                break;
+            case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
                 if ($this->delivery->partner_performance !== null) {
                     $this
