@@ -15,6 +15,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
+use App\Services\Chatbox\Chatbox;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -145,8 +146,22 @@ class OrderController extends Controller
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
         $this->dispatchNow($job);
-
-        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+        $driverSignIn = User::where('id', $job->delivery->assigned_to->user_id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $job->delivery->assigned_to->user_id,
+            'customer_id' => $delivery->packages[0]->customer_id
+        ];
+        try {
+            Chatbox::createDriverChatbox($param);
+            return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+        } catch (\Exception $th) {
+            return (new Response(Response::RC_BAD_REQUEST, $th->getMessage()))->json();
+        }
     }
 
     public function courierAssignation(Delivery $delivery): JsonResponse
