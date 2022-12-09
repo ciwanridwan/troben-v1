@@ -107,7 +107,7 @@ class FinanceController extends Controller
         }
     }
 
-    public function findByReceipt(Request $request, Withdrawal $withdrawal): JsonResponse
+    public function findByReceipt(Request $request): JsonResponse
     {
         $this->attributes = $request->validate([
             'receipt' => ['nullable'],
@@ -118,14 +118,15 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
-        $query = $this->detailDisbursment($result);
+        // $query = $this->detailDisbursment($result);
+        $query = $this->newQueryDetailDisbursment($result->partner_id);
         $packages = collect(DB::select($query));
 
-        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) {
+        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) use($result) {
             $r->total_payment = intval($r->total_payment);
             $r->total_accepted = intval($r->total_accepted);
 
-            $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->first();
+            $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->where('disbursment_id', $result->id)->first();
             if (is_null($disbursHistory)) {
                 $r->approved = 'pending';
                 return $r;
