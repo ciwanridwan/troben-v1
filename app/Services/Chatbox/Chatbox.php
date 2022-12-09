@@ -32,6 +32,7 @@ class Chatbox
             ->join('cb_chat_metas as m', 'p.chat_room_id', '=', 'm.chat_room_id')
             ->join('cb_chat_rooms as r', 'm.chat_room_id', '=', 'r.id')
             ->whereIn('participantable_id', [$param['customer_id'],$param['participant_id']])
+            ->where('m.key', '=', 'status')
             ->where('m.value', '=', 'ontheway')
             ->where('r.type', '!=', 'live_chat')
             ->get()->pluck('chat_room_id')->toArray();
