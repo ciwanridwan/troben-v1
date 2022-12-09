@@ -154,7 +154,9 @@ class OrderController extends Controller
             'token' => $token ?? null,
             'type' => 'trawlpack',
             'participant_id' => $job->delivery->assigned_to->user_id,
-            'customer_id' => $delivery->packages[0]->customer_id
+            'customer_id' => $delivery->packages[0]->customer_id,
+            'package_id' => $job->delivery->packages[0]->id,
+            'product' => 'trawlpack'
         ];
         try {
             Chatbox::createDriverChatbox($param);
