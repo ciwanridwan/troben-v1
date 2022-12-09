@@ -375,8 +375,27 @@ class WithdrawalController extends Controller
                 ];
 
                 return $res;
-            });
+            })->toArray();
 
-        return $deliveryHistory;
+        $balanceHistory = Partner::with(['balance_history' => function ($query) {
+           $query->where('type', History::TYPE_DEPOSIT);
+        }, 'balance_history.package'])->where('id', $partnerId)->get();
+
+        $results = [];
+        foreach ($balanceHistory as $bh) {
+            foreach ($bh->balance_history as $history) {
+                $result = [
+                    'receipt' => $history->package->code->content,
+                    'total_accepted' => $history->balance,
+                    'total_payment' => $history->package->total_amount,
+                    'created_at' => $created_at->format('Y-m-d H:i:s')
+                ];
+
+                array_push($results, $result);
+            }
+        }
+
+        $data = array_merge($deliveryHistory, $results);
+        return $data;
     }
 }

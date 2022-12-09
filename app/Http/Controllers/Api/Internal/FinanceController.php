@@ -10,6 +10,7 @@ use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
 use App\Http\Response;
 use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use Carbon\Carbon;
@@ -122,7 +123,7 @@ class FinanceController extends Controller
         $query = $this->newQueryDetailDisbursment($result->partner_id);
         $packages = collect(DB::select($query));
 
-        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) use($result) {
+        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) use ($result) {
             $r->total_payment = intval($r->total_payment);
             $r->total_accepted = intval($r->total_accepted);
 
@@ -463,9 +464,27 @@ class FinanceController extends Controller
                 ];
 
                 return $res;
-            });
+            })->toArray();
 
-        return $deliveryHistory;
+        $balanceHistory = Partner::with(['balance_history' => function ($query) {
+            $query->where('type', History::TYPE_DEPOSIT);
+        }, 'balance_history.package'])->where('id', $partnerId)->get();
+
+        $results = [];
+        foreach ($balanceHistory as $bh) {
+            foreach ($bh->balance_history as $history) {
+                $result = [
+                    'receipt' => $history->package->code->content,
+                    'total_accepted' => $history->balance,
+                    'total_payment' => $history->package->total_amount,
+                ];
+
+                array_push($results, $result);
+            }
+        }
+
+        $data = array_merge($deliveryHistory, $results);
+        return collect($data);
     }
 
     /**
@@ -511,7 +530,8 @@ class FinanceController extends Controller
                     'rows' => $getPendingReceipts,
                     'total_unapproved' => $totalUnApproved,
                     'total_approved' => $totalApproved,
-                    'approved_at' => $approvedAt ? $approvedAt->approved_at : null
+                    'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
+                    'partner_code' => $disbursment->partner->code
                 ];
 
                 return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -562,7 +582,8 @@ class FinanceController extends Controller
                     'rows' => $receipts,
                     'total_unapproved' => $totalUnApproved,
                     'total_approved' => $totalApproved,
-                    'approved_at' => $approvedAt ? $approvedAt['approved_at'] : null
+                    'approved_at' => $approvedAt ? $approvedAt['approved_at'] : null,
+                    'partner_code' => $disbursment->partner->code
                 ];
 
                 return (new Response(Response::RC_SUCCESS, $data))->json();
