@@ -108,6 +108,10 @@ class Package extends Model implements AttachableContract
     public const PACKAGE_SYSTEM_ID = 0;
 
     public const STATUS_CANCEL = 'cancel';
+    public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
+    public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
+    public const STATUS_PAID_CANCEL = 'paid_cancel';
+
     public const STATUS_LOST = 'lost';
     public const STATUS_CREATED = 'created';
     public const STATUS_PENDING = 'pending';
