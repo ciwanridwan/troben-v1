@@ -18,7 +18,9 @@ class Chatbox
             'form_params' => [
                 'type' => $param['type'],
                 'participant_id' => $param['participant_id'],
-                'customer_id' => $param['customer_id']
+                'customer_id' => $param['customer_id'],
+                'package_id' => $param['package_id'],
+                'product' => $param['product']
             ]
         ]);
         return $response;
