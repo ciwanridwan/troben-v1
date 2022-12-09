@@ -29,7 +29,7 @@ class CalculateIncomeAE
         $delivery = $event->delivery;
         $deliveryId = $delivery->getKey();
 
-        $q = "SELECT v.id voucher_claim_id, a.id agent_id, c.id coordinator_id, p.amount
+        $q = "SELECT v.id voucher_claim_id, a.id agent_id, c.id coordinator_id, p.amount, v.package_id
         FROM voucher_claimed_customers v
         LEFT JOIN vouchers mv ON v.voucher_id = mv.id
         LEFT JOIN ae_vouchers av ON mv.aevoucher_id = av.id
@@ -67,6 +67,7 @@ class CalculateIncomeAE
                     'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_AGENT,
+                    'package_id' => $r->package_id,
                 ], [
                     'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
@@ -80,6 +81,7 @@ class CalculateIncomeAE
                     'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,
                     'profit_type' => AgentProfitAE::TYPE_COORDINATOR,
+                    'package_id' => $r->package_id,
                 ], [
                     'user_id' => $agent->user_id,
                     'voucher_claim_id' => $r->voucher_claim_id,

@@ -2,6 +2,7 @@
 
 namespace App\Models\Packages;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Concerns\Controllers\CustomSerializeDate;
 use App\Concerns\Models\CanSearch;
 use App\Models\Code;
@@ -22,6 +23,9 @@ use App\Models\Customers\Customer;
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
+use App\Models\CancelOrder;
+use App\Models\FileUpload;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -71,6 +75,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $destination_regency_id
  * @property int $destination_district_id
  * @property int $destination_sub_district_id
+ * @property int $transit_count
  * @property string|null $received_by
  * @property \Carbon\Carbon|null $received_at
  * @property array $handling
@@ -100,6 +105,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int estimator_id
  * @property int packager_id
  * @property Code code
+ * @property-read \App\Models\Packages\MotorBike|null $moto_bikes
  */
 class Package extends Model implements AttachableContract
 {
@@ -107,6 +113,8 @@ class Package extends Model implements AttachableContract
 
     public const PACKAGE_SYSTEM_ID = 0;
 
+
+    // Status for Cancel
     public const STATUS_CANCEL = 'cancel';
     public const STATUS_WAITING_FOR_CANCEL_PAYMENT = 'waiting_for_cancel_payment';
     public const STATUS_WAITING_FOR_PAYMENT = 'waiting_for_payment';
@@ -145,6 +153,10 @@ class Package extends Model implements AttachableContract
 
     public const TYPE_WALKIN = 'walkin';
     public const TYPE_APP = 'app';
+
+    /**Define type for different bike or pack */
+    public const TYPE_BIKE = 'bike';
+    public const TYPE_ITEM = 'item';
 
     /**
      * Phone number column.
@@ -202,6 +214,7 @@ class Package extends Model implements AttachableContract
         'destination_sub_district_id',
         'received_by',
         'received_at',
+        'transit_count'
     ];
 
     protected $search_columns = [
@@ -221,7 +234,6 @@ class Package extends Model implements AttachableContract
      * @var array
      */
     protected $hidden = [
-        'id',
         'customer_id',
         'estimator_id',
         'packager_id',
@@ -243,6 +255,9 @@ class Package extends Model implements AttachableContract
         'service_price',
         'discount_service_price',
         'type',
+        'order_type',
+        'estimation_prices',
+        'estimation_cubic_prices'
     ];
 
     /**
@@ -257,6 +272,7 @@ class Package extends Model implements AttachableContract
         'is_separate_item' => 'boolean',
         'received_at' => 'datetime',
         'handling' => 'array',
+        'transit_count' => 'int'
     ];
 
     /**
@@ -341,13 +357,18 @@ class Package extends Model implements AttachableContract
             ->first();
         $discount = ($discount == null) ? 0 : $discount['amount'];
 
-        // return $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount - $discount;
-        $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->first()->amount ?? 0;
-        if ($amount == null) {
-            return 0;
-        } else {
-            // return $amount - $discount;
-            return $amount;
+        $cubicPrice = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first()->amount ?? 0;
+
+        switch ($this->service_code) {
+            case Service::TRAWLPACK_STANDARD:
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount ?? $cubicPrice;
+                return $amount;
+                break;
+
+            default:
+                $amount = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount ?? $cubicPrice;
+                return $amount;
+                break;
         }
     }
 
@@ -376,6 +397,11 @@ class Package extends Model implements AttachableContract
     public function payments(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
+    }
+
+    public function payment_pay()
+    {
+        return $this->morphOne(Payment::class, 'payable', 'payable_type', 'payable_id', 'id');
     }
 
     /**
@@ -447,6 +473,21 @@ class Package extends Model implements AttachableContract
         return $this->hasMany(Price::class, 'package_id', 'id');
     }
 
+    public function cubicPrices()
+    {
+        return $this->hasMany(CubicPrice::class, 'package_id', 'id');
+    }
+
+    public function expressPrices()
+    {
+        return $this->hasMany(ExpressPrice::class, 'package_id', 'id');
+    }
+
+    public function motoBikes(): HasOne
+    {
+        return $this->hasOne(MotorBike::class, 'package_id', 'id');
+    }
+
     public function tarif(): HasMany
     {
         return $this->hasMany(\App\Models\Price::class, 'destination_id', 'destination_sub_district_id');
@@ -486,6 +527,21 @@ class Package extends Model implements AttachableContract
         return $this->belongsTo(User::class, 'estimator_id', 'id');
     }
 
+    public function updated_by_office(): BelongsTo
+    {
+        return $this->belongsTo(Office::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
+    public function updated_by_customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'updated_by', 'id');
+    }
+
     public function updated_by(): BelongsTo
     {
         return $this->belongsTo(Office::class, 'updated_by', 'id');
@@ -494,6 +550,16 @@ class Package extends Model implements AttachableContract
     public function packager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'packager_id', 'id');
+    }
+
+    public function multiDestination(): HasMany
+    {
+        return $this->hasMany(MultiDestination::class, 'parent_id');
+    }
+
+    public function parentDestination(): HasOne
+    {
+        return $this->hasOne(MultiDestination::class, 'child_id', 'id');
     }
 
     /**
@@ -736,5 +802,175 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(\App\Models\Partners\Performances\Package::class, 'package_id', 'id')
             ->where('status', PerformanceModel::STATUS_ON_PROCESS)
             ->orderBy('created_at', 'desc');
+    }
+
+    /** List of type order */
+    public function getOrderTypeAttribute()
+    {
+        $motoBikes = $this->motoBikes()->first();
+
+        if (is_null($motoBikes)) {
+            return self::TYPE_ITEM;
+        } else {
+            return self::TYPE_BIKE;
+        }
+    }
+
+    /**Relation to cancel orders tables */
+    public function cancels(): HasOne
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id', 'id');
+    }
+
+    public function fileuploads(): HasMany
+    {
+        return $this->hasMany(FileUpload::class, 'package_id');
+    }
+
+    public function canceled()
+    {
+        return $this->hasOne(CancelOrder::class, 'package_id');
+    }
+
+
+    /**Attributes for show estimation prices if service_code values is tpx
+     * useful for admin page
+     */
+    public function getEstimationPricesAttribute()
+    {
+        if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
+            $items = $this->items()->get();
+            $results = [];
+            foreach ($items as $item) {
+                $packingFee = 0;
+                if ($item->handling) {
+                    $packingFee = collect($item->handling)->map(function ($q) use ($item) {
+                        $p = $q['price'] * $item->qty;
+                        $r = [
+                            'type' => $q['type'],
+                            'price' => $p
+                        ];
+                        return $r;
+                    })->toArray();
+
+                    $handlingFee = array_sum(array_column($packingFee, 'price'));
+                } else {
+                    $handlingFee = 0;
+                }
+
+                $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
+
+                $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+                // $serviceFee = $item->weight * $this->tier_price;
+                $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
+
+                $result = [
+                    'handling_fee' => $packingFee,
+                    'insurance_fee' => $insuranceFee,
+                    'additional_fee' => $additionalFee,
+                    // 'service_fee' => $serviceFee,
+                    'sub_total_amount' => $subTotalAmount
+                ];
+
+                array_push($results, $result);
+            }
+
+            return $results;
+        } else {
+            return null;
+        }
+    }
+
+    public function getEstimationCubicPricesAttribute()
+    {
+        $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
+
+        $items = $this->items()->get();
+
+        $handlingFee = $this->prices()->where('type', Price::TYPE_HANDLING)->sum('amount') ?? 0;
+
+        $insuranceFee = $this->prices()->where('type', Price::TYPE_INSURANCE)->sum('amount') ?? 0;
+
+        $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
+
+        $additionalFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->sum('amount') ?? 0;
+
+        $weightVolume = [];
+        $cubicResult = 0;
+        foreach ($items as $item) {
+            $calculateCubic = $item->height * $item->width * $item->length / 1000000;
+            $cubic[] = $calculateCubic;
+            $cubicResult = array_sum($cubic);
+
+            $weightVol = $item->height * $item->length * $item->width / 1000000;
+
+            if ($weightVol < 3) {
+                $weightVol = 3;
+            }
+
+            $weightVolumeResult = [
+                'weight_volume' => $weightVol
+            ];
+
+            array_push($weightVolume, $weightVolumeResult);
+        }
+
+        if (isset($cubicResult)) {
+            if ($cubicResult <= 3) {
+                $cubicResult = 3;
+            } else {
+            }
+        } else {
+            $cubicResult = 0;
+        }
+
+
+        if (is_null($cubicPrice)) {
+            $serviceFee = 0;
+        } else {
+            $serviceFee = $cubicResult * $cubicPrice->amount;
+        }
+
+        $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
+
+        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee;
+
+        $result = [
+            'handling_fee' => intval($handlingFee),
+            'insurance_fee' => intval($insuranceFee),
+            'service_fee' => $serviceFee,
+            'sub_total_amount' => $subTotalAmount,
+            'total_amount' => $totalAmount,
+            'items' => $weightVolume
+        ];
+        return $result;
+    }
+
+    /**
+     * @param Item $items
+     * @param string $serviceCode
+     * @return array $price
+     */
+    private function getAdditionalFeePerItem($item, $serviceCode)
+    {
+        $additionalPrice = 0;
+        $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+        $item['additional_price'] = 0;
+
+        if ($totalWeight < 100) {
+            $item['additional_price'] = 0;
+        } elseif ($totalWeight < 300) {
+            $item['additional_price'] = 100000;
+        } elseif ($totalWeight < 2000) {
+            $item['additional_price'] = 250000;
+        } elseif ($totalWeight < 5000) {
+            $item['additional_price'] = 1500000;
+        } else {
+            $item['additional_price'] = 0;
+        }
+
+        $additionalPrice = $item['additional_price'];
+
+        return $additionalPrice;
     }
 }

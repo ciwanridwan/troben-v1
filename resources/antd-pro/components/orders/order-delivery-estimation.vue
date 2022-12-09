@@ -15,14 +15,24 @@
                 {{ destination_regency_name }}
               </b>
             </h4>
-            <h5>Harga perkilo yaitu Rp. {{ tierPrice }}/kg</h5>
+            <h5>
+              {{
+                isMotorBike
+                  ? `Harga pengiriman motor cc ${BikeCC} yaitu Rp.
+              ${currency(servicePrice)}`
+                  : `Harga perkilo yaitu Rp. ${tierPrice}/kg`
+              }}
+            </h5>
           </a-col>
         </a-row>
       </a-card>
 
       <a-row :style="'padding:24px 0px'">
         <a-col>
-          <order-estimation v-if="this.price" :price="this.price"></order-estimation>
+          <order-estimation
+            v-if="this.price"
+            :price="this.price"
+          ></order-estimation>
         </a-col>
       </a-row>
 
@@ -42,13 +52,15 @@
             {{ item.name }}
           </a-col>
           <a-col :span="rightColumn" class="trawl-text-right">
-            {{ item.qty }} Koli
+            {{ item.qty }} {{ isMotorBike ? "Unit" : "Koli" }}
           </a-col>
 
-          <a-col :span="leftColumn"> Charge Weight x {{ item.qty }}</a-col>
-          <a-col :span="rightColumn" class="trawl-text-right">
-            {{ item.weight_borne_total }} Kg
-          </a-col>
+          <div v-if="!isMotorBike">
+            <a-col :span="leftColumn"> Charge Weight x {{ item.qty }}</a-col>
+            <a-col :span="rightColumn" class="trawl-text-right">
+              {{ item.weight_borne_total }} Kg
+            </a-col>
+          </div>
 
           <a-col :span="24">
             <template v-for="(handling, index) in item.handling">
@@ -73,18 +85,38 @@
         <a-divider :key="index + '-divider'"></a-divider>
       </template>
 
-      <!-- sub total biaya -->
-      <a-row type="flex">
+      <!-- sub total biaya item-->
+      <a-row type="flex" v-if="!isMotorBike">
         <a-col :span="leftColumn"> Biaya Kirim </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
-          <!-- {{ currency(total_weight * tierPrice) }} -->
-          {{ currency(servicePrice) }}
+          {{ currency(total_weight * tierPrice) }}
         </a-col>
         <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
           {{ currency(getPickupFee) }}
         </a-col>
 
+        <a-divider />
+        <a-col :span="leftColumn"> Sub total biaya </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(subTotalPrice) }}
+        </a-col>
+      </a-row>
+
+      <!-- sub total biaya motor-->
+      <a-row type="flex" v-if="isMotorBike">
+        <a-col :span="leftColumn"> Packing </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(motorbikeDeliveryPrice) }}
+        </a-col>
+        <a-col :span="leftColumn"> Biaya Penjemputan </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(getPickupFee) }}
+        </a-col>
+        <a-col :span="leftColumn"> Harga Pengiriman </a-col>
+        <a-col :span="rightColumn" class="trawl-text-right">
+          {{ currency(servicePrice) }}
+        </a-col>
         <a-divider />
         <a-col :span="leftColumn"> Sub total biaya </a-col>
         <a-col :span="rightColumn" class="trawl-text-right">
@@ -105,7 +137,7 @@ import {
   getServicePrice,
   getTierPrice,
   getSubTotalItems,
-  getHandlings
+  getHandlings,
 } from "../../functions/orders";
 
 export default {
@@ -113,26 +145,26 @@ export default {
   props: {
     package: {
       type: Object,
-      default: () => { }
+      default: () => {},
     },
     leftColumn: {
       type: Number,
-      default: 15
+      default: 15,
     },
     rightColumn: {
       type: Number,
-      default: 9
+      default: 9,
     },
     price: {
       type: Object,
-      default: () => null
-    }
+      default: () => null,
+    },
   },
   data() {
     return {
       handlings,
       isBankCharge: true,
-      pickup : 0
+      pickup: 0,
     };
   },
   computed: {
@@ -152,7 +184,7 @@ export default {
       return this.package?.service_price;
     },
     subTotalPrice() {
-      if (this.packageStatus != 'draft') {
+      if (this.packageStatus != "draft") {
         return this.package?.total_amount + this.serviceDiscount;
       } else {
         return this.package?.total_amount;
@@ -181,13 +213,30 @@ export default {
     },
     getPickupFee() {
       var pickupPrice = this.package?.prices;
-      pickupPrice.forEach(pickupFee => {
-        if (pickupFee.type === 'delivery') {
+      pickupPrice.forEach((pickupFee) => {
+        if (pickupFee.type === "delivery") {
           this.pickup = pickupFee.amount;
         }
       });
       return this.pickup;
-    }
+    },
+    isMotorBike() {
+      return this.package?.moto_bikes;
+    },
+    BikeCC() {
+      return this.package?.moto_bikes?.cc;
+    },
+    motorbikeDeliveryPrice() {
+      let dataPrice;
+      if (this.package?.prices) {
+        this.package?.prices.forEach((el) => {
+          if (el.description == "bike" && el.type == "handling") {
+            dataPrice = el.amount;
+          }
+        });
+      }
+      return dataPrice;
+    },
   },
   methods: {
     getHandlingPrice,
@@ -195,7 +244,7 @@ export default {
     getServicePrice,
     getTierPrice,
     getSubTotalItems,
-    getHandlings
-  }
+    getHandlings,
+  },
 };
 </script>

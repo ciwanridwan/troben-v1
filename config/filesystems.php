@@ -69,6 +69,15 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/promotion'),
         ],
+        'attachment_transfer' => [
+            'driver' => 'local',
+            'root' => storage_path('app/attachment_transfer'),
+        ],
+
+        'icons' => [
+            'driver' => 'local',
+            'root' => storage_path('app/icons'),
+        ],
 
         'public' => [
             'driver' => 'local',

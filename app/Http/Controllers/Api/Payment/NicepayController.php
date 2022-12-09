@@ -15,10 +15,14 @@ use App\Models\Payments\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Concerns\Controllers\HasAdminCharge;
+use Carbon\Carbon;
 
 class NicepayController extends Controller
 {
-    use UsingNicepay;
+    use UsingNicepay,  HasAdminCharge;
+
+    protected Gateway $gateway;
 
     /**
      * @param Gateway $gateway
@@ -85,9 +89,78 @@ class NicepayController extends Controller
 //        ]);
 //        $this->dispatchNow($job);
 
-        $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
-
+        if (is_null($payment)) {
+            $msg = sprintf('Payment pending not found for: %s', $package->getKey());
+            Log::error($msg, ['package' => $package, 'payments' => $package->payments()->get()]);
+            throw new \Exception($msg);
+        } else {
+            $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+        }
+        if($package->status == Package::STATUS_WAITING_FOR_CANCEL_PAYMENT) {
+            $package->status = Package::STATUS_CANCEL;
+            $package->save();
+        }
+        if($package->status == Package::STATUS_WAITING_FOR_PAYMENT) {
+            $package->status = Package::STATUS_ACCEPTED;
+            $package->save();
+        }
         return $this->jsonSuccess();
+    }
+
+    public function dummyRegistration(Gateway $gateway, Package $package): JsonResponse
+    {
+        // $this->gateway = $gateway;
+        // $amt = 0;
+
+        // if ($package->multiDestination()->exists()) {
+        //     $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+        //     $totalAmountChild = Package::whereIn('id', $childId)->get()->sum('total_amount');
+        //     $totalAmount = $package->total_amount + $totalAmountChild;
+        //     $amt = ceil($totalAmount + self::adminChargeCalculator($gateway, $totalAmount));
+
+        //     $packageChildUpdate = Package::whereIn('id', $childId)->get();
+        //     $packageChildUpdate->each(function ($q) {
+        //         $q->status = Package::STATUS_WAITING_FOR_PACKING;
+        //         $q->payment_status = Package::PAYMENT_STATUS_PAID;
+        //         $q->save();
+        //     });
+        // } else {
+        //     $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
+        // }
+
+        // $currentTime = Carbon::now();
+        // $expiredTime = $currentTime->addDays(7);
+
+        // $firstNum = 9999;
+        // $vaNumber = rand(100, 1000000000);
+
+        // $package->status = Package::STATUS_WAITING_FOR_PACKING;
+        // $package->payment_status = Package::PAYMENT_STATUS_PAID;
+        // $package->save();
+
+        // $data = [
+        //     'total_amount' => $amt,
+        //     'server_time' => $currentTime,
+        //     'expired_time' => $expiredTime,
+        //     'bank' => Gateway::convertChannel($this->gateway->channel)['bank'],
+        //     'va_number' => $firstNum.$vaNumber,
+        // ];
+
+        // return (new Response(Response::RC_SUCCESS, $data))->json();
+
+        throw_if($this->checkPaymentHasPaid($package), Error::make(Response::RC_PAYMENT_HAS_PAID));
+
+        Log::debug('NicepayController: ', ['package_code' => $package->code->content, 'channel' => $gateway->channel]);
+        switch (Gateway::convertChannel($gateway->channel)['type']):
+            case 'va':
+                $resource = (new CheckPayment($package, $gateway))->vaRegistration();
+                break;
+            case 'qris':
+                $resource = (new CheckPayment($package, $gateway))->qrisRegistration();
+                break;
+        endswitch;
+
+        return $this->jsonSuccess(new RegistrationResource($resource ?? []));
     }
 
     private function checkPaymentHasPaid(Package $package): bool

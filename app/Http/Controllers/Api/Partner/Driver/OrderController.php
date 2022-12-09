@@ -19,10 +19,14 @@ class OrderController extends Controller
     {
         $query = $repository->queries()->getDeliveriesQuery();
 
-        $query->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
-        $query->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
+        // skip cancelled order
+        $query->where('status', '!=', Delivery::STATUS_CANCELLED)
+        ->where(function ($q) use ($request) {
+            $q->when($request->input('delivery_status'), fn (Builder $builder, $input) => $builder->where('status', $input));
+            $q->when($request->input('delivery_type'), fn (Builder $builder, $input) => $builder->where('type', $input));
+        });
 
-        $query->with(['packages.origin_district','packages.origin_sub_district','packages.destination_sub_district','packages.code','item_codes.codeable','partner_performance']);
+        $query->with(['packages.canceled','packages.origin_district','packages.origin_sub_district','packages.destination_sub_district','packages.code','item_codes.codeable','partner_performance']);
 
         $query->orderByDesc('created_at');
 

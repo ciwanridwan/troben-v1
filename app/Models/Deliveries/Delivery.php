@@ -82,12 +82,13 @@ class Delivery extends Model
 
     public const FEE_MAIN = 500;
     public const FEE_PERCENTAGE_BUSINESS = 0.3;
-    public const FEE_PERCENTAGE_SPACE = 0.2;
+    public const FEE_PERCENTAGE_SPACE = 0.3; // default 0.2
     public const FEE_PERCENTAGE_POS = 0.15;
     public const FEE_PERCENTAGE_HEADSALES = 0.5;
     public const FEE_PERCENTAGE_SALES = 0.2;
     public const FEE_JABODETABEK = 200;
     public const FEE_NON_JABODETABEK = 250;
+    public const FEE_FREE_PICKUP = 1; // of percentage is 100%
 
     protected string $codeType = 'MNF';
 

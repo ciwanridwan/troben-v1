@@ -37,7 +37,7 @@ class CreateMotorBike
      *
      * @var array
      */
-    protected array $items;
+    // protected array $items;
 
     /**
      * Item separation flag.
@@ -55,65 +55,21 @@ class CreateMotorBike
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(array $inputs, array $items, bool $isSeparate = false)
+    public function __construct(array $inputs, bool $isSeparate = false)
     {
         $this->attributes = Validator::make($inputs, [
             'customer_id' => ['required', 'exists:customers,id'],
-            'service_code' => ['required', 'exists:services,code'],
             'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
             'sender_name' => ['required'],
-            'sender_phone' => ['required'],
-            'sender_address' => ['nullable'],
             'sender_way_point' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
-            'partner_code' => ['required'],
-
-            'receiver_name' => ['required'],
-            'receiver_phone' => ['required'],
-            'receiver_address' => ['required'],
-            'receiver_way_point' => ['nullable'],
-            'receiver_latitude' => ['nullable'],
-            'receiver_longitude' => ['nullable'],
 
             'handling' => ['nullable', 'array'],
             'handling.*' => ['string', Rule::in(Handling::getTypes())],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_district_id' => ['required', 'exists:geo_districts,id'],
-            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
-            'type' => ['required', 'string'],
-            'merk' => ['required', 'string'],
-            'cc' => ['required', 'string'],
-            'years' => ['required', 'string'],
         ])->validate();
         Log::info('validate package success', [$this->attributes['sender_name']]);
 
-        $this->items = Validator::make($items, [
-            '*.qty' => ['required', 'numeric'],
-            '*.name' => 'required',
-            '*.desc' => 'nullable',
-            '*.weight' => ['required', 'numeric'],
-            '*.height' => ['required', 'numeric'],
-            '*.length' => ['required', 'numeric'],
-            '*.width' => ['required', 'numeric'],
-            '*.is_insured' => ['nullable', 'boolean'],
-            '*.price' => ['required_if:*.is_insured,true', 'numeric'],
-            '*.handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
-        ])->validate();
-        Log::info('validate package items success', [$this->attributes['sender_name']]);
-
-        $items = [];
-        foreach ($this->items as $item) {
-            $item['height'] = ceil($item['height']);
-            $item['length'] = ceil($item['length']);
-            $item['width'] = ceil($item['width']);
-            $item['weight'] = $this->ceilByTolerance($item['weight']);
-
-            array_push($items, $item);
-        }
-        $this->items = $items;
         $this->isSeparate = $isSeparate;
         $this->package = new Package();
         Log::info('prepared finished. ', [$this->attributes['sender_name']]);
@@ -139,17 +95,23 @@ class CreateMotorBike
         $this->package->save();
         Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
 
-        if ($this->package->exists) {
-            foreach ($this->items as $attributes) {
-                $item = new Item();
-                $attributes['package_id'] = $this->package->id;
+        // if ($this->package->exists) {
+        //     foreach ($this->items as $attributes) {
+        //         $item = new Item();
+        //         $attributes['package_id'] = $this->package->id;
 
-                $item->fill($attributes);
-                $item->save();
-            }
+        //         $item->fill($attributes);
+        //         $item->save();
+        //     }
+        //     Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
+        //     Log::info('triggering event. ', [$this->attributes['sender_name']]);
+        //     // event(new PackageCreated($this->package, $this->attributes['partner_code']));
+
+        // }
+        if ($this->package->exists) {
             Log::info('after saving package items success. ', [$this->attributes['sender_name']]);
             Log::info('triggering event. ', [$this->attributes['sender_name']]);
-            // event(new PackageCreated($this->package, $this->attributes['partner_code']));
+            event(new PackageCreated($this->package, $this->attributes['partner_code']));
         }
         return $this->package->exists;
     }

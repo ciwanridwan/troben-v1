@@ -11,9 +11,8 @@ use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
-use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
+use App\Models\Service;
 use Illuminate\Validation\ValidationException;
 
 class GeneratePackagePrices
@@ -80,34 +79,68 @@ class GeneratePackagePrices
                     'items' => $package->items->toArray()
                 ];
 
-                $service_price = PricingCalculator::getServicePrice($service_input);
+                $serviceCode = $package->service_code;
+
+                switch ($serviceCode) {
+                    case Service::TRAWLPACK_STANDARD:
+                        $service_price = PricingCalculator::getServicePrice($service_input);
+                        break;
+                    case Service::TRAWLPACK_CUBIC:
+                        $service_price = PricingCalculator::getServiceCubicPrice($service_input);
+                        break;
+                    case Service::TRAWLPACK_EXPRESS:
+                        $service_price = PricingCalculator::getServiceExpressPrice($service_input);
+                        break;
+                }
             } catch (ValidationException $e) {
                 $service_price = 0;
             }
 
-            $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
-                'type' => Price::TYPE_SERVICE,
-                'description' => Price::TYPE_SERVICE,
-                'amount' => $service_price,
-            ]);
-            $this->dispatch($job);
+            switch ($serviceCode) {
+                case Service::TRAWLPACK_STANDARD:
+                    $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                        'type' => Price::TYPE_SERVICE,
+                        'description' => Price::TYPE_SERVICE,
+                        'amount' => $service_price,
+                    ]);
+                    $this->dispatch($job);
+                    break;
+                case Service::TRAWLPACK_CUBIC:
+                    $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                        'type' => Price::TYPE_SERVICE,
+                        'description' => Price::DESCRIPTION_TYPE_CUBIC,
+                        'amount' => $service_price,
+                    ]);
+                    $this->dispatch($job);
+                    break;
+                case Service::TRAWLPACK_EXPRESS:
+                    $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                        'type' => Price::TYPE_SERVICE,
+                        'description' => Price::DESCRIPTION_TYPE_EXPRESS,
+                        'amount' => $service_price,
+                    ]);
 
-            // generate pickup price
-//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-//                'type' => Price::TYPE_DELIVERY,
-//                'description' => Delivery::TYPE_PICKUP,
-//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-//            ]);
-//            $this->dispatch($job);
+                    $this->dispatch($job);
+                    break;
+            }
 
-//            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-//                'type' => Price::TYPE_DISCOUNT,
-//                'description' => Delivery::TYPE_PICKUP,
-//                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-//            ]);
-            // generate pickup price discount
-            $this->dispatch($job);
+            // Set Additional Price
+            if ($package->prices) {
+                $serviceCode = $package->service_code;
+                $items = $package->items->toArray();
+
+                $additionalPrice = PricingCalculator::getAdditionalPrices($items, $serviceCode);
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_SERVICE,
+                    'description' => Price::TYPE_ADDITIONAL,
+                    'amount' => $additionalPrice,
+                ]);
+                $this->dispatch($job);
+            }
+
             $is_approved = false;
+
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {
                 $service = $package->prices()->where('type', Price::TYPE_SERVICE)->first();
@@ -166,12 +199,29 @@ class GeneratePackagePrices
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
             try {
-                $origin_regency = $package->origin_regency;
-                $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
-                $tier = PricingCalculator::getTier($price, $package->total_weight);
-                $package->setAttribute('tier_price', $tier)->save();
+                switch ($serviceCode) {
+                    case Service::TRAWLPACK_STANDARD:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = PricingCalculator::getTier($price, $package->total_weight);
+                        $package->setAttribute('tier_price', $tier)->save();
+                        break;
+                    case Service::TRAWLPACK_CUBIC:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getCubicPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = $price->amount;
+                        $package->setAttribute('total_weight', 0)->save();
+                        $package->setAttribute('tier_price', $tier)->save();
+                        break;
+                    case Service::TRAWLPACK_EXPRESS:
+                        $origin_regency = $package->origin_regency;
+                        $price = PricingCalculator::getExpressPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
+                        $tier = $price->amount;
+                        $package->setAttribute('tier_price', $tier)->save();
+                        break;
+                }
             } catch (\Throwable $th) {
-                //throw $th;
+                throw $th;
             }
             // todo : create service lainnya, contoh : biaya penjemputan
         }

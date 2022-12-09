@@ -8,13 +8,13 @@ const main = {
         title: "All Order",
         text: "Data Order",
         route: "admin.home",
-        children: null
+        children: null,
       },
       resi: {
         title: "All Resi",
         text: "Resi",
         route: "admin.home.receipt",
-        children: null
+        children: null,
       },
       manifest: {
         title: "All Manifest",
@@ -25,7 +25,7 @@ const main = {
             title: "All Manifest",
             text: "All Manifest",
             route: "admin.home.manifest",
-            children: null
+            children: null,
           },
           // tracking: {
           //   title: "Tracking Manifest",
@@ -37,15 +37,15 @@ const main = {
             title: "Request Transporter",
             text: "Request Transporter",
             route: "admin.home.manifest.request.transporter",
-            children: null
-          }
-        }
+            children: null,
+          },
+        },
       },
       delivery: {
         title: "All Delivery Order",
         text: "Data Delivery Order",
         route: "admin.home.delivery",
-        children: null
+        children: null,
       },
       accountExecutive: {
         title: "Agen TrawlBens",
@@ -56,24 +56,110 @@ const main = {
             title: "Agen TrawlBens",
             text: "Agen TrawlBens",
             route: "admin.home.accountexecutive",
-            children: null
+            children: null,
           },
           request: {
             title: "Tim Agen Trawlbens",
             text: "Tim Agen Trawlbens",
             route: "admin.home.accountexecutive.teamagent",
-            children: null
+            children: null,
           },
-        }
+        },
+      },
+      trawltruck: {
+        title: "Trawltruck",
+        text: "Trawltruck",
+        route: "admin.master.trawltruck.dashboard",
+        children: {
+          registerDriver: {
+            title: "Register Driver",
+            text: "Register Driver",
+            route: "admin.master.trawltruck.dashboard.driver.register",
+          },
+          accountDriver: {
+            title: "Account Driver",
+            text: "Account Driver",
+            route: "admin.master.trawltruck.dashboard.driver.account",
+          },
+          suspendDriver: {
+            title: "Suspend Driver",
+            text: "Suspend Driver",
+            route: "admin.master.trawltruck.dashboard.driver.suspend",
+          },
+          trackingOrder: {
+            title: "Tracking Order",
+            text: "Tracking Order",
+            route: "admin.master.trawltruck.dashboard.tracking.order",
+          },
+          accountDetail: {
+            title: "Account Detail",
+            text: "Account Detail",
+            route: "admin.master.trawltruck.dashboard.account.detail",
+          },
+          orderDetail: {
+            title: "Order Detail",
+            text: "Order Detail",
+            route: "admin.master.trawltruck.dashboard.order.detail",
+          },
+        },
+      },
+      formRegister: {
+        title: "Pendaftaran Mitra",
+        text: "Pendaftaran Mitra",
+        route: "admin.home.formregister.trawlbenscorporate",
+        children: {
+          trawlbensCorporate: {
+            title: "Pelanggan Corporate",
+            text: "Pelanggan Corporate",
+            route: "admin.home.formregister.trawlbenscorporate",
+            children: null,
+          },
+          MB: {
+            title: "Mitra Bisnis",
+            text: "Mitra Bisnis",
+            route: "admin.home.formregister.mitrabisnis",
+            children: null,
+          },
+          MS: {
+            title: "Mitra Space",
+            text: "Mitra Space",
+            route: "admin.home.formregister.mitraspace",
+            children: null,
+          },
+          MP: {
+            title: "Mitra Pos",
+            text: "Mitra Pos",
+            route: "admin.home.formregister.mitrapos",
+            children: null,
+          },
+          MPW: {
+            title: "Mitra Pool Warehouse",
+            text: "Mitra Pool Warehouse",
+            route: "admin.home.formregister.mitrapoolwarehouse",
+            children: null,
+          },
+          MKM: {
+            title: "Mitra Kurir Motor",
+            text: "Mitra Kurir Motor",
+            route: "admin.home.formregister.mitrakurirmotor",
+            children: null,
+          },
+          MKB: {
+            title: "Mitra Kurir Mobil",
+            text: "Mitra Kurir Mobil",
+            route: "admin.home.formregister.mitrakurirmobil",
+            children: null,
+          },
+        },
       },
       resi: {
         title: "All Resi",
         text: "Resi",
         route: "admin.home.receipt",
-        children: null
+        children: null,
       },
     },
-    shortKey: ["ctrl", "alt", "d"]
+    shortKey: ["ctrl", "alt", "d"],
   },
   history: {
     icon: "history",
@@ -84,22 +170,22 @@ const main = {
         title: "All Order",
         text: "Menunggu Konfirmasi Admin",
         route: "admin.history.pending",
-        children: null
+        children: null,
       },
       cancel: {
         title: "All Cancel Order",
         text: "Data Cancel Order",
         route: "admin.history.cancel",
-        children: null
+        children: null,
       },
       paid: {
         title: "All Lunas Order",
         text: "Data Lunas Customer",
         route: "admin.history.paid",
-        children: null
-      }
+        children: null,
+      },
     },
-    shortKey: ["ctrl", "alt", "h"]
+    shortKey: ["ctrl", "alt", "h"],
   },
 
   payment: {
@@ -111,7 +197,7 @@ const main = {
         title: "Home",
         text: "Beranda",
         route: "admin.payment.home",
-        children: null
+        children: null,
       },
       income: {
         text: "Pendapatan",
@@ -120,25 +206,25 @@ const main = {
           dataBusiness: {
             text: "Mitra Business",
             route: "admin.payment.partner.business",
-            children: null
+            children: null,
           },
           dataPool: {
             text: "Mitra Pool",
             route: "admin.payment.partner.pool",
-            children: null
+            children: null,
           },
           dataSpace: {
             text: "Mitra Space",
             route: "admin.payment.partner.space",
-            children: null
+            children: null,
           },
           dataTransporter: {
             text: "Mitra Transporter",
             route: "admin.payment.partner.transporter",
-            children: null
-          }
+            children: null,
+          },
         },
-        shortKey: ["ctrl", "alt", "i"]
+        shortKey: ["ctrl", "alt", "i"],
       },
       summary: {
         title: "All Income",
@@ -149,25 +235,25 @@ const main = {
             title: "Mitra Bisnis",
             text: "Mitra Business",
             route: "admin.payment.income",
-            children: null
+            children: null,
           },
           MS: {
             title: "Mitra Space",
             text: "Mitra Space",
             route: "admin.payment.ms",
-            children: null
+            children: null,
           },
           MPW: {
             title: "MPW",
             text: "MPW",
             route: "admin.payment.mpw",
-            children: null
+            children: null,
           },
           MTAK: {
             title: "MTAK",
             text: "MTAK",
             route: "admin.payment.mtak",
-            children: null
+            children: null,
           },
           // MTAKab: {
           //   title: "MTAKab",
@@ -176,7 +262,7 @@ const main = {
           //   children: null
           // },
         },
-        shortKey: ["ctrl", "alt", "i"]
+        shortKey: ["ctrl", "alt", "i"],
       },
       withdraw: {
         text: "Pencairan Mitra",
@@ -187,27 +273,27 @@ const main = {
         title: "Pencairan Saldo",
         text: "Pencairan Agen",
         route: "admin.master.account.executive.agent.index",
-        children: null
+        children: null,
       },
-        // children: {
-        //   request: {
-        //     text: "Daftar Request",
-        //     route: "admin.payment.withdraw.request",
-        //     children: null
-        //   }
-          // pending: {
-          //   text: "Pencairan Pending",
-          //   route: "admin.payment.withdraw.pending",
-          //   children: null
-          // },
-          // success: {
-          //   text: "Pencairan Berhasil",
-          //   route: "admin.payment.withdraw.success",
-          //   children: null
-          // }
-        // },
+      // children: {
+      //   request: {
+      //     text: "Daftar Request",
+      //     route: "admin.payment.withdraw.request",
+      //     children: null
+      //   }
+      // pending: {
+      //   text: "Pencairan Pending",
+      //   route: "admin.payment.withdraw.pending",
+      //   children: null
+      // },
+      // success: {
+      //   text: "Pencairan Berhasil",
+      //   route: "admin.payment.withdraw.success",
+      //   children: null
+      // }
+      // },
     },
-    shortKey: ["ctrl", "alt", "p"]
+    shortKey: ["ctrl", "alt", "p"],
   },
   master: {
     icon: "setting",
@@ -218,13 +304,13 @@ const main = {
         text: "Master Ongkir Kecamatan",
         route: "admin.master.pricing.district",
         children: null,
-        default: true
+        default: true,
       },
       customer: {
         text: "Master Customer",
         route: "admin.master.customer",
         children: null,
-        title: "Data Customer"
+        title: "Data Customer",
       },
       partner: {
         text: "Master Mitra",
@@ -234,31 +320,52 @@ const main = {
           all: {
             text: "Master All Mitra",
             route: "admin.master.partner",
-            children: null
+            children: null,
           },
           employee: {
             text: "Master Karyawan",
             title: "All Karyawan",
             route: "admin.master.employee",
-            children: null
+            children: null,
           },
           transporter: {
             text: "Master Kendaraan",
             route: "admin.master.transporter",
-            children: null
-          }
-        }
-      }
+            children: null,
+          },
+        },
+      },
     },
-    shortKey: ["ctrl", "alt", "m"]
+    shortKey: ["ctrl", "alt", "m"],
   },
   message: {
     icon: "mail",
     text: "Pesan",
     route: "admin.message",
     children: null,
-    shortKey: ["ctrl", "alt", "c"]
-  }
+    shortKey: ["ctrl", "alt", "c"],
+  },
+
+  /**declaring route for trawltruck dashboard */
+  // trawltruck: {
+  //   icon: "",
+  //   text: "",
+  //   route: "admin.master.trawltruck.dashboard",
+  //   children: {
+  //     registerDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.register"
+  //     },
+  //     accountDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.account"
+  //     },
+  //     suspendDriver: {
+  //       route: "admin.master.trawltruck.dashboard.driver.suspend"
+  //     },
+  //     trackingOrder: {
+  //       route: "admin.master.trawltruck.dashboard.tracking.order"
+  //     }
+  //   }
+  // }
 };
 
 export default main;

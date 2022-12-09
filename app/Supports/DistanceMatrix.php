@@ -55,21 +55,28 @@ class DistanceMatrix
 
     protected static function callDistanceMatrix(string $origin, string $destination)
     {
-        $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
-        $response = Http::withHeaders([
+        $headers = [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ])->get($url);
-        $response = json_decode($response->body());
+        ];
+        $url = sprintf('https://maps.googleapis.com/maps/api/distancematrix/json?destinations=%s&origins=%s&key=%s&units=metric', $destination, $origin, config('services.maps'));
+
+        $response = Http::withHeaders($headers)->get($url);
+
+        $result = json_decode($response->body());
+
+        if ($response->status() != 200) {
+            Log::info('distance400', ['dest' => $destination, 'origin' => $origin, 'body' => $response->body(), 'status' => $response->status(), 'ok' => $response->ok()]);
+        }
 
         $distance = 0;
-        if (count($response->rows)
-            && count($response->rows[0]->elements)
-            && isset($response->rows[0]->elements[0]->distance)) {
-            $distance = $response->rows[0]->elements[0]->distance->value;
+        if (count($result->rows)
+            && count($result->rows[0]->elements)
+            && isset($result->rows[0]->elements[0]->distance)) {
+            $distance = $result->rows[0]->elements[0]->distance->value;
             $distance = $distance / 1000;
         } else {
-            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin]);
+            Log::info('distancezero', ['dest' => $destination, 'origin' => $origin, 'response' => json_decode($response->body(), true)]);
         }
 
         return $distance;

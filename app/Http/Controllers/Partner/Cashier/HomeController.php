@@ -18,8 +18,10 @@ use App\Concerns\Controllers\HasResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Jobs\Packages\Item\UpdateExistingItem;
 use App\Events\Packages\PackageCheckedByCashier;
+use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use App\Models\Service;
 
 class HomeController extends Controller
 {
@@ -56,7 +58,14 @@ class HomeController extends Controller
                 return (new Response(Response::RC_SUCCESS, $partnerRepository->getPartner()))->json();
             }
 
-            $this->query = $partnerRepository->queries()->getPackagesQuery()->with(['items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province', 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments']);
+            $this->query = $partnerRepository->queries()->getPackagesQuery()
+                ->with(
+                    [
+                        'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
+                        'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments', 'motoBikes',
+                        'multiDestination', 'parentDestination',
+                    ]
+                );
 
             $this->query->whereHas('code', function ($query) use ($request) {
                 $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
@@ -66,7 +75,53 @@ class HomeController extends Controller
             $this->query->orderBy('created_at', 'desc');
             $this->getResource();
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            $result = $this->query->paginate(request('per_page', 15));
+
+            $itemCollection = $result->getCollection()->map(function ($r) {
+                $shipping_method = 'Standart';
+                $order_mode = true;
+                $servicePriceTotal = 0;
+                $serviceFeeParent = 0;
+                $serviceFeeChild = 0;
+                // todo if status is paid return true
+                if ($r->multiDestination->count()) {
+                    $order_mode = false;
+
+                    $parentId = $r->multiDestination->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+                    $serviceFeeParent = $packageParent->service_price;
+
+                    $childId = $r->multiDestination->pluck('child_id')->toArray();
+                    $serviceFeeChild = Package::whereIn('id', $childId)->get()->sum('service_price');
+                }
+                if (! is_null($r->parentDestination)) {
+                    $order_mode = false;
+                }
+
+                if ($r->service_code == Service::TRAWLPACK_EXPRESS) {
+                    $shipping_method = 'Express';
+                }
+                if ($r->service_code == Service::TRAWLPACK_CUBIC) {
+                    $shipping_method = 'Cubic';
+                }
+
+                $hasDiscount = $this->activeDisableDiscount($r);
+
+                $r->order_mode = $order_mode ? 'Single' : 'Multiple';
+                $r->shipping_method = $shipping_method;
+                $servicePriceTotal = $serviceFeeParent + $serviceFeeChild;
+                $r->service_price_total = $servicePriceTotal;
+                $r->has_discount = $hasDiscount;
+
+                unset($r->multiDestination);
+                unset($r->parentDestination);
+
+                return $r;
+            })->values();
+
+            $result->setCollection($itemCollection);
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         return view('partner.cashier.home.index');
@@ -92,35 +147,123 @@ class HomeController extends Controller
 
     public function packageChecked(Package $package, Request $request)
     {
-        if ($request->has('discount')) {
-            switch ($request->user()->partners[0]['type']) {
-                case Partner::TYPE_BUSINESS:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
-                    break;
-                case Partner::TYPE_SPACE:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_SPACE, $package);
-                    break;
-                case Partner::TYPE_POS:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
-                    break;
-                case Partner::TYPE_HEADSALES:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
-                    break;
-                case Partner::TYPE_SALES:
-                    $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
-                    break;
-            }
-            if ($request->discount > $check) {
-                return (new Response(Response::RC_BAD_REQUEST))->json();
-            }
-            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-                'type' => Price::TYPE_DISCOUNT,
-                'description' => Price::TYPE_SERVICE,
-                'amount' => $request->discount,
-            ]);
-            $this->dispatch($job);
+        $request->validate(
+            [
+                'type' => ['nullable', 'in:service,pickup'],
+                'calculate_type' => ['nullable', 'in:kg,cubic']
+            ]
+        );
+        $type = $request->type;
 
-            event(new PartnerCashierDiscount($package));
+        if ($request->has('discount')) {
+            if ($type == Price::TYPE_SERVICE) {
+                switch ($request->user()->partners[0]['type']) {
+                    case Partner::TYPE_BUSINESS:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_BUSINESS, $package);
+                        break;
+                    case Partner::TYPE_SPACE:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_SPACE, $package);
+                        break;
+                    case Partner::TYPE_POS:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_POS, $package);
+                        break;
+                    case Partner::TYPE_HEADSALES:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_HEADSALES, $package);
+                        break;
+                    case Partner::TYPE_SALES:
+                        $check = $this->check(Delivery::FEE_PERCENTAGE_SALES, $package);
+                        break;
+                }
+
+                if ($request->discount > $check) {
+                    return (new Response(Response::RC_BAD_REQUEST, ['max_discount' => $check]))->json();
+                }
+            } else {
+                switch ($request->user()->partners[0]['type']) {
+                    case Partner::TYPE_BUSINESS:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
+                        break;
+                    default:
+                        $checkPickup = $this->checkPickup(Delivery::FEE_FREE_PICKUP, $package);
+                        break;
+                }
+                if ($request->discount > $checkPickup) {
+                    return (new Response(Response::RC_BAD_REQUEST, ['max_discount' => $checkPickup]))->json();
+                }
+            }
+
+            if ($type == Price::TYPE_SERVICE) {
+                if ($package->multiDestination()->exists()) {
+                    $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get();
+                    $packageChild->each(function ($q) {
+                        $this->insertDiscountService($q, 0);
+                    });
+
+                    $this->insertDiscountService($package, $request->discount);
+                } elseif ($package->parentDestination()->exists()) {
+                    $parentId = $package->parentDestination()->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+                    $this->insertDiscountService($packageParent, 0);
+
+                    $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
+                        if ($q->child_id === $package->id) {
+                            return false;
+                        }
+                        return true;
+                    })->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
+                        $this->insertDiscountService($q, 0);
+                    });
+
+                    $this->insertDiscountService($package, $request->discount);
+                } else {
+                    $this->insertDiscountService($package, $request->discount);
+                }
+            } else {
+                if ($package->multiDestination()->exists()) {
+                    $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+                    $packageChild = Package::whereIn('id', $childId)->get();
+                    $packageChild->each(function ($q) {
+                        $this->insertDiscountPickup($q, 0);
+                    });
+
+                    $this->insertDiscountPickup($package, $request->discount);
+                } elseif ($package->parentDestination()->exists()) {
+                    $parentId = $package->parentDestination()->first()->parent_id;
+                    $packageParent = Package::where('id', $parentId)->first();
+                    $this->insertDiscountPickup($packageParent, 0);
+
+                    $childId = $packageParent->multiDestination()->get()->filter(function ($q) use ($package) {
+                        if ($q->child_id === $package->id) {
+                            return false;
+                        }
+                        return true;
+                    })->pluck('child_id')->toArray();
+
+                    $packageChild = Package::whereIn('id', $childId)->get()->each(function ($q) {
+                        $this->insertDiscountPickup($q, 0);
+                    });
+
+                    $this->insertDiscountPickup($package, $request->discount);
+                } else {
+                    $this->insertDiscountPickup($package, $request->discount);
+                }
+            }
+
+            $bikes = $package->motoBikes()->first();
+
+            if (is_null($bikes)) {
+                event(new PartnerCashierDiscount($package));
+            } else {
+                event(new PartnerCashierDiscountForBike($package));
+            }
+        }
+
+        if ($request->calculate_type === 'cubic') {
+            $this->changePriceToCubic($package);
         }
 
         event(new PackageCheckedByCashier($package));
@@ -130,8 +273,28 @@ class HomeController extends Controller
 
     public function check(float $fee_percentage, Package $package): float
     {
-        $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->first()->amount;
-        return $service_price * $fee_percentage;
+        $serviceCode = $package->service_code;
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_EXPRESS:
+                $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+                return $service_price * $fee_percentage;
+                break;
+
+            default:
+                $service_price = $package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first()->amount;
+                return $service_price * $fee_percentage;
+                break;
+        }
+    }
+
+    /** Check the price is pickup_fee
+     * And set calculate.
+     */
+    public function checkPickup(float $feePercentage, Package $package): float
+    {
+        $pickupPrice = $package->prices->where('type', Price::TYPE_DELIVERY)->first()->amount;
+        return $pickupPrice * $feePercentage;
     }
 
     public function getUserInfo(Request $request)
@@ -226,5 +389,78 @@ class HomeController extends Controller
         }
 
         return view('partner.cashier.home.index');
+    }
+
+    /** Get estimation calculate cubic prices
+     * And change pricing.
+     */
+    private function changePriceToCubic($package)
+    {
+        $cubicPrice = $package->estimation_cubic_prices;
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_SERVICE,
+            'description' => Price::DESCRIPTION_TYPE_CUBIC,
+            'amount' => $cubicPrice['service_fee'],
+        ]);
+        $this->dispatch($job);
+
+        $serviceCode = $package->service_code;
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_EXPRESS:
+                $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_EXPRESS)->first();
+                $servicePrice->delete();
+                break;
+
+            default:
+                $servicePrice = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
+                $servicePrice->delete();
+                break;
+        }
+
+        $totalAmount = $package->prices()->get()->sum('amount');
+        $package->setAttribute('total_amount', $totalAmount)->save();
+    }
+
+    private function insertDiscountService($package, $amount)
+    {
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_DISCOUNT,
+            'description' => Price::TYPE_SERVICE,
+            'amount' => $amount,
+        ]);
+        $this->dispatch($job);
+    }
+
+
+    private function insertDiscountPickup($package, $amount)
+    {
+        $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+            'type' => Price::TYPE_DISCOUNT,
+            'description' => Price::TYPE_PICKUP,
+            'amount' => $amount,
+        ]);
+        $this->dispatch($job);
+    }
+
+    private function activeDisableDiscount($package)
+    {
+        if ($package->multiDestination->count() || ! is_null($package->parentDestination)) {
+            $discountService =  $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+            $discountPickup = $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
+
+            if (! is_null($discountService) && $discountService !== 0) {
+                return false;
+            } else {
+                return true;
+            }
+
+            if (! is_null($discountPickup) && $discountPickup !== 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 }

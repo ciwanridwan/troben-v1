@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response as LaravelResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -19,7 +20,12 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        FileNotFoundException::class,
+        OtpVerifyException::class,
+        OutOfRangePricingException::class,
+        UserUnauthorizedException::class,
+        NumberParseException::class,
+        InvalidDataException::class,
     ];
 
     /**
@@ -35,9 +41,9 @@ class Handler extends ExceptionHandler
     /** {@inheritdoc} */
     public function report(Throwable $e)
     {
-        if ($this->shouldReport($e) && app()->bound('sentry')) {
-            app('sentry')->captureException($e);
-        }
+        // if ($this->shouldReport($e) && app()->bound('sentry')) {
+        //     app('sentry')->captureException($e);
+        // }
 
         parent::report($e);
     }
@@ -87,9 +93,9 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            if ($this->shouldReport($e) && app()->bound('sentry')) {
-                app('sentry')->captureException($e);
-            }
+            // if ($this->shouldReport($e) && app()->bound('sentry')) {
+            //     app('sentry')->captureException($e);
+            // }
         });
     }
 }

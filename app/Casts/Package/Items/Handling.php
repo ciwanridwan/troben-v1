@@ -16,6 +16,9 @@ class Handling implements CastsAttributes
     public const TYPE_SANDBAG_L = 'sandbag l';
     public const TYPE_PALLETE = 'pallete';
 
+    /**Motobikes const */
+    public const TYPE_BIKES = 'bike';
+
     public const ADD_WOOD_DIMENSION = 7;
 
     /**
@@ -62,14 +65,15 @@ class Handling implements CastsAttributes
             self::TYPE_SANDBAG_MD,
             self::TYPE_SANDBAG_SM,
             self::TYPE_WOOD,
+            self::TYPE_BIKES
         ];
     }
 
-    public static function woodWeightBorne($height, $length, $width, $weight)
+    public static function woodWeightBorne($height, $length, $width, $weight, $serviceCode)
     {
         $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
-        $volume = PricingCalculator::getVolume($height, $length, $width);
-        $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension);
+        $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
+        $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
 
         if ($weight > $volume_packed) {
             $volume_diff = $volume_packed - $volume;
@@ -127,6 +131,28 @@ class Handling implements CastsAttributes
                 return $price < $min_price ? $min_price : $price;
             default:
                 return 0;
+        }
+    }
+
+    public static function bikeCalculator($cc)
+    {
+        switch ($cc) {
+            case 150:
+                $price = 150000;
+                return $price;
+                break;
+            case 250:
+                $price = 250000;
+                return $price;
+                break;
+            case 999:
+                $price = 500000;
+                return $price;
+                break;
+            default:
+                $price = 0;
+                return $price;
+                break;
         }
     }
 }

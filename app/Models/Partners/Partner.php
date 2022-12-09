@@ -86,6 +86,9 @@ class Partner extends Model
     public const CODE_TYPE_HEADSALES = 'MHOHS';
     public const CODE_TYPE_SALES = 'MHOSL';
 
+    public const AVAIL_OPEN = 'open';
+    public const AVAIL_CLOSE = 'close';
+
     /**
      * The table associated with the model.
      *

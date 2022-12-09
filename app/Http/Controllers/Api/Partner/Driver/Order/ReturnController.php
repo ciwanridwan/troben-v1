@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Partner\Driver\Order;
 
 use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
 use App\Events\Deliveries\Dooring\PackageLoadedByDriver;
-use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
@@ -63,7 +63,7 @@ class ReturnController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $package instanceof Package, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
         $this->dispatchNow($job);

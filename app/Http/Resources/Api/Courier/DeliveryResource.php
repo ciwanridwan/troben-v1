@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Api\Courier;
 
-use App\Http\Resources\Api\Package\PackageResource;
+use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -60,7 +60,7 @@ class DeliveryResource extends JsonResource
         }
 
         if ($this->resource->relationLoaded('packages')) {
-            $packages = PackageResource::collection($this->resource->packages->load('items'));
+            $packages = PackageResourceDeprecated::collection($this->resource->packages->load('items'));
             $this->resource->unsetRelation('packages');
         }
 

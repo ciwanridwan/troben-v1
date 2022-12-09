@@ -12,7 +12,74 @@
       <template slot="left">
         <package-modal-detil :package="package" />
       </template>
-
+      <template slot="leftBottom">
+        <h4>Item</h4>
+        <a-row :span="12">
+          <a-col :span="9">Volume Barang</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ volumeItem }} cm</b></a-col
+          >
+        </a-row>
+        <a-row :span="12">
+          <a-col :span="9">Berat Aktual</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ weightActual }} kg</b></a-col
+          >
+        </a-row>
+        <a-row :span="12">
+          <a-col :span="9">Asuransi Barang</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ isInsured }}</b></a-col
+          >
+        </a-row>
+        <a-row :span="12">
+          <a-col :span="9">Perlindungan Extra</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ handling }}</b></a-col
+          >
+        </a-row>
+        <a-row :span="12">
+          <a-col :span="9">Metode Pengiriman</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ serviceType }}</b></a-col
+          >
+        </a-row>
+        <a-row :span="12">
+          <a-col :span="9">jenis Order</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ orderMode }}</b></a-col
+          >
+        </a-row>
+        <br />
+        <a-row>
+          <a-col :span="12">
+            <h4>Photo Terlampir</h4>
+          </a-col>
+        </a-row>
+        <a-empty style="width: 100px" v-if="package.attachments[0] == null" />
+        <div
+          v-else
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 1rem;
+          "
+        >
+          <enlargeable-image
+            style="width: 50px !important"
+            v-for="(data, index) in URIImage"
+            :key="index"
+            :src="data.uri"
+          />
+        </div>
+      </template>
       <template slot="rightHeader">
         <h3 class="trawl-text-bolder">Pilih Transporter</h3>
         <a-input-search
@@ -25,12 +92,8 @@
 
       <template slot="rightContent">
         <a-radio-group v-model="value" @change="onChange" :default-value="true">
-          <a-radio :value="true">
-            Driver Sendiri
-          </a-radio>
-          <a-radio :value="false">
-            Request Driver
-          </a-radio>
+          <a-radio :value="true"> Driver Sendiri </a-radio>
+          <!-- <a-radio :value="false"> Request Driver </a-radio> -->
         </a-radio-group>
         <a-icon v-if="loading" type="loading" />
         <a-empty v-else-if="transporters.length < 1" />
@@ -68,30 +131,32 @@ import PackageModalDetil from "../packages/package-modal-detail.vue";
 import TransporterRadioButton from "../radio-buttons/transporter-radio-button.vue";
 import TrawlRadioButton from "../radio-buttons/trawl-radio-button.vue";
 import TransporterRadioGroup from "../radio-buttons/transporter-radio-group.vue";
+import EnlargeableImage from "@diracleo/vue-enlargeable-image";
 import TrawlModalConfirm from "../trawl-modal-confirm.vue";
 export default {
   components: {
     trawlModalSplit,
+    EnlargeableImage,
     OrderModalRowLayout,
     PackageModalDetil,
     TransporterRadioButton,
     TrawlRadioButton,
     TransporterRadioGroup,
-    TrawlModalConfirm
+    TrawlModalConfirm,
   },
   props: {
     value: {
       type: String,
-      default: null
+      default: null,
     },
     delivery: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     submitRoute: {
       type: String,
-      default: "partner.customer_service.home.order.assign"
-    }
+      default: "partner.customer_service.home.order.assign",
+    },
   },
   data() {
     return {
@@ -104,42 +169,76 @@ export default {
 
       form: {
         transporter_hash: null,
-        type: null
+        type: null,
       },
       rules: {
-        transporter_hash: [{ required: true, message: "Silahkan pilih mitra" }]
+        transporter_hash: [{ required: true, message: "Silahkan pilih mitra" }],
       },
 
       filter: {
         q: null,
         page: 1,
-        per_page: 2
+        per_page: 2,
       },
-      loading: false
+      loading: false,
     };
   },
   computed: {
     package() {
       return this.delivery?.package;
-    }
+    },
+    URIImage() {
+      if (this.package?.attachments[0] == null) {
+        return null;
+      } else {
+        return this.package?.attachments;
+      }
+    },
+    orderMode() {
+      return this.delivery?.order_mode;
+    },
+    serviceType() {
+      if (this.package?.service_code == "tps") {
+        return "Reguler";
+      }
+      if (this.package?.service_code == "tpx") {
+        return "Express";
+      }
+    },
+    volumeItem() {
+      return (
+        this.package?.items[0]?.height *
+        this.package?.items[0]?.length *
+        this.package?.items[0]?.width
+      );
+    },
+    weightActual() {
+      return this.package?.items[0]?.weight;
+    },
+    handling() {
+      return this.package?.items[0]?.handling?.[0]
+        ? this.package?.items[0]?.handling[0]?.type
+        : "Tidak ada ";
+    },
+    isInsured() {
+      return this.package?.items[0]?.is_insured ? "Ya" : "Tidak";
+    },
   },
   methods: {
     onChange(e) {
       if (!e.target.value) {
         this.form.type = "independent";
       }
-      console.log("radio checked", e.target.value);
-      console.log("form", this.form);
     },
-    searchTransporter: _.debounce(async function() {
+    searchTransporter: _.debounce(async function () {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), {
           params: {
             ...this.filter,
             transporter: true,
-            type: this.package.transporter_type
-          }
+            type: this.package.transporter_type,
+          },
         })
         .then(({ data }) => {
           this.transporters = data.data;
@@ -157,7 +256,7 @@ export default {
           this.routeUri(this.submitRoute, {
             delivery_hash: this.delivery.hash,
             userable_hash: this.form.transporter_hash,
-            type: this.form.type
+            type: this.form.type,
           })
         )
         .then(() => {
@@ -165,21 +264,21 @@ export default {
           this.confirmVisible = true;
           this.$emit("submit");
         });
-    }
+    },
   },
   watch: {
-    visible: function(value) {
+    visible: function (value) {
       if (value) {
         this.searchTransporter();
       }
     },
-    value: function(value) {
+    value: function (value) {
       this.transporter_hash = value;
       this.$emit("input", value);
     },
-    transporter_hash: function(value) {
+    transporter_hash: function (value) {
       this.$emit("input", value);
-    }
-  }
+    },
+  },
 };
 </script>

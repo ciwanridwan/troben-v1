@@ -19,6 +19,7 @@ use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCheckedByCashier;
+use App\Events\Packages\PackageCreatedForBike;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\PackagePaymentVerified;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
@@ -57,6 +58,22 @@ class WriteCodeLog
 
         switch (true) {
             case $event instanceof PackageCreated:
+                $package = $event->package;
+                $package->refresh();
+                $user = auth()->user();
+                if (! $user) {
+                    $user = $package->customer;
+                }
+                $this->packageLog(
+                    $user,
+                    $package,
+                    $package->code,
+                    [
+                        'log_showable' => [CodeLogable::SHOW_ADMIN, CodeLogable::SHOW_CUSTOMER]
+                    ]
+                );
+                break;
+            case $event instanceof PackageCreatedForBike:
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();

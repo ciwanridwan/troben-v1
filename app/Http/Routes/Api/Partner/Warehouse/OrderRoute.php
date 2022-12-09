@@ -29,6 +29,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('index'),
         ]);
 
+        $this->router->get($this->prefix('resi-cancel'), [
+            'as' => $this->name('allResiCancel'),
+            'uses' => $this->uses('allResiCancel')
+        ]);
+
         $this->router->get($this->prefix('dashboard'), [
             'as' => $this->name('dashboard'),
             'uses' => $this->uses('dashboard'),
@@ -52,6 +57,11 @@ class OrderRoute extends BaseRoute
         $this->router->patch($this->prefix('{package_hash}/estimating'), [
             'as' => $this->name('estimating'),
             'uses' => $this->uses('estimating'),
+        ]);
+
+        $this->router->post($this->prefix('{package_hash}/upload'), [
+            'as' => $this->name('upload'),
+            'uses' => $this->uses('upload'),
         ]);
 
         $this->router->patch($this->prefix('{package_hash}/estimated'), [

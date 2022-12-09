@@ -5,13 +5,27 @@
       <order-item-component :ref="`itemComponent`" v-model="form.item" />
     </div>
 
-    <div>
+    <div v-if="form.item.desc != 'bike'">
       <h3 class="trawl-text-bolder">Rekomendasi Packing</h3>
-      <order-handlings-component :ref="`handlingComponent`" v-model="form.handling" />
+      <order-handlings-component
+        :ref="`handlingComponent`"
+        v-model="form.handling"
+      />
     </div>
     <div>
       <h3 class="trawl-text-bolder">Asuransi</h3>
-      <order-insurance-component :ref="`insuranceComponent`" v-model="form.insurance" />
+      <order-insurance-component
+        :is-motor="form.item.desc"
+        :ref="`insuranceComponent`"
+        v-model="form.insurance"
+      />
+    </div>
+    <div v-if="form.item.desc == 'bike'">
+      <h3 class="trawl-text-bolder">Perlindungan Tambahan</h3>
+      <order-protection-component
+        :ref="`protectionComponent`"
+        v-model="form.protection"
+      />
     </div>
   </a-space>
 </template>
@@ -20,12 +34,14 @@ import { MinusCircleIcon } from "../../icons";
 import TrawlDivider from "../../trawl-divider.vue";
 import OrderHandlingsComponent from "./order-handlings-component.vue";
 import OrderInsuranceComponent from "./order-insurance-component.vue";
+import OrderProtectionComponent from "./order-protection-component.vue";
 import orderItemComponent from "./order-item-component.vue";
 export default {
   components: {
     orderItemComponent,
     OrderHandlingsComponent,
     OrderInsuranceComponent,
+    OrderProtectionComponent,
     TrawlDivider,
   },
   props: {
@@ -50,6 +66,11 @@ export default {
             weight: null,
             qty: null,
             price: null,
+            moto_cc: null,
+            moto_type: null,
+            moto_merk: null,
+            moto_year: null,
+            order_type: null
           },
           handling: {
             handling: false,
@@ -58,13 +79,21 @@ export default {
           insurance: {
             insurance: false,
           },
+          protection: {
+            protection: false,
+          },
         };
       },
     },
   },
   data() {
     return {
-      formRefs: ["itemComponent", "handlingComponent", "insuranceComponent"],
+      formRefs: [
+        "itemComponent",
+        "handlingComponent",
+        "insuranceComponent",
+        "protectionComponent",
+      ],
       MinusCircleIcon,
       valid: true,
       form: {
@@ -77,6 +106,11 @@ export default {
           weight: null,
           qty: null,
           price: null,
+          moto_cc: null,
+          moto_type: null,
+          moto_merk: null,
+          moto_year: null,
+          order_type:null
         },
         handling: {
           handling: false,
@@ -85,13 +119,18 @@ export default {
         insurance: {
           insurance: false,
         },
+        protection: {
+          protection: false,
+        },
       },
     };
   },
   computed: {
     getFormData() {
       let form = {};
-      Object.keys(this.form).forEach((k) => (form = { ...form, ...this.form[k] }));
+      Object.keys(this.form).forEach(
+        (k) => (form = { ...form, ...this.form[k] })
+      );
       return form;
     },
   },

@@ -44,6 +44,7 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
             'Berat',
             'Biaya Jemput',
             'Biaya Packing',
+            'Biaya Packing Motor',
             'Biaya Asuransi',
             'Fee Mitra',
             'Diskon',
@@ -67,6 +68,7 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
             'J' => 25,
             'K' => 25,
             'L' => 25,
+            'M' => 25
         ];
     }
 
@@ -80,6 +82,7 @@ class DisbursmentExport implements FromCollection, WithHeadings, WithColumnWidth
             'J' => NumberFormat::FORMAT_NUMBER_00,
             'K' => NumberFormat::FORMAT_NUMBER_00,
             'L' => NumberFormat::FORMAT_NUMBER_00,
+            'M' => NumberFormat::FORMAT_NUMBER_00
         ];
     }
 

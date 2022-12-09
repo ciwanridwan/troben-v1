@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Delivery;
 
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Package;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -61,11 +62,20 @@ class DeliveryResource extends JsonResource
             $this->resource->load('origin_partner');
         }
 
+        $this->resource->load('packages.attachments', 'packages.items', 'packages.canceled', 'packages.code');
+
         if ($this->resource->relationLoaded('packages')) {
             //     $packages = PackageResource::collection($this->resource->packages->load('items'));
             //     $this->resource->unsetRelation('packages');
             foreach ($this->resource->packages as $key => $package) {
                 $this->resource->packages[$key]->customer_hash = (string) $package->customer_id;
+
+                // eager load moto bikes meta
+                if ($package->order_type == Package::TYPE_BIKE) {
+                    $this->resource->packages[$key]->load('motoBikes');
+                } else {
+                    $this->resource->packages[$key]->moto_bikes = null;
+                }
             }
         }
 

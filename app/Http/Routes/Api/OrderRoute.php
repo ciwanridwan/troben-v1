@@ -36,6 +36,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('store', MotorBikeController::class),
         ]);
 
+        $this->router->post($this->prefix('/motorbike/store/item/{package_hash}'), [
+            'as' => $this->name('store.motorbike.item'),
+            'uses' => $this->uses('storeItem', MotorBikeController::class),
+        ]);
+
         $this->router->get($this->prefix('find/{code_content}'), [
             'as' => $this->name('find'),
             'uses' => $this->uses('findReceipt')
@@ -81,6 +86,21 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('cancel', CancelController::class),
         ]);
 
+        $this->router->post($this->prefix('{package_hash}/cancel'), [
+            'as' => $this->name('cancelOrder'),
+            'uses' => $this->uses('cancelOrder', CancelController::class),
+        ]);
+
+        $this->router->post($this->prefix('payment/cash/{package_hash}'), [
+            'as' => $this->name('paymentCash'),
+            'uses' => $this->uses('paymentCash', CancelController::class)
+        ]);
+
+        $this->router->post($this->prefix('claim-order/{package_hash}'), [
+            'as' => $this->name('claimOrder'),
+            'uses' => $this->uses('claimOrder', CancelController::class)
+        ]);
+
         $this->router->patch($this->prefix('{package_hash}/cancel/method'), [
             'as' => $this->name('cancel.method'),
             'uses' => $this->uses('method', CancelController::class),
@@ -89,6 +109,11 @@ class OrderRoute extends BaseRoute
         $this->router->patch($this->prefix('{package_hash}/cancelBefore'), [
             'as' => $this->name('cancelBefore'),
             'uses' => $this->uses('cancelBefore', CancelController::class),
+        ]);
+
+        $this->router->get($this->prefix('{package_hash}/check-cancel-payment'), [
+            'as' => $this->name('checkCancelPayment'),
+            'uses' => $this->uses('checkCancelPayment', CancelController::class)
         ]);
 
         $this->router->post($this->prefix('{package_hash}/receipt'), [
@@ -119,6 +144,21 @@ class OrderRoute extends BaseRoute
         $this->router->get($this->prefix('ship/schedule'), [
             'as' => $this->name('shipSchedule'),
             'uses' => $this->uses('shipSchedule'),
+        ]);
+
+        $this->router->get($this->prefix('personal/data'), [
+            'as' => $this->name('usePersonalData'),
+            'uses' => $this->uses('usePersonalData'),
+        ]);
+
+        $this->router->post($this->prefix('store/multi-destination'), [
+            'as' => $this->name('storeMultiDestination'),
+            'uses' => $this->uses('storeMultiDestination'),
+        ]);
+
+        $this->router->post($this->prefix('assign/partner/{partner_hash}'), [
+            'as' => $this->name('multiOrderAssignation'),
+            'uses' => $this->uses('multiOrderAssignation'),
         ]);
     }
 

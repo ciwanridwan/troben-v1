@@ -3,6 +3,7 @@
 namespace App\Http\Routes\Api;
 
 use App\Http\Controllers\Api\Order\MotorBikeController;
+use App\Http\Controllers\Api\Order\OrderController;
 use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\PricingController;
 
@@ -37,8 +38,8 @@ class PricingRoute extends BaseRoute
             'uses' => $this->uses('locationCheck'),
         ])->withoutMiddleware('api');
 
-        $this->router->post($this->prefix('estimation-motorbike'), [
-            'as' => $this->name('motorbike'),
+        $this->router->post($this->prefix('/calculator/motorbike'), [
+            'as' => $this->name('calculator.motorbike'),
             'uses' => $this->uses('motorbikeCheck', MotorBikeController::class),
         ])->withoutMiddleware('api');
 
@@ -50,6 +51,11 @@ class PricingRoute extends BaseRoute
         $this->router->get($this->prefix('ship/schedule'), [
             'as' => $this->name('shipSchedule'),
             'uses' => $this->uses('shipSchedule'),
+        ])->withoutMiddleware('api');
+
+        $this->router->get($this->prefix('delivery/method'), [
+            'as' => $this->name('delivery.method'),
+            'uses' => $this->uses('chooseDeliveryMethod', OrderController::class),
         ])->withoutMiddleware('api');
     }
 

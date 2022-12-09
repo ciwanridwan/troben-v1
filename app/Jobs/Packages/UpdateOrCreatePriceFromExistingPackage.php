@@ -46,7 +46,7 @@ class UpdateOrCreatePriceFromExistingPackage
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Price::getAvailableTypes())],
             'description' => ['required'],
-            'amount' => ['required', 'numeric'],
+            'amount' => ['required', 'numeric']
         ])->validate();
 
         $this->package = $package;
@@ -66,7 +66,6 @@ class UpdateOrCreatePriceFromExistingPackage
             'type' => $this->attributes['type'],
             'description' => $this->attributes['description'],
         ], $this->attributes);
-
         $this->price = $price;
     }
 }

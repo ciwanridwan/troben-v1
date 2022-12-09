@@ -8,13 +8,15 @@
       </a-space>
     </span>
     <a-modal v-model="visible" width="65%" centered :footer="footer">
-
       <template slot="closeIcon">
         <a-icon type="close" @click="hideModal"></a-icon>
       </template>
 
       <template slot="title">
-        <span v-if="!hasSlot('title')" class="trawl-order-modal-component--title">
+        <span
+          v-if="!hasSlot('title')"
+          class="trawl-order-modal-component--title"
+        >
           Detail ID Order
         </span>
         <span v-else class="trawl-order-modal-component--title">
@@ -22,21 +24,23 @@
         </span>
       </template>
 
-      <order-modal-address :package="package" :price="price"/>
+      <order-modal-address :package="package" :price="price" />
 
-      <a-space direction="vertical" size="middle">
-        <order-modal-items
-          @change="onItemChange"
-          v-model="package.items"
-          :modifiable="modifiable"
-          :editable="editable"
-          :deletable="deletable"
-          :package="package"/>
+      <!-- <a-space direction="vertical" size="middle"> -->
+      <order-modal-items
+        @select="onSelectChange"
+        @change="onItemChange"
+        v-model="package.items"
+        :modifiable="modifiable"
+        :editable="editable"
+        :deletable="deletable"
+        :package="package"
+      />
 
-        <order-modal-estimations :package="package" :price="price"/>
+      <!-- <order-modal-estimations :package="package" :price="price" /> -->
 
-        <order-modal-delivery :package="package" />
-      </a-space>
+      <order-modal-delivery :package="package" :select="select" />
+      <!-- </a-space> -->
 
       <template v-if="hasSlot('footer')" slot="footer">
         <slot name="footer"></slot>
@@ -103,6 +107,7 @@ export default {
       CarIcon,
       footer: undefined,
       price: null,
+      select: "kg",
     };
   },
   methods: {
@@ -122,21 +127,31 @@ export default {
     onItemChange() {
       this.$emit("change");
     },
+    onSelectChange(data) {
+      // console.log("data", data);
+      this.select = data;
+    },
     setFooter() {
       this.footer = !!this.$slots.footer ? undefined : null;
     },
     getSinglePrice(origin_regency_id, destination_id) {
-      let uriName = this.roles().length === 0 ? 'admin.master.pricing.district.show' : 'partner.cashier.home.price';
+      let uriName =
+        this.roles().length === 0
+          ? "admin.master.pricing.district.show"
+          : "partner.cashier.home.price";
       this.$http
-        .get(this.routeUri(uriName)+`?origin_regency_id=${ origin_regency_id }&destination_id=${ destination_id }`)
-        .then(res => this.onSuccessResponse(res.data))
-        .catch(error => {
-          console.log(error)
-        })
+        .get(
+          this.routeUri(uriName) +
+            `?origin_regency_id=${origin_regency_id}&destination_id=${destination_id}`
+        )
+        .then((res) => this.onSuccessResponse(res.data))
+        .catch((error) => {
+          console.log(error);
+        });
     },
     onSuccessResponse(res) {
-      this.price = res.data
-    }
+      this.price = res.data;
+    },
   },
   watch: {
     visible: function (value) {
@@ -149,7 +164,10 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.getSinglePrice(this.package.origin_regency.id,this.package.destination_sub_district.id)
+      this.getSinglePrice(
+        this.package.origin_regency.id,
+        this.package.destination_sub_district.id
+      );
       this.setFooter();
     });
   },

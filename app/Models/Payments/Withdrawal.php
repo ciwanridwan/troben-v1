@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Withdrawal.
@@ -26,6 +27,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property string $account_number
  * @property string $status
  * @property string $notes
+ * @property string $transaction_code
  * @property Carbon                      $created_at
  * @property Carbon                      $updated_at
  *
@@ -45,7 +47,11 @@ class Withdrawal extends Model
     // Todo New Status
     public const STATUS_REQUESTED = 'requested';
     public const STATUS_APPROVED = 'approved';
+    public const STATUS_TRANSFERRED = 'transferred';
     // End Todo
+
+    /** Set unique code of transaction */
+    public const TRANSACTION_CODE = 'WTD';
 
     protected $table = 'partner_balance_disbursement';
 
@@ -58,11 +64,13 @@ class Withdrawal extends Model
         'bank_id',
         'account_name',
         'account_number',
+        'attachment_transfer',
         'status',
         'notes',
         'charge_admin',
         'fee_charge_admin',
-        'expired_at'
+        'expired_at',
+        'transaction_code' // transaction code WTD14102200000
     ];
 
     protected $casts = [
@@ -72,18 +80,24 @@ class Withdrawal extends Model
     ];
 
     protected $appends = [
-        'hash'
+        'hash',
+        'attachment_transfer_url'
     ];
 
-    // protected $attributes =
-    // [
-    //     'fee_charge_admin' => 0
-    // ];
     /**
      * Get all available type on partner balance histories.
      *
      * @return string[]
      */
+    public function getAttachmentTransferUrlAttribute()
+    {
+        $attachment = $this->attachment_transfer;
+        if ($attachment == null) {
+            return null;
+        }
+        return Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$attachment, Carbon::now()->addMinutes(60));
+    }
+
     public static function getAvailableStatus(): array
     {
         return [
@@ -91,6 +105,7 @@ class Withdrawal extends Model
             // self::STATUS_CONFIRMED,
             // self::STATUS_REJECTED,
             // self::STATUS_SUCCESS,
+            self::STATUS_TRANSFERRED,
             self::STATUS_REQUESTED,
             self::STATUS_APPROVED,
         ];
@@ -114,5 +129,23 @@ class Withdrawal extends Model
     public function disbursmentHistories(): BelongsTo
     {
         return $this->belongsTo(DisbursmentHistory::class, 'disbursment_id', 'id');
+    }
+
+    /** Set Generate Code Transaction And Unique */
+    public static function generateCodeTransaction()
+    {
+        $query = self::query();
+        $pre = self::TRANSACTION_CODE;
+        $pre .= Carbon::now()->format('dmy');
+        $last_order = $query->where('transaction_code', 'LIKE', $pre.'%')->orderBy('transaction_code', 'desc')->first();
+        $inc_number = $last_order ? substr($last_order->transaction_code, strlen($pre)) : 0;
+        $inc_number = (int) $inc_number;
+        $inc_number = $last_order ? $inc_number + 1 : $inc_number;
+
+        // assume 100.000/day
+        $inc_number = str_pad($inc_number, 5, '0', STR_PAD_LEFT);
+
+
+        return  $pre.$inc_number;
     }
 }

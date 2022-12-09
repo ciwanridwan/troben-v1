@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Operations;
 
+use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Validator;
@@ -48,6 +49,26 @@ class UpdatePackageStatus
     {
         $this->package->fill($this->attributes);
         $this->package->save();
+
+        // check for child package if multi type, set it same as parent, for some status
+        $statusPackage = $this->package->status;
+        $childPackageSetter = [
+            Package::STATUS_WAITING_FOR_PICKUP,
+            Package::STATUS_PICKED_UP,
+            Package::STATUS_WAITING_FOR_ESTIMATING,
+        ];
+        if (in_array($statusPackage, $childPackageSetter)) {
+            $childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
+        }
+        if ($childs->count()) {
+            foreach ($childs as $c) {
+                $packageChild = Package::find($c->child_id);
+                if ($packageChild) {
+                    $packageChild->status = Package::STATUS_WAITING_FOR_ESTIMATING;
+                    $packageChild->save();
+                }
+            }
+        }
 
         return $this->package->exists;
     }
