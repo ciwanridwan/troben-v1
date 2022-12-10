@@ -17,12 +17,15 @@ use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
+use App\Jobs\Packages\CreateWalkinOrder;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Customers\Customer;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Support\Facades\Auth;
@@ -116,17 +119,8 @@ class CorporateController extends Controller
         //     $items[$key] = (new Collection($item))->toArray();
         // }
 
-        // $bikes = [
-        //     'type' => $item->moto_type,
-        //     'merk' => $item->moto_merk,
-        //     'cc' => $item->moto_cc,
-        //     'years' => $item->moto_year,
-        //     'package_id' => null,
-        //     'package_item_id' => null
-        // ];
-
-        //     $job = new CreateWalkinOrder($inputs, $items);
-        //     $this->dispatchNow($job);
+        // $job = new CreateWalkinOrder($inputs, $items);
+        // $this->dispatchNow($job);
 
         // $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         // $this->dispatchNow($uploadJob);
