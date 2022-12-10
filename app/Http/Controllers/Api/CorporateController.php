@@ -59,15 +59,16 @@ class CorporateController extends Controller
     {
         $request->validate([
             'is_multi' => ['nullable', 'boolean'],
+            'destination_id' => ['required'],
+            'service_code' => ['required|in:tps,tpx'],
+            'partner_id' => ['required|numeric'],
         ]);
 
         $destination_id = $request->get('destination_id');
+        $partner = Partner::findOrFail($request->get('partner_id'));
+        throw_if(is_null($partner->regency), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
 
-        $partners = auth()->user()->partners;
-        throw_if($partners->isEmpty(), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
-        throw_if(is_null($partners->first()->regency), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
-
-        $regency = $partners->first()->regency;
+        $regency = $partner->regency;
 
         /** @var Regency $regency */
         $additional = [
