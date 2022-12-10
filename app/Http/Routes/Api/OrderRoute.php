@@ -31,6 +31,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('store'),
         ]);
 
+        $this->router->post($this->prefix('/corporate/store'), [
+            'as' => $this->name('store-corporate'),
+            'uses' => $this->uses('store'),
+        ]);
+
         $this->router->post($this->prefix('/motorbike/store'), [
             'as' => $this->name('store-motorbike'),
             'uses' => $this->uses('store', MotorBikeController::class),
