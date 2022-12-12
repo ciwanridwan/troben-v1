@@ -151,7 +151,6 @@ class SelfServiceController extends Controller
             $user->setAttribute('updated_by', 0);
 
             Log::info('accountVerify-user', ['content' => $account, 'req' => $request->all(), 'user' => auth()->user()]);
-
         } elseif ($account === 'customer') {
             //            $input = array_merge($request->toArray(),['phone_verified_at' => Carbon::now()]);
             /** @var Customer $customer */
@@ -163,7 +162,6 @@ class SelfServiceController extends Controller
             $customer->setAttribute('updated_by', auth()->user()->id)->save();
 
             Log::info('accountVerify-customer', ['content' => $account, 'req' => $request->all(), 'user' => auth()->user()]);
-
         } else {
             throw Error::make(Response::RC_BAD_REQUEST);
         }
