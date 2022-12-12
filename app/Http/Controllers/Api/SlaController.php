@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Response;
+use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Performances\Delivery as PerformanceDelivery;
 use App\Models\Partners\Performances\PerformanceModel;
@@ -16,9 +18,33 @@ class SlaController extends Controller
     /** Set fine (denda) to income partner */
     public function incomePenalty()
     {
-        $levelTree = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('partner_id')->toArray();
+        $partnerId = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('partner_id')->toArray();
 
-        $partner = Partner::query()->whereIn('id', $levelTree)->get();
+        $deliveryId = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('delivery_id')->toArray();
+
+        $deliveries = Delivery::with('packages.prices')->whereIn('id', $deliveryId)->get();
+
+        $serviceFee = [];
+        foreach ($deliveries as $d) {
+            foreach ($d->packages as $p) {
+                $feeService = $p->prices->filter(function ($q) {
+                    if ($q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::TYPE_SERVICE || $q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::DESCRIPTION_TYPE_EXPRESS || $q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::DESCRIPTION_TYPE_CUBIC) {
+                        return true;
+                    }
+                    return false;
+                })->map(function ($r) {
+                    return ['service_fee' => $r->amount];
+                })->values()->toArray();
+
+                array_push($serviceFee, $feeService);
+            }
+        }
+        dd(count($serviceFee));
+        foreach ($serviceFee as $s) {
+            dd($s[0]['service_fee']);
+        }
+        dd($serviceFee);
+        // dd($deliveries->dackages);
     }
 
     /** Set alert level of SLA */
