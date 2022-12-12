@@ -44,12 +44,20 @@ class AlertTwo extends Command
     {
         $now = Carbon::now();
 
-        $levelTwo = Delivery::query()->where('level', 1)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+        // Delivery performance
+        $levelTwoDelivery = Delivery::query()->where('level', 1)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
             'level' => 2,
             'deadline' => Carbon::now()->endOfDay()
         ]);
 
-        Log::info('Alert Level Two Has Been Seen To Partners', array($levelTwo));
+        // package perfomance
+        $levelTwoPackage = Package::query()->where('level', 1)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+            'level' => 2,
+            'deadline' => Carbon::now()->endOfDay()
+        ]);
+
+
+        Log::info('Alert Level Two Has Been Seen To Partners', array($levelTwoDelivery, $levelTwoPackage));
         $this->info('Alert Level Two Has Been Seen To Partners');
     }
 }

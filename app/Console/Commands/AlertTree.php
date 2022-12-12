@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Models\Partners\Performances\Package;
 use App\Models\Partners\Performances\PerformanceModel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AlertTree extends Command
@@ -44,12 +45,19 @@ class AlertTree extends Command
     {
         $now = Carbon::now();
 
-        $levelTree = Delivery::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+        $levelTreeDelivery = Delivery::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
             'level' => 3,
             'deadline' => Carbon::now()->endOfDay()
         ]);
 
-        Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTree));
+        $levelTreePackage = Package::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
+            'level' => 3,
+            'deadline' => Carbon::now()->endOfDay()
+        ]);
+
+        DB::statement($q);
+
+        Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTreeDelivery, $levelTreePackage));
         $this->info('Alert Level Tree Has Been Seen To Partners');
     }
 }

@@ -88,7 +88,8 @@ return [
         App\Http\Routes\Api\SupportRoute::class,
         App\Http\Routes\TermAndConditionRoute::class,
         App\Http\Routes\Api\MotorBikeRoute::class,
-        App\Http\Routes\TestingRoute::class
+        App\Http\Routes\TestingRoute::class,
+        App\Http\Routes\Api\SlaRoute::class
         /** @inject api **/
     ],
     'admin' => [

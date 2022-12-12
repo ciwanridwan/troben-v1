@@ -29,6 +29,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('alert:two')->cron('1 00 */1 * *');
         $schedule->command('alert:tree')->cron('1 00 */2 * *');
+        // $schedule->command('alert:two')->everyMinute();
+        // $schedule->command('alert:tree')->everyMinute();
     }
 
     /**
