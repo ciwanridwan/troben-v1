@@ -469,28 +469,20 @@ class PricingCalculator
     {
         $p = 0;
         if ($weight <= Price::TIER_1) {
-            return $price->tier_1;
             $p = $price->tier_1;
         } elseif ($weight <= Price::TIER_2) {
-            return $price->tier_2;
             $p = $price->tier_2;
         } elseif ($weight <= Price::TIER_3) {
-            return $price->tier_3;
             $p = $price->tier_3;
         } elseif ($weight <= Price::TIER_4) {
-            return $price->tier_4;
             $p = $price->tier_4;
         } elseif ($weight <= Price::TIER_5) {
-            return $price->tier_5;
             $p = $price->tier_5;
         } elseif ($weight <= Price::TIER_6) {
-            return $price->tier_6;
             $p = $price->tier_6;
         } elseif ($weight <= Price::TIER_7) {
-            return $price->tier_7;
             $p = $price->tier_7;
         } else {
-            return $price->tier_8;
             $p = $price->tier_8;
         }
 
