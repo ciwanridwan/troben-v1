@@ -11,7 +11,7 @@ class SlaController extends Controller
     public function setLevel()
     {
         $deliveries = DB::statement($this->querySlaDeliveries());
-        // dd($deliveries);
+        dd($deliveries);
         DB::statement($this->querySlaPackages());
         $message = ['message' => 'Running Alert Level'];
 
