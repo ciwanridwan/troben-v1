@@ -55,8 +55,6 @@ class AlertTree extends Command
             'deadline' => Carbon::now()->endOfDay()
         ]);
 
-        DB::statement($q);
-
         Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTreeDelivery, $levelTreePackage));
         $this->info('Alert Level Tree Has Been Seen To Partners');
     }
