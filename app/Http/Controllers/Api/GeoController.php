@@ -185,17 +185,20 @@ class GeoController extends Controller
      */
     protected function getSubDistrictsList(): JsonResponse
     {
-        $caps = ucwords($this->attributes['search']);
 
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
-            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code')
+            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code');
 
-            ->Where('geo_regencies.name', 'ilike', '%'.$caps.'%')
-            ->orWhere('geo_districts.name', 'ilike', '%'.$caps.'%')
-            ->orWhere('geo_sub_districts.name', 'ilike', '%'.$caps.'%')
-            ->orderBy('geo_regencies.name', 'desc');
+        if (isset($this->attributes['search'])) {
+            $caps = ucwords($this->attributes['search']);
+            $query = $query->Where('geo_regencies.name', 'ilike', '%'.$caps.'%')
+                ->orWhere('geo_districts.name', 'ilike', '%'.$caps.'%')
+                ->orWhere('geo_sub_districts.name', 'ilike', '%'.$caps.'%');
+        }
+
+        $query = $query->orderBy('geo_regencies.name', 'desc');
 
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
     }
