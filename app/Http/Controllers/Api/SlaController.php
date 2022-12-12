@@ -4,17 +4,32 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Response;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Performances\Delivery as PerformanceDelivery;
+use App\Models\Partners\Performances\PerformanceModel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SlaController extends Controller
 {
-    public function setLevel()
+    /** Set fine (denda) to income partner */
+    public function incomePenalty()
+    {
+        $levelTree = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('partner_id')->toArray();
+
+        $partner = Partner::query()->whereIn('id', $levelTree)->get();
+    }
+
+    /** Set alert level of SLA */
+    public function setAlert()
     {
         $this->levelTwoDeliveries();
         $this->levelTreeDeliveries();
         $this->levelTwoPackages();
         $this->levelTreePackages();
-        $message = ['message' => 'Running Alert Level'];
+        $message = ['message' => 'Running Alert'];
+        Log::info('Alert Level Two And Tree Just Running Of SLA');
 
         return (new Response(Response::RC_SUCCESS, $message))->json();
     }

@@ -20,7 +20,12 @@ class SlaRoute extends BaseRoute
     {
         $this->router->get($this->prefix('/set'), [
             'as' => $this->name,
-            'uses' => $this->uses('setLevel'),
+            'uses' => $this->uses('setAlert'),
+        ]);
+
+        $this->router->get($this->prefix('/income/penalty'), [
+            'as' => $this->name('income.penalty'),
+            'uses' => $this->uses('incomePenalty'),
         ]);
     }
 
