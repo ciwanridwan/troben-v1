@@ -34,7 +34,7 @@ return [
             'prefix' => 'partner/customer-service',
         ],
         'self_service' => [
-            'middleware' => ['api'],
+            'middleware' => ['office'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
             'domain' => env('API_DOMAIN')
         ],
