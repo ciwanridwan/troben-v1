@@ -58,7 +58,9 @@ class SelfServiceController extends Controller
         $code = Code::query()->where('content', $content)->where('codeable_type', Package::class)->firstOrFail();
         $job = new UpdateExistingPackageByOffice($code->codeable, $request->all());
         $this->dispatch($job);
-        $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+        $code->codeable->setAttribute('updated_by', 0)->save();
+
+        Log::info('packageUpdate', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
 
         return $this->jsonSuccess();
     }
@@ -76,7 +78,9 @@ class SelfServiceController extends Controller
         if (isNull($deliverable)) {
             $job = new CancelPackage($code->codeable, $request->all());
             $this->dispatch($job);
-            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+            $code->codeable->setAttribute('updated_by', 0)->save();
+
+            Log::info('packageCancel', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
 
             return $this->jsonSuccess();
         }
@@ -85,7 +89,9 @@ class SelfServiceController extends Controller
         if (isNull($delivery)) {
             $job = new CancelPackage($code->codeable, $request->all());
             $this->dispatch($job);
-            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+            $code->codeable->setAttribute('updated_by', 0)->save();
+
+            Log::info('packageCancel', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
 
             return $this->jsonSuccess();
         }
@@ -93,14 +99,18 @@ class SelfServiceController extends Controller
         if ($delivery->status == Delivery::STATUS_FINISHED) {
             $job = new CancelPackage($code->codeable, $request->all());
             $this->dispatch($job);
-            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+            $code->codeable->setAttribute('updated_by', 0)->save();
+
+            Log::info('packageCancel', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
 
             return $this->jsonSuccess();
         } else {
             $job = new CancelPackage($code->codeable, $request->all());
             $this->dispatch($job);
             $delivery->where('id', $deliverable->delivery_id)->delete();
-            $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+            $code->codeable->setAttribute('updated_by', 0)->save();
+
+            Log::info('packageCancel', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
 
             return $this->jsonSuccess();
         }
@@ -138,7 +148,10 @@ class SelfServiceController extends Controller
             throw_if($user == null, InvalidDataException::make(Response::RC_INVALID_DATA));
             $job = new VerifyExistingUser($user);
             $this->dispatch($job);
-            $user->setAttribute('updated_by', $request->auth->id);
+            $user->setAttribute('updated_by', 0);
+
+            Log::info('accountVerify-user', ['content' => $account, 'req' => $request->all(), 'user' => auth()->user()]);
+
         } elseif ($account === 'customer') {
             //            $input = array_merge($request->toArray(),['phone_verified_at' => Carbon::now()]);
             /** @var Customer $customer */
@@ -147,7 +160,10 @@ class SelfServiceController extends Controller
 
             $customer->{$customer->getVerifiedColumn()} = Carbon::now();
             $customer->save();
-            $customer->setAttribute('updated_by', $request->auth->id)->save();
+            $customer->setAttribute('updated_by', auth()->user()->id)->save();
+
+            Log::info('accountVerify-customer', ['content' => $account, 'req' => $request->all(), 'user' => auth()->user()]);
+
         } else {
             throw Error::make(Response::RC_BAD_REQUEST);
         }
@@ -179,7 +195,10 @@ class SelfServiceController extends Controller
         }
         Log::info("change destination $content done.", [$result]);
 
-        $this->code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+        $this->code->codeable->setAttribute('updated_by', 0)->save();
+
+        Log::info('deliveryDestinationUpdate', ['content' => $content, 'req' => $request->all(), 'user' => auth()->user()]);
+
         return $this->jsonSuccess();
     }
 
@@ -200,7 +219,7 @@ class SelfServiceController extends Controller
 
         Log::info('delivery append package '.$this->code->content);
         try {
-            $result = DB::select('call append_package_to_delivery(?,?,?)', [$input['package_code'], $this->code->content], $request->auth->id);
+            $result = DB::select('call append_package_to_delivery(?,?,?)', [$input['package_code'], $this->code->content], auth()->user()->id);
         } catch (\Throwable $e) {
             Log::alert('error delivery append package: '.$e->getMessage(), ['content' => $content, 'request' => $request->all()]);
             throw InvalidDataException::make(Response::RC_INVALID_DATA);
