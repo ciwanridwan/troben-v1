@@ -185,7 +185,6 @@ class GeoController extends Controller
      */
     protected function getSubDistrictsList(): JsonResponse
     {
-
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
