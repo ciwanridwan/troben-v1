@@ -60,8 +60,8 @@ class CorporateController extends Controller
         $request->validate([
             'is_multi' => ['nullable', 'boolean'],
             'destination_id' => ['required'],
-            'service_code' => ['required|in:tps,tpx'],
-            'partner_id' => ['required|numeric'],
+	    'service_code' => ['required', 'in:tps,tpx'],
+-           'partner_id' => ['required', 'numeric'],
         ]);
 
         $destination_id = $request->get('destination_id');
