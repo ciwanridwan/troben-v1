@@ -18,7 +18,8 @@ import {
   STATUS_REVAMP,
   STATUS_WAITING_FOR_PACKING,
   STATUS_WITH_COURIER,
-  STATUS_DELIVERED
+  STATUS_DELIVERED,
+  STATUS_WAITING_FOR_PAYMENT
 } from "../../packageStatus";
 
 const actions = [
@@ -37,6 +38,7 @@ const actions = [
   {
     status: [
       STATUS_ACCEPTED,
+      STATUS_WAITING_FOR_PAYMENT,
       STATUS_WAITING_FOR_APPROVAL
     ],
     payment_status: [PAYMENT_STATUS_PENDING],
