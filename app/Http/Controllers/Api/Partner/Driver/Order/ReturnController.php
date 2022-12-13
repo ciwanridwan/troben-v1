@@ -83,7 +83,11 @@ class ReturnController extends Controller
             'participant_id' => $delivery->driver->id,
             'customer_id' => $delivery->packages[0]->customer_id
         ];
-        Chatbox::endSessionDriverChatbox($param);
+        try {
+            Chatbox::endSessionDriverChatbox($param);
+        } catch (\Exception $th) {
+            report($th);
+        }
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 }
