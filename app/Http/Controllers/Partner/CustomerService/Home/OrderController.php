@@ -158,12 +158,14 @@ class OrderController extends Controller
             'package_id' => $job->delivery->packages[0]->id,
             'product' => 'trawlpack'
         ];
+
         try {
             Chatbox::createDriverChatbox($param);
-            return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
-        } catch (\Exception $th) {
-            return (new Response(Response::RC_BAD_REQUEST, $th->getMessage()))->json();
+        } catch (\Exception $e) {
+		report($e);
         }
+
+            return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 
     public function courierAssignation(Delivery $delivery): JsonResponse
