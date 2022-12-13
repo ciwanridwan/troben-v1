@@ -234,7 +234,8 @@ class PricingCalculator
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
 
-            if ($item['insurance'] == false) {
+            $hasNotInsurance = isset($item['insurance']) && $item['insurance'] == false;
+            if ($hasNotInsurance) {
                 $item['insurance_price'] = 0;
                 $item['insurance_price_total'] = 0;
             } else {
