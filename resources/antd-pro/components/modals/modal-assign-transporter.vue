@@ -116,6 +116,7 @@
           class="trawl-button-success"
           @click="assignTransporter"
           block
+          :loading="isLoading"
         >
           Tugaskan
         </a-button>
@@ -160,6 +161,7 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       value: true,
       SendIcon,
       transporters: [],
@@ -246,6 +248,7 @@ export default {
         .finally(() => (this.loading = false));
     }),
     async assignTransporter() {
+      this.isLoading = true;
       // let valid = await this.$refs.formRules.validate();
       // console.log(valid);
       // if (!valid) {
@@ -262,6 +265,7 @@ export default {
         .then(() => {
           this.visible = false;
           this.confirmVisible = true;
+          this.isLoading = false;
           this.$emit("submit");
         });
     },
