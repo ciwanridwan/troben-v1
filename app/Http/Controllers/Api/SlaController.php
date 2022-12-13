@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Response;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -13,7 +15,34 @@ class SlaController extends Controller
     public function incomePenalty()
     {
         $data = collect(DB::select($this->commisionOfSla()));
+        $penalty = $data->map(function ($q) {
+            $incomeMb = 0;
+            $incomeMtak = 0;
+            if ($q->type === Partner::TYPE_BUSINESS) {
+                $incomeMb = $q->service_fee * Partner::PENALTY_PERCENTAGE;
+                $q->income_penalty = $incomeMb;
+            } elseif ($q->type === Partner::TYPE_TRANSPORTER) {
+                $incomeMtak = $q->service_fee * Partner::PENALTY_PERCENTAGE;
+                $q->income_penalty = $incomeMtak;
+            } else {
+                $q->income_penalty = 0;
+            }
+            return $q;
+        });
 
+        $setIncome = $penalty->each(function ($q) {
+            History::create([
+                'partner_id' => $q->partner_id,
+                'package_id' => $q->package_id,
+                'balance' => $q->income_penalty,
+                'type' => History::TYPE_PENALTY,
+                'description' => History::DESCRIPTION_LATENESS
+            ]);
+        })->toArray();
+
+        Log::info('Updated balance histories on set penalty income trigger by sla', $setIncome);
+
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     /** Set alert level of SLA */
