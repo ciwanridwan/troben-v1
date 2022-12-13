@@ -4,12 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Response;
-use App\Models\Deliveries\Delivery;
-use App\Models\Packages\Price as PackagePrice;
-use App\Models\Partners\Partner;
-use App\Models\Partners\Performances\Delivery as PerformanceDelivery;
-use App\Models\Partners\Performances\PerformanceModel;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,33 +12,8 @@ class SlaController extends Controller
     /** Set fine (denda) to income partner */
     public function incomePenalty()
     {
-        $partnerId = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('partner_id')->toArray();
+        $data = collect(DB::select($this->commisionOfSla()));
 
-        $deliveryId = PerformanceDelivery::query()->where('level', 3)->whereNull('reached_at')->where('status', PerformanceModel::STATUS_ON_PROCESS)->where('deadline', '<', Carbon::now())->get()->pluck('delivery_id')->toArray();
-
-        $deliveries = Delivery::with('packages.prices')->whereIn('id', $deliveryId)->get();
-
-        $serviceFee = [];
-        foreach ($deliveries as $d) {
-            foreach ($d->packages as $p) {
-                $feeService = $p->prices->filter(function ($q) {
-                    if ($q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::TYPE_SERVICE || $q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::DESCRIPTION_TYPE_EXPRESS || $q->type === PackagePrice::TYPE_SERVICE && $q->description === PackagePrice::DESCRIPTION_TYPE_CUBIC) {
-                        return true;
-                    }
-                    return false;
-                })->map(function ($r) {
-                    return ['service_fee' => $r->amount];
-                })->values()->toArray();
-
-                array_push($serviceFee, $feeService);
-            }
-        }
-        dd(count($serviceFee));
-        foreach ($serviceFee as $s) {
-            dd($s[0]['service_fee']);
-        }
-        dd($serviceFee);
-        // dd($deliveries->dackages);
     }
 
     /** Set alert level of SLA */
@@ -166,5 +135,30 @@ class SlaController extends Controller
 
         $result = DB::statement($q);
         return $result;
+    }
+
+    /**
+     * Query for get commision from each delivery_id
+     */
+    public function commisionOfSla()
+    {
+        $q = "SELECT pdp.partner_id, pdp.delivery_id,
+        dd.deliverable_id as package_id,
+        pp.amount as service_fee,
+        p.type
+            from partner_delivery_performances pdp
+            left join (select * from deliverables dd where dd.deliverable_type = 'App\Models\Packages\Package') dd on dd.delivery_id = pdp.delivery_id
+            left join (
+                select pp.amount, pp.package_id from package_prices pp where pp.type = 'service' and
+                pp.description = 'service' or pp.description = 'express' or pp.description = 'kubikasi'
+                ) pp on dd.deliverable_id = pp.package_id
+            left join ( select * from partners p) p on p.id = pdp.partner_id
+                where pdp.level = 3
+                and pdp.reached_at is null
+                and pdp.deadline < now()
+                and pdp.status = 10
+                and dd.delivery_id is not null";
+
+        return $q;
     }
 }
