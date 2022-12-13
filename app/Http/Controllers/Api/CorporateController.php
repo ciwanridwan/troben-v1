@@ -38,7 +38,6 @@ class CorporateController extends Controller
     {
         $request->validate([
             'type' => 'nullable',
-            'regency_id' => 'required',
         ]);
 
         $q = $request->get('q');
@@ -49,7 +48,6 @@ class CorporateController extends Controller
             ->whereNotNull(['latitude', 'longitude'])
             ->where('availability', 'open')
             ->where('is_show', true)
-            ->where('geo_regency_id', $request->get('regency_id'))
             ->get();
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
@@ -60,7 +58,7 @@ class CorporateController extends Controller
         $request->validate([
             'is_multi' => ['nullable', 'boolean'],
             'destination_id' => ['required'],
-	    'service_code' => ['required', 'in:tps,tpx'],
+	        'service_code' => ['required', 'in:tps,tpx'],
 -           'partner_id' => ['required', 'numeric'],
         ]);
 
