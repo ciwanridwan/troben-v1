@@ -147,6 +147,8 @@ class PartnerPerformanceEvaluatedByEvent
                     'status' => Performance\PerformanceModel::STATUS_REACHED
                 ]);
         }
+        // todo set penalty income
+
     }
 
     protected function setAttributes(): void
