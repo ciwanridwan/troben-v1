@@ -6,11 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SlaController extends Controller
 {
+    /**
+     * This is function to test
+     * Run a a schedule command from here
+     */
+    public function testAlert()
+    {
+        // Artisan::call('sche')
+    }
+
     /** Set fine (denda) to income partner */
     public function incomePenalty()
     {

@@ -42,10 +42,11 @@ class AlertTree extends Command
         $levelTreeDelivery = $this->levelTreeDeliveries();
         $levelTreePackage = $this->levelTreePackages();
 
-        $this->setPenaltyPackages();
-        $this->setPenaltyDeliveries();
+        $penaltyPackages = $this->setPenaltyPackages();
+        $penaltyDeliveries = $this->setPenaltyDeliveries();
 
         Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTreeDelivery, $levelTreePackage));
+        Log::info('Partner will get a penalty if late doing task', array($penaltyDeliveries, $penaltyPackages));
         $this->info('Alert Level Tree Has Been Seen To Partners');
     }
 
@@ -69,8 +70,6 @@ class AlertTree extends Command
                 WHERE 1=1
                 AND level = 3
                 AND status = 1
-                AND delivery_id = t.delivery_id
-                AND partner_id  = t.partner_id
             )";
 
         $result = DB::statement($q);

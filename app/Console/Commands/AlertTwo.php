@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AlertTwo extends Command
@@ -41,10 +42,11 @@ class AlertTwo extends Command
         $levelTwoDelivery = $this->levelTwoDeliveries();
         $levelTwoPackage = $this->levelTwoPackages();
 
-        $this->setPenaltyPackages();
-        $this->setPenaltyDeliveries();
+        $penaltyPackages = $this->setPenaltyPackages();
+        $penaltyDeliveries = $this->setPenaltyDeliveries();
 
         Log::info('Alert Level Two Has Been Seen To Partners', array($levelTwoDelivery, $levelTwoPackage));
+        Log::info('Partner will get a penalty if late doing task', array($penaltyDeliveries, $penaltyPackages));
         $this->info('Alert Level Two Has Been Seen To Partners');
     }
 
