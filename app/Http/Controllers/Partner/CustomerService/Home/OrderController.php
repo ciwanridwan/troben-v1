@@ -162,10 +162,9 @@ class OrderController extends Controller
         try {
             Chatbox::createDriverChatbox($param);
         } catch (\Exception $e) {
-		report($e);
+            report($e);
         }
-
-            return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
+        return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 
     public function courierAssignation(Delivery $delivery): JsonResponse
