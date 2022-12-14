@@ -27,10 +27,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('alert:two')->cron('1 00 */1 * *');
-        $schedule->command('alert:tree')->cron('1 00 */2 * *');
-        // $schedule->command('alert:two')->everyMinute();
-        // $schedule->command('alert:tree')->everyMinute();
+        // $schedule->command('alert:two')->cron('1 00 */1 * *');
+        // $schedule->command('alert:tree')->cron('1 00 */2 * *');
+        $schedule->command('alert:two')->everyTenMinutes();
+        $schedule->command('alert:tree')->everyTenMinutes();
     }
 
     /**
@@ -41,7 +41,6 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
-
         // require base_path('routes/console.php');
     }
 }

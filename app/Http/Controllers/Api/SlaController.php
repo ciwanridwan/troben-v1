@@ -52,7 +52,8 @@ class SlaController extends Controller
         $this->levelTreeDeliveries();
         $this->levelTwoPackages();
         $this->levelTreePackages();
-        $this->setPenalty();
+        $this->setPenaltyPackages();
+        $this->setPenaltyDeliveris();
 
         $message = ['message' => 'Running Alert'];
         Log::info('Alert Level Two And Tree Just Running Of SLA');
@@ -168,7 +169,7 @@ class SlaController extends Controller
         return $result;
     }
 
-    public function setPenalty()
+    public function setPenaltyPackages()
     {
         $q = "UPDATE partner_package_performances t
         SET status = 10,
@@ -188,7 +189,35 @@ class SlaController extends Controller
                 and deadline < now()
             )";
 
-        return $q;
+        $result = DB::statement($q);
+        return $result;
+    }
+
+    /**
+     * Set penalty to partner when it late
+     */
+    public function setPenaltyDeliveries()
+    {
+        $q = "UPDATE partner_delivery_performances t
+        SET status = 10,
+            updated_at = NOW()
+        WHERE 1=1
+            AND level = 3
+            AND status = 1
+            AND reached_at IS NULL
+            AND deadline < NOW()
+            and not exists (
+                select 1
+                from partner_delivery_performances
+                WHERE 1=1
+                AND level = 3
+                AND status = 10
+                AND reached_at is null
+                and deadline < now()
+            )";
+
+        $result = DB::statement($q);
+        return $result;
     }
 
     /**
@@ -213,6 +242,7 @@ class SlaController extends Controller
                 and pdp.status = 10
                 and dd.delivery_id is not null";
 
-        return $q;
+        $result = DB::statement($q);
+        return $result;
     }
 }

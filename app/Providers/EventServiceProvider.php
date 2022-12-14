@@ -333,7 +333,7 @@ class EventServiceProvider extends ServiceProvider
 
         DeliveriesPartnerAssigned::class => [
             DeadlineCreatedByEvent::class
-        ]
+        ],
     ];
 
     /**

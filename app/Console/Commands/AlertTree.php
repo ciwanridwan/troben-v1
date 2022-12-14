@@ -2,11 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Partners\Performances\Delivery;
 use Illuminate\Console\Command;
-use App\Models\Partners\Performances\Package;
-use App\Models\Partners\Performances\PerformanceModel;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -43,19 +39,119 @@ class AlertTree extends Command
      */
     public function handle()
     {
-        $now = Carbon::now();
+        $levelTreeDelivery = $this->levelTreeDeliveries();
+        $levelTreePackage = $this->levelTreePackages();
 
-        $levelTreeDelivery = Delivery::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
-            'level' => 3,
-            'deadline' => Carbon::now()->endOfDay()
-        ]);
-
-        $levelTreePackage = Package::query()->where('level', 2)->where('deadline', '<', $now)->where('status', PerformanceModel::STATUS_ON_PROCESS)->update([
-            'level' => 3,
-            'deadline' => Carbon::now()->endOfDay()
-        ]);
+        $this->setPenaltyPackages();
+        $this->setPenaltyDeliveries();
 
         Log::info('Alert Level Tree Has Been Seen To Partners', array($levelTreeDelivery, $levelTreePackage));
         $this->info('Alert Level Tree Has Been Seen To Partners');
+    }
+
+    /**
+     * Set alert level 3 for deliveries
+     */
+    public function levelTreeDeliveries()
+    {
+        $q = "UPDATE partner_delivery_performances t
+        SET level  = 3,
+            deadline = deadline + interval '24' hour,
+            updated_at = NOW()
+        WHERE 1=1
+            AND level = 2
+            AND status = 1
+            AND reached_at IS NULL
+            AND deadline < NOW()
+            and not exists (
+                select 1
+                from partner_delivery_performances
+                WHERE 1=1
+                AND level = 3
+                AND status = 1
+                AND delivery_id = t.delivery_id
+                AND partner_id  = t.partner_id
+            )";
+
+        $result = DB::statement($q);
+        return $result;
+    }
+
+    /** Set alert level 3 for packages */
+    public function levelTreePackages()
+    {
+        $q = "UPDATE partner_package_performances t
+        SET level = 3,
+            deadline = deadline + interval '24' hour,
+            updated_at = NOW()
+        WHERE 1=1
+            AND level = 2
+            AND status = 1
+            AND reached_at IS NULL
+            AND deadline < NOW()
+            and not exists (
+                select 1
+                from partner_package_performances
+                WHERE 1=1
+                AND level = 3
+                AND status = 1
+                AND package_id = t.package_id
+                AND partner_id  = t.partner_id
+            )";
+
+        $result = DB::statement($q);
+        return $result;
+    }
+
+    /** Set penalty if partner get late */
+    public function setPenaltyPackages()
+    {
+        $q = "UPDATE partner_package_performances t
+        SET status = 10,
+            updated_at = NOW()
+        WHERE 1=1
+            AND level = 3
+            AND status = 1
+            AND reached_at IS NULL
+            AND deadline < NOW()
+            and not exists (
+                select 1
+                from partner_package_performances
+                WHERE 1=1
+                AND level = 3
+                AND status = 10
+                AND reached_at is null
+                and deadline < now()
+            )";
+
+        $result = DB::statement($q);
+        return $result;
+    }
+
+    /** Set penalty of deliveries
+     * when partner get late doing task
+     */
+    public function setPenaltyDeliveries()
+    {
+        $q = "UPDATE partner_delivery_performances t
+        SET status = 10,
+            updated_at = NOW()
+        WHERE 1=1
+            AND level = 3
+            AND status = 1
+            AND reached_at IS NULL
+            AND deadline < NOW()
+            and not exists (
+                select 1
+                from partner_delivery_performances
+                WHERE 1=1
+                AND level = 3
+                AND status = 10
+                AND reached_at is null
+                and deadline < now()
+            )";
+
+        $result = DB::statement($q);
+        return $result;
     }
 }
