@@ -276,7 +276,7 @@ class EventServiceProvider extends ServiceProvider
             //
         ],
         PartnerRequested::class => [
-            //
+            PartnerPerformanceEvaluatedByEvent::class,
         ],
         Registration\NewVacctRegistration::class => [
             UpdatePackageStatusByEvent::class,

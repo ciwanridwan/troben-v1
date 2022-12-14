@@ -78,13 +78,18 @@ class DeadlineCreatedByEvent
 
                 $now = Carbon::now();
                 $endtime = Carbon::today()->addHours(18);
-                $firstTime = Carbon::today()->addHours(12);
+                // temporary hold firstime
+                // $firstTime = Carbon::today()->addHours(12);
+
+                // set firstTime for testing
+                $firstTime = Carbon::today()->addHours(9);
                 if ($now < $firstTime) {
                     break;
                 }
 
                 $deadline = $now < $endtime ? $endtime : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
+
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerDestination->id,
@@ -174,13 +179,19 @@ class DeadlineCreatedByEvent
             case $event instanceof DriverAssignedOfTransit:
                 $delivery = $event->delivery;
                 $partnerTransporter = $event->delivery->assigned_to;
+
                 if (!$partnerTransporter instanceof UserablePivot || $partnerTransporter->userable_type !== Transporter::class) {
                     break;
                 };
-
                 $now = Carbon::now();
-                $firstTime = Carbon::today()->addHours(18);
+                // temporary hold
+                // $firstTime = Carbon::today()->addHours(18);
+
+                // for test
+                $firstTime = Carbon::today()->addHours(9);
+
                 $endTime = Carbon::now()->endOfDay();
+
                 if ($now < $firstTime) {
                     break;
                 }
