@@ -15,8 +15,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        AlertTwo::class,
-        AlertTree::class,
     ];
 
     /**

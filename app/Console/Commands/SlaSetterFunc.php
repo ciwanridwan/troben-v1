@@ -7,6 +7,8 @@ use Illuminate\Console\Command;
 
 class SlaSetterFunc extends Command
 {
+    protected $signature = 'core:sla';
+
     /**
      * The console command description.
      *
