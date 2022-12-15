@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Log;
 
 class PartnerPerformanceEvaluatedByEvent
 {
-    private const FEE_PARTNER = 0.3;
     /**
      * Performance instance.
      *
@@ -50,6 +49,11 @@ class PartnerPerformanceEvaluatedByEvent
 
     /** Set date time now */
     private string $reach_at;
+
+    /**
+     * Partner Instance
+     */
+    private Partner $partner;
 
     /**
      * Handle the event.
@@ -231,5 +235,15 @@ class PartnerPerformanceEvaluatedByEvent
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
+
+        $this->updateBalancePartner($partnerId, $incomePenalty);
+    }
+
+
+    protected function updateBalancePartner($partnerId, $incomePenalty): void
+    {
+        $this->partner = Partner::find($partnerId);
+        $this->partner->balance -= $incomePenalty;
+        $this->partner->save();
     }
 }
