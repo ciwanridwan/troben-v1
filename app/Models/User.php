@@ -15,6 +15,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Concerns\Models\VerifiableByOtp;
+use App\Models\Partners\BankAccount;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations;
@@ -192,6 +193,11 @@ class User extends Authenticatable implements HasOtpToken, AttachableContract, J
     public function banks(): Relations\HasMany
     {
         return $this->hasMany(Bank::class, 'user_id', 'id');
+    }
+
+    public function BankOwner()
+    {
+        return $this->hasOne(BankAccount::class, 'user_id', 'id');
     }
 
     public function code_logs()
