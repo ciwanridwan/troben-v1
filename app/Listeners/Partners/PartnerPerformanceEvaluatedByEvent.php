@@ -74,14 +74,14 @@ class PartnerPerformanceEvaluatedByEvent
                     /** @var Package $package */
                     $this->package = $package;
 
-                    $deadline = $this->package->partner_performance->deadline;
-                    $level = $this->package->partner_performance->level;
-
-                    if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package);
-                    }
-
                     if ($this->package->partner_performance !== null) {
+                        $deadline = $this->package->partner_performance->deadline;
+                        $level = $this->package->partner_performance->level;
+
+                        if ($this->reach_at > $deadline && $level === 3) {
+                            $this->setPenaltyIncome($this->package);
+                        }
+
                         $this
                             ->setPerformance($this->package->partner_performance)
                             ->updatePerformance();
@@ -98,14 +98,14 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
 
-                $deadline = $this->delivery->partner_performance->deadline;
-                $level = $this->delivery->partner_performance->level;
-
-                if ($this->reach_at > $deadline && $level === 3) {
-                    $this->setPenaltyIncome($this->delivery);
-                }
-
                 if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery);
+                    }
+
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
@@ -130,7 +130,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
-                }
+                };
                 break;
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
@@ -144,14 +144,14 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
 
-                $deadline = $this->delivery->partner_performance->deadline;
-                $level = $this->delivery->partner_performance->level;
-
-                if ($this->reach_at > $deadline && $level === 3) {
-                    $this->setPenaltyIncome($this->delivery);
-                }
-
                 if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery);
+                    }
+
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
@@ -187,12 +187,10 @@ class PartnerPerformanceEvaluatedByEvent
                 false => $this->delivery->partner_performance()
             };
 
-            $query
-                ->where($this->attributes)
-                ->update([
-                    'reached_at' => Carbon::now(),
-                    'status' => Performance\PerformanceModel::STATUS_REACHED
-                ]);
+            $query->where($this->attributes)->update([
+                'reached_at' => Carbon::now(),
+                'status' => Performance\PerformanceModel::STATUS_REACHED
+            ]);
         }
     }
 
