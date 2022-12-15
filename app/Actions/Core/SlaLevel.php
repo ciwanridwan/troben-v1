@@ -20,49 +20,49 @@ class SlaLevel
                     dd($msg);
                 }
             }
-            self::queryPenalty($t);
+            // self::queryPenalty($t);
         }
 
 
         DB::table('sp_call_log')->where('sp_name', 'SLA_WORKER')->update(['last_call' => Carbon::now()->format('Y-m-d H:i:s')]);
     }
 
-    private static function queryPenalty($type)
-    {
-        $table = null;
-        switch ($type) {
-            case 'delivery':
-                $table = "partner_delivery_performances";
-                break;
-            case 'package':
-                $table = "partner_package_performances";
-                break;
-            default:
-                throw new \Exception("Invalid type for SLA: $type");
-                break;
-        }
+    // private static function queryPenalty($type)
+    // {
+    //     $table = null;
+    //     switch ($type) {
+    //         case 'delivery':
+    //             $table = "partner_delivery_performances";
+    //             break;
+    //         case 'package':
+    //             $table = "partner_package_performances";
+    //             break;
+    //         default:
+    //             throw new \Exception("Invalid type for SLA: $type");
+    //             break;
+    //     }
 
-        $q = "UPDATE %s t
-        SET status = 10,
-            updated_at = NOW()
-        WHERE 1=1
-            AND level = 3
-            AND status = 1
-            AND reached_at IS NULL
-            AND deadline < NOW()
-            and not exists (
-                select 1
-                from %s
-                WHERE 1=1
-                AND level = 3
-                AND status = 10
-                AND reached_at is null
-                and deadline < now()
-            )";
+    //     $q = "UPDATE %s t
+    //     SET status = 10,
+    //         updated_at = NOW()
+    //     WHERE 1=1
+    //         AND level = 3
+    //         AND status = 1
+    //         AND reached_at IS NULL
+    //         AND deadline < NOW()
+    //         and not exists (
+    //             select 1
+    //             from %s
+    //             WHERE 1=1
+    //             AND level = 3
+    //             AND status = 10
+    //             AND reached_at is null
+    //             and deadline < now()
+    //         )";
 
-        $q = sprintf($q, $table, $table);
-        return $q;
-    }
+    //     $q = sprintf($q, $table, $table);
+    //     return $q;
+    // }
 
     private static function query($type, $level)
     {

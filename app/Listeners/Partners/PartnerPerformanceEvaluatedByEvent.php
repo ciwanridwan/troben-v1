@@ -11,12 +11,15 @@ use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
 use App\Events\Packages\WarehouseIsStartPacking;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Performances as Performance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class PartnerPerformanceEvaluatedByEvent
 {
+    private const FEE_PARTNER = 0.3;
     /**
      * Performance instance.
      *
@@ -45,6 +48,9 @@ class PartnerPerformanceEvaluatedByEvent
      */
     private Package $package;
 
+    /** Set date time now */
+    private string $reach_at;
+
     /**
      * Handle the event.
      *
@@ -56,17 +62,25 @@ class PartnerPerformanceEvaluatedByEvent
         switch (true) {
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $this->delivery = $event->delivery;
+
                 $packages = $this->delivery->packages;
+                $this->reach_at = Carbon::now();
 
                 foreach ($packages as $package) {
                     /** @var Package $package */
                     $this->package = $package;
+
+                    if ($this->reach_at > $this->package->partner_performance->deadline) {
+                        $this->setPenaltyIncome($this->package);
+                    }
+
                     if ($this->package->partner_performance !== null) {
                         $this
                             ->setPerformance($this->package->partner_performance)
                             ->updatePerformance();
                     }
                 }
+
                 if ($this->delivery->partner_performance !== null) {
                     $this
                         ->setPerformance($this->delivery->partner_performance)
@@ -75,6 +89,11 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+                if ($this->reach_at > $this->delivery->partner_performance->deadline) {
+                    $this->setPenaltyIncome($this->delivery);
+                }
+
                 if ($this->delivery->partner_performance !== null) {
                     $this
                         ->setPerformance($this->delivery->partner_performance)
@@ -83,6 +102,12 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof WarehouseIsStartPacking:
                 $this->package = $event->package;
+
+                $this->reach_at = Carbon::now();
+                $deadline = $this->package->partner_performance->deadline;
+                if ($this->reach_at > $deadline) {
+                    $this->setPenaltyIncome($this->package);
+                }
 
                 $this->setPerformance($this->package->partner_performance)->updatePerformance();
                 break;
@@ -147,8 +172,6 @@ class PartnerPerformanceEvaluatedByEvent
                     'status' => Performance\PerformanceModel::STATUS_REACHED
                 ]);
         }
-        // todo set penalty income
-
     }
 
     protected function setAttributes(): void
@@ -166,5 +189,47 @@ class PartnerPerformanceEvaluatedByEvent
             Log::info('performance: ', ['delivery' => $this->delivery->code->content, 'performance' => $this->performance]);
             $this->attributes = [];
         }
+    }
+
+
+    protected function setPenaltyIncome($type): void
+    {
+        switch (true) {
+            case $type instanceof Package:
+                $this->package = $type;
+                $partnerId = $this->package->partner_performance->partner_id;
+
+                $this->createHistory($this->package, $partnerId);
+                break;
+            case $type instanceof Delivery:
+                $this->delivery = $type;
+                $packages = $this->delivery->packages;
+
+                foreach ($packages as $package) {
+                    $this->package = $package;
+                    $this->createHistory($this->package, $this->delivery->partner_performance->partner_id);
+                }
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
+
+
+    protected function createHistory($package, $partnerId): void
+    {
+        $serviceFee = $package->service_price;
+        $incomePenalty = $serviceFee * Partner::PENALTY_PERCENTAGE;
+
+        History::create([
+            'partner_id' => $partnerId,
+            'package_id' => $package->id,
+            'balance' => $incomePenalty,
+            'type' => History::TYPE_PENALTY,
+            'description' => History::DESCRIPTION_LATENESS,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
     }
 }
