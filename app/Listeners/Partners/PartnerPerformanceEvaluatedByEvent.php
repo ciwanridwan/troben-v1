@@ -66,15 +66,18 @@ class PartnerPerformanceEvaluatedByEvent
         switch (true) {
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
 
                 $packages = $this->delivery->packages;
-                $this->reach_at = Carbon::now();
 
                 foreach ($packages as $package) {
                     /** @var Package $package */
                     $this->package = $package;
 
-                    if ($this->reach_at > $this->package->partner_performance->deadline) {
+                    $deadline = $this->package->partner_performance->deadline;
+                    $level = $this->package->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
                         $this->setPenaltyIncome($this->package);
                     }
 
@@ -94,7 +97,11 @@ class PartnerPerformanceEvaluatedByEvent
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
-                if ($this->reach_at > $this->delivery->partner_performance->deadline) {
+
+                $deadline = $this->delivery->partner_performance->deadline;
+                $level = $this->delivery->partner_performance->level;
+
+                if ($this->reach_at > $deadline && $level === 3) {
                     $this->setPenaltyIncome($this->delivery);
                 }
 
@@ -106,10 +113,12 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof WarehouseIsStartPacking:
                 $this->package = $event->package;
-
                 $this->reach_at = Carbon::now();
+
                 $deadline = $this->package->partner_performance->deadline;
-                if ($this->reach_at > $deadline) {
+                $level = $this->package->partner_performance->level;
+
+                if ($this->reach_at > $deadline && $level === 3) {
                     $this->setPenaltyIncome($this->package);
                 }
 
@@ -133,6 +142,15 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof PartnerRequested:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
+                $deadline = $this->delivery->partner_performance->deadline;
+                $level = $this->delivery->partner_performance->level;
+
+                if ($this->reach_at > $deadline && $level === 3) {
+                    $this->setPenaltyIncome($this->delivery);
+                }
+
                 if ($this->delivery->partner_performance !== null) {
                     $this
                         ->setPerformance($this->delivery->partner_performance)
@@ -208,10 +226,11 @@ class PartnerPerformanceEvaluatedByEvent
             case $type instanceof Delivery:
                 $this->delivery = $type;
                 $packages = $this->delivery->packages;
+                $partnerId = $this->delivery->partner_performance->partner_id;
 
                 foreach ($packages as $package) {
                     $this->package = $package;
-                    $this->createHistory($this->package, $this->delivery->partner_performance->partner_id);
+                    $this->createHistory($this->package, $partnerId);
                 }
                 break;
             default:
@@ -238,7 +257,6 @@ class PartnerPerformanceEvaluatedByEvent
 
         $this->updateBalancePartner($partnerId, $incomePenalty);
     }
-
 
     protected function updateBalancePartner($partnerId, $incomePenalty): void
     {
