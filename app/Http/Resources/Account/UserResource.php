@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'longitude' => $this->longitude,
             'is_active' => $this->is_active,
             'avatar' => $this->attachments()->first()->uri ?? null,
+            'is_ho' => $this->is_admin,
         ];
 
         if ($this->resource instanceof User) {
