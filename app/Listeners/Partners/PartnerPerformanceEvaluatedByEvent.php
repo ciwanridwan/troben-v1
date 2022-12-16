@@ -127,6 +127,13 @@ class PartnerPerformanceEvaluatedByEvent
             case $event instanceof DriverAssignedOfTransit:
                 $this->delivery = $event->delivery;
                 if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->package);
+                    }
+
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
@@ -135,6 +142,13 @@ class PartnerPerformanceEvaluatedByEvent
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
                 if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->package);
+                    }
+
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
