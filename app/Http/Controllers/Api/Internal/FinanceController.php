@@ -119,23 +119,59 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
-        // $query = $this->detailDisbursment($result);
-        $query = $this->newQueryDetailDisbursment($result->partner_id);
-        $packages = collect(DB::select($query));
+        if ($result->partner->type === Partner::TYPE_TRANSPORTER) {
+            return $this->findManifest($result, $this->attributes['receipt']);
+        } else {
+            $query = $this->newQueryDetailDisbursment($result->partner_id);
+            $packages = collect(DB::select($query));
 
-        $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) use ($result) {
-            $r->total_payment = intval($r->total_payment);
-            $r->total_accepted = intval($r->total_accepted);
+            $receipt = $packages->where('receipt', $this->attributes['receipt'])->map(function ($r) use ($result) {
+                $r->total_payment = intval($r->total_payment);
+                $r->total_accepted = intval($r->total_accepted);
 
-            $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->where('disbursment_id', $result->id)->first();
+                $disbursHistory = DisbursmentHistory::where('receipt', $this->attributes['receipt'])->where('disbursment_id', $result->id)->first();
+                if (is_null($disbursHistory)) {
+                    $r->approved = 'pending';
+                    return $r;
+                } elseif ($disbursHistory->receipt == $r->receipt) {
+                    $r->approved = 'success';
+                    return $r;
+                } else {
+                    $r->approved = 'pending';
+                    return $r;
+                }
+            })->first();
+
+            if (is_null($receipt)) {
+                return (new Response(Response::RC_SUCCESS, []))->json();
+            } else {
+                $data = [$receipt];
+                return (new Response(Response::RC_SUCCESS, $data))->json();
+            }
+        }
+    }
+
+    /**
+     * Filter by manifest code
+     * Include receipt code
+     */
+    public function findManifest($withdrawal, $manifestCode)
+    {
+        $deliveries = $this->getDetailDisbursmentTransporter($withdrawal->partner_id);
+
+        $receipt = $deliveries->where('receipt', $manifestCode)->map(function ($r) use ($withdrawal, $manifestCode) {
+            $r['total_payment'] = intval($r['total_payment']);
+            $r['total_accepted'] = intval($r['total_accepted']);
+
+            $disbursHistory = DisbursmentHistory::where('receipt', $manifestCode)->where('disbursment_id', $withdrawal->id)->first();
             if (is_null($disbursHistory)) {
-                $r->approved = 'pending';
+                $r['approved'] = 'pending';
                 return $r;
-            } elseif ($disbursHistory->receipt == $r->receipt) {
-                $r->approved = 'success';
+            } elseif ($disbursHistory->receipt == $r['receipt']) {
+                $r['approved'] = 'success';
                 return $r;
             } else {
-                $r->approved = 'pending';
+                $r['approved'] = 'pending';
                 return $r;
             }
         })->first();
@@ -147,7 +183,6 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
-    // End Todo
 
     /**Get list partner for findByPartner Function */
     public function listPartners()
