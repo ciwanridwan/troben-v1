@@ -86,6 +86,11 @@ class UpdateExistingUser
                     'account_name' => $this->banks['account_name'],
                     'account_number' => $this->banks['account_number'],
                 ]);
+            } else {
+                $ExistBank->bank_id = $this->banks['bank_id'];
+                $ExistBank->account_name = $this->banks['account_name'];
+                $ExistBank->account_number = $this->banks['account_number'];
+                $ExistBank->save();
             }
         }
 
