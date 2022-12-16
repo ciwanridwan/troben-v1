@@ -60,8 +60,9 @@ class UpdateExistingUser
             'fcm_token' => ['nullable','unique:users,fcm_token,'.$user->id.',id,deleted_at,NULL'],
             'verified_at' => ['nullable'],
         ])->validate();
+        $bank = Bank::all()->pluck('id')->toArray();
         $this->banks = Validator::make($inputs, [
-            'bank' => ['filled','in:BNI,BRI,BCA,Mandiri,BTN'],
+            'bank_id' => ['filled','in:'.implode(',', $bank)],
             'account_name' => ['filled','string'],
             'account_number' => ['filled','numeric']
         ])->validate();
@@ -74,14 +75,13 @@ class UpdateExistingUser
      */
     public function handle(): bool
     {
-        if (array_key_exists('bank', $this->banks)
+        if (array_key_exists('bank_id', $this->banks)
             && array_key_exists('account_name', $this->banks)
             && array_key_exists('account_number', $this->banks)) {
-            $bank = Bank::where('name', $this->banks['bank'])->first();
             $ExistBank = BankAccount::where('user_id', $this->user->id)->first();
             if (! $ExistBank) {
                 BankAccount::create([
-                    'bank_id' => $bank->id,
+                    'bank_id' => $this->banks['bank_id'],
                     'user_id' => $this->user->id,
                     'account_name' => $this->banks['account_name'],
                     'account_number' => $this->banks['account_number'],
