@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Partner;
 
+use App\Http\Controllers\Api\CorporateController;
 use App\Http\Controllers\Api\Partner\PartnerController;
 use Jalameta\Router\BaseRoute;
 
@@ -31,6 +32,11 @@ class PartnerRoute extends BaseRoute
         $this->router->get($this->prefix('/list'), [
             'as' => $this->name('list'),
             'uses' => $this->uses('list'),
+        ]);
+
+        $this->router->get($this->prefix('/corporate'), [
+            'as' => $this->name('corporate'),
+            'uses' => $this->uses('partnerList', CorporateController::class),
         ]);
 
         $this->router->get($this->prefix('/nearby'), [

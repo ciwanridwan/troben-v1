@@ -43,6 +43,11 @@ class UserResource extends JsonResource
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
             }
+            $data['bankOwner'] = null;
+            if ($this->resource->bankOwner) {
+                $data['bankOwner'] = $this->resource->bankOwner;
+                $data['bankOwner']['bank'] = $this->resource->BankOwner->banks;
+            }
 
             $transporters = $this->resource->transporters;
 

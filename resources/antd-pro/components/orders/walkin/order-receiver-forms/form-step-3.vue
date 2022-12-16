@@ -144,7 +144,9 @@ export default {
       return this.data?.result?.tier;
     },
     notAvailable() {
-      return this.data?.message;
+      return this.data?.message
+        ? this.data?.message
+        : "Data tidak tersedia harap hubungi CS";
     },
     bike() {
       return this.data?.total_amount;

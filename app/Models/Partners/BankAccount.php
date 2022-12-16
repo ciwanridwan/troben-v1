@@ -39,9 +39,9 @@ class BankAccount extends Model
     protected $casts = [
     ];
 
-    protected $appends = [
-        'id',
-    ];
+    // protected $appends = [
+    //     'id',
+    // ];
 
     /**
      * Define `belongsTo` relationship with Partner model.

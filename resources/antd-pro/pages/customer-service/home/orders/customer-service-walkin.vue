@@ -85,6 +85,22 @@
                   >Telah berhasil terkirim ke Customer</template
                 >
               </trawl-modal-confirm>
+              <trawl-modal-confirm
+                v-model="rejectModal"
+                :cancelButton="false"
+                :ok="handleOk"
+              >
+                <template slot="text"
+                  >Data tidak dapat terkirim, harap hubungi Customer
+                  Service!!!</template
+                >
+              </trawl-modal-confirm>
+              <!-- <a-modal v-model="rejectModal" @ok="handleOk">
+                <template slot="text"
+                  >Data tidak dapat terkirim, harap hubungi Customer
+                  Service!!!</template
+                >
+              </a-modal> -->
               <a-space>
                 <span>Kirim Ke cus</span>
                 <a-icon :component="PackageIconSpark" />
@@ -135,6 +151,7 @@ export default {
       PackageIconSpark,
       loading: false,
       submitModal: false,
+      rejectModal: false,
       isActive: false,
     };
   },
@@ -197,7 +214,14 @@ export default {
         .then(({ data }) => {
           this.submitModal = true;
           this.loading = false;
+        })
+        .catch((err) => {
+          this.rejectModal = true;
         });
+    },
+
+    handleOk() {
+      this.rejectModal = false;
     },
 
     prev() {

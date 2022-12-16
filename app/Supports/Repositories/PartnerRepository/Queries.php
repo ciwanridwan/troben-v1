@@ -102,7 +102,8 @@ class Queries
             'packages',
             'origin_partner',
             'partner',
-            'transporter'
+            'transporter',
+            'partner_performance'
         ]);
 
         return $query;
@@ -310,6 +311,7 @@ class Queries
                     Package::STATUS_WAITING_FOR_PACKING,
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
+                    Package::STATUS_WAITING_FOR_PAYMENT,
                     Package::STATUS_REVAMP,
                     Package::STATUS_PACKING,
                     Package::STATUS_PACKED,

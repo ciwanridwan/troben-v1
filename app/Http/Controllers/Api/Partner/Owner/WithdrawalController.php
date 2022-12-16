@@ -89,6 +89,9 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
+        if (! auth()->user()->bankOwner->exists()) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'please fill the bank account']))->json();
+        }
         $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
             ->where('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
@@ -97,7 +100,7 @@ class WithdrawalController extends Controller
             $expiredTime = $currentTime->addDays(7);
             $request['expired_at'] = $expiredTime;
             $request['status'] = Withdrawal::STATUS_REQUESTED;
-
+            $request->merge(['user' => $request->user()]);
             $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
             $this->dispatch($job);
 

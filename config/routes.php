@@ -88,7 +88,7 @@ return [
         App\Http\Routes\Api\SupportRoute::class,
         App\Http\Routes\TermAndConditionRoute::class,
         App\Http\Routes\Api\MotorBikeRoute::class,
-        App\Http\Routes\TestingRoute::class
+        App\Http\Routes\TestingRoute::class,
         /** @inject api **/
     ],
     'admin' => [
@@ -136,6 +136,8 @@ return [
     'self_service' => [
         App\Http\Routes\Api\V\SelfRoute::class,
         App\Http\Routes\Api\V\OfficeRoute::class,
+        App\Http\Routes\Api\SlaRoute::class,
+
     ],
 
     'operation' => [

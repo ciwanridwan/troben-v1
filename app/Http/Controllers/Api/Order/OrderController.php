@@ -237,6 +237,17 @@ class OrderController extends Controller
 
         $isWalkin = is_null($package->transporter_type) ? 'walkin' : 'app';
 
+        $driver = null;
+        if (isset($package->deliveries) && count($package->deliveries)) {
+            foreach ($package->deliveries->sortByDesc('created_at') as $d) {
+                if (isset($d->assigned_to) && $d->assigned_to != null) {
+                    $driver = $d->assigned_to;
+                    $driver->partner = $d->partner;
+                    break;
+                }
+            }
+        }
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -257,7 +268,8 @@ class OrderController extends Controller
             'is_multi' => $isMulti,
             'multi_price' => $multiPrices,
             'multi_items' => $multiItems,
-            'is_multi_approve' => $isMultiApprove
+            'is_multi_approve' => $isMultiApprove,
+            'driver' => $driver,
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
