@@ -89,7 +89,7 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        if (! auth()->user()->bankOwner->exists()) {
+        if (! auth()->user()->bankOwner) {
             return (new Response(Response::RC_BAD_REQUEST, ['message' => 'please fill the bank account']))->json();
         }
         $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
