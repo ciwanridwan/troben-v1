@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'longitude' => $this->longitude,
             'is_active' => $this->is_active,
             'avatar' => $this->attachments()->first()->uri ?? null,
+            'is_ho' => $this->is_admin,
         ];
 
         if ($this->resource instanceof User) {
@@ -42,6 +43,11 @@ class UserResource extends JsonResource
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
+            }
+            $data['bankOwner'] = null;
+            if ($this->resource->bankOwner) {
+                $data['bankOwner'] = $this->resource->bankOwner;
+                $data['bankOwner']['bank'] = $this->resource->BankOwner->banks;
             }
 
             $transporters = $this->resource->transporters;

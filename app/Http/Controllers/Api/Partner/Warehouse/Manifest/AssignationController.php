@@ -13,6 +13,8 @@ use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Models\User;
+use App\Services\Chatbox\Chatbox;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,8 +31,25 @@ class AssignationController extends Controller
     {
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
-
         $this->dispatchNow($job);
+        $driverSignIn = User::where('id', $delivery->driver->id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $job->delivery->assigned_to->user_id,
+            'customer_id' => $delivery->packages[0]->customer_id,
+            'package_id' => $job->delivery->packages[0]->id,
+            'product' => 'trawlpack'
+        ];
+
+        try {
+            Chatbox::createDriverChatbox($param);
+        } catch (\Exception $e) {
+            report($e);
+        }
 
         return $this->jsonSuccess();
     }

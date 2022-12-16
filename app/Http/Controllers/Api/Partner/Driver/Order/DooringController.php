@@ -70,6 +70,21 @@ class DooringController extends Controller
     public function finished(Delivery $delivery): JsonResponse
     {
         event(new DriverArrivedAtDooringPoint($delivery));
+        $driverSignIn = User::where('id', $delivery->driver->id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $delivery->driver->id,
+            'customer_id' => $delivery->packages[0]->customer_id
+        ];
+        try {
+            Chatbox::endSessionDriverChatbox($param);
+        } catch (\Exception $th) {
+            report($th);
+        }
 
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
@@ -109,17 +124,6 @@ class DooringController extends Controller
 
         $job = new CheckDeliveredStatus($delivery);
         $this->dispatchNow($job);
-        $driverSignIn = User::where('id', $delivery->driver->id)->first();
-        if ($driverSignIn) {
-            $token = auth('api')->login($driverSignIn);
-        }
-        $param = [
-            'token' => $token ?? null,
-            'type' => 'trawlpack',
-            'participant_id' => $delivery->driver->id,
-            'customer_id' => $delivery->packages[0]->customer_id
-        ];
-        Chatbox::endSessionDriverChatbox($param);
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 

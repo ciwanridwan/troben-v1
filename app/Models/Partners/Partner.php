@@ -89,6 +89,8 @@ class Partner extends Model
     public const AVAIL_OPEN = 'open';
     public const AVAIL_CLOSE = 'close';
 
+    public const PENALTY_PERCENTAGE = 0.025;
+
     /**
      * The table associated with the model.
      *
