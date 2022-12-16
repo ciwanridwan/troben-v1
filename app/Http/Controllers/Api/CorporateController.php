@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
@@ -31,6 +32,9 @@ use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Validator;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 
 class CorporateController extends Controller
 {
@@ -49,6 +53,32 @@ class CorporateController extends Controller
             ->where('availability', 'open')
             ->where('is_show', true)
             ->get();
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function customerList(Request $request): JsonResponse
+    {
+        $phoneNumber =
+            PhoneNumberUtil::getInstance()->format(
+                PhoneNumberUtil::getInstance()->parse($request->phone, 'ID'),
+                PhoneNumberFormat::E164
+            );
+
+        Validator::validate([
+            'phone' => $phoneNumber
+        ], [
+            'phone' => ['required']
+        ]);
+
+        $customer = Customer::select('id', 'name', 'phone')->where('phone', $phoneNumber)->first();
+        throw_if(is_null($customer), Error::make(Response::RC_DATA_NOT_FOUND));
+
+        $result = [
+            'id' => $customer->getKey(),
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+        ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }

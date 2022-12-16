@@ -761,7 +761,7 @@ class PricingCalculator
         $price = ExpressPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
         $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
 
-        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $message));
 
         return $price;
     }
