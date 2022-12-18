@@ -26,7 +26,10 @@ use App\Supports\Geo;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Customers\Customer;
+use App\Models\PackageCorporate;
+use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
+use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Support\Facades\Auth;
@@ -112,58 +115,122 @@ class CorporateController extends Controller
         return PricingCalculator::calculate($payload);
     }
 
-    public function store(Request $request, PartnerRepository $partnerRepository)
+    public function store(Request $request)
     {
-        // $request->validate([
-        //     'items' => ['required'],
-        //     'photos' => ['required'],
-        //     'photos.*' => ['required', 'image', 'max:10240'],
-        //     'order_type' => ['nullable', 'in:bike,other'], // for check condition bike or not
-        // ]);
+        $request->validate([
+            'customer_id' => ['required', 'exists:customers,id'],
+            'service_code' => ['required', 'in:tps,tpx'],
+            'sender_name' => ['required'],
+            'sender_phone' => ['required'],
+            'partner_id' => ['required'],
 
-        // // $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
+            'method_payment' => ['required', 'in:cash,va,top'],
 
-        // $inputs = $request->except('photos');
-        // foreach ($inputs as $key => $value) {
-        //     $inputs[$key] = json_decode($value);
-        // }
+            'receiver_name' => ['required'],
+            'receiver_phone' => ['required'],
+            'receiver_address' => ['required'],
 
-        // $inputs['customer_id'] = Customer::byHash($inputs['customer_hash'])->id;
+            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+        ]);
 
-        // /** @var Partner $partner */
-        // $partner = $partnerRepository->getPartner();
-        // $inputs['sender_address'] = $partner->geo_address;
-        // $inputs['origin_regency_id'] = $partner->geo_regency_id;
-        // $inputs['origin_district_id'] = $partner->geo_district_id;
-        // $inputs['origin_sub_district_id'] = $partner->geo_sub_district_id;
-        // $inputs['sender_way_point'] = $partner->address;
-        // $inputs['sender_latitude'] = $partner->latitude;
-        // $inputs['sender_longitude'] = $partner->longitude;
+        $inputs = $request->except('photos');
 
-        // // add partner code
-        // $inputs['partner_code'] = $partner->code;
-        // $items = json_decode($request->input('items')) ?? [];
+        /** @var Partner $partner */
+        $partner = Partner::find($inputs['partner_id']);
+        $inputs['sender_address'] = $partner->geo_address;
+        $inputs['origin_regency_id'] = $partner->geo_regency_id;
+        $inputs['origin_district_id'] = $partner->geo_district_id;
+        $inputs['origin_sub_district_id'] = $partner->geo_sub_district_id;
+        $inputs['sender_way_point'] = $partner->address;
+        $inputs['sender_latitude'] = $partner->latitude;
+        $inputs['sender_longitude'] = $partner->longitude;
+        $inputs['destination_sub_district_id'] = $inputs['destination_id'];
 
-        // foreach ($items as $key => $item) {
-        //     $items[$key] = (new Collection($item))->toArray();
-        // }
+        // add partner code
+        $inputs['partner_code'] = $partner->code;
+        $inputs['order_type'] = 'other';
+        $items = $request->input('items') ?? [];
 
-        // $job = new CreateWalkinOrder($inputs, $items);
-        // $this->dispatchNow($job);
+        foreach ($items as $key => $item) {
+            $items[$key] = (new Collection($item))->toArray();
+        }
 
-        // $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
-        // $this->dispatchNow($uploadJob);
+        $job = new CreateWalkinOrder($inputs, $items);
+        $this->dispatchNow($job);
 
-        // $job = new AssignFirstPartnerToPackage($job->package, $partner);
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
 
-        // $this->dispatch($job);
+        $job = new AssignFirstPartnerToPackage($job->package, $partner);
+        $this->dispatch($job);
 
-        // $delivery = $job->delivery;
+        $delivery = $job->delivery;
+        event(new DriverUnloadedPackageInWarehouse($delivery));
 
-        // event(new DriverUnloadedPackageInWarehouse($delivery));
+        $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
 
-        // $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
+        $metaCorporate = [
+            'is_multi' => false,
+            'childs_id' => [],
+            'parent_id' => null,
+            'is_child' => false,
+            'is_parent' => false,
+        ];
+        PackageCorporate::create([
+            'package_id' => $job->package->getKey(),
+            'payment_method' => $request->get('payment_method'),
+            'meta' => $metaCorporate,
+        ]);
 
-        // return (new Response(Response::RC_SUCCESS))->json();
+        // if status in cash,top
+        // set auto paid
+        // for va call nicepay
+
+        // checker for multi
+
+        // add paid at corporate
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
+    }
+
+    public function storeMulti(Request $request)
+    {
+        $request->validate([
+            'package_parent_hash' => ['nullable', 'string'],
+            'package_child_hash' => ['nullable', 'array'],
+
+            'package_parent_id' => ['array'],
+            'package_child_id.*' => ['required', 'numeric'],
+        ]);
+
+        $parentPackage = Package::findOrFail($request->package_parent_id);
+        $childPackage = $request->package_child_hash;
+
+        foreach ($request->get('package_child_id') ?? [] as $c) {
+        }
+
+        $childIds = [];
+        for ($i = 0; $i < count($childPackage); $i++) {
+            $childId = Package::hashToId($childPackage[$i]);
+            array_push($childIds, $childId);
+
+            MultiDestination::create([
+                'parent_id' => $parentPackage,
+                'child_id' => $childId
+            ]);
+        }
+        Package::whereIn('id', $childIds)->get()->each(function ($q) {
+            $pickupFee = $q->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
+
+            $q->total_amount -= $pickupFee->amount;
+            $q->save();
+
+            $pickupFee->amount = 0;
+            $pickupFee->save();
+        });
+        return (new Response(Response::RC_CREATED))->json();
     }
 }
