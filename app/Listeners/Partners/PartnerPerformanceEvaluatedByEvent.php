@@ -126,6 +126,8 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof DriverAssignedOfTransit:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
                 if ($this->delivery->partner_performance !== null) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
@@ -141,6 +143,8 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
                 if ($this->delivery->partner_performance !== null) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
