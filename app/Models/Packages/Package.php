@@ -25,6 +25,7 @@ use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CancelOrder;
 use App\Models\FileUpload;
+use App\Models\PackageCorporate;
 use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -830,6 +831,12 @@ class Package extends Model implements AttachableContract
     public function canceled()
     {
         return $this->hasOne(CancelOrder::class, 'package_id');
+    }
+
+    // corporate order
+    public function corporate(): HasOne
+    {
+        return $this->hasOne(PackageCorporate::class, 'package_id', 'id');
     }
 
 
