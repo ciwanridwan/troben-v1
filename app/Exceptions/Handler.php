@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Throwable;
 use App\Http\Response;
+use PDOException;
 use libphonenumber\NumberParseException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
@@ -67,6 +68,17 @@ class Handler extends ExceptionHandler
                 $e = new Error(Response::RC_UNAUTHENTICATED);
             } elseif ($e instanceof NumberParseException) {
                 $e = new Error(Response::RC_INVALID_PHONE_NUMBER);
+            } elseif ($e instanceof PDOException) {
+                if(strstr($e->getMessage(), 'SQLSTATE[')) {
+                    preg_match('/SQLSTATE\[(\w+)\]: (.*)/', $e->getMessage(), $matches);
+                    if (count($matches) >= 3) {
+                        $code = $matches[1];
+                        $message = sprintf('%s: %s', $code, $matches[2]);
+                        $e = new Error(Response::RC_DATABASE_ERROR, ['message' => $message]);
+                    } else if (strpos($e->getMessage(), 'SQLSTATE[08006]') !== false) {
+                        $e = new Error(Response::RC_DATABASE_ERROR);
+                    }
+                }
             } elseif ($e instanceof HttpException) {
                 switch ($e->getStatusCode()) {
                     case LaravelResponse::HTTP_FORBIDDEN:
