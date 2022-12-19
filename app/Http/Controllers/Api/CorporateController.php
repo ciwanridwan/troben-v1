@@ -259,7 +259,7 @@ class CorporateController extends Controller
     {
         $isAdmin = auth()->user()->is_admin;
 
-        $results = Package::query()->whereHas('corporate');
+        $results = Package::query()->with('corporate')->whereHas('corporate');
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
