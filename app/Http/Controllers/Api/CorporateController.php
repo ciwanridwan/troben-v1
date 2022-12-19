@@ -117,29 +117,44 @@ class CorporateController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $isAdmin = auth()->user()->is_admin;
+
+        $rules = [
             'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'in:tps,tpx'],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
-            'partner_id' => ['required'],
+            'partner_code' => ['required'],
 
-            'method_payment' => ['required', 'in:cash,va,top'],
+            'photos' => ['required', 'array'],
+            'photos.*' => ['required', 'image'],
+            'payment_method' => ['required', 'in:va,top,cash'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
 
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
+            // 'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
-        ]);
+        ];
+
+        $request->validate($rules);
 
         $inputs = $request->except('photos');
 
         /** @var Partner $partner */
-        $partner = Partner::find($inputs['partner_id']);
+        if ($isAdmin) {
+            $partner = Partner::where('code', $inputs['partner_code'])->firstOrFail();
+        } else {
+            $partners = auth()->user()->partners;
+            if ($partners->count() == 0) {
+                return (new Response(Response::RC_INVALID_DATA, 'No partner found'))->json();
+            }
+            $partner = $partners->first();
+        }
+
         $inputs['sender_address'] = $partner->geo_address;
         $inputs['origin_regency_id'] = $partner->geo_regency_id;
         $inputs['origin_district_id'] = $partner->geo_district_id;
@@ -152,7 +167,8 @@ class CorporateController extends Controller
         // add partner code
         $inputs['partner_code'] = $partner->code;
         $inputs['order_type'] = 'other';
-        $items = $request->input('items') ?? [];
+        $items = json_decode($request->input('items') ?? [], true);
+        $payment_method = $request->get('payment_method');
 
         foreach ($items as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();
@@ -178,20 +194,25 @@ class CorporateController extends Controller
             'parent_id' => null,
             'is_child' => false,
             'is_parent' => false,
+            'order_from' => $isAdmin ? 'ho' : 'partner'
         ];
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
-            'payment_method' => $request->get('payment_method'),
+            'payment_method' => $payment_method,
             'meta' => $metaCorporate,
         ]);
 
-        // if status in cash,top
-        // set auto paid
-        // for va call nicepay
+        if (in_array($payment_method, ['cash', 'top'])) {
+            $job->package->refresh();
+            $job->package->payment_status = Package::PAYMENT_STATUS_PAID;
+            $job->package->status = Package::STATUS_WAITING_FOR_PACKING;
+            $job->package->save();
+        }
+        if ($payment_method == 'va') {
+            // todo nicepay
+        }
 
         // checker for multi
-
-        // add paid at corporate
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
@@ -232,5 +253,20 @@ class CorporateController extends Controller
             $pickupFee->save();
         });
         return (new Response(Response::RC_CREATED))->json();
+    }
+
+    public function listOrder(Request $request)
+    {
+        $isAdmin = auth()->user()->is_admin;
+
+        $results = Package::query()->whereHas('corporate');
+
+        if (! $isAdmin) {
+            $results = $results->where('created_by', auth()->id());
+        }
+
+        $results = $results->get();
+
+        return (new Response(Response::RC_SUCCESS, $results))->json();
     }
 }
