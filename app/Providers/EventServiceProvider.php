@@ -348,5 +348,9 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(function (PartnerAssigned $event) {
             $event->broadcast();
         });
+
+        Event::listen(function (PayByNicePayDummy $event) {
+            $event->broadcast();
+        });
     }
 }

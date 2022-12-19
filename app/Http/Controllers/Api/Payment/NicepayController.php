@@ -121,7 +121,6 @@ class NicepayController extends Controller
         ];
 
         event(new PayByNicePayDummy($package));
-
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 

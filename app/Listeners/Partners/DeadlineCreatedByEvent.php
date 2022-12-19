@@ -43,7 +43,7 @@ class DeadlineCreatedByEvent
                     'deadline' => $deadline
                 ]);
 
-                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
+                Log::debug('Deadline Payment Has Been Created: ', [$performanceQuery]);
                 break;
             case $event instanceof DriverAssigned:
                 $delivery = $event->delivery;
@@ -70,7 +70,7 @@ class DeadlineCreatedByEvent
                     break;
                 }
 
-                Log::debug('Deadline Delivery Created Listener: ', [$performanceQuery]);
+                Log::debug('Deadline Driver has been assigned and created: ', [$performanceQuery]);
                 break;
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $delivery = $event->delivery;
@@ -117,7 +117,7 @@ class DeadlineCreatedByEvent
                     'status' => 1
                 ]);
 
-                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
+                Log::debug('Deadline Package Created With Dummy Nicepay: ', [$performanceQuery]);
                 break;
             case $event instanceof PackageAlreadyPackedByWarehouse:
                 $package = $event->package;
@@ -132,7 +132,7 @@ class DeadlineCreatedByEvent
                     'status' => 1
                 ]);
 
-                Log::debug('Deadline Package Created Listener: ', [$performanceQuery]);
+                Log::debug('Deadline Created With Warehouse Package: ', [$performanceQuery]);
                 break;
             case $event instanceof DeliveryCreatedWithDeadline:
                 $delivery = $event->delivery;
@@ -154,6 +154,8 @@ class DeadlineCreatedByEvent
                     'level' => 1,
                     'status' => 1
                 ]);
+
+                Log::debug('Deadline Created With Deadline: ', [$performanceDelivery]);
                 break;
             case $event instanceof PartnerAssigned:
                 $delivery = $event->delivery;
@@ -175,6 +177,8 @@ class DeadlineCreatedByEvent
                     'level' => 1,
                     'status' => 1
                 ]);
+
+                Log::debug('Deadline Partner Assigned Created: ', [$performanceDelivery]);
                 break;
             case $event instanceof DriverAssignedOfTransit:
                 $delivery = $event->delivery;
@@ -203,27 +207,30 @@ class DeadlineCreatedByEvent
                         'status' => 1,
                         'reached_at' => null,
                     ]);
+
+                Log::debug('Deadline Driver Assigned Created: ', [$performanceDelivery]);
                 break;
-                case $event instanceof DeliveryDooringCreated:
-                    $delivery = $event->delivery;
-                    $now = Carbon::now();
-                    $firstTime = Carbon::today()->addHours(12);
-                    $endTime = Carbon::today()->addHours(18);
+            case $event instanceof DeliveryDooringCreated:
+                $delivery = $event->delivery;
+                $now = Carbon::now();
+                $firstTime = Carbon::today()->addHours(12);
+                $endTime = Carbon::today()->addHours(18);
 
-                    if ($now < $firstTime) {
-                        break;
-                    }
-
-                    $originPartner = $delivery->origin_partner->id;
-
-                    $performanceDelivery = PartnerDeliveryPerformance::query()->create([
-                        'partner_id' => $originPartner,
-                        'delivery_id' => $delivery->id,
-                        'deadline' => $endTime,
-                        'level' => 1,
-                        'status' => 1
-                    ]);
+                if ($now < $firstTime) {
                     break;
+                }
+
+                $originPartner = $delivery->origin_partner->id;
+
+                $performanceDelivery = PartnerDeliveryPerformance::query()->create([
+                    'partner_id' => $originPartner,
+                    'delivery_id' => $delivery->id,
+                    'deadline' => $endTime,
+                    'level' => 1,
+                    'status' => 1
+                ]);
+                Log::debug('Deadline Delivery Dooring Created: ', [$performanceDelivery]);
+                break;
         }
     }
 }
