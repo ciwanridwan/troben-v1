@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Http\Response;
 use App\Models\Geo\Regency;
 use App\Models\Price;
@@ -38,6 +39,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
+use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
 
 class CorporateController extends Controller
 {
@@ -221,6 +224,66 @@ class CorporateController extends Controller
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
 
+    public function paymentMethod(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+        ]);
+
+        $package = Package::findOrFail($request->package_id);
+
+        $gateway = Gateway::query()
+            ->get([
+                'id',
+                'channel',
+                'name',
+                'is_fixed',
+                'admin_charges'
+            ]);
+
+        $gatewayChoosed = $package
+            ->payments
+            ->where('status', Payment::STATUS_PENDING)
+            ->first();
+        if (! is_null($gatewayChoosed)) {
+            $gateway = $gateway->map(function($r) use ($gatewayChoosed) {
+                $select = false;
+                if ($r->channel == $gatewayChoosed->gateway->channel) {
+                    $select = true;
+                }
+
+                $r->selecteable = $select;
+                return $r;
+            });
+        }
+
+        return (new Response(Response::RC_SUCCESS, $gateway))->json();
+    }
+
+    public function paymentMethodSet(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+            'payment_channel' => ['required'],
+        ]);
+
+        $package = Package::findOrFail($request->package_id);
+
+        $gatewayChoosed = $package
+            ->payments
+            ->where('status', Payment::STATUS_PENDING)
+            ->first();
+        if (! is_null($gatewayChoosed)) {
+            return (new Response(Response::RC_INVALID_DATA, 'Payment pending exist'))->json();
+        }
+
+        $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
+
+        $result = (new CheckPayment($package, $gateway))->vaRegistration();
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
     public function storeMulti(Request $request)
     {
         $request->validate([
@@ -272,5 +335,19 @@ class CorporateController extends Controller
         $results = $results->get();
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
+    }
+
+    public function detailOrder(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+        ]);
+
+        $result = Package::query()
+            ->with('corporate', 'payments')
+            ->whereHas('corporate')
+            ->findOrFail($request->get('package_id'));
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }

@@ -49,9 +49,24 @@ class PartnerRoute extends BaseRoute
             'uses' => $this->uses('store', CorporateController::class),
         ]);
 
+        $this->router->get($this->prefix('/corporate/order/payment'), [
+            'as' => $this->name('corporate.order.payment'),
+            'uses' => $this->uses('paymentMethod', CorporateController::class),
+        ]);
+
+        $this->router->post($this->prefix('/corporate/order/payment'), [
+            'as' => $this->name('corporate.order.payment'),
+            'uses' => $this->uses('paymentMethodSet', CorporateController::class),
+        ]);
+
         $this->router->get($this->prefix('/corporate/order-list'), [
             'as' => $this->name('corporate.order-list'),
             'uses' => $this->uses('listOrder', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order-detail'), [
+            'as' => $this->name('corporate.order-detail'),
+            'uses' => $this->uses('detailOrder', CorporateController::class),
         ]);
 
         $this->router->get($this->prefix('/nearby'), [
