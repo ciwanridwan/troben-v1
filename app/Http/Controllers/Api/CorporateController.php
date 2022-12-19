@@ -165,7 +165,7 @@ class CorporateController extends Controller
         $inputs['sender_way_point'] = $partner->address;
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
-        $inputs['destination_sub_district_id'] = $inputs['destination_id'];
+        $inputs['destination_id'] = $inputs['destination_sub_district_id'];
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
