@@ -124,7 +124,6 @@ class CorporateController extends Controller
             'service_code' => ['required', 'in:tps,tpx'],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
-            'partner_code' => ['required'],
 
             'photos' => ['required', 'array'],
             'photos.*' => ['required', 'image'],
@@ -139,6 +138,10 @@ class CorporateController extends Controller
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ];
+
+        if ($isAdmin) {
+            $rules['partner_code'] = ['required'];
+        }
 
         $request->validate($rules);
 
