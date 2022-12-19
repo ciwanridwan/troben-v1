@@ -40,13 +40,18 @@ class PartnerRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('/corporate/customer'), [
-            'as' => $this->name('corporate'),
+            'as' => $this->name('corporate.customer'),
             'uses' => $this->uses('customerList', CorporateController::class),
         ]);
 
         $this->router->post($this->prefix('/corporate/order'), [
-            'as' => $this->name('corporate'),
+            'as' => $this->name('corporate.order'),
             'uses' => $this->uses('store', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order-list'), [
+            'as' => $this->name('corporate.order-list'),
+            'uses' => $this->uses('listOrder', CorporateController::class),
         ]);
 
         $this->router->get($this->prefix('/nearby'), [
