@@ -16,6 +16,12 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $roles = [];
+        $partnerId = null;
+        if ($this->is_admin) {
+            $roles[] = 'ho-admin';
+        }
+
         /** @var \App\Models\User|\App\Models\Customers\Customer $this */
         $data = [
             'hash' => (string) $this->id,
@@ -37,12 +43,17 @@ class UserResource extends JsonResource
             $partners = $this->resource->partners;
             // dd($partners);
 
+            foreach ($partners as $p) {
+                $roles[] = sprintf('partner-%s', $p->pivot->role);
+            }
+
             $data['partner'] = null;
             if ($partners->count() > 0) {
                 $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address',  'latitude',  'longitude']);
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
+                $partnerId = $partners->first()->id;
             }
             $data['bankOwner'] = null;
             if ($this->resource->bankOwner) {
@@ -57,6 +68,9 @@ class UserResource extends JsonResource
                 $data['vehicle'] = $transporters->first()->only(['type', 'registration_name', 'registration_number', 'registration_year']);
             }
         }
+
+        $data['roles'] = $roles;
+        $data['partner_id'] = $partnerId;
 
         return $data;
     }

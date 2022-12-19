@@ -14,7 +14,11 @@ class SlaLevel
         foreach ($types as $t) {
             foreach ($levels as $l) {
                 try {
+                    // select semua delivery id yg due date
+
                     DB::statement(self::query($t, $l));
+
+                    // loop and blast ke masing2 user, berdasarkan
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);

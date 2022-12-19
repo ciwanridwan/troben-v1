@@ -118,6 +118,10 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
+        if (! isset($this->attributes['receipt'])) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
         $query = $this->detailDisbursment($result);
         $packages = collect(DB::select($query));
 

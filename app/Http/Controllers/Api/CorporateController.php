@@ -124,7 +124,6 @@ class CorporateController extends Controller
             'service_code' => ['required', 'in:tps,tpx'],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
-            'partner_code' => ['required'],
 
             'photos' => ['required', 'array'],
             'photos.*' => ['required', 'image'],
@@ -139,6 +138,10 @@ class CorporateController extends Controller
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ];
+
+        if ($isAdmin) {
+            $rules['partner_code'] = ['required'];
+        }
 
         $request->validate($rules);
 
@@ -162,7 +165,7 @@ class CorporateController extends Controller
         $inputs['sender_way_point'] = $partner->address;
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
-        $inputs['destination_sub_district_id'] = $inputs['destination_id'];
+        $inputs['destination_id'] = $inputs['destination_sub_district_id'];
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
@@ -259,7 +262,7 @@ class CorporateController extends Controller
     {
         $isAdmin = auth()->user()->is_admin;
 
-        $results = Package::query()->whereHas('corporate');
+        $results = Package::query()->with('corporate')->whereHas('corporate');
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
