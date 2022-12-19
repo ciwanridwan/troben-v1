@@ -144,6 +144,7 @@ class PartnerPerformanceEvaluatedByEvent
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
+                $this->package = $event->package;
 
                 if ($this->delivery->partner_performance !== null) {
                     $deadline = $this->delivery->partner_performance->deadline;
