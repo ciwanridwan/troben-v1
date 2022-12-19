@@ -125,6 +125,7 @@ class CorporateController extends Controller
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
 
+            'items' => ['required'],
             'photos' => ['required', 'array'],
             'photos.*' => ['required', 'image'],
             'payment_method' => ['required', 'in:va,top,cash'],
@@ -170,10 +171,10 @@ class CorporateController extends Controller
         // add partner code
         $inputs['partner_code'] = $partner->code;
         $inputs['order_type'] = 'other';
-        $items = json_decode($request->input('items') ?? [], true);
+        $items = json_decode($request->input('items') , true);
         $payment_method = $request->get('payment_method');
 
-        foreach ($items as $key => $item) {
+        foreach ($items??[] as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();
         }
 
