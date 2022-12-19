@@ -79,7 +79,7 @@ class PartnerPerformanceEvaluatedByEvent
                         $level = $this->package->partner_performance->level;
 
                         if ($this->reach_at > $deadline && $level === 3) {
-                            $this->setPenaltyIncome($this->package);
+                            $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
                         }
 
                         $this
@@ -103,7 +103,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -119,7 +119,7 @@ class PartnerPerformanceEvaluatedByEvent
                 $level = $this->package->partner_performance->level;
 
                 if ($this->reach_at > $deadline && $level === 3) {
-                    $this->setPenaltyIncome($this->package);
+                    $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
                 }
 
                 $this->setPerformance($this->package->partner_performance)->updatePerformance();
@@ -133,7 +133,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package);
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -151,7 +151,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package);
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -168,7 +168,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -231,19 +231,17 @@ class PartnerPerformanceEvaluatedByEvent
     }
 
 
-    protected function setPenaltyIncome($type): void
+    protected function setPenaltyIncome($type, $partnerId): void
     {
         switch (true) {
             case $type instanceof Package:
                 $this->package = $type;
-                $partnerId = $this->package->partner_performance->partner_id;
 
                 $this->createHistory($this->package, $partnerId);
                 break;
             case $type instanceof Delivery:
                 $this->delivery = $type;
                 $packages = $this->delivery->packages;
-                $partnerId = $this->delivery->partner_performance->partner_id;
 
                 foreach ($packages as $package) {
                     $this->package = $package;
