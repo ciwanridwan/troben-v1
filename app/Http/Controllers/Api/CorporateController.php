@@ -249,12 +249,11 @@ class CorporateController extends Controller
             ->payments
             ->where('status', Payment::STATUS_PENDING)
             ->first();
-        if (! is_null($gatewayChoosed)) {
             $gateway = $gateway->filter(function($r) {
                 return $r->type == 'va';
             })->values()->map(function($r) use ($gatewayChoosed, $picture) {
                 $select = false;
-                if ($r->channel == $gatewayChoosed->gateway->channel) {
+                if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
                     $select = true;
                 }
 
@@ -268,7 +267,6 @@ class CorporateController extends Controller
                 $r->selecteable = $select;
                 return $r;
             });
-        }
 
         return (new Response(Response::RC_SUCCESS, $gateway))->json();
     }
