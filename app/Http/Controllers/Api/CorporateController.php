@@ -343,7 +343,26 @@ class CorporateController extends Controller
             $results = $results->where('created_by', auth()->id());
         }
 
-        $results = $results->get();
+        $results = $results->paginate(request('per_page', 15));
+
+        return (new Response(Response::RC_SUCCESS, $results))->json();
+    }
+
+    public function countOrder(Request $request)
+    {
+        $isAdmin = auth()->user()->is_admin;
+
+        $query = Package::query()->whereHas('corporate');
+
+        if (! $isAdmin) {
+            $query = $query->where('created_by', auth()->id());
+        }
+
+        $count = $query->count();
+
+        $results = [
+            'total' => $count,
+        ];
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
