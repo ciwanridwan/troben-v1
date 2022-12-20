@@ -125,7 +125,6 @@ class CorporateController extends Controller
         $isAdmin = auth()->user()->is_admin;
 
         $rules = [
-            'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'in:tps,tpx'],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
@@ -144,6 +143,15 @@ class CorporateController extends Controller
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ];
+
+        if (! is_null($request->get('customer_id'))) {
+            $rules['customer_id'] = ['required', 'exists:customers,id'];
+            $hasCustomerAcc = true;
+        } else {
+            $rules['customer_name'] = ['required'];
+            $rules['customer_phone'] = ['required', 'numeric'];
+            $hasCustomerAcc = false;
+        }
 
         if ($isAdmin) {
             $rules['partner_code'] = ['required'];
@@ -172,6 +180,9 @@ class CorporateController extends Controller
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
         $inputs['destination_id'] = $inputs['destination_sub_district_id'];
+        if(!$hasCustomerAcc) {
+            $inputs['customer_id'] = 0;
+        }
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
@@ -197,13 +208,21 @@ class CorporateController extends Controller
 
         $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
 
+        $customer = [];
+        foreach (['customer_id', 'customer_name', 'customer_phone'] as $k) {
+            if (isset($inputs[$k])) {
+                $customer[$k] = $inputs[$k];
+            }
+        }
+
         $metaCorporate = [
             'is_multi' => false,
             'childs_id' => [],
             'parent_id' => null,
             'is_child' => false,
             'is_parent' => false,
-            'order_from' => $isAdmin ? 'ho' : 'partner'
+            'order_from' => $isAdmin ? 'ho' : 'partner',
+            'customer' => $customer,
         ];
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
