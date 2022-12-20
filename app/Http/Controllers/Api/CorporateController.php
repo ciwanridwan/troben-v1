@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Http\Response;
 use App\Models\Geo\Regency;
 use App\Models\Price;
@@ -38,6 +39,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
+use App\Models\Payments\Gateway;
+use App\Models\Payments\Payment;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class CorporateController extends Controller
 {
@@ -49,7 +54,7 @@ class CorporateController extends Controller
 
         $q = $request->get('q');
         $result = Partner::query()
-            ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id')
+            ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id', 'code')
             ->where('name', 'ILIKE', '%' . $q . '%')
             ->where('type', Partner::TYPE_BUSINESS)
             ->whereNotNull(['latitude', 'longitude'])
@@ -125,6 +130,7 @@ class CorporateController extends Controller
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
 
+            'items' => ['required'],
             'photos' => ['required', 'array'],
             'photos.*' => ['required', 'image'],
             'payment_method' => ['required', 'in:va,top,cash'],
@@ -165,15 +171,15 @@ class CorporateController extends Controller
         $inputs['sender_way_point'] = $partner->address;
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
-        $inputs['destination_sub_district_id'] = $inputs['destination_id'];
+        $inputs['destination_id'] = $inputs['destination_sub_district_id'];
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
         $inputs['order_type'] = 'other';
-        $items = json_decode($request->input('items') ?? [], true);
+        $items = json_decode($request->input('items') , true);
         $payment_method = $request->get('payment_method');
 
-        foreach ($items as $key => $item) {
+        foreach ($items??[] as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();
         }
 
@@ -218,6 +224,77 @@ class CorporateController extends Controller
         // checker for multi
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
+    }
+
+    public function paymentMethod(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+        ]);
+
+        $package = Package::findOrFail($request->package_id);
+
+        $gateway = Gateway::query()
+            ->get([
+                'id',
+                'channel',
+                'name',
+                'is_fixed',
+                'admin_charges'
+            ]);
+
+        $picture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
+
+        $gatewayChoosed = $package
+            ->payments
+            ->where('status', Payment::STATUS_PENDING)
+            ->first();
+        if (! is_null($gatewayChoosed)) {
+            $gateway = $gateway->filter(function($r) {
+                return $r->type == 'va';
+            })->values()->map(function($r) use ($gatewayChoosed, $picture) {
+                $select = false;
+                if ($r->channel == $gatewayChoosed->gateway->channel) {
+                    $select = true;
+                }
+
+                $bankPicture = $picture;
+                $filePath = sprintf('asset/bank/%s.png', $r->bank);
+                if (Storage::disk('s3')->exists($filePath)) {
+                    $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
+                }
+
+                $r->picture = $bankPicture;
+                $r->selecteable = $select;
+                return $r;
+            });
+        }
+
+        return (new Response(Response::RC_SUCCESS, $gateway))->json();
+    }
+
+    public function paymentMethodSet(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+            'payment_channel' => ['required'],
+        ]);
+
+        $package = Package::findOrFail($request->package_id);
+
+        $gatewayChoosed = $package
+            ->payments
+            ->where('status', Payment::STATUS_PENDING)
+            ->first();
+        if (! is_null($gatewayChoosed)) {
+            return (new Response(Response::RC_INVALID_DATA, 'Payment pending exist'))->json();
+        }
+
+        $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
+
+        $result = (new CheckPayment($package, $gateway))->vaRegistration();
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 
     public function storeMulti(Request $request)
@@ -271,5 +348,19 @@ class CorporateController extends Controller
         $results = $results->get();
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
+    }
+
+    public function detailOrder(Request $request)
+    {
+        $request->validate([
+            'package_id' => ['required', 'numeric'],
+        ]);
+
+        $result = Package::query()
+            ->with('corporate', 'payments')
+            ->whereHas('corporate')
+            ->findOrFail($request->get('package_id'));
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }

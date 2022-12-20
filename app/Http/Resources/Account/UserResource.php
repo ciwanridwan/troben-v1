@@ -17,6 +17,7 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         $roles = [];
+        $partnerId = null;
         if ($this->is_admin) {
             $roles[] = 'ho-admin';
         }
@@ -52,6 +53,7 @@ class UserResource extends JsonResource
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
+                $partnerId = $partners->first()->id;
             }
             $data['bankOwner'] = null;
             if ($this->resource->bankOwner) {
@@ -68,6 +70,7 @@ class UserResource extends JsonResource
         }
 
         $data['roles'] = $roles;
+        $data['partner_id'] = $partnerId;
 
         return $data;
     }
