@@ -361,6 +361,29 @@ class CorporateController extends Controller
             ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
 
+        $payment = null;
+        if ($result->payments->count()) {
+            $payment = $result->payments->sortByDesc('id')->first();
+            $bank = null;
+            if (! is_null($payment->gateway)) {
+
+                $bankPicture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
+                $filePath = sprintf('asset/bank/%s.png', $payment->gateway->bank);
+                if (Storage::disk('s3')->exists($filePath)) {
+                    $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
+                }
+                        
+                $bank = [
+                    'name' => $payment->gateway->bank,
+                    'picture' => $bankPicture,
+                ];
+            }
+            $payment->bank = $bank;
+            unset($payment->gateway);
+        }
+        $result->payment = $payment;
+        unset($result->payments);
+
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }
