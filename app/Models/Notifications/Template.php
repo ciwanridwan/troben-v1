@@ -27,6 +27,12 @@ class Template extends Model
     public const TYPE_CUSTOMER_HAS_PAID = 'customer_has_paid';
     public const TYPE_PARTNER_BALANCE_UPDATED = 'partner_balance_updated';
     public const TYPE_CS_GET_NEW_ORDER = 'cs_get_new_order';
+    public const TYPE_DRIVER_GET_ALERT_ONE_LEVEL = 'driver_get_alert_one_level';
+    public const TYPE_WAREHOUSE_START_PACKING = 'warehouse_should_packing';
+    public const TYPE_OWNER_SHOULD_TAKE_PACKAGE = 'owner_should_take_package';
+    public const TYPE_WAREHOUSE_GOOD_RECEIVE = 'warehouse_good_receive';
+    public const TYPE_WAREHOUSE_REQUEST_TRANSPORTER = 'warehouse_request_transporter';
+    public const TYPE_DRIVER_DOORING_TO_RECEIVER = 'driver_dooring_to_receiver';
 
     protected $table = 'notification_templates';
 

@@ -2,9 +2,12 @@
 
 namespace App\Events\Deliveries;
 
+use App\Broadcasting\User\PrivateChannel as UserPrivateChannel;
 use App\Models\Deliveries\Delivery;
+use App\Models\Notifications\Template;
+use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,6 +17,10 @@ class DeliveryCreatedWithDeadline
 
     public Delivery $delivery;
 
+    public Template $notification;
+
+    public User $user;
+
     /**
      * Create a new event instance.
      *
@@ -22,15 +29,22 @@ class DeliveryCreatedWithDeadline
     public function __construct(Delivery $delivery)
     {
         $this->delivery = $delivery;
+
+        $this->notification = Template::where('type', Template::TYPE_WAREHOUSE_REQUEST_TRANSPORTER)->first();
+
+        $this->user = $this->delivery->origin_partner->users()->wherePivotIn('role', [UserablePivot::ROLE_WAREHOUSE])->get();
     }
 
     /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * Broadcast To Warehouse.
      */
-    public function broadcastOn()
+    public function broadcast(): void
     {
-        return new PrivateChannel('channel-name');
+        $delivery = $this->delivery;
+        $notification = $this->notification;
+
+        $this->user->each(function ($q) use ($notification, $delivery) {
+            new UserPrivateChannel($q, $notification, ['package_code' => $delivery->code->content]);
+        });
     }
 }

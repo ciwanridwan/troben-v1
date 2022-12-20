@@ -43,6 +43,7 @@ use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Events\Deliveries\DeliveryCreated;
 use App\Events\Deliveries\DeliveryCreatedWithDeadline;
 use App\Events\Deliveries\DeliveryDooringCreated;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
@@ -58,6 +59,8 @@ use App\Events\Deliveries\DriverAssigned;
 use App\Events\Deliveries\DriverAssignedDooring;
 use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Deliveries\PartnerAssigned as DeliveriesPartnerAssigned;
+use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
@@ -344,8 +347,35 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         // Package::observe(CodeObserver::class);
+        Event::listen(function (PartnerAssigned $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (PayByNicePayDummy $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverAssignedOfTransit $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DeliveriesPartnerAssigned $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverUnloadedPackageInDestinationWarehouse $event) {
+            $event->broadcast();
+        });
 
         Event::listen(function (PartnerAssigned $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DeliveryCreatedWithDeadline $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverAssignedDooring $event) {
             $event->broadcast();
         });
     }
