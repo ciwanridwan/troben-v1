@@ -52,7 +52,7 @@ class CorporateController extends Controller
 
         $q = $request->get('q');
         $result = Partner::query()
-            ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id')
+            ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id', 'code')
             ->where('name', 'ILIKE', '%' . $q . '%')
             ->where('type', Partner::TYPE_BUSINESS)
             ->whereNotNull(['latitude', 'longitude'])
