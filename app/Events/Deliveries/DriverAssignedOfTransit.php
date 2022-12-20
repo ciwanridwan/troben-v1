@@ -47,13 +47,10 @@ class DriverAssignedOfTransit
     }
 
     /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return UserPrivateChannel
+     * Broadcast to driver.
      */
-    public function broadcastOn()
+    public function broadcast(): void
     {
-        // return new PrivateChannel('channel-name');
-        return new UserPrivateChannel($this->user, $this->notification, ['package_code' => $this->delivery->code->content]);
+        new UserPrivateChannel($this->user, $this->notification, ['package_code' => $this->delivery->code->content]);
     }
 }

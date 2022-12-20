@@ -48,14 +48,11 @@ class PayByNicePayDummy
      * Broadcast To Owner And Warehouse
      */
     public function broadcast(): void
-    // public function broadcastOn(): void
     {
         $package = $this->package;
-        // dd($this->package);
         $notification = $this->notification;
 
         $this->user->each(function ($q) use ($package, $notification) {
-            // Log::info('ddd',[$package->getKey()]);
             new UserPrivateChannel($q, $notification, ['package_code' => $package->code->content]);
         });
     }
