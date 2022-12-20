@@ -6,10 +6,10 @@ use App\Broadcasting\User\PrivateChannel as UserPrivateChannel;
 use App\Models\Deliveries\Delivery;
 use App\Models\Notifications\Template;
 use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class DeliveryCreatedWithDeadline
 {
@@ -19,7 +19,7 @@ class DeliveryCreatedWithDeadline
 
     public Template $notification;
 
-    public User $user;
+    public Collection $user;
 
     /**
      * Create a new event instance.
