@@ -41,7 +41,6 @@ class DriverAssignedDooring
         $this->delivery = $delivery;
         $this->transporter = $userablePivot->userable;
         $this->user = $userablePivot->user;
-        dd($userablePivot);
 
         $this->notification = Template::where('type', Template::TYPE_DRIVER_DOORING_TO_RECEIVER)->first();
     }
