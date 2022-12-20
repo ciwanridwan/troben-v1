@@ -64,6 +64,11 @@ class PartnerRoute extends BaseRoute
             'uses' => $this->uses('listOrder', CorporateController::class),
         ]);
 
+        $this->router->get($this->prefix('/corporate/order-count'), [
+            'as' => $this->name('corporate.order-count'),
+            'uses' => $this->uses('countOrder', CorporateController::class),
+        ]);
+
         $this->router->get($this->prefix('/corporate/order-detail'), [
             'as' => $this->name('corporate.order-detail'),
             'uses' => $this->uses('detailOrder', CorporateController::class),

@@ -125,7 +125,6 @@ class CorporateController extends Controller
         $isAdmin = auth()->user()->is_admin;
 
         $rules = [
-            'customer_id' => ['required', 'exists:customers,id'],
             'service_code' => ['required', 'in:tps,tpx'],
             'sender_name' => ['required'],
             'sender_phone' => ['required'],
@@ -144,6 +143,15 @@ class CorporateController extends Controller
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
         ];
+
+        if (! is_null($request->get('customer_id'))) {
+            $rules['customer_id'] = ['required', 'exists:customers,id'];
+            $hasCustomerAcc = true;
+        } else {
+            $rules['customer_name'] = ['required'];
+            $rules['customer_phone'] = ['required', 'numeric'];
+            $hasCustomerAcc = false;
+        }
 
         if ($isAdmin) {
             $rules['partner_code'] = ['required'];
@@ -172,6 +180,9 @@ class CorporateController extends Controller
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
         $inputs['destination_id'] = $inputs['destination_sub_district_id'];
+        if(!$hasCustomerAcc) {
+            $inputs['customer_id'] = 0;
+        }
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
@@ -197,13 +208,21 @@ class CorporateController extends Controller
 
         $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
 
+        $customer = [];
+        foreach (['customer_id', 'customer_name', 'customer_phone'] as $k) {
+            if (isset($inputs[$k])) {
+                $customer[$k] = $inputs[$k];
+            }
+        }
+
         $metaCorporate = [
             'is_multi' => false,
             'childs_id' => [],
             'parent_id' => null,
             'is_child' => false,
             'is_parent' => false,
-            'order_from' => $isAdmin ? 'ho' : 'partner'
+            'order_from' => $isAdmin ? 'ho' : 'partner',
+            'customer' => $customer,
         ];
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
@@ -249,12 +268,11 @@ class CorporateController extends Controller
             ->payments
             ->where('status', Payment::STATUS_PENDING)
             ->first();
-        if (! is_null($gatewayChoosed)) {
             $gateway = $gateway->filter(function($r) {
                 return $r->type == 'va';
             })->values()->map(function($r) use ($gatewayChoosed, $picture) {
                 $select = false;
-                if ($r->channel == $gatewayChoosed->gateway->channel) {
+                if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
                     $select = true;
                 }
 
@@ -268,7 +286,6 @@ class CorporateController extends Controller
                 $r->selecteable = $select;
                 return $r;
             });
-        }
 
         return (new Response(Response::RC_SUCCESS, $gateway))->json();
     }
@@ -339,13 +356,36 @@ class CorporateController extends Controller
     {
         $isAdmin = auth()->user()->is_admin;
 
-        $results = Package::query()->with('corporate')->whereHas('corporate');
+        $results = Package::query()->with([
+            'corporate',
+            'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
+            'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
+        ])->whereHas('corporate');
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
         }
 
-        $results = $results->get();
+        $results = $results->paginate(request('per_page', 15));
+
+        return (new Response(Response::RC_SUCCESS, $results))->json();
+    }
+
+    public function countOrder(Request $request)
+    {
+        $isAdmin = auth()->user()->is_admin;
+
+        $query = Package::query()->whereHas('corporate');
+
+        if (! $isAdmin) {
+            $query = $query->where('created_by', auth()->id());
+        }
+
+        $count = $query->count();
+
+        $results = [
+            'total' => $count,
+        ];
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
@@ -360,6 +400,29 @@ class CorporateController extends Controller
             ->with('corporate', 'payments')
             ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
+
+        $payment = null;
+        if ($result->payments->count()) {
+            $payment = $result->payments->sortByDesc('id')->first();
+            $bank = null;
+            if (! is_null($payment->gateway)) {
+
+                $bankPicture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
+                $filePath = sprintf('asset/bank/%s.png', $payment->gateway->bank);
+                if (Storage::disk('s3')->exists($filePath)) {
+                    $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
+                }
+                        
+                $bank = [
+                    'name' => $payment->gateway->bank,
+                    'picture' => $bankPicture,
+                ];
+            }
+            $payment->bank = $bank;
+            unset($payment->gateway);
+        }
+        $result->payment = $payment;
+        unset($result->payments);
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
