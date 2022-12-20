@@ -41,6 +41,8 @@ use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class CorporateController extends Controller
 {
@@ -241,17 +243,28 @@ class CorporateController extends Controller
                 'admin_charges'
             ]);
 
+        $picture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
+
         $gatewayChoosed = $package
             ->payments
             ->where('status', Payment::STATUS_PENDING)
             ->first();
         if (! is_null($gatewayChoosed)) {
-            $gateway = $gateway->map(function($r) use ($gatewayChoosed) {
+            $gateway = $gateway->filter(function($r) {
+                return $r->type == 'va';
+            })->values()->map(function($r) use ($gatewayChoosed, $picture) {
                 $select = false;
                 if ($r->channel == $gatewayChoosed->gateway->channel) {
                     $select = true;
                 }
 
+                $bankPicture = $picture;
+                $filePath = sprintf('asset/bank/%s.png', $r->bank);
+                if (Storage::disk('s3')->exists($filePath)) {
+                    $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
+                }
+
+                $r->picture = $bankPicture;
                 $r->selecteable = $select;
                 return $r;
             });
