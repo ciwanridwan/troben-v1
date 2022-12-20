@@ -33,6 +33,27 @@ class Template extends Model
     public const TYPE_WAREHOUSE_GOOD_RECEIVE = 'warehouse_good_receive';
     public const TYPE_WAREHOUSE_REQUEST_TRANSPORTER = 'warehouse_request_transporter';
     public const TYPE_DRIVER_DOORING_TO_RECEIVER = 'driver_dooring_to_receiver';
+    // dooring level 2 and 3
+    public const TYPE_TIME_LIMIT_HAS_PASSED = 'time_limit_has_passed'; // push notif level 3
+    public const TYPE_DRIVER_IMMEDIATELY_DELIVERY_OF_ITEM = 'driver_immediately_delivery_of_item'; // push notif level 2
+
+    // warehouse level 2 and 3 on good receive
+    public const TYPE_WAREHOUSE_IMMEDIATELY_GOOD_RECEIVE = 'warehouse_immediately_good_receive'; // push notif level 2
+    public const TYPE_WAREHOUSE_TIME_LIMIT_HAS_PASSED = 'warehouse_time_limit_has_passed'; // push notif level 3
+
+    // warehouse after good receive
+    public const TYPE_WAREHOUSE_IMMEDIATELY_REQUEST_TRANSPORTER = 'warehouse_immediately_request_transporter'; // push notif level 2
+
+    //driver of mtak
+    public const TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE = 'driver_immediately_delivery_to_warehouse'; // push notif level 3
+
+    // mtak owner
+    public const TYPE_OWNER_IMMEDIATELY_TAKE_ITEM = 'owner_immediately_take_item'; // push notif level 2
+
+    // driver of mb
+    public const TYPE_DRIVER_SHOULD_DELIVERY_TO_WAREHOUSE = 'driver_should_delivery_to_warehouse'; // push notif level 2
+
+
 
     protected $table = 'notification_templates';
 
