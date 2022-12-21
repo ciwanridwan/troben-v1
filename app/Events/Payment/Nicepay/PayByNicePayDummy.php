@@ -40,7 +40,6 @@ class PayByNicePayDummy
         $this->package = $package;
 
         $this->notification = Template::where('type', Template::TYPE_WAREHOUSE_START_PACKING)->first();
-// dd('sa');
         $this->user = $this->package->deliveries->first()->partner->users()->wherePivotIn('role', [UserablePivot::ROLE_WAREHOUSE, UserablePivot::ROLE_OWNER])->get();
     }
 

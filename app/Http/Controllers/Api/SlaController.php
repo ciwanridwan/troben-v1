@@ -13,49 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class SlaController extends Controller
 {
-    /**
-     * This is function to test
-     * Run a a schedule command from here
-     */
-    public function testAlert()
-    {
-        // Artisan::call('sche')
-    }
-
-    /** Set fine (denda) to income partner */
-    public function incomePenalty()
-    {
-        $data = collect(DB::select($this->commisionOfSla()));
-        $penalty = $data->map(function ($q) {
-            $incomeMb = 0;
-            $incomeMtak = 0;
-            if ($q->type === Partner::TYPE_BUSINESS) {
-                $incomeMb = $q->service_fee * Partner::PENALTY_PERCENTAGE;
-                $q->income_penalty = $incomeMb;
-            } elseif ($q->type === Partner::TYPE_TRANSPORTER) {
-                $incomeMtak = $q->service_fee * Partner::PENALTY_PERCENTAGE;
-                $q->income_penalty = $incomeMtak;
-            } else {
-                $q->income_penalty = 0;
-            }
-            return $q;
-        });
-
-        $setIncome = $penalty->each(function ($q) {
-            History::create([
-                'partner_id' => $q->partner_id,
-                'package_id' => $q->package_id,
-                'balance' => $q->income_penalty,
-                'type' => History::TYPE_PENALTY,
-                'description' => History::DESCRIPTION_LATENESS
-            ]);
-        })->toArray();
-
-        Log::info('Updated balance histories on set penalty income trigger by sla', $setIncome);
-
-        return (new Response(Response::RC_SUCCESS))->json();
-    }
-
     /** Set alert level of SLA */
     public function setAlert()
     {
