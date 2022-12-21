@@ -64,7 +64,8 @@ class DeadlineCreatedByEvent
                         'delivery_id' => $delivery->id,
                         'deadline' => $deadline,
                         'level' => 1,
-                        'status' => PerformanceModel::STATUS_ON_PROCESS
+                        'status' => PerformanceModel::STATUS_ON_PROCESS,
+                        'type' => PartnerDeliveryPerformance::TYPE_MB_DRIVER_TO_TRANSIT
                     ]);
                 } else {
                     break;
@@ -77,7 +78,7 @@ class DeadlineCreatedByEvent
                 $partnerDestination = $delivery->partner;
 
                 $now = Carbon::now();
-                $endtime = Carbon::today()->addHours(18);
+                $endTime = Carbon::today()->addHours(18);
                 // temporary hold firstime
                 // $firstTime = Carbon::today()->addHours(12);
 
@@ -87,7 +88,13 @@ class DeadlineCreatedByEvent
                     break;
                 }
 
-                $deadline = $now < $endtime ? $endtime : null;
+                $deadline = $now < $endTime ? $endTime : null;
+
+                if ($now > $endTime) {
+                    Log::info("Deadline not create because outside the specified time");
+                    break;
+                }
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
 
                 if (!$performanceDelivery || is_null($performanceDelivery)) {
@@ -96,6 +103,7 @@ class DeadlineCreatedByEvent
                         'delivery_id' => $delivery->id,
                         'deadline' => $deadline,
                         'level' => 1,
+                        'type' => PartnerDeliveryPerformance::TYPE_MPW_WAREHOUSE_GOOD_RECEIVE
                     ]);
                 } else {
                     break;
@@ -114,7 +122,8 @@ class DeadlineCreatedByEvent
                     'package_id' => $package->id,
                     'deadline' => $deadline,
                     'level' => 0,
-                    'status' => 1
+                    'status' => 1,
+                    'type' => PartnerDeliveryPerformance::TYPE_MB_WAREHOUSE_PACKING
                 ]);
 
                 Log::debug('Deadline Package Created With Dummy Nicepay: ', [$performanceQuery]);
@@ -129,7 +138,8 @@ class DeadlineCreatedByEvent
                     'package_id' => $package->id,
                     'deadline' => $deadline,
                     'level' => 1,
-                    'status' => 1
+                    'status' => 1,
+                    'type' => PartnerDeliveryPerformance::TYPE_MB_WAREHOUSE_PACKING
                 ]);
 
                 Log::debug('Deadline Created With Warehouse Package: ', [$performanceQuery]);
@@ -147,12 +157,18 @@ class DeadlineCreatedByEvent
                 $originPartner = $delivery->origin_partner;
                 $deadline = $now < $endTime ? $endTime : null;
 
+                if ($now > $endTime) {
+                    Log::info("Deadline not create because outside the specified time");
+                    break;
+                }
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->create([
                     'partner_id' => $originPartner->id,
                     'delivery_id' => $delivery->id,
                     'deadline' => $deadline,
                     'level' => 1,
-                    'status' => 1
+                    'status' => 1,
+                    'type' => PartnerDeliveryPerformance::TYPE_MPW_WAREHOUSE_REQUEST_TRANSPORTER
                 ]);
 
                 Log::debug('Deadline Created With Deadline: ', [$performanceDelivery]);
@@ -164,18 +180,25 @@ class DeadlineCreatedByEvent
                 $firstTime = Carbon::today()->addHours(12);
                 $endTime = Carbon::today()->addHours(18);
                 if ($now < $firstTime) {
+                    Log::info("Deadline not create because outside the specified time");
                     break;
                 }
 
                 $partnerTransporter = $delivery->assigned_to->userable;
                 $deadline = $now < $endTime ? $endTime : null;
 
+                if ($now > $endTime) {
+                    Log::info("Deadline not create because outside the specified time");
+                    break;
+                }
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->create([
                     'partner_id' => $partnerTransporter->id,
                     'delivery_id' => $delivery->id,
                     'deadline' => $deadline,
                     'level' => 1,
-                    'status' => 1
+                    'status' => 1,
+                    'type' => PartnerDeliveryPerformance::TYPE_MTAK_OWNER_TO_DRIVER
                 ]);
 
                 Log::debug('Deadline Partner Assigned Created: ', [$performanceDelivery]);
@@ -200,6 +223,7 @@ class DeadlineCreatedByEvent
                     break;
                 }
 
+                // dd($delivery->transporter->partner_id);
                 $deadline = $now < $endTime ? $endTime : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $delivery->transporter->partner_id)
                     ->where('delivery_id', $delivery->id)->whereNotNull('reached_at')->update([

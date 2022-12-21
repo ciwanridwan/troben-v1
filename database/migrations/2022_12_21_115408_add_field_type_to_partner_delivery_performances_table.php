@@ -23,11 +23,11 @@ class AddFieldTypeToPartnerDeliveryPerformancesTable extends Migration
     public function up()
     {
         Schema::table('partner_delivery_performances', function (Blueprint $table) {
-            $table->enum('type', $this->getTypes());
+            $table->enum('type', $this->getTypes())->nullable();
         });
 
         Schema::table('partner_package_performances', function (Blueprint $table) {
-            $table->enum('type', $this->getTypes());
+            $table->enum('type', $this->getTypes())->nullable();
         });
     }
 
