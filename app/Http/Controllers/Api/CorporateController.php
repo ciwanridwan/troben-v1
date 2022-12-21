@@ -397,7 +397,7 @@ class CorporateController extends Controller
         ]);
 
         $result = Package::query()
-            ->with('corporate', 'payments')
+            ->with('corporate', 'payments', 'attachments')
             ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
 
