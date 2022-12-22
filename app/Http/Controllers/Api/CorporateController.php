@@ -130,15 +130,12 @@ class CorporateController extends Controller
             'sender_phone' => ['required'],
 
             'items' => ['required'],
-            'photos' => ['required', 'array'],
-            'photos.*' => ['required', 'image'],
             'payment_method' => ['required', 'in:va,top,cash'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
 
-            // 'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
@@ -167,7 +164,7 @@ class CorporateController extends Controller
         } else {
             $partners = auth()->user()->partners;
             if ($partners->count() == 0) {
-                return (new Response(Response::RC_INVALID_DATA, 'No partner found'))->json();
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
             }
             $partner = $partners->first();
         }
@@ -197,7 +194,8 @@ class CorporateController extends Controller
         $job = new CreateWalkinOrder($inputs, $items);
         $this->dispatchNow($job);
 
-        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
+        $photos = $request->file('photos') ?? [];
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $photos);
         $this->dispatchNow($uploadJob);
 
         $job = new AssignFirstPartnerToPackage($job->package, $partner);
@@ -237,10 +235,8 @@ class CorporateController extends Controller
             $job->package->save();
         }
         if ($payment_method == 'va') {
-            // todo nicepay
+            // go to different method: paymentMethod, paymentMethodSet
         }
-
-        // checker for multi
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
@@ -301,10 +297,12 @@ class CorporateController extends Controller
 
         $gatewayChoosed = $package
             ->payments
-            ->where('status', Payment::STATUS_PENDING)
-            ->first();
-        if (! is_null($gatewayChoosed)) {
-            return (new Response(Response::RC_INVALID_DATA, 'Payment pending exist'))->json();
+            ->where('status', Payment::STATUS_PENDING);
+        if ($gatewayChoosed->count()) {
+            foreach ($gatewayChoosed as $pg) {
+                $pg->status = Payment::STATUS_CANCELLED;
+                $pg->save();
+            }
         }
 
         $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
@@ -331,6 +329,15 @@ class CorporateController extends Controller
             $childPackages[] = Package::findOrFail($c);
         }
 
+        $metaCorporate = PackageCorporate::where('package_id', $request->package_parent_id)->firstOrFail();
+        $meta = $metaCorporate->meta;
+        $meta['is_multi'] = true;
+        $meta['childs_id'] = collect($childPackages)->pluck('id');
+        $meta['parent_id'] = $parentPackage->getKey();
+        $meta['is_parent'] = true;
+        $metaCorporate->meta = $meta;
+        $metaCorporate->save();
+
         foreach ($childPackages as $childPkg) {
             $pickupFee = $childPkg->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
             if (! is_null($pickupFee)) {
@@ -340,6 +347,15 @@ class CorporateController extends Controller
                 $pickupFee->amount = 0;
                 $pickupFee->save();
             }
+
+            $metaCorporate = PackageCorporate::where('package_id', $childPkg->getKey())->firstOrFail();
+            $meta = $metaCorporate->meta;
+            $meta['is_multi'] = true;
+            $meta['childs_id'] = collect($childPackages)->pluck('id');
+            $meta['parent_id'] = $parentPackage->getKey();
+            $meta['is_parent'] = false;
+            $metaCorporate->meta = $meta;
+            $metaCorporate->save();
 
             MultiDestination::create([
                 'parent_id' => $parentPackage->getKey(),
