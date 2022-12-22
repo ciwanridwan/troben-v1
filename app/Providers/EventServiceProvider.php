@@ -274,7 +274,8 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         DriverAssignedDooring::class => [
-            //
+            PartnerPerformanceEvaluatedByEvent::class,
+            DeadlineCreatedByEvent::class,
         ],
         PartnerRequested::class => [
             PartnerPerformanceEvaluatedByEvent::class,

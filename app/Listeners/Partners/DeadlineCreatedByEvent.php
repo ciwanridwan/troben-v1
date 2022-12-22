@@ -223,16 +223,32 @@ class DeadlineCreatedByEvent
                     break;
                 }
 
-                // dd($delivery->transporter->partner_id);
                 $deadline = $now < $endTime ? $endTime : null;
+
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $delivery->transporter->partner_id)
+                ->where('delivery_id', $delivery->id)->whereNotNull('reached_at')->first();
+
+                if (is_null($performanceDelivery)) {
+                    $createDeadline = PartnerDeliveryPerformance::create([
+                        'partner_id' => $delivery->transporter->partner_id,
+                        'delivery_id' => $delivery->id,
+                        'deadline' => $endTime,
+                        'level' => 1,
+                        'status' => 1,
+                        'type' => PartnerDeliveryPerformance::TYPE_MTAK_DRIVER_TO_WAREHOUSE
+                    ]);
+
+                    Log::debug('Deadline Driver Assigned Created: ', [$createDeadline]);
+                } else {
+                    $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $delivery->transporter->partner_id)
                     ->where('delivery_id', $delivery->id)->whereNotNull('reached_at')->update([
                         'deadline' => $deadline,
                         'status' => 1,
                         'reached_at' => null,
                     ]);
 
-                Log::debug('Deadline Driver Assigned Created: ', [$performanceDelivery]);
+                    Log::debug('Deadline Driver Assigned Updated: ', [$performanceDelivery]);
+                }
                 break;
             case $event instanceof DeliveryDooringCreated:
                 $delivery = $event->delivery;
@@ -244,6 +260,10 @@ class DeadlineCreatedByEvent
                     break;
                 }
 
+                if ($now > $endTime) {
+                    Log::info('Deadline cant create because outside the spesicified time');
+                }
+
                 $originPartner = $delivery->origin_partner->id;
 
                 $performanceDelivery = PartnerDeliveryPerformance::query()->create([
@@ -251,8 +271,10 @@ class DeadlineCreatedByEvent
                     'delivery_id' => $delivery->id,
                     'deadline' => $endTime,
                     'level' => 1,
-                    'status' => 1
+                    'status' => 1,
+                    'type' => PartnerDeliveryPerformance::TYPE_DRIVER_DOORING
                 ]);
+
                 Log::debug('Deadline Delivery Dooring Created: ', [$performanceDelivery]);
                 break;
         }

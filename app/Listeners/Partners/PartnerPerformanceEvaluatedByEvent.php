@@ -4,6 +4,7 @@ namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
+use App\Events\Deliveries\DriverAssignedDooring;
 use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Deliveries\PartnerRequested;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
@@ -176,6 +177,23 @@ class PartnerPerformanceEvaluatedByEvent
                         ->updatePerformance();
                 }
                 break;
+                case $event instanceof DriverAssignedDooring:
+                    $this->delivery = $event->delivery;
+                    $this->reach_at = Carbon::now();
+
+                    if ($this->delivery->partner_performance !== null) {
+                        $deadline = $this->delivery->partner_performance->deadline;
+                        $level = $this->delivery->partner_performance->level;
+
+                        if ($this->reach_at > $deadline && $level === 3) {
+                            $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
+                        }
+
+                        $this
+                            ->setPerformance($this->delivery->partner_performance)
+                            ->updatePerformance();
+                    }
+                    break;
             default:
                 // to do default
                 break;
