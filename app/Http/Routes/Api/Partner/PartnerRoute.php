@@ -60,7 +60,7 @@ class PartnerRoute extends BaseRoute
         ]);
 
         $this->router->post($this->prefix('/corporate/order/payment'), [
-            'as' => $this->name('corporate.order.payment'),
+            'as' => $this->name('corporate.order.payment.submit'),
             'uses' => $this->uses('paymentMethodSet', CorporateController::class),
         ]);
 
