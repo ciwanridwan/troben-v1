@@ -235,10 +235,8 @@ class CorporateController extends Controller
             $job->package->save();
         }
         if ($payment_method == 'va') {
-            // todo nicepay
+            // go to different method: paymentMethod, paymentMethodSet
         }
-
-        // checker for multi
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
     }
@@ -299,10 +297,12 @@ class CorporateController extends Controller
 
         $gatewayChoosed = $package
             ->payments
-            ->where('status', Payment::STATUS_PENDING)
-            ->first();
-        if (! is_null($gatewayChoosed)) {
-            return (new Response(Response::RC_INVALID_DATA, ['message' => 'Payment pending exist']))->json();
+            ->where('status', Payment::STATUS_PENDING);
+        if ($gatewayChoosed->count()) {
+            foreach ($gatewayChoosed as $pg) {
+                $pg->status = Payment::STATUS_CANCELLED;
+                $pg->save();
+            }
         }
 
         $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
