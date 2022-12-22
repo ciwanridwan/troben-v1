@@ -329,6 +329,15 @@ class CorporateController extends Controller
             $childPackages[] = Package::findOrFail($c);
         }
 
+        $metaCorporate = PackageCorporate::where('package_id', $request->package_parent_id)->firstOrFail();
+        $meta = $metaCorporate->meta;
+        $meta['is_multi'] = true;
+        $meta['childs_id'] = collect($childPackages)->pluck('id');
+        $meta['parent_id'] = $parentPackage->getKey();
+        $meta['is_parent'] = true;
+        $metaCorporate->meta = $meta;
+        $metaCorporate->save();
+
         foreach ($childPackages as $childPkg) {
             $pickupFee = $childPkg->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
             if (! is_null($pickupFee)) {
@@ -338,6 +347,15 @@ class CorporateController extends Controller
                 $pickupFee->amount = 0;
                 $pickupFee->save();
             }
+
+            $metaCorporate = PackageCorporate::where('package_id', $childPkg->getKey())->firstOrFail();
+            $meta = $metaCorporate->meta;
+            $meta['is_multi'] = true;
+            $meta['childs_id'] = collect($childPackages)->pluck('id');
+            $meta['parent_id'] = $parentPackage->getKey();
+            $meta['is_parent'] = false;
+            $metaCorporate->meta = $meta;
+            $metaCorporate->save();
 
             MultiDestination::create([
                 'parent_id' => $parentPackage->getKey(),
