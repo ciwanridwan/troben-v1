@@ -130,15 +130,12 @@ class CorporateController extends Controller
             'sender_phone' => ['required'],
 
             'items' => ['required'],
-            'photos' => ['required', 'array'],
-            'photos.*' => ['required', 'image'],
             'payment_method' => ['required', 'in:va,top,cash'],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
             'receiver_address' => ['required'],
 
-            // 'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
@@ -197,7 +194,8 @@ class CorporateController extends Controller
         $job = new CreateWalkinOrder($inputs, $items);
         $this->dispatchNow($job);
 
-        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
+        $photos = $request->file('photos') ?? [];
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $photos);
         $this->dispatchNow($uploadJob);
 
         $job = new AssignFirstPartnerToPackage($job->package, $partner);
