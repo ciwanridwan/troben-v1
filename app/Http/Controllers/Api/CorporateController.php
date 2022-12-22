@@ -164,7 +164,7 @@ class CorporateController extends Controller
         } else {
             $partners = auth()->user()->partners;
             if ($partners->count() == 0) {
-                return (new Response(Response::RC_INVALID_DATA, 'No partner found'))->json();
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
             }
             $partner = $partners->first();
         }
@@ -302,7 +302,7 @@ class CorporateController extends Controller
             ->where('status', Payment::STATUS_PENDING)
             ->first();
         if (! is_null($gatewayChoosed)) {
-            return (new Response(Response::RC_INVALID_DATA, 'Payment pending exist'))->json();
+            return (new Response(Response::RC_INVALID_DATA, ['message' => 'Payment pending exist']))->json();
         }
 
         $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
