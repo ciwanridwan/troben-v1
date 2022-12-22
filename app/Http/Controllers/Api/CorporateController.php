@@ -317,38 +317,36 @@ class CorporateController extends Controller
     public function storeMulti(Request $request)
     {
         $request->validate([
-            'package_parent_hash' => ['nullable', 'string'],
-            'package_child_hash' => ['nullable', 'array'],
+            'package_parent_id' => ['required', 'numeric'],
 
-            'package_parent_id' => ['array'],
-            'package_child_id.*' => ['required', 'numeric'],
+            'package_child_ids' => ['array'],
+            'package_child_ids.*' => ['required', 'numeric'],
         ]);
 
         $parentPackage = Package::findOrFail($request->package_parent_id);
-        $childPackage = $request->package_child_hash;
+        $childPackageIDs = (array) $request->package_child_ids;
 
-        foreach ($request->get('package_child_id') ?? [] as $c) {
+        $childPackages = [];
+        foreach ($childPackageIDs as $c) {
+            $childPackages[] = Package::findOrFail($c);
         }
 
-        $childIds = [];
-        for ($i = 0; $i < count($childPackage); $i++) {
-            $childId = Package::hashToId($childPackage[$i]);
-            array_push($childIds, $childId);
+        foreach ($childPackages as $childPkg) {
+            $pickupFee = $childPkg->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
+            if (! is_null($pickupFee)) {
+                $childPkg->total_amount -= $pickupFee->amount;
+                $childPkg->save();
+    
+                $pickupFee->amount = 0;
+                $pickupFee->save();
+            }
 
             MultiDestination::create([
-                'parent_id' => $parentPackage,
-                'child_id' => $childId
+                'parent_id' => $parentPackage->getKey(),
+                'child_id' => $childPkg->getKey(),
             ]);
         }
-        Package::whereIn('id', $childIds)->get()->each(function ($q) {
-            $pickupFee = $q->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
 
-            $q->total_amount -= $pickupFee->amount;
-            $q->save();
-
-            $pickupFee->amount = 0;
-            $pickupFee->save();
-        });
         return (new Response(Response::RC_CREATED))->json();
     }
 
