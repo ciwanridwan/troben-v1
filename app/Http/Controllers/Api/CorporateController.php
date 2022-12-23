@@ -396,7 +396,7 @@ class CorporateController extends Controller
             $results = $results->where('created_by', auth()->id());
         }
 
-        $results = $results->paginate(request('per_page', 15));
+        $results = $results->latest()->paginate(request('per_page', 15));
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
