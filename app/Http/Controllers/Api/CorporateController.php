@@ -468,6 +468,8 @@ class CorporateController extends Controller
         }
         $result->partner = $partner;
 
+        $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
+
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }
