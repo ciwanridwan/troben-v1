@@ -413,7 +413,11 @@ class CorporateController extends Controller
         ]);
 
         $result = Package::query()
-            ->with('corporate', 'payments', 'attachments')
+            ->with([
+                'corporate', 'payments', 'attachments',
+                'items', 'prices', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
+                'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices',
+            ])
             ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
 
