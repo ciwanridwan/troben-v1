@@ -31,7 +31,8 @@ class SlaLevel
                     DB::statement(self::query($t, $l));
 
                     // push notification
-                    self::pushNotification($t, $l);
+                    $push = self::pushNotification($t, $l);
+                    Log::info('Push notification for level 2 and 3 has been sent', [$push]);
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -155,8 +156,6 @@ class SlaLevel
                     break;
             }
             new PrivateChannel($user, $notification, ['package_code' => $code]);
-
-            Log::info('Push notification for level 2 and 3 has been sent');
         }
     }
 
