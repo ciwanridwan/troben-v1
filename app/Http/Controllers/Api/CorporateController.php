@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Payment\Nicepay\RegistrationPayment;
 use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Http\Response;
 use App\Models\Geo\Regency;
@@ -307,7 +308,7 @@ class CorporateController extends Controller
 
         $gateway = Gateway::where('channel', $request->get('payment_channel'))->firstOrFail();
 
-        $result = (new CheckPayment($package, $gateway))->vaRegistration();
+        $result = (new RegistrationPayment($package, $gateway))->vaRegistration();
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
