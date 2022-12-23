@@ -42,6 +42,7 @@ use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -438,6 +439,16 @@ class CorporateController extends Controller
         }
         $result->payment = $payment;
         unset($result->payments);
+
+        $partner = null;
+        $creator = User::find($result->created_by);
+        if (! is_null($creator)) {
+            $partners = $creator->partners;
+            if ($partners->count()) {
+                $partner = $partners->first();
+            }
+        }
+        $result->partner = $partner;
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
