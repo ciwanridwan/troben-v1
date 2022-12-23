@@ -31,8 +31,9 @@ class SlaLevel
                     DB::statement(self::query($t, $l));
 
                     // push notification
-                    $push = self::pushNotification($t, $l);
-                    Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+                    self::pushNotification($t, $l);
+                    // dd($push);
+                    // Log::info('Push notification for level 2 and 3 has been sent', [$push]);
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -111,7 +112,93 @@ class SlaLevel
                 break;
         }
 
-        $q = "SELECT u2.fcm_token, u2.id user_id, pp.type, pp.%s
+        $q = self::tokenFcmQuery();
+        $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
+
+        $query = collect(DB::select($q))->toArray();
+
+        foreach ($query as $q) {
+            $user = User::where('id', $q->user_id)->first();
+            $notification = self::getTemplate($q->type, $level);
+            $code = null;
+
+            switch ($type) {
+                case 'delivery':
+                    $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
+                    break;
+                case 'package':
+                    $code = Package::where('id', $q->package_id)->first()->code->content;
+                    break;
+                default:
+                    throw new \Exception("Invalid type for SLA: $type [$level]");
+                    break;
+            }
+
+            $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
+            Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+        }
+    }
+
+    private static function getTemplate($type, $level)
+    {
+        if ($level === 2) {
+            switch ($type) {
+                case Delivery::TYPE_DRIVER_DOORING:
+                    $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_OF_ITEM)->first();
+
+                    return $notification;
+                    break;
+                case Delivery::TYPE_MB_DRIVER_TO_TRANSIT:
+                    $notification = Template::where('type', Template::TYPE_DRIVER_SHOULD_DELIVERY_TO_WAREHOUSE)->first();
+
+                    return $notification;
+                    break;
+                case Delivery::TYPE_MPW_WAREHOUSE_GOOD_RECEIVE:
+                    $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_GOOD_RECEIVE)->first();
+
+                    return $notification;
+                    break;
+                case Delivery::TYPE_MPW_WAREHOUSE_REQUEST_TRANSPORTER:
+                    $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_REQUEST_TRANSPORTER)->first();
+
+                    return $notification;
+                    break;
+                case Delivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE:
+                    $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE);
+
+                    return $notification;
+                    break;
+                case Delivery::TYPE_MTAK_OWNER_TO_DRIVER:
+                    $notification = Template::where('type', Template::TYPE_OWNER_IMMEDIATELY_TAKE_ITEM);
+
+                    return $notification;
+                    break;
+                default:
+                    throw new \Exception("Invalid type for Template: $type [$level]");
+                    break;
+            }
+        } else {
+            switch ($type) {
+                case Delivery::TYPE_MTAK_OWNER_TO_DRIVER:
+                    $notification = Template::where('type', Template::TYPE_OWNER_HAS_LATE)->first();
+
+                    return $notification;
+                    break;
+                default:
+                    $notification = Template::where('type', Template::TYPE_TIME_LIMIT_HAS_PASSED)->first();
+
+                    return $notification;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Query to get fcm_token, and delivery_id or package_id
+     */
+    private static function tokenFcmQuery(): string
+    {
+        $query = "SELECT u2.fcm_token, u2.id user_id, pp.type, pp.%s
         from users u2
         left join (
             select u.user_id, p.type, p.level, p.%s from userables u
@@ -135,66 +222,6 @@ class SlaLevel
             and pp.type is not null
             and u2.fcm_token is not null";
 
-        $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
-
-        $query = collect(DB::select($q))->toArray();
-
-        foreach ($query as $q) {
-            $user = User::where('id', $q->user_id)->first();
-            $notification = self::getTemplate($q->type);
-            $code = null;
-
-            switch ($type) {
-                case 'delivery':
-                    $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
-                    break;
-                case 'package':
-                    $code = Package::where('id', $q->package_id)->first()->code->content;
-                    break;
-                default:
-                throw new \Exception("Invalid type for SLA: $type [$level]");
-                    break;
-            }
-            new PrivateChannel($user, $notification, ['package_code' => $code]);
-        }
-    }
-
-    private static function getTemplate($type)
-    {
-        switch ($type) {
-            case Delivery::TYPE_DRIVER_DOORING:
-                $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_OF_ITEM)->first();
-
-                return $notification;
-                break;
-            case Delivery::TYPE_MB_DRIVER_TO_TRANSIT:
-                $notification = Template::where('type', Template::TYPE_DRIVER_SHOULD_DELIVERY_TO_WAREHOUSE)->first();
-
-                return $notification;
-                break;
-            case Delivery::TYPE_MPW_WAREHOUSE_GOOD_RECEIVE:
-                $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_GOOD_RECEIVE)->first();
-
-                return $notification;
-                break;
-            case Delivery::TYPE_MPW_WAREHOUSE_REQUEST_TRANSPORTER:
-                $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_REQUEST_TRANSPORTER)->first();
-
-                return $notification;
-                break;
-            case Delivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE:
-                $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE);
-
-                return $notification;
-                break;
-            case Delivery::TYPE_MTAK_OWNER_TO_DRIVER:
-                $notification = Template::where('type', Template::TYPE_OWNER_IMMEDIATELY_TAKE_ITEM);
-
-                return $notification;
-                break;
-            default:
-                // todo default
-                break;
-        }
+        return $query;
     }
 }
