@@ -95,15 +95,29 @@ class CorporateController extends Controller
 
     public function calculate(Request $request): JsonResponse
     {
+        $isAdmin = auth()->user()->is_admin;
+
         $request->validate([
             'is_multi' => ['nullable', 'boolean'],
             'destination_id' => ['required'],
 	        'service_code' => ['required', 'in:tps,tpx'],
-            'partner_id' => ['required', 'numeric'],
         ]);
 
+        if ($isAdmin) {
+            $rules['partner_id'] = ['required', 'numeric'];
+        }
+
+        if ($isAdmin) {
+            $partner = Partner::findOrFail($request->get('partner_id'));
+        } else {
+            $partners = auth()->user()->partners;
+            if ($partners->count() == 0) {
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
+            }
+            $partner = $partners->first();
+        }
+
         $destination_id = $request->get('destination_id');
-        $partner = Partner::findOrFail($request->get('partner_id'));
         throw_if(is_null($partner->regency), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
 
         $regency = $partner->regency;
