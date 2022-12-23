@@ -10,6 +10,7 @@ use App\Models\Partners\Performances\Delivery;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SlaLevel
 {
@@ -141,6 +142,7 @@ class SlaLevel
             $user = User::where('id', $q->user_id)->first();
             $notification = self::getTemplate($q->type);
             $code = null;
+
             switch ($type) {
                 case 'delivery':
                     $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
@@ -152,8 +154,9 @@ class SlaLevel
                 throw new \Exception("Invalid type for SLA: $type [$level]");
                     break;
             }
-
             new PrivateChannel($user, $notification, ['package_code' => $code]);
+
+            Log::info('Push notification for level 2 and 3 has been sent');
         }
     }
 
