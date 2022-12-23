@@ -2,7 +2,11 @@
 
 namespace App\Actions\Core;
 
+use App\Broadcasting\User\PrivateChannel;
+use App\Models\Deliveries\Delivery as DeliveriesDelivery;
 use App\Models\Notifications\Template;
+use App\Models\Partners\Performances\Delivery;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -20,60 +24,22 @@ class SlaLevel
         foreach ($types as $t) {
             foreach ($levels as $l) {
                 try {
-                    // select semua delivery id yg due date
 
                     // todo new privateChannel($user, $notif, $title)
                     DB::statement(self::query($t, $l));
 
-                    // loop and blast ke masing2 user, berdasarkan
+                    // push notification
+                    self::pushNotification($t, $l);
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
                 }
             }
-            // self::queryPenalty($t);
         }
-
 
         DB::table('sp_call_log')->where('sp_name', 'SLA_WORKER')->update(['last_call' => Carbon::now()->format('Y-m-d H:i:s')]);
     }
 
-    // private static function queryPenalty($type)
-    // {
-    //     $table = null;
-    //     switch ($type) {
-    //         case 'delivery':
-    //             $table = "partner_delivery_performances";
-    //             break;
-    //         case 'package':
-    //             $table = "partner_package_performances";
-    //             break;
-    //         default:
-    //             throw new \Exception("Invalid type for SLA: $type");
-    //             break;
-    //     }
-
-    //     $q = "UPDATE %s t
-    //     SET status = 10,
-    //         updated_at = NOW()
-    //     WHERE 1=1
-    //         AND level = 3
-    //         AND status = 1
-    //         AND reached_at IS NULL
-    //         AND deadline < NOW()
-    //         and not exists (
-    //             select 1
-    //             from %s
-    //             WHERE 1=1
-    //             AND level = 3
-    //             AND status = 10
-    //             AND reached_at is null
-    //             and deadline < now()
-    //         )";
-
-    //     $q = sprintf($q, $table, $table);
-    //     return $q;
-    // }
 
     private static function query($type, $level)
     {
@@ -124,45 +90,97 @@ class SlaLevel
     /**
      * Get FCM Token from each users
      */
-    private function getFcmToken(): string
+    private static function pushNotification($type, $level)
     {
-        $q = "SELECT fcm_token
-        from users u2
-        where
-        fcm_token is not null
-        and id in (
-            select user_id
-            from userables u
-                where 1=1
-                and userable_type = 'App\Models\Partners\Partner'
-                and userable_id  in (
-                        select partner_id
-                        from partner_delivery_performances t
-                        WHERE 1=1
-                            AND level = 2
-                            AND status = 1
-                            AND reached_at IS NULL
-                            AND deadline < NOW()
-                            and not exists (
-                                select 1
-                                from partner_delivery_performances
-                                WHERE 1=1
-                                AND level = 3
-                                AND status = 1
-                                AND delivery_id  = t.delivery_id
-                                AND partner_id  = t.partner_id
-                            )
-                ) group by user_id
-        )";
+        $table = null;
+        $column = null;
+        switch ($type) {
+            case 'delivery':
+                $table = "partner_delivery_performances";
+                $column = "delivery_id";
+                break;
+            case 'package':
+                $table = "partner_package_performances";
+                $column = "package_id";
+                break;
+            default:
+                throw new \Exception("Invalid type for SLA: $type [$level]");
+                break;
+        }
 
-        return $q;
+        $q = "SELECT u2.fcm_token, u2.id user_id, pp.type, pp.%s
+        from users u2
+        left join (
+            select u.user_id, p.type, p.level, p.%s from userables u
+            left join (
+                select pdp.partner_id, pdp.%s, pdp.type, pdp.level
+                from %s pdp
+                where 1=1
+                    and pdp.type is not null
+                    and pdp.level = %d
+                    and pdp.status = 1
+                    and pdp.reached_at is null
+                    and pdp.deadline < now()
+            ) p on u.userable_id = p.partner_id
+            where 1=1
+                and u.userable_type = 'App\Models\Partners\Partner'
+                and p.%s is not null
+            group by u.user_id, p.type, p.level, p.%s
+            order by u.user_id asc
+        ) pp on u2.id = pp.user_id
+        where 1=1
+            and pp.type is not null
+            and u2.fcm_token is not null";
+
+        $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
+
+        $query = collect(DB::select($q))->toArray();
+
+        foreach ($query as $q) {
+            $user = User::where('id', $q->user_id)->first();
+            $notification = self::getTemplate($q->type);
+            $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
+
+            new PrivateChannel($user, $notification, ['package_code' => $code]);
+        }
     }
 
-    /**
-     * Set notifitication for each sla
-     */
-    private function setNotification(): void
+    private static function getTemplate($type)
     {
-        $this->notification  = Template::where('type', Template::TYPE_TIME_LIMIT_HAS_PASSED)->first();
+        switch ($type) {
+            case Delivery::TYPE_DRIVER_DOORING:
+                $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_OF_ITEM)->first();
+
+                return $notification;
+                break;
+            case Delivery::TYPE_MB_DRIVER_TO_TRANSIT:
+                $notification = Template::where('type', Template::TYPE_DRIVER_SHOULD_DELIVERY_TO_WAREHOUSE)->first();
+
+                return $notification;
+                break;
+            case Delivery::TYPE_MPW_WAREHOUSE_GOOD_RECEIVE:
+                $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_GOOD_RECEIVE)->first();
+
+                return $notification;
+                break;
+            case Delivery::TYPE_MPW_WAREHOUSE_REQUEST_TRANSPORTER:
+                $notification = Template::where('type', Template::TYPE_WAREHOUSE_IMMEDIATELY_REQUEST_TRANSPORTER)->first();
+
+                return $notification;
+                break;
+            case Delivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE:
+                $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE);
+
+                return $notification;
+                break;
+            case Delivery::TYPE_MTAK_OWNER_TO_DRIVER:
+                $notification = Template::where('type', Template::TYPE_OWNER_IMMEDIATELY_TAKE_ITEM);
+
+                return $notification;
+                break;
+            default:
+                // todo default
+                break;
+        }
     }
 }
