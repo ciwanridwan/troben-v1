@@ -5,6 +5,7 @@ namespace App\Actions\Core;
 use App\Broadcasting\User\PrivateChannel;
 use App\Models\Deliveries\Delivery as DeliveriesDelivery;
 use App\Models\Notifications\Template;
+use App\Models\Packages\Package;
 use App\Models\Partners\Performances\Delivery;
 use App\Models\User;
 use Carbon\Carbon;
@@ -139,7 +140,18 @@ class SlaLevel
         foreach ($query as $q) {
             $user = User::where('id', $q->user_id)->first();
             $notification = self::getTemplate($q->type);
-            $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
+            $code = null;
+            switch ($type) {
+                case 'delivery':
+                    $code = DeliveriesDelivery::where('id', $q->delivery_id)->first()->code->content;
+                    break;
+                case 'package':
+                    $code = Package::where('id', $q->package_id)->first()->code->content;
+                    break;
+                default:
+                throw new \Exception("Invalid type for SLA: $type [$level]");
+                    break;
+            }
 
             new PrivateChannel($user, $notification, ['package_code' => $code]);
         }
