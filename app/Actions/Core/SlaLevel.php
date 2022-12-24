@@ -164,12 +164,12 @@ class SlaLevel
                     return $notification;
                     break;
                 case Delivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE:
-                    $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE);
+                    $notification = Template::where('type', Template::TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE)->first();
 
                     return $notification;
                     break;
                 case Delivery::TYPE_MTAK_OWNER_TO_DRIVER:
-                    $notification = Template::where('type', Template::TYPE_OWNER_IMMEDIATELY_TAKE_ITEM);
+                    $notification = Template::where('type', Template::TYPE_OWNER_IMMEDIATELY_TAKE_ITEM)->first();
 
                     return $notification;
                     break;
