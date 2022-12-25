@@ -15,6 +15,7 @@ use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Exceptions\DataNotFoundException;
 use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
@@ -82,7 +83,7 @@ class CorporateController extends Controller
         ]);
 
         $customer = Customer::select('id', 'name', 'phone')->where('phone', $phoneNumber)->first();
-        throw_if(is_null($customer), Error::make(Response::RC_DATA_NOT_FOUND));
+        throw_if(is_null($customer), DataNotFoundException::make(Response::RC_DATA_NOT_FOUND));
 
         $result = [
             'id' => $customer->getKey(),
