@@ -384,6 +384,12 @@ class CorporateController extends Controller
 
     public function listOrder(Request $request)
     {
+        $request->validate([
+            'status' => ['nullable', 'in:paid,draft,pending'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
         $isAdmin = auth()->user()->is_admin;
 
         $results = Package::query()->with([
@@ -394,6 +400,15 @@ class CorporateController extends Controller
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
+        }
+        if ($request->get('status')) {
+            $results = $results->where('payment_status', $request->get('status'));
+        }
+        if ($request->get('start_date')) {
+            $results = $results->whereRaw("DATE(created_at) > '". $request->get('start_date') . "'");
+        }
+        if ($request->get('end_date')) {
+            $results = $results->whereRaw("DATE(created_at) < '". $request->get('end_date') . "'");
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
