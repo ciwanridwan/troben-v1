@@ -34,6 +34,11 @@ class WithdrawalRoute extends BaseRoute
             'uses' => $this->uses('list', FinanceController::class),
         ]);
 
+        $this->router->get($this->prefix('/list_paginate'), [
+            'as' => $this->name('listPaginate'),
+            'uses' => $this->uses('listPaginate', FinanceController::class),
+        ]);
+
         $this->router->get($this->prefix('/count/amount'), [//
             'as' => $this->name('countAmountDisbursment'),
             'uses' => $this->uses('countAmountDisbursment', FinanceController::class),
