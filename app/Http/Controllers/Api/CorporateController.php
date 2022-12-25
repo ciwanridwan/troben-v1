@@ -406,10 +406,10 @@ class CorporateController extends Controller
             $results = $results->where('payment_status', $request->get('status'));
         }
         if ($request->get('start_date')) {
-            $results = $results->whereRaw("DATE(created_at) > '". $request->get('start_date') . "'");
+            $results = $results->whereRaw("DATE(packages.created_at) >= '". $request->get('start_date') . "'");
         }
         if ($request->get('end_date')) {
-            $results = $results->whereRaw("DATE(created_at) < '". $request->get('end_date') . "'");
+            $results = $results->whereRaw("DATE(packages.created_at) <= '". $request->get('end_date') . "'");
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
