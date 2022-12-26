@@ -15,6 +15,7 @@ use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Exceptions\DataNotFoundException;
 use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
@@ -82,7 +83,7 @@ class CorporateController extends Controller
         ]);
 
         $customer = Customer::select('id', 'name', 'phone')->where('phone', $phoneNumber)->first();
-        throw_if(is_null($customer), Error::make(Response::RC_DATA_NOT_FOUND));
+        throw_if(is_null($customer), DataNotFoundException::make(Response::RC_DATA_NOT_FOUND));
 
         $result = [
             'id' => $customer->getKey(),
@@ -384,6 +385,12 @@ class CorporateController extends Controller
 
     public function listOrder(Request $request)
     {
+        $request->validate([
+            'status' => ['nullable', 'in:paid,draft,pending'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
         $isAdmin = auth()->user()->is_admin;
 
         $results = Package::query()->with([
@@ -395,8 +402,17 @@ class CorporateController extends Controller
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
         }
+        if ($request->get('status')) {
+            $results = $results->where('payment_status', $request->get('status'));
+        }
+        if ($request->get('start_date')) {
+            $results = $results->whereRaw("DATE(packages.created_at) >= '". $request->get('start_date') . "'");
+        }
+        if ($request->get('end_date')) {
+            $results = $results->whereRaw("DATE(packages.created_at) <= '". $request->get('end_date') . "'");
+        }
 
-        $results = $results->paginate(request('per_page', 15));
+        $results = $results->latest()->paginate(request('per_page', 15));
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }

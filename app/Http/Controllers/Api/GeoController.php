@@ -185,7 +185,7 @@ class GeoController extends Controller
      */
     protected function getSubDistrictsList(): JsonResponse
     {
-        $caps = ucwords($this->attributes['search']);
+        $caps = ucwords($this->attributes['search'] ?? '');
 
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')

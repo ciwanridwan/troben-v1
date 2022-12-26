@@ -27,6 +27,8 @@ class Handler extends ExceptionHandler
         UserUnauthorizedException::class,
         NumberParseException::class,
         InvalidDataException::class,
+        DataNotFoundException::class,
+        PaymentHasPaidException::class,
     ];
 
     /**
