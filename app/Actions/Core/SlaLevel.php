@@ -32,8 +32,6 @@ class SlaLevel
 
                     // push notification
                     self::pushNotification($t, $l);
-                    // dd($push);
-                    // Log::info('Push notification for level 2 and 3 has been sent', [$push]);
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -68,27 +66,57 @@ class SlaLevel
             throw new \Exception("Invalid level for SLA: $type [$level]");
         }
 
-        $q = "UPDATE %s t
-        SET level = %d,
-            deadline = deadline + interval '24' hour,
-            updated_at = NOW()
-        WHERE 1=1
-            AND level = %d
-            AND status = 1
-            AND reached_at IS NULL
-            AND deadline < NOW()
-            and not exists (
-                select 1
-                from %s
-                WHERE 1=1
-                AND level = %d
-                AND status = 1
-                AND %s = t.%s
-                AND partner_id  = t.partner_id
-            )";
+        switch ($level) {
+            case 3:
+                $q = "UPDATE %s t
+                        SET level = %d,
+                            deadline = deadline + interval '24' hour,
+                            updated_at = NOW(),
+                            status = 99
+                        WHERE 1=1
+                            AND level = %d
+                            AND status = 1
+                            AND reached_at IS NULL
+                            AND deadline < NOW()
+                            and not exists (
+                                select 1
+                                from %s
+                                WHERE 1=1
+                                AND level = %d
+                                AND status = 1
+                                AND %s = t.%s
+                                AND partner_id  = t.partner_id
+                            )";
 
-        $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
-        return $q;
+                $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
+
+                return $q;
+                break;
+            default:
+                $q = "UPDATE %s t
+                    SET level = %d,
+                        deadline = deadline + interval '24' hour,
+                        updated_at = NOW()
+                    WHERE 1=1
+                        AND level = %d
+                        AND status = 1
+                        AND reached_at IS NULL
+                        AND deadline < NOW()
+                        and not exists (
+                            select 1
+                            from %s
+                            WHERE 1=1
+                            AND level = %d
+                            AND status = 1
+                            AND %s = t.%s
+                            AND partner_id  = t.partner_id
+                        )";
+
+                $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
+
+                return $q;
+                break;
+        }
     }
 
     /**
