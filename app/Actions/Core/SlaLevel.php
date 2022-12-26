@@ -69,10 +69,10 @@ class SlaLevel
         $status = null;
         switch ($level) {
             case 3:
-                $status = '99';
+                $status = 99;
                 break;
             default:
-                $status = '1';
+                $status = 1;
                 break;
         }
 
@@ -80,7 +80,7 @@ class SlaLevel
                     SET level = %d,
                         deadline = deadline + interval '24' hour,
                         updated_at = NOW(),
-                        status = $status
+                        status = %d
                     WHERE 1=1
                         AND level = %d
                         AND status = 1
@@ -96,7 +96,7 @@ class SlaLevel
                             AND partner_id  = t.partner_id
                         )";
 
-        $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
+        $q = sprintf($q, $table, $level, $status, $levelPrev, $table, $level, $column, $column);
 
         return $q;
     }
@@ -122,8 +122,18 @@ class SlaLevel
                 break;
         }
 
-        $q = self::tokenFcmQuery($level);
-        $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
+        $status = null;
+        switch ($level) {
+            case 3:
+                $status = 99;
+                break;
+            default:
+                $status = 1;
+                break;
+        }
+
+        $q = self::tokenFcmQuery();
+        $q = sprintf($q, $column, $column, $column, $table, $level, $status, $column, $column);
 
         $query = collect(DB::select($q))->toArray();
 
@@ -206,18 +216,8 @@ class SlaLevel
     /**
      * Query to get fcm_token, and delivery_id or package_id
      */
-    private static function tokenFcmQuery($level): string
+    private static function tokenFcmQuery(): string
     {
-        $status = null;
-        switch ($level) {
-            case 3:
-                $status = '99';
-                break;
-            default:
-                $status = '1';
-                break;
-        }
-
         $query = "SELECT u2.fcm_token, u2.id user_id, pp.type, pp.%s
                     from users u2
                     left join (
@@ -228,7 +228,7 @@ class SlaLevel
                             where 1=1
                                 and pdp.type is not null
                                 and pdp.level = %d
-                                and pdp.status = $status
+                                and pdp.status = %d
                                 and pdp.reached_at is null
                                 and pdp.deadline < now()
                         ) p on u.userable_id = p.partner_id
