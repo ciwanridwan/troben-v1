@@ -48,11 +48,11 @@ class Template extends Model
     public const TYPE_WAREHOUSE_IMMEDIATELY_REQUEST_TRANSPORTER = 'warehouse_immediately_request_transporter'; // push notif level 2
 
     //driver of mtak
-    public const TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE = 'driver_immediately_delivery_to_warehouse'; // push notif level 3
+    public const TYPE_DRIVER_IMMEDIATELY_DELIVERY_TO_WAREHOUSE = 'driver_immediately_delivery_to_warehouse'; // push notif level 2
 
     // mtak owner
     public const TYPE_OWNER_IMMEDIATELY_TAKE_ITEM = 'owner_immediately_take_item'; // push notif level 2
-    public const TYPE_OWNER_HAS_LATE = 'owner_has_late';
+    public const TYPE_OWNER_HAS_LATE = 'owner_has_late'; // push notif level 3
 
     // driver of mb
     public const TYPE_DRIVER_SHOULD_DELIVERY_TO_WAREHOUSE = 'driver_should_delivery_to_warehouse'; // push notif level 2

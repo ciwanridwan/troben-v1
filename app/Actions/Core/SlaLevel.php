@@ -4,6 +4,7 @@ namespace App\Actions\Core;
 
 use App\Broadcasting\User\PrivateChannel;
 use App\Models\Deliveries\Delivery as DeliveriesDelivery;
+use App\Models\Notifications\Notification;
 use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Partners\Performances\Delivery;
@@ -29,7 +30,6 @@ class SlaLevel
 
                     // todo new privateChannel($user, $notif, $title)
                     DB::statement(self::query($t, $l));
-
                     // push notification
                     self::pushNotification($t, $l);
                 } catch (\Exception $e) {
@@ -66,21 +66,20 @@ class SlaLevel
             throw new \Exception("Invalid level for SLA: $type [$level]");
         }
 
-        $status = null;
-        switch ($level) {
-            case 3:
-                $status = 99;
-                break;
-            default:
-                $status = 1;
-                break;
-        }
+        // $status = null;
+        // switch ($level) {
+        //     case 3:
+        //         $status = 99;
+        //         break;
+        //     default:
+        //         $status = 1;
+        //         break;
+        // }
 
         $q = "UPDATE %s t
                     SET level = %d,
                         deadline = deadline + interval '24' hour,
-                        updated_at = NOW(),
-                        status = %d
+                        updated_at = NOW()
                     WHERE 1=1
                         AND level = %d
                         AND status = 1
@@ -96,7 +95,7 @@ class SlaLevel
                             AND partner_id  = t.partner_id
                         )";
 
-        $q = sprintf($q, $table, $level, $status, $levelPrev, $table, $level, $column, $column);
+        $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
 
         return $q;
     }
@@ -122,18 +121,21 @@ class SlaLevel
                 break;
         }
 
-        $status = null;
+        // $status = null;
+        $message = null;
         switch ($level) {
             case 3:
-                $status = 99;
+                // $status = 99;
+                $message = Notification::messageLevelTree();
                 break;
             default:
-                $status = 1;
+                // $status = 1;
+                $message = Notification::messageLevelTwo();
                 break;
         }
 
         $q = self::tokenFcmQuery();
-        $q = sprintf($q, $column, $column, $column, $table, $level, $status, $column, $column);
+        $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
 
         $query = collect(DB::select($q))->toArray();
 
@@ -154,8 +156,14 @@ class SlaLevel
                     break;
             }
 
-            $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-            Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+            $check = Notification::query()->where('notifiable_id', $user->id)->where('data->title', 'ilike', '%' . $code . '%')->whereIn('data->body', $message)->first();
+
+            if (is_null($check)) {
+                $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
+                Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+            }
+
+            Log::info('Can not send push notification because already sent');
         }
     }
 
@@ -228,7 +236,7 @@ class SlaLevel
                             where 1=1
                                 and pdp.type is not null
                                 and pdp.level = %d
-                                and pdp.status = %d
+                                and pdp.status = 1
                                 and pdp.reached_at is null
                                 and pdp.deadline < now()
                         ) p on u.userable_id = p.partner_id
