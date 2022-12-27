@@ -27,11 +27,14 @@ class SlaLevel
         foreach ($types as $t) {
             foreach ($levels as $l) {
                 try {
-
                     // todo new privateChannel($user, $notif, $title)
                     DB::statement(self::query($t, $l));
+
                     // push notification
                     self::pushNotification($t, $l);
+
+                    // update broadcast
+                    DB::statement(self::updateBroadcast($t, $l));
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -66,20 +69,11 @@ class SlaLevel
             throw new \Exception("Invalid level for SLA: $type [$level]");
         }
 
-        // $status = null;
-        // switch ($level) {
-        //     case 3:
-        //         $status = 99;
-        //         break;
-        //     default:
-        //         $status = 1;
-        //         break;
-        // }
-
         $q = "UPDATE %s t
                     SET level = %d,
                         deadline = deadline + interval '24' hour,
-                        updated_at = NOW()
+                        updated_at = NOW(),
+                        broadcast = 0
                     WHERE 1=1
                         AND level = %d
                         AND status = 1
@@ -96,7 +90,7 @@ class SlaLevel
                         )";
 
         $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
-
+        Log::info('This query update up level', [$q]);
         return $q;
     }
 
@@ -121,21 +115,9 @@ class SlaLevel
                 break;
         }
 
-        // $status = null;
-        $message = null;
-        switch ($level) {
-            case 3:
-                // $status = 99;
-                $message = Notification::messageLevelTree();
-                break;
-            default:
-                // $status = 1;
-                $message = Notification::messageLevelTwo();
-                break;
-        }
-
         $q = self::tokenFcmQuery();
         $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
+        Log::info("this query push notif", [$q]);
 
         $query = collect(DB::select($q))->toArray();
 
@@ -156,14 +138,8 @@ class SlaLevel
                     break;
             }
 
-            $check = Notification::query()->where('notifiable_id', $user->id)->where('data->title', 'ilike', '%' . $code . '%')->whereIn('data->body', $message)->first();
-
-            if (is_null($check)) {
-                $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-                Log::info('Push notification for level 2 and 3 has been sent', [$push]);
-            }
-
-            Log::info('Can not send push notification because already sent');
+            $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
+            Log::info('Push notification for level '.$level.' has been sent', [$push]);
         }
     }
 
@@ -239,6 +215,7 @@ class SlaLevel
                                 and pdp.status = 1
                                 and pdp.reached_at is null
                                 and pdp.deadline < now()
+                                and pdp.broadcast = 0
                         ) p on u.userable_id = p.partner_id
                         where 1=1
                             and u.userable_type = 'App\Models\Partners\Partner'
@@ -248,8 +225,41 @@ class SlaLevel
                     ) pp on u2.id = pp.user_id
                     where 1=1
                         and pp.type is not null
-                        and u2.fcm_token is not null";
+                        and u2.fcm_token is not null
+                        and u2.deleted_at is null";
 
         return $query;
+    }
+
+    /** Update broadcast column
+     * To handle can be push notif or not
+     */
+    private static function updateBroadcast($type, $level): string
+    {
+        $table = null;
+        switch ($type) {
+            case 'delivery':
+                $table = "partner_delivery_performances";
+                break;
+            case 'package':
+                $table = "partner_package_performances";
+                break;
+            default:
+                throw new \Exception("Invalid type for SLA: $type [$level]");
+                break;
+        }
+
+        $q = "UPDATE %s
+                set broadcast = 1
+                where 1=1
+                    and level = %d
+                    and reached_at is null
+                    and deadline < now()
+                    and status = 1
+                    and broadcast = 0";
+
+         $q = sprintf($q, $table, $level);
+         Log::info('this query update broadcast', [$q]);
+         return $q;
     }
 }
