@@ -856,13 +856,15 @@ class PricingCalculator
 
             switch ($r->service_code) {
                 case Service::TRAWLPACK_STANDARD:
-                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount;
+                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first();
+                    if (is_null($servicePrice)) {
+                        $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first();
+                    }
                     break;
                 case Service::TRAWLPACK_EXPRESS:
-                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first();
                     break;
                 default:
-                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first()->amount;
                     break;
             }
 
@@ -875,7 +877,7 @@ class PricingCalculator
             $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? 0;
 
             $price = [
-                'service_price' => $servicePrice,
+                'service_price' => $servicePrice->amount,
                 'handling_price' => $handlingPrice,
                 'insurance_price' => $insurancePrice,
                 'additional_price' => $additionalPrice,
