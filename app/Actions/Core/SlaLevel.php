@@ -90,7 +90,7 @@ class SlaLevel
                         )";
 
         $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
-
+        Log::info('This query update up level', [$q]);
         return $q;
     }
 
@@ -117,6 +117,7 @@ class SlaLevel
 
         $q = self::tokenFcmQuery();
         $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
+        Log::info("this query push notif", [$q]);
 
         $query = collect(DB::select($q))->toArray();
 
@@ -138,7 +139,7 @@ class SlaLevel
             }
 
             $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-            Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+            Log::info('Push notification for level '.$level.' has been sent', [$push]);
         }
     }
 
@@ -257,6 +258,7 @@ class SlaLevel
                     and broadcast = 0";
 
          $q = sprintf($q, $table, $level);
+         Log::info('this query update broadcast', [$q]);
          return $q;
     }
 }
