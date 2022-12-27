@@ -64,6 +64,18 @@ class WithdrawalRoute extends BaseRoute
             'uses' => $this->uses('findByReceipt', FinanceController::class),
         ]);
 
+        // report
+        $this->router->get($this->prefix('/report'), [
+            'as' => $this->name('report'),
+            'uses' => $this->uses('reportReceipt', FinanceController::class),
+        ]);
+
+        $this->router->get($this->prefix('/export'), [
+            'as' => $this->name('export'),
+            'uses' => $this->uses('export', FinanceController::class)
+        ]);
+        // report end
+
         // action
         $this->router->post($this->prefix('/detail/{id}/approve'), [//
             'as' => $this->name('approve'),
