@@ -28,10 +28,47 @@ class SlaLevel
             foreach ($levels as $l) {
                 try {
 
+                    // tambah kolom broadcast: default false
+
+                    // tahap 1
+                    // rows: select from sla where level 1 and broadcast = false
+                    // select *
+                    // from partner_delivery_performances t
+                    // WHERE 1=1
+                    //     AND level = 2
+                    //     AND status = 1
+                    //     and broadcast = 0
+                    //     AND reached_at IS NULL
+                    //     AND deadline < NOW();
+
+                    // tahap 2
+                    // foreach(rows as r) {
+                    //     send firebase
+                    // }
+
+                    // tahap 3
+                    // rows: update sla set boardcast = true where level 1 and broadcast = false
+                    // update partner_delivery_performances
+                    //     set broadcast = 1
+                    //     WHERE 1=1
+                    //         AND level = 2
+                    //         AND status = 1
+                    //         and broadcast = 0
+                    //         AND reached_at IS NULL
+                    //         AND deadline < NOW();
+
+
+                    // tahap 4 (ada naik level) :existing query
+                    // update: level naik, deadline di tambah, + broadcast false
+
+
                     // todo new privateChannel($user, $notif, $title)
                     DB::statement(self::query($t, $l));
+
                     // push notification
                     self::pushNotification($t, $l);
+
+                    DB::statement(self::updateBroadcast($t,$l));
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -66,16 +103,6 @@ class SlaLevel
             throw new \Exception("Invalid level for SLA: $type [$level]");
         }
 
-        // $status = null;
-        // switch ($level) {
-        //     case 3:
-        //         $status = 99;
-        //         break;
-        //     default:
-        //         $status = 1;
-        //         break;
-        // }
-
         $q = "UPDATE %s t
                     SET level = %d,
                         deadline = deadline + interval '24' hour,
@@ -100,6 +127,51 @@ class SlaLevel
         return $q;
     }
 
+    // private static function querySelect($type, $level)
+    // {
+    //     $levelPrev = $level - 1;
+    //     $table = null;
+    //     $column = null;
+    //     switch ($type) {
+    //         case 'delivery':
+    //             $table = "partner_delivery_performances";
+    //             $column = "delivery_id";
+    //             break;
+    //         case 'package':
+    //             $table = "partner_package_performances";
+    //             $column = "package_id";
+    //             break;
+    //         default:
+    //             throw new \Exception("Invalid type for SLA: $type [$level]");
+    //             break;
+    //     }
+
+    //     if (!in_array($level, [2, 3])) {
+    //         throw new \Exception("Invalid level for SLA: $type [$level]");
+    //     }
+
+    //     $q = "SELET *
+    //         FROM %s t
+    //         WHERE 1=1
+    //             AND level = %d
+    //             AND status = 1
+    //             AND reached_at IS NULL
+    //             AND deadline < NOW()
+    //             and not exists (
+    //                 select 1
+    //                 from %s
+    //                 WHERE 1=1
+    //                 AND level = %d
+    //                 AND status = 1
+    //                 AND %s = t.%s
+    //                 AND partner_id  = t.partner_id
+    //             )";
+
+    //     $q = sprintf($q, $table, $levelPrev, $table, $level, $column, $column);
+
+    //     return $q;
+    // }
+
     /**
      * Get FCM Token from each users
      */
@@ -118,19 +190,6 @@ class SlaLevel
                 break;
             default:
                 throw new \Exception("Invalid type for SLA: $type [$level]");
-                break;
-        }
-
-        // $status = null;
-        $message = null;
-        switch ($level) {
-            case 3:
-                // $status = 99;
-                $message = Notification::messageLevelTree();
-                break;
-            default:
-                // $status = 1;
-                $message = Notification::messageLevelTwo();
                 break;
         }
 
@@ -156,14 +215,8 @@ class SlaLevel
                     break;
             }
 
-            $check = Notification::query()->where('notifiable_id', $user->id)->where('data->title', 'ilike', '%' . $code . '%')->whereIn('data->body', $message)->first();
-
-            if (is_null($check)) {
-                $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-                Log::info('Push notification for level 2 and 3 has been sent', [$push]);
-            }
-
-            Log::info('Can not send push notification because already sent');
+            $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
+            Log::info('Push notification for level 2 and 3 has been sent', [$push]);
         }
     }
 
@@ -239,6 +292,7 @@ class SlaLevel
                                 and pdp.status = 1
                                 and pdp.reached_at is null
                                 and pdp.deadline < now()
+                                and pdp.broadcast = 0
                         ) p on u.userable_id = p.partner_id
                         where 1=1
                             and u.userable_type = 'App\Models\Partners\Partner'
@@ -251,5 +305,13 @@ class SlaLevel
                         and u2.fcm_token is not null";
 
         return $query;
+    }
+
+    /** Update broadcast column
+     * To handle can be push notif or not
+     */
+    private static function updateBroadcast(): string
+    {
+        $q = ""
     }
 }
