@@ -4,6 +4,7 @@ namespace App\Actions\Core;
 
 use App\Broadcasting\User\PrivateChannel;
 use App\Models\Deliveries\Delivery as DeliveriesDelivery;
+use App\Models\Notifications\Notification;
 use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use App\Models\Partners\Performances\Delivery;
@@ -29,11 +30,8 @@ class SlaLevel
 
                     // todo new privateChannel($user, $notif, $title)
                     DB::statement(self::query($t, $l));
-
                     // push notification
                     self::pushNotification($t, $l);
-                    // dd($push);
-                    // Log::info('Push notification for level 2 and 3 has been sent', [$push]);
                 } catch (\Exception $e) {
                     $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
                     dd($msg);
@@ -68,26 +66,37 @@ class SlaLevel
             throw new \Exception("Invalid level for SLA: $type [$level]");
         }
 
+        // $status = null;
+        // switch ($level) {
+        //     case 3:
+        //         $status = 99;
+        //         break;
+        //     default:
+        //         $status = 1;
+        //         break;
+        // }
+
         $q = "UPDATE %s t
-        SET level = %d,
-            deadline = deadline + interval '24' hour,
-            updated_at = NOW()
-        WHERE 1=1
-            AND level = %d
-            AND status = 1
-            AND reached_at IS NULL
-            AND deadline < NOW()
-            and not exists (
-                select 1
-                from %s
-                WHERE 1=1
-                AND level = %d
-                AND status = 1
-                AND %s = t.%s
-                AND partner_id  = t.partner_id
-            )";
+                    SET level = %d,
+                        deadline = deadline + interval '24' hour,
+                        updated_at = NOW()
+                    WHERE 1=1
+                        AND level = %d
+                        AND status = 1
+                        AND reached_at IS NULL
+                        AND deadline < NOW()
+                        and not exists (
+                            select 1
+                            from %s
+                            WHERE 1=1
+                            AND level = %d
+                            AND status = 1
+                            AND %s = t.%s
+                            AND partner_id  = t.partner_id
+                        )";
 
         $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
+
         return $q;
     }
 
@@ -109,6 +118,19 @@ class SlaLevel
                 break;
             default:
                 throw new \Exception("Invalid type for SLA: $type [$level]");
+                break;
+        }
+
+        // $status = null;
+        $message = null;
+        switch ($level) {
+            case 3:
+                // $status = 99;
+                $message = Notification::messageLevelTree();
+                break;
+            default:
+                // $status = 1;
+                $message = Notification::messageLevelTwo();
                 break;
         }
 
@@ -134,8 +156,14 @@ class SlaLevel
                     break;
             }
 
-            $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-            Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+            $check = Notification::query()->where('notifiable_id', $user->id)->where('data->title', 'ilike', '%' . $code . '%')->whereIn('data->body', $message)->first();
+
+            if (is_null($check)) {
+                $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
+                Log::info('Push notification for level 2 and 3 has been sent', [$push]);
+            }
+
+            Log::info('Can not send push notification because already sent');
         }
     }
 
@@ -199,28 +227,28 @@ class SlaLevel
     private static function tokenFcmQuery(): string
     {
         $query = "SELECT u2.fcm_token, u2.id user_id, pp.type, pp.%s
-        from users u2
-        left join (
-            select u.user_id, p.type, p.level, p.%s from userables u
-            left join (
-                select pdp.partner_id, pdp.%s, pdp.type, pdp.level
-                from %s pdp
-                where 1=1
-                    and pdp.type is not null
-                    and pdp.level = %d
-                    and pdp.status = 1
-                    and pdp.reached_at is null
-                    and pdp.deadline < now()
-            ) p on u.userable_id = p.partner_id
-            where 1=1
-                and u.userable_type = 'App\Models\Partners\Partner'
-                and p.%s is not null
-            group by u.user_id, p.type, p.level, p.%s
-            order by u.user_id asc
-        ) pp on u2.id = pp.user_id
-        where 1=1
-            and pp.type is not null
-            and u2.fcm_token is not null";
+                    from users u2
+                    left join (
+                        select u.user_id, p.type, p.level, p.%s from userables u
+                        left join (
+                            select pdp.partner_id, pdp.%s, pdp.type, pdp.level
+                            from %s pdp
+                            where 1=1
+                                and pdp.type is not null
+                                and pdp.level = %d
+                                and pdp.status = 1
+                                and pdp.reached_at is null
+                                and pdp.deadline < now()
+                        ) p on u.userable_id = p.partner_id
+                        where 1=1
+                            and u.userable_type = 'App\Models\Partners\Partner'
+                            and p.%s is not null
+                        group by u.user_id, p.type, p.level, p.%s
+                        order by u.user_id asc
+                    ) pp on u2.id = pp.user_id
+                    where 1=1
+                        and pp.type is not null
+                        and u2.fcm_token is not null";
 
         return $query;
     }
