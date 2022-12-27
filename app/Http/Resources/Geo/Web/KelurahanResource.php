@@ -24,6 +24,7 @@ class KelurahanResource extends JsonResource
             'regency_id' => $this->regency_id,
             'district_id' => $this->district_id,
             'sub_district_id' => $this->id,
+            'label' => sprintf('%s, %s, %s', $this->regency, $this->district, $this->sub_district),
         ];
 
         if ($this->relationLoaded('regency')) {
