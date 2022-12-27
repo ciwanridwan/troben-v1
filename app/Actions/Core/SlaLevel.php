@@ -225,7 +225,8 @@ class SlaLevel
                     ) pp on u2.id = pp.user_id
                     where 1=1
                         and pp.type is not null
-                        and u2.fcm_token is not null";
+                        and u2.fcm_token is not null
+                        and u2.deleted_at is null";
 
         return $query;
     }
