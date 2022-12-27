@@ -417,8 +417,14 @@ class HomeController extends Controller
                 break;
         }
 
-        $totalAmount = $package->prices()->get()->sum('amount');
-        $package->setAttribute('total_amount', $totalAmount)->save();
+        $discount = $package->prices()->where('type', Price::TYPE_DISCOUNT)->first();
+        if (is_null($discount)) {
+            $totalAmount = $package->prices()->get()->sum('amount');
+            $package->setAttribute('total_amount', $totalAmount)->save();
+        } else {
+            $totalAmount = $package->prices()->where('type', '!=', Price::TYPE_DISCOUNT)->get()->sum('amount') - $discount->amount;
+            $package->setAttribute('total_amount', $totalAmount)->save();
+        }
     }
 
     private function insertDiscountService($package, $amount)
