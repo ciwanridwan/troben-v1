@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
+use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
 use App\Http\Resources\PriceResource;
@@ -454,7 +455,7 @@ class PricingCalculator
         /** @var Price $price */
         $price = Price::query()->where('origin_province_id', $origin_province_id)->where('origin_regency_id', $origin_regency_id)->where('destination_id', $destination_id)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($price === null, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         return $price;
     }
@@ -487,7 +488,7 @@ class PricingCalculator
             $p = $price->tier_8;
         }
 
-        throw_if($p <= 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($p <= 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
         return $p;
     }
@@ -678,14 +679,14 @@ class PricingCalculator
         ];
 
         $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
-        throw_if(!in_array($originRegencyId, $acceptedRegency), Error::make(Response::RC_OUT_OF_RANGE, $messages));
+        throw_if(!in_array($originRegencyId, $acceptedRegency), OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $messages));
 
         // hardcode, set it to jabodetabek price
         $price = BikePrices::where('destination_id', $destinationId)->first();
 
         // $price = BikePrices::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
 
-        throw_if($price === null, Error::make(Response::RC_OUT_OF_RANGE, $messages));
+        throw_if($price === null, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $messages));
 
         return $price;
     }
@@ -761,7 +762,7 @@ class PricingCalculator
         $price = ExpressPrice::where('origin_province_id', $originProvinceId)->where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
         $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
 
-        throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+        throw_if($price === null, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $message));
 
         return $price;
     }
@@ -851,7 +852,21 @@ class PricingCalculator
 
         $prices = [];
         foreach ($childPackage as $r) {
-            $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first()->amount ?? $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first()->amount;
+            $servicePrice = null;
+
+            switch ($r->service_code) {
+                case Service::TRAWLPACK_STANDARD:
+                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_SERVICE)->first();
+                    if (is_null($servicePrice)) {
+                        $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_CUBIC)->first();
+                    }
+                    break;
+                case Service::TRAWLPACK_EXPRESS:
+                    $servicePrice = $r->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::DESCRIPTION_TYPE_EXPRESS)->first();
+                    break;
+                default:
+                    break;
+            }
 
             $handlingPrice = $r->prices()->where('type', PackagePrice::TYPE_HANDLING)->get()->sum('amount') ?? 0;
 
@@ -862,7 +877,7 @@ class PricingCalculator
             $discount = $r->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? 0;
 
             $price = [
-                'service_price' => $servicePrice,
+                'service_price' => $servicePrice->amount,
                 'handling_price' => $handlingPrice,
                 'insurance_price' => $insurancePrice,
                 'additional_price' => $additionalPrice,

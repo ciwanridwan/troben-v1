@@ -14,6 +14,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Balance\History;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Performances as Performance;
+use App\Models\Partners\Performances\Delivery as PerformancesDelivery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -79,7 +80,7 @@ class PartnerPerformanceEvaluatedByEvent
                         $level = $this->package->partner_performance->level;
 
                         if ($this->reach_at > $deadline && $level === 3) {
-                            $this->setPenaltyIncome($this->package);
+                            $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
                         }
 
                         $this
@@ -93,6 +94,7 @@ class PartnerPerformanceEvaluatedByEvent
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
                 }
+                Log::info("Driver finish unload in destination warehouse");
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
@@ -103,7 +105,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -119,19 +121,21 @@ class PartnerPerformanceEvaluatedByEvent
                 $level = $this->package->partner_performance->level;
 
                 if ($this->reach_at > $deadline && $level === 3) {
-                    $this->setPenaltyIncome($this->package);
+                    $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
                 }
 
                 $this->setPerformance($this->package->partner_performance)->updatePerformance();
                 break;
             case $event instanceof DriverAssignedOfTransit:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
                 if ($this->delivery->partner_performance !== null) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package);
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -141,12 +145,15 @@ class PartnerPerformanceEvaluatedByEvent
                 break;
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+                $this->package = $event->package;
+
                 if ($this->delivery->partner_performance !== null) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package);
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -163,7 +170,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
@@ -201,10 +208,24 @@ class PartnerPerformanceEvaluatedByEvent
                 false => $this->delivery->partner_performance()
             };
 
-            $query->where($this->attributes)->update([
-                'reached_at' => Carbon::now(),
-                'status' => Performance\PerformanceModel::STATUS_REACHED
-            ]);
+            if ($this->performance->type === PerformancesDelivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE) {
+                $query->where($this->attributes)->update([
+                    'reached_at' => Carbon::now(),
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                    'counter' => 0
+                ]);
+            } elseif ($this->performance->type === PerformancesDelivery::TYPE_MTAK_OWNER_TO_DRIVER) {
+                $query->where($this->attributes)->update([
+                    'reached_at' => Carbon::now(),
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                    'counter' => 1
+                ]);
+            } else {
+                $query->where($this->attributes)->update([
+                    'reached_at' => Carbon::now(),
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                ]);
+            }
         }
     }
 
@@ -226,19 +247,17 @@ class PartnerPerformanceEvaluatedByEvent
     }
 
 
-    protected function setPenaltyIncome($type): void
+    protected function setPenaltyIncome($type, $partnerId): void
     {
         switch (true) {
             case $type instanceof Package:
                 $this->package = $type;
-                $partnerId = $this->package->partner_performance->partner_id;
 
                 $this->createHistory($this->package, $partnerId);
                 break;
             case $type instanceof Delivery:
                 $this->delivery = $type;
                 $packages = $this->delivery->packages;
-                $partnerId = $this->delivery->partner_performance->partner_id;
 
                 foreach ($packages as $package) {
                     $this->package = $package;

@@ -810,7 +810,7 @@ class GenerateBalanceHistory
         } else {
             if ($variant == '0') {
                 $discount = 0;
-                $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+                $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->first();
                 if (is_null($check)) {
                     $discount = 0;
                 } else {
@@ -839,7 +839,7 @@ class GenerateBalanceHistory
 
         if ($variant == '0') {
             $discount = 0;
-            $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+            $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->first();
             if (is_null($check)) {
                 $discount = 0;
             } else {

@@ -39,6 +39,46 @@ class PartnerRoute extends BaseRoute
             'uses' => $this->uses('partnerList', CorporateController::class),
         ]);
 
+        $this->router->get($this->prefix('/corporate/customer'), [
+            'as' => $this->name('corporate.customer'),
+            'uses' => $this->uses('customerList', CorporateController::class),
+        ]);
+
+        $this->router->post($this->prefix('/corporate/order'), [
+            'as' => $this->name('corporate.order'),
+            'uses' => $this->uses('store', CorporateController::class),
+        ]);
+
+        $this->router->post($this->prefix('/corporate/order/multi'), [
+            'as' => $this->name('corporate.order.multi'),
+            'uses' => $this->uses('storeMulti', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order/payment'), [
+            'as' => $this->name('corporate.order.payment'),
+            'uses' => $this->uses('paymentMethod', CorporateController::class),
+        ]);
+
+        $this->router->post($this->prefix('/corporate/order/payment'), [
+            'as' => $this->name('corporate.order.payment.submit'),
+            'uses' => $this->uses('paymentMethodSet', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order-list'), [
+            'as' => $this->name('corporate.order-list'),
+            'uses' => $this->uses('listOrder', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order-count'), [
+            'as' => $this->name('corporate.order-count'),
+            'uses' => $this->uses('countOrder', CorporateController::class),
+        ]);
+
+        $this->router->get($this->prefix('/corporate/order-detail'), [
+            'as' => $this->name('corporate.order-detail'),
+            'uses' => $this->uses('detailOrder', CorporateController::class),
+        ]);
+
         $this->router->get($this->prefix('/nearby'), [
             'as' => $this->name('nearby'),
             'uses' => $this->uses('nearby'),

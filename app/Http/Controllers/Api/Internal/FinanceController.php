@@ -39,8 +39,19 @@ class FinanceController extends Controller
     /**List disbursment */
     public function list(): JsonResponse
     {
-        $result = Withdrawal::whereHas('partner')->orderBy('created_at', 'desc')->get();
+        $result = $this->getWithdrawal()->get();
         return $this->jsonSuccess(ListResource::collection($result));
+    }
+
+    public function listPaginate(Request $request): JsonResponse
+    {
+        $result = $this->getWithdrawal()->paginate(request('per_page', 15));
+        return $this->jsonSuccess(ListResource::collection($result));
+    }
+
+    private function getWithdrawal()
+    {
+        return Withdrawal::whereHas('partner')->orderBy('created_at', 'desc');
     }
 
     /** Count Request Disbursment */
@@ -116,6 +127,10 @@ class FinanceController extends Controller
 
         $result = Withdrawal::where('id', $request->id)->first();
         if (is_null($result)) {
+            return (new Response(Response::RC_SUCCESS, []))->json();
+        }
+
+        if (! isset($this->attributes['receipt'])) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
