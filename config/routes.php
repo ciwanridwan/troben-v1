@@ -90,6 +90,7 @@ return [
         App\Http\Routes\TermAndConditionRoute::class,
         App\Http\Routes\Api\MotorBikeRoute::class,
         App\Http\Routes\TestingRoute::class,
+        App\Http\Routes\Api\Internal\ManifestRoute::class
         /** @inject api **/
     ],
     'admin' => [
