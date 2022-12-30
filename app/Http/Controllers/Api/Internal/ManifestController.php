@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Internal;
 
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\HeadOffice\PartnersTransporterResource;
+use App\Http\Resources\Api\HeadOffice\RequestTransporterResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Models\Deliveries\Delivery;
@@ -73,7 +75,6 @@ class ManifestController extends Controller
 
     public function index(Request $request)
     {
-        // if ($request->expectsJson()) {
             if ($request->partner) {
                 return $this->getPartnerTransporter($request);
             }
@@ -82,13 +83,10 @@ class ManifestController extends Controller
             $this->dataRelation();
 
             return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
-        // }
-        // return view('admin.home.manifest.index');
     }
 
     public function requestTransporter(Request $request)
     {
-        // if ($request->expectsJson()) {
             if ($request->partner) {
                 return $this->getPartnerTransporter($request);
             }
@@ -96,9 +94,7 @@ class ManifestController extends Controller
             $this->getSearch($request);
             $this->dataRelation();
 
-            return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
-        // }
-        // return view('admin.home.manifest.index');
+            return $this->jsonSuccess(RequestTransporterResource::collection($this->paginateWithTransformData()));
     }
 
     public function assign(Delivery $delivery,Partner $partner)
@@ -112,13 +108,14 @@ class ManifestController extends Controller
     {
         $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)
                  ->orWhere('type', Partner::TYPE_BUSINESS);
-        // $query = Partner::query();
 
-        $request->whenHas('q', function ($value) use ($query) {
+        $request->whenHas('search', function ($value) use ($query) {
             $query->where(function ($query) use ($value) {
                 $query->search($value);
             });
         });
-        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+
+        return $this->jsonSuccess(PartnersTransporterResource::collection($query->paginate(request('per_page', 15))));
+        // return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
 }
