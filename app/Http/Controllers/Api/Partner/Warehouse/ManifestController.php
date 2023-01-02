@@ -13,9 +13,8 @@ use App\Supports\Repositories\PartnerRepository;
 // use App\Jobs\Deliveries\Actions\CreateNewManifest;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
-use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Jobs\Deliveries\Actions\V2\ProcessFromCodeToDelivery;
 use App\Jobs\Deliveries\Actions\V2\CreateNewManifest;
-use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -84,6 +83,7 @@ class ManifestController extends Controller
     // }
     // end old
 
+    
     // new script to create manifest
     /**
      * @param \Illuminate\Http\Request $request
@@ -95,10 +95,8 @@ class ManifestController extends Controller
     {
         $job = new CreateNewManifest($repository->getPartner(), $request->all());
         $this->dispatchNow($job);
-        dd($job->delivery);
 
         $this->insertPackagesToDelivery($request->all(), $job->delivery);
-
         return $this->jsonSuccess();
     }
     // end
@@ -214,7 +212,7 @@ class ManifestController extends Controller
     /** Insert packages to new delivery */
     public function insertPackagesToDelivery($request, Delivery $delivery): void
     {
-        $inputs = array_merge($request->only(['code']));
+        $inputs = array_merge($request);
         if (count($inputs['code'])) {
             // code package
             $q = "select content  from codes c where

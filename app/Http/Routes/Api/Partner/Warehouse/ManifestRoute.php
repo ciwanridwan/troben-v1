@@ -80,6 +80,11 @@ class ManifestRoute extends BaseRoute
             'as' => $this->name('assignation.partner'),
             'uses' => $this->uses('partner', Manifest\AssignationController::class),
         ]);
+
+        $this->router->patch($this->prefix('assignation/{delivery_hash}/partner-destination/{partner_hash}'), [
+            'as' => $this->name('assignation.partner.destination'),
+            'uses' => $this->uses('partnerDestination', Manifest\AssignationController::class),
+        ]);
     }
 
     /**

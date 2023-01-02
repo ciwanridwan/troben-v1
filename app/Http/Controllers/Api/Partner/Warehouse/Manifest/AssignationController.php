@@ -13,6 +13,7 @@ use App\Models\Partners\Pivot\UserablePivot;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
 use App\Jobs\Deliveries\Actions\ProcessFromCodeToDelivery;
+use App\Jobs\Deliveries\Actions\V2\AssignPartnerDestinationToDelivery;
 use App\Models\User;
 use App\Services\Chatbox\Chatbox;
 use Illuminate\Support\Facades\DB;
@@ -117,6 +118,17 @@ class AssignationController extends Controller
             $inputs
         );
 
+        $this->dispatchNow($job);
+
+        return $this->jsonSuccess();
+    }
+
+    /**
+     * Assign partner destination 
+     */
+    public function partnerDestination(Delivery $delivery, Partner $partner): JsonResponse
+    {
+        $job = new AssignPartnerDestinationToDelivery($delivery, $partner);
         $this->dispatchNow($job);
 
         return $this->jsonSuccess();
