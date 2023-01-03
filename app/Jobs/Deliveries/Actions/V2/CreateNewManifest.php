@@ -51,7 +51,6 @@ class CreateNewManifest
         $this->attributes['created_by'] = auth()->user()->id;
 
         $job = new CreateNewDelivery($this->attributes);
-
         dispatch_now($job);
 
         if ($job->delivery->exists) {

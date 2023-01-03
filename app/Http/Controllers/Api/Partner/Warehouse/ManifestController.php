@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
+use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
@@ -93,10 +94,14 @@ class ManifestController extends Controller
      */
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $a = Route::generate($repository->getPartner(), $request->all());
+        dd($a);
+
         $job = new CreateNewManifest($repository->getPartner(), $request->all());
         $this->dispatchNow($job);
 
         $this->insertPackagesToDelivery($request->all(), $job->delivery);
+
         return $this->jsonSuccess();
     }
     // end
