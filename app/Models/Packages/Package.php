@@ -24,6 +24,7 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CancelOrder;
+use App\Models\Deliveries\DeliveryRoute;
 use App\Models\FileUpload;
 use App\Models\PackageCorporate;
 use App\Models\Service;
@@ -979,5 +980,10 @@ class Package extends Model implements AttachableContract
         $additionalPrice = $item['additional_price'];
 
         return $additionalPrice;
+    }
+
+    public function deliveryRoutes(): HasOne
+    {
+        return $this->hasOne(DeliveryRoute::class, 'package_id', 'id');
     }
 }

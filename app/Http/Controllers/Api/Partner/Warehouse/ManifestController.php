@@ -94,9 +94,8 @@ class ManifestController extends Controller
      */
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $a = Route::generate($repository->getPartner(), $request->all());
-        dd($a);
-
+        Route::generate($repository->getPartner(), $request->all());
+        
         $job = new CreateNewManifest($repository->getPartner(), $request->all());
         $this->dispatchNow($job);
 

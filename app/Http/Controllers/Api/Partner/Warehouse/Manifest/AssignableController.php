@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
+use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
 use Illuminate\Support\Arr;
@@ -20,19 +21,37 @@ use App\Http\Resources\Api\Transporter\TransporterDriverResource;
 
 class AssignableController extends Controller
 {
-    public function partner(Request $request, PartnerRepository $repository): JsonResponse
+    // public function partner(Request $request, PartnerRepository $repository): JsonResponse
+    // {
+    //     $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
+
+    //     $query->when(
+    //         $request->input('type'),
+    //         fn (Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
+    //         fn (Builder $builder, $type) => $builder->whereIn('type', [
+    //             Partner::TYPE_BUSINESS,
+    //             Partner::TYPE_SPACE,
+    //             Partner::TYPE_POOL,
+    //         ])
+    //     );
+
+    //     $query->when(
+    //         $request->input('code'),
+    //         fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
+    //     );
+
+    //     return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
+    // }
+
+    public function partner(Request $request, PartnerRepository $repository, Delivery $delivery): JsonResponse
     {
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
+        $packages = $delivery->packages()->get();
 
-        $query->when(
-            $request->input('type'),
-            fn (Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
-            fn (Builder $builder, $type) => $builder->whereIn('type', [
-                Partner::TYPE_BUSINESS,
-                Partner::TYPE_SPACE,
-                Partner::TYPE_POOL,
-            ])
-        );
+        foreach ($packages as $package) {
+            $partnerCode = Route::setPartners($package->deliveryRoutes);
+            $query->where('code', $partnerCode);
+        }
 
         $query->when(
             $request->input('code'),
