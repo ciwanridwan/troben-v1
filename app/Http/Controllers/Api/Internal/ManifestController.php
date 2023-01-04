@@ -41,7 +41,7 @@ class ManifestController extends Controller
     public function __construct()
     {
         $this->rules = [
-            'q' => ['nullable'],
+            'search' => ['nullable'],
         ];
 
         $this->baseBuilder();
@@ -52,7 +52,7 @@ class ManifestController extends Controller
     {
         $this->query->whereHas('packages');
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->search($request->q, 'content');
+            $query->search($request->search, 'content');
         });
         return $this;
     }
@@ -110,12 +110,9 @@ class ManifestController extends Controller
                  ->orWhere('type', Partner::TYPE_BUSINESS);
 
         $request->whenHas('search', function ($value) use ($query) {
-            $query->where(function ($query) use ($value) {
-                $query->search($value);
-            });
+            $query->search($value);
         });
 
         return $this->jsonSuccess(PartnersTransporterResource::collection($query->paginate(request('per_page', 15))));
-        // return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
     }
 }
