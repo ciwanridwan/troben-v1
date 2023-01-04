@@ -91,4 +91,12 @@ class Route
             return $partner->code_mtak_1_dest;
         }
     }
+
+    public static function setPartnerTransporter($deliveryRoutes)
+    {
+        if (is_null($deliveryRoutes->reach_destination_1_at) && in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG)) {
+            $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')->first();
+            return $partner->code_mtak_1;
+        }
+    }
 }
