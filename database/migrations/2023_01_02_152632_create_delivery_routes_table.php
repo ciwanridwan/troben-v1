@@ -16,6 +16,7 @@ class CreateDeliveryRoutesTable extends Migration
         Schema::create('delivery_routes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('package_id');
+            $table->unsignedBigInteger('origin_warehouse_id');
             $table->unsignedBigInteger('regency_origin_id');
 
             $table->unsignedBigInteger('regency_destination_1');
@@ -27,8 +28,21 @@ class CreateDeliveryRoutesTable extends Migration
             $table->unsignedBigInteger('regency_destination_3')->nullable();
             $table->timestamp('reach_destination_3_at')->nullable();
 
+            $table->unsignedBigInteger('partner_dooring_id');
             $table->unsignedBigInteger('regency_dooring_id');
             $table->timestamps();
+
+            $table
+                ->foreign('origin_warehouse_id')
+                ->references('id')
+                ->on('partners')
+                ->cascadeOnDelete();
+
+            $table
+                ->foreign('partner_dooring_id')
+                ->references('id')
+                ->on('partners')
+                ->cascadeOnDelete();
         });
     }
 

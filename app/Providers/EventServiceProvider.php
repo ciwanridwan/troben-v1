@@ -67,6 +67,7 @@ use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Events\Payment\Nicepay\PayByNicePayDummy;
+use App\Listeners\Deliveries\UpdateDeliveryRoute;
 use App\Listeners\Packages\GeneratePackageBikePrices;
 use App\Listeners\Partners\CalculateIncomeAEIndirect;
 use Illuminate\Support\Facades\Event;
@@ -165,6 +166,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
+            UpdateDeliveryRoute::class,
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
