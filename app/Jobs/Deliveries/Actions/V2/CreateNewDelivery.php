@@ -30,11 +30,13 @@ class CreateNewDelivery
      * @param \App\Models\Partners\Partner|null $partner
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(array $inputs = [], ?Partner $originPartner = null)
+    public function __construct(array $inputs = [], ?Partner $partner = null, ?Partner $originPartner = null)
     {
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Delivery::getAvailableTypes())],
             'status' => ['nullable', Rule::in(Delivery::getAvailableStatus())],
+            'partner_id' => ['nullable', 'exists:partners,id'],
+            'userable_id' => ['nullable', 'exists:userables,id'],
             'origin_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'origin_district_id' => ['nullable', 'exists:geo_districts,id'],
             'origin_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
@@ -44,6 +46,7 @@ class CreateNewDelivery
         ])->validate();
 
         $this->delivery = new Delivery();
+        $this->partner = $partner;
         $this->originPartner = $originPartner;
     }
 
@@ -54,6 +57,9 @@ class CreateNewDelivery
             $this->delivery->created_by = User::USER_SYSTEM_ID;
         } else {
             $this->delivery->created_by = auth()->user()->id;
+        }
+        if ($this->partner) {
+            $this->delivery->partner()->associate($this->partner);
         }
         if ($this->originPartner) {
             $this->delivery->origin_partner()->associate($this->originPartner);
