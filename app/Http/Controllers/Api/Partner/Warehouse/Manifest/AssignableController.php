@@ -16,6 +16,7 @@ use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Admin\Master\PartnerResource;
+use App\Http\Resources\Api\Assignable\DriverTransporterResource;
 use App\Http\Resources\Api\Assignable\PackageResource;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Resources\Api\Transporter\TransporterDriverResource;
@@ -44,15 +45,16 @@ class AssignableController extends Controller
     //     return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
     // }
 
-    public function partner(Request $request, PartnerRepository $repository, Delivery $delivery): JsonResponse
+    public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $generateRoute = Route::generate($repository->getPartner(), $request->all());
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        $packages = $delivery->packages()->get();
+        // $packages = $delivery->packages()->get();
 
-        foreach ($packages as $package) {
-            $partnerCode = Route::setPartners($package->deliveryRoutes);
-            $query->where('code', $partnerCode);
-        }
+        // foreach ($packages as $package) {
+        //     $partnerCode = Route::setPartners($package->deliveryRoutes);
+        //     $query->where('code', $partnerCode);
+        // }
 
         $query->when(
             $request->input('code'),
@@ -74,8 +76,8 @@ class AssignableController extends Controller
                 fn (Builder $transporterQuery) => $transporterQuery->where('type', $type)
             )
         );
-
-        return $this->jsonSuccess(TransporterDriverResource::collection($query->paginate($request->input('per_page'))));
+        return $this->jsonSuccess(DriverTransporterResource::collection($query->paginate($request->input('per_page'))));
+        // return $this->jsonSuccess(TransporterDriverResource::collection($query->paginate($request->input('per_page'))));
     }
 
     public function package(Request $request, PartnerRepository $repository): JsonResponse

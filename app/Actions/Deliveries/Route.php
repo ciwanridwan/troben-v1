@@ -45,7 +45,7 @@ class Route
                 $check = true;
             }
         }
-
+        dd($check);
         if ($check) {
             $packages = self::getPackages($codes);
             $packages->each(function ($q) use ($partner) {
