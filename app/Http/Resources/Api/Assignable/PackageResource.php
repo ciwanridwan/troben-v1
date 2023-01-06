@@ -39,6 +39,7 @@ class PackageResource extends JsonResource
         return [
             'id' => $this->id,
             'hash' => $this->hash,
+            'status' => $this->status,
             'total_weight' => $this->total_weight,
             'receiver_address' => $this->receiver_address,
             'code' => $this->code->only('content'),

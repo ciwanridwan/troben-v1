@@ -301,7 +301,7 @@ class Partner extends Model
      */
     public function sub_district(): BelongsTo
     {
-        return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
+        return $this->belongsTo(SubDistrict::class, 'geo_sub_district_id', 'id');
     }
 
     /**
