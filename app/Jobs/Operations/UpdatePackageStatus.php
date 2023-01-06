@@ -34,6 +34,7 @@ class UpdatePackageStatus
     public function __construct(Package $package, array $inputs)
     {
         $this->package = $package;
+	$this->childs = collect([]);
 
         $this->attributes = Validator::make(
             $inputs,
@@ -56,6 +57,7 @@ class UpdatePackageStatus
         $this->package->fill($this->attributes);
         $this->package->save();
 
+	/*
         // check for child package if multi type, set it same as parent, for some status
         $statusPackage = $this->package->status;
         $childPackageSetter = [
@@ -77,6 +79,7 @@ class UpdatePackageStatus
                 }
             }
         }
+	*/
 
         return $this->package->exists;
     }
