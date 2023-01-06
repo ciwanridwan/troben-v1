@@ -53,6 +53,8 @@ class RegistrationPayment
             $billingCity = 'Jakarta';
             $billingState = 'DKI Jakarta';
             $billingPostCd = '12345';
+            $billingEmail = 'noreply@trawlbens.co.id';
+            $billingPhone = '6281234567890';
             $addressList = $customer
                 ->addresses()
                 ->with(['province', 'regency', 'district'])
@@ -63,6 +65,13 @@ class RegistrationPayment
                 $billingCity = $address->regency->name;
                 $billingState = $address->district->name;
                 $billingPostCd = $address->sub_district->zip_code;
+            }
+            if (! is_null($customer->email)) {
+                $billingEmail = $customer->email;
+            }
+            if (! is_null($package->sender_phone)) {
+                $billingEmail = 'tb-'.$this->validPhone($package->sender_phone).'@gmail.com';
+                $billingPhone = $this->validPhone($package->sender_phone);
             }
 
             // todo get total amount child package of multi destination
@@ -87,7 +96,7 @@ class RegistrationPayment
                 'goodsNm' => 'Trawlpack Order '.$package->code->content,
                 'billingNm' => $customer->name,
                 'billingPhone' => $this->validPhone($package->sender_phone),
-                'billingEmail' => $customer->email,
+                'billingEmail' => $billingEmail,
                 'billingAddr' => $billingAddr,
                 'billingCity' => $billingCity,
                 'billingState' => $billingState,

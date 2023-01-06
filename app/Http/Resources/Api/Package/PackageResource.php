@@ -164,7 +164,7 @@ class PackageResource extends JsonResource
     {
         $canApprove = false;
         $childId = $this->resource->multiDestination->map(function ($q) {
-           return $q->child_id;
+            return $q->child_id;
         })->toArray();
 
         $check = Package::whereIn('id', $childId)->get()->filter(function ($q) {
