@@ -70,7 +70,36 @@ class NicepayController extends Controller
             ->latest()
             ->first();
 
-        $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+
+//        $now = Carbon::now()->format('YmdHis');
+//        $job = new Cancel([
+//            'timeStamp' => $now,
+//            'tXid' => $payment->payment_ref_id,
+//            'iMid' => config('nicepay.imid'),
+//            'payMethod' => config('nicepay.payment_method_code.va'),
+//            'cancelType' => '1',
+//            'cancelMsg' => 'Request Cancel',
+//            'merchantToken' => $this->merchantToken($now,$payment->payment_ref_id,$payment->total_payment),
+//            'preauthToken' => '',
+//            'amt' => $payment->total_payment,
+//            'cancelServerIp' => '127.0.0.1',
+//            'cancelUserId' => 'admin',
+//            'cancelUserIp' => '127.0.0.1',
+//            'cancelUserInfo' => 'Test Cancel',
+//            'cancelRetryCnt' => '3',
+//            'referenceNo' =>  $package->code->content,
+//            'worker' => ''
+//        ]);
+//        $this->dispatchNow($job);
+
+        if (is_null($payment)) {
+            $msg = sprintf('Payment pending not found for: %s', $package->getKey());
+            Log::error($msg, ['package' => $package, 'payments' => $package->payments()->get()]);
+            throw new \Exception($msg);
+        } else {
+            $payment->setAttribute('status', Payment::STATUS_CANCELLED)->save();
+        }
+
         if($package->status == Package::STATUS_WAITING_FOR_CANCEL_PAYMENT) {
             $package->status = Package::STATUS_CANCEL;
             $package->save();

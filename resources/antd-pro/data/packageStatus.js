@@ -11,6 +11,7 @@ const STATUS_WAITING_FOR_APPROVAL = "waiting_for_approval";
 const STATUS_REVAMP = "revamp";
 const STATUS_ACCEPTED = "accepted";
 const STATUS_WAITING_FOR_PACKING = "waiting_for_packing";
+const STATUS_WAITING_FOR_PAYMENT = "waiting_for_payment";
 const STATUS_PACKING = "packing";
 const STATUS_PACKED = "packed";
 const STATUS_MANIFESTED = "manifested";
@@ -90,6 +91,11 @@ const statuses = [
     status: STATUS_ACCEPTED,
     messageType: "warning",
     message: "Pesanan diterima mitra"
+  },
+  {
+    status: STATUS_WAITING_FOR_PAYMENT,
+    messageType: "warning",
+    message: "Customer Melakukan Proses Pembayaran"
   },
   {
     status: STATUS_WAITING_FOR_PACKING,
@@ -191,6 +197,7 @@ export {
   STATUS_WAITING_FOR_APPROVAL,
   STATUS_REVAMP,
   STATUS_ACCEPTED,
+  STATUS_WAITING_FOR_PAYMENT,
   STATUS_WAITING_FOR_PACKING,
   STATUS_PACKING,
   STATUS_PACKED,

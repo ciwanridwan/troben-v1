@@ -25,6 +25,14 @@
     </trawl-status-warning>
     <trawl-status-warning
       v-if="
+        record.package_status == 'waiting_for_payment' &&
+          record.payment_status == 'pending'
+      "
+    >
+      Menunggu Pembayaran
+    </trawl-status-warning>
+    <trawl-status-warning
+      v-if="
         record.package_status == 'accepted' && record.payment_status == 'paid'
       "
     >
