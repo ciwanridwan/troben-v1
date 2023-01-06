@@ -18,10 +18,10 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (! $this->resource->relationLoaded('code')) {
+        if (!$this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
-        
+
         if ($this->resource->relationLoaded('items')) {
             $items = ItemResource::collection($this->resource->items)->toArray($request);
             $this->resource->unsetRelation('items');
@@ -31,11 +31,16 @@ class PackageResource extends JsonResource
             $item = collect($items)->map(function ($q) {
                 return [
                     'qty' => $q['qty'],
-                    'name' => $q['name']
+                    'name' => $q['name'],
+                    'codes' => collect($q['codes'])->map(function ($r) {
+                        return [
+                            'content' => $r['content']
+                        ];
+                    })
                 ];
             })->toArray();
         }
-        
+
         return [
             'id' => $this->id,
             'hash' => $this->hash,

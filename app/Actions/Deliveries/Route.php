@@ -2,8 +2,6 @@
 
 namespace App\Actions\Deliveries;
 
-use App\Jobs\Deliveries\Actions\CreateDeliveryRoute;
-use App\Models\Code;
 use App\Models\Deliveries\DeliveryRoute;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -37,7 +35,8 @@ class Route
     public const WAREHOUSE_AMBON = ['MB-AMB-01'];
     // end list
 
-    public static function generate($partner, $packageHash): array
+    /** To generate route for some packages */
+    public static function generate($partner, $packageHash)
     {
         $check = false;
         $partnerCode = null;
@@ -47,21 +46,24 @@ class Route
                 $check = true;
             }
         }
-        
+
         if ($check) {
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q->destination_regency_id);
                 $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
 
-                DeliveryRoute::create([
-                    'package_id' => $q->id,
-                    'regency_origin_id' => $partner->geo_regency_id,
-                    'origin_warehouse_id' => $partner->id,
-                    'regency_destination_1' => $warehouse->regency_id,
-                    'regency_dooring_id' => $dooringPartner->geo_regency_id,
-                    'partner_dooring_id' => $dooringPartner->id
-                ]);
+                $checkPackages = DeliveryRoute::query()->where('package_id', $q->id)->first();
+                if (is_null($checkPackages)) {
+                    DeliveryRoute::create([
+                        'package_id' => $q->id,
+                        'regency_origin_id' => $partner->geo_regency_id,
+                        'origin_warehouse_id' => $partner->id,
+                        'regency_destination_1' => $warehouse->regency_id,
+                        'regency_dooring_id' => $dooringPartner->geo_regency_id,
+                        'partner_dooring_id' => $dooringPartner->id
+                    ]);
+                }
             });
 
             $partnerByRoutes = [];
@@ -75,6 +77,9 @@ class Route
         return $partnerCode;
     }
 
+    /**
+     * convert hash and get packages
+     */
     public static function getPackages($hash): Collection
     {
         $packagesId = [];
@@ -87,43 +92,73 @@ class Route
         return $packages;
     }
 
+    /**
+     * Get warehouse partner for a depedency delivery routes
+     */
     public static function getWarehousePartner($partnerCode, $regencyId)
     {
         switch (true) {
             case in_array($partnerCode, self::WAREHOUSE_NAROGONG):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'NAROGONG')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'NAROGONG')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_AMBON):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'AMBON')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'AMBON')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_BANDUNG):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'BANDUNG')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'BANDUNG')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_BANJARMASIN):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'BANJARMASIN')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'BANJARMASIN')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_MAKASSAR):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'MAKASSAR')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'MAKASSAR')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_MATARAM):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'MATARAM')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'MATARAM')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_PEKANBARU):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'PEKANBARU')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'PEKANBARU')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_PONTIANAK):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'PONTIANAK')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'PONTIANAK')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_SEMARANG):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'SEMARANG')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'SEMARANG')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_SURABAYA):
@@ -134,7 +169,10 @@ class Route
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_TEGAL):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'TEGAL')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'TEGAL')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             default:
@@ -143,6 +181,9 @@ class Route
         }
     }
 
+    /**
+     * Get dooring partner 
+     */
     public static function getDooringPartner($code): Model
     {
         $partner = Partner::query()->where('code', $code)->first();
@@ -150,6 +191,9 @@ class Route
         return $partner;
     }
 
+    /**
+     * Set partner to show in list
+     */
     public static function setPartners($deliveryRoutes)
     {
         switch (true) {
@@ -313,6 +357,9 @@ class Route
         }
     }
 
+    /** 
+     * To set partner transporter by each routes
+     */
     public static function setPartnerTransporter($deliveryRoutes)
     {
         switch (true) {
@@ -476,6 +523,9 @@ class Route
         }
     }
 
+    /**
+     * List of warehouse on routes map
+     */
     public static function listWarehouse(): array
     {
         return [

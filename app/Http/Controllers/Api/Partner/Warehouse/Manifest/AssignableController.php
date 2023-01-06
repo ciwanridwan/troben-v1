@@ -48,6 +48,9 @@ class AssignableController extends Controller
     public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
         $partnerCode = Route::generate($repository->getPartner(), $request->all());
+        if (is_null($partnerCode)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
+        }
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
         $query->where('code', $partnerCode);
