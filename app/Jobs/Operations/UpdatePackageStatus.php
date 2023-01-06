@@ -5,6 +5,7 @@ namespace App\Jobs\Operations;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
 class UpdatePackageStatus
@@ -18,6 +19,11 @@ class UpdatePackageStatus
      */
     public $package;
 
+    /**
+     * @var Collection
+     */
+    public Collection $childs;
+
     private array $attributes;
 
     /**
@@ -28,6 +34,7 @@ class UpdatePackageStatus
     public function __construct(Package $package, array $inputs)
     {
         $this->package = $package;
+	$this->childs = collect([]);
 
         $this->attributes = Validator::make(
             $inputs,
@@ -50,6 +57,7 @@ class UpdatePackageStatus
         $this->package->fill($this->attributes);
         $this->package->save();
 
+	/*
         // check for child package if multi type, set it same as parent, for some status
         $statusPackage = $this->package->status;
         $childPackageSetter = [
@@ -58,10 +66,12 @@ class UpdatePackageStatus
             Package::STATUS_WAITING_FOR_ESTIMATING,
         ];
         if (in_array($statusPackage, $childPackageSetter)) {
-            $childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
+            // $childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
+            $this->childs = MultiDestination::where('parent_id', $this->package->getKey())->get();
         }
-        if ($childs->count()) {
-            foreach ($childs as $c) {
+        // if ($childs->count()) {
+        if ($this->childs->count()) {
+            foreach ($this->childs as $c) {
                 $packageChild = Package::find($c->child_id);
                 if ($packageChild) {
                     $packageChild->status = Package::STATUS_WAITING_FOR_ESTIMATING;
@@ -69,6 +79,7 @@ class UpdatePackageStatus
                 }
             }
         }
+	*/
 
         return $this->package->exists;
     }

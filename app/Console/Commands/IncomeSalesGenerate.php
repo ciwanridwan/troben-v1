@@ -65,8 +65,8 @@ class IncomeSalesGenerate extends Command
         $result = collect(DB::select($q))->each(function ($r) {
             $profitMitra = $r->amount * 0.3; // for mitra
             $profitHO = $r->amount * 0.7; // for ho
-            $profitAgent = $profitMitra * 0.3; // for agent
-            $profitCoordinator = $r->amount * 0.05; // for coordinator
+            $profitAgent = (int) ($profitMitra * 0.3); // for agent
+            $profitCoordinator = (int) ($r->amount * 0.05); // for coordinator
 
             if (! is_null($r->agent_id)) {
                 $agent = DB::table('agents')->where('id', $r->agent_id)->first();
