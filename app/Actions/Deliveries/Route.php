@@ -37,7 +37,7 @@ class Route
     public const WAREHOUSE_AMBON = ['MB-AMB-01'];
     // end list
 
-    public static function generate($partner, $codes)
+    public static function generate($partner, $packageHash): array
     {
         $check = false;
         foreach (self::listWarehouse() as $key => $value) {
@@ -45,12 +45,12 @@ class Route
                 $check = true;
             }
         }
-        dd($check);
+
+        $partnerCode = null;
         if ($check) {
-            $packages = self::getPackages($codes);
+            $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q->destination_regency_id);
-                dd($warehouse);
                 $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
 
                 DeliveryRoute::create([
@@ -62,14 +62,27 @@ class Route
                     'partner_dooring_id' => $dooringPartner->id
                 ]);
             });
+
+            $partnerByRoutes = [];
+            foreach ($packages as $package) {
+                $partnerByRoute = self::setPartners($package->deliveryRoutes);
+                array_push($partnerByRoutes, $partnerByRoute);
+            }
+            $partnerCode = $partnerByRoutes;
         }
+
+        return $partnerCode;
     }
 
-    public static function getPackages($codes): Collection
+    public static function getPackages($hash): Collection
     {
-        $packageId = Code::query()->where('codeable_type', Package::class)->whereIn('content', $codes['code'])->get()->pluck('codeable_id')->toArray();
+        $packagesId = [];
+        for ($i = 0; $i < count($hash['package_hash']); $i++) {
+            $packageId = Package::hashToId($hash['package_hash'][$i]);
+            array_push($packagesId, $packageId);
+        }
 
-        $packages = Package::query()->whereIn('id', $packageId)->get();
+        $packages = Package::query()->whereIn('id', $packagesId)->get();
         return $packages;
     }
 
@@ -113,7 +126,10 @@ class Route
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_SURABAYA):
-                $warehouse = DB::table('transport_routes')->where('warehouse', 'SURABAYA')->where('regency_id', $regencyId)->first();
+                $warehouse = DB::table('transport_routes')->where('warehouse', 'SURABAYA')->where('regency_id', $regencyId)->orWhere(function ($q) {
+                    $q->where('warehouse', 'SURABAYA');
+                    $q->where('regency_id', 0);
+                })->first();
                 return $warehouse;
                 break;
             case in_array($partnerCode, self::WAREHOUSE_TEGAL):
@@ -135,10 +151,6 @@ class Route
 
     public static function setPartners($deliveryRoutes)
     {
-        // if (is_null($deliveryRoutes->reach_destination_1_at) && in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG)) {
-        //     $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')->first();
-        //     return $partner->code_mtak_1_dest;
-        // }
         switch (true) {
             case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
                 if (is_null($deliveryRoutes->reach_destination_1_at)) {
@@ -302,11 +314,6 @@ class Route
 
     public static function setPartnerTransporter($deliveryRoutes)
     {
-        // if (is_null($deliveryRoutes->reach_destination_1_at) && in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG)) {
-        //     $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')->first();
-        //     return $partner->code_mtak_1;
-        // }
-
         switch (true) {
             case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
                 if (is_null($deliveryRoutes->reach_destination_1_at)) {

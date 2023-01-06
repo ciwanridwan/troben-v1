@@ -47,15 +47,10 @@ class AssignableController extends Controller
 
     public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $generateRoute = Route::generate($repository->getPartner(), $request->all());
+        $partnerCode = Route::generate($repository->getPartner(), $request->all());
+
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        // $packages = $delivery->packages()->get();
-
-        // foreach ($packages as $package) {
-        //     $partnerCode = Route::setPartners($package->deliveryRoutes);
-        //     $query->where('code', $partnerCode);
-        // }
-
+        $query->where('code', $partnerCode);
         $query->when(
             $request->input('code'),
             fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
