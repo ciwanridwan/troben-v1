@@ -40,13 +40,14 @@ class Route
     public static function generate($partner, $packageHash): array
     {
         $check = false;
+        $partnerCode = null;
+
         foreach (self::listWarehouse() as $key => $value) {
             if (in_array($partner->code, $value)) {
                 $check = true;
             }
         }
-
-        $partnerCode = null;
+        
         if ($check) {
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {

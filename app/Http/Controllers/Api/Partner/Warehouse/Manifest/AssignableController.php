@@ -86,7 +86,7 @@ class AssignableController extends Controller
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
             }
-            $query->whereIn('id', $id)->get();
+            $query->whereIn('id', $id);
         }
 
         $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
