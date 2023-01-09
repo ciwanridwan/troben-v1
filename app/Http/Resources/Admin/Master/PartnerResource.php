@@ -22,9 +22,9 @@ class PartnerResource extends JsonResource
             'hash' => $this->hash,
             'address' => $this->address,
             'geo_address' => $this->geo_address,
-            'regency' => $this->regency->only('id', 'name'),
-            'district' => $this->district->only('id', 'name'),
-            'sub_district' => $this->sub_district->only('id', 'name'),
+            'regency' => $this->regency ? $this->regency->only('id', 'name') : null,
+            'district' => $this->district ? $this->district->only('id', 'name') : null,
+            'sub_district' => $this->sub_district ? $this->sub_district->only('id', 'name') : null,
             'province' => $this->province ? $this->province->only('id', 'name') : null
         ];
     }

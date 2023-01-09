@@ -30,6 +30,11 @@ class UpdateDeliveryRoute
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $packages = $event->delivery->packages;
                 foreach ($packages as $package) {
+                    if (is_null($package->deliveryRoutes)) {
+                        Log::info('Package still in route from pickup to transit');
+                        break;
+                    }
+
                     if (is_null($package->deliveryRoutes->reach_destination_1_at)) {
                         $package->deliveryRoutes()->update([
                             'reach_destination_1_at' => Carbon::now()

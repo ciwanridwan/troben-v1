@@ -2,6 +2,7 @@
 
 namespace App\Models\Deliveries;
 
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,5 +36,10 @@ class DeliveryRoute extends Model
     public function partnerDoorings(): BelongsTo
     {
         return $this->belongsTo(Partner::class, 'partner_dooring_id', 'id');
+    }
+
+    public function packages(): BelongsTo
+    {
+        return $this->belongsTo(Package::class, 'package_id', 'id');
     }
 }
