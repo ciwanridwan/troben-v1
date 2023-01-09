@@ -53,7 +53,7 @@ class AssignableController extends Controller
         }
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        $query->where('code', $partnerCode);
+        $query->whereIn('code', $partnerCode);
         $query->when(
             $request->input('code'),
             fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')

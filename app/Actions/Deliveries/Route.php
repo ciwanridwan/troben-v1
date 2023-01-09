@@ -71,9 +71,11 @@ class Route
                 $partnerByRoute = self::setPartners($package->deliveryRoutes);
                 array_push($partnerByRoutes, $partnerByRoute);
             }
-            $partnerCode = $partnerByRoutes;
-        }
 
+            $partnerCode = $partnerByRoutes;
+        } else {
+            $partnerCode = self::getWarehouseNearby($partner);
+        }
         return $partnerCode;
     }
 
@@ -182,7 +184,7 @@ class Route
     }
 
     /**
-     * Get dooring partner 
+     * Get dooring partner
      */
     public static function getDooringPartner($code): Model
     {
@@ -357,7 +359,7 @@ class Route
         }
     }
 
-    /** 
+    /**
      * To set partner transporter by each routes
      */
     public static function setPartnerTransporter($deliveryRoutes)
@@ -540,6 +542,59 @@ class Route
             self::WAREHOUSE_SEMARANG,
             self::WAREHOUSE_SURABAYA,
             self::WAREHOUSE_TEGAL
+        ];
+    }
+
+    public static function getWarehouseNearby($partner): array
+    {
+        switch (true) {
+            case in_array($partner->geo_regency_id, self::jabodetabek()):
+                $warehouseOrigin = Partner::query()->whereIn('code', self::WAREHOUSE_NAROGONG)->get()->pluck('code')->toArray();
+                return $warehouseOrigin;
+                break;
+
+            case in_array($partner->geo_regency_id, self::semarang()):
+                $warehouseOrigin = Partner::query()->whereIn('code', self::WAREHOUSE_SEMARANG)->get()->pluck('code')->toArray();
+                return $warehouseOrigin;
+                break;
+            case in_array($partner->geo_regency_id, self::tegal()):
+                $warehouseOrigin = Partner::query()->whereIn('code', self::WAREHOUSE_TEGAL)->get()->pluck('code')->toArray();
+                return $warehouseOrigin;
+                break;
+            case in_array($partner->geo_regency_id, self::makassar()):
+                $warehouseOrigin = Partner::query()->whereIn('code', self::WAREHOUSE_MAKASSAR)->get()->pluck('code')->toArray();
+                return $warehouseOrigin;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public static function jabodetabek(): array
+    {
+        return [
+            58, 59, 60, 61, 62, 98, 77, 95, 36, 39, 40, 76, 94
+        ];
+    }
+
+    public static function semarang(): array
+    {
+        return [
+            123, 133
+        ];
+    }
+
+    public static function tegal(): array
+    {
+        return [
+            126, 135
+        ];
+    }
+
+    public static function makassar(): array
+    {
+        return [
+            393
         ];
     }
 }
