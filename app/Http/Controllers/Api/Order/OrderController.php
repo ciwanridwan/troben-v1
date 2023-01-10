@@ -694,7 +694,7 @@ class OrderController extends Controller
             [
                 'origin_lat' => ['nullable', 'numeric'],
                 'origin_lon' => ['nullable', 'numeric'],
-                'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
+                'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
                 'service_code' => ['nullable', 'exists:services,code']
             ]
         );
