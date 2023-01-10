@@ -127,6 +127,7 @@ class NicepayController extends Controller
                 $q->status = Package::STATUS_WAITING_FOR_PACKING;
                 $q->payment_status = Package::PAYMENT_STATUS_PAID;
                 $q->save();
+                event(new PayByNicePayDummy($q));
             });
         } else {
             $amt = ceil($package->total_amount + self::adminChargeCalculator($gateway, $package->total_amount));
