@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Concerns\Controllers\HasAdminCharge;
+use App\Exceptions\PaymentHasPaidException;
 use Carbon\Carbon;
 
 class NicepayController extends Controller
@@ -32,7 +33,7 @@ class NicepayController extends Controller
      */
     public function registration(Gateway $gateway, Package $package): JsonResponse
     {
-        throw_if($this->checkPaymentHasPaid($package), Error::make(Response::RC_PAYMENT_HAS_PAID));
+        throw_if($this->checkPaymentHasPaid($package), PaymentHasPaidException::make(Response::RC_PAYMENT_HAS_PAID));
 
         Log::debug('NicepayController: ', ['package_code' => $package->code->content, 'channel' => $gateway->channel]);
         switch (Gateway::convertChannel($gateway->channel)['type']):
