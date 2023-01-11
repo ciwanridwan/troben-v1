@@ -202,7 +202,8 @@ class FinanceController extends Controller
     /**Get list partner for findByPartner Function */
     public function listPartners()
     {
-        $data = Partner::select('id', 'name', 'code')->get();
+        $partnerIds = Withdrawal::groupBy('partner_id')->get()->pluck('partner_id')->toArray();
+        $data = Partner::select('id', 'name', 'code')->whereIn('id', $partnerIds)->get();
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 
