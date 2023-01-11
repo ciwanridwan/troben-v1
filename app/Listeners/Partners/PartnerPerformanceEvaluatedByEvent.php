@@ -74,25 +74,18 @@ class PartnerPerformanceEvaluatedByEvent
                     /** @var Package $package */
                     $this->package = $package;
 
-                    dd($this->delivery->partner_performance);
-                    if ($this->package->partner_performance !== null) {
-                        $deadline = $this->package->partner_performance->deadline;
-                        $level = $this->package->partner_performance->level;
+                    if (!is_null($this->delivery->partner_performance)) {
+                        $deadline = $this->delivery->partner_performance->deadline;
+                        $level = $this->delivery->partner_performance->level;
 
                         if ($this->reach_at > $deadline && $level === 3) {
-                            $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
+                            $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                         }
 
                         $this
-                            ->setPerformance($this->package->partner_performance)
+                            ->setPerformance($this->delivery->partner_performance)
                             ->updatePerformance();
                     }
-                }
-
-                if ($this->delivery->partner_performance !== null) {
-                    $this
-                        ->setPerformance($this->delivery->partner_performance)
-                        ->updatePerformance();
                 }
                 Log::info("Driver finish unload in destination warehouse");
                 break;
@@ -135,7 +128,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
                     }
 
                     $this
