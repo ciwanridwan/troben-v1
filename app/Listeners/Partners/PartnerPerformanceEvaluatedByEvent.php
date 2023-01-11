@@ -70,11 +70,11 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->reach_at = Carbon::now();
 
                 $packages = $this->delivery->packages;
-
                 foreach ($packages as $package) {
                     /** @var Package $package */
                     $this->package = $package;
 
+                    dd($this->delivery->partner_performance);
                     if ($this->package->partner_performance !== null) {
                         $deadline = $this->package->partner_performance->deadline;
                         $level = $this->package->partner_performance->level;
@@ -281,7 +281,7 @@ class PartnerPerformanceEvaluatedByEvent
             'package_id' => $package->id,
             'balance' => $incomePenalty,
             'type' => History::TYPE_PENALTY,
-            'description' => History::DESCRIPTION_LATENESS,
+            'description' => History::TYPE_PENALTY,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
