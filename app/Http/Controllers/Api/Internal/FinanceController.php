@@ -51,7 +51,28 @@ class FinanceController extends Controller
 
     private function getWithdrawal()
     {
-        return Withdrawal::whereHas('partner')->orderBy('created_at', 'desc');
+        $partnerCode = null;
+        if (request()->has('partner_code')) {
+            $partnerCode = request()->get('partner_code');
+        }
+
+        $q = Withdrawal::whereHas('partner', function($q) use ($partnerCode) {
+            if (! is_null($partnerCode)) {
+                $q->where('code', $partnerCode);
+            }
+        });
+
+        if (request()->has('status')) {
+            $q = $q->where('status', request()->get('status'));
+        }
+
+        if (request()->has('date')) {
+            $q = $q->whereRaw("DATE(created_at) = '". request()->get('date') . "'");
+        }
+
+        $q = $q->orderBy('created_at', 'desc');
+
+        return $q;
     }
 
     /** Count Request Disbursment */
