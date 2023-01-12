@@ -33,6 +33,14 @@ class PackageResource extends JsonResource
                 return [
                     'qty' => $q['qty'],
                     'name' => $q['name'],
+                    'hash' => $q['hash'],
+                    'weight' => $q['weight'],
+                    'height' => $q['height'],
+                    'length' => $q['length'],
+                    'width' => $q['width'],
+                    'weight_volume' => $q['weight_volume'],
+                    'weight_borne' => $q['weight_borne'],
+                    'weight_borne_total' => $q['weight_borne_total'],
                     'codes' => collect($q['codes'])->map(function ($r) {
                         return [
                             'content' => $r['content']
@@ -40,6 +48,7 @@ class PackageResource extends JsonResource
                     })
                 ];
             })->toArray();
+            // $item = $items;
         }
 
         $totalQty = collect($items)->sum('qty');
