@@ -52,7 +52,7 @@ class FinanceController extends Controller
     private function getWithdrawal()
     {
         $partnerCode = null;
-        if (request()->has('partner_code')) {
+        if (request()->get('partner_code')) {
             $partnerCode = request()->get('partner_code');
         }
 
@@ -62,12 +62,16 @@ class FinanceController extends Controller
             }
         });
 
-        if (request()->has('status')) {
+        if (request()->get('status')) {
             $q = $q->where('status', request()->get('status'));
         }
 
-        if (request()->has('date')) {
+        if (request()->get('date')) {
             $q = $q->whereRaw("DATE(created_at) = '". request()->get('date') . "'");
+        }
+
+        if (request()->get('start_date') && request()->get('end_date')) {
+            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
         }
 
         $q = $q->orderBy('created_at', 'desc');
