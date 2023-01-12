@@ -7,6 +7,7 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use SebastianBergmann\CodeCoverage\Report\Xml\Totals;
 
 class PackageResource extends JsonResource
 {
@@ -41,11 +42,14 @@ class PackageResource extends JsonResource
             })->toArray();
         }
 
+        $totalQty = collect($items)->sum('qty');
+
         return [
             'id' => $this->id,
             'hash' => $this->hash,
             'status' => $this->status,
             'total_weight' => $this->total_weight,
+            'total_qty' => $totalQty,
             'receiver_address' => $this->receiver_address,
             'code' => $this->code->only('content'),
             'items' => $item,
