@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal;
 
+use App\Actions\Deliveries\Route;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\HeadOffice\PartnersTransporterResource;
@@ -106,13 +107,26 @@ class ManifestController extends Controller
 
     public function getPartnerTransporter(Request $request): JsonResponse
     {
-        $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)
-                 ->orWhere('type', Partner::TYPE_BUSINESS);
+        if ($request->delivery_hash) {
+            $query = Partner::query();
 
-        $request->whenHas('search', function ($value) use ($query) {
-            $query->search($value);
-        });
+            $delivery = Delivery::byHash($request->delivery_hash);
+            $packages = $delivery->packages;
 
-        return $this->jsonSuccess(PartnersTransporterResource::collection($query->paginate(request('per_page', 15))));
+            foreach ($packages as $package) {
+                $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                $query->where('code', $partnerCode);
+            }
+
+            $request->whenHas('search', function ($value) use ($query) {
+                $query->where(function ($query) use ($value) {
+                    $query->search($value);
+                });
+            });
+
+            return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Belum Tersedia']))->json();
+        }
     }
 }

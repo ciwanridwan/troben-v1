@@ -19,7 +19,7 @@ class CreateNewDooring
 
     private Partner $originPartner;
 
-    public UserablePivot $userable;
+    public UserablePivot|null $userable;
 
     private array $attributes;
 
@@ -34,12 +34,16 @@ class CreateNewDooring
             'type' => Delivery::TYPE_DOORING,
             'status' => Delivery::STATUS_ACCEPTED
         ];
+        if (count($inputs) == 2) {
+            # code...
+            Validator::make($inputs, [
+                'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)]
+            ])->validate();
 
-        Validator::make($inputs, [
-            'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)]
-        ])->validate();
-
-        $this->userable = UserablePivot::byHashOrFail($inputs['userable_hash']);
+            $this->userable = UserablePivot::byHashOrFail($inputs['userable_hash']);
+        } else {
+            $this->userable = null;
+        }
     }
 
     /**
@@ -49,6 +53,9 @@ class CreateNewDooring
     public function handle(): bool
     {
         $this->attributes['userable_id'] = $this->userable ? $this->userable->id : null;
+        if (is_null($this->attributes['userable_id'])) {
+            $this->attributes['status'] = Delivery::STATUS_WAITING_ASSIGN_PARTNER;
+        }
 
         $job = new CreateNewDelivery($this->attributes, null, $this->originPartner);
         dispatch_now($job);
