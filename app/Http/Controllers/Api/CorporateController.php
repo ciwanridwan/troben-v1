@@ -108,6 +108,11 @@ class CorporateController extends Controller
             $rules['partner_id'] = ['required', 'numeric'];
         }
 
+        $items = $request->get('items', []);
+        if (is_array($items) && count($items) == 0) {
+            return (new Response(Response::RC_INVALID_DATA, ['message' => 'Please input item']))->json();
+        }
+
         if ($isAdmin) {
             $partner = Partner::findOrFail($request->get('partner_id'));
         } else {
