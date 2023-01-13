@@ -403,13 +403,21 @@ class Route
      */
     public static function setPartnerTransporter($deliveryRoutes)
     {
+        $provinceId = $deliveryRoutes->packages->destination_regency->province_id;
+
         if (is_null($deliveryRoutes)) {
             return null;
         } else {
             switch (true) {
                 case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
                     if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                        $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')->first();
+                        if ($deliveryRoutes->regency_destination_1 === 0) {
+                            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', 'NAROGONG')->first();
+
+                        } else {
+                            $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')
+                            ->first();
+                        }
                         return $partner->code_mtak_1;
                     } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
                         $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'NAROGONG')->first();
