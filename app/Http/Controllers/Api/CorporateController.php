@@ -110,7 +110,22 @@ class CorporateController extends Controller
 
         $items = $request->get('items', []);
         if (is_array($items) && count($items) == 0) {
-            return (new Response(Response::RC_INVALID_DATA, ['message' => 'Please input item']))->json();
+            $result = [
+                'price' => null,
+                'items' => [],
+                'result' => [
+                    'insurance_price_total' => 0,
+                    'total_weight_borne' => 0,
+                    'handling' => 0,
+                    'pickup_price' => 0,
+                    'discount' => 0,
+                    'tier' => 0,
+                    'additional_price' => 0,
+                    'service' => 0,
+                    'total_amount' => 0,
+                ],
+            ];
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         if ($isAdmin) {
@@ -418,6 +433,19 @@ class CorporateController extends Controller
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
+
+        $results->getCollection()->transform(function ($item) {
+            dd($item);
+            // $item->packages->each(fn ($package) => $package->items->each(fn ($package_item) => $item->weight_borne_total += $package_item->weight_borne));
+            // foreach ($item->packages as $package) {
+            //     if (isset($package->historyTransporter)) {
+            //         foreach ($package->historyTransporter as $transport) {
+            //             $package->transporter_funds = $transport->balance;
+            //         }
+            //     }
+            // }
+            return $item;
+        });
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
