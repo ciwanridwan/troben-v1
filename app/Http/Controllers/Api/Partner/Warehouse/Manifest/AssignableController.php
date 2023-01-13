@@ -56,7 +56,7 @@ class AssignableController extends Controller
         $query->whereIn('code', $partnerCode);
         $query->when(
             $request->input('code'),
-            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
+            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
         );
 
         return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
@@ -84,7 +84,7 @@ class AssignableController extends Controller
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
-                ->where('content', 'like', '%'.$request->q.'%')
+                ->where('content', 'like', '%' . $request->q . '%')
                 ->pluck('codeable_id');
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();

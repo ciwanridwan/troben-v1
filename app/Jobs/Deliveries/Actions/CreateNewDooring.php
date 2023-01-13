@@ -35,7 +35,6 @@ class CreateNewDooring
             'status' => Delivery::STATUS_ACCEPTED
         ];
         if (count($inputs) == 2) {
-            # code...
             Validator::make($inputs, [
                 'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)]
             ])->validate();

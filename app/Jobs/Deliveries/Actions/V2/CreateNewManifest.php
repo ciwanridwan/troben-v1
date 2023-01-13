@@ -18,6 +18,7 @@ class CreateNewManifest
     public Delivery $delivery;
     private array $attributes;
 
+    public UserablePivot|null $userable;
     /**
      * @var \App\Models\Partners\Partner
      */
@@ -33,8 +34,18 @@ class CreateNewManifest
     {
         $this->attributes = Validator::make($inputs, [
             'partner_hash' => ['required', new ExistsByHash(Partner::class)],
-            'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)],
+            // 'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)],
         ])->validate();
+
+        if (count($inputs) == 3) {
+            Validator::make($inputs, [
+                'userable_hash' => ['nullable', new ExistsByHash(UserablePivot::class)]
+            ])->validate();
+
+            $this->userable = UserablePivot::byHashOrFail($inputs['userable_hash']);
+        } else {
+            $this->userable = null;
+        }
 
         $this->originPartner = $originPartner;
     }
@@ -44,19 +55,19 @@ class CreateNewManifest
      */
     public function handle()
     {
-        $userable = null;
-        if (is_null($this->attributes['userable_hash'])) {
+        $userableId = null;
+
+        if (is_null($this->userable)) {
             $this->attributes['status'] = Delivery::STATUS_WAITING_ASSIGN_PARTNER;
         } else {
-            $userable = UserablePivot::byHash($this->attributes['userable_hash']);
-            $userable = $userable->id;
+            $userableId = $this->userable->id;
             $this->attributes['status'] = Delivery::STATUS_ACCEPTED;
         }
 
         $partner = Partner::byHashOrFail($this->attributes['partner_hash']);
 
         $this->attributes['type'] = Delivery::TYPE_TRANSIT;
-        $this->attributes['userable_id'] = $userable;
+        $this->attributes['userable_id'] = $userableId;
         $this->attributes['origin_regency_id'] = $this->originPartner->geo_regency_id;
         $this->attributes['origin_district_id'] = $this->originPartner->geo_district_id;
         $this->attributes['origin_sub_district_id'] = $this->originPartner->geo_sub_district_id;

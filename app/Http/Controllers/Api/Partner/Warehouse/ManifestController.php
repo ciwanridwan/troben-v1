@@ -84,7 +84,6 @@ class ManifestController extends Controller
     // }
     // end old
 
-    
     // new script to create manifest
     /**
      * @param \Illuminate\Http\Request $request
