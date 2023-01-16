@@ -114,8 +114,10 @@ class ManifestController extends Controller
             $packages = $delivery->packages;
 
             foreach ($packages as $package) {
+		if (! is_null($package->deliveryRoutes)) {
                 $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
                 $query->where('code', $partnerCode);
+		}
             }
 
             $request->whenHas('search', function ($value) use ($query) {
