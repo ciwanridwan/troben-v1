@@ -861,7 +861,9 @@ class Package extends Model implements AttachableContract
                 $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
 
                 $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-                if (! $item->is_insured) $insuranceFee = 0;
+                if (! $item->is_insured) {
+                    $insuranceFee = 0;
+                }
 
                 // $serviceFee = $item->weight * $this->tier_price;
                 $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
