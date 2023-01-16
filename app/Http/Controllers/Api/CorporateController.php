@@ -417,6 +417,7 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
+            'multiDestination', 'parentDestination',
         ])->whereHas('corporate');
 
         if (! $isAdmin) {
@@ -435,15 +436,11 @@ class CorporateController extends Controller
         $results = $results->latest()->paginate(request('per_page', 15));
 
         $results->getCollection()->transform(function ($item) {
-            dd($item);
-            // $item->packages->each(fn ($package) => $package->items->each(fn ($package_item) => $item->weight_borne_total += $package_item->weight_borne));
-            // foreach ($item->packages as $package) {
-            //     if (isset($package->historyTransporter)) {
-            //         foreach ($package->historyTransporter as $transport) {
-            //             $package->transporter_funds = $transport->balance;
-            //         }
-            //     }
-            // }
+            $type2 = 'single';
+            if ($item->multiDestination->count()) $type2 = 'multi';
+            if (! is_null($item->parentDestination)) $type2 = 'multi';
+            $item->type2 = $type2;
+
             return $item;
         });
 
