@@ -76,29 +76,29 @@ class ManifestController extends Controller
 
     public function index(Request $request)
     {
-            if ($request->partner) {
-                return $this->getPartnerTransporter($request);
-            }
+        if ($request->partner) {
+            return $this->getPartnerTransporter($request);
+        }
 
-            $this->getSearch($request);
-            $this->dataRelation();
+        $this->getSearch($request);
+        $this->dataRelation();
 
-            return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
+        return (new Response(Response::RC_SUCCESS, $this->paginateWithTransformData()));
     }
 
     public function requestTransporter(Request $request)
     {
-            if ($request->partner) {
-                return $this->getPartnerTransporter($request);
-            }
-            $this->query->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
-            $this->getSearch($request);
-            $this->dataRelation();
+        if ($request->partner) {
+            return $this->getPartnerTransporter($request);
+        }
+        $this->query->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
+        $this->getSearch($request);
+        $this->dataRelation();
 
-            return $this->jsonSuccess(RequestTransporterResource::collection($this->paginateWithTransformData()));
+        return $this->jsonSuccess(RequestTransporterResource::collection($this->paginateWithTransformData()));
     }
 
-    public function assign(Delivery $delivery,Partner $partner)
+    public function assign(Delivery $delivery, Partner $partner)
     {
         $job = new AssignPartnerToDelivery($delivery, $partner);
         $this->dispatch($job);
@@ -114,10 +114,12 @@ class ManifestController extends Controller
             $packages = $delivery->packages;
 
             foreach ($packages as $package) {
-		if (! is_null($package->deliveryRoutes)) {
-                $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
-                $query->where('code', $partnerCode);
-		}
+                if (!is_null($package->deliveryRoutes)) {
+                    $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                    $query->where('code', $partnerCode);
+                } else {
+                    $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
+                }
             }
 
             $request->whenHas('search', function ($value) use ($query) {

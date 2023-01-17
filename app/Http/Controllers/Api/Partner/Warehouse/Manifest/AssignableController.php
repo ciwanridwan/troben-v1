@@ -23,31 +23,23 @@ use App\Http\Resources\Api\Transporter\TransporterDriverResource;
 
 class AssignableController extends Controller
 {
-    // public function partner(Request $request, PartnerRepository $repository): JsonResponse
-    // {
-    //     $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-
-    //     $query->when(
-    //         $request->input('type'),
-    //         fn (Builder $builder, $type) => $builder->whereIn('type', Arr::wrap($type)),
-    //         fn (Builder $builder, $type) => $builder->whereIn('type', [
-    //             Partner::TYPE_BUSINESS,
-    //             Partner::TYPE_SPACE,
-    //             Partner::TYPE_POOL,
-    //         ])
-    //     );
-
-    //     $query->when(
-    //         $request->input('code'),
-    //         fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
-    //     );
-
-    //     return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
-    // }
-
     public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $partnerCode = Route::generate($repository->getPartner(), $request->all());
+        $partnerCode = null;
+
+        $setPartner = Route::checkPackages($request->all());
+        if ($setPartner) {
+            $packages = Route::getPackages($request->all());
+            $partnerByRoutes = [];
+            foreach ($packages as $package) {
+                $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                array_push($partnerByRoutes, $partnerByRoute);
+            }
+            $partnerCode = $partnerByRoutes;
+        } else {
+            $partnerCode = Route::generate($repository->getPartner(), $request->all());
+        }
+
         if (is_null($partnerCode)) {
             return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
         }
