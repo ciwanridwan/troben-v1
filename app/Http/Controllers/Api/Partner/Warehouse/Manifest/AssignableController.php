@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -18,8 +17,9 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Assignable\DriverTransporterResource;
 use App\Http\Resources\Api\Assignable\PackageResource;
-use App\Http\Resources\Api\Package\PackageResourceDeprecated;
-use App\Http\Resources\Api\Transporter\TransporterDriverResource;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
+use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class AssignableController extends Controller
 {
@@ -101,5 +101,28 @@ class AssignableController extends Controller
 
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
+    }
+
+    public function checkPackages(Request $request)
+    {
+        $request->validate([
+            'package_code' => ['required', 'array', Rule::exists('codes', 'content')->whereIn('codeable_type', [
+                Package::class
+            ])]
+        ]);
+
+        $packages = Code::query()->whereIn('content', $request->package_code)->get();
+        $check = null;
+        $variant = 0;
+        $allVariant = [];
+        $firstPackage = $packages->first();
+
+        foreach ($packages as $package) {
+            if (is_null($package->deliveryRoutes)) {
+                $variant = 1;
+            } else {
+                $route = $package->deliveryRoutes;
+            }
+        }
     }
 }
