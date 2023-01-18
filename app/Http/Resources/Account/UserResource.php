@@ -19,7 +19,7 @@ class UserResource extends JsonResource
         $roles = [];
         $partnerId = null;
         if ($this->is_admin) {
-            $roles[] = 'ho-admin';
+            $roles[] = 'admin-super';
         }
 
         /** @var \App\Models\User|\App\Models\Customers\Customer $this */
@@ -44,7 +44,7 @@ class UserResource extends JsonResource
             // dd($partners);
 
             foreach ($partners as $p) {
-                $roles[] = sprintf('partner-%s', $p->pivot->role);
+                $roles[] = sprintf('trawlpack-partner-%s', $p->pivot->role);
             }
 
             $data['partner'] = null;
