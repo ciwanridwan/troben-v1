@@ -709,6 +709,7 @@ class Route
     public static function getDestinationCity($firstPackage, $packages)
     {
         $firstCount = null;
+        $destinationCity = null;
         if ($firstPackage->deliveryRoutes) {
             $firstCount = $firstPackage->deliveryRoutes->transit_count;
                 switch (true) {
