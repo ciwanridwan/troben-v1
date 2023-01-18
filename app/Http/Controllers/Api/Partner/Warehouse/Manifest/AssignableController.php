@@ -118,7 +118,7 @@ class AssignableController extends Controller
         $variant = 0;
         $allVariant = [];
         $firstPackage = $packages->first();
-        $check = $this->matchTransit($firstPackage, $packages);
+        // $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
             if (!is_null($package->deliveryRoutes)) {
