@@ -111,18 +111,37 @@ class AssignableController extends Controller
             ])]
         ]);
 
-        $packages = Code::query()->whereIn('content', $request->package_code)->get();
-        $check = null;
+        $packages = Code::query()->whereIn('content', $request->package_code)->with('codeable')->get()->map(function ($q) {
+            return $q->codeable;
+        });
+
         $variant = 0;
         $allVariant = [];
         $firstPackage = $packages->first();
+        $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
-            if (is_null($package->deliveryRoutes)) {
-                $variant = 1;
+            if (!is_null($package->deliveryRoutes)) {
+                $variant = 1; // to set this variant is any routes
             } else {
-                $route = $package->deliveryRoutes;
+                $variant = 2; // to set this variant cant have routes
             }
+
+            array_push($allVariant, $variant);
         }
+
+        if (!in_array(1, $allVariant)) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+        }
+    }
+
+    public function matchTransit($firstPackage, $packages)
+    {
+        $lastPackage = $packages->skip(1);
+        $checkDestination = Route::getDestinationCity($firstPackage, $lastPackage);
     }
 }

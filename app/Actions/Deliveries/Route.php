@@ -704,4 +704,34 @@ class Route
             393
         ];
     }
+
+
+    public static function getDestinationCity($firstPackage, $packages)
+    {
+        $firstCount = null;
+        if ($firstPackage->deliveryRoutes) {
+            $firstCount = $firstPackage->deliveryRoutes->transit_count;
+                switch (true) {
+                    case $firstCount === 3:
+                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_3;
+                        break;
+                    case $firstCount === 2:
+                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_2;
+                        break;
+                    case $firstCount === 1:
+                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_1;
+                        break;
+                    default:
+                        $destinationCity = null;
+                        break;
+                }
+        }
+
+        foreach ($packages as $package) {
+            if ($destinationCity === 0) {
+                if (!is_null($package->deliveryRoutes)) {
+                }
+            }
+        }
+    }
 }

@@ -43,6 +43,18 @@ class CreateDeliveryRoutesTable extends Migration
                 ->references('id')
                 ->on('partners')
                 ->cascadeOnDelete();
+
+            $table
+                ->foreign('regency_destination_2')
+                ->references('id')
+                ->on('geo_regencies')
+                ->cascadeOnDelete();
+
+            $table
+                ->foreign('regency_destination_3')
+                ->references('id')
+                ->on('regency_destination_3')
+                ->cascadeOnDelete();
         });
     }
 
