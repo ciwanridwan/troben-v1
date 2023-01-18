@@ -108,6 +108,26 @@ class CorporateController extends Controller
             $rules['partner_id'] = ['required', 'numeric'];
         }
 
+        $items = $request->get('items', []);
+        if (is_array($items) && count($items) == 0) {
+            $result = [
+                'price' => null,
+                'items' => [],
+                'result' => [
+                    'insurance_price_total' => 0,
+                    'total_weight_borne' => 0,
+                    'handling' => 0,
+                    'pickup_price' => 0,
+                    'discount' => 0,
+                    'tier' => 0,
+                    'additional_price' => 0,
+                    'service' => 0,
+                    'total_amount' => 0,
+                ],
+            ];
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
+
         if ($isAdmin) {
             $partner = Partner::findOrFail($request->get('partner_id'));
         } else {
@@ -397,6 +417,7 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
+            'multiDestination', 'parentDestination',
         ])->whereHas('corporate');
 
         if (! $isAdmin) {
@@ -413,6 +434,15 @@ class CorporateController extends Controller
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
+
+        $results->getCollection()->transform(function ($item) {
+            $type2 = 'single';
+            if ($item->multiDestination->count()) $type2 = 'multi';
+            if (! is_null($item->parentDestination)) $type2 = 'multi';
+            $item->type2 = $type2;
+
+            return $item;
+        });
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
