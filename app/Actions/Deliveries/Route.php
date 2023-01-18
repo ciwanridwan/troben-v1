@@ -706,33 +706,64 @@ class Route
     }
 
 
-    public static function getDestinationCity($firstPackage, $packages)
+    public static function checkDestinationCityTransit($firstPackage, $packages): bool
     {
         $firstCount = null;
-        $destinationCity = null;
+        $transits = [];
+
         if ($firstPackage->deliveryRoutes) {
             $firstCount = $firstPackage->deliveryRoutes->transit_count;
-                switch (true) {
-                    case $firstCount === 3:
-                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_3;
-                        break;
-                    case $firstCount === 2:
-                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_2;
-                        break;
-                    case $firstCount === 1:
-                        $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_1;
-                        break;
-                    default:
-                        $destinationCity = null;
-                        break;
+            switch (true) {
+                case $firstCount === 3:
+                    $destinationCity =  $firstPackage->deliveryRoutes->regency_dooring_id;
+                    break;
+                case $firstCount === 2:
+                    $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_3;
+                    break;
+                case $firstCount === 1:
+                    $destinationCity =  $firstPackage->deliveryRoutes->regency_destination_2;
+                    break;
+                default:
+                    $destinationCity = $firstPackage->deliveryRoutes->regency_destination_1;
+                    break;
+            }
+
+            foreach ($packages as $package) {
+                if ($package->deliveryRoutes) {
+                    $transitCount = $package->deliveryRoutes->transit_count;
+                    switch (true) {
+                        case $transitCount === 3:
+                            $destinationTransit =  $package->deliveryRoutes->regency_dooring_id;
+                            break;
+                        case $firstCount === 2:
+                            $destinationTransit =  $package->deliveryRoutes->regency_destination_3;
+                            break;
+                        case $firstCount === 1:
+                            $destinationTransit =  $package->deliveryRoutes->regency_destination_2;
+                            break;
+                        default:
+                            $destinationTransit = $package->deliveryRoutes->regency_destination_1;
+                            break;
+                    }
+                } else {
+                    $destinationTransit = 0;
                 }
+
+                if ($destinationCity === $destinationTransit) {
+                    $transit = 1;
+                } else {
+                    $transit = 0;
+                }
+                array_push($transits, $transit);
+            }
+        } else {
+           return false;
         }
 
-        foreach ($packages as $package) {
-            if ($destinationCity === 0) {
-                if (!is_null($package->deliveryRoutes)) {
-                }
-            }
+        if (!in_array(0, $transits)) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

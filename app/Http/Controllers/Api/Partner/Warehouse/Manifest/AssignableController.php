@@ -18,8 +18,6 @@ use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Assignable\DriverTransporterResource;
 use App\Http\Resources\Api\Assignable\PackageResource;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Exists;
-use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class AssignableController extends Controller
 {
@@ -118,7 +116,7 @@ class AssignableController extends Controller
         $variant = 0;
         $allVariant = [];
         $firstPackage = $packages->first();
-        // $check = $this->matchTransit($firstPackage, $packages);
+        $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
             if (!is_null($package->deliveryRoutes)) {
@@ -130,18 +128,24 @@ class AssignableController extends Controller
             array_push($allVariant, $variant);
         }
 
-        if (!in_array(1, $allVariant)) {
+        if ($check) {
             return (new Response(Response::RC_SUCCESS))->json();
-        } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
-            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
         } else {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            if (!in_array(1, $allVariant)) {
+                return (new Response(Response::RC_SUCCESS))->json();
+            } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
+                return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
+            } else {
+                return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
+            }
         }
     }
 
-    public function matchTransit($firstPackage, $packages)
+    public function matchTransit($firstPackage, $packages): bool
     {
         $lastPackage = $packages->skip(1);
-        $checkDestination = Route::getDestinationCity($firstPackage, $lastPackage);
+        $checkDestination = Route::checkDestinationCityTransit($firstPackage, $lastPackage);
+
+        return $checkDestination;
     }
 }
