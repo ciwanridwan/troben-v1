@@ -51,7 +51,32 @@ class FinanceController extends Controller
 
     private function getWithdrawal()
     {
-        return Withdrawal::whereHas('partner')->orderBy('created_at', 'desc');
+        $partnerCode = null;
+        if (request()->get('partner_code')) {
+            $partnerCode = request()->get('partner_code');
+        }
+
+        $q = Withdrawal::whereHas('partner', function($q) use ($partnerCode) {
+            if (! is_null($partnerCode)) {
+                $q->where('code', $partnerCode);
+            }
+        });
+
+        if (request()->get('status')) {
+            $q = $q->where('status', request()->get('status'));
+        }
+
+        if (request()->get('date')) {
+            $q = $q->whereRaw("DATE(created_at) = '". request()->get('date') . "'");
+        }
+
+        if (request()->get('start_date') && request()->get('end_date')) {
+            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
+        }
+
+        $q = $q->orderBy('created_at', 'desc');
+
+        return $q;
     }
 
     /** Count Request Disbursment */
@@ -202,7 +227,8 @@ class FinanceController extends Controller
     /**Get list partner for findByPartner Function */
     public function listPartners()
     {
-        $data = Partner::select('id', 'name', 'code')->get();
+        $partnerIds = Withdrawal::groupBy('partner_id')->get()->pluck('partner_id')->toArray();
+        $data = Partner::select('id', 'name', 'code')->whereIn('id', $partnerIds)->get();
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
 

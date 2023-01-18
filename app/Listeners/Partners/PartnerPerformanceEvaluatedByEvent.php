@@ -69,27 +69,14 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
 
-                $packages = $this->delivery->packages;
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
 
-                foreach ($packages as $package) {
-                    /** @var Package $package */
-                    $this->package = $package;
-
-                    if ($this->package->partner_performance !== null) {
-                        $deadline = $this->package->partner_performance->deadline;
-                        $level = $this->package->partner_performance->level;
-
-                        if ($this->reach_at > $deadline && $level === 3) {
-                            $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
-                        }
-
-                        $this
-                            ->setPerformance($this->package->partner_performance)
-                            ->updatePerformance();
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
                     }
-                }
 
-                if ($this->delivery->partner_performance !== null) {
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
@@ -105,7 +92,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
                     }
 
                     $this
@@ -121,7 +108,7 @@ class PartnerPerformanceEvaluatedByEvent
                 $level = $this->package->partner_performance->level;
 
                 if ($this->reach_at > $deadline && $level === 3) {
-                    $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id);
+                    $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id, $deadline);
                 }
 
                 $this->setPerformance($this->package->partner_performance)->updatePerformance();
@@ -135,7 +122,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
                     }
 
                     $this
@@ -153,7 +140,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id);
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id, $deadline);
                     }
 
                     $this
@@ -170,7 +157,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $level = $this->delivery->partner_performance->level;
 
                     if ($this->reach_at > $deadline && $level === 3) {
-                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id);
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
                     }
 
                     $this
@@ -247,13 +234,13 @@ class PartnerPerformanceEvaluatedByEvent
     }
 
 
-    protected function setPenaltyIncome($type, $partnerId): void
+    protected function setPenaltyIncome($type, $partnerId, $deadline): void
     {
         switch (true) {
             case $type instanceof Package:
                 $this->package = $type;
 
-                $this->createHistory($this->package, $partnerId);
+                $this->createHistory($this->package, $partnerId, $deadline);
                 break;
             case $type instanceof Delivery:
                 $this->delivery = $type;
@@ -261,7 +248,7 @@ class PartnerPerformanceEvaluatedByEvent
 
                 foreach ($packages as $package) {
                     $this->package = $package;
-                    $this->createHistory($this->package, $partnerId);
+                    $this->createHistory($this->package, $partnerId, $deadline);
                 }
                 break;
             default:
@@ -271,17 +258,21 @@ class PartnerPerformanceEvaluatedByEvent
     }
 
 
-    protected function createHistory($package, $partnerId): void
+    protected function createHistory($package, $partnerId, $deadline): void
     {
+        $now = Carbon::now();
+        $endDate = Carbon::parse($deadline);
+        $dateDiff = $endDate->diffInDays($now);
+
         $serviceFee = $package->service_price;
-        $incomePenalty = $serviceFee * Partner::PENALTY_PERCENTAGE;
+        $incomePenalty = ($serviceFee * Partner::PENALTY_PERCENTAGE) * $dateDiff;
 
         History::create([
             'partner_id' => $partnerId,
             'package_id' => $package->id,
             'balance' => $incomePenalty,
             'type' => History::TYPE_PENALTY,
-            'description' => History::DESCRIPTION_LATENESS,
+            'description' => History::TYPE_PENALTY,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
