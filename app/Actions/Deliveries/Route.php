@@ -55,14 +55,12 @@ class Route
                 switch (true) {
                     case $warehouse instanceof SupportCollection:
                         $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
-                        $secondDestination = self::getSecondDestination($warehouse->pluck('code_mtak_2_dest')->toArray());
-                        $thirdDestination = self::getThirdDestination($warehouse->pluck('code_mtak_3_dest')->toArray());
+                        $nextDestination = self::getNextDestination($warehouse->toArray());
                         $regencyId = $warehouse[0]->regency_id;
                         break;
                     default:
                         $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
-                        $secondDestination = self::getSecondDestination($warehouse);
-                        $thirdDestination = self::getThirdDestination($warehouse);
+                        $nextDestination = self::getNextDestination($warehouse);
                         $regencyId = $warehouse->regency_id;
                         break;
                 }
@@ -74,8 +72,8 @@ class Route
                         'regency_origin_id' => $partner->geo_regency_id,
                         'origin_warehouse_id' => $partner->id,
                         'regency_destination_1' => $regencyId,
-                        'regency_destination_2' => $secondDestination,
-                        'regency_destination_3' => $thirdDestination,
+                        'regency_destination_2' => is_array($nextDestination) ? $nextDestination['second'] : null,
+                        'regency_destination_3' => is_array($nextDestination) ? $nextDestination['third'] : null,
                         'regency_dooring_id' => $dooringPartner->geo_regency_id,
                         'partner_dooring_id' => $dooringPartner->id
                     ]);
@@ -110,6 +108,8 @@ class Route
         return $packages;
     }
 
+    /** To determine package can generate route or not
+     */
     public static function checkPackages($hash): bool
     {
         $setPartner = false;
@@ -200,37 +200,32 @@ class Route
         }
     }
 
-    public static function getSecondDestination($warehouse): int|null
+    public static function getNextDestination($warehouse): array|null
     {
         $result = null;
+        $destination = null;
         $partner = Partner::query();
-        if (is_array($warehouse)) {
-            $result = $partner->whereIn('code', $warehouse)->get();
-        } else {
-            $result = $partner->where('code', $warehouse->code_mtak_2_dest)->first();
-        }
-        if ($result instanceof SupportCollection) {
-            return $result->isNotEmpty() ? $result : null;
-        } else {
-            return $result ? $result->geo_regency_id : null;
-        }
-    }
 
-    public static function getThirdDestination($warehouse): int|null
-    {
-        $result = null;
-        $partner = Partner::query();
         if (is_array($warehouse)) {
-            $result = $partner->whereIn('code', $warehouse)->get();
+            $code = collect($warehouse)->map(function ($q) {
+                return [
+                    'mtak_2' => $q->code_mtak_2_dest,
+                    'mtak_3' => $q->code_mtak_3_dest
+                ];
+            })->toArray();
+            $secondDestination = $partner->where('code', $code[0]['mtak_2'])->first();
+            $thirdDestination = Partner::query()->where('code', $code[1]['mtak_3'])->first();
         } else {
-            $result = $partner->where('code', $warehouse->code_mtak_3_dest)->first();
+            $secondDestination = $partner->where('code', $warehouse->code_mtak_2_dest)->first();
+            $thirdDestination = Partner::query()->where('code', $warehouse->code_mtak_3_dest)->first();
         }
 
-        if ($result instanceof SupportCollection) {
-            return $result->isNotEmpty() ? $result : null;
-        } else {
-            return $result ? $result->geo_regency_id : null;
-        }
+        $destination = [
+            'second' => $secondDestination ? $secondDestination->geo_regency_id : null,
+            'third' => $thirdDestination ? $thirdDestination->geo_regency_id : null
+        ];
+
+        return $destination;
     }
 
     /**
@@ -251,175 +246,26 @@ class Route
         $regencyId = $deliveryRoutes->regency_destination_1;
         $partner = null;
 
+        $warehouse = self::checkWarehouse($deliveryRoutes);
+
+        if ($deliveryRoutes->regency_destination_1 === 0) {
+            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+        } else {
+            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
+        }
+
         switch (true) {
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    if ($deliveryRoutes->regency_destination_1 === 0) {
-                        $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', 'NAROGONG')->first();
-                    } else {
-                        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', 'NAROGONG')->first();
-                    }
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    if ($deliveryRoutes->regency_destination_1 === 0) {
-                        $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', 'NAROGONG')->first();
-                    } else {
-                        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', 'NAROGONG')->first();
-                    }
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    if ($deliveryRoutes->regency_destination_1 === 0) {
-                        $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', 'NAROGONG')->first();
-                    } else {
-                        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', 'NAROGONG')->first();
-                    }
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
+            case is_null($deliveryRoutes->reach_destination_1_at):
+                return $partner->code_mtak_1_dest;
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_PONTIANAK):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'PONTIANAK')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'PONTIANAK')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'PONTIANAK')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
+            case is_null($deliveryRoutes->reach_destination_2_at):
+                return $partner->code_mtak_2_dest;
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_BANDUNG):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'BANDUNG')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'BANDUNG')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'BANDUNG')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_AMBON):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'AMBON')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'AMBON')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'AMBON')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_PEKANBARU):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'PEKANBARU')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'PEKANBARU')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'PEKANBARU')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_SEMARANG):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'SEMARANG')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'SEMARANG')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'SEMARANG')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_SURABAYA):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'SURABAYA')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'SURABAYA')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'SURABAYA')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_TEGAL):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'TEGAL')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'TEGAL')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'TEGAL')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_MATARAM):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'MATARAM')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'MATARAM')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'MATARAM')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_MAKASSAR):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'MAKASSAR')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'MAKASSAR')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'MAKASSAR')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
-                break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_BANJARMASIN):
-                if (is_null($deliveryRoutes->reach_destination_1_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', 'BANJARMASIN')->first();
-                    return $partner->code_mtak_1_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_2_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_2)->where('warehouse', 'BANJARMASIN')->first();
-                    return $partner->code_mtak_2_dest;
-                } elseif (is_null($deliveryRoutes->reach_destination_3_at)) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_3)->where('warehouse', 'BANJARMASIN')->first();
-                    return $partner->code_mtak_3_dest;
-                } else {
-                    break;
-                }
+            case is_null($deliveryRoutes->reach_destination_3_at):
+                return $partner->code_mtak_3_dest;
                 break;
             default:
-                # code...
+                return $partner;
                 break;
         }
     }
