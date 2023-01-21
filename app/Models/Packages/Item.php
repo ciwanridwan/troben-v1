@@ -76,7 +76,8 @@ class Item extends Model implements AttachableContract
         'in_estimation',
         'is_insured',
         'handling',
-        'revision'
+        'revision',
+        'is_glassware'
     ];
 
     /**
@@ -94,6 +95,7 @@ class Item extends Model implements AttachableContract
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => Handling::class,
+        'is_glassware' => 'boolean'
     ];
 
     protected $hidden = [

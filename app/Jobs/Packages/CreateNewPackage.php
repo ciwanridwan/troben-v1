@@ -97,6 +97,7 @@ class CreateNewPackage
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+            '*.is_glassware' => ['nullable', 'boolean'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
