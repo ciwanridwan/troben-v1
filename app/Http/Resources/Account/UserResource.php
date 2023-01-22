@@ -5,6 +5,7 @@ namespace App\Http\Resources\Account;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class UserResource extends JsonResource
 {
@@ -16,11 +17,7 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        $roles = [];
         $partnerId = null;
-        if ($this->is_admin) {
-            $roles[] = 'admin-super';
-        }
 
         /** @var \App\Models\User|\App\Models\Customers\Customer $this */
         $data = [
@@ -41,11 +38,6 @@ class UserResource extends JsonResource
         if ($this->resource instanceof User) {
             /** @var \Illuminate\Database\Eloquent\Collection $partners */
             $partners = $this->resource->partners;
-            // dd($partners);
-
-            foreach ($partners as $p) {
-                $roles[] = sprintf('trawlpack-partner-%s', $p->pivot->role);
-            }
 
             $data['partner'] = null;
             if ($partners->count() > 0) {
@@ -68,6 +60,12 @@ class UserResource extends JsonResource
                 $data['vehicle'] = $transporters->first()->only(['type', 'registration_name', 'registration_number', 'registration_year']);
             }
         }
+
+        $q = "SELECT role_id
+        FROM role_users_v2
+        WHERE user_id = %d";
+        $q = sprintf($q, $this->id);
+        $roles = collect(DB::select($q))->pluck('role_id');
 
         $data['roles'] = $roles;
         $data['partner_id'] = $partnerId;
