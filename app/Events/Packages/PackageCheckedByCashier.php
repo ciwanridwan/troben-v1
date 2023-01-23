@@ -2,9 +2,11 @@
 
 namespace App\Events\Packages;
 
+use App\Broadcasting\Customer\PrivateChannel;
+use App\Models\Customers\Customer;
+use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Validation\ValidationException;
@@ -14,6 +16,10 @@ class PackageCheckedByCashier
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Package $package;
+
+    public Customer $customer;
+
+    public Template $notification;
 
     /**
      * Create a new event instance.
@@ -27,6 +33,10 @@ class PackageCheckedByCashier
             'package' => __('package should be in '.implode(',', $mustConditions).' status'),
         ]));
         $this->package = $package;
+
+        $this->customer = $package->customer();
+
+        $this->notification = Template::where('type', Template::TYPE_CUSTOMER_SHOULD_CONFIRM_ORDER)->first();
     }
 
     /**
@@ -36,6 +46,6 @@ class PackageCheckedByCashier
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new PrivateChannel($this->customer, $this->notification, ['package_code' => $this->package->code->content]);
     }
 }

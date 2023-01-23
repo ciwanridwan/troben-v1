@@ -38,5 +38,10 @@ class TestingRoute extends BaseRoute
             'as' => $this->name('cashier.discount'),
             'uses' => $this->uses('packageChecked', CashierHomeController::class),
         ]);
+
+        $this->router->patch($this->prefix('/cashier/package/checked/{package_hash}'), [
+            'as' => $this->name('cashier.discount'),
+            'uses' => $this->uses('packageChecked', CashierHomeController::class),
+        ]);
     }
 }
