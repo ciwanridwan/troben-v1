@@ -116,6 +116,7 @@ class ManifestController extends Controller
             foreach ($packages as $package) {
                 if (!is_null($package->deliveryRoutes)) {
                     $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                    if (! is_array($partnerCode)) $partnerCode = [$partnerCode];
                     $query->whereIn('code', $partnerCode);
                 } else {
                     $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
