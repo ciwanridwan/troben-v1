@@ -34,7 +34,7 @@ class PackageCheckedByCashier
         ]));
         $this->package = $package;
 
-        $this->customer = $package->customer();
+        $this->customer = $package->customer;
 
         $this->notification = Template::where('type', Template::TYPE_CUSTOMER_SHOULD_CONFIRM_ORDER)->first();
     }
@@ -44,7 +44,7 @@ class PackageCheckedByCashier
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn()
+    public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel($this->customer, $this->notification, ['package_code' => $this->package->code->content]);
     }
