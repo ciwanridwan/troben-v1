@@ -33,8 +33,8 @@ class PackageCheckedByCashier
             'package' => __('package should be in '.implode(',', $mustConditions).' status'),
         ]));
         $this->package = $package;
-
-        $this->customer = $package->customer();
+        
+	$this->customer = $package->customer;
 
         $this->notification = Template::where('type', Template::TYPE_CUSTOMER_SHOULD_CONFIRM_ORDER)->first();
     }
