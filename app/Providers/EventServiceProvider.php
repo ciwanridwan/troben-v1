@@ -373,9 +373,5 @@ class EventServiceProvider extends ServiceProvider
         Event::listen(function (DriverAssignedDooring $event) {
             $event->broadcast();
         });
-
-        Event::listen(function (PackageCheckedByCashier $event) {
-            $event->broadcast();
-        });
     }
 }
