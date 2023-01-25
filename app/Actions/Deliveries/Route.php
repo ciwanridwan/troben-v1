@@ -471,10 +471,10 @@ class Route
                         case $transitCount === 3:
                             $destinationTransit =  $package->deliveryRoutes->regency_dooring_id;
                             break;
-                        case $firstCount === 2:
+                        case $transitCount === 2:
                             $destinationTransit =  $package->deliveryRoutes->regency_destination_3;
                             break;
-                        case $firstCount === 1:
+                        case $transitCount === 1:
                             $destinationTransit =  $package->deliveryRoutes->regency_destination_2;
                             break;
                         default:
