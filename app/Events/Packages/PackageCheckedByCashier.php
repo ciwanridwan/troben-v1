@@ -9,6 +9,7 @@ use App\Models\Packages\Package;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class PackageCheckedByCashier
@@ -46,6 +47,7 @@ class PackageCheckedByCashier
      */
     public function broadcastOn(): PrivateChannel
     {
+        Log::info('This is start to sent notification to customer');
         return new PrivateChannel($this->customer, $this->notification, ['package_code' => $this->package->code->content]);
     }
 }
