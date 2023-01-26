@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Packages;
 
+use App\Broadcasting\Customer\PrivateChannel;
 use App\Models\Customers\Customer;
 use App\Models\Notifications\Template;
 use App\Models\Packages\Package;
