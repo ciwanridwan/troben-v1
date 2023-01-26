@@ -68,6 +68,7 @@ use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use App\Listeners\Packages\GeneratePackageBikePrices;
+use App\Listeners\Packages\SendNotificationToCustomer;
 use App\Listeners\Partners\CalculateIncomeAEIndirect;
 use Illuminate\Support\Facades\Event;
 
@@ -194,7 +195,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCheckedByCashier::class => [
             UpdatePackageStatusByEvent::class,
-            WriteCodeLog::class
+            WriteCodeLog::class,
+            SendNotificationToCustomer::class
         ],
         PackageApprovedByCustomer::class => [
             UpdatePackageStatusByEvent::class,
