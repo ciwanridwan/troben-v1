@@ -28,6 +28,7 @@ class Template extends Model
     public const TYPE_PARTNER_BALANCE_UPDATED = 'partner_balance_updated';
     public const TYPE_CS_GET_NEW_ORDER = 'cs_get_new_order';
     public const TYPE_CUSTOMER_SHOULD_CONFIRM_ORDER = 'customer_should_confirm_order';
+    public const TYPE_CUSTOMER_SHOULD_PAY = 'customer_should_pay';
 
     // push notification level 1 of sla
     public const TYPE_DRIVER_GET_ALERT_ONE_LEVEL = 'driver_get_alert_one_level';
