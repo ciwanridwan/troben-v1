@@ -23,19 +23,25 @@ class AssignableController extends Controller
 {
     public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $partnerCode = null;
-
         $setPartner = Route::checkPackages($request->all());
-        if ($setPartner) {
-            $packages = Route::getPackages($request->all());
-            $partnerByRoutes = [];
-            foreach ($packages as $package) {
-                $partnerByRoute = Route::setPartners($package->deliveryRoutes);
-                array_push($partnerByRoutes, $partnerByRoute);
-            }
-            $partnerCode = $partnerByRoutes;
-        } else {
-            $partnerCode = Route::generate($repository->getPartner(), $request->all());
+        switch (true) {
+            case $setPartner === 1:
+                $packages = Route::getPackages($request->all());
+                $partnerByRoutes = [];
+                foreach ($packages as $package) {
+                    $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                    array_push($partnerByRoutes, $partnerByRoute);
+                }
+                $partnerCode = $partnerByRoutes;
+                break;
+            case $setPartner === 2:
+                $partnerCode = Route::generate($repository->getPartner(), $request->all());
+            case $setPartner === 3:
+                $partnerCode = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL])->get()->pluck('code')->toArray();
+                break;
+            default:
+                $partnerCode = null;
+                break;
         }
 
         if (is_null($partnerCode)) {

@@ -52,16 +52,16 @@ class Route
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
+                $regencyId = self::getFirstPartnerRegency($warehouse);
+
                 switch (true) {
                     case $warehouse instanceof SupportCollection:
                         $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
                         $nextDestination = self::getNextDestination($warehouse->toArray());
-                        $regencyId = $warehouse[0]->regency_id;
                         break;
                     default:
                         $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
                         $nextDestination = self::getNextDestination($warehouse);
-                        $regencyId = $warehouse->regency_id;
                         break;
                 }
 
@@ -110,10 +110,11 @@ class Route
 
     /** To determine package can generate route or not
      */
-    public static function checkPackages($hash): bool
+    public static function checkPackages($hash): int
     {
-        $setPartner = false;
+        $setPartner = 0; // default receipt without routing and old receipt
         $packagesId = [];
+        $variants = [];
 
         for ($i = 0; $i < count($hash['package_hash']); $i++) {
             $packageId = Package::hashToId($hash['package_hash'][$i]);
@@ -123,12 +124,37 @@ class Route
         $packages = Package::query()->whereIn('id', $packagesId)->get();
         foreach ($packages as $key => $value) {
             $route = $value->deliveryRoutes;
-            if (!is_null($route)) {
-                $setPartner = true;
+            if (!is_null($route)) { // new receipt with existing routes
+                $setPartner = 1;
             }
+
+            if ($value->deliveries->count() === 1 && is_null($route)) { // new receipt
+                $setPartner = 2;
+            }
+
+            if ($value->deliveries->count() > 1 && is_null($route)) { // condition old receipt
+                $setPartner = 3;
+            }
+
+            array_push($variants, $setPartner);
         }
 
-        return $setPartner;
+        switch (true) {
+            case in_array(1, $variants):
+                $type = 1;
+                break;
+            case in_array(2, $variants):
+                $type = 2;
+                break;
+            case in_array(3, $variants):
+                $type = 3;
+                break;
+            default:
+                $type = 0;
+                break;
+        }
+
+        return $type;
     }
 
     /**
@@ -248,11 +274,11 @@ class Route
 
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
-        if ($deliveryRoutes->regency_destination_1 === 0) {
-            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
-        } else {
-            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
-        }
+        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)
+            ->orWhere(function ($q) use ($provinceId, $warehouse) {
+                $q->where('province_id', $provinceId);
+                $q->where('warehouse', $warehouse);
+            })->first();
 
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
@@ -501,5 +527,21 @@ class Route
         } else {
             return false;
         }
+    }
+
+    public static function getFirstPartnerRegency($warehouse): int
+    {
+        switch (true) {
+            case $warehouse instanceof SupportCollection:
+                $partner = Partner::query()->whereIn('code', $warehouse->pluck('code_mtak_1_dest')->toArray())->first();
+                $regencyId = $partner->geo_regency_id;
+                break;
+            default:
+                $partner = Partner::query()->where('code', $warehouse->code_mtak_1_dest)->first();
+                $regencyId = $partner->geo_regency_id;
+                break;
+        }
+
+        return $regencyId;
     }
 }
