@@ -36,8 +36,9 @@ class AssignableController extends Controller
                 break;
             case $setPartner === 2:
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
+                break;
             case $setPartner === 3:
-                $partnerCode = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL])->get()->pluck('code')->toArray();
+                $partnerCode = "all";
                 break;
             default:
                 $partnerCode = null;
@@ -49,7 +50,12 @@ class AssignableController extends Controller
         }
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        $query->whereIn('code', $partnerCode);
+        if ($partnerCode === "all") {
+            $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
+        } else {
+            $query->whereIn('code', $partnerCode);
+        }
+
         $query->when(
             $request->input('code'),
             fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
