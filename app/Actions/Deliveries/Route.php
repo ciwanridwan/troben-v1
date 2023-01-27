@@ -128,11 +128,11 @@ class Route
                 $setPartner = 1;
             }
 
-            if ($value->deliveries->count() === 1 && is_null($route)) { // new receipt
+            if ($value->deliveries->count() <= 2 && is_null($route)) { // new receipt
                 $setPartner = 2;
             }
 
-            if ($value->deliveries->count() > 1 && is_null($route)) { // condition old receipt
+            if ($value->deliveries->count() > 2 && is_null($route)) { // condition old receipt
                 $setPartner = 3;
             }
 
