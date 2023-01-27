@@ -146,9 +146,9 @@ class PricingCalculator
     public static function calculate(array $inputs, string $returnType = 'json')
     {
         $inputs =  Validator::validate($inputs, [
-            'origin_province_id' => ['required', 'exists:geo_provinces,id'],
-            'origin_regency_id' => ['required', 'exists:geo_regencies,id'],
-            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'origin_province_id' => ['required', 'numeric', 'exists:geo_provinces,id'],
+            'origin_regency_id' => ['required', 'numeric', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
             'service_code' => ['required', 'exists:services,code'],
             'partner_code' => ['nullable'],
             'sender_latitude' => ['nullable'],

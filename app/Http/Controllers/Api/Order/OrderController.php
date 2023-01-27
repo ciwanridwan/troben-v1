@@ -264,7 +264,7 @@ class OrderController extends Controller
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
             'is_walkin' => $isWalkin,
-            'total_amount' => $package->total_amount - $prices['voucher_price_discount'] - $prices['pickup_price_discount'],
+            'total_amount' => $package->total_amount - $prices['voucher_price_discount'],
             'is_multi' => $isMulti,
             'multi_price' => $multiPrices,
             'multi_items' => $multiItems,
@@ -724,7 +724,7 @@ class OrderController extends Controller
             [
                 'origin_lat' => ['nullable', 'numeric'],
                 'origin_lon' => ['nullable', 'numeric'],
-                'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
+                'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
                 'service_code' => ['nullable', 'exists:services,code']
             ]
         );
