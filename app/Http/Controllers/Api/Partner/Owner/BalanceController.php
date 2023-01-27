@@ -50,7 +50,6 @@ class BalanceController extends Controller
                 return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
                 break;
             default:
-
                 $query = $this->getIncome($repository->getPartner()->id);
                 $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
                     $k->map(function ($q) {
@@ -58,7 +57,15 @@ class BalanceController extends Controller
                         $q->weight = intval($q->weight);
                     });
 
-                    $totalAmount = $k->sum('amount');
+                    $totalAmount = 0;
+                    $penaltyIncome = $k->where('type', 'penalty')->first();
+
+                    if (is_null($penaltyIncome)) {
+                        $totalAmount = $k->sum('amount');
+                    } else {
+                        $totalAmount = $k->where('type', '!=', 'penalty')->sum('amount') - $penaltyIncome->amount;
+                    }
+
                     return [
                     'package_code' => $k[0]->package_code,
                     'total_amount' => $totalAmount,

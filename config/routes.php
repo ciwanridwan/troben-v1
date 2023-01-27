@@ -62,6 +62,7 @@ return [
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Internal\FinanceRoute::class,
+        App\Http\Routes\Api\Internal\WithdrawalRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\Partner\VoucherRoute::class,
@@ -88,7 +89,8 @@ return [
         App\Http\Routes\Api\SupportRoute::class,
         App\Http\Routes\TermAndConditionRoute::class,
         App\Http\Routes\Api\MotorBikeRoute::class,
-        App\Http\Routes\TestingRoute::class
+        App\Http\Routes\TestingRoute::class,
+        App\Http\Routes\Api\Internal\ManifestRoute::class
         /** @inject api **/
     ],
     'admin' => [
@@ -136,6 +138,8 @@ return [
     'self_service' => [
         App\Http\Routes\Api\V\SelfRoute::class,
         App\Http\Routes\Api\V\OfficeRoute::class,
+        App\Http\Routes\Api\SlaRoute::class,
+
     ],
 
     'operation' => [

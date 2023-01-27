@@ -16,6 +16,12 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $roles = [];
+        $partnerId = null;
+        if ($this->is_admin) {
+            $roles[] = 'admin-super';
+        }
+
         /** @var \App\Models\User|\App\Models\Customers\Customer $this */
         $data = [
             'hash' => (string) $this->id,
@@ -29,6 +35,7 @@ class UserResource extends JsonResource
             'longitude' => $this->longitude,
             'is_active' => $this->is_active,
             'avatar' => $this->attachments()->first()->uri ?? null,
+            'is_ho' => $this->is_admin,
         ];
 
         if ($this->resource instanceof User) {
@@ -36,12 +43,22 @@ class UserResource extends JsonResource
             $partners = $this->resource->partners;
             // dd($partners);
 
+            foreach ($partners as $p) {
+                $roles[] = sprintf('trawlpack-partner-%s', $p->pivot->role);
+            }
+
             $data['partner'] = null;
             if ($partners->count() > 0) {
                 $data['partner'] = $partners->first()->only(['name', 'code', 'type', 'address',  'latitude',  'longitude']);
                 $data['partner']['as'] = $partners
                     ->where('code', Arr::get($data, 'partner.code'))
                     ->pluck('pivot')->map->role->toArray();
+                $partnerId = $partners->first()->id;
+            }
+            $data['bankOwner'] = null;
+            if ($this->resource->bankOwner) {
+                $data['bankOwner'] = $this->resource->bankOwner;
+                $data['bankOwner']['bank'] = $this->resource->BankOwner->banks;
             }
 
             $transporters = $this->resource->transporters;
@@ -51,6 +68,9 @@ class UserResource extends JsonResource
                 $data['vehicle'] = $transporters->first()->only(['type', 'registration_name', 'registration_number', 'registration_year']);
             }
         }
+
+        $data['roles'] = $roles;
+        $data['partner_id'] = $partnerId;
 
         return $data;
     }

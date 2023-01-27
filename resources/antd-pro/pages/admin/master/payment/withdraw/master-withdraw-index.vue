@@ -55,29 +55,42 @@
         <a-row style="margin-bottom: 10px">
           <a-form-model-item prop="">
             <a-select placeholder="Pilih Provinsi" size="large">
-              <a-select-option>
-                test
-              </a-select-option>
+              <a-select-option> test </a-select-option>
             </a-select>
           </a-form-model-item>
         </a-row>
       </a-card>
-      <a-table :columns="requestColumns" :dataSource="items.data" :pagination="trawlbensPagination"
-        @change="handleTableChanged" :loading="loading" :class="['trawl']" :row-selection="{
-          onChange: onChangeSelected
-        }">
+      <a-table
+        :columns="requestColumns"
+        :dataSource="items.data"
+        :pagination="trawlbensPagination"
+        @change="handleTableChanged"
+        :loading="loading"
+        :class="['trawl']"
+        :row-selection="{
+          onChange: onChangeSelected,
+        }"
+      >
         <span slot="number" slot-scope="number">{{ number }}</span>
         <span slot="action" slot-scope="record">
           <a-space v-if="record.status">
-
-            <modal-reject-withdrawal :afterConfirm="afterAction" :record="record" />
-            <modal-confirm-withdrawal :afterConfirm="afterAction" :record="record" />
+            <modal-reject-withdrawal
+              :afterConfirm="afterAction"
+              :record="record"
+            />
+            <modal-confirm-withdrawal
+              :afterConfirm="afterAction"
+              :record="record"
+            />
           </a-space>
         </span>
       </a-table>
     </template>
     <template slot="footer">
-      <a-layout-footer v-show="selections.length > 0" :class="['trawl-content-footer']">
+      <a-layout-footer
+        v-show="selections.length > 0"
+        :class="['trawl-content-footer']"
+      >
         <a-row type="flex" justify="end">
           <a-col :span="10">
             <a-space>
@@ -112,7 +125,7 @@ export default {
     filter: {
       q: null,
       page: 1,
-      per_page: 15
+      per_page: 15,
     },
     loading: false,
     requestColumns,
@@ -133,11 +146,11 @@ export default {
   props: {
     record: {
       type: Object,
-      default: () => { },
+      default: () => {},
     },
     afterAction: {
       type: Function,
-      default: () => { },
+      default: () => {},
     },
   },
   created() {
@@ -147,6 +160,6 @@ export default {
     this.payments.data.forEach((o, k) => {
       o.number = numbering++;
     });
-  }
+  },
 };
 </script>

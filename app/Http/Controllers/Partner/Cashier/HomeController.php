@@ -68,7 +68,7 @@ class HomeController extends Controller
                 );
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
             $this->attributes = $request->validate($this->rules);
 
@@ -94,7 +94,7 @@ class HomeController extends Controller
                     $childId = $r->multiDestination->pluck('child_id')->toArray();
                     $serviceFeeChild = Package::whereIn('id', $childId)->get()->sum('service_price');
                 }
-                if (! is_null($r->parentDestination)) {
+                if (!is_null($r->parentDestination)) {
                     $order_mode = false;
                 }
 
@@ -309,7 +309,7 @@ class HomeController extends Controller
             return $this->getPartners($request);
         }
         $this->query->whereHas('code', function ($query) use ($request) {
-            $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+            $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
         });
 
         $this->query->where($status_condition);
@@ -333,7 +333,7 @@ class HomeController extends Controller
             $this->query->where('status', '!=', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -356,7 +356,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_CANCEL);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -379,7 +379,7 @@ class HomeController extends Controller
             $this->query->where('status', Package::STATUS_DELIVERED);
 
             $this->query->whereHas('code', function ($query) use ($request) {
-                $query->whereRaw("LOWER(content) like '%".strtolower($request->q)."%'");
+                $query->whereRaw("LOWER(content) like '%" . strtolower($request->q) . "%'");
             });
 
             $this->attributes = $request->validate($this->rules);
@@ -450,17 +450,17 @@ class HomeController extends Controller
 
     private function activeDisableDiscount($package)
     {
-        if ($package->multiDestination->count() || ! is_null($package->parentDestination)) {
+        if ($package->multiDestination->count() || !is_null($package->parentDestination)) {
             $discountService =  $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
             $discountPickup = $package->prices->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
 
-            if (! is_null($discountService) && $discountService !== 0) {
+            if (!is_null($discountService) && $discountService !== 0) {
                 return false;
             } else {
                 return true;
             }
 
-            if (! is_null($discountPickup) && $discountPickup !== 0) {
+            if (!is_null($discountPickup) && $discountPickup !== 0) {
                 return false;
             } else {
                 return true;

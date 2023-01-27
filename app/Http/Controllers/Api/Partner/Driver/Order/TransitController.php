@@ -15,7 +15,10 @@ use App\Models\Code;
 use App\Models\CodeLogable;
 use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
+use App\Models\User;
+use App\Services\Chatbox\Chatbox;
 use App\Supports\Repositories\PartnerRepository;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -100,7 +103,21 @@ class TransitController extends Controller
     public function unloaded(Delivery $delivery): JsonResponse
     {
         event(new DriverUnloadedPackageInDestinationWarehouse($delivery));
-
+        $driverSignIn = User::where('id', $delivery->driver->id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $delivery->driver->id,
+            'customer_id' => $delivery->packages[0]->customer_id
+        ];
+        try {
+            Chatbox::endSessionDriverChatbox($param);
+        } catch (\Exception $th) {
+            report($th);
+        }
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 

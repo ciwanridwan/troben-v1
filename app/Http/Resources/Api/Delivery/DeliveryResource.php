@@ -22,7 +22,7 @@ class DeliveryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        if (! $this->resource->relationLoaded('code.scan_item_codes.codeable')) {
+        if (!$this->resource->relationLoaded('code.scan_item_codes.codeable')) {
             $this->resource->load(['code.scan_receipt_codes', 'code.scan_item_codes.codeable']);
 
             if ($this->resource->code != null) {
@@ -42,21 +42,21 @@ class DeliveryResource extends JsonResource
         }
 
         if ($this->resource->type === Delivery::TYPE_TRANSIT) {
-            if (! $this->resource->relationLoaded('partner')) {
+            if (!$this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }
             $this->resource->load('origin_partner');
         }
 
         if ($this->resource->type === Delivery::TYPE_PICKUP) {
-            if (! $this->resource->relationLoaded('partner')) {
+            if (!$this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }
             $this->resource->load('origin_partner');
         }
 
         if ($this->resource->type === Delivery::TYPE_DOORING) {
-            if (! $this->resource->relationLoaded('partner')) {
+            if (!$this->resource->relationLoaded('partner')) {
                 $this->resource->load('partner');
             }
             $this->resource->load('origin_partner');
@@ -80,7 +80,7 @@ class DeliveryResource extends JsonResource
         }
 
         $this->resource->append('as');
-        if (! $this->resource->relationLoaded('item_codes')) {
+        if (!$this->resource->relationLoaded('item_codes')) {
             $this->resource->load('item_codes');
         }
         $this->resource->item_codes = $this->resource->item_codes->map(function ($item) {
@@ -97,21 +97,33 @@ class DeliveryResource extends JsonResource
         // }
         if ($this->resource->relationLoaded('partner_performance')) {
             $data = Arr::except($data, 'partner_performance');
-            if ($this->resource->partner_performance) {
-                $dataPerformance = [
-                'level' => $this->resource->partner_performance->level,
-                'deadline_time' => $this->resource->partner_performance->deadline
-            ];
-            } else {
-                $dataPerformance = [
-                'level' => null,
-                'deadline_time' => null
-            ];
-            }
+            $dataPerformance = $this->checkSLa($this->resource->partner_performance, $request);
+
             $this->resource->unsetRelation('partner_performance');
             $data = array_merge($data, $dataPerformance);
         }
 
         return $data;
+    }
+
+
+    private function checkSLa($slaResource, $request)
+    {
+        $dataPerformance = [];
+        $partner = $request->user()->partners->first();
+        if ($slaResource && $slaResource['partner_id'] === $partner->id) {
+            $dataPerformance = [
+                'level' => $slaResource->level,
+                'deadline_at' => $slaResource->deadline,
+            ];
+        } else {
+            $dataPerformance = [
+                'level' => null,
+                'deadline_at' => null,
+                'reached_at' => null,
+            ];
+        }
+
+        return $dataPerformance;
     }
 }

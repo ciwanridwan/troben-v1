@@ -102,7 +102,8 @@ class Queries
             'packages',
             'origin_partner',
             'partner',
-            'transporter'
+            'transporter',
+            'partner_performance'
         ]);
 
         return $query;

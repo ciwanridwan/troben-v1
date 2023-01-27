@@ -2,8 +2,10 @@
 
 namespace App\Models\Partners\Balance;
 
+use App\Models\Payments\Withdrawal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DisbursmentHistory extends Model
 {
@@ -29,5 +31,10 @@ class DisbursmentHistory extends Model
             self::STATUS_APPROVE,
             self::STATUS_WAITING_FOR_APPROVE
         ];
+    }
+
+    public function parentDisbursment(): BelongsTo
+    {
+        return $this->belongsTo(Withdrawal::class, 'disbursment_id', 'id');
     }
 }
