@@ -730,6 +730,10 @@ class OrderController extends Controller
             'package_child_hash' => ['nullable', 'array'],
         ]);
 
+        if (is_null($request->package_parent_hash) || is_null($request->package_child_hash)) {
+            return (new Response(Response::RC_BAD_REQUEST))->json();
+        }
+
         $parentPackage = Package::hashToId($request->package_parent_hash);
         $childPackage = $request->package_child_hash;
 
