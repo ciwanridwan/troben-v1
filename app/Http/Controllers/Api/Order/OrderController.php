@@ -731,7 +731,7 @@ class OrderController extends Controller
         ]);
 
         if (is_null($request->package_parent_hash) || is_null($request->package_child_hash)) {
-            return (new Response(Response::RC_BAD_REQUEST))->json();
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Package hash or child hash is null, cant given null value']))->json();
         }
 
         $parentPackage = Package::hashToId($request->package_parent_hash);
