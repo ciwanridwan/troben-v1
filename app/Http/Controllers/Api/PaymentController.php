@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Payment\ListPaymentGateway;
 use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
@@ -32,6 +33,8 @@ class PaymentController extends Controller
     {
         $this->package = $package;
         $this->getPaymentGateway()->isSelectable();
+
+        event(new ListPaymentGateway($package));
         return $this->jsonSuccess(JsonResource::make($this->response));
     }
 

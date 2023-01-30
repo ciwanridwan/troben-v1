@@ -104,6 +104,10 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->package = $event->package;
                 $this->reach_at = Carbon::now();
 
+                if (is_null($this->package->partner_performance)) {
+                    break;
+                }
+
                 $deadline = $this->package->partner_performance->deadline;
                 $level = $this->package->partner_performance->level;
 

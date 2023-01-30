@@ -341,6 +341,7 @@ class OrderController extends Controller
         $request->validate([
             'items' => ['required'],
             'items.*.is_insured' => ['nullable'],
+            'items.*.is_glassware' => ['nullable'],
             'photos' => ['nullable'],
             'photos.*' => ['nullable', 'image'],
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
@@ -408,6 +409,9 @@ class OrderController extends Controller
         foreach ($items as $key => $item) {
             if ($item['insurance'] == '1') {
                 $items[$key]['is_insured'] = true;
+            }
+            if ($item['is_glassware'] == '1') {
+                $items[$key]['is_glassware'] = true;
             }
         }
 
@@ -720,7 +724,7 @@ class OrderController extends Controller
             [
                 'origin_lat' => ['nullable', 'numeric'],
                 'origin_lon' => ['nullable', 'numeric'],
-                'destination_id' => ['nullable', 'exists:geo_sub_districts,id'],
+                'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
                 'service_code' => ['nullable', 'exists:services,code']
             ]
         );

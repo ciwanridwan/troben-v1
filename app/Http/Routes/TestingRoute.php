@@ -48,6 +48,6 @@ class TestingRoute extends BaseRoute
         $this->router->patch($this->prefix('/admin/assign/transporter/{delivery_hash}/{partner_hash}'), [
             'as' => $this->name('admin.assignation.transporter'),
             'uses' => $this->uses('assign', ManifestController::class),
-        ]);   
+        ]);
     }
 }
