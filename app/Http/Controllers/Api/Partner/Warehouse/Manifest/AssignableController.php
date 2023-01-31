@@ -108,7 +108,10 @@ class AssignableController extends Controller
         );
 
         $query->with('estimator', 'packager', 'items', 'partner_performance');
+        $result = $query->paginate($request->input('per_page'));
 
+        $itemCollection = $result->getCollection()->map(function ($q) use ($repository) {
+        });;
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
