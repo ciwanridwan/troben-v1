@@ -36,7 +36,17 @@ class CheckRoute extends BaseRoute
 
         $this->router->get($this->prefix('/receipt'), [
             'as' => $this->name('check.receipt'),
-            'uses' => $this->uses('receipt', CheckController::class),
+            'uses' => $this->uses('receipt'),
         ]);
+
+        $this->router->get($this->prefix('/receipt/detail/{content}'), [
+            'as' => $this->name('check.receipt.detail'),
+            'uses' => $this->uses('detailReceipt'),
+        ]);
+    }
+
+    public function controller()
+    {
+        return CheckController::class;
     }
 }
