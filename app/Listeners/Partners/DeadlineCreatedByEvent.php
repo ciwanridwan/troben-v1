@@ -10,6 +10,7 @@ use App\Events\Deliveries\PartnerAssigned;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Payment\Nicepay\PayByNicePayDummy;
+use App\Events\Payment\Nicepay\PaymentIsCorporateMode;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
 use App\Models\Partners\Performances\Package as PartnerPackagePerformance;
@@ -43,6 +44,20 @@ class DeadlineCreatedByEvent
                 ]);
 
                 Log::debug('Deadline Payment Has Been Created: ', [$performanceQuery]);
+                break;
+            case $event instanceof PaymentIsCorporateMode:
+                $package = $event->package;
+                $partnerPickup = $package->picked_up_by->first()->partner;
+
+                # add performance
+                $deadline = Carbon::now() < Carbon::today()->addHours(20) ? Carbon::now()->endOfDay() : Carbon::tomorrow()->endOfDay();
+                $performanceQuery = PartnerPackagePerformance::query()->create([
+                    'partner_id' => $partnerPickup->id,
+                    'package_id' => $package->id,
+                    'deadline' => $deadline
+                ]);
+
+                Log::debug('Deadline Payment Corporate Has Been Created: ', [$performanceQuery]);
                 break;
             case $event instanceof DriverAssigned:
                 $delivery = $event->delivery;

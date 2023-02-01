@@ -299,6 +299,9 @@ class EventServiceProvider extends ServiceProvider
             DeadlineCreatedByEvent::class,
             WriteCodeLog::class,
         ],
+        PaymentIsCorporateMode::class => [
+            DeadlineCreatedByEvent::class,
+        ],
         NewHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
         ],
