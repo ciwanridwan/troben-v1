@@ -21,16 +21,16 @@ class CheckController extends Controller
             ]);
 
             /** @var Code $code */
-            $code = Code::query()->where('content', 'ilike', '%' . $request->code . '%')->where('codeable_type', Package::class);
+            $code = Code::query()->where('content', 'ilike', '%' . $request->code . '%')->where('codeable_type', Package::class)->limit(5)->get();
         }
 
-        return $this->jsonSuccess(ListReceiptResource::collection($code->paginate(request()->input('per_page'))));
+        return $this->jsonSuccess(ListReceiptResource::collection($code));
     }
 
     public function detailReceipt(string $code): JsonResponse
     {
-        $result = Code::query()->with(['codeable', 'codeable.attachments', 'codeable.origin_regency', 'codeable.destination_regency', 'codeable.destination_district', 'codeable.destination_sub_district', 'codeable.origin_regency.province', 'codeable.destination_regency.province', 'logs'])->where('content', $code)->where('codeable_type', Package::class)->get();
+        $result = Code::query()->with(['codeable', 'codeable.attachments', 'codeable.origin_regency', 'codeable.destination_regency', 'codeable.destination_district', 'codeable.destination_sub_district', 'codeable.origin_regency.province', 'codeable.destination_regency.province', 'logs'])->where('content', $code)->where('codeable_type', Package::class)->first();
 
-        return $this->jsonSuccess(CheckReceiptResource::collection($result));
+        return $this->jsonSuccess(CheckReceiptResource::make($result));
     }
 }
