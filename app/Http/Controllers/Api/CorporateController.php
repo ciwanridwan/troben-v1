@@ -15,6 +15,7 @@ use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
+use App\Events\Payment\Nicepay\PaymentIsCorporateMode;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
@@ -270,6 +271,9 @@ class CorporateController extends Controller
             $job->package->payment_status = Package::PAYMENT_STATUS_PAID;
             $job->package->status = Package::STATUS_WAITING_FOR_PACKING;
             $job->package->save();
+
+            // trigger sla
+            event(new PaymentIsCorporateMode($job->package));
         }
         if ($payment_method == 'va') {
             // go to different method: paymentMethod, paymentMethodSet
