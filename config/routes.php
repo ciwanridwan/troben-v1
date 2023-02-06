@@ -91,7 +91,8 @@ return [
         App\Http\Routes\Api\MotorBikeRoute::class,
         App\Http\Routes\TestingRoute::class,
         App\Http\Routes\Api\Internal\ManifestRoute::class,
-        App\Http\Routes\Api\Partner\Owner\CheckRoute::class
+        App\Http\Routes\Api\Partner\Owner\CheckRoute::class,
+        App\Http\Routes\Api\V2\Dashboard\OrderRoute::class
         /** @inject api **/
     ],
     'admin' => [
