@@ -469,7 +469,7 @@ class CorporateController extends Controller
     {
         $isAdmin = auth()->user()->is_admin;
 
-        $query = Package::query()->whereHas('corporate');
+        $query = Package::query();
 
         if (! $isAdmin) {
             $query = $query->where('created_by', auth()->id());
