@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Order\V2;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
+use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
 use App\Models\Packages\Package;
 use App\Models\Partners\Transporter;
 use App\Models\User;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
+use App\Models\Deliveries\Delivery;
 
 class DashboardController extends Controller
 {
@@ -33,6 +35,28 @@ class DashboardController extends Controller
                 $query->orWhereHas('drivers', fn (Builder $userQuery) => $userQuery->search($request->q, 'name'));
             });
         return $this;
+    }
+
+    public function index(Request $request, PartnerRepository $partnerRepository)
+    {
+        $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages')->with([
+            'packages', 'packages.code',
+            'packages.origin_regency',
+            'packages.origin_district',
+            'packages.origin_sub_district',
+            'packages.destination_regency',
+            'packages.destination_district',
+            'packages.destination_sub_district',
+            'packages.prices',
+            'packages.multiDestination',
+            'packages.motoBikes'
+        ]);
+
+        $this->query->where('type', Delivery::TYPE_PICKUP)->where('status', Delivery::STATUS_PENDING);
+
+        $this->query->orderBy('created_at', 'desc');
+
+        return $this->jsonSuccess(ListOrderResource::collection($this->query->paginate(request('per_page', 15))));
     }
 
     /** Detail order trawlpack */

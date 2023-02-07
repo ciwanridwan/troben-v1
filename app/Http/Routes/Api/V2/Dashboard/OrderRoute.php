@@ -19,6 +19,11 @@ class OrderRoute extends BaseRoute
      */
     public function register()
     {
+        $this->router->get($this->prefix, [
+            'as' => $this->name('index'),
+            'uses' => $this->uses('index'),
+        ])->middleware('partner.scope.role:customer-service');
+
         $this->router->get($this->prefix('detail/{package_hash}'), [
             'as' => $this->name('detail'),
             'uses' => $this->uses('detail'),
@@ -28,11 +33,6 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('list.drivers'),
             'uses' => $this->uses('listDrivers'),
         ]);
-
-        // $this->router->get($this->prefix('list/drivers'), [
-        //     'as' => $this->name('list.driver'),
-        //     'uses' => $this->uses('pickup', OrderController::class),
-        // ])->middleware('partner.scope.role:customer-service');
     }
 
     public function controller()
