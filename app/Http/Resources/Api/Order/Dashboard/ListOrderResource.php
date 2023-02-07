@@ -83,10 +83,13 @@ class ListOrderResource extends JsonResource
                 'code' => $data['package']['code']['content'],
                 'transporter_type' => $data['package']['transporter_type'],
                 'pickup_address' => $data['package']['sender_address'],
+                'status' => $data['package']['status'],
+                'payment_status' => $data['package']['payment_status'],
                 'created_at' => $data['package']['created_at'],
                 'pickup_price' => $pickupPrice[0]['amount'],
                 'order_type' => $orderType[0]['type'],
-                'order_mode' => $data['order_mode']
+                'order_mode' => $data['order_mode'],
+                'description_status' => 'Menunggu driver ditugaskan'
             ]
         ];
 
