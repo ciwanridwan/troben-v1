@@ -421,8 +421,8 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination',
-        ])->whereHas('corporate');
+            'multiDestination', 'parentDestination.packages.corporate',
+        ]);
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
@@ -441,9 +441,23 @@ class CorporateController extends Controller
 
         $results->getCollection()->transform(function ($item) {
             $type2 = 'single';
+            $payment_method = 'va';
+            if (! is_null($item->corporate)) {
+                $payment_method = $item->corporate->payment_method;
+            }
+
             if ($item->multiDestination->count()) $type2 = 'multi';
-            if (! is_null($item->parentDestination)) $type2 = 'multi';
+            if (! is_null($item->parentDestination)) {
+                $payment_method = 'va';
+                if (! is_null($item->parentDestination->packages->corporate)) {
+                    $payment_method = $item->parentDestination->packages->corporate->payment_method;
+                }
+                $type2 = 'multi';
+                $item->payment_status = $item->parentDestination->packages->payment_status;
+            }
             $item->type2 = $type2;
+
+            $item->payment_method = $payment_method;
 
             return $item;
         });
