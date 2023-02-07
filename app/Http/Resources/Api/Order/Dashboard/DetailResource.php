@@ -24,6 +24,7 @@ class DetailResource extends JsonResource
             'id' => $this->id,
             'hash' => $this->hash,
             'service_code' => $this->service_code,
+            'transporter_type' => $this->transporter_type,
             'order_type' => $orderType,
             'sender_name' => $this->sender_name,
             'sender_address' => $this->sender_address,

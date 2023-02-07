@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Order\Dashboard;
 
+use App\Models\Packages\Package;
 use App\Models\Service;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -91,5 +92,17 @@ class ListOrderResource extends JsonResource
 
         return $result;
         // return $data;
+    }
+
+    public function getStatus($package)
+    {
+        switch (true) {
+            case $package->status === Package::STATUS_PENDING:
+                break;
+
+            default:
+                # code...
+                break;
+        }
     }
 }
