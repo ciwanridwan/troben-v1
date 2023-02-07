@@ -425,7 +425,15 @@ class CorporateController extends Controller
         ]);
 
         if (! $isAdmin) {
-            $results = $results->where('created_by', auth()->id());
+            $partner = auth()->user()->partners->first();
+            $partnerId = $partner->getKey();
+            $results = $results->where(function($q) use ($partnerId) {
+                $q->where('created_by', auth()->id())
+                ->orWhereHas('deliveries', function($q2) use ($partnerId) {
+                    $q2->where('partner_id', $partnerId);
+                });
+            });
+
         }
         if ($request->get('status')) {
             $results = $results->where('payment_status', $request->get('status'));
