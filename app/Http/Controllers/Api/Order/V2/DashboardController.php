@@ -72,10 +72,11 @@ class DashboardController extends Controller
         $this->query = $partnerRepository->getPartner()->transporters()->getQuery();
         $this->getSearch($request);
 
-        $transporters = $this->query->paginate(request('per_page', 15));
-        $transporterCollections = $transporters->getCollection();
-        $transporterCollections = $this->searchTransporter($transporterCollections);
-        $transporters->setCollection($transporterCollections);
+        // $transporters = $this->query->paginate(request('per_page', 15));
+        $transporters = $this->query->get();
+        // $transporterCollections = $transporters->getCollection();
+        $transporterCollections = $this->searchTransporter($transporters);
+        // $transporters->setCollection($transporterCollections);
 
         return $this->jsonSuccess(ListDriverResource::collection($transporterCollections));
     }
