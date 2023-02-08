@@ -206,4 +206,9 @@ class Item extends Model implements AttachableContract
     {
         return $this->package()->first()->service_code;
     }
+
+    public function categories(): BelongsTo
+    {
+        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
+    }
 }
