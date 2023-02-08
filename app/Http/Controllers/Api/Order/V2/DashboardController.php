@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Pivot\UserablePivot;
 
 class DashboardController extends Controller
 {
@@ -37,7 +38,7 @@ class DashboardController extends Controller
         return $this;
     }
 
-    public function index(Request $request, PartnerRepository $partnerRepository)
+    public function index(PartnerRepository $partnerRepository)
     {
         $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages')->with([
             'packages', 'packages.code',
@@ -93,5 +94,11 @@ class DashboardController extends Controller
             $transporterDrivers->push($transporterDriver);
         }));
         return $transporterDrivers;
+    }
+
+
+    public function orderAssignation()
+    {
+        // dd('a');
     }
 }

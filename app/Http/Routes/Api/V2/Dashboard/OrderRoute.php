@@ -33,6 +33,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('list.drivers'),
             'uses' => $this->uses('listDrivers'),
         ]);
+
+        $this->router->post($this->prefix('assign/{delivery_hash}/{userable_hash}/drivers'), [
+            'as' => $this->name('assign.driver'),
+            'uses' => $this->uses('orderAssignation', OrderController::class),
+        ]);
     }
 
     public function controller()

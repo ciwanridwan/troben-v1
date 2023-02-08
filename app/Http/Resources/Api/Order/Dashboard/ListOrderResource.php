@@ -89,7 +89,7 @@ class ListOrderResource extends JsonResource
                 'pickup_price' => $pickupPrice[0]['amount'],
                 'order_type' => $orderType[0]['type'],
                 'order_mode' => $data['order_mode'],
-                'description_status' => 'Menunggu driver ditugaskan'
+                'description_status' => $this->getStatus($data['package'])
             ]
         ];
 
@@ -100,11 +100,14 @@ class ListOrderResource extends JsonResource
     public function getStatus($package)
     {
         switch (true) {
-            case $package->status === Package::STATUS_PENDING:
+            case $package['status'] === Package::STATUS_PENDING:
+                return 'Menunggu driver ditugaskan';
                 break;
-
+            case $package['status'] === Package::STATUS_WAITING_FOR_PICKUP:
+                return 'Pesanan menunggu dijemput';
+                break;
             default:
-                # code...
+                return 'Uknown Status';
                 break;
         }
     }
