@@ -74,12 +74,8 @@ class DashboardController extends Controller
         $this->query = $partnerRepository->getPartner()->transporters()->getQuery();
         $this->getSearch($request);
 
-        // $transporters = $this->query->paginate(request('per_page', 15));
         $transporters = $this->query->get();
-        // $transporterCollections = $transporters->getCollection();
         $transporterCollections = $this->searchTransporter($transporters);
-        // dd($transporters);
-        // $transporters->setCollection($transporterCollections);
 
         return $this->jsonSuccess(ListDriverResource::collection($transporterCollections));
     }
@@ -105,8 +101,6 @@ class DashboardController extends Controller
 
     public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
-        // $userable = UserablePivot::byHash($hash);
-        // dd($userable);
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
         $this->dispatchNow($job);
@@ -129,5 +123,15 @@ class DashboardController extends Controller
             report($e);
         }
         return (new Response(Response::RC_SUCCESS, ['Message' => 'Driver berhasil di assign']))->json();
+    }
+
+    public function update()
+    {
+
+    }
+
+    public function estimationPrices(Request $request)
+    {
+
     }
 }

@@ -38,6 +38,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('assign.driver'),
             'uses' => $this->uses('orderAssignation'),
         ]);
+
+        $this->router->patch($this->prefix('{package_hash}/update'), [
+            'as' => $this->name('update'),
+            'uses' => $this->uses('update'),
+        ]);
     }
 
     public function controller()

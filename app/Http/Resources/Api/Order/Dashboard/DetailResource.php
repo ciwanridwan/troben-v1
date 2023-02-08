@@ -102,14 +102,16 @@ class DetailResource extends JsonResource
             ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_BIKE);
         })->first();
         $additional = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where('description', PackagesPrice::TYPE_ADDITIONAL)->first();
+        $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
 
-        $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0);
+        $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0) + ($pickup ? $pickup->amount : 0);
 
         return [
             'insurance' => (int) $insurance ?? 0,
             'packing' => (int) $handling ?? 0,
             'additional' => $additional ? $additional->amount : 0,
             'service' => $service ? $service->amount : 0,
+            'pickup' => $pickup ? $pickup->amount : 0,
             'total_amount' => $totalAmount
         ];
     }
