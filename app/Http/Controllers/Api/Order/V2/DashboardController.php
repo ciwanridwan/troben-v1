@@ -15,8 +15,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
+use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Services\Chatbox\Chatbox;
 
 class DashboardController extends Controller
 {
@@ -76,6 +78,7 @@ class DashboardController extends Controller
         $transporters = $this->query->get();
         // $transporterCollections = $transporters->getCollection();
         $transporterCollections = $this->searchTransporter($transporters);
+        // dd($transporters);
         // $transporters->setCollection($transporterCollections);
 
         return $this->jsonSuccess(ListDriverResource::collection($transporterCollections));
@@ -86,20 +89,45 @@ class DashboardController extends Controller
         $transporterDrivers = new Collection();
 
         $transporters->each(fn (Transporter $transporter) => $transporter->drivers->each(function (User $driver) use ($transporterDrivers, $transporter) {
-            $transporterSelected = $transporter->only('hash', 'type', 'registration_number');
-            $driverSelected = $driver->only('hash','name');
+            $transporterSelected = $transporter->only('type', 'registration_number');
+            $driverSelected = $driver->only('name');
+            $userableSelected = $driver->only('pivot');
+            $hashUserable = ['hash' => $userableSelected['pivot']->hash];
+            $driverArr = array_merge($driverSelected, $hashUserable);
 
             $transporter->unsetRelation('drivers');
-            $transporterDriver = array_merge($transporterSelected, ['driver' => $driverSelected]);
+            $transporterDriver = array_merge($transporterSelected, ['driver' => $driverArr]);
             $transporterDriver = new Collection($transporterDriver);
             $transporterDrivers->push($transporterDriver);
         }));
         return $transporterDrivers;
     }
 
-
-    public function orderAssignation()
+    public function orderAssignation(Delivery $delivery, UserablePivot $userablePivot): JsonResponse
     {
-        // dd('a');
+        // $userable = UserablePivot::byHash($hash);
+        // dd($userable);
+        $method = 'partner';
+        $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
+        $this->dispatchNow($job);
+        $driverSignIn = User::where('id', $job->delivery->assigned_to->user_id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $job->delivery->assigned_to->user_id,
+            'customer_id' => $delivery->packages[0]->customer_id,
+            'package_id' => $job->delivery->packages[0]->id,
+            'product' => 'trawlpack'
+        ];
+
+        try {
+            Chatbox::createDriverChatbox($param);
+        } catch (\Exception $e) {
+            report($e);
+        }
+        return (new Response(Response::RC_SUCCESS, ['Message' => 'Driver berhasil di assign']))->json();
     }
 }
