@@ -48,7 +48,8 @@ class DetailResource extends JsonResource
                     'desc' => $q->desc,
                     'is_insured' => $q->is_insured,
                     'weight_borne_total' => $q->weight_borne_total,
-                    'handling' => $q->handling
+                    'handling' => $q->handling,
+                    'category_name' => $q->categories ? $q->categories->name : null
                 ];
                 return $result;
             }) : null,
