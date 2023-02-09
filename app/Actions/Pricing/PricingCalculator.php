@@ -344,12 +344,9 @@ class PricingCalculator
             ];
         }
         $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
-
-
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
         $servicePrice = $tierPrice * $totalWeightBorne;
-
         return $servicePrice;
     }
 

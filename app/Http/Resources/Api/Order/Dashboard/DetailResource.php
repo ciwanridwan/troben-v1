@@ -27,6 +27,7 @@ class DetailResource extends JsonResource
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
+            'package_hash' => $this->hash,
             'service_code' => $this->service_code,
             'transporter_type' => $this->transporter_type,
             'order_type' => $orderType,

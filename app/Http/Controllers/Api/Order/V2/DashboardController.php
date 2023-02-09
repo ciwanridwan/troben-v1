@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Order\V2;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Exceptions\Error;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,7 @@ use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
@@ -135,66 +137,43 @@ class DashboardController extends Controller
 
     public function update()
     {
-
     }
 
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
         $request->validated();
-
         $package = Package::byHashOrFail($request->package_hash);
 
-        $isAdmin = auth()->user()->is_admin;
-        if ($isAdmin) {
-            $rules['partner_id'] = ['required', 'numeric'];
+        $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
+        $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
+
+        $servicePrice = PricingCalculator::getServicePrice(array_merge($request->all(), $originLocation));
+        $additionalPrice = PricingCalculator::getAdditionalPrices($request->items, $package->service_code);
+
+        $items = $request->items;
+        $handlingPrice = 0;
+
+        $totalInsurance = [];
+        foreach ($items as $item) {
+            // insurance
+            $totalItem = PricingCalculator::getInsurancePrice($item['price'] * $item['qty']);
+            array_push($totalInsurance, $totalItem);
+
+            // handling or packing
+            foreach ($item['handling'] as $packing) {
+                $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
+            };
         }
-
-        $items = $request->get('items', []);
-        if (is_array($items) && count($items) == 0) {
-            $result = [
-                'price' => null,
-                'items' => [],
-                'result' => [
-                    'insurance_price_total' => 0,
-                    'total_weight_borne' => 0,
-                    'handling' => 0,
-                    'pickup_price' => 0,
-                    'discount' => 0,
-                    'tier' => 0,
-                    'additional_price' => 0,
-                    'service' => 0,
-                    'total_amount' => 0,
-                ],
-            ];
-            return (new Response(Response::RC_SUCCESS, $result))->json();
-        }
-
-        if ($isAdmin) {
-            $partner = Partner::findOrFail($request->get('partner_id'));
-        } else {
-            $partners = auth()->user()->partners;
-            if ($partners->count() == 0) {
-                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
-            }
-            $partner = $partners->first();
-        }
-
-        $destination_id = $request->get('destination_id');
-        throw_if(is_null($partner->regency), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
-
-        $regency = $partner->regency;
-
-        /** @var Regency $regency */
-        $additional = [
-            'origin_province_id' => $regency->province_id,
-            'origin_regency_id' => $regency->id,
-            'destination_id' => $destination_id
+        $insurancePrice = array_sum($totalInsurance);
+        $totalAmount = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
+        $result = [
+            'service_fee' => $servicePrice,
+            'insurance_fee' => $insurancePrice,
+            'handling_fee' => $handlingPrice,
+            'additional_fee' => $additionalPrice,
+            'total_amount' => $totalAmount
         ];
-        $request->merge(['is_multi' => $request->is_multi ?? false]);
-        $payload = array_merge($request->toArray(), $additional);
-        $tempData = PricingCalculator::calculate($payload, 'array');
-        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
-        return PricingCalculator::calculate($payload);
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }

@@ -39,9 +39,14 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('orderAssignation'),
         ]);
 
-        $this->router->patch($this->prefix('{package_hash}/update'), [
+        $this->router->post($this->prefix('{package_hash}/update'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
+        ]);
+
+        $this->router->post($this->prefix('price/estimation'), [
+            'as' => $this->name('estimation.prices'),
+            'uses' => $this->uses('estimationPrices'),
         ]);
     }
 
