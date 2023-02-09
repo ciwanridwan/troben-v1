@@ -22,9 +22,10 @@ class DetailResource extends JsonResource
             $orderType = 'Single';
         }
 
+        $manifest = $this->deliveries->where('type', 'pickup')->first();
         $data = [
             'id' => $this->id,
-            'hash' => $this->hash,
+            'hash' => $manifest ? $manifest->hash : null,
             'service_code' => $this->service_code,
             'transporter_type' => $this->transporter_type,
             'order_type' => $orderType,
