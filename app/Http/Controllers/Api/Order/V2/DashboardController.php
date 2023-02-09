@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Api\Order\V2;
 
+use App\Actions\Pricing\PricingCalculator;
+use App\Exceptions\Error;
+use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
 use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
@@ -17,8 +21,10 @@ use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
+use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class DashboardController extends Controller
 {
@@ -55,7 +61,7 @@ class DashboardController extends Controller
             'packages.motoBikes'
         ]);
 
-        $this->query->where('type', Delivery::TYPE_PICKUP)->where('status', Delivery::STATUS_PENDING);
+        $this->query->where('type', Delivery::TYPE_PICKUP)->where('status', Delivery::STATUS_PENDING)->where('status', Delivery::STATUS_ACCEPTED);
 
         $this->query->orderBy('created_at', 'desc');
 
@@ -130,8 +136,63 @@ class DashboardController extends Controller
 
     }
 
-    public function estimationPrices(Request $request)
+    public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
+        $request->validated();
 
+        $package = Package::byHashOrFail($request->package_hash);
+
+        $isAdmin = auth()->user()->is_admin;
+        if ($isAdmin) {
+            $rules['partner_id'] = ['required', 'numeric'];
+        }
+
+        $items = $request->get('items', []);
+        if (is_array($items) && count($items) == 0) {
+            $result = [
+                'price' => null,
+                'items' => [],
+                'result' => [
+                    'insurance_price_total' => 0,
+                    'total_weight_borne' => 0,
+                    'handling' => 0,
+                    'pickup_price' => 0,
+                    'discount' => 0,
+                    'tier' => 0,
+                    'additional_price' => 0,
+                    'service' => 0,
+                    'total_amount' => 0,
+                ],
+            ];
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        }
+
+        if ($isAdmin) {
+            $partner = Partner::findOrFail($request->get('partner_id'));
+        } else {
+            $partners = auth()->user()->partners;
+            if ($partners->count() == 0) {
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
+            }
+            $partner = $partners->first();
+        }
+
+        $destination_id = $request->get('destination_id');
+        throw_if(is_null($partner->regency), Error::make(Response::RC_PARTNER_GEO_UNAVAILABLE));
+
+        $regency = $partner->regency;
+
+        /** @var Regency $regency */
+        $additional = [
+            'origin_province_id' => $regency->province_id,
+            'origin_regency_id' => $regency->id,
+            'destination_id' => $destination_id
+        ];
+        $request->merge(['is_multi' => $request->is_multi ?? false]);
+        $payload = array_merge($request->toArray(), $additional);
+        $tempData = PricingCalculator::calculate($payload, 'array');
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
+
+        return PricingCalculator::calculate($payload);
     }
 }
