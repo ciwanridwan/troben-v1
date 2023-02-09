@@ -75,6 +75,7 @@ class ListOrderResource extends JsonResource
         })->values()->toArray();
 
         $result = [
+            'id' => $this->id,
             'type' => $data['type'],
             'status' => $data['status'],
             'hash' => $data['hash'],

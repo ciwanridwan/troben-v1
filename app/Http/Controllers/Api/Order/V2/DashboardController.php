@@ -62,7 +62,7 @@ class DashboardController extends Controller
         ]);
 
         $this->query->where('type', Delivery::TYPE_PICKUP)->where(function ($q) {
-            $q->where('status', Delivery::STATUS_PENDING)->OrWhere('status', Delivery::STATUS_ACCEPTED);
+            $q->where('status', Delivery::STATUS_PENDING)->orWhere('status', Delivery::STATUS_ACCEPTED);
         });
 
         $this->query->orderBy('created_at', 'desc');
