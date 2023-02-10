@@ -135,10 +135,15 @@ class DashboardController extends Controller
         return (new Response(Response::RC_SUCCESS, ['Message' => 'Driver berhasil di assign']))->json();
     }
 
-    public function update()
+    public function update(Request $request, Package $package)
     {
+        dd($package);
     }
 
+    /**
+     * Like a pricing calculator
+     * This is estimation price when to create order
+     */
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
         $request->validated();
