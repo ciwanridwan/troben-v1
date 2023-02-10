@@ -8,6 +8,7 @@ use App\Exceptions\Error;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EstimationPricesRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
 use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
@@ -21,6 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
@@ -135,9 +137,31 @@ class DashboardController extends Controller
         return (new Response(Response::RC_SUCCESS, ['Message' => 'Driver berhasil di assign']))->json();
     }
 
-    public function update(Request $request, Package $package)
+    public function update(UpdateOrderRequest $request, Package $package): JsonResponse
     {
-        dd($package);
+        $request->validated();
+
+        $package->update([
+            'receiver_name' => $request->receiver_name ?? $package->receiver_name,
+            'receiver_address' => $request->receiver_address ?? $package->receiver_address,
+            'receiver_phone' => $request->receiver_phone ?? $package->receiver_phone,
+            'receiver_detail_address' => $request->receiver_way_point ?? $package->receiver_way_point,
+            'dest_regency_id' => $request->destination_regency_id ?? $package->destination_regency_id,
+            'dest_district_id' => $request->destination_district_id ?? $package->destination_district_id,
+            'dest_sub_district_id' => $request->destination_sub_district_id ?? $package->destination_sub_district_id
+        ]);
+
+        // $package->items()->update([
+        //     ''
+        // ]);
+
+        if ($request->photos) {
+            $package->attachments()->detach();
+            $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
+            $this->dispatchNow($uploadJob);
+        }
+
+        return (new Response(Response::RC_UPDATED, ['message' => 'Update data successfully']))->json();
     }
 
     /**
