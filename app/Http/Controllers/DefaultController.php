@@ -38,7 +38,7 @@ class DefaultController extends Controller
 
         $c = User::where('email', 'ILIKE', $username)->orWhere('username', 'ILIKE', $username)->first();
 
-        return response()->json(['status' => !is_null($c), 'search' => $username]);
+        return response()->json(['status' => ! is_null($c), 'search' => $username]);
     }
 
     public function changePasswordGuest(Request $request)
