@@ -90,7 +90,8 @@ class ListOrderResource extends JsonResource
                 'pickup_price' => $pickupPrice[0]['amount'] ?? $pickupPrice[0],
                 'order_type' => $orderType[0]['type'],
                 'order_mode' => $data['order_mode'],
-                'description_status' => $this->getStatus($data['package'])
+                'description_status' => $this->getStatus($data['package']),
+                'multi_package_code' => $multiDestination,
             ]
         ];
 
