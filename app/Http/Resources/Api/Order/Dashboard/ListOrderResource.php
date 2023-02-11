@@ -62,7 +62,7 @@ class ListOrderResource extends JsonResource
 
         $pickupPrice = $this->resource->packages->map(function ($q) {
             $pickupFee = $q->prices()->where('type', 'delivery')->where('description', 'pickup')->first();
-            return $pickupFee;
+            return $pickupFee ?? 0;
         })->values()->toArray();
 
         $orderType = $this->resource->packages->map(function ($q) {
@@ -87,7 +87,7 @@ class ListOrderResource extends JsonResource
                 'status' => $data['package']['status'],
                 'payment_status' => $data['package']['payment_status'],
                 'created_at' => $data['package']['created_at'],
-                'pickup_price' => $pickupPrice[0]['amount'],
+                'pickup_price' => $pickupPrice[0]['amount'] ?? $pickupPrice[0],
                 'order_type' => $orderType[0]['type'],
                 'order_mode' => $data['order_mode'],
                 'description_status' => $this->getStatus($data['package'])
@@ -95,7 +95,6 @@ class ListOrderResource extends JsonResource
         ];
 
         return $result;
-        // return $data;
     }
 
     public function getStatus($package)
