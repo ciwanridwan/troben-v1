@@ -17,14 +17,16 @@ class DetailResource extends JsonResource
      */
     public function toArray($request)
     {
+        $manifest = $this->deliveries->where('type', 'pickup')->first();
+
         if ($this->multiDestination()->exists()) {
             $orderType = 'Multi';
+            $packageChild = $this->getMultiChildPackages($manifest, $orderType);
         } else {
             $orderType = 'Single';
+            $manifest = null;
         }
-
-        $manifest = $this->deliveries->where('type', 'pickup')->first();
-        $packageChild = $this->getMultiChildPackages($manifest, $orderType);
+        
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
