@@ -89,6 +89,8 @@ class Partner extends Model
     public const AVAIL_OPEN = 'open';
     public const AVAIL_CLOSE = 'close';
 
+    public const PENALTY_PERCENTAGE = 0.025;
+
     /**
      * The table associated with the model.
      *
@@ -299,7 +301,7 @@ class Partner extends Model
      */
     public function sub_district(): BelongsTo
     {
-        return $this->belongsTo(SubDistrict::class, 'district_id', 'id');
+        return $this->belongsTo(SubDistrict::class, 'geo_sub_district_id', 'id');
     }
 
     /**

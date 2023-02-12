@@ -97,21 +97,33 @@ class DeliveryResource extends JsonResource
         // }
         if ($this->resource->relationLoaded('partner_performance')) {
             $data = Arr::except($data, 'partner_performance');
-            if ($this->resource->partner_performance) {
-                $dataPerformance = [
-                'level' => $this->resource->partner_performance->level,
-                'deadline_time' => $this->resource->partner_performance->deadline
-            ];
-            } else {
-                $dataPerformance = [
-                'level' => null,
-                'deadline_time' => null
-            ];
-            }
+            $dataPerformance = $this->checkSLa($this->resource->partner_performance, $request);
+
             $this->resource->unsetRelation('partner_performance');
             $data = array_merge($data, $dataPerformance);
         }
 
         return $data;
+    }
+
+
+    private function checkSLa($slaResource, $request)
+    {
+        $dataPerformance = [];
+        $partner = $request->user()->partners->first();
+        if ($slaResource && $slaResource['partner_id'] === $partner->id) {
+            $dataPerformance = [
+                'level' => $slaResource->level,
+                'deadline_at' => $slaResource->deadline,
+            ];
+        } else {
+            $dataPerformance = [
+                'level' => null,
+                'deadline_at' => null,
+                'reached_at' => null,
+            ];
+        }
+
+        return $dataPerformance;
     }
 }

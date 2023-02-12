@@ -83,7 +83,8 @@ class CreatePartnerPerformancesTable extends Migration
         return '
             1: on process
             5: reached
-            10: failed
+            10: failed,
+            99: exceed time
         ';
     }
 }

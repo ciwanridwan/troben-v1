@@ -102,7 +102,8 @@ class Queries
             'packages',
             'origin_partner',
             'partner',
-            'transporter'
+            'transporter',
+            'partner_performance'
         ]);
 
         return $query;
@@ -240,7 +241,7 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_CS:
-                $deliveriesQueryBuilder->whereNull('userable_id');
+                // $deliveriesQueryBuilder->whereNull('userable_id');
                 break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder

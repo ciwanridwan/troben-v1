@@ -43,6 +43,8 @@ use App\Listeners\Packages\UpdatePackageStatusByEvent;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Listeners\Deliveries\UpdateDeliveryStatusByEvent;
 use App\Events\Deliveries\Deliverable\DeliverableItemCodeUpdate;
+use App\Events\Deliveries\DeliveryCreatedWithDeadline;
+use App\Events\Deliveries\DeliveryDooringCreated;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackage;
 use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
@@ -53,6 +55,10 @@ use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Deliveries\DriverAssignedDooring;
+use App\Events\Deliveries\DriverAssignedOfTransit;
+use App\Events\Deliveries\PartnerAssigned as DeliveriesPartnerAssigned;
+use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
@@ -60,7 +66,11 @@ use App\Events\Packages\WalkinPackageBikeCreated;
 use App\Events\Packages\WalkinPackageCreated;
 use App\Events\Partners\Balance\WithdrawalApproved;
 use App\Events\Partners\PartnerCashierDiscountForBike;
+use App\Events\Payment\ListPaymentGateway;
+use App\Events\Payment\Nicepay\PayByNicePayDummy;
+use App\Listeners\Deliveries\UpdateDeliveryRoute;
 use App\Listeners\Packages\GeneratePackageBikePrices;
+use App\Listeners\Packages\SendNotificationToCustomer;
 use App\Listeners\Partners\CalculateIncomeAEIndirect;
 use Illuminate\Support\Facades\Event;
 
@@ -148,7 +158,17 @@ class EventServiceProvider extends ServiceProvider
         DeliveryTransit\DriverArrivedAtDestinationWarehouse::class => [
             //
         ],
+
+        DeliveryCreatedWithDeadline::class => [
+            DeadlineCreatedByEvent::class,
+        ],
+
+        DeliveryDooringCreated::class => [
+            DeadlineCreatedByEvent::class,
+        ],
+
         DeliveryTransit\DriverUnloadedPackageInDestinationWarehouse::class => [
+            UpdateDeliveryRoute::class,
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
@@ -178,7 +198,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageCheckedByCashier::class => [
             UpdatePackageStatusByEvent::class,
-            WriteCodeLog::class
+            WriteCodeLog::class,
+            SendNotificationToCustomer::class
         ],
         PackageApprovedByCustomer::class => [
             UpdatePackageStatusByEvent::class,
@@ -186,11 +207,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         WarehouseIsStartPacking::class => [
             UpdatePackageStatusByEvent::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
 
         PackageAlreadyPackedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
+            DeadlineCreatedByEvent::class,
             WriteCodeLog::class
         ],
         PackagePaymentVerified::class => [
@@ -202,7 +225,7 @@ class EventServiceProvider extends ServiceProvider
             WriteCodeLog::class
         ],
         PackagesAttachedToDelivery::class => [
-            DeadlineCreatedByEvent::class
+            // DeadlineCreatedByEvent::class
         ],
         DeliverableItemCodeUpdate::class => [
             WriteCodeLog::class
@@ -237,6 +260,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverDooringFinished::class => [
@@ -245,10 +269,21 @@ class EventServiceProvider extends ServiceProvider
             CalculateIncomeAEIndirect::class,
         ],
         DriverAssigned::class => [
+            DeadlineCreatedByEvent::class,
             PaymentCreatedByEvent::class
         ],
+
+        DriverAssignedOfTransit::class => [
+            PartnerPerformanceEvaluatedByEvent::class,
+            DeadlineCreatedByEvent::class,
+        ],
+
+        DriverAssignedDooring::class => [
+            PartnerPerformanceEvaluatedByEvent::class,
+            DeadlineCreatedByEvent::class,
+        ],
         PartnerRequested::class => [
-            //
+            PartnerPerformanceEvaluatedByEvent::class,
         ],
         Registration\NewVacctRegistration::class => [
             UpdatePackageStatusByEvent::class,
@@ -263,6 +298,9 @@ class EventServiceProvider extends ServiceProvider
             UpdatePaymentByEvent::class,
             DeadlineCreatedByEvent::class,
             WriteCodeLog::class,
+        ],
+        PaymentIsCorporateMode::class => [
+            DeadlineCreatedByEvent::class,
         ],
         NewHistoryCreated::class => [
             UpdatePartnerBalanceByEvent::class
@@ -298,6 +336,18 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackageBikePrices::class,
             WriteCodeLog::class
         ],
+
+        PayByNicePayDummy::class => [
+            DeadlineCreatedByEvent::class
+        ],
+
+        DeliveriesPartnerAssigned::class => [
+            DeadlineCreatedByEvent::class
+        ],
+
+        ListPaymentGateway::class => [
+            SendNotificationToCustomer::class
+        ]
     ];
 
     /**
@@ -308,8 +358,31 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         // Package::observe(CodeObserver::class);
-
         Event::listen(function (PartnerAssigned $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (PayByNicePayDummy $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverAssignedOfTransit $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DeliveriesPartnerAssigned $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverUnloadedPackageInDestinationWarehouse $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DeliveryCreatedWithDeadline $event) {
+            $event->broadcast();
+        });
+
+        Event::listen(function (DriverAssignedDooring $event) {
             $event->broadcast();
         });
     }

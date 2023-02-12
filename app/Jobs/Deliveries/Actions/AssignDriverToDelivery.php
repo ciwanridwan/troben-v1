@@ -8,6 +8,8 @@ use App\Models\Packages\Package;
 use App\Models\Deliveries\Delivery;
 use App\Models\Partners\Transporter;
 use App\Events\Deliveries\DriverAssigned;
+use App\Events\Deliveries\DriverAssignedDooring;
+use App\Events\Deliveries\DriverAssignedOfTransit;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -63,6 +65,13 @@ class AssignDriverToDelivery
                     ->setAttribute('status', Package::STATUS_WAITING_FOR_PICKUP)
                     ->save());
         }
-        event(new DriverAssigned($this->delivery, $this->userablePivot));
+
+        if ($this->delivery->type === Delivery::TYPE_PICKUP) {
+            event(new DriverAssigned($this->delivery, $this->userablePivot));
+        } elseif ($this->delivery->type === Delivery::TYPE_TRANSIT) {
+            event(new DriverAssignedOfTransit($this->delivery, $this->userablePivot));
+        } else {
+            event(new DriverAssignedDooring($this->delivery, $this->userablePivot));
+        }
     }
 }

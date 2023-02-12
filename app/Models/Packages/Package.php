@@ -24,7 +24,9 @@ use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\Deliverable;
 use App\Concerns\Models\HasPhoneNumber;
 use App\Models\CancelOrder;
+use App\Models\Deliveries\DeliveryRoute;
 use App\Models\FileUpload;
+use App\Models\PackageCorporate;
 use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -832,6 +834,12 @@ class Package extends Model implements AttachableContract
         return $this->hasOne(CancelOrder::class, 'package_id');
     }
 
+    // corporate order
+    public function corporate(): HasOne
+    {
+        return $this->hasOne(PackageCorporate::class, 'package_id', 'id');
+    }
+
 
     /**Attributes for show estimation prices if service_code values is tpx
      * useful for admin page
@@ -948,6 +956,11 @@ class Package extends Model implements AttachableContract
             'items' => $weightVolume
         ];
         return $result;
+    }
+
+    public function deliveryRoutes(): HasOne
+    {
+        return $this->hasOne(DeliveryRoute::class, 'package_id', 'id');
     }
 
     /**

@@ -76,7 +76,8 @@ class Item extends Model implements AttachableContract
         'in_estimation',
         'is_insured',
         'handling',
-        'revision'
+        'revision',
+        'is_glassware'
     ];
 
     /**
@@ -94,6 +95,7 @@ class Item extends Model implements AttachableContract
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => Handling::class,
+        'is_glassware' => 'boolean'
     ];
 
     protected $hidden = [
@@ -189,6 +191,11 @@ class Item extends Model implements AttachableContract
             self::TYPE_ITEM,
             self::TYPE_BIKE
         ];
+    }
+
+    public function categories(): BelongsTo
+    {
+        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
     }
 
     private function getHandling()

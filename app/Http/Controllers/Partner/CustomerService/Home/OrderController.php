@@ -15,6 +15,7 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Partners\Transporter;
 use App\Models\User;
+use App\Services\Chatbox\Chatbox;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -145,7 +146,24 @@ class OrderController extends Controller
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
         $this->dispatchNow($job);
+        $driverSignIn = User::where('id', $job->delivery->assigned_to->user_id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $job->delivery->assigned_to->user_id,
+            'customer_id' => $delivery->packages[0]->customer_id,
+            'package_id' => $job->delivery->packages[0]->id,
+            'product' => 'trawlpack'
+        ];
 
+        try {
+            Chatbox::createDriverChatbox($param);
+        } catch (\Exception $e) {
+            report($e);
+        }
         return (new Response(Response::RC_SUCCESS, $job->delivery))->json();
     }
 

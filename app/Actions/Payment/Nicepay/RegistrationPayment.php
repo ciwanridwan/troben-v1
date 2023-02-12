@@ -48,10 +48,32 @@ class RegistrationPayment
             Log::debug('Registration payment for: ', ['package_code' => $package->code->content, 'channel' => $gateway->channel]);
             $this->expDate = Carbon::now()->addDay();
             $customer = $package->customer;
-            $address = $customer->addresses()
+
+            $billingAddr = 'Jl. alamat';
+            $billingCity = 'Jakarta';
+            $billingState = 'DKI Jakarta';
+            $billingPostCd = '12345';
+            $billingEmail = 'noreply@trawlbens.co.id';
+            $billingPhone = '6281234567890';
+            $addressList = $customer
+                ->addresses()
                 ->with(['province', 'regency', 'district'])
-                ->where('is_default', true)
-                ->first() ?? null;
+                ->where('is_default', true);
+            if ($addressList->count()) {
+                $address = $addressList->first();
+                $billingAddr = $address->address;
+                $billingCity = $address->regency->name;
+                $billingState = $address->district->name;
+                $billingPostCd = $address->sub_district->zip_code;
+            }
+            if (! is_null($customer->email)) {
+                $billingEmail = $customer->email;
+            }
+            if (! is_null($package->sender_phone)) {
+                $billingEmail = 'tb-'.$this->validPhone($package->sender_phone).'@gmail.com';
+                $billingPhone = $this->validPhone($package->sender_phone);
+            }
+
             // todo get total amount child package of multi destination
             $amt = 0.0;
             if ($package->multiDestination()->exists()) {
@@ -74,11 +96,11 @@ class RegistrationPayment
                 'goodsNm' => 'Trawlpack Order '.$package->code->content,
                 'billingNm' => $customer->name,
                 'billingPhone' => $this->validPhone($package->sender_phone),
-                'billingEmail' => $customer->email ?? 'tb-'.$this->validPhone($package->sender_phone).'@gmail.com',
-                'billingAddr' => $address->address ?? 'Jl. alamat',
-                'billingCity' => $address->regency->name ?? 'Jakarta',
-                'billingState' => $address->district->name ?? 'DKI Jakarta',
-                'billingPostCd' => $address->sub_district->zip_code ?? '12345',
+                'billingEmail' => $billingEmail,
+                'billingAddr' => $billingAddr,
+                'billingCity' => $billingCity,
+                'billingState' => $billingState,
+                'billingPostCd' => $billingPostCd,
                 'billingCountry' => 'Indonesia',
                 'cartData' => json_encode(['items' => $package->item_codes->pluck('content')]),
                 'dbProcessUrl' => config('nicepay.db_process_url'),

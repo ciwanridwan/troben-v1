@@ -1,5 +1,5 @@
 <template>
-<div
+  <div
     style="
       display: flex;
       padding-right: 33px;
@@ -42,7 +42,7 @@ export default {
     notes() {
       return this.price?.notes;
     },
-	estimation_price() {
+    estimation_price() {
       return this.package?.tier_price;
     },
   },

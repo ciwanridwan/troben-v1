@@ -45,7 +45,7 @@ class PaymentCreatedByEvent
                     'payment_content' => $response->vacctNo,
                     'expired_at' => date_format(date_create($response->vacctValidDt.$response->vacctValidTm), 'Y-m-d H:i:s'),
                     'service_type' => Payment::SERVICE_TYPE_PAYMENT,
-                    'payment_amount' => $package->total_amount,
+                    'payment_amount' => $response->amt - $gateway->admin_charges,
                     'payment_ref_id' => $response->tXid,
                 ];
 

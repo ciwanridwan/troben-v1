@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldIsShowToPartnersTable extends Migration
+class AddFieldIsGlasswareToPackageItemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddFieldIsShowToPartnersTable extends Migration
      */
     public function up()
     {
-        Schema::table('partners', function (Blueprint $table) {
-            $table->boolean('is_show')->nullable();
+        Schema::table('package_items', function (Blueprint $table) {
+            $table->boolean('is_glassware')->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ class AddFieldIsShowToPartnersTable extends Migration
      */
     public function down()
     {
-        Schema::table('partners', function (Blueprint $table) {
-            $table->dropColumn('is_show');
+        Schema::table('package_items', function (Blueprint $table) {
+            $table->dropColumn('is_glassware');
         });
     }
 }
