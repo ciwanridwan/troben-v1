@@ -59,6 +59,7 @@ use App\Events\Deliveries\DriverAssignedDooring;
 use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Deliveries\PartnerAssigned as DeliveriesPartnerAssigned;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
+use App\Events\Packages\CustomerServices\PackageUpdatedByCs;
 use App\Events\Packages\PackageBikeCreated;
 use App\Events\Packages\PackageCanceledByDriver;
 use App\Events\Packages\PackageCreatedForBike;
@@ -108,6 +109,14 @@ class EventServiceProvider extends ServiceProvider
             GeneratePackagePrices::class,
             WriteCodeLog::class
         ],
+
+        PackageUpdatedByCs::class => [
+            UpdatePackageTotalWeightByEvent::class,
+            // UpdatePackageStatusByEvent::class,
+            GeneratePackagePrices::class,
+            WriteCodeLog::class
+        ],
+
         PromotionClaimed::class => [
             GeneratePackagePrices::class,
             WriteCodeLog::class

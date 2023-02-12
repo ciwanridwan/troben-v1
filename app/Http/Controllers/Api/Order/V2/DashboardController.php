@@ -23,6 +23,8 @@ use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Item\UpdateExistingItemByCs;
+use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
@@ -140,38 +142,12 @@ class DashboardController extends Controller
     public function update(UpdateOrderRequest $request, Package $package): JsonResponse
     {
         $request->validated();
-        $provinceId = $package->origin_regency->province->id;
-        $destinationId = $request->destination_sub_district_id ?? $package->destination_sub_district_id;
-
-        $totalWeightBorne = PricingCalculator::getTotalWeightBorne($request->items, $package->service_code);
-        $price = PricingCalculator::getPrice($provinceId, $package->origin_regency_id, $destinationId);
-        $tierPrice = PricingCalculator::getTier($price, $totalWeightBorne);
-        $totalAmount = PricingCalculator::getPackageTotalAmount($package);
-
-        $package->update([
-            'receiver_name' => $request->receiver_name ?? $package->receiver_name,
-            'receiver_address' => $request->receiver_address ?? $package->receiver_address,
-            'receiver_phone' => $request->receiver_phone ?? $package->receiver_phone,
-            'receiver_detail_address' => $request->receiver_way_point ?? $package->receiver_way_point,
-            'dest_regency_id' => $request->destination_regency_id ?? $package->destination_regency_id,
-            'dest_district_id' => $request->destination_district_id ?? $package->destination_district_id,
-            'dest_sub_district_id' => $destinationId,
-            'total_weight' => $totalWeightBorne,
-            'tier_price' => $tierPrice,
-            'total_amount' => $totalAmount,
-        ]);
-
-        $items = $request->items;
-        foreach ($items as $item) {
-            $package->items()->update([
-                'category_item_id' => $item['category_item_id'],
-                'name' => $item['name'], 
-                'desc' => $item['desc'],
-                'is_glassware' => $item['is_glassware'],
-                'is_insured' => $item['is_insured']
-            ]);
-        }
         
+        $job = new UpdateExistingPackageByCs($package, $request->all());
+        $this->dispatchNow($job);
+
+        $job = new UpdateExistingItemByCs($package, $request->all());
+        $this->dispatchNow($job);
 
         if ($request->photos) {
             $package->attachments()->detach();
