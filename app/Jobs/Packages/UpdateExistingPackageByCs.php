@@ -2,10 +2,8 @@
 
 namespace App\Jobs\Packages;
 
-use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Events\Packages\CustomerServices\PackageUpdatedByCs;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
 
@@ -13,7 +11,6 @@ class UpdateExistingPackageByCs
 {
     use Dispatchable;
 
-    
     /**
      * Package instance.
      *
@@ -37,7 +34,6 @@ class UpdateExistingPackageByCs
 
         unset($inputs['items'], $inputs['order_type']);
         $this->attributes = $inputs;
-        
     }
 
     public function handle()

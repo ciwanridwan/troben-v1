@@ -26,7 +26,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            // required param
+            // param needs
             'order_type' => ['required', 'in:Single,Multi'],
             'package_hash_child' => ['nullable', 'string'],
             'add_item' => ['nullable', 'boolean'],

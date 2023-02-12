@@ -34,22 +34,7 @@ class UpdateExistingItemByCs
     {
         $this->package = $package;
         $this->item = $this->package->items;
-
-        $this->attributes = Validator::make($inputs['items'], [
-            '*.category_item_id' => ['nullable', 'exists:category_items,id'],
-            '*.is_glassware' => ['nullable', 'boolean'],
-            '*.qty' => ['nullable', 'numeric'],
-            '*.name' => ['nullable', 'string'],
-            '*.price' => ['required_if:is_insured,true', 'numeric'],
-            '*.desc' => ['nullable', 'string'],
-            '*.weight' => ['nullable', 'numeric'],
-            '*.height' => ['nullable', 'numeric'],
-            '*.length' => ['nullable', 'numeric'],
-            '*.width' => ['nullable', 'numeric'],
-            '*.is_insured' => ['nullable', 'boolean'],
-            'handling' => ['nullable', 'array'],
-            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
-        ])->validate();
+        $this->attributes = $inputs['items'];
     }
 
     public function handle()

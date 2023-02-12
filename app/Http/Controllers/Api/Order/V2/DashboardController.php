@@ -7,6 +7,7 @@ use App\Casts\Package\Items\Handling;
 use App\Exceptions\Error;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
@@ -22,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Packages\CreateNewPackageByCs;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
@@ -30,6 +32,7 @@ use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
+use Illuminate\Support\Facades\Log;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class DashboardController extends Controller
@@ -80,6 +83,27 @@ class DashboardController extends Controller
     public function detail(Package $package): JsonResponse
     {
         return $this->jsonSuccess(DetailResource::make($package));
+    }
+
+    /**
+     * create order
+     */
+    public function store(CreateOrderRequest $request): JsonResponse
+    {
+        $request->validated();
+        $partnerCode = $request->user()->partners->first()->code;
+
+        $package = Package::byHashOrFail($request->package_parent_hash);
+        $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
+
+        $packageAttr = array_merge($packageExists ,$request->except('items', 'photos', 'package_parent_hash'));
+
+        $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
+        $this->dispatchNow($job);
+
+        $result = ['hash' => $job->package->hash];
+
+        return (new Response(Response::RC_CREATED, $result))->json();
     }
 
     /** Get List Driver */
