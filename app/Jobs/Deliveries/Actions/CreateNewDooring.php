@@ -17,9 +17,9 @@ class CreateNewDooring
 
     public Delivery $delivery;
 
-    private Partner $originPartner;
-
     public UserablePivot|null $userable;
+
+    private Partner $originPartner;
 
     private array $attributes;
 

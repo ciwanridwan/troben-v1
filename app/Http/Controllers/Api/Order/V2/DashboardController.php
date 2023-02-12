@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\Order\V2;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
-use App\Exceptions\Error;
-use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\UpdateOrderRequest;
@@ -25,10 +23,8 @@ use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Price;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
-use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class DashboardController extends Controller
 {
@@ -38,7 +34,7 @@ class DashboardController extends Controller
     protected Builder $query;
 
     /**
-     * Query to search
+     * Query to search.
      */
     public function getSearch(Request $request)
     {
@@ -166,7 +162,7 @@ class DashboardController extends Controller
 
     /**
      * Like a pricing calculator
-     * This is estimation price when to create order
+     * This is estimation price when to create order.
      */
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
@@ -191,7 +187,7 @@ class DashboardController extends Controller
             // handling or packing
             foreach ($item['handling'] as $packing) {
                 $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
-            };
+            }
         }
         $insurancePrice = array_sum($totalInsurance);
         $totalAmount = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;

@@ -124,7 +124,7 @@ class AssignationController extends Controller
     }
 
     /**
-     * Assign partner destination 
+     * Assign partner destination.
      */
     public function partnerDestination(Delivery $delivery, Partner $partner): JsonResponse
     {
