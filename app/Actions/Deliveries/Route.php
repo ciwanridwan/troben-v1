@@ -282,11 +282,11 @@ class Route
 
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
-        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)
-            ->orWhere(function ($q) use ($provinceId, $warehouse) {
-                $q->where('province_id', $provinceId);
-                $q->where('warehouse', $warehouse);
-            })->first();
+        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
+
+        if (is_null($partner)) {
+            $partner = DB::table('transport_routes')->where('regency_id', $provinceId)->where('warehouse', $warehouse)->first();
+        }
 
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
