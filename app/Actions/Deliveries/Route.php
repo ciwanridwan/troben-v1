@@ -52,7 +52,7 @@ class Route
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
-                if (!is_null($warehouse)) {
+                if (! is_null($warehouse)) {
                     $regencyId = self::getFirstPartnerRegency($warehouse);
 
                     switch (true) {
@@ -84,13 +84,13 @@ class Route
 
             $partnerByRoutes = [];
             foreach ($packages as $package) {
-                if (!is_null($package->deliveryRoutes)) {
+                if (! is_null($package->deliveryRoutes)) {
                     $partnerByRoute = self::setPartners($package->deliveryRoutes);
                     array_push($partnerByRoutes, $partnerByRoute);
                 }
             }
 
-            if (!empty($partnerByRoutes)) {
+            if (! empty($partnerByRoutes)) {
                 $partnerCode = $partnerByRoutes;
             } else {
                 $partnerCode = null;
@@ -132,7 +132,7 @@ class Route
         $packages = Package::query()->whereIn('id', $packagesId)->get();
         foreach ($packages as $key => $value) {
             $route = $value->deliveryRoutes;
-            if (!is_null($route)) { // new receipt with existing routes
+            if (! is_null($route)) { // new receipt with existing routes
                 $setPartner = 1;
             }
 
@@ -533,7 +533,7 @@ class Route
             return false;
         }
 
-        if (!in_array(0, $transits)) {
+        if (! in_array(0, $transits)) {
             return true;
         } else {
             return false;
