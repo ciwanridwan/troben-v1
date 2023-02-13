@@ -50,7 +50,7 @@ class AssignableController extends Controller
         // }
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        
+
         if ($partnerCode === 'all' || is_null($partnerCode)) {
             $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
         } else {
