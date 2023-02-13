@@ -37,7 +37,7 @@ class DefaultRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('change-password'), [
-            'as' => $this->name,
+            'as' => $this->name('changepassword'),
             'uses' => $this->uses('changePassword'),
         ]);
 

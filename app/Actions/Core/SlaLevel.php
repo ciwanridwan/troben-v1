@@ -36,7 +36,7 @@ class SlaLevel
                     // update broadcast
                     DB::statement(self::updateBroadcast($t, $l));
                 } catch (\Exception $e) {
-                    $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
+                    $msg = sprintf('SLA Err [%s] [%s]: %s', $t, $l, $e->getMessage());
                     dd($msg);
                 }
             }
