@@ -27,6 +27,19 @@ class DetailResource extends JsonResource
             $manifest = null;
         }
 
+        if (substr($this->sender_phone, 0, 3) === '+62') {
+            $senderPhone = str_replace('+62', '0', $this->sender_phone);
+        } else {
+            $senderPhone = $this->sender_phone;
+        }
+
+        if (substr($this->receiver_phone, 0, 3) === '+62') {
+            $receiverPhone = str_replace('+62', '0', $this->receiver_phone);
+        } else {
+            $receiverPhone = $this->receiver_phone;
+        }
+
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -37,11 +50,11 @@ class DetailResource extends JsonResource
             'sender_name' => $this->sender_name,
             'sender_address' => $this->sender_address,
             'sender_detail_address' => $this->sender_way_point,
-            'sender_phone' => $this->sender_phone,
+            'sender_phone' => $senderPhone,
             'receiver_name' => $this->receiver_name,
             'receiver_address' => $this->receiver_address,
             'receiver_detail_address' => $this->receiver_way_point,
-            'receiver_phone' => $this->receiver_phone,
+            'receiver_phone' => $receiverPhone,
             'tier_price' => $this->tier_price,
             'estimation_notes' => $this->getNotes($this->resource),
             'origin_address' => [
@@ -50,8 +63,11 @@ class DetailResource extends JsonResource
             ],
             'destination_address' => [
                 'province' => $this->destination_regency ? $this->destination_regency->province->name : null,
+                'province_id' => $this->destination_regency ? $this->destination_regency->province->id : null,
                 'regency' => $this->destination_regency ? $this->destination_regency->name : null,
+                'regency_id' => $this->destination_regency ? $this->destination_regency->id : null,
                 'district' => $this->destination_district ? $this->destination_district->name : null,
+                'district_id' => $this->destination_district ? $this->destination_district->id : null,
                 'sub_district' => $this->destination_sub_district ? $this->destination_sub_district->name : null,
                 'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null
             ],
