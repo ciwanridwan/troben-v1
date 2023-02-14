@@ -193,6 +193,11 @@ class Item extends Model implements AttachableContract
         ];
     }
 
+    public function categories(): BelongsTo
+    {
+        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
+    }
+
     private function getHandling()
     {
         return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
@@ -205,10 +210,5 @@ class Item extends Model implements AttachableContract
     private function getServiceCode()
     {
         return $this->package()->first()->service_code;
-    }
-
-    public function categories(): BelongsTo
-    {
-        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
     }
 }

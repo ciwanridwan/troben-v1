@@ -23,7 +23,7 @@ class DriverTransporterResource extends JsonResource
             'role' => $this->role,
             'hash' => $this->hash,
             'user' => $this->user->only('name', 'hash'),
-            'transporter' => $transporter->only('type', 'hash', 'registration_number') 
+            'transporter' => $transporter->only('type', 'hash', 'registration_number')
         ];
     }
 }

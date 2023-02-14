@@ -2,8 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\AlertTree;
-use App\Console\Commands\AlertTwo;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 

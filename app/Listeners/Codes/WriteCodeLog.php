@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Events\Deliveries\Pickup as DeliveryPickup;
 use App\Events\Deliveries\Transit as DeliveryTransit;
+use App\Events\Packages\CustomerServices\PackageUpdatedByCs;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
 use App\Events\Packages\PackageApprovedByCustomer;
 use App\Events\Packages\PackageCanceledByAdmin;
@@ -89,7 +90,7 @@ class WriteCodeLog
                     ]
                 );
                 break;
-            case $event instanceof PackageApprovedByCustomer || $event instanceof PackageCheckedByCashier || $event instanceof PackageUpdated || $event instanceof PackagePaymentVerified || $event instanceof PackageEstimatedByWarehouse || $event instanceof WarehouseIsStartPacking || $event instanceof PackageAlreadyPackedByWarehouse || $event instanceof PackageCanceledByAdmin || $event instanceof WarehouseIsEstimatingPackage:
+            case $event instanceof PackageApprovedByCustomer || $event instanceof PackageCheckedByCashier || $event instanceof PackageUpdated || $event instanceof PackagePaymentVerified || $event instanceof PackageEstimatedByWarehouse || $event instanceof WarehouseIsStartPacking || $event instanceof PackageAlreadyPackedByWarehouse || $event instanceof PackageCanceledByAdmin || $event instanceof WarehouseIsEstimatingPackage || $event instanceof PackageUpdatedByCs:
                 $package = $event->package;
                 $package->refresh();
                 $user = auth()->user();

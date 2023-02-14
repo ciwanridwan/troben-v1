@@ -11,7 +11,6 @@ use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 
 class PayByNicePayDummy
 {
@@ -44,7 +43,7 @@ class PayByNicePayDummy
     }
 
     /**
-     * Broadcast To Owner And Warehouse
+     * Broadcast To Owner And Warehouse.
      */
     public function broadcast(): void
     {

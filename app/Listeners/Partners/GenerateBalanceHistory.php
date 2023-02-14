@@ -471,7 +471,7 @@ class GenerateBalanceHistory
 
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
-                    if (!$price) {
+                    if (! $price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
 
@@ -806,7 +806,7 @@ class GenerateBalanceHistory
     {
         $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
         if (is_null($service_price)) {
-           $this->servicePriceCubic($type, $variant, $isTransit);
+            $this->servicePriceCubic($type, $variant, $isTransit);
         } else {
             if ($variant == '0') {
                 $discount = 0;

@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\Order\V2;
 
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
-use App\Exceptions\Error;
-use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateOrUpdateMultiRequest;
+use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\EstimationPricesRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
 use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
@@ -21,12 +22,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
+use App\Jobs\Packages\CreateNewPackageByCs;
+use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Item\UpdateExistingItemByCs;
+use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
-use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class DashboardController extends Controller
 {
@@ -36,7 +40,7 @@ class DashboardController extends Controller
     protected Builder $query;
 
     /**
-     * Query to search
+     * Query to search.
      */
     public function getSearch(Request $request)
     {
@@ -76,6 +80,27 @@ class DashboardController extends Controller
     public function detail(Package $package): JsonResponse
     {
         return $this->jsonSuccess(DetailResource::make($package));
+    }
+
+    /**
+     * create order
+     */
+    public function store(CreateOrderRequest $request): JsonResponse
+    {
+        $request->validated();
+        $partnerCode = $request->user()->partners->first()->code;
+
+        $package = Package::byHashOrFail($request->package_parent_hash);
+        $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
+
+        $packageAttr = array_merge($packageExists, $request->except('items', 'photos', 'package_parent_hash'));
+
+        $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
+        $this->dispatchNow($job);
+
+        $result = ['hash' => $job->package->hash];
+
+        return (new Response(Response::RC_CREATED, $result))->json();
     }
 
     /** Get List Driver */
@@ -135,10 +160,29 @@ class DashboardController extends Controller
         return (new Response(Response::RC_SUCCESS, ['Message' => 'Driver berhasil di assign']))->json();
     }
 
-    public function update()
+    public function update(UpdateOrderRequest $request, Package $package): JsonResponse
     {
+        $request->validated();
+
+        $job = new UpdateExistingPackageByCs($package, $request->all());
+        $this->dispatchNow($job);
+
+        $job = new UpdateExistingItemByCs($package, $request->all());
+        $this->dispatchNow($job);
+
+        if ($request->photos) {
+            $package->attachments()->detach();
+            $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
+            $this->dispatchNow($uploadJob);
+        }
+
+        return (new Response(Response::RC_UPDATED, ['message' => 'Update data successfully']))->json();
     }
 
+    /**
+     * Like a pricing calculator
+     * This is estimation price when to create order.
+     */
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
         $request->validated();
@@ -162,7 +206,7 @@ class DashboardController extends Controller
             // handling or packing
             foreach ($item['handling'] as $packing) {
                 $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
-            };
+            }
         }
         $insurancePrice = array_sum($totalInsurance);
         $totalAmount = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
@@ -175,5 +219,56 @@ class DashboardController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * create or update multi destination package (order)
+     */
+    public function createOrUpdateMulti(CreateOrUpdateMultiRequest $request): JsonResponse
+    {
+        if (is_null($request->package_parent_hash) && is_null($request->package_child_hash)) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        } else {
+            $parentPackage = Package::hashToId($request->package_parent_hash);
+            $childPackage = $request->package_child_hash;
+            $childIds = [];
+
+            $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
+
+            if (count($parentReceipt->multiDestination) !== 0) {
+                for ($i = 0; $i < count($childPackage); $i++) {
+                    $childId = Package::hashToId($childPackage[$i]);
+                    array_push($childIds, $childId);
+
+                    $parentReceipt->multiDestination()->create([
+                        'child_id' => $childId
+                    ]);
+                    dd($parentReceipt);
+                }
+            } else {
+                for ($i = 0; $i < count($childPackage); $i++) {
+                    $childId = Package::hashToId($childPackage[$i]);
+                    array_push($childIds, $childId);
+
+                    MultiDestination::create([
+                        'parent_id' => $parentPackage,
+                        'child_id' => $childId
+                    ]);
+                }
+            }
+
+            $packageChild = Package::whereIn('id', $childIds)->get();
+            $packageChild->each(function ($q) {
+                $pickupFee = $q->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
+
+                $q->total_amount -= $pickupFee->amount;
+                $q->save();
+
+                $pickupFee->amount = 0;
+                $pickupFee->save();
+            });
+
+            return (new Response(Response::RC_SUCCESS, ['Message' => 'Create Multi Destination Order Has Successfully']))->json();
+        }
     }
 }

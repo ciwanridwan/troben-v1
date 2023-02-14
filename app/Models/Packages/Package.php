@@ -958,6 +958,11 @@ class Package extends Model implements AttachableContract
         return $result;
     }
 
+    public function deliveryRoutes(): HasOne
+    {
+        return $this->hasOne(DeliveryRoute::class, 'package_id', 'id');
+    }
+
     /**
      * @param Item $items
      * @param string $serviceCode
@@ -984,10 +989,5 @@ class Package extends Model implements AttachableContract
         $additionalPrice = $item['additional_price'];
 
         return $additionalPrice;
-    }
-
-    public function deliveryRoutes(): HasOne
-    {
-        return $this->hasOne(DeliveryRoute::class, 'package_id', 'id');
     }
 }

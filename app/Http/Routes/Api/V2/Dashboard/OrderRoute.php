@@ -3,7 +3,6 @@
 namespace App\Http\Routes\Api\V2\Dashboard;
 
 use App\Http\Controllers\Api\Order\V2\DashboardController;
-use App\Http\Controllers\Partner\CustomerService\Home\OrderController;
 use Jalameta\Router\BaseRoute;
 
 class OrderRoute extends BaseRoute
@@ -39,6 +38,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('orderAssignation'),
         ]);
 
+        $this->router->post($this->prefix('/create'), [
+            'as' => $this->name('store'),
+            'uses' => $this->uses('store'),
+        ]);
+
         $this->router->post($this->prefix('{package_hash}/update'), [
             'as' => $this->name('update'),
             'uses' => $this->uses('update'),
@@ -47,6 +51,11 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('price/estimation'), [
             'as' => $this->name('estimation.prices'),
             'uses' => $this->uses('estimationPrices'),
+        ]);
+
+        $this->router->post($this->prefix('create/multi-destination'), [
+            'as' => $this->name('create.multi-destination'),
+            'uses' => $this->uses('createOrUpdateMulti'),
         ]);
     }
 

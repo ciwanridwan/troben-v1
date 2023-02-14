@@ -8,7 +8,6 @@ use App\Models\Notifications\Template;
 use App\Models\Partners\Partner;
 use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -54,7 +53,7 @@ class PartnerAssigned
     }
 
     /**
-     * Broadcast to owner of MTAK
+     * Broadcast to owner of MTAK.
      */
     public function broadcast(): void
     {

@@ -7,7 +7,6 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use Illuminate\Http\Resources\Json\JsonResource;
-use SebastianBergmann\CodeCoverage\Report\Xml\Totals;
 
 class PackageResource extends JsonResource
 {
@@ -19,7 +18,7 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
