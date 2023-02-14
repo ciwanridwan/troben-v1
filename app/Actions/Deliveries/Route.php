@@ -310,14 +310,11 @@ class Route
     public static function setPartnerTransporter($deliveryRoutes)
     {
         $transporter = null;
-        if (is_null($deliveryRoutes)) {
-            return null;
-        }
-        $provinceId = $deliveryRoutes->packages->destination_regency->province_id;
 
         if (is_null($deliveryRoutes)) {
             return null;
         } else {
+            $provinceId = $deliveryRoutes->packages->destination_regency->province_id;
             $warehouse = self::checkWarehouse($deliveryRoutes);
 
             if ($deliveryRoutes->regency_destination_1 === 0) {
