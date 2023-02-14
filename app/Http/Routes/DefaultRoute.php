@@ -46,10 +46,10 @@ class DefaultRoute extends BaseRoute
             'uses' => $this->uses('attachment'),
         ]);
 
-	$this->router->get($this->prefix('app-log2'), [
-            'as' => $this->name('applog'),
-            'uses' => $this->uses('index', \Rap2hpoutre\LaravelLogViewer\LogViewerController::class),
-        ]);
+        $this->router->get($this->prefix('app-log2'), [
+                'as' => $this->name('applog'),
+                'uses' => $this->uses('index', \Rap2hpoutre\LaravelLogViewer\LogViewerController::class),
+            ]);
 
         $this->router->view('debug', 'antd::auth.login');
     }
