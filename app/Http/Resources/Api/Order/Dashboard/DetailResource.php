@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Order\Dashboard;
 
+use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Price;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,14 +17,16 @@ class DetailResource extends JsonResource
      */
     public function toArray($request)
     {
-        if ($this->multiDestination()->exists()) {
-            $orderType = 'Multi';
-        } else {
-            $orderType = 'Single';
-        }
-
         $manifest = $this->deliveries->where('type', 'pickup')->first();
 
+        if ($this->multiDestination()->exists()) {
+            $orderType = 'Multi';
+            $packageChild = $this->getMultiChildPackages($manifest, $orderType);
+        } else {
+            $orderType = 'Single';
+            $manifest = null;
+        }
+        
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -74,7 +77,8 @@ class DetailResource extends JsonResource
                 ];
                 return $result;
             }) : null,
-            'prices' => $this->getPrices()
+            'prices' => $this->getPrices($this->resource),
+            'package_child' => $packageChild ?? null,
         ];
 
         return $data;
@@ -94,7 +98,7 @@ class DetailResource extends JsonResource
         }
     }
 
-    private function getPrices(): array
+    private function getPrices($package): array
     {
         $insurance = $this->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->where('description', PackagesPrice::TYPE_INSURANCE)->sum('amount');
         $handling = $this->prices()->where('type', PackagesPrice::TYPE_HANDLING)->sum('amount');
@@ -117,5 +121,68 @@ class DetailResource extends JsonResource
             'pickup' => $pickup ? $pickup->amount : 0,
             'total_amount' => $totalAmount
         ];
+    }
+
+    private function getMultiChildPackages($manifest, $orderType): array
+    {
+        $childId = $this->multiDestination->pluck('child_id')->toArray(); 
+        $packageChild = Package::query()->whereIn('id', $childId)->get()->map(function ($q) use ($manifest, $orderType) {
+            $data = [
+                'id' => $q->id,
+                'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
+                'package_hash' => $q->hash,
+                'service_code' => $q->service_code,
+                'transporter_type' => $q->transporter_type,
+                'order_type' => $orderType,
+                'sender_name' => $q->sender_name,
+                'sender_address' => $q->sender_address,
+                'sender_detail_address' => $q->sender_way_point,
+                'sender_phone' => $q->sender_phone,
+                'receiver_name' => $q->receiver_name,
+                'receiver_address' => $q->receiver_address,
+                'receiver_detail_address' => $q->receiver_way_point,
+                'receiver_phone' => $q->receiver_phone,
+                'tier_price' => $q->tier_price,
+                'estimation_notes' => $this->getNotes($q),
+                'origin_address' => [
+                    'province' => $q->origin_regency ? $q->origin_regency->province->name : null,
+                    'regency' => $q->origin_regency ? $q->origin_regency->name : null
+                ],
+                'destination_address' => [
+                    'province' => $q->destination_regency ? $q->destination_regency->province->name : null,
+                    'regency' => $q->destination_regency ? $q->destination_regency->name : null,
+                    'district' => $q->destination_district ? $q->destination_district->name : null,
+                    'sub_district' => $q->destination_sub_district ? $q->destination_sub_district->name : null
+                ],
+                'items' => $q->items ? $q->items->map(function ($i) {
+                    $result = [
+                        'name' => $i->name,
+                        'desc' => $i->desc,
+                        'is_insured' => $i->is_insured,
+                        'weight' => $i->weight,
+                        'height' => $i->height,
+                        'length' => $i->length,
+                        'width' => $i->width,
+                        'insurance_price' => $i->price,
+                        'weight_borne_total' => $i->weight_borne_total,
+                        'handling' => $i->handling,
+                        'category_name' => $i->categories ? $i->categories->name : null
+                    ];
+                    return $result;
+                }) : null,
+                'attachments' => $q->attachments ? $q->attachments->map(function ($a) {
+                    $result = [
+                        'id' => $a->id,
+                        'uri' => $a->uri
+                    ];
+                    return $result;
+                }) : null,
+                'prices' => $this->getPrices($q)
+            ];
+
+            return $data;
+        })->values()->toArray();
+        
+        return $packageChild;
     }
 }
