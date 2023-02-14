@@ -27,7 +27,7 @@ class CreateOrUpdateMultiRequest extends FormRequest
     {
         return [
             'package_parent_hash' => ['nullable', new ExistsByHash(Package::class)],
-            'package_child_hash' => ['array', 'nullable', new ExistsByHash(Package::class)],
+            'package_child_hash' => ['array', 'nullable'],
         ];
     }
 }
