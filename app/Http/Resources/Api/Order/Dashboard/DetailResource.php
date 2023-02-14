@@ -53,7 +53,7 @@ class DetailResource extends JsonResource
                 'regency' => $this->destination_regency ? $this->destination_regency->name : null,
                 'district' => $this->destination_district ? $this->destination_district->name : null,
                 'sub_district' => $this->destination_sub_district ? $this->destination_sub_district->name : null,
-                'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->name : null
+                'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
                 $result = [
