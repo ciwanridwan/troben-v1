@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Partner\Owner;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\CheckReceiptResource;
 use App\Http\Resources\Api\Partner\Owner\ListReceiptResource;
-use App\Http\Response;
 use App\Models\Code;
 use App\Models\Packages\Package;
 use Illuminate\Http\JsonResponse;
@@ -15,13 +14,13 @@ class CheckController extends Controller
 {
     public function receipt(Request $request, Code $code): JsonResponse
     {
-        if (!$code->exists) {
+        if (! $code->exists) {
             $request->validate([
                 'code' => ['required']
             ]);
 
             /** @var Code $code */
-            $code = Code::query()->where('content', 'ilike', '%' . $request->code . '%')->where('codeable_type', Package::class)->limit(5)->get();
+            $code = Code::query()->where('content', 'ilike', '%'.$request->code.'%')->where('codeable_type', Package::class)->limit(5)->get();
         }
 
         return $this->jsonSuccess(ListReceiptResource::collection($code));

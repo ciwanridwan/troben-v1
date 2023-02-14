@@ -51,13 +51,13 @@ class DeliveryRoute extends Model
     public function getTransitCountAttribute(): int
     {
         switch (true) {
-            case !is_null($this->reach_destination_1_at) && !is_null($this->reach_destination_2_at) && !is_null($this->reach_destination_3_at):
+            case ! is_null($this->reach_destination_1_at) && ! is_null($this->reach_destination_2_at) && ! is_null($this->reach_destination_3_at):
                 $transit = 3;
                 break;
-            case !is_null($this->reach_destination_1_at) && !is_null($this->reach_destination_2_at):
+            case ! is_null($this->reach_destination_1_at) && ! is_null($this->reach_destination_2_at):
                 $transit = 2;
                 break;
-            case !is_null($this->reach_destination_1_at):
+            case ! is_null($this->reach_destination_1_at):
                 $transit = 1;
                 break;
             default:
