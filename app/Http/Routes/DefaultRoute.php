@@ -36,6 +36,11 @@ class DefaultRoute extends BaseRoute
             'uses' => fn () => redirect('auth/login')
         ]);
 
+        $this->router->get($this->prefix('change-password'), [
+            'as' => $this->name,
+            'uses' => $this->uses('changePassword'),
+        ]);
+
         $this->router->get($this->prefix('attachment/{attachment_uuid}'), [
             'as' => $this->name('attachment'),
             'uses' => $this->uses('attachment'),

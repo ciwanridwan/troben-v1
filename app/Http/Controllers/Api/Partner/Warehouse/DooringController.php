@@ -13,7 +13,6 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class DooringController extends Controller
@@ -22,7 +21,7 @@ class DooringController extends Controller
     {
         $validationRegency = $this->checkPackages($request->all());
 
-        if (!$validationRegency) {
+        if (! $validationRegency) {
             return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Destinasi kota pada resi yang dipilih tidak sama, silahkan input resi yang lain dengan tujuan kota yang sama']))->json();
         }
 
@@ -70,18 +69,18 @@ class DooringController extends Controller
 
      public function checkPackages($inputs): bool
      {
-        $code = $inputs['code'];
-        $packages = Code::where('codeable_type', Package::class)->whereIn('content', $code)->with('codeable.destination_regency')->get();
-        $regencyId = $packages->first()->codeable->destination_regency_id;
-        $check = true;
+         $code = $inputs['code'];
+         $packages = Code::where('codeable_type', Package::class)->whereIn('content', $code)->with('codeable.destination_regency')->get();
+         $regencyId = $packages->first()->codeable->destination_regency_id;
+         $check = true;
 
-        foreach ($packages as $key => $value) {
-            $eachRegencyId = $value->codeable->destination_regency_id;
-            if ($regencyId !== $eachRegencyId) {
-                $check = false;
-            }
-        }
+         foreach ($packages as $key => $value) {
+             $eachRegencyId = $value->codeable->destination_regency_id;
+             if ($regencyId !== $eachRegencyId) {
+                 $check = false;
+             }
+         }
 
-        return $check;
+         return $check;
      }
 }

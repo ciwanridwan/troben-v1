@@ -36,6 +36,6 @@ class SlaRoute extends BaseRoute
      */
     public function controller()
     {
-       return SlaController::class;
+        return SlaController::class;
     }
 }
