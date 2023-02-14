@@ -52,6 +52,11 @@ class OrderRoute extends BaseRoute
             'as' => $this->name('estimation.prices'),
             'uses' => $this->uses('estimationPrices'),
         ]);
+
+        $this->router->post($this->prefix('create/multi-destination'), [
+            'as' => $this->name('create.multi-destination'),
+            'uses' => $this->uses('createOrUpdateMulti'),
+        ]);
     }
 
     public function controller()

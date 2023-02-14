@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Order\V2;
 use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateOrUpdateMultiRequest;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\UpdateOrderRequest;
@@ -26,6 +27,7 @@ use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
@@ -91,7 +93,7 @@ class DashboardController extends Controller
         $package = Package::byHashOrFail($request->package_parent_hash);
         $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
 
-        $packageAttr = array_merge($packageExists ,$request->except('items', 'photos', 'package_parent_hash'));
+        $packageAttr = array_merge($packageExists, $request->except('items', 'photos', 'package_parent_hash'));
 
         $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
         $this->dispatchNow($job);
@@ -161,7 +163,7 @@ class DashboardController extends Controller
     public function update(UpdateOrderRequest $request, Package $package): JsonResponse
     {
         $request->validated();
-        
+
         $job = new UpdateExistingPackageByCs($package, $request->all());
         $this->dispatchNow($job);
 
@@ -217,5 +219,56 @@ class DashboardController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * create or update multi destination package (order)
+     */
+    public function createOrUpdateMulti(CreateOrUpdateMultiRequest $request): JsonResponse
+    {
+        if (is_null($request->package_parent_hash) && is_null($request->package_child_hash)) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        } else {
+            $parentPackage = Package::hashToId($request->package_parent_hash);
+            $childPackage = $request->package_child_hash;
+            $childIds = [];
+
+            $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
+
+            if (count($parentReceipt->multiDestination) !== 0) {
+                for ($i = 0; $i < count($childPackage); $i++) {
+                    $childId = Package::hashToId($childPackage[$i]);
+                    array_push($childIds, $childId);
+
+                    $parentReceipt->multiDestination()->create([
+                        'child_id' => $childId
+                    ]);
+                    dd($parentReceipt);
+                }
+            } else {
+                for ($i = 0; $i < count($childPackage); $i++) {
+                    $childId = Package::hashToId($childPackage[$i]);
+                    array_push($childIds, $childId);
+
+                    MultiDestination::create([
+                        'parent_id' => $parentPackage,
+                        'child_id' => $childId
+                    ]);
+                }
+            }
+
+            $packageChild = Package::whereIn('id', $childIds)->get();
+            $packageChild->each(function ($q) {
+                $pickupFee = $q->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
+
+                $q->total_amount -= $pickupFee->amount;
+                $q->save();
+
+                $pickupFee->amount = 0;
+                $pickupFee->save();
+            });
+
+            return (new Response(Response::RC_SUCCESS, ['Message' => 'Create Multi Destination Order Has Successfully']))->json();
+        }
     }
 }

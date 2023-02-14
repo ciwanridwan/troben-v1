@@ -26,7 +26,7 @@ class DetailResource extends JsonResource
             $orderType = 'Single';
             $manifest = null;
         }
-        
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -52,7 +52,8 @@ class DetailResource extends JsonResource
                 'province' => $this->destination_regency ? $this->destination_regency->province->name : null,
                 'regency' => $this->destination_regency ? $this->destination_regency->name : null,
                 'district' => $this->destination_district ? $this->destination_district->name : null,
-                'sub_district' => $this->destination_sub_district ? $this->destination_sub_district->name : null
+                'sub_district' => $this->destination_sub_district ? $this->destination_sub_district->name : null,
+                'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->name : null
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
                 $result = [
@@ -125,7 +126,7 @@ class DetailResource extends JsonResource
 
     private function getMultiChildPackages($manifest, $orderType): array
     {
-        $childId = $this->multiDestination->pluck('child_id')->toArray(); 
+        $childId = $this->multiDestination->pluck('child_id')->toArray();
         $packageChild = Package::query()->whereIn('id', $childId)->get()->map(function ($q) use ($manifest, $orderType) {
             $data = [
                 'id' => $q->id,
@@ -182,7 +183,7 @@ class DetailResource extends JsonResource
 
             return $data;
         })->values()->toArray();
-        
+
         return $packageChild;
     }
 }
