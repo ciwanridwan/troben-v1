@@ -7,6 +7,7 @@ use App\Casts\Package\Items\Handling;
 use App\Exceptions\Error;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateOrUpdateMultiRequest;
 use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
@@ -204,5 +205,18 @@ class DashboardController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * create or update multi destination package (order)
+     */
+    public function createOrUpdateMulti(CreateOrUpdateMultiRequest $request): JsonResponse
+    {
+        if (is_null($request->package_parent_hash) && is_null($request->package_child_hash)) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        } else {
+
+        }
+
     }
 }
