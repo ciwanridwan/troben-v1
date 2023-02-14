@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Api\Order\Dashboard;
 
 use App\Models\Packages\Package;
-use App\Models\Service;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ListOrderResource extends JsonResource
@@ -67,7 +66,7 @@ class ListOrderResource extends JsonResource
 
         $orderType = $this->resource->packages->map(function ($q) {
             $type = 'Item';
-            if (!is_null($q->motoBikes)){
+            if (! is_null($q->motoBikes)) {
                 $type = 'Bike';
             }
 

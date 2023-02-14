@@ -94,7 +94,7 @@ class Route
     }
 
     /**
-     * convert hash and get packages
+     * convert hash and get packages.
      */
     public static function getPackages($hash): Collection
     {
@@ -108,7 +108,7 @@ class Route
         return $packages;
     }
 
-    /** To determine package can generate route or not
+    /** To determine package can generate route or not.
      */
     public static function checkPackages($hash): int
     {
@@ -124,7 +124,7 @@ class Route
         $packages = Package::query()->whereIn('id', $packagesId)->get();
         foreach ($packages as $key => $value) {
             $route = $value->deliveryRoutes;
-            if (!is_null($route)) { // new receipt with existing routes
+            if (! is_null($route)) { // new receipt with existing routes
                 $setPartner = 1;
             }
 
@@ -158,7 +158,7 @@ class Route
     }
 
     /**
-     * Get warehouse partner for a depedency delivery routes
+     * Get warehouse partner for a depedency delivery routes.
      */
     public static function getWarehousePartner($partnerCode, $package)
     {
@@ -255,7 +255,7 @@ class Route
     }
 
     /**
-     * Get dooring partner
+     * Get dooring partner.
      */
     public static function getDooringPartner($code): Model|null
     {
@@ -264,7 +264,7 @@ class Route
     }
 
     /**
-     * Set partner to show in list
+     * Set partner to show in list.
      */
     public static function setPartners($deliveryRoutes)
     {
@@ -297,7 +297,7 @@ class Route
     }
 
     /**
-     * To set partner transporter by each routes
+     * To set partner transporter by each routes.
      */
     public static function setPartnerTransporter($deliveryRoutes)
     {
@@ -353,7 +353,7 @@ class Route
     }
 
     /**
-     * List of warehouse on routes map
+     * List of warehouse on routes map.
      */
     public static function listWarehouse(): array
     {
@@ -522,7 +522,7 @@ class Route
             return false;
         }
 
-        if (!in_array(0, $transits)) {
+        if (! in_array(0, $transits)) {
             return true;
         } else {
             return false;

@@ -5,11 +5,8 @@ namespace App\Events\Deliveries\Transit;
 use App\Broadcasting\User\PrivateChannel as UserPrivateChannel;
 use App\Models\Deliveries\Delivery;
 use App\Models\Notifications\Template;
-use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
-use App\Models\User;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Support\Collection;
@@ -28,7 +25,7 @@ class DriverUnloadedPackageInDestinationWarehouse
      */
     public Collection $user;
 
-        /**
+    /**
      * @var Template
      */
     public Template $notification;
