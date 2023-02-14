@@ -97,7 +97,7 @@ class Route
         } else {
             $partnerCode = self::getWarehouseNearby($partner);
         }
-        
+
         return $partnerCode;
     }
 
@@ -285,7 +285,7 @@ class Route
         $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
 
         if (is_null($partner)) {
-            $partner = DB::table('transport_routes')->where('regency_id', $provinceId)->where('warehouse', $warehouse)->first();
+            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
         }
 
         switch (true) {
