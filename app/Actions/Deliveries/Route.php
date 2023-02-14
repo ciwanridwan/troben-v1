@@ -52,7 +52,7 @@ class Route
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
-                if ($warehouse->count() !== 0 || !is_null($warehouse)) {
+                if (!is_null($warehouse)) {
                     $regencyId = self::getFirstPartnerRegency($warehouse);
                     switch (true) {
                         case $warehouse instanceof SupportCollection:
@@ -326,7 +326,7 @@ class Route
             } else {
                 $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
 
-                if ($partner->note) {
+                if (!is_null($partner) && $partner->note) {
                     $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->get();
                 }
 
