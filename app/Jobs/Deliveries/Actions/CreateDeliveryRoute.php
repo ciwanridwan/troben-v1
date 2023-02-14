@@ -3,7 +3,6 @@
 namespace App\Jobs\Deliveries\Actions;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,7 +13,7 @@ class CreateDeliveryRoute implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $originRegencyId; 
+    public int $originRegencyId;
 
     public int $destinationRegencyId;
 

@@ -3,7 +3,6 @@
 namespace App\Http\Routes\Api\V2\Dashboard;
 
 use App\Http\Controllers\Api\Order\V2\DashboardController;
-use App\Http\Controllers\Partner\CustomerService\Home\OrderController;
 use Jalameta\Router\BaseRoute;
 
 class OrderRoute extends BaseRoute

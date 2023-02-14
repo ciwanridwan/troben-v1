@@ -52,7 +52,7 @@ class PartnerPerformanceEvaluatedByEvent
     private string $reach_at;
 
     /**
-     * Partner Instance
+     * Partner Instance.
      */
     private Partner $partner;
 
@@ -69,7 +69,7 @@ class PartnerPerformanceEvaluatedByEvent
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
 
-                if (!is_null($this->delivery->partner_performance)) {
+                if (! is_null($this->delivery->partner_performance)) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
 
@@ -81,7 +81,7 @@ class PartnerPerformanceEvaluatedByEvent
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
                 }
-                Log::info("Driver finish unload in destination warehouse");
+                Log::info('Driver finish unload in destination warehouse');
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
@@ -132,7 +132,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
-                };
+                }
                 break;
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
@@ -193,7 +193,7 @@ class PartnerPerformanceEvaluatedByEvent
         $this->setAttributes();
         $is_package = $this->performance instanceof Performance\Package;
 
-        if (!empty($this->attributes)) {
+        if (! empty($this->attributes)) {
             $query = match ($is_package) {
                 true => $this->package->partner_performance(),
                 false => $this->delivery->partner_performance()

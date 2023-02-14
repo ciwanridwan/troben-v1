@@ -46,7 +46,7 @@ class DriverAssignedDooring
     }
 
     /**
-     * Broadcast to driver
+     * Broadcast to driver.
      */
     public function broadcast(): void
     {
