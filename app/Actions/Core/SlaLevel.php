@@ -36,7 +36,7 @@ class SlaLevel
                     // update broadcast
                     DB::statement(self::updateBroadcast($t, $l));
                 } catch (\Exception $e) {
-                    $msg = sprintf('SLA Err [%s] [%s]: ', $t, $l, $e->getMessage());
+                    $msg = sprintf('SLA Err [typ:%s] [lvl:%s]: %s', $t, $l, $e->getMessage());
                     dd($msg);
                 }
             }
@@ -90,7 +90,7 @@ class SlaLevel
                         )";
 
         $q = sprintf($q, $table, $level, $levelPrev, $table, $level, $column, $column);
-        Log::info('This query update up level', [$q]);
+        // Log::info('This query update up level', [$q]);
         return $q;
     }
 
@@ -117,7 +117,7 @@ class SlaLevel
 
         $q = self::tokenFcmQuery();
         $q = sprintf($q, $column, $column, $column, $table, $level, $column, $column);
-        Log::info('this query push notif', [$q]);
+        // Log::info("this query push notif", [$q]);
 
         $query = collect(DB::select($q))->toArray();
 
@@ -139,7 +139,7 @@ class SlaLevel
             }
 
             $push = new PrivateChannel($user, $notification, ['package_code' => $code]);
-            Log::info('Push notification for level '.$level.' has been sent', [$push]);
+            // Log::info('Push notification for level '.$level.' has been sent', [$push]);
         }
     }
 
@@ -258,8 +258,8 @@ class SlaLevel
                     and status = 1
                     and broadcast = 0';
 
-        $q = sprintf($q, $table, $level);
-        Log::info('this query update broadcast', [$q]);
-        return $q;
+         $q = sprintf($q, $table, $level);
+         // Log::info('this query update broadcast', [$q]);
+         return $q;
     }
 }

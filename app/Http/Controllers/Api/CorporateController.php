@@ -408,7 +408,8 @@ class CorporateController extends Controller
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
             'multiDestination', 'parentDestination',
-        ])->whereHas('corporate');
+        //])->whereHas('corporate');
+        ]);
 
         if (! $isAdmin) {
             $results = $results->where('created_by', auth()->id());
