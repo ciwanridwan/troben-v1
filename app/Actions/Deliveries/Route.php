@@ -52,9 +52,8 @@ class Route
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
-                if (! is_null($warehouse)) {
+                if ($warehouse->count() !== 0 || ! is_null($warehouse)) {
                     $regencyId = self::getFirstPartnerRegency($warehouse);
-
                     switch (true) {
                         case $warehouse instanceof SupportCollection:
                             $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
@@ -98,6 +97,7 @@ class Route
         } else {
             $partnerCode = self::getWarehouseNearby($partner);
         }
+
         return $partnerCode;
     }
 
