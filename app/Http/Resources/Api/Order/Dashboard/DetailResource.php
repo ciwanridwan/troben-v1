@@ -186,9 +186,13 @@ class DetailResource extends JsonResource
                 // before destination_address
                 'destination_address' => [
                     'province' => $q->destination_regency ? $q->destination_regency->province->name : null,
+                    'province_id' => $q->destination_regency ? $q->destination_regency->province->id : null,
                     'regency' => $q->destination_regency ? $q->destination_regency->name : null,
+                    'regency_id' => $q->destination_regency ? $q->destination_regency->id : null,
                     'district' => $q->destination_district ? $q->destination_district->name : null,
-                    'sub_district' => $q->destination_sub_district ? $q->destination_sub_district->name : null
+                    'district_id' => $q->destination_district ? $q->destination_district->id : null,
+                    'sub_district' => $q->destination_sub_district ? $q->destination_sub_district->name : null,
+                    'sub_district_id' => $q->destination_sub_district ? $q->destination_sub_district->id : null
                 ],
                 'items' => $q->items ? $q->items->map(function ($i) {
                     $result = [
