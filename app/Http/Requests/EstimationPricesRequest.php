@@ -33,6 +33,8 @@ class EstimationPricesRequest extends FormRequest
             'items.*.height' => ['nullable', 'numeric'],
             'items.*.length' => ['nullable', 'numeric'],
             'items.*.width' => ['nullable', 'numeric'],
+            'items.*.is_insured' => ['nullable', 'boolean'],
+            'items.*.price' => ['nullable', 'numeric'],
             'items.*.weight' => ['nullable', 'numeric'],
             'items.*.qty' => ['nullable', 'numeric'],
             'items.*.handling' => ['nullable'],
