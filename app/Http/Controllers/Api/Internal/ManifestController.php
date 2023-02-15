@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Internal;
 use App\Actions\Deliveries\Route;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\HeadOffice\PartnersTransporterResource;
 use App\Http\Resources\Api\HeadOffice\RequestTransporterResource;
 use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignPartnerToDelivery;
@@ -114,10 +113,14 @@ class ManifestController extends Controller
             $packages = $delivery->packages;
 
             foreach ($packages as $package) {
-                if (!is_null($package->deliveryRoutes)) {
+                if (! is_null($package->deliveryRoutes)) {
                     $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
-                    if (! is_array($partnerCode)) $partnerCode = [$partnerCode];
-                    $query->whereIn('code', $partnerCode);
+                    if (! is_null($partnerCode)) {
+                        if (! is_array($partnerCode)) {
+                            $partnerCode = [$partnerCode];
+                        }
+                        $query->whereIn('code', $partnerCode);
+                    }
                 } else {
                     $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
                 }

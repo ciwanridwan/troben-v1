@@ -49,36 +49,6 @@ class FinanceController extends Controller
         return $this->jsonSuccess(ListResource::collection($result));
     }
 
-    private function getWithdrawal()
-    {
-        $partnerCode = null;
-        if (request()->get('partner_code')) {
-            $partnerCode = request()->get('partner_code');
-        }
-
-        $q = Withdrawal::whereHas('partner', function($q) use ($partnerCode) {
-            if (! is_null($partnerCode)) {
-                $q->where('code', $partnerCode);
-            }
-        });
-
-        if (request()->get('status')) {
-            $q = $q->where('status', request()->get('status'));
-        }
-
-        if (request()->get('date')) {
-            $q = $q->whereRaw("DATE(created_at) = '". request()->get('date') . "'");
-        }
-
-        if (request()->get('start_date') && request()->get('end_date')) {
-            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
-        }
-
-        $q = $q->orderBy('created_at', 'desc');
-
-        return $q;
-    }
-
     /** Count Request Disbursment */
     public function countDisbursment(Withdrawal $withdrawal)
     {
@@ -193,7 +163,7 @@ class FinanceController extends Controller
 
     /**
      * Filter by manifest code
-     * Include receipt code
+     * Include receipt code.
      */
     public function findManifest($withdrawal, $manifestCode)
     {
@@ -227,7 +197,7 @@ class FinanceController extends Controller
     /**Get list partner for findByPartner Function */
     public function listPartners()
     {
-        $partnerIds = Withdrawal::groupBy('partner_id')->get()->pluck('partner_id')->toArray();
+        $partnerIds = Withdrawal::select('partner_id')->groupBy('partner_id')->get()->pluck('partner_id')->toArray();
         $data = Partner::select('id', 'name', 'code')->whereIn('id', $partnerIds)->get();
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
@@ -254,7 +224,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');
@@ -432,6 +402,36 @@ class FinanceController extends Controller
         return $q;
     }
 
+    private function getWithdrawal()
+    {
+        $partnerCode = null;
+        if (request()->get('partner_code')) {
+            $partnerCode = request()->get('partner_code');
+        }
+
+        $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode) {
+            if (! is_null($partnerCode)) {
+                $q->where('code', $partnerCode);
+            }
+        });
+
+        if (request()->get('status')) {
+            $q = $q->where('status', request()->get('status'));
+        }
+
+        if (request()->get('date')) {
+            $q = $q->whereRaw("DATE(created_at) = '".request()->get('date')."'");
+        }
+
+        if (request()->get('start_date') && request()->get('end_date')) {
+            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
+        }
+
+        $q = $q->orderBy('created_at', 'desc');
+
+        return $q;
+    }
+
     /**Query for get all disbursment with spesific data */
     private function getQueryExports($param)
     {
@@ -597,7 +597,7 @@ class FinanceController extends Controller
                 $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -649,7 +649,7 @@ class FinanceController extends Controller
                 $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -832,7 +832,7 @@ class FinanceController extends Controller
         $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $filteredReceipts = $receipts->filter(function ($r) use ($alreadyDis) {
@@ -882,7 +882,7 @@ class FinanceController extends Controller
         $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $data = [

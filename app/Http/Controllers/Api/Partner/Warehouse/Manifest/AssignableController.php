@@ -38,19 +38,19 @@ class AssignableController extends Controller
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
                 break;
             case $setPartner === 3:
-                $partnerCode = "all";
+                $partnerCode = 'all';
                 break;
             default:
                 $partnerCode = null;
                 break;
         }
 
-        if (is_null($partnerCode)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
-        }
-
+        //if (is_null($partnerCode)) {
+        //    return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
+        //}
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        if ($partnerCode === "all") {
+
+        if ($partnerCode === 'all' || is_null($partnerCode)) {
             $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
         } else {
             $query->whereIn('code', $partnerCode);
@@ -58,7 +58,7 @@ class AssignableController extends Controller
 
         $query->when(
             $request->input('code'),
-            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
+            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
         );
 
         return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
@@ -86,7 +86,7 @@ class AssignableController extends Controller
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
-                ->where('content', 'like', '%' . $request->q . '%')
+                ->where('content', 'like', '%'.$request->q.'%')
                 ->pluck('codeable_id');
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -134,7 +134,7 @@ class AssignableController extends Controller
         $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
-            if (!is_null($package->deliveryRoutes)) {
+            if (! is_null($package->deliveryRoutes)) {
                 $variant = 1; // to set this variant is any routes
             } else {
                 $variant = 2; // to set this variant cant have routes
@@ -146,7 +146,7 @@ class AssignableController extends Controller
         if ($check) {
             return (new Response(Response::RC_SUCCESS))->json();
         } else {
-            if (!in_array(1, $allVariant)) {
+            if (! in_array(1, $allVariant)) {
                 return (new Response(Response::RC_SUCCESS))->json();
             } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
                 return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();

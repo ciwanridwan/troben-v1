@@ -24,7 +24,6 @@ class SendNotificationToCustomer
      */
     public function __construct()
     {
-
     }
 
     /**

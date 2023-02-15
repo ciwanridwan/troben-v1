@@ -61,11 +61,28 @@ class UserResource extends JsonResource
             }
         }
 
-        $q = "SELECT role_id
+        $q = 'SELECT role_id
         FROM role_users_v2
-        WHERE user_id = %d";
+        WHERE user_id = %d';
         $q = sprintf($q, $this->id);
         $roles = collect(DB::select($q))->pluck('role_id');
+
+        $acceptAsHO = [
+            'admin-super',
+            'ho-cs',
+            'ho-warehouse',
+            'ho-finance',
+            'ho-operation',
+            'admin-trawlpack',
+            'admin-trawltruck',
+            'admin-trawlcarrier',
+            'admin-salesagent',
+        ];
+        foreach ($roles as $r) {
+            if (in_array($r, $acceptAsHO)) {
+                $data['is_ho'] = true;
+            }
+        }
 
         $data['roles'] = $roles;
         $data['partner_id'] = $partnerId;

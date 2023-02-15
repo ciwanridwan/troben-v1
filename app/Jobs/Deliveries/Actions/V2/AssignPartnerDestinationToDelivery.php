@@ -3,7 +3,6 @@
 namespace App\Jobs\Deliveries\Actions\V2;
 
 use App\Models\Deliveries\Delivery;
-use App\Events\Deliveries\PartnerAssigned;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +12,7 @@ class AssignPartnerDestinationToDelivery
 {
     use Dispatchable;
 
-     /**
+    /**
      * @var Delivery $delivery
      */
     public Delivery $delivery;
