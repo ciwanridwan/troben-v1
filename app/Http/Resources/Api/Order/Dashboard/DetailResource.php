@@ -62,7 +62,7 @@ class DetailResource extends JsonResource
                 'regency' => $this->origin_regency ? $this->origin_regency->name : null
             ],
             // before destination_address
-            'receiver_destination_address' => [
+            'destination_address' => [
                 'province' => $this->destination_regency ? $this->destination_regency->province->name : null,
                 'province_id' => $this->destination_regency ? $this->destination_regency->province->id : null,
                 'regency' => $this->destination_regency ? $this->destination_regency->name : null,
@@ -83,7 +83,7 @@ class DetailResource extends JsonResource
                     'width' => $q->width,
                     'insurance_price' => $q->price,
                     'weight_borne_total' => $q->weight_borne_total,
-                    'handling' => $q->handling,
+                    'handling' => $q->handling ?? [],
                     'category_name' => $q->categories ? $q->categories->name : null
                 ];
                 return $result;
@@ -172,7 +172,7 @@ class DetailResource extends JsonResource
                     'regency' => $q->origin_regency ? $q->origin_regency->name : null
                 ],
                 // before destination_address
-                'receiver_destination_address' => [
+                'destination_address' => [
                     'province' => $q->destination_regency ? $q->destination_regency->province->name : null,
                     'regency' => $q->destination_regency ? $q->destination_regency->name : null,
                     'district' => $q->destination_district ? $q->destination_district->name : null,
@@ -189,7 +189,7 @@ class DetailResource extends JsonResource
                         'width' => $i->width,
                         'insurance_price' => $i->price,
                         'weight_borne_total' => $i->weight_borne_total,
-                        'handling' => $i->handling,
+                        'handling' => $i->handling ?? [],
                         'category_name' => $i->categories ? $i->categories->name : null
                     ];
                     return $result;
