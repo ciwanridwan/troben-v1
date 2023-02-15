@@ -95,9 +95,14 @@ class DetailResource extends JsonResource
                 return $result;
             }) : null,
             'prices' => $this->getPrices($this->resource),
-            'package_child' => $packageChild ?? null,
+            // 'package_child' => $packageChild ?? null,
         ];
 
+        if (isset($packageChild)) {
+            $data['package_child'] = array_merge(array($data), $packageChild);
+        } else {
+            $data['package_child'] = [];
+        }
         return $data;
     }
 
