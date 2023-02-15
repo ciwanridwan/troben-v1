@@ -251,7 +251,6 @@ class DashboardController extends Controller
             $childIds = [];
 
             $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
-
             if (count($parentReceipt->multiDestination) !== 0) {
                 for ($i = 0; $i < count($childPackage); $i++) {
                     $childId = Package::hashToId($childPackage[$i]);
@@ -260,7 +259,6 @@ class DashboardController extends Controller
                     $parentReceipt->multiDestination()->create([
                         'child_id' => $childId
                     ]);
-                    dd($parentReceipt);
                 }
             } else {
                 for ($i = 0; $i < count($childPackage); $i++) {
