@@ -61,7 +61,8 @@ class DetailResource extends JsonResource
                 'province' => $this->origin_regency ? $this->origin_regency->province->name : null,
                 'regency' => $this->origin_regency ? $this->origin_regency->name : null
             ],
-            'destination_address' => [
+            // before destination_address
+            'receiver_destination_address' => [
                 'province' => $this->destination_regency ? $this->destination_regency->province->name : null,
                 'province_id' => $this->destination_regency ? $this->destination_regency->province->id : null,
                 'regency' => $this->destination_regency ? $this->destination_regency->name : null,
@@ -170,7 +171,8 @@ class DetailResource extends JsonResource
                     'province' => $q->origin_regency ? $q->origin_regency->province->name : null,
                     'regency' => $q->origin_regency ? $q->origin_regency->name : null
                 ],
-                'destination_address' => [
+                // before destination_address
+                'receiver_destination_address' => [
                     'province' => $q->destination_regency ? $q->destination_regency->province->name : null,
                     'regency' => $q->destination_regency ? $q->destination_regency->name : null,
                     'district' => $q->destination_district ? $q->destination_district->name : null,
