@@ -30,11 +30,11 @@ class EstimationPricesRequest extends FormRequest
             'package_hash' => ['required', new ExistsByHash(Package::class)],
             'is_glassware' => ['nullable', 'boolean'],
             'items' => ['nullable', 'array'],
-            'items.*.height' => ['required', 'numeric'],
-            'items.*.length' => ['required', 'numeric'],
-            'items.*.width' => ['required', 'numeric'],
-            'items.*.weight' => ['required', 'numeric'],
-            'items.*.qty' => ['required', 'numeric'],
+            'items.*.height' => ['nullable', 'numeric'],
+            'items.*.length' => ['nullable', 'numeric'],
+            'items.*.width' => ['nullable', 'numeric'],
+            'items.*.weight' => ['nullable', 'numeric'],
+            'items.*.qty' => ['nullable', 'numeric'],
             'items.*.handling' => ['nullable'],
         ];
     }

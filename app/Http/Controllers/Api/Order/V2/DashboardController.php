@@ -186,15 +186,31 @@ class DashboardController extends Controller
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
         $request->validated();
+
+        // if items is delete
+        if ($request->items === []) {
+            $zeroResult = [
+                'service_fee' => 0,
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'additional_fee' => 0,
+                'total_amount' => 0
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $zeroResult))->json();
+        }
+
         $package = Package::byHashOrFail($request->package_hash);
 
         $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
         $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
 
         $servicePrice = PricingCalculator::getServicePrice(array_merge($request->all(), $originLocation));
+
         $additionalPrice = PricingCalculator::getAdditionalPrices($request->items, $package->service_code);
 
         $items = $request->items;
+
         $handlingPrice = 0;
 
         $totalInsurance = [];
