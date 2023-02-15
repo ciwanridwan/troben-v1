@@ -28,7 +28,6 @@ class EstimationPricesRequest extends FormRequest
         return [
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
             'package_hash' => ['required', new ExistsByHash(Package::class)],
-            'is_glassware' => ['nullable', 'boolean'],
             'items' => ['nullable', 'array'],
             'items.*.height' => ['nullable', 'numeric'],
             'items.*.length' => ['nullable', 'numeric'],
