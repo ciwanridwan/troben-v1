@@ -82,7 +82,7 @@ class DetailResource extends JsonResource
                     'height' => $q->height,
                     'length' => $q->length,
                     'width' => $q->width,
-                    'insurance_price' => $q->price,
+                    'price' => $q->price,
                     'weight_borne_total' => $q->weight_borne_total,
                     'handling' => $q->handling ?? [],
                     'category_name' => $q->categories ? $q->categories->name : null
@@ -205,7 +205,7 @@ class DetailResource extends JsonResource
                         'height' => $i->height,
                         'length' => $i->length,
                         'width' => $i->width,
-                        'insurance_price' => $i->price,
+                        'price' => $i->price,
                         'weight_borne_total' => $i->weight_borne_total,
                         'handling' => $i->handling ?? [],
                         'category_name' => $i->categories ? $i->categories->name : null
