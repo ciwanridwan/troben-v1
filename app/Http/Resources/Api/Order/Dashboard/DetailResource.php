@@ -88,7 +88,7 @@ class DetailResource extends JsonResource
                 ];
                 return $result;
             }) : null,
-            'attachments' => $this->attachments ? $this->attachments->map(function ($q) {
+            'images' => $this->attachments ? $this->attachments->map(function ($q) {
                 $result = [
                     'id' => $q->id,
                     'uri' => $q->uri
@@ -127,9 +127,9 @@ class DetailResource extends JsonResource
         $handling = $this->prices()->where('type', PackagesPrice::TYPE_HANDLING)->sum('amount');
         $service = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where(function ($q) {
             $q->where('description', PackagesPrice::TYPE_SERVICE)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_EXPRESS)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_CUBIC)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_BIKE);
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_EXPRESS)
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_CUBIC)
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_BIKE);
         })->first();
         $additional = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where('description', PackagesPrice::TYPE_ADDITIONAL)->first();
         $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
@@ -150,6 +150,18 @@ class DetailResource extends JsonResource
     {
         $childId = $this->multiDestination->pluck('child_id')->toArray();
         $packageChild = Package::query()->whereIn('id', $childId)->get()->map(function ($q) use ($manifest, $orderType) {
+
+            if (substr($q->sender_phone, 0, 3) === '+62') {
+                $senderPhone = str_replace('+62', '0', $q->sender_phone);
+            } else {
+                $senderPhone = $q->sender_phone;
+            }
+
+            if (substr($q->receiver_phone, 0, 3) === '+62') {
+                $receiverPhone = str_replace('+62', '0', $q->receiver_phone);
+            } else {
+                $receiverPhone = $q->receiver_phone;
+            }
             $data = [
                 'id' => $q->id,
                 'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -160,8 +172,8 @@ class DetailResource extends JsonResource
                 'sender_name' => $q->sender_name,
                 'sender_address' => $q->sender_address,
                 'sender_detail_address' => $q->sender_way_point,
-                'sender_phone' => $q->sender_phone,
-                'receiver_name' => $q->receiver_name,
+                'sender_phone' => $senderPhone,
+                'receiver_name' => $receiverPhone,
                 'receiver_address' => $q->receiver_address,
                 'receiver_detail_address' => $q->receiver_way_point,
                 'receiver_phone' => $q->receiver_phone,
@@ -194,7 +206,7 @@ class DetailResource extends JsonResource
                     ];
                     return $result;
                 }) : null,
-                'attachments' => $q->attachments ? $q->attachments->map(function ($a) {
+                'images' => $q->attachments ? $q->attachments->map(function ($a) {
                     $result = [
                         'id' => $a->id,
                         'uri' => $a->uri
