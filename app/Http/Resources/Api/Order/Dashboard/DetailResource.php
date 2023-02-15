@@ -95,7 +95,7 @@ class DetailResource extends JsonResource
                 ];
                 return $result;
             }) : null,
-            'prices' => $this->getPrices($this->resource),
+            'calculate_data' => $this->getPrices($this->resource),
             // 'package_child' => $packageChild ?? null,
         ];
 
@@ -137,9 +137,9 @@ class DetailResource extends JsonResource
         $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0) + ($pickup ? $pickup->amount : 0);
 
         return [
-            'insurance' => (int) $insurance ?? 0,
-            'packing' => (int) $handling ?? 0,
-            'additional' => $additional ? $additional->amount : 0,
+            'insurance_price_total' => (int) $insurance ?? 0,
+            'handling' => (int) $handling ?? 0,
+            'additional_price' => $additional ? $additional->amount : 0,
             'service' => $service ? $service->amount : 0,
             'pickup' => $pickup ? $pickup->amount : 0,
             'total_amount' => $totalAmount
@@ -201,7 +201,7 @@ class DetailResource extends JsonResource
                     ];
                     return $result;
                 }) : null,
-                'prices' => $this->getPrices($q)
+                'calculate_data' => $this->getPrices($q)
             ];
 
             return $data;
