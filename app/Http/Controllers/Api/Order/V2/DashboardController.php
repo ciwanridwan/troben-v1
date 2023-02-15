@@ -295,53 +295,67 @@ class DashboardController extends Controller
         $request->validated();
         $results = [];
 
-        foreach ($request->orders as $attributes) {
-            $package = Package::byHashOrFail($attributes['package_hash']);
-
-            $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
-            $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
-
-            $servicePrice = PricingCalculator::getServicePrice(array_merge($attributes, $originLocation));
-            $additionalPrice = PricingCalculator::getAdditionalPrices($attributes['items'], $package->service_code);
-
-            $insurance = [];
-            $handling = [];
-
-            $items = $attributes['items'];
-            foreach ($items as $item) {
-                // insurance
-                $totalItem = PricingCalculator::getInsurancePrice($item['price'] * $item['qty']);
-                array_push($insurance, $totalItem);
-
-                // handling or packing
-                foreach ($item['handling'] as $packing) {
-                    $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
-                    array_push($handling, $handlingPrice);
-                }
-            }
-
-            $insurancePrice = array_sum($insurance);
-            $handlingPrice = array_sum($handling);
-
-            $total = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
-
-            $result = [
-                'service_fee' => $servicePrice,
-                'insurance_fee' => $insurancePrice,
-                'handling_fee' => $handlingPrice,
-                'additional_fee' => $additionalPrice,
-                'total_fee' => $total
+        if ($request->orders === []) {
+            $zeroResult = [
+                'service_fee' => 0,
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'additional_fee' => 0,
+                'total_amount' => 0
             ];
-            array_push($results, $result);
+
+            return (new Response(Response::RC_SUCCESS, $zeroResult))->json();
         }
 
-        $results[1] = [
-            'service_fee' => 100000,
-            'insurance_fee' => 20000,
-            'handling_fee' => 30000,
-            'additional_fee' => 100000,
-            'total_fee' => 250000
-        ];
+        foreach ($request->orders as $attributes) {
+            if ($attributes['items'] === []) {
+                $result = [
+                    'service_fee' => 0,
+                    'insurance_fee' => 0,
+                    'handling_fee' => 0,
+                    'additional_fee' => 0,
+                    'total_fee' => 0
+                ];
+            } else {
+                $package = Package::byHashOrFail($attributes['package_hash']);
+
+                $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
+                $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
+
+                $servicePrice = PricingCalculator::getServicePrice(array_merge($attributes, $originLocation));
+                $additionalPrice = PricingCalculator::getAdditionalPrices($attributes['items'], $package->service_code);
+
+                $insurance = [];
+                $handling = [];
+
+                $items = $attributes['items'];
+                foreach ($items as $item) {
+                    // insurance
+                    $totalItem = PricingCalculator::getInsurancePrice($item['price'] * $item['qty']);
+                    array_push($insurance, $totalItem);
+
+                    // handling or packing
+                    foreach ($item['handling'] as $packing) {
+                        $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
+                        array_push($handling, $handlingPrice);
+                    }
+                }
+
+                $insurancePrice = array_sum($insurance);
+                $handlingPrice = array_sum($handling);
+
+                $total = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
+
+                $result = [
+                    'service_fee' => $servicePrice,
+                    'insurance_fee' => $insurancePrice,
+                    'handling_fee' => $handlingPrice,
+                    'additional_fee' => $additionalPrice,
+                    'total_fee' => $total
+                ];
+            }
+            array_push($results, $result);
+        }
 
         $totalInsurancePrice = array_sum(array_column($results, 'insurance_fee'));
         $totalHandlingPrice = array_sum(array_column($results, 'handling_fee'));
