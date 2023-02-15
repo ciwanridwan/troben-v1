@@ -221,9 +221,12 @@ class DashboardController extends Controller
             array_push($totalInsurance, $totalItem);
 
             // handling or packing
+            $handling = [];
             foreach ($item['handling'] as $packing) {
-                $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
+                $handlingPrice = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                array_push($handling, $handlingPrice);
             }
+            $handlingPrice = array_sum($handling);
         }
         $insurancePrice = array_sum($totalInsurance);
         $totalAmount = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
@@ -336,7 +339,7 @@ class DashboardController extends Controller
 
                     // handling or packing
                     foreach ($item['handling'] as $packing) {
-                        $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
+                        $handlingPrice = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
                         array_push($handling, $handlingPrice);
                     }
                 }
