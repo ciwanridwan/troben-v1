@@ -76,6 +76,7 @@ class DetailResource extends JsonResource
                 $result = [
                     'name' => $q->name,
                     'desc' => $q->desc,
+                    'qty' => $q->qty,
                     'is_insured' => $q->is_insured,
                     'weight' => $q->weight,
                     'height' => $q->height,
@@ -198,6 +199,7 @@ class DetailResource extends JsonResource
                     $result = [
                         'name' => $i->name,
                         'desc' => $i->desc,
+                        'qty' => $i->qty,
                         'is_insured' => $i->is_insured,
                         'weight' => $i->weight,
                         'height' => $i->height,
