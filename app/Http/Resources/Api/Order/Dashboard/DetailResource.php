@@ -173,10 +173,10 @@ class DetailResource extends JsonResource
                 'sender_address' => $q->sender_address,
                 'sender_detail_address' => $q->sender_way_point,
                 'sender_phone' => $senderPhone,
-                'receiver_name' => $receiverPhone,
+                'receiver_name' => $q->receiver_name,
                 'receiver_address' => $q->receiver_address,
                 'receiver_detail_address' => $q->receiver_way_point,
-                'receiver_phone' => $q->receiver_phone,
+                'receiver_phone' => $receiverPhone,
                 'tier_price' => $q->tier_price,
                 'estimation_notes' => $this->getNotes($q),
                 'origin_address' => [
