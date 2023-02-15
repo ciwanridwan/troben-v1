@@ -101,7 +101,7 @@ class DetailResource extends JsonResource
         if (isset($packageChild)) {
             $data['package_child'] = array_merge(array($data), $packageChild);
         } else {
-            $data['package_child'] = [];
+            $data['package_child'] = $data;
         }
         return $data;
     }
