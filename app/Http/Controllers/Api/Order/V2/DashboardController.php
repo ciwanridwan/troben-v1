@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrUpdateMultiRequest;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\EstimationPricesRequest;
+use App\Http\Requests\TotalEstimationRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
@@ -98,7 +99,7 @@ class DashboardController extends Controller
         $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
         $this->dispatchNow($job);
 
-        $result = ['hash' => $job->package->hash];
+        $result = ['hash' => $job->package->hash, 'destination_sub_district_id' => $job->package->destination_sub_district_id];
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
@@ -186,15 +187,31 @@ class DashboardController extends Controller
     public function estimationPrices(EstimationPricesRequest $request): JsonResponse
     {
         $request->validated();
+
+        // if items is delete
+        if ($request->items === []) {
+            $zeroResult = [
+                'service_fee' => 0,
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'additional_fee' => 0,
+                'total_amount' => 0
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $zeroResult))->json();
+        }
+
         $package = Package::byHashOrFail($request->package_hash);
 
         $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
         $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
 
         $servicePrice = PricingCalculator::getServicePrice(array_merge($request->all(), $originLocation));
+
         $additionalPrice = PricingCalculator::getAdditionalPrices($request->items, $package->service_code);
 
         $items = $request->items;
+
         $handlingPrice = 0;
 
         $totalInsurance = [];
@@ -204,17 +221,20 @@ class DashboardController extends Controller
             array_push($totalInsurance, $totalItem);
 
             // handling or packing
+            $handling = [];
             foreach ($item['handling'] as $packing) {
-                $handlingPrice = Handling::calculator($packing['type'], $item['height'], $item['length'], $item['width'], $item['weight']);
+                $handlingPrice = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                array_push($handling, $handlingPrice);
             }
+            $handlingPrice = array_sum($handling);
         }
         $insurancePrice = array_sum($totalInsurance);
         $totalAmount = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
         $result = [
-            'service_fee' => $servicePrice,
-            'insurance_fee' => $insurancePrice,
-            'handling_fee' => $handlingPrice,
-            'additional_fee' => $additionalPrice,
+            'service' => $servicePrice,
+            'insurance_price_total' => $insurancePrice,
+            'handling' => $handlingPrice,
+            'additional_price' => $additionalPrice,
             'total_amount' => $totalAmount
         ];
 
@@ -234,7 +254,6 @@ class DashboardController extends Controller
             $childIds = [];
 
             $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
-
             if (count($parentReceipt->multiDestination) !== 0) {
                 for ($i = 0; $i < count($childPackage); $i++) {
                     $childId = Package::hashToId($childPackage[$i]);
@@ -243,7 +262,6 @@ class DashboardController extends Controller
                     $parentReceipt->multiDestination()->create([
                         'child_id' => $childId
                     ]);
-                    dd($parentReceipt);
                 }
             } else {
                 for ($i = 0; $i < count($childPackage); $i++) {
@@ -270,5 +288,91 @@ class DashboardController extends Controller
 
             return (new Response(Response::RC_SUCCESS, ['Message' => 'Create Multi Destination Order Has Successfully']))->json();
         }
+    }
+
+    /**
+     * Total estimation prices
+     */
+    public function totalEstimationPrices(TotalEstimationRequest $request): JsonResponse
+    {
+        $request->validated();
+        $results = [];
+
+        if ($request->orders === []) {
+            $zeroResult = [
+                'service_fee' => 0,
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'additional_fee' => 0,
+                'total_amount' => 0
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $zeroResult))->json();
+        }
+
+        foreach ($request->orders as $attributes) {
+            if ($attributes['items'] === []) {
+                $result = [
+                    'service_fee' => 0,
+                    'insurance_fee' => 0,
+                    'handling_fee' => 0,
+                    'additional_fee' => 0,
+                    'total_fee' => 0
+                ];
+            } else {
+                $package = Package::byHashOrFail($attributes['package_hash']);
+
+                $provinceId = $package->origin_regency ? $package->origin_regency->province->id : null;
+                $originLocation = ['origin_province_id' => $provinceId, 'origin_regency_id' => $package->origin_regency_id];
+
+                $servicePrice = PricingCalculator::getServicePrice(array_merge($attributes, $originLocation));
+                $additionalPrice = PricingCalculator::getAdditionalPrices($attributes['items'], $package->service_code);
+
+                $insurance = [];
+                $handling = [];
+
+                $items = $attributes['items'];
+                foreach ($items as $item) {
+                    // insurance
+                    $totalItem = PricingCalculator::getInsurancePrice($item['price'] * $item['qty']);
+                    array_push($insurance, $totalItem);
+
+                    // handling or packing
+                    foreach ($item['handling'] as $packing) {
+                        $handlingPrice = Handling::calculator($packing, $item['height'], $item['length'], $item['width'], $item['weight']);
+                        array_push($handling, $handlingPrice);
+                    }
+                }
+
+                $insurancePrice = array_sum($insurance);
+                $handlingPrice = array_sum($handling);
+
+                $total = $servicePrice + $insurancePrice + $handlingPrice + $additionalPrice;
+
+                $result = [
+                    'service_fee' => $servicePrice,
+                    'insurance_fee' => $insurancePrice,
+                    'handling_fee' => $handlingPrice,
+                    'additional_fee' => $additionalPrice,
+                    'total_fee' => $total
+                ];
+            }
+            array_push($results, $result);
+        }
+
+        $totalInsurancePrice = array_sum(array_column($results, 'insurance_fee'));
+        $totalHandlingPrice = array_sum(array_column($results, 'handling_fee'));
+        $totalAdditionalPrice = array_sum(array_column($results, 'additional_fee'));
+        $totalServicePrice = array_sum(array_column($results, 'service_fee'));
+        $totalAmount = $totalInsurancePrice + $totalHandlingPrice + $totalAdditionalPrice + $totalServicePrice;
+
+        $res = [
+            'total_service_fee' => $totalServicePrice,
+            'total_insurance_fee' => $totalInsurancePrice,
+            'total_handling_fee' => $totalHandlingPrice,
+            'total_additional_fee' => $totalAdditionalPrice,
+            'total_amount' => $totalAmount
+        ];
+        return (new Response(Response::RC_SUCCESS, $res))->json();
     }
 }

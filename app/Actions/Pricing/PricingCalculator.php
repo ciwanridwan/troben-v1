@@ -328,11 +328,18 @@ class PricingCalculator
         foreach ($inputs['items'] as $item) {
             if ($item['handling']) {
                 foreach ($item['handling'] as $handling) {
-                    $packing[] = [
-                        'type' => $handling['type']
-                    ];
+                    if (array_key_exists('type', $item['handling'])) {
+                        $packing[] = [
+                            'type' => $handling['type']
+                        ];
+                    } else {
+                        $packing[] = [
+                            'type' => $handling
+                        ];
+                    }
                 }
             }
+
             $items[] = [
                 'weight' => $item['weight'],
                 'height' => $item['height'],

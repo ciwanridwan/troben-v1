@@ -61,6 +61,8 @@ class DetailResource extends JsonResource
                 'province' => $this->origin_regency ? $this->origin_regency->province->name : null,
                 'regency' => $this->origin_regency ? $this->origin_regency->name : null
             ],
+            'destination_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null, // sub_district_id
+            // before destination_address
             'destination_address' => [
                 'province' => $this->destination_regency ? $this->destination_regency->province->name : null,
                 'province_id' => $this->destination_regency ? $this->destination_regency->province->id : null,
@@ -75,26 +77,27 @@ class DetailResource extends JsonResource
                 $result = [
                     'name' => $q->name,
                     'desc' => $q->desc,
+                    'qty' => $q->qty,
                     'is_insured' => $q->is_insured,
                     'weight' => $q->weight,
                     'height' => $q->height,
                     'length' => $q->length,
                     'width' => $q->width,
-                    'insurance_price' => $q->price,
+                    'price' => $q->price,
                     'weight_borne_total' => $q->weight_borne_total,
-                    'handling' => $q->handling,
+                    'handling' => $q->handling ?? [],
                     'category_name' => $q->categories ? $q->categories->name : null
                 ];
                 return $result;
             }) : null,
-            'attachments' => $this->attachments ? $this->attachments->map(function ($q) {
+            'images' => $this->attachments ? $this->attachments->map(function ($q) {
                 $result = [
                     'id' => $q->id,
                     'uri' => $q->uri
                 ];
                 return $result;
             }) : null,
-            'prices' => $this->getPrices($this->resource),
+            'calculate_data' => $this->getPrices($this->resource),
             // 'package_child' => $packageChild ?? null,
         ];
 
@@ -126,9 +129,9 @@ class DetailResource extends JsonResource
         $handling = $this->prices()->where('type', PackagesPrice::TYPE_HANDLING)->sum('amount');
         $service = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where(function ($q) {
             $q->where('description', PackagesPrice::TYPE_SERVICE)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_EXPRESS)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_CUBIC)
-            ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_BIKE);
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_EXPRESS)
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_CUBIC)
+                ->orWhere('description', PackagesPrice::DESCRIPTION_TYPE_BIKE);
         })->first();
         $additional = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where('description', PackagesPrice::TYPE_ADDITIONAL)->first();
         $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
@@ -136,9 +139,9 @@ class DetailResource extends JsonResource
         $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0) + ($pickup ? $pickup->amount : 0);
 
         return [
-            'insurance' => (int) $insurance ?? 0,
-            'packing' => (int) $handling ?? 0,
-            'additional' => $additional ? $additional->amount : 0,
+            'insurance_price_total' => (int) $insurance ?? 0,
+            'handling' => (int) $handling ?? 0,
+            'additional_price' => $additional ? $additional->amount : 0,
             'service' => $service ? $service->amount : 0,
             'pickup' => $pickup ? $pickup->amount : 0,
             'total_amount' => $totalAmount
@@ -149,6 +152,18 @@ class DetailResource extends JsonResource
     {
         $childId = $this->multiDestination->pluck('child_id')->toArray();
         $packageChild = Package::query()->whereIn('id', $childId)->get()->map(function ($q) use ($manifest, $orderType) {
+
+            if (substr($q->sender_phone, 0, 3) === '+62') {
+                $senderPhone = str_replace('+62', '0', $q->sender_phone);
+            } else {
+                $senderPhone = $q->sender_phone;
+            }
+
+            if (substr($q->receiver_phone, 0, 3) === '+62') {
+                $receiverPhone = str_replace('+62', '0', $q->receiver_phone);
+            } else {
+                $receiverPhone = $q->receiver_phone;
+            }
             $data = [
                 'id' => $q->id,
                 'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -159,47 +174,54 @@ class DetailResource extends JsonResource
                 'sender_name' => $q->sender_name,
                 'sender_address' => $q->sender_address,
                 'sender_detail_address' => $q->sender_way_point,
-                'sender_phone' => $q->sender_phone,
+                'sender_phone' => $senderPhone,
                 'receiver_name' => $q->receiver_name,
                 'receiver_address' => $q->receiver_address,
                 'receiver_detail_address' => $q->receiver_way_point,
-                'receiver_phone' => $q->receiver_phone,
+                'receiver_phone' => $receiverPhone,
                 'tier_price' => $q->tier_price,
                 'estimation_notes' => $this->getNotes($q),
                 'origin_address' => [
                     'province' => $q->origin_regency ? $q->origin_regency->province->name : null,
                     'regency' => $q->origin_regency ? $q->origin_regency->name : null
                 ],
+                'destination_id' => $q->destination_sub_district ? $q->destination_sub_district->id : null, // sub_district_id
+                // before destination_address
                 'destination_address' => [
                     'province' => $q->destination_regency ? $q->destination_regency->province->name : null,
+                    'province_id' => $q->destination_regency ? $q->destination_regency->province->id : null,
                     'regency' => $q->destination_regency ? $q->destination_regency->name : null,
+                    'regency_id' => $q->destination_regency ? $q->destination_regency->id : null,
                     'district' => $q->destination_district ? $q->destination_district->name : null,
-                    'sub_district' => $q->destination_sub_district ? $q->destination_sub_district->name : null
+                    'district_id' => $q->destination_district ? $q->destination_district->id : null,
+                    'sub_district' => $q->destination_sub_district ? $q->destination_sub_district->name : null,
+                    'sub_district_id' => $q->destination_sub_district ? $q->destination_sub_district->id : null
                 ],
                 'items' => $q->items ? $q->items->map(function ($i) {
                     $result = [
                         'name' => $i->name,
                         'desc' => $i->desc,
+                        'qty' => $i->qty,
                         'is_insured' => $i->is_insured,
                         'weight' => $i->weight,
                         'height' => $i->height,
                         'length' => $i->length,
                         'width' => $i->width,
-                        'insurance_price' => $i->price,
+                        'price' => $i->price,
                         'weight_borne_total' => $i->weight_borne_total,
-                        'handling' => $i->handling,
+                        'handling' => $i->handling ?? [],
                         'category_name' => $i->categories ? $i->categories->name : null
                     ];
                     return $result;
                 }) : null,
-                'attachments' => $q->attachments ? $q->attachments->map(function ($a) {
+                'images' => $q->attachments ? $q->attachments->map(function ($a) {
                     $result = [
                         'id' => $a->id,
                         'uri' => $a->uri
                     ];
                     return $result;
                 }) : null,
-                'prices' => $this->getPrices($q)
+                'calculate_data' => $this->getPrices($q)
             ];
 
             return $data;
