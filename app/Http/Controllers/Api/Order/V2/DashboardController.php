@@ -90,18 +90,22 @@ class DashboardController extends Controller
     {
         $request->validated();
         $partnerCode = $request->user()->partners->first()->code;
+        $results = [];
 
-        $package = Package::byHashOrFail($request->package_parent_hash);
-        $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
+        foreach ($request->orders as $attributes) {
+            $package = Package::byHashOrFail($attributes['package_parent_hash']);
+            $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
+            $packageAttributes = array_diff_key($attributes, array_flip(['items', 'photos', 'package_parent_hash']));
+            $packageAttr = array_merge($packageExists, $packageAttributes);
 
-        $packageAttr = array_merge($packageExists, $request->except('items', 'photos', 'package_parent_hash'));
+            $job = new CreateNewPackageByCs($packageAttr, $attributes['items'], $partnerCode);
+            $this->dispatchNow($job);
 
-        $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
-        $this->dispatchNow($job);
+            $result = ['hash' => $job->package->hash, 'destination_id' => $job->package->destination_sub_district_id];
+            array_push($results, $result);
+        }
 
-        $result = ['hash' => $job->package->hash, 'destination_id' => $job->package->destination_sub_district_id];
-
-        return (new Response(Response::RC_CREATED, $result))->json();
+        return (new Response(Response::RC_CREATED, $results))->json();
     }
 
     /** Get List Driver */
