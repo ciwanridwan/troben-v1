@@ -164,10 +164,18 @@ class AssignableController extends Controller
         return $checkDestination;
     }
 
-    public function partnerWithOutRoute(): JsonResponse
+    public function partnerWithOutRoute(Request $request): JsonResponse
     {
-        $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL])->paginate(10);
+        $request->validate([
+            'code' => ['nullable', 'exists:partners,code']
+        ]);
 
-        return (new Response(Response::RC_SUCCESS, $partners))->json();
+        $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
+
+        if ($request->code) {
+            $partners->where('code', 'ilike', '%'.$request->code.'%');
+        }
+
+        return (new Response(Response::RC_SUCCESS, $partners->paginate(5)))->json();
     }
 }
