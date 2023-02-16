@@ -99,7 +99,7 @@ class DashboardController extends Controller
         $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
         $this->dispatchNow($job);
 
-        $result = ['hash' => $job->package->hash, 'destination_sub_district_id' => $job->package->destination_sub_district_id];
+        $result = ['hash' => $job->package->hash, 'destination_id' => $job->package->destination_sub_district_id];
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
