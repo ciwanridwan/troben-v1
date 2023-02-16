@@ -163,4 +163,11 @@ class AssignableController extends Controller
 
         return $checkDestination;
     }
+
+    public function partnerWithOutRoute(): JsonResponse
+    {
+        $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL])->paginate(10);
+
+        return (new Response(Response::RC_SUCCESS, $partners))->json();
+    }
 }
