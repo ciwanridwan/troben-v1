@@ -61,10 +61,10 @@ class RegistrationPayment
                 ->where('is_default', true);
             if ($addressList->count()) {
                 $address = $addressList->first();
-                $billingAddr = $address->address;
-                $billingCity = $address->regency->name;
-                $billingState = $address->district->name;
-                $billingPostCd = $address->sub_district->zip_code;
+                $billingAddr = $address->address ?? '';
+                $billingCity = $address->regency ? $address->regency->name : '';
+                $billingState = $address->district ? $address->district->name : '';
+                $billingPostCd = $address->sub_district ? $address->sub_district->zip_code : '';
             }
             if (! is_null($customer->email)) {
                 $billingEmail = $customer->email;
