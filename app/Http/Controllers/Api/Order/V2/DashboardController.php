@@ -25,6 +25,7 @@ use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\CreateNewPackageByCs;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Item\CreateNewItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
@@ -179,6 +180,16 @@ class DashboardController extends Controller
 
         $job = new UpdateExistingItemByCs($package, $items);
         $this->dispatchNow($job);
+
+        if ($request->add_items) {
+            $newItems = json_decode($request->get('new_items') ?? []);
+            foreach ($newItems as $key => $item) {
+                $newItems[$key] = (new Collection($item))->toArray();
+            }
+
+            $job = new CreateNewItemByCs($package, $newItems);
+            $this->dispatchNow($job);
+        }
 
         if ($request->photos) {
             $package->attachments()->detach();

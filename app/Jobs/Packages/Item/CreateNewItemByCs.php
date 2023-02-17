@@ -2,39 +2,36 @@
 
 namespace App\Jobs\Packages\Item;
 
+use App\Models\Packages\Item;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Casts\Package\Items\Handling;
-use App\Events\Packages\CustomerServices\PackageUpdatedByCs;
+use App\Events\Packages\PackageUpdated;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Collection;
 
-class UpdateExistingItemByCs
+class CreateNewItemByCs
 {
-    use Dispatchable;
-
     /**
      * @var \App\Models\Packages\Item
      */
-    public Collection $item;
-
-    public Package $package;
+    public Item $item;
 
     private array $attributes;
 
     /**
+     * @var \App\Models\Packages\Package
+     */
+    private Package $package;
+
+    /**
      * DeleteItemFromExistingPackage constructor.
      * @param \App\Models\Packages\Package $package
-     * @param \App\Models\Packages\Item $item
      * @param array $inputs
      * @throws \Throwable
      */
     public function __construct(Package $package, array $inputs)
     {
-        $this->package = $package;
-        $this->item = $this->package->items;
-
         $this->attributes = Validator::make($inputs, [
             '*.category_item_id' => ['numeric', 'exists:category_items,id'],
             '*.is_glassware' => ['boolean'],
@@ -50,17 +47,21 @@ class UpdateExistingItemByCs
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ])->validate();
+
+        $this->package = $package;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function handle()
     {
-        foreach ($this->attributes as $attr) {
-            $this->item->each(function ($q) use ($attr) {
-                $q->fill($attr);
-                $q->save();
-            });
-        }
+        /** @var Item $item */
+        foreach ($this->attributes as $attribute) {
+            $item = $this->package->items()->create($attribute);
+            $this->item = $item;
 
-        event(new PackageUpdatedByCs($this->package));
+            event(new PackageUpdated($this->item->package));
+        }
     }
 }

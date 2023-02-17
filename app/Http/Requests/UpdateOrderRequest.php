@@ -27,10 +27,8 @@ class UpdateOrderRequest extends FormRequest
     {
         return [
             // param needs
-            'order_type' => ['required', 'in:Single,Multi'],
-            'package_hash_child' => ['nullable', 'string'],
-            'add_item' => ['nullable', 'boolean'],
-            // packages
+            'add_items' => ['nullable', 'boolean'],
+            // receiver
             'receiver_name' => ['nullable', 'string'],
             'receiver_address' => ['nullable', 'string'],
             'receiver_phone' => ['nullable', 'string'],
