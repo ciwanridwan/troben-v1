@@ -177,7 +177,7 @@ class PricingCalculator
 
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
-        $totalWeightBorne = self::getTotalWeightBorne($inputs['items'], $serviceCode);
+        $totalWeightBorne = self::getTotalWeightBorne($inputs['items'] ?? [], $serviceCode);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
 
