@@ -39,22 +39,6 @@ class UpdateOrderRequest extends FormRequest
             'destination_district_id' => ['nullable', 'numeric', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
             'photos' => ['nullable', 'array'],
-
-            // items
-            // 'items' => ['nullable', 'array'],
-            // 'items.*.category_item_id' => ['exists:category_items,id'],
-            // 'items.*.is_glassware' => ['boolean'],
-            // 'items.*.qty' => ['numeric'],
-            // 'items.*.name' => ['string'],
-            // 'items.*.price' => ['required_if:is_insured,true', 'numeric'],
-            // 'items.*.desc' => ['string'],
-            // 'items.*.weight' => ['numeric'],
-            // 'items.*.height' => ['numeric'],
-            // 'items.*.length' => ['numeric'],
-            // 'items.*.width' => ['numeric'],
-            // 'items.*.is_insured' => ['boolean'],
-            // 'items.*.handling' => ['nullable', 'array'],
-            // 'items.*.handling.*' => ['string', Rule::in(Handling::getTypes())],
         ];
     }
 }
