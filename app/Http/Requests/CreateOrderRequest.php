@@ -49,9 +49,9 @@ class CreateOrderRequest extends FormRequest
             'orders.*.receiver_address' => ['required', 'string'],
             'orders.*.receiver_phone' => ['required', 'string'],
             'orders.*.receiver_way_point' => ['required', 'string'],
-            'orders.*.destination_regency_id' => ['required', 'string', 'exists:geo_regencies,id'],
-            'orders.*.destination_district_id' => ['required', 'string', 'exists:geo_districts,id'],
-            'orders.*.destination_sub_district_id' => ['required', 'string', 'exists:geo_sub_districts,id'],
+            'orders.*.destination_regency_id' => ['required', 'numeric', 'exists:geo_regencies,id'],
+            'orders.*.destination_district_id' => ['required', 'numeric', 'exists:geo_districts,id'],
+            'orders.*.destination_sub_district_id' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
             'orders.*.photos' => ['required', 'array'],
 
             // items

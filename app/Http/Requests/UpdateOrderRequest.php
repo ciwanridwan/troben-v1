@@ -35,9 +35,9 @@ class UpdateOrderRequest extends FormRequest
             'receiver_address' => ['nullable', 'string'],
             'receiver_phone' => ['nullable', 'string'],
             'receiver_way_point' => ['nullable', 'string'],
-            'destination_regency_id' => ['nullable', 'string', 'exists:geo_regencies,id'],
-            'destination_district_id' => ['nullable', 'string', 'exists:geo_districts,id'],
-            'destination_sub_district_id' => ['nullable', 'string', 'exists:geo_sub_districts,id'],
+            'destination_regency_id' => ['nullable', 'numeric', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['nullable', 'numeric', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
             'photos' => ['nullable', 'array'],
 
             // items

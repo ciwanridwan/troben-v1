@@ -258,6 +258,7 @@ class DashboardController extends Controller
             $childIds = [];
 
             $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
+            // dd($parentReceipt->deliveries);
             if (count($parentReceipt->multiDestination) !== 0) {
                 for ($i = 0; $i < count($childPackage); $i++) {
                     $childId = Package::hashToId($childPackage[$i]);
@@ -378,5 +379,13 @@ class DashboardController extends Controller
             'total_amount' => $totalAmount
         ];
         return (new Response(Response::RC_SUCCESS, $res))->json();
+    }
+
+    /**
+     * Insert package child to deliveries
+     */
+    public function insertToDeliveries()
+    {
+
     }
 }
