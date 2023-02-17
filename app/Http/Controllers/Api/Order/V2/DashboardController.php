@@ -172,7 +172,12 @@ class DashboardController extends Controller
         $job = new UpdateExistingPackageByCs($package, $request->all());
         $this->dispatchNow($job);
 
-        $job = new UpdateExistingItemByCs($package, $request->all());
+        $items = json_decode($request->get('items') ?? []);
+        foreach ($items as $key => $item) {
+            $items[$key] = (new Collection($item))->toArray();
+        }
+
+        $job = new UpdateExistingItemByCs($package, $items);
         $this->dispatchNow($job);
 
         if ($request->photos) {
@@ -386,6 +391,5 @@ class DashboardController extends Controller
      */
     public function insertToDeliveries()
     {
-
     }
 }
