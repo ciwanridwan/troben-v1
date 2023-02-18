@@ -88,7 +88,7 @@ class DashboardController extends Controller
 
     public function listCategories() :JsonResponse
     {
-        $list = CategoryItem::select('id', 'name')->get();
+        $list = CategoryItem::select('id', 'name', 'is_insured')->get();
         return $this->jsonSuccess(ListCategoryResource::make($list));
     }
 
