@@ -33,6 +33,11 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('listDrivers'),
         ]);
 
+        $this->router->get($this->prefix('list/category'), [
+            'as' => $this->name('list.category'),
+            'uses' => $this->uses('listCategories'),
+        ]);
+
         $this->router->patch($this->prefix('assign/{delivery_hash}/{userable_hash}/drivers'), [
             'as' => $this->name('assign.driver'),
             'uses' => $this->uses('orderAssignation'),

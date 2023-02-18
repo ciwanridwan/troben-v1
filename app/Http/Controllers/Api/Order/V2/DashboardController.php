@@ -11,6 +11,7 @@ use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\TotalEstimationRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
+use App\Http\Resources\Api\Order\Dashboard\ListCategoryResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
 use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
 use App\Models\Packages\Package;
@@ -29,6 +30,7 @@ use App\Jobs\Packages\Item\CreateNewItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\CategoryItem;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
 use App\Models\Partners\Pivot\UserablePivot;
@@ -82,6 +84,12 @@ class DashboardController extends Controller
     public function detail(Package $package): JsonResponse
     {
         return $this->jsonSuccess(DetailResource::make($package));
+    }
+
+    public function listCategories() :JsonResponse
+    {
+        $list = CategoryItem::select('id', 'name')->get();
+        return $this->jsonSuccess(ListCategoryResource::make($list));
     }
 
     /**
