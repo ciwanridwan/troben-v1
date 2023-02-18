@@ -6,6 +6,7 @@ use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
 use App\Casts\Package\Items\Handling;
 use App\Events\Packages\CustomerServices\PackageUpdatedByCs;
+use App\Models\Packages\CategoryItem;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Collection;
@@ -56,6 +57,13 @@ class UpdateExistingItemByCs
     {
         foreach ($this->attributes as $attr) {
             $this->item->each(function ($q) use ($attr) {
+                if (isset($attr['category_item_id'])) {
+                    $checkCategory = CategoryItem::where('id', $attr['category_item_id'])->first();
+                    if (is_null($checkCategory)) {
+                        unset($attr['category_item_id']);
+                    }
+                }
+
                 $q->fill($attr);
                 $q->save();
             });
