@@ -28,6 +28,7 @@ use App\Jobs\Packages\CreateNewPackageByCs;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Item\CreateNewItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
+use App\Jobs\Packages\Item\UpdateExistingOrCreateNewItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\CategoryItem;
@@ -186,18 +187,8 @@ class DashboardController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
-        $job = new UpdateExistingItemByCs($package, $items);
+        $job = new UpdateExistingOrCreateNewItemByCs($package, $items);
         $this->dispatchNow($job);
-
-        if ($request->add_items) {
-            $newItems = json_decode($request->get('new_items') ?? []);
-            foreach ($newItems as $key => $item) {
-                $newItems[$key] = (new Collection($item))->toArray();
-            }
-
-            $job = new CreateNewItemByCs($package, $newItems);
-            $this->dispatchNow($job);
-        }
 
         if ($request->photos) {
             $package->attachments()->detach();

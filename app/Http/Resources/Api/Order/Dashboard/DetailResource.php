@@ -75,6 +75,7 @@ class DetailResource extends JsonResource
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
                 $result = [
+                    'hash' => $q->hash,
                     'name' => $q->name ?? '',
                     'desc' => $q->desc ?? '',
                     'qty' => $q->qty,
@@ -200,6 +201,7 @@ class DetailResource extends JsonResource
                 ],
                 'items' => $q->items ? $q->items->map(function ($i) {
                     $result = [
+                        'hash' => $i->hash,
                         'name' => $i->name ?? '',
                         'desc' => $i->desc ?? '',
                         'qty' => $i->qty,
