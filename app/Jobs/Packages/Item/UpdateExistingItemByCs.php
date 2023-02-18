@@ -36,7 +36,7 @@ class UpdateExistingItemByCs
         $this->item = $this->package->items;
 
         $this->attributes = Validator::make($inputs, [
-            '*.category_item_id' => ['numeric', 'exists:category_items,id'],
+            '*.category_item_id' => ['numeric'], //disable validation for compability old package
             '*.is_glassware' => ['boolean'],
             '*.qty' => ['numeric'],
             '*.name' => ['string'],
