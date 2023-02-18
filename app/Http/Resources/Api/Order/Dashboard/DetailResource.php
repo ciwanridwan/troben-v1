@@ -211,8 +211,8 @@ class DetailResource extends JsonResource
                         'price' => $i->price,
                         'weight_borne_total' => $i->weight_borne_total,
                         'handling' => $i->handling ?? [],
-                        'category_name' => $i->categories ? $i->categories->name : null,
-                        'category_item_id' => $i->categories ? $i->categories->id : null
+                        'category_name' => $i->categories ? $i->categories->name : '',
+                        'category_item_id' => $i->categories ? $i->categories->id : 0
                     ];
                     return $result;
                 }) : null,
