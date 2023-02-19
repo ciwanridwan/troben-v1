@@ -51,7 +51,7 @@ class CreateOrderRequest extends FormRequest
             'destination_regency_id' => ['required', 'numeric', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'numeric', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
-            'photos' => ['required', 'array'],
+            'photos' => ['nullable', 'array'],
 
             // items
             // 'items' => ['nullable', 'array'],
