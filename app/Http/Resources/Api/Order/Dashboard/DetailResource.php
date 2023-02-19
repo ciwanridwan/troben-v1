@@ -89,6 +89,7 @@ class DetailResource extends JsonResource
                     'handling' => $q->handling ?? [],
                     'category_name' => $q->categories ? $q->categories->name : '',
                     'category_item_id' => $q->categories ? $q->categories->id : 0,
+                    'is_glassware' => $q->is_glassware
                 ];
                 return $result;
             }) : null,
@@ -214,7 +215,8 @@ class DetailResource extends JsonResource
                         'weight_borne_total' => $i->weight_borne_total,
                         'handling' => $i->handling ?? [],
                         'category_name' => $i->categories ? $i->categories->name : '',
-                        'category_item_id' => $i->categories ? $i->categories->id : 0
+                        'category_item_id' => $i->categories ? $i->categories->id : 0,
+                        'is_glassware' => $i->is_glassware
                     ];
                     return $result;
                 }) : null,
