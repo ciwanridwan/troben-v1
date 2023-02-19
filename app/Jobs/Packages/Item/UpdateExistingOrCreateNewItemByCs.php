@@ -19,6 +19,8 @@ class UpdateExistingOrCreateNewItemByCs
 
     public Package $package;
 
+    public Collection $items;
+
     private array $attributes;
 
     /**
@@ -30,6 +32,7 @@ class UpdateExistingOrCreateNewItemByCs
     public function __construct(Package $package, array $inputs)
     {
         $this->package = $package;
+        $this->items = $this->package->items;
 
         $this->attributes = Validator::make($inputs, [
             '*.hash' => ['nullable'],
@@ -51,18 +54,12 @@ class UpdateExistingOrCreateNewItemByCs
 
     public function handle()
     {
+        $this->items->forEach(function($r) {
+            $r->delete();
+        });
+
         foreach ($this->attributes as $attr) {
-            // case update existing item
-            if (isset($attr['hash']) && $attr['hash']) {
-                $checkItem = Item::byHash($attr['hash']);
-                if ($checkItem) { //item is existed
-                    $this->caseUpdateItem($checkItem, $attr);
-                } else { //item not found, as new item
-                    $this->caseInsertItem($this->package, $attr);
-                }
-            } else { // case create new item
-                $this->caseInsertItem($this->package, $attr);
-            }
+            $this->caseInsertItem($this->package, $attr);
         }
 
         event(new PackageUpdatedByCs($this->package));
