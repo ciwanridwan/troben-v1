@@ -107,7 +107,12 @@ class DashboardController extends Controller
         $packageAttributes = $request->except('items', 'photos', 'package_parent_hash');
         $packageAttr = array_merge($packageExists, $packageAttributes);
 
-        $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
+        $items = json_decode($request->get('items') ?? []);
+        foreach ($items as $key => $item) {
+            $items[$key] = (new Collection($item))->toArray();
+        }
+
+        $job = new CreateNewPackageByCs($packageAttr, $items, $partnerCode);
         $this->dispatchNow($job);
 
         $result = ['hash' => $job->package->hash, 'destination_id' => $job->package->destination_sub_district_id];
@@ -270,7 +275,6 @@ class DashboardController extends Controller
             $childIds = [];
 
             $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
-            // dd($parentReceipt->deliveries);
             if (count($parentReceipt->multiDestination) !== 0) {
                 for ($i = 0; $i < count($childPackage); $i++) {
                     $childId = Package::hashToId($childPackage[$i]);
