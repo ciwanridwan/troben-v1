@@ -26,8 +26,6 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            // param needs
-            'add_items' => ['nullable', 'boolean'],
             // receiver
             'receiver_name' => ['nullable', 'string'],
             'receiver_address' => ['nullable', 'string'],

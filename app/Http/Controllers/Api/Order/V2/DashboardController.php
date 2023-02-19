@@ -179,7 +179,6 @@ class DashboardController extends Controller
 
         $job = new UpdateExistingPackageByCs($package, $request->all());
         $this->dispatchNow($job);
-
         $items = json_decode($request->get('items') ?? []);
         foreach ($items as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();

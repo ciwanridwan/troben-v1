@@ -24,7 +24,7 @@ class DetailResource extends JsonResource
             $packageChild = $this->getMultiChildPackages($manifest, $orderType);
         } else {
             $orderType = 'Single';
-            $manifest = null;
+            $packageChild = [];
         }
 
         if (substr($this->sender_phone, 0, 3) === '+62') {
@@ -38,7 +38,6 @@ class DetailResource extends JsonResource
         } else {
             $receiverPhone = $this->receiver_phone;
         }
-
 
         $data = [
             'id' => $this->id,
@@ -74,6 +73,12 @@ class DetailResource extends JsonResource
                 'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
+
+                $packings = [];
+                foreach ($q->handling as $handling) {
+                    $packing = $handling['type'];
+                    array_push($packings, $packing);
+                }
                 $result = [
                     'hash' => $q->hash,
                     'name' => $q->name ?? '',
@@ -86,7 +91,7 @@ class DetailResource extends JsonResource
                     'width' => $q->width,
                     'price' => $q->price,
                     'weight_borne_total' => $q->weight_borne_total,
-                    'handling' => $q->handling ?? [],
+                    'handling' => $packings,
                     'category_name' => $q->categories ? $q->categories->name : '',
                     'category_item_id' => $q->categories ? $q->categories->id : 0,
                     'is_glassware' => $q->is_glassware
@@ -201,6 +206,11 @@ class DetailResource extends JsonResource
                     'sub_district_id' => $q->destination_sub_district ? $q->destination_sub_district->id : null
                 ],
                 'items' => $q->items ? $q->items->map(function ($i) {
+                    $packings = [];
+                    foreach ($i->handling as $handling) {
+                        $packing = $handling['type'];
+                        array_push($packings, $packing);
+                    }
                     $result = [
                         'hash' => $i->hash,
                         'name' => $i->name ?? '',
@@ -213,7 +223,7 @@ class DetailResource extends JsonResource
                         'width' => $i->width,
                         'price' => $i->price,
                         'weight_borne_total' => $i->weight_borne_total,
-                        'handling' => $i->handling ?? [],
+                        'handling' => $packings,
                         'category_name' => $i->categories ? $i->categories->name : '',
                         'category_item_id' => $i->categories ? $i->categories->id : 0,
                         'is_glassware' => $i->is_glassware
