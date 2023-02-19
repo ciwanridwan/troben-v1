@@ -36,6 +36,7 @@ use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -194,11 +195,12 @@ class DashboardController extends Controller
 
         if ($request->delete_photos) {
             $imageId = $request->delete_photos;
-            $package->attachments()->wherePivotIn('attachment_id', $imageId)->detach();
+            // delete
+            DB::table('attachment')->whereIn('id', $imageId)->delete();
         }
 
         if ($request->photos) {
-            $package->attachments()->detach();
+            // $package->attachments()->detach();
             $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
             $this->dispatchNow($uploadJob);
         }
