@@ -192,6 +192,11 @@ class DashboardController extends Controller
         $job = new UpdateExistingOrCreateNewItemByCs($package, $items);
         $this->dispatchNow($job);
 
+        if ($request->delete_photos) {
+            $imageId = $request->delete_photos;
+            $package->attachments()->wherePivotIn('attachment_id', $imageId)->detach();
+        }
+
         if ($request->photos) {
             $package->attachments()->detach();
             $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
