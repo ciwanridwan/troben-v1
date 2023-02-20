@@ -12,6 +12,9 @@ class CategoryItem extends Model
     protected $table = 'category_items';
 
     protected $fillable = [
-        'name'
+        'name',
+        'is_insured',
+        'desc',
+        'label',
     ];
 }

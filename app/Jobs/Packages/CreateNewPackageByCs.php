@@ -67,8 +67,23 @@ class CreateNewPackageByCs
     public function __construct(array $packageAttr, array $itemsAttr, string $partnerCode)
     {
         $this->packageAttributes = $packageAttr;
-        $this->itemsAttributes = $itemsAttr;
         $this->code = $partnerCode;
+        $this->itemsAttributes = Validator::make($itemsAttr, [
+            '*.hash' => ['nullable'],
+            '*.category_item_id' => ['numeric'], //disable validation for compability old package
+            '*.is_glassware' => ['boolean'],
+            '*.qty' => ['numeric'],
+            '*.name' => ['string'],
+            '*.price' => ['required_if:is_insured,true', 'numeric'],
+            '*.desc' => ['string'],
+            '*.weight' => ['numeric'],
+            '*.height' => ['numeric'],
+            '*.length' => ['numeric'],
+            '*.width' => ['numeric'],
+            '*.is_insured' => ['boolean'],
+            '*.handling' => ['nullable', 'array'],
+            '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+        ])->validate();
 
         $items = [];
         foreach ($this->itemsAttributes as $item) {

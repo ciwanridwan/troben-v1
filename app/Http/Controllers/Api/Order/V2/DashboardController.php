@@ -11,6 +11,7 @@ use App\Http\Requests\EstimationPricesRequest;
 use App\Http\Requests\TotalEstimationRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\Api\Order\Dashboard\DetailResource;
+use App\Http\Resources\Api\Order\Dashboard\ListCategoryResource;
 use App\Http\Resources\Api\Order\Dashboard\ListDriverResource;
 use App\Http\Resources\Api\Order\Dashboard\ListOrderResource;
 use App\Models\Packages\Package;
@@ -25,13 +26,17 @@ use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\CreateNewPackageByCs;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Item\CreateNewItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
+use App\Jobs\Packages\Item\UpdateExistingOrCreateNewItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Delivery;
+use App\Models\Packages\CategoryItem;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Services\Chatbox\Chatbox;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -83,6 +88,12 @@ class DashboardController extends Controller
         return $this->jsonSuccess(DetailResource::make($package));
     }
 
+    public function listCategories(): JsonResponse
+    {
+        $list = CategoryItem::select('id', 'name', 'is_insured')->get();
+        return $this->jsonSuccess(ListCategoryResource::make($list));
+    }
+
     /**
      * create order
      */
@@ -93,13 +104,20 @@ class DashboardController extends Controller
 
         $package = Package::byHashOrFail($request->package_parent_hash);
         $packageExists = $package->only('customer_id', 'transporter_type', 'service_code', 'sender_address', 'sender_phone', 'sender_name', 'sender_way_point', 'origin_regency_id', 'sender_latitude', 'sender_longitude');
+        // $packageAttributes = array_diff_key($attributes, array_flip(['items', 'photos', 'package_parent_hash']));
+        $packageAttributes = $request->except('items', 'photos', 'package_parent_hash');
+        $packageAttr = array_merge($packageExists, $packageAttributes);
 
-        $packageAttr = array_merge($packageExists, $request->except('items', 'photos', 'package_parent_hash'));
+        $items = json_decode($request->get('items') ?? []);
+        foreach ($items as $key => $item) {
+            $items[$key] = (new Collection($item))->toArray();
+        }
 
-        $job = new CreateNewPackageByCs($packageAttr, $request->items, $partnerCode);
+        $job = new CreateNewPackageByCs($packageAttr, $items, $partnerCode);
         $this->dispatchNow($job);
 
-        $result = ['hash' => $job->package->hash, 'destination_sub_district_id' => $job->package->destination_sub_district_id];
+        $result = ['hash' => $job->package->hash, 'destination_id' => $job->package->destination_sub_district_id];
+
 
         return (new Response(Response::RC_CREATED, $result))->json();
     }
@@ -167,12 +185,22 @@ class DashboardController extends Controller
 
         $job = new UpdateExistingPackageByCs($package, $request->all());
         $this->dispatchNow($job);
+        $items = json_decode($request->get('items') ?? []);
+        foreach ($items as $key => $item) {
+            $items[$key] = (new Collection($item))->toArray();
+        }
 
-        $job = new UpdateExistingItemByCs($package, $request->all());
+        $job = new UpdateExistingOrCreateNewItemByCs($package, $items);
         $this->dispatchNow($job);
 
+        if ($request->delete_photos) {
+            $imageId = $request->delete_photos;
+            // delete
+            DB::table('attachment')->whereIn('id', $imageId)->delete();
+        }
+
         if ($request->photos) {
-            $package->attachments()->detach();
+            // $package->attachments()->detach();
             $uploadJob = new CustomerUploadPackagePhotos($package, $request->file('photos') ?? []);
             $this->dispatchNow($uploadJob);
         }
@@ -374,5 +402,12 @@ class DashboardController extends Controller
             'total_amount' => $totalAmount
         ];
         return (new Response(Response::RC_SUCCESS, $res))->json();
+    }
+
+    /**
+     * Insert package child to deliveries
+     */
+    public function insertToDeliveries()
+    {
     }
 }
