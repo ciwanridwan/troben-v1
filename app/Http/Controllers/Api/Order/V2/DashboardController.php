@@ -30,6 +30,7 @@ use App\Jobs\Packages\Item\CreateNewItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingOrCreateNewItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
+use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\CategoryItem;
 use App\Models\Packages\MultiDestination;
@@ -282,20 +283,15 @@ class DashboardController extends Controller
             $childIds = [];
 
             $parentReceipt = Package::byHashOrFail($request->package_parent_hash);
-            if (count($parentReceipt->multiDestination) !== 0) {
-                for ($i = 0; $i < count($childPackage); $i++) {
-                    $childId = Package::hashToId($childPackage[$i]);
-                    array_push($childIds, $childId);
+            for ($i = 0; $i < count($childPackage); $i++) {
+                $childId = Package::hashToId($childPackage[$i]);
+                array_push($childIds, $childId);
 
+                if (count($parentReceipt->multiDestination) !== 0) {
                     $parentReceipt->multiDestination()->create([
                         'child_id' => $childId
                     ]);
-                }
-            } else {
-                for ($i = 0; $i < count($childPackage); $i++) {
-                    $childId = Package::hashToId($childPackage[$i]);
-                    array_push($childIds, $childId);
-
+                } else {
                     MultiDestination::create([
                         'parent_id' => $parentPackage,
                         'child_id' => $childId
@@ -304,16 +300,22 @@ class DashboardController extends Controller
             }
 
             $packageChild = Package::whereIn('id', $childIds)->get();
-            $packageChild->each(function ($q) {
+            $packageChild->each(function ($q) use ($parentReceipt, $request) {
+                Deliverable::create([
+                    'delivery_id' => $parentReceipt->deliveries->first()->id,
+                    'deliverable_type' => Package::class,
+                    'deliverable_id' => $q->id,
+                    'created_by' => $request->user()->id
+                ]);
                 $pickupFee = $q->prices->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first();
 
+                $q->status = Package::STATUS_WAITING_FOR_PICKUP;
                 $q->total_amount -= $pickupFee->amount;
                 $q->save();
 
                 $pickupFee->amount = 0;
                 $pickupFee->save();
             });
-
             return (new Response(Response::RC_SUCCESS, ['Message' => 'Create Multi Destination Order Has Successfully']))->json();
         }
     }
@@ -402,12 +404,5 @@ class DashboardController extends Controller
             'total_amount' => $totalAmount
         ];
         return (new Response(Response::RC_SUCCESS, $res))->json();
-    }
-
-    /**
-     * Insert package child to deliveries
-     */
-    public function insertToDeliveries()
-    {
     }
 }

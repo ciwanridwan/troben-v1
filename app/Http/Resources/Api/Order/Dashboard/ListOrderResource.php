@@ -43,7 +43,7 @@ class ListOrderResource extends JsonResource
             })->values()->toArray();
         }
 
-        $package =  $this->resource->packages->last()->toArray();
+        $package =  $this->resource->packages->first()->toArray();
         $this->resource->unsetRelations('packages');
 
         $data = parent::toArray($request);
