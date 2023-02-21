@@ -93,7 +93,8 @@ class DeadlineCreatedByEvent
 
                 $now = Carbon::now();
                 $endTime = Carbon::today()->addHours(18);
-                // temporary hold firstime
+
+                // real first time
                 $firstTime = Carbon::today()->addHours(12);
 
                 // for test
