@@ -276,7 +276,7 @@ class Route
      */
     public static function setPartners($deliveryRoutes)
     {
-        $provinceId = $deliveryRoutes->packages->destination_regency->province_id;
+        $provinceId = $deliveryRoutes->packages ? $deliveryRoutes->packages->destination_regency->province_id : 0;
         $regencyId = $deliveryRoutes->regency_destination_1;
         $partner = null;
 
