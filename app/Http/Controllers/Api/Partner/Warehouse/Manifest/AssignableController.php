@@ -29,7 +29,7 @@ class AssignableController extends Controller
                 $packages = Route::getPackages($request->all());
                 $partnerByRoutes = [];
                 foreach ($packages as $package) {
-                    if (!is_null($package->deliveryRoutes)) {
+                    if (! is_null($package->deliveryRoutes)) {
                         $partnerByRoute = Route::setPartners($package->deliveryRoutes);
                         array_push($partnerByRoutes, $partnerByRoute);
                     } else {
@@ -62,7 +62,7 @@ class AssignableController extends Controller
 
         $query->when(
             $request->input('code'),
-            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
+            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
         );
 
         return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
@@ -90,7 +90,7 @@ class AssignableController extends Controller
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
-                ->where('content', 'like', '%' . $request->q . '%')
+                ->where('content', 'like', '%'.$request->q.'%')
                 ->pluck('codeable_id');
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -115,7 +115,7 @@ class AssignableController extends Controller
         $result = $query->paginate($request->input('per_page'));
 
         $itemCollection = $result->getCollection()->map(function ($q) use ($repository) {
-        });;
+        });
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
@@ -138,7 +138,7 @@ class AssignableController extends Controller
         $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
-            if (!is_null($package->deliveryRoutes)) {
+            if (! is_null($package->deliveryRoutes)) {
                 $variant = 1; // to set this variant is any routes
             } else {
                 $variant = 2; // to set this variant cant have routes
@@ -150,7 +150,7 @@ class AssignableController extends Controller
         if ($check) {
             return (new Response(Response::RC_SUCCESS))->json();
         } else {
-            if (!in_array(1, $allVariant)) {
+            if (! in_array(1, $allVariant)) {
                 return (new Response(Response::RC_SUCCESS))->json();
             } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
                 return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
@@ -177,7 +177,7 @@ class AssignableController extends Controller
         $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
 
         if ($request->code) {
-            $partners->where('code', 'ilike', '%' . $request->code . '%');
+            $partners->where('code', 'ilike', '%'.$request->code.'%');
         }
 
         return (new Response(Response::RC_SUCCESS, $partners->paginate(5)))->json();
