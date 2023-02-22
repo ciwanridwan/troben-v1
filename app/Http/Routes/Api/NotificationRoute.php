@@ -28,7 +28,7 @@ class NotificationRoute extends BaseRoute
             'uses' => $this->uses('read'),
         ]);
 
-        $this->router->get($this->prefix('counter'),[
+        $this->router->get($this->prefix('counter'), [
             'as' => $this->name('counter'),
             'uses' => $this->uses('counter')
         ]);

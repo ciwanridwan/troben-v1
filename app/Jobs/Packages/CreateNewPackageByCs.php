@@ -3,12 +3,10 @@
 namespace App\Jobs\Packages;
 
 use App\Actions\Pricing\PricingCalculator;
-use App\Models\Geo\Regency;
 use App\Models\Packages\Item;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Models\Packages\Package;
-use App\Models\Partners\Transporter;
 use App\Casts\Package\Items\Handling;
 use App\Events\Packages\PackageCreated;
 use Illuminate\Support\Facades\Validator;

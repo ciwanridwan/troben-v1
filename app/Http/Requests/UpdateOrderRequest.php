@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Casts\Package\Items\Handling;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
 {
