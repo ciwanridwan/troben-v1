@@ -2,7 +2,7 @@
 
 namespace App\Http\Routes\Admin\Home;
 
-use App\Http\Controllers\Api\Internal\ManifestController;
+use App\Http\Controllers\Admin\Home\ManifestController;
 use Jalameta\Router\BaseRoute;
 
 class ManifestRoute extends BaseRoute
