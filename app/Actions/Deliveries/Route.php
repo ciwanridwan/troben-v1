@@ -52,13 +52,18 @@ class Route
             $packages = self::getPackages($packageHash);
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
-                if (! is_null($warehouse)) {
+                if (!is_null($warehouse)) {
                     $checkRegency = self::checkRegency($warehouse);
                     if ($checkRegency) {
                         $regencyId = self::getFirstPartnerRegency($warehouse);
                     } else {
                         $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
                     }
+
+                    if ($regencyId !== $q->destination_regency_id) {
+                        $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;;
+                    }
+
                     switch (true) {
                         case $warehouse instanceof SupportCollection:
                             $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
@@ -69,6 +74,7 @@ class Route
                             $nextDestination = self::getNextDestination($warehouse);
                             break;
                     }
+
                     $checkPackages = DeliveryRoute::query()->where('package_id', $q->id)->first();
                     if (is_null($checkPackages)) {
                         DeliveryRoute::create([
@@ -87,13 +93,12 @@ class Route
 
             $partnerByRoutes = [];
             foreach ($packages as $package) {
-                if (! is_null($package->deliveryRoutes)) {
+                if (!is_null($package->deliveryRoutes)) {
                     $partnerByRoute = self::setPartners($package->deliveryRoutes);
                     array_push($partnerByRoutes, $partnerByRoute);
                 }
             }
-
-            if (! empty($partnerByRoutes)) {
+            if (!empty($partnerByRoutes)) {
                 $partnerCode = $partnerByRoutes;
             } else {
                 $partnerCode = null;
@@ -136,7 +141,7 @@ class Route
         $packages = Package::query()->whereIn('id', $packagesId)->get();
         foreach ($packages as $key => $value) {
             $route = $value->deliveryRoutes;
-            if (! is_null($route)) { // new receipt with existing routes
+            if (!is_null($route)) { // new receipt with existing routes
                 $setPartner = 1;
             }
 
@@ -174,6 +179,7 @@ class Route
      */
     public static function getWarehousePartner($partnerCode, $package)
     {
+        $districtId = $package->destination_district_id;
         $regencyId = $package->destination_regency_id;
         $provinceId = $package->destination_regency->province_id;
 
@@ -223,12 +229,19 @@ class Route
             $q->where('province_id', $provinceId);
         })->first();
 
-        if (! is_null($partner) && $partner->note) {
+        if (!is_null($partner) && $partner->note !== '') {
             $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
                 $q->where('warehouse', $warehouse);
                 $q->where('regency_id', 0);
                 $q->where('province_id', $provinceId);
             })->get();
+        }
+
+        if (!is_null($partner) && $partner->district_id !== 0) {
+            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
+            if (is_null($partner)) {
+                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+            }
         }
 
         if ($partner instanceof SupportCollection) {
@@ -286,10 +299,10 @@ class Route
 
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
-        $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
-
-        if (is_null($partner)) {
+        if ($deliveryRoutes->regency_id === 0) {
             $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+        } else {
+            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
         }
 
         switch (true) {
@@ -327,7 +340,7 @@ class Route
             } else {
                 $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
 
-                if (! is_null($partner) && $partner->note) {
+                if (!is_null($partner) && $partner->note) {
                     $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->get();
                 }
 
@@ -346,6 +359,9 @@ class Route
         return $transporter;
     }
 
+    /**
+     * Select one partner base by each condition
+     */
     public static function getSelectedTransporter($deliveryRoutes, $partner)
     {
         switch (true) {
@@ -408,7 +424,7 @@ class Route
         return $warehouseOrigin ? $warehouseOrigin : null;
     }
 
-    public static function checkWarehouse($deliveryRoutes)
+    public static function checkWarehouse($deliveryRoutes): string|null
     {
         switch (true) {
             case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
@@ -534,7 +550,7 @@ class Route
             return false;
         }
 
-        if (! in_array(0, $transits)) {
+        if (!in_array(0, $transits)) {
             return true;
         } else {
             return false;
@@ -565,7 +581,10 @@ class Route
         return $regencyId;
     }
 
-    public static function checkRegency($warehouse)
+    /**
+     * Check regency id from partner and transport route
+     */
+    public static function checkRegency($warehouse): bool
     {
         $fromPartner = true;
         switch ($warehouse) {
@@ -581,7 +600,7 @@ class Route
                     $fromPartner = false;
                 }
                 break;
-                return $fromPartner;
         }
+        return $fromPartner;
     }
 }

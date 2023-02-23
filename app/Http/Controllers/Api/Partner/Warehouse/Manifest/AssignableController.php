@@ -49,9 +49,6 @@ class AssignableController extends Controller
                 break;
         }
 
-        //if (is_null($partnerCode)) {
-        //    return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
-        //}
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
 
         if ($partnerCode === 'all' || is_null($partnerCode)) {
