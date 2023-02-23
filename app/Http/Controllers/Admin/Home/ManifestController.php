@@ -129,10 +129,10 @@ class ManifestController extends Controller
                 $query->where('code', 'MTM-CGK-00');
             } else {
                 foreach ($packages as $package) {
-                    if (!is_null($package->deliveryRoutes)) {
+                    if (! is_null($package->deliveryRoutes)) {
                         $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
-                        if (!is_null($partnerCode)) {
-                            if (!is_array($partnerCode)) {
+                        if (! is_null($partnerCode)) {
+                            if (! is_array($partnerCode)) {
                                 $partnerCode = [$partnerCode];
                             }
                             $query->whereIn('code', $partnerCode);
