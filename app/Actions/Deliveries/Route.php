@@ -238,7 +238,7 @@ class Route
         }
 
         if ($partner instanceof Partner) {
-            if (!is_null($partner) && $partner->district_id !== 0) {
+            if (! is_null($partner) && $partner->district_id !== 0) {
                 $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
                 if (is_null($partner)) {
                     $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
