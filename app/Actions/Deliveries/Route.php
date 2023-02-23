@@ -299,7 +299,7 @@ class Route
 
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
-        if ($deliveryRoutes->regency_id === 0) {
+        if ($deliveryRoutes->regency_destination_1 === 0) {
             $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
         } else {
             $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
