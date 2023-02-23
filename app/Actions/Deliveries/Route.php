@@ -237,10 +237,12 @@ class Route
             })->get();
         }
 
-        if (!is_null($partner) && $partner->district_id !== 0 || !empty($partner) && $partner[0]->district_id !== 0) {
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
-            if (is_null($partner)) {
-                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+        if ($partner instanceof Partner) {
+            if (!is_null($partner) && $partner->district_id !== 0) {
+                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
+                if (is_null($partner)) {
+                    $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+                }
             }
         }
 
