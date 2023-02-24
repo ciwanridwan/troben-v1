@@ -174,7 +174,6 @@ class PartnerPerformanceEvaluatedByEvent
             case $event instanceof TransitPackageLoadedByDriver:
                 $this->delivery = $event->delivery;
                 $this->reach_at = Carbon::now();
-
                 if (!is_null($this->delivery->partner_performance)) {
                     $deadline = $this->delivery->partner_performance->deadline;
                     $level = $this->delivery->partner_performance->level;
