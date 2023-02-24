@@ -162,6 +162,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryTransit\DriverArrivedAtDestinationWarehouse::class => [
@@ -263,6 +264,7 @@ class EventServiceProvider extends ServiceProvider
             UpdateDeliveryStatusByEvent::class,
             UpdatePackageStatusByEvent::class,
             GenerateBalanceHistory::class,
+            PartnerPerformanceEvaluatedByEvent::class,
             WriteCodeLog::class
         ],
         DeliveryDooring\DriverUnloadedPackageInDooringPoint::class => [
