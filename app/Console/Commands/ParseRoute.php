@@ -53,20 +53,22 @@ class ParseRoute extends Command
 
         $file_name = 'mt_template_2.csv';
 
-        $file_path = database_path('csv/' . $file_name);
+        $file_path = database_path('csv/'.$file_name);
 
         $f = \Illuminate\Support\Facades\File::exists($file_path);
-        if (!$f) {
-            $this->info('file not found: ' . $file_path);
+        if (! $f) {
+            $this->info('file not found: '.$file_path);
             return;
         }
 
-        $this->info('start file: ' . $file_name);
+        $this->info('start file: '.$file_name);
 
         $rows = [];
         $data = $this->csv_to_array($file_path, $header);
         foreach ($data as $k => $d) {
-            if ($k == 0) continue;
+            if ($k == 0) {
+                continue;
+            }
 
             // // todo
             // if ($k >= 1100) break;
@@ -94,7 +96,7 @@ class ParseRoute extends Command
                     $q = sprintf($q, $d['prv_dest']);
                     $prov = DB::select($q);
                     if (count($prov) == 0) {
-                        $this->error('prov not found: [' . $k . ']' . $d['prv_dest']);
+                        $this->error('prov not found: ['.$k.']'.$d['prv_dest']);
                         continue;
                     }
                     $prov = $prov[0];
@@ -115,7 +117,7 @@ class ParseRoute extends Command
                         if (is_null($regnc)) {
                             $regnc = $this->getregcode('Kabupaten '.$d['reg_dest'], $idProv);
                             if (is_null($regnc)) {
-                                $this->error('reg not found: ['.$k.']' . $idProv. ' - "'. $d['reg_dest'] . '"');
+                                $this->error('reg not found: ['.$k.']'.$idProv.' - "'.$d['reg_dest'].'"');
                                 continue;
                             }
                         }
@@ -135,7 +137,7 @@ class ParseRoute extends Command
                     $q = sprintf($q, $d['dis_dest'], $idRegency, $idProv);
                     $distr = DB::select($q);
                     if (count($distr) == 0) {
-                        $this->error('dis not found: ['.$k.']' . $idProv. '-' . $idRegency. ' - "'. $d['dis_dest'] . '"');
+                        $this->error('dis not found: ['.$k.']'.$idProv.'-'.$idRegency.' - "'.$d['dis_dest'].'"');
                         continue;
                     }
                     $distr = $distr[0];
@@ -200,7 +202,6 @@ class ParseRoute extends Command
     private function batchInsert($rows)
     {
         try {
-
             DB::table('transport_routes')->insert($rows);
         } catch (\Exception $e) {
             dd($e);
@@ -210,10 +211,11 @@ class ParseRoute extends Command
     private function csv_to_array($filename = '', $header)
     {
         $delimiter = ';';
-        if (!file_exists($filename) || !is_readable($filename))
+        if (! file_exists($filename) || ! is_readable($filename)) {
             return FALSE;
+        }
 
-        $data = array();
+        $data = [];
         if (($handle = fopen($filename, 'r')) !== FALSE) {
             while (($row = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
                 if (count($header) != count($row)) {

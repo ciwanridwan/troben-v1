@@ -73,7 +73,6 @@ class DetailResource extends JsonResource
                 'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
-
                 $packings = [];
                 foreach ($q->handling as $handling) {
                     $packing = $handling['type'];
@@ -110,9 +109,9 @@ class DetailResource extends JsonResource
         ];
 
         if (isset($packageChild)) {
-            $data['package_child'] = array_merge(array($data), $packageChild);
+            $data['package_child'] = array_merge([$data], $packageChild);
         } else {
-            $data['package_child'] = array($data);
+            $data['package_child'] = [$data];
         }
         return $data;
     }
@@ -160,7 +159,6 @@ class DetailResource extends JsonResource
     {
         $childId = $this->multiDestination->pluck('child_id')->toArray();
         $packageChild = Package::query()->whereIn('id', $childId)->get()->map(function ($q) use ($manifest, $orderType) {
-
             if (substr($q->sender_phone, 0, 3) === '+62') {
                 $senderPhone = str_replace('+62', '0', $q->sender_phone);
             } else {

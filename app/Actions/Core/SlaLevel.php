@@ -258,8 +258,8 @@ class SlaLevel
                     and status = 1
                     and broadcast = 0';
 
-         $q = sprintf($q, $table, $level);
-         // Log::info('this query update broadcast', [$q]);
-         return $q;
+        $q = sprintf($q, $table, $level);
+        // Log::info('this query update broadcast', [$q]);
+        return $q;
     }
 }

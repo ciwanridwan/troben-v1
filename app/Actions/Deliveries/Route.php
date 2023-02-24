@@ -53,7 +53,12 @@ class Route
             $packages->each(function ($q) use ($partner) {
                 $warehouse = self::getWarehousePartner($partner->code, $q);
                 if (! is_null($warehouse)) {
-                    $regencyId = self::getFirstPartnerRegency($warehouse);
+                    $checkRegency = self::checkRegency($warehouse);
+                    if ($checkRegency) {
+                        $regencyId = self::getFirstPartnerRegency($warehouse);
+                    } else {
+                        $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
+                    }
                     switch (true) {
                         case $warehouse instanceof SupportCollection:
                             $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
@@ -64,7 +69,6 @@ class Route
                             $nextDestination = self::getNextDestination($warehouse);
                             break;
                     }
-
                     $checkPackages = DeliveryRoute::query()->where('package_id', $q->id)->first();
                     if (is_null($checkPackages)) {
                         DeliveryRoute::create([
@@ -276,7 +280,7 @@ class Route
      */
     public static function setPartners($deliveryRoutes)
     {
-        $provinceId = $deliveryRoutes->packages->destination_regency->province_id;
+        $provinceId = $deliveryRoutes->packages ? $deliveryRoutes->packages->destination_regency->province_id : 0;
         $regencyId = $deliveryRoutes->regency_destination_1;
         $partner = null;
 
@@ -542,14 +546,42 @@ class Route
         switch (true) {
             case $warehouse instanceof SupportCollection:
                 $partner = Partner::query()->whereIn('code', $warehouse->pluck('code_mtak_1_dest')->toArray())->first();
+                if (is_null($partner)) {
+                    $partner = Partner::query()->whereIn('code', $warehouse->pluck('code_mtak_1')->toArray())->first();
+                }
                 $regencyId = $partner->geo_regency_id;
                 break;
             default:
-                $partner = Partner::query()->where('code', $warehouse->code_mtak_1_dest)->first();
+                $code = null;
+                if ($warehouse->code_mtak_1_dest === '') {
+                    $code = $warehouse->code_mtak_1;
+                } else {
+                    $code = $warehouse->code_mtak_1_dest;
+                }
+                $partner = Partner::query()->where('code', $code)->first();
                 $regencyId = $partner->geo_regency_id;
                 break;
         }
-
         return $regencyId;
+    }
+
+    public static function checkRegency($warehouse)
+    {
+        $fromPartner = true;
+        switch ($warehouse) {
+            case $warehouse instanceof SupportCollection:
+                foreach ($warehouse as $w) {
+                    if ($w->regency_id === 0) {
+                        $fromPartner = false;
+                    }
+                }
+                break;
+            default:
+                if ($warehouse->regency_id === 0) {
+                    $fromPartner = false;
+                }
+                break;
+                return $fromPartner;
+        }
     }
 }

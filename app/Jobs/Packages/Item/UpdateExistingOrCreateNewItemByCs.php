@@ -54,7 +54,7 @@ class UpdateExistingOrCreateNewItemByCs
 
     public function handle()
     {
-        $this->items->each(function($r) {
+        $this->items->each(function ($r) {
             $r->delete();
         });
 

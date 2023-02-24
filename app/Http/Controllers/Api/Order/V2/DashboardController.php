@@ -26,8 +26,6 @@ use App\Http\Response;
 use App\Jobs\Deliveries\Actions\AssignDriverToDelivery;
 use App\Jobs\Packages\CreateNewPackageByCs;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
-use App\Jobs\Packages\Item\CreateNewItemByCs;
-use App\Jobs\Packages\Item\UpdateExistingItemByCs;
 use App\Jobs\Packages\Item\UpdateExistingOrCreateNewItemByCs;
 use App\Jobs\Packages\UpdateExistingPackageByCs;
 use App\Models\Deliveries\Deliverable;
@@ -96,7 +94,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * create order
+     * create order.
      */
     public function store(CreateOrderRequest $request): JsonResponse
     {
@@ -271,7 +269,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * create or update multi destination package (order)
+     * create or update multi destination package (order).
      */
     public function createOrUpdateMulti(CreateOrUpdateMultiRequest $request): JsonResponse
     {
@@ -321,7 +319,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Total estimation prices
+     * Total estimation prices.
      */
     public function totalEstimationPrices(TotalEstimationRequest $request): JsonResponse
     {

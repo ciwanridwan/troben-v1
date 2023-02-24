@@ -29,8 +29,12 @@ class AssignableController extends Controller
                 $packages = Route::getPackages($request->all());
                 $partnerByRoutes = [];
                 foreach ($packages as $package) {
-                    $partnerByRoute = Route::setPartners($package->deliveryRoutes);
-                    array_push($partnerByRoutes, $partnerByRoute);
+                    if (! is_null($package->deliveryRoutes)) {
+                        $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                        array_push($partnerByRoutes, $partnerByRoute);
+                    } else {
+                        $partnerCode = null;
+                    }
                 }
                 $partnerCode = $partnerByRoutes;
                 break;
@@ -110,8 +114,6 @@ class AssignableController extends Controller
         $query->with('estimator', 'packager', 'items', 'partner_performance');
         $result = $query->paginate($request->input('per_page'));
 
-        $itemCollection = $result->getCollection()->map(function ($q) use ($repository) {
-        });;
         return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
