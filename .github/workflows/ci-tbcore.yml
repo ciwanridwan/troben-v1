@@ -12,6 +12,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Copy Necessary File
       run: cp /home/github-runner/_work/TBCORE/* /home/github-runner/_work/trawlbens.core/trawlbens.core
+    - name: Copy existing storage directory
+      run: |
+        cp -rf storage /home/github-runner/_work/TBCORE
     - name: Install Composer Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
     - name: Install Dependencies
@@ -20,7 +23,10 @@ jobs:
           npm run prod
           cp ../../TBCORE/.env .
           php artisan optimize
-    
+    - name: Copy storage back
+      run: |
+        cp -rf /home/github-runner/_work/TBCORE/storage .
+        
     - name: Send Telegram Notification on Failed
       if: failure()
       run: |
