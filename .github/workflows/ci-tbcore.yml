@@ -1,4 +1,4 @@
-name: CI Trawlbens Core Project
+name: CI Trawlbens Core Projects
 
 on:
   push:
