@@ -20,7 +20,7 @@ jobs:
         else
           php artisan optimize
         fi
-    - name: Send Telegram Notification TB Core
+    - name: Send Telegram Notification
       run: |
         curl -s -X POST https://api.telegram.org/bot6066215459:AAEZkNoW2WbDV9CeqPVNko79OQ9_7POyKm8/sendMessage?chat_id=-100180884345 \
         -d text="The CI build for the Trawlbens Core project has completed."
