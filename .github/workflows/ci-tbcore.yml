@@ -12,6 +12,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Copy existing storage directory and Configuration
       run: |
+        cp -f /home/github-runner/_work/TBCORE/composer.lock .
+        cp -f /home/github-runner/_work/TBCORE/.env .
+        cp -f /home/github-runner/_work/TBCORE/.gitignore .
+        cp -rf /home/github-runner/_work/TBCORE/storage .
         cp -f composer.lock /home/github-runner/_work/TBCORE
         cp -f .env /home/github-runner/_work/TBCORE
         cp -f .gitignore /home/github-runner/_work/TBCORE
