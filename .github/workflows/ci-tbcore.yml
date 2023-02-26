@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Copy Necessary File
+      run: cp /home/github-runner/_work/TBCORE/* /home/github-runner/_work/trawlbens.core/trawlbens.core
     - name: Install Composer Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
     - name: Install Dependencies
