@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-
 jobs:
   build:
     runs-on: self-hosted
@@ -17,11 +16,8 @@ jobs:
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
     - name: Install Dependencies
       run: |
-        if git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} | grep -qE '^(.*\.js|.*\.jsx|.*\.ts|.*\.tsx|.*\.vue)$'; then
           npm install
           npm run prod
-        else
           php artisan optimize
-        fi
-  
+       
     
