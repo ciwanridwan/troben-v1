@@ -17,7 +17,7 @@ class Route
 
     public const WAREHOUSE_PONTIANAK = ['MB-PNK-01'];
 
-    public const WAREHOUSE_BANDUNG = ['MB-BDG-01', 'MB-BDG-02', 'MB-BDG-04'];
+    public const WAREHOUSE_BANDUNG = ['MB-BDG-01', 'MB-BDG-02', 'MB-BDG-03'];
 
     public const WAREHOUSE_PEKANBARU = ['MB-PKU-02'];
 
