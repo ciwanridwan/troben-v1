@@ -109,9 +109,20 @@ class AssignableController extends Controller
         );
 
         $query->with('estimator', 'packager', 'items', 'partner_performance');
-        $result = $query->paginate($request->input('per_page'));
+        $data = $query->paginate($request->input('per_page'));
+        $package = $data->getCollection();
+        $partnerId = $repository->getPartner()->id;
+        $package = $package->filter(function ($q) use ($partnerId) {
+            if ($q->deliveries->last()->partner_id === $partnerId) {
+                return true;
+            }
+            return false;
+        });
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
+        $result = $data->setCollection($package);
+
+        return $this->jsonSuccess(PackageResource::collection($result), null, true);
+        // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
 
