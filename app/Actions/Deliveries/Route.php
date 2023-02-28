@@ -266,7 +266,9 @@ class Route
                     'mtak_3' => $q->code_mtak_3_dest
                 ];
             })->toArray();
-            $secondDestination = $partner->where('code', $code[0]['mtak_2'])->first();
+            if (array_key_exists("0", $code)) {
+                $secondDestination = $partner->where('code', $code[0]['mtak_2'])->first();
+            }
             if (array_key_exists("1", $code)) {
                 $thirdDestination = Partner::query()->where('code', $code[1]['mtak_3'])->first();
             }
