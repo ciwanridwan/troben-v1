@@ -623,7 +623,7 @@ class OrderController extends Controller
             ]);
 
             /** @var Code $code */
-            $code = Code::query()->where('content', $request->code)->first();
+            $code = Code::query()->where('content', 'ILIKE', '%'.$request->code.'%')->first();
         }
 
         $codeable = $code->codeable;
@@ -673,7 +673,7 @@ class OrderController extends Controller
             case Package::STATUS_DELIVERED: $statusLabel = 'Barang sudah diterima'; break;
         }
         $package['status_label'] = $statusLabel;
-        $package['code'] = $request->code;
+        $package['receipt_code'] = $request->code;
         unset($package['status']);
         unset($package['payment_status']);
 
