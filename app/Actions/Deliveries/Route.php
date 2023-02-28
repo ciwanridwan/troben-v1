@@ -258,6 +258,8 @@ class Route
         $result = null;
         $destination = null;
         $partner = Partner::query();
+        $secondDestination = null;
+        $thirdDestination = null;
 
         if (is_array($warehouse)) {
             $code = collect($warehouse)->map(function ($q) {
