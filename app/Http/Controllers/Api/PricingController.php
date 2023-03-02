@@ -17,6 +17,7 @@ use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
+use App\Models\Packages\BikePrices;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -49,9 +50,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -180,13 +181,15 @@ class PricingController extends Controller
         $this->attributes = $request->validate([
             'origin_id' => ['nullable', 'numeric', 'exists:geo_regencies,id'],
             'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
+            'moto_cc' => ['nullable', 'numeric', 'in:150,250,999'],
             // 'service_code' => ['nullable', 'exists:services,code'],
         ]);
 
         $originId = $this->attributes['origin_id'];
         $destinationId = $this->attributes['destination_id'];
+        $motoCc = $this->attributes['moto_cc'] ?? null;
 
-        return $this->getAllPrices($originId, $destinationId);
+        return $this->getAllPrices($originId, $destinationId, $motoCc);
     }
 
     /**
@@ -244,15 +247,15 @@ class PricingController extends Controller
         }
     }
 
-    private function getAllPrices($originId, $destinationId)
+    private function getAllPrices($originId, $destinationId, $motoCc)
     {
         $regularPrices = Price::where('origin_regency_id', $originId)
             ->where('destination_id', $destinationId)
             ->where('service_code', Service::TRAWLPACK_STANDARD)
             ->first();
         $resultPrices = [
-            'amount'=>0,
-            'notes'=>'',
+            'amount' => 0,
+            'notes' => '',
         ];
         if ($regularPrices !== null) {
             $regularPrices = $regularPrices->only('tier_1', 'notes');
@@ -279,10 +282,37 @@ class PricingController extends Controller
             $expressPrices = $expressPrices->only('amount', 'notes');
         }
 
+        $resultBikePrice = null;
+        if (isset($motoCc)) {
+            $bikePrices = BikePrices::where('origin_regency_id', $originId)->where('destination_id', $destinationId)->first();
+            $ccPrices = null;
+            if (!is_null($bikePrices)) {
+                switch ($motoCc) {
+                    case 150:
+                        $ccPrices = $bikePrices->lower_cc;
+                        break;
+                    case 250:
+                        $ccPrices = $bikePrices->middle_cc;
+                        break;
+                    case 999:
+                        $ccPrices = $bikePrices->high_cc;
+                        break;
+                    default:
+                        $ccPrices = 0;
+                        break;
+                }
+                $resultBikePrice = [
+                    'amount' => (int) $ccPrices,
+                    'notes' => $bikePrices->notes ?? null
+                ];
+            }
+        }
+
         $data = [
             'regular' => $resultPrices,
             'kubikasi' => $cubicPrices,
-            'express' =>  $expressPrices
+            'express' =>  $expressPrices,
+            'bike' => $resultBikePrice,
         ];
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -293,9 +323,9 @@ class PricingController extends Controller
         switch ($serviceCode) {
             case Service::TRAWLPACK_STANDARD:
                 $prices = Price::query();
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -316,9 +346,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_CUBIC:
                 $prices = CubicPrice::query();
 
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -338,9 +368,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_EXPRESS:
                 $prices = ExpressPrice::query();
 
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
