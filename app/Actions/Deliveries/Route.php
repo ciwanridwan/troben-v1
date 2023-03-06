@@ -158,6 +158,10 @@ class Route
                 $setPartner = 3;
             }
 
+            if (!is_null($value->motoBikes)) {
+                $setPartner = 3;
+            }
+
             array_push($variants, $setPartner);
         }
 
