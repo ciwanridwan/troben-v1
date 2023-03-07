@@ -6,6 +6,8 @@ use App\Events\Deliveries\Dooring\DriverDooringFinished;
 use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
 use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Events\Deliveries\PartnerRequested;
+use App\Events\Deliveries\Dooring\PackageLoadedByDriver as DooringPackageLoadedByDriver;
+use App\Events\Deliveries\Transit\PackageLoadedByDriver as TransitPackageLoadedByDriver;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
 use App\Events\Packages\WarehouseIsStartPacking;
@@ -52,7 +54,7 @@ class PartnerPerformanceEvaluatedByEvent
     private string $reach_at;
 
     /**
-     * Partner Instance
+     * Partner Instance.
      */
     private Partner $partner;
 
@@ -81,7 +83,7 @@ class PartnerPerformanceEvaluatedByEvent
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
                 }
-                Log::info("Driver finish unload in destination warehouse");
+                Log::info('Driver finish unload in destination warehouse');
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
@@ -132,7 +134,7 @@ class PartnerPerformanceEvaluatedByEvent
                     $this
                         ->setPerformance($this->delivery->partner_performance)
                         ->updatePerformance();
-                };
+                }
                 break;
             case $event instanceof DriverUnloadedPackageInDooringPoint:
                 $this->delivery = $event->delivery;
@@ -169,8 +171,43 @@ class PartnerPerformanceEvaluatedByEvent
                         ->updatePerformance();
                 }
                 break;
+            case $event instanceof TransitPackageLoadedByDriver:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                Log::info('Driver load item on transit delivery and set evaluated SLA');
+                break;
+            case $event instanceof DooringPackageLoadedByDriver:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                Log::info('Driver load item on dooring delivery and set evaluated SLA');
+                break;
             default:
-                // to do default
+                Log::info('No Performance Evaluated On SLA');
                 break;
         }
     }

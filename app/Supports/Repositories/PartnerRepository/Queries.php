@@ -163,8 +163,10 @@ class Queries
 
         $query->with([
             'deliveries' => $queryPartnerId,
+            'deliveries',
             'deliveries.origin_partner',
             'deliveries.partner',
+            'deliveryRoutes'
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
@@ -241,7 +243,7 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_CS:
-                $deliveriesQueryBuilder->whereNull('userable_id');
+                // $deliveriesQueryBuilder->whereNull('userable_id');
                 break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder

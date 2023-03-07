@@ -3,30 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Payment\Nicepay\RegistrationPayment;
-use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Http\Response;
 use App\Models\Geo\Regency;
 use App\Models\Price;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PriceResource;
-use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Payment\Nicepay\PaymentIsCorporateMode;
 use App\Exceptions\DataNotFoundException;
-use App\Exceptions\InvalidDataException;
-use App\Http\Resources\Api\Pricings\CheckPriceResource;
-use App\Models\Packages\CubicPrice;
-use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
-use App\Models\Partners\ScheduleTransportation;
-use App\Models\Service;
-use App\Supports\Geo;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Customers\Customer;
@@ -35,9 +24,6 @@ use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
-use App\Supports\Repositories\PartnerRepository;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
@@ -59,7 +45,7 @@ class CorporateController extends Controller
         $q = $request->get('q');
         $result = Partner::query()
             ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id', 'code')
-            ->where('name', 'ILIKE', '%' . $q . '%')
+            ->where('name', 'ILIKE', '%'.$q.'%')
             ->where('type', Partner::TYPE_BUSINESS)
             ->whereNotNull(['latitude', 'longitude'])
             ->where('availability', 'open')
@@ -102,7 +88,7 @@ class CorporateController extends Controller
         $request->validate([
             'is_multi' => ['nullable', 'boolean'],
             'destination_id' => ['required'],
-	        'service_code' => ['required', 'in:tps,tpx'],
+            'service_code' => ['required', 'in:tps,tpx'],
         ]);
 
         if ($isAdmin) {
@@ -215,14 +201,14 @@ class CorporateController extends Controller
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
         $inputs['destination_id'] = $inputs['destination_sub_district_id'];
-        if(!$hasCustomerAcc) {
+        if (! $hasCustomerAcc) {
             $inputs['customer_id'] = 0;
         }
 
         // add partner code
         $inputs['partner_code'] = $partner->code;
         $inputs['order_type'] = 'other';
-        $items = json_decode($request->input('items') , true);
+        $items = json_decode($request->input('items'), true);
         $payment_method = $request->get('payment_method');
 
         foreach ($items??[] as $key => $item) {
@@ -305,24 +291,24 @@ class CorporateController extends Controller
             ->payments
             ->where('status', Payment::STATUS_PENDING)
             ->first();
-            $gateway = $gateway->filter(function($r) {
-                return $r->type == 'va';
-            })->values()->map(function($r) use ($gatewayChoosed, $picture) {
-                $select = false;
-                if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
-                    $select = true;
-                }
+        $gateway = $gateway->filter(function ($r) {
+            return $r->type == 'va';
+        })->values()->map(function ($r) use ($gatewayChoosed, $picture) {
+            $select = false;
+            if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
+                $select = true;
+            }
 
-                $bankPicture = $picture;
-                $filePath = sprintf('asset/bank/%s.png', $r->bank);
-                if (Storage::disk('s3')->exists($filePath)) {
-                    $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
-                }
+            $bankPicture = $picture;
+            $filePath = sprintf('asset/bank/%s.png', $r->bank);
+            if (Storage::disk('s3')->exists($filePath)) {
+                $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
+            }
 
-                $r->picture = $bankPicture;
-                $r->selecteable = $select;
-                return $r;
-            });
+            $r->picture = $bankPicture;
+            $r->selecteable = $select;
+            return $r;
+        });
 
         return (new Response(Response::RC_SUCCESS, $gateway))->json();
     }
@@ -384,7 +370,7 @@ class CorporateController extends Controller
             if (! is_null($pickupFee)) {
                 $childPkg->total_amount -= $pickupFee->amount;
                 $childPkg->save();
-    
+
                 $pickupFee->amount = 0;
                 $pickupFee->save();
             }
@@ -439,10 +425,10 @@ class CorporateController extends Controller
             $results = $results->where('payment_status', $request->get('status'));
         }
         if ($request->get('start_date')) {
-            $results = $results->whereRaw("DATE(packages.created_at) >= '". $request->get('start_date') . "'");
+            $results = $results->whereRaw("DATE(packages.created_at) >= '".$request->get('start_date')."'");
         }
         if ($request->get('end_date')) {
-            $results = $results->whereRaw("DATE(packages.created_at) <= '". $request->get('end_date') . "'");
+            $results = $results->whereRaw("DATE(packages.created_at) <= '".$request->get('end_date')."'");
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
@@ -512,13 +498,12 @@ class CorporateController extends Controller
             $payment = $result->payments->sortByDesc('id')->first();
             $bank = null;
             if (! is_null($payment->gateway)) {
-
                 $bankPicture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
                 $filePath = sprintf('asset/bank/%s.png', $payment->gateway->bank);
                 if (Storage::disk('s3')->exists($filePath)) {
                     $bankPicture = Storage::disk('s3')->temporaryUrl($filePath, Carbon::now()->addMinutes(60));
                 }
-                        
+
                 $bank = [
                     'name' => $payment->gateway->bank,
                     'picture' => $bankPicture,

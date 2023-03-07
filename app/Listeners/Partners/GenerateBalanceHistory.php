@@ -165,7 +165,7 @@ class GenerateBalanceHistory
                         $balancePickup = 0;
                         $extraFee = 0;
                         $bikeFeeHandling = 0;
-                        $feeAdditional = 0;
+                        // $feeAdditional = 0;
 
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
@@ -184,15 +184,15 @@ class GenerateBalanceHistory
                             }
 
                             /**Get fee additional */
-                            if ($package->total_weight > 100) {
-                                $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
-                                $this
-                                    ->setBalance($feeAdditional)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                    ->setAttributes()
-                                    ->recordHistory();
-                            }
+                            // if ($package->total_weight > 100) {
+                            //     $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+                            //     $this
+                            //         ->setBalance($feeAdditional)
+                            //         ->setType(History::TYPE_DEPOSIT)
+                            //         ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                            //         ->setAttributes()
+                            //         ->recordHistory();
+                            // }
                         }
 
                         # total balance insurance > record insurance fee
@@ -249,7 +249,7 @@ class GenerateBalanceHistory
 
 
                         /** Set balance partner*/
-                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee + $feeAdditional;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee;
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
@@ -471,7 +471,7 @@ class GenerateBalanceHistory
 
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
 
-                    if (!$price) {
+                    if (! $price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
 
@@ -806,7 +806,7 @@ class GenerateBalanceHistory
     {
         $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
         if (is_null($service_price)) {
-           $this->servicePriceCubic($type, $variant, $isTransit);
+            $this->servicePriceCubic($type, $variant, $isTransit);
         } else {
             if ($variant == '0') {
                 $discount = 0;

@@ -406,11 +406,11 @@ class OrderController extends Controller
 
         $items = $request->input('items') ?? [];
 
-        foreach ($items as $key => $item) {
-            if ($item['insurance'] == '1') {
+	foreach ($items as $key => $item) {
+            if (($item['insurance']??'') == '1') {
                 $items[$key]['is_insured'] = true;
             }
-            if ($item['is_glassware'] == '1') {
+            if (($item['is_glassware']??'') == '1') {
                 $items[$key]['is_glassware'] = true;
             }
         }
@@ -623,7 +623,7 @@ class OrderController extends Controller
             ]);
 
             /** @var Code $code */
-            $code = Code::query()->where('content', $request->code)->first();
+            $code = Code::query()->where('content', 'ILIKE', '%'.$request->code.'%')->first();
         }
 
         $codeable = $code->codeable;
@@ -637,7 +637,45 @@ class OrderController extends Controller
             'receiver_name',
             'origin_regency',
             'destination_district',
+            'status',
+            'payment_status',
         ]);
+
+        $statusLabel = $package['status'];
+        switch ($statusLabel) {
+            case Package::STATUS_CANCEL: $statusLabel = 'Pesan Dibatalkan'; break;
+            case Package::STATUS_CANCEL_SELF_PICKUP: $statusLabel = 'Pesan Dibatalkan dan paket akan diambil kembali oleh Customer'; break;
+            case Package::STATUS_CANCEL_DELIVERED: $statusLabel = 'Pesan Dibatalkan dan paket akan diantar kembali oleh Mitra'; break;
+            case Package::STATUS_CREATED: $statusLabel = 'Menunggu Assign Mitra'; break;
+            case Package::STATUS_ACCEPTED:
+                if ($package['payment_status'] == Package::PAYMENT_STATUS_DRAFT) {
+                    $statusLabel = 'Menunggu Pembayaran Customer';
+                }
+                if ($package['payment_status'] == Package::PAYMENT_STATUS_PENDING) {
+                    $statusLabel = 'Menunggu konfirmasi pembayaran oleh Admin';
+                }
+                break;
+            case Package::STATUS_WAITING_FOR_PAYMENT: $statusLabel = 'Menunggu konfirmasi pembayaran oleh Admin'; break;
+            case Package::STATUS_WAITING_FOR_PICKUP: $statusLabel = 'Menunggu Penjemputan'; break;
+            case Package::STATUS_PICKED_UP: $statusLabel = 'Driver telah menerima barang'; break;
+            case Package::STATUS_WAITING_FOR_ESTIMATING: $statusLabel = 'Menunggu untuk dilakukan pengecekan di gudang'; break;
+            case Package::STATUS_ESTIMATING: $statusLabel = 'Sedang pengecekan di gudang'; break;
+            case Package::STATUS_ESTIMATED: $statusLabel = 'Selesai pengecekan di gudang'; break;
+            case Package::STATUS_WAITING_FOR_PACKING: $statusLabel = 'Sedang menunggu packing'; break;
+            case Package::STATUS_PACKING: $statusLabel = 'Sedang dipacking'; break;
+            case Package::STATUS_PACKED: $statusLabel = 'Telah selesai packing'; break;
+            case Package::STATUS_WAITING_FOR_APPROVAL: $statusLabel = 'Menunggu konfirmasi customer'; break;
+            case Package::STATUS_REVAMP: $statusLabel = 'Resi sedang ditinjau ulang oleh Kasir Mitra'; break;
+            case Package::STATUS_MANIFESTED: $statusLabel = 'Telah terassign di manifest'; break;
+            case Package::STATUS_IN_TRANSIT: $statusLabel = 'Barang sedang di proses mitra'; break;
+            case Package::STATUS_WITH_COURIER: $statusLabel = 'Barang sedang di antar kurir'; break;
+            case Package::STATUS_PENDING: $statusLabel = 'Mitra belum melakukan penerimaan pesanan'; break;
+            case Package::STATUS_DELIVERED: $statusLabel = 'Barang sudah diterima'; break;
+        }
+        $package['status_label'] = $statusLabel;
+        $package['receipt_code'] = $request->code;
+        unset($package['status']);
+        unset($package['payment_status']);
 
         /** @var Builder $query */
         $query = $code->logs()->getQuery();
@@ -759,6 +797,10 @@ class OrderController extends Controller
             'package_parent_hash' => ['nullable', 'string'],
             'package_child_hash' => ['nullable', 'array'],
         ]);
+
+        if (is_null($request->package_parent_hash) || is_null($request->package_child_hash)) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Package hash or child hash is null, cant given null value']))->json();
+        }
 
         $parentPackage = Package::hashToId($request->package_parent_hash);
         $childPackage = $request->package_child_hash;

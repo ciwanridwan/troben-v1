@@ -72,7 +72,7 @@ class DeadlineCreatedByEvent
                 $deadline = $now > $startTimeAlert ? Carbon::now()->endOfDay() : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
 
-                if (!$performanceDelivery || is_null($performanceDelivery)) {
+                if (! $performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerOrigin->id,
                         'delivery_id' => $delivery->id,
@@ -93,26 +93,27 @@ class DeadlineCreatedByEvent
 
                 $now = Carbon::now();
                 $endTime = Carbon::today()->addHours(18);
-                // temporary hold firstime
-                // $firstTime = Carbon::today()->addHours(12);
 
-                // set firstTime for testing
-                $firstTime = Carbon::today()->addHours(9);
+                // real first time
+                $firstTime = Carbon::today()->addHours(12);
+
+                // for test
+                // $firstTime = Carbon::today()->addHours(9);
                 if ($now < $firstTime) {
-                    Log::info("Deadline not create because outside the specified time is less 12.00 hours");
+                    Log::info('Deadline not create because outside the specified time is less 12.00 hours');
                     break;
                 }
 
                 $deadline = $now < $endTime ? $endTime : null;
 
                 if ($now > $endTime) {
-                    Log::info("Deadline not create because outside the specified time is more than 18.00 hours");
+                    Log::info('Deadline not create because outside the specified time is more than 18.00 hours');
                     break;
                 }
 
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
 
-                if (!$performanceDelivery || is_null($performanceDelivery)) {
+                if (! $performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerDestination->id,
                         'delivery_id' => $delivery->id,
@@ -150,7 +151,7 @@ class DeadlineCreatedByEvent
                 $firstTime = Carbon::today()->addHours(12);
                 $endTime = Carbon::today()->addHours(18);
                 if ($now < $firstTime) {
-                    Log::info("Deadline not create because outside the specified time is before 12.00");
+                    Log::info('Deadline not create because outside the specified time is before 12.00');
                     break;
                 }
 
@@ -158,12 +159,12 @@ class DeadlineCreatedByEvent
                 $deadline = $now < $endTime ? $endTime : null;
 
                 if ($now > $endTime) {
-                    Log::info("Deadline not create because outside the specified time is more 18.00");
+                    Log::info('Deadline not create because outside the specified time is more 18.00');
                     break;
                 }
 
                 if ($originPartner->type === Partner::TYPE_BUSINESS) {
-                    Log::info("Deadline cant create bacause this partner type is business and position in warehouse");
+                    Log::info('Deadline cant create bacause this partner type is business and position in warehouse');
                     break;
                 }
 
@@ -185,7 +186,7 @@ class DeadlineCreatedByEvent
                 $firstTime = Carbon::today()->addHours(12);
                 $endTime = Carbon::today()->addHours(18);
                 if ($now < $firstTime) {
-                    Log::info("Deadline not create because outside the specified time");
+                    Log::info('Deadline not create because outside the specified time');
                     break;
                 }
 
@@ -193,7 +194,7 @@ class DeadlineCreatedByEvent
                 $deadline = $now < $endTime ? $endTime : null;
 
                 if ($now > $endTime) {
-                    Log::info("Deadline not create because outside the specified time");
+                    Log::info('Deadline not create because outside the specified time');
                     break;
                 }
 
@@ -212,24 +213,20 @@ class DeadlineCreatedByEvent
                 $delivery = $event->delivery;
                 $partnerTransporter = $event->delivery->assigned_to;
                 $originPartner = $delivery->origin_partner;
-
-                if (!$partnerTransporter instanceof UserablePivot || $partnerTransporter->userable_type !== Transporter::class) {
+                if (! $partnerTransporter instanceof UserablePivot || $partnerTransporter->userable_type !== Transporter::class) {
                     break;
-                };
+                }
                 $now = Carbon::now();
-                // temporary hold
                 // $firstTime = Carbon::today()->addHours(18);
 
                 // for test
                 $firstTime = Carbon::today()->addHours(9);
                 $endTime = Carbon::now()->endOfDay();
-
                 if ($now < $firstTime) {
                     break;
                 }
 
                 $deadline = $now < $endTime ? $endTime : null;
-
                 if ($originPartner->type === Partner::TYPE_BUSINESS) {
                     $performanceDelivery = PartnerDeliveryPerformance::create([
                         'partner_id' => $delivery->transporter->partner_id,
@@ -239,7 +236,6 @@ class DeadlineCreatedByEvent
                         'status' => 1,
                         'type' => PartnerDeliveryPerformance::TYPE_MB_DRIVER_TO_TRANSIT
                     ]);
-
                     Log::debug('Deadline Driver MB Assigned Created: ', [$performanceDelivery]);
                 } else {
                     $performanceDelivery = PartnerDeliveryPerformance::create([

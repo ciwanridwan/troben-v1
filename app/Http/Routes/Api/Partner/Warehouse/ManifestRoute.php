@@ -51,6 +51,11 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('partner', Manifest\AssignableController::class),
         ]);
 
+        $this->router->get($this->prefix('assignable/partner/unroute'), [
+            'as' => $this->name('assignable.partner.without.route'),
+            'uses' => $this->uses('partnerWithOutRoute', Manifest\AssignableController::class),
+        ]);
+
         $this->router->get($this->prefix('assignable/driver'), [
             'as' => $this->name('assignable.driver'),
             'uses' => $this->uses('driver', Manifest\AssignableController::class),

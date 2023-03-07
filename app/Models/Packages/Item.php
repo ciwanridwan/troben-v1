@@ -77,7 +77,8 @@ class Item extends Model implements AttachableContract
         'is_insured',
         'handling',
         'revision',
-        'is_glassware'
+        'is_glassware',
+        'category_item_id',
     ];
 
     /**
@@ -191,6 +192,11 @@ class Item extends Model implements AttachableContract
             self::TYPE_ITEM,
             self::TYPE_BIKE
         ];
+    }
+
+    public function categories(): BelongsTo
+    {
+        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
     }
 
     private function getHandling()

@@ -3,10 +3,10 @@
 namespace App\Jobs\Deliveries\Actions\V2;
 
 use App\Events\Deliveries\DeliveryCreatedWithDeadline;
+use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\Validator;
-use App\Jobs\Deliveries\Actions\V2\CreateNewDelivery;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
@@ -16,9 +16,9 @@ class CreateNewManifest
     use Dispatchable;
 
     public Delivery $delivery;
-    private array $attributes;
 
     public UserablePivot|null $userable;
+    private array $attributes;
     /**
      * @var \App\Models\Partners\Partner
      */
@@ -84,7 +84,12 @@ class CreateNewManifest
             $job->delivery->save();
         }
 
-        event(new DeliveryCreatedWithDeadline($job->delivery));
+        if (is_null($this->userable)) {
+            event(new DeliveryCreatedWithDeadline($job->delivery));
+        } else {
+            event(new DriverAssignedOfTransit($job->delivery, $this->userable));
+        }
+
         $this->delivery = $job->delivery;
     }
 }

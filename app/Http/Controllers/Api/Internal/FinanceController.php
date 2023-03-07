@@ -49,36 +49,6 @@ class FinanceController extends Controller
         return $this->jsonSuccess(ListResource::collection($result));
     }
 
-    private function getWithdrawal()
-    {
-        $partnerCode = null;
-        if (request()->get('partner_code')) {
-            $partnerCode = request()->get('partner_code');
-        }
-
-        $q = Withdrawal::whereHas('partner', function($q) use ($partnerCode) {
-            if (! is_null($partnerCode)) {
-                $q->where('code', $partnerCode);
-            }
-        });
-
-        if (request()->get('status')) {
-            $q = $q->where('status', request()->get('status'));
-        }
-
-        if (request()->get('date')) {
-            $q = $q->whereRaw("DATE(created_at) = '". request()->get('date') . "'");
-        }
-
-        if (request()->get('start_date') && request()->get('end_date')) {
-            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
-        }
-
-        $q = $q->orderBy('created_at', 'desc');
-
-        return $q;
-    }
-
     /** Count Request Disbursment */
     public function countDisbursment(Withdrawal $withdrawal)
     {
@@ -160,7 +130,7 @@ class FinanceController extends Controller
         }
 
         if ($result->partner->type === Partner::TYPE_TRANSPORTER) {
-            return $this->findManifest($result, $this->attributes['receipt']);
+            return $this->findManifest($request, $result, $this->attributes['receipt']);
         } else {
             $query = $this->newQueryDetailDisbursment($result->partner_id);
             $packages = collect(DB::select($query));
@@ -193,11 +163,11 @@ class FinanceController extends Controller
 
     /**
      * Filter by manifest code
-     * Include receipt code
+     * Include receipt code.
      */
-    public function findManifest($withdrawal, $manifestCode)
+    public function findManifest(Request $request, $withdrawal, $manifestCode)
     {
-        $deliveries = $this->getDetailDisbursmentTransporter($withdrawal->partner_id);
+        $deliveries = $this->getDetailDisbursmentTransporter($request, $withdrawal->partner_id);
 
         $receipt = $deliveries->where('receipt', $manifestCode)->map(function ($r) use ($withdrawal, $manifestCode) {
             $r['total_payment'] = intval($r['total_payment']);
@@ -227,7 +197,7 @@ class FinanceController extends Controller
     /**Get list partner for findByPartner Function */
     public function listPartners()
     {
-        $partnerIds = Withdrawal::groupBy('partner_id')->get()->pluck('partner_id')->toArray();
+        $partnerIds = Withdrawal::select('partner_id')->groupBy('partner_id')->get()->pluck('partner_id')->toArray();
         $data = Partner::select('id', 'name', 'code')->whereIn('id', $partnerIds)->get();
         return (new Response(Response::RC_SUCCESS, $data))->json();
     }
@@ -254,7 +224,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
+        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');
@@ -341,7 +311,7 @@ class FinanceController extends Controller
      * Get a detail of disbursment.
      * @param $disbursment_id
      * */
-    public function detail($disbursment_id)
+    public function detail($disbursment_id, Request $request)
     {
         $disbursment = Withdrawal::where('id', $disbursment_id)->first();
 
@@ -353,10 +323,10 @@ class FinanceController extends Controller
 
         switch ($partner->type) {
             case Partner::TYPE_TRANSPORTER:
-                return $this->detailDisbursTransporter($partner->type, $disbursment);
+                return $this->detailDisbursTransporter($request, $partner->type, $disbursment);
                 break;
             default:
-                return $this->detailDisburs($disbursment);
+                return $this->detailDisburs($request, $disbursment);
                 break;
         }
     }
@@ -428,6 +398,36 @@ class FinanceController extends Controller
         AND DATE(payment_verified_at) <= '%s'";
 
         $q = sprintf($q, $param['start'], $param['end']);
+
+        return $q;
+    }
+
+    private function getWithdrawal()
+    {
+        $partnerCode = null;
+        if (request()->get('partner_code')) {
+            $partnerCode = request()->get('partner_code');
+        }
+
+        $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode) {
+            if (! is_null($partnerCode)) {
+                $q->where('code', $partnerCode);
+            }
+        });
+
+        if (request()->get('status')) {
+            $q = $q->where('status', request()->get('status'));
+        }
+
+        if (request()->get('date')) {
+            $q = $q->whereRaw("DATE(created_at) = '".request()->get('date')."'");
+        }
+
+        if (request()->get('start_date') && request()->get('end_date')) {
+            $q = $q->whereBetween('created_at', [request()->get('start_date'), request()->get('end_date')]);
+        }
+
+        $q = $q->orderBy('created_at', 'desc');
 
         return $q;
     }
@@ -509,7 +509,7 @@ class FinanceController extends Controller
      * */
     private function newQueryDetailDisbursment($partnerId)
     {
-        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
+        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted, date(p.created_at) created_at from partner_balance_disbursement pbd
         left join (
             select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
             ) pbh
@@ -528,10 +528,22 @@ class FinanceController extends Controller
      * To get detail disbursment of partner transporter.
      * @param $partnerId
      */
-    private function getDetailDisbursmentTransporter($partnerId)
+    private function getDetailDisbursmentTransporter($request, $partnerId)
     {
-        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
-            ->map(function ($q) {
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId);
+
+        if ($date_start = $request->get('date_start')) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_start) {
+                $q->where('created_at', '>=', sprintf('%s 00:00:00', $date_start));
+            });
+        }
+        if ($date_end = $request->get('date_end')) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_end) {
+                $q->where('created_at', '<=', sprintf('%s 23:59:59', $date_end));
+            });
+        }
+
+        $deliveryHistory = $deliveryHistory->orderByDesc('created_at')->get()->map(function ($q) {
                 $amount = $q->deliveries->packages->sum('total_amount');
                 $res = [
                     'receipt' => $q->deliveries->code->content,
@@ -566,10 +578,10 @@ class FinanceController extends Controller
     /**
      * Set detail disbursment of partner transporter.
      */
-    private function detailDisbursTransporter($partnerType, $disbursment): JsonResponse
+    private function detailDisbursTransporter(Request $request, $partnerType, $disbursment): JsonResponse
     {
         if ($partnerType == Partner::TYPE_TRANSPORTER) {
-            $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+            $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
 
             $disbursHistory = DisbursmentHistory::all();
 
@@ -597,7 +609,7 @@ class FinanceController extends Controller
                 $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -649,7 +661,7 @@ class FinanceController extends Controller
                 $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -670,17 +682,28 @@ class FinanceController extends Controller
     /**
      * Sub function for a get detail disburs.
      */
-    private function detailDisburs($disbursment): JsonResponse
+    private function detailDisburs(Request $request, $disbursment): JsonResponse
     {
-        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
-        $packages = collect(DB::select($query));
+        $request->validate([
+            'date_start' => 'nullable|date_format:Y-m-d',
+            'date_end' => 'nullable|date_format:Y-m-d',
+        ]);
 
-        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->get()->filter(function ($q) use ($disbursment) {
-            if ($q->parentDisbursment->partner_id !== $disbursment->partner_id) {
-                return false;
-            }
-            return true;
-        });
+        $partnerId = $disbursment->partner_id;
+
+        $query = $this->newQueryDetailDisbursment($partnerId);
+        $packages = collect(DB::select($query))->sortByDesc('created_at');
+
+        if ($date_start = $request->get('date_start')) {
+            $packages = $packages->where('created_at', '>=', $date_start);
+        }
+        if ($date_end = $request->get('date_end')) {
+            $packages = $packages->where('created_at', '<=', $date_end);
+        }
+
+        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function($q) use ($partnerId) {
+            $q->where('partner_id', $partnerId);
+        })->get();
 
         if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
             $data = $this->detailWithRequest($disbursment, $packages, $disbursHistory);
@@ -748,9 +771,9 @@ class FinanceController extends Controller
     /**
      * Approve deliveries by with manifest code.
      */
-    private function approveForDeliveries($disbursment, $receipt): JsonResponse
+    private function approveForDeliveries(Request $request, $disbursment, $receipt): JsonResponse
     {
-        $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+        $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
         $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
             $r['total_accepted'] = ceil($r['total_accepted']);
             return $r;
@@ -832,7 +855,7 @@ class FinanceController extends Controller
         $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $filteredReceipts = $receipts->filter(function ($r) use ($alreadyDis) {
@@ -882,7 +905,7 @@ class FinanceController extends Controller
         $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $data = [

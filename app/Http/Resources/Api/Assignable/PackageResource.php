@@ -7,7 +7,6 @@ use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\SubDistrictResource;
 use Illuminate\Http\Resources\Json\JsonResource;
-use SebastianBergmann\CodeCoverage\Report\Xml\Totals;
 
 class PackageResource extends JsonResource
 {
@@ -19,7 +18,7 @@ class PackageResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!$this->resource->relationLoaded('code')) {
+        if (! $this->resource->relationLoaded('code')) {
             $this->resource->load('code');
         }
 
@@ -65,6 +64,7 @@ class PackageResource extends JsonResource
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency)->only('name') : null,
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district)->only('name') : null,
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)->only('name'),
+            'deliveries' => $this->deliveries
         ];
     }
 }

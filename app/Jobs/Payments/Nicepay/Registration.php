@@ -5,6 +5,7 @@ namespace App\Jobs\Payments\Nicepay;
 use App\Models\Packages\Package;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class Registration.
@@ -60,7 +61,7 @@ class Registration
             $payload['billingEmail'] = sprintf('tb-%s@gmail.com', $payload['billingPhone']);
         }
 
-        \Log::debug('Nicepay payload register final: ', ['payload' => $payload]);
+        Log::debug('Nicepay payload register final: ', ['payload' => $payload]);
 
         $client = new Client(['base_uri' => config('nicepay.uri')]);
         $this->response = json_decode($client->post(config('nicepay.registration_url'), [

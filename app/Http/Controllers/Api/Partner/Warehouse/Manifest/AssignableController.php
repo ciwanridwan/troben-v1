@@ -29,8 +29,12 @@ class AssignableController extends Controller
                 $packages = Route::getPackages($request->all());
                 $partnerByRoutes = [];
                 foreach ($packages as $package) {
-                    $partnerByRoute = Route::setPartners($package->deliveryRoutes);
-                    array_push($partnerByRoutes, $partnerByRoute);
+                    if (!is_null($package->deliveryRoutes)) {
+                        $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                        array_push($partnerByRoutes, $partnerByRoute);
+                    } else {
+                        $partnerCode = null;
+                    }
                 }
                 $partnerCode = $partnerByRoutes;
                 break;
@@ -38,19 +42,16 @@ class AssignableController extends Controller
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
                 break;
             case $setPartner === 3:
-                $partnerCode = "all";
+                $partnerCode = 'all';
                 break;
             default:
                 $partnerCode = null;
                 break;
         }
 
-        if (is_null($partnerCode)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Tujuan Belum Tersedia']))->json();
-        }
-
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
-        if ($partnerCode === "all") {
+
+        if ($partnerCode === 'all' || is_null($partnerCode)) {
             $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
         } else {
             $query->whereIn('code', $partnerCode);
@@ -82,7 +83,13 @@ class AssignableController extends Controller
 
     public function package(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $request->validate([
+            'type' => ['required', 'in:dooring,transit'],
+        ]);
+
         $query = $repository->queries()->getPackagesQuery();
+        $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
+        $query->with('estimator', 'packager', 'items', 'partner_performance');
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
@@ -94,7 +101,6 @@ class AssignableController extends Controller
             $query->whereIn('id', $id);
         }
 
-        $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
         $request->whenHas('status', fn ($value) => $query->where('status', $value));
         $query->whereDoesntHave(
             'deliveries',
@@ -107,9 +113,20 @@ class AssignableController extends Controller
                 ])
         );
 
-        $query->with('estimator', 'packager', 'items', 'partner_performance');
+        $data = $query->paginate($request->input('per_page'));
+        $packages = $data->getCollection();
+        $partnerId = $repository->getPartner()->id;
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
+        if ($request->type === 'dooring') {
+            $package = $this->getPackagesDooring($packages, $partnerId);
+        } else {
+            $package = $this->getPackagesTransit($packages, $partnerId);
+        }
+
+        $result = $data->setCollection($package);
+
+        return $this->jsonSuccess(PackageResource::collection($result), null, true);
+        // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
 
@@ -159,5 +176,64 @@ class AssignableController extends Controller
         $checkDestination = Route::checkDestinationCityTransit($firstPackage, $lastPackage);
 
         return $checkDestination;
+    }
+
+    public function partnerWithOutRoute(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => ['nullable', 'exists:partners,code']
+        ]);
+
+        $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
+
+        if ($request->code) {
+            $partners->where('code', 'ilike', '%' . $request->code . '%');
+        }
+
+        return (new Response(Response::RC_SUCCESS, $partners->paginate(5)))->json();
+    }
+
+    /**
+     * Get Transit Packages
+     */
+    public function getPackagesTransit($package, $partnerId)
+    {
+        $package = $package->filter(function ($q) use ($partnerId) {
+            $partnerIdFromDeliveries = $q->deliveries->last()->partner_id;
+            if (!is_null($q->deliveryRoutes)) {
+                $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
+                if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
+                    return true;
+                }
+            } else {
+                if ($partnerIdFromDeliveries === $partnerId) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+
+        return $package;
+    }
+
+    /**
+     * Get Dooring Packages
+     */
+    public function getPackagesDooring($package, $partnerId)
+    {
+        $package = $package->filter(function ($q) use ($partnerId) {
+            $partnerIdFromDeliveries = $q->deliveries->last()->partner_id;
+            if (!is_null($q->deliveryRoutes)) {
+                $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
+                if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+
+        return $package;
     }
 }

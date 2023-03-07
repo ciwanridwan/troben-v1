@@ -3,7 +3,6 @@
 namespace App\Jobs\Deliveries;
 
 use App\Events\Deliveries\DeliveryCreated;
-use App\Events\Deliveries\DeliveryDooringCreated;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Partner;

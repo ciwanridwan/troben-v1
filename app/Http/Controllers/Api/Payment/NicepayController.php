@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Payment;
 use App\Actions\Payment\Nicepay\CheckPayment;
 use App\Concerns\Nicepay\UsingNicepay;
 use App\Events\Payment\Nicepay\PayByNicepay;
-use App\Exceptions\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Payment\Nicepay\RegistrationResource;
 use App\Http\Response;
