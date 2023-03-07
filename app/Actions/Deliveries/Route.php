@@ -27,9 +27,9 @@ class Route
 
     public const WAREHOUSE_TEGAL = ['MPW-TGL-01'];
 
-    public const WAREHOUSE_BANJARMASIN = ['MB-BDJ-03', 'MB-BDJ-02', 'MB-BJM-02'];
+    public const WAREHOUSE_BANJARMASIN = ['MB-BDJ-03', 'MB-BDJ-02'];
 
-    public const WAREHOUSE_MAKASSAR = ['MPW-UPG-03'];
+    public const WAREHOUSE_MAKASSAR = ['MB-UPG-01', 'MB-UPG-05', 'MB-UPG-02', 'MB-UPG-03'];
 
     public const WAREHOUSE_MATARAM = ['MB-MTR-01'];
 
@@ -104,7 +104,12 @@ class Route
                 $partnerCode = null;
             }
         } else {
-            $partnerCode = self::getWarehouseNearby($partner);
+            // set hardcode to exceptional condition in banjarmasin partner
+            if ($partner->code === 'MB-BJM-02') {
+                $partnerCode = array('MB-BDJ-02');
+            } else {
+                $partnerCode = self::getWarehouseNearby($partner);
+            }
         }
 
         return $partnerCode;
@@ -258,6 +263,8 @@ class Route
         $result = null;
         $destination = null;
         $partner = Partner::query();
+        $secondDestination = null;
+        $thirdDestination = null;
 
         if (is_array($warehouse)) {
             $code = collect($warehouse)->map(function ($q) {
@@ -418,9 +425,9 @@ class Route
             case in_array($partner->geo_regency_id, self::tegal()):
                 $code = self::WAREHOUSE_TEGAL;
                 break;
-            case in_array($partner->geo_regency_id, self::makassar()):
-                $code = self::WAREHOUSE_MAKASSAR;
-                break;
+                // case in_array($partner->geo_regency_id, self::makassar()):
+                //     $code = self::WAREHOUSE_MAKASSAR;
+                //     break;
             default:
                 $code = null;
                 break;
@@ -494,6 +501,7 @@ class Route
         ];
     }
 
+    // disable for get warehouse nearby
     public static function makassar(): array
     {
         return [

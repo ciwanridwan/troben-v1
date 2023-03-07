@@ -406,11 +406,11 @@ class OrderController extends Controller
 
         $items = $request->input('items') ?? [];
 
-        foreach ($items as $key => $item) {
-            if ($item['insurance'] == '1') {
+	foreach ($items as $key => $item) {
+            if (($item['insurance']??'') == '1') {
                 $items[$key]['is_insured'] = true;
             }
-            if ($item['is_glassware'] == '1') {
+            if (($item['is_glassware']??'') == '1') {
                 $items[$key]['is_glassware'] = true;
             }
         }
