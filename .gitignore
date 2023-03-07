@@ -5,6 +5,7 @@
 /public/js
 /public/build
 /public/mix-manifest.json
+/storage
 /storage/*.key
 /vendor
 /.idea

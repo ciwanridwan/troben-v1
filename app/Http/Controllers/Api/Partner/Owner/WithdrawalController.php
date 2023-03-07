@@ -117,7 +117,7 @@ class WithdrawalController extends Controller
 
             $request['expired_at'] = $expiredTime;
             $request['status'] = Withdrawal::STATUS_REQUESTED;
-
+	    $request->merge(['user' => $request->user()]);
             $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
             $this->dispatch($job);
 
