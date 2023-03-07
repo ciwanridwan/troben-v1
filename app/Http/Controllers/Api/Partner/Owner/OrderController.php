@@ -39,7 +39,7 @@ class OrderController extends Controller
      */
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
-        if ($repository->getPartner()->type === Partner::TYPE_TRANSPORTER) {
+        if ($repository->getPartner()->type === Partner::TYPE_TRANSPORTER || $repository->getPartner()->type === Partner::TYPE_BUSINESS) {
             $this->query = $repository->queries()->getDeliveriesByUserableQuery();
             return $this->orderByDeliveries($request);
         } else {
