@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
-use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
