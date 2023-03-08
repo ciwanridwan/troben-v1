@@ -509,17 +509,20 @@ class FinanceController extends Controller
      * */
     private function newQueryDetailDisbursment($partnerId)
     {
-        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
-        left join (
-            select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
-            ) pbh
-            on pbd.partner_id = pbh.partner_id
-        left join (
-            select * from codes c where codeable_type = 'App\Models\Packages\Package'
-            ) c
-            on pbh.package_id = c.codeable_id
-        left join packages p on pbh.package_id = p.id
-        where pbd.partner_id = $partnerId";
+        $q = "SELECT
+        c.content receipt,
+        p.total_amount total_payment,
+        pbh.total_accepted,
+        pbh.partner_id
+        FROM (
+            select package_id, partner_id, SUM(balance) total_accepted
+            from partner_balance_histories pbh
+            where pbh.partner_id = %d
+            group by partner_id, package_id
+        ) pbh
+        LEFT JOIN codes c ON pbh.package_id = c.codeable_id AND c.codeable_type = 'App\Models\Packages\Package'
+        LEFT JOIN packages p ON pbh.package_id = p.id";
+        $q = sprintf($q, $partnerId);
 
         return $q;
     }
