@@ -32,32 +32,29 @@ class AssignationController extends Controller
     {
         $method = 'partner';
         $job = new AssignDriverToDelivery($delivery, $userablePivot, $method);
-	$this->dispatchNow($job);
+        $this->dispatchNow($job);
 
-	if ($delivery->packages->count()) {
-        $driverSignIn = User::where('id', $delivery->driver->id)->first();
-        if ($driverSignIn) {
-            $token = auth('api')->login($driverSignIn);
-	}
+        if ($delivery->packages->count()) {
+            $driverSignIn = User::where('id', $delivery->driver->id)->first();
+            if ($driverSignIn) {
+                $token = auth('api')->login($driverSignIn);
+            }
 
-        $param = [
-            'token' => $token ?? null,
-            'type' => 'trawlpack',
-            'participant_id' => $job->delivery->assigned_to->user_id,
-            'customer_id' => $delivery->packages->first()->customer_id,
-            'package_id' => $job->delivery->packages->first()->id,
-            'product' => 'trawlpack'
-        ];
+            $param = [
+                'token' => $token ?? null,
+                'type' => 'trawlpack',
+                'participant_id' => $job->delivery->assigned_to->user_id,
+                'customer_id' => $delivery->packages->first()->customer_id,
+                'package_id' => $job->delivery->packages->first()->id,
+                'product' => 'trawlpack'
+            ];
 
-        try {
-            Chatbox::createDriverChatbox($param);
-        } catch (\Exception $e) {
-            report($e);
+            try {
+                Chatbox::createDriverChatbox($param);
+            } catch (\Exception $e) {
+                report($e);
+            }
         }
-
-	}
-
-
 
         return $this->jsonSuccess();
     }
