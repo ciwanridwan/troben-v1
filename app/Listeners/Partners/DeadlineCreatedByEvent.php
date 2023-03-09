@@ -61,7 +61,7 @@ class DeadlineCreatedByEvent
                 break;
             case $event instanceof DriverAssigned:
                 $delivery = $event->delivery;
-                $partnerOrigin = $delivery->origin_partner;
+                $partnerOrigin = $delivery->partner;
 
                 $startTimeAlert = Carbon::today()->addHours(18);
                 $now = Carbon::now();
