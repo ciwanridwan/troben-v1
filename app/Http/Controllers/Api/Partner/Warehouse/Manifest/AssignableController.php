@@ -84,7 +84,7 @@ class AssignableController extends Controller
     public function package(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'type' => ['required', 'in:dooring,transit'],
+            'type' => ['nullable', 'in:dooring,transit'],
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
@@ -117,13 +117,16 @@ class AssignableController extends Controller
         $packages = $data->getCollection();
         $partnerId = $repository->getPartner()->id;
 
-        if ($request->type === 'dooring') {
-            $package = $this->getPackagesDooring($packages, $partnerId);
-        } else {
-            $package = $this->getPackagesTransit($packages, $partnerId);
+        $type = $request->get('type');
+
+        if ($type == 'dooring') {
+            $packages = $this->getPackagesDooring($packages, $partnerId);
+        }
+        if ($type == 'transit') {
+            $packages = $this->getPackagesTransit($packages, $partnerId);
         }
 
-        $result = $data->setCollection($package);
+        $result = $data->setCollection($packages);
 
         return $this->jsonSuccess(PackageResource::collection($result), null, true);
         // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);

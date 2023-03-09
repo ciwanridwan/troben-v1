@@ -18,7 +18,7 @@
         "ext-json": "*",
         "doctrine/dbal": "^3.1",
         "fideloper/proxy": "^4.4",
-        "firebase/php-jwt": "^5.4",
+        "firebase/php-jwt": "^5.5.1",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "jalameta/jps-attachments": "dev-master",
@@ -43,7 +43,6 @@
         "veelasky/laravel-hashid": "^2.0"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
@@ -54,7 +53,8 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+	"platform-check": false
     },
     "extra": {
         "laravel": {

@@ -21,11 +21,11 @@ class Route
 
     public const WAREHOUSE_PEKANBARU = ['MB-PKU-02'];
 
-    public const WAREHOUSE_SEMARANG = ['MPW-SMG-01'];
+    public const WAREHOUSE_SEMARANG = ['MB-SMG-03', 'MB-SMG-02'];
 
     public const WAREHOUSE_SURABAYA = ['MPW-BJM-01', 'MB-SUB-01'];
 
-    public const WAREHOUSE_TEGAL = ['MPW-TGL-01'];
+    public const WAREHOUSE_TEGAL = ['MB-SLW-01'];
 
     public const WAREHOUSE_BANJARMASIN = ['MB-BDJ-03', 'MB-BDJ-02'];
 
@@ -419,12 +419,12 @@ class Route
             case in_array($partner->geo_regency_id, self::jabodetabek()):
                 $code = self::WAREHOUSE_NAROGONG;
                 break;
-            case in_array($partner->geo_regency_id, self::semarang()):
-                $code = self::WAREHOUSE_SEMARANG;
-                break;
-            case in_array($partner->geo_regency_id, self::tegal()):
-                $code = self::WAREHOUSE_TEGAL;
-                break;
+                // case in_array($partner->geo_regency_id, self::semarang()):
+                //     $code = self::WAREHOUSE_SEMARANG;
+                //     break;
+                // case in_array($partner->geo_regency_id, self::tegal()):
+                //     $code = self::WAREHOUSE_TEGAL;
+                //     break;
                 // case in_array($partner->geo_regency_id, self::makassar()):
                 //     $code = self::WAREHOUSE_MAKASSAR;
                 //     break;
