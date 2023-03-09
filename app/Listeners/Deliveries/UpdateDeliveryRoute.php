@@ -3,6 +3,7 @@
 namespace App\Listeners\Deliveries;
 
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
+use App\Models\Deliveries\Delivery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -28,6 +29,12 @@ class UpdateDeliveryRoute
     {
         switch (true) {
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
+                $delivery = $event->delivery;
+                if ($delivery->status === Delivery::STATUS_FINISHED) {
+                    Log::info('Cant duplicate execution listeners', array($delivery));
+                    break;
+                }
+
                 $packages = $event->delivery->packages;
                 foreach ($packages as $package) {
                     if (is_null($package->deliveryRoutes)) {
