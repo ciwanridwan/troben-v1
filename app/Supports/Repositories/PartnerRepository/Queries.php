@@ -163,8 +163,10 @@ class Queries
 
         $query->with([
             'deliveries' => $queryPartnerId,
+            'deliveries',
             'deliveries.origin_partner',
             'deliveries.partner',
+            'deliveryRoutes'
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
