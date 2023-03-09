@@ -29,7 +29,7 @@ class AssignableController extends Controller
                 $packages = Route::getPackages($request->all());
                 $partnerByRoutes = [];
                 foreach ($packages as $package) {
-                    if (! is_null($package->deliveryRoutes)) {
+                    if (!is_null($package->deliveryRoutes)) {
                         $partnerByRoute = Route::setPartners($package->deliveryRoutes);
                         array_push($partnerByRoutes, $partnerByRoute);
                     } else {
@@ -59,7 +59,7 @@ class AssignableController extends Controller
 
         $query->when(
             $request->input('code'),
-            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%'.$code.'%')
+            fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
         );
 
         return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
@@ -83,11 +83,17 @@ class AssignableController extends Controller
 
     public function package(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $request->validate([
+            'type' => ['nullable', 'in:dooring,transit'],
+        ]);
+
         $query = $repository->queries()->getPackagesQuery();
+        $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
+        $query->with('estimator', 'packager', 'items', 'partner_performance');
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
-                ->where('content', 'like', '%'.$request->q.'%')
+                ->where('content', 'like', '%' . $request->q . '%')
                 ->pluck('codeable_id');
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -95,7 +101,6 @@ class AssignableController extends Controller
             $query->whereIn('id', $id);
         }
 
-        $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
         $request->whenHas('status', fn ($value) => $query->where('status', $value));
         $query->whereDoesntHave(
             'deliveries',
@@ -108,10 +113,23 @@ class AssignableController extends Controller
                 ])
         );
 
-        $query->with('estimator', 'packager', 'items', 'partner_performance');
-        $result = $query->paginate($request->input('per_page'));
+        $data = $query->paginate($request->input('per_page'));
+        $packages = $data->getCollection();
+        $partnerId = $repository->getPartner()->id;
 
-        return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
+        $type = $request->get('type');
+
+        if ($type == 'dooring') {
+            $packages = $this->getPackagesDooring($packages, $partnerId);
+        }
+        if ($type == 'transit') {
+            $packages = $this->getPackagesTransit($packages, $partnerId);
+        }
+
+        $result = $data->setCollection($packages);
+
+        return $this->jsonSuccess(PackageResource::collection($result), null, true);
+        // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
 
@@ -133,7 +151,7 @@ class AssignableController extends Controller
         $check = $this->matchTransit($firstPackage, $packages);
 
         foreach ($packages as $package) {
-            if (! is_null($package->deliveryRoutes)) {
+            if (!is_null($package->deliveryRoutes)) {
                 $variant = 1; // to set this variant is any routes
             } else {
                 $variant = 2; // to set this variant cant have routes
@@ -145,7 +163,7 @@ class AssignableController extends Controller
         if ($check) {
             return (new Response(Response::RC_SUCCESS))->json();
         } else {
-            if (! in_array(1, $allVariant)) {
+            if (!in_array(1, $allVariant)) {
                 return (new Response(Response::RC_SUCCESS))->json();
             } elseif (in_array(1, $allVariant) && in_array(2, $allVariant)) {
                 return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Resi tidak dapat di proses, silahkan pili resi yang lain']))->json();
@@ -172,9 +190,53 @@ class AssignableController extends Controller
         $partners = Partner::query()->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
 
         if ($request->code) {
-            $partners->where('code', 'ilike', '%'.$request->code.'%');
+            $partners->where('code', 'ilike', '%' . $request->code . '%');
         }
 
         return (new Response(Response::RC_SUCCESS, $partners->paginate(5)))->json();
+    }
+
+    /**
+     * Get Transit Packages
+     */
+    public function getPackagesTransit($package, $partnerId)
+    {
+        $package = $package->filter(function ($q) use ($partnerId) {
+            $partnerIdFromDeliveries = $q->deliveries->last()->partner_id;
+            if (!is_null($q->deliveryRoutes)) {
+                $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
+                if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
+                    return true;
+                }
+            } else {
+                if ($partnerIdFromDeliveries === $partnerId) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+
+        return $package;
+    }
+
+    /**
+     * Get Dooring Packages
+     */
+    public function getPackagesDooring($package, $partnerId)
+    {
+        $package = $package->filter(function ($q) use ($partnerId) {
+            $partnerIdFromDeliveries = $q->deliveries->last()->partner_id;
+            if (!is_null($q->deliveryRoutes)) {
+                $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
+                if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->values();
+
+        return $package;
     }
 }

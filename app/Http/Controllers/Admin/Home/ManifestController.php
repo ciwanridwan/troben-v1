@@ -143,7 +143,7 @@ class ManifestController extends Controller
                 }
             }
 
-            $request->whenHas('q', function ($value) use ($query) {
+            $request->whenHas('search', function ($value) use ($query) {
                 $query->where(function ($query) use ($value) {
                     $query->search($value);
                 });

@@ -90,6 +90,11 @@ class ManifestController extends Controller
         if ($request->partner) {
             return $this->getPartnerTransporter($request);
         }
+        if ($search = $request->get('search')) {
+            $this->query->whereHas('code', function($q) use ($search) {
+                $q->where('content', $search);
+            });
+        }
         $this->query->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
         $this->getSearch($request);
         $this->dataRelation();
