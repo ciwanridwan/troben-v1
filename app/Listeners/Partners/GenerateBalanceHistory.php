@@ -234,6 +234,12 @@ class GenerateBalanceHistory
                         if ($this->partner->get_fee_pickup) {
                             if ($package->type == Package::TYPE_APP) {
                                 $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
+
+                                if (!is_null($discountPickup)) {
+                                    $balancePickup -= $discountPickup->amount;
+                                }
+
                                 if ($balancePickup !== 0) {
                                     $this
                                         ->setBalance($balancePickup)
