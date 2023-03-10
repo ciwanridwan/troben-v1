@@ -674,19 +674,7 @@ class PricingCalculator
     /** Motobikes price */
     public static function getBikePrice($originRegencyId, $destinationId)
     {
-        // $acceptedRegency = [
-        //     58, 59, 60, 61, 62, //jakarta
-        //     94, 76, //bekasi
-        //     95, 77, //bogor
-        //     98, //depok
-        //     40, 39, 36, //tangerang
-        // ];
-
         $messages = ['message' => 'Lokasi yang anda pilih belum terjangkau'];
-        // throw_if(!in_array($originRegencyId, $acceptedRegency), OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $messages));
-
-        // hardcode, set it to jabodetabek price
-        // $price = BikePrices::where('destination_id', $destinationId)->first();
 
         $price = BikePrices::where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
 

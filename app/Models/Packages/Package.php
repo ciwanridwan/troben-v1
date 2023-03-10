@@ -647,7 +647,7 @@ class Package extends Model implements AttachableContract
 
     public function getTypeAttribute()
     {
-        if (! $this->transporter_type) {
+        if (!$this->transporter_type) {
             return self::TYPE_WALKIN;
         } else {
             return self::TYPE_APP;
@@ -784,7 +784,7 @@ class Package extends Model implements AttachableContract
     public function getTransporterDetailAttribute(): ?array
     {
         $transporterType = $this->transporter_type;
-        if (! $transporterType) {
+        if (!$transporterType) {
             return null;
         }
         return Arr::first(Transporter::getDetailAvailableTypes(), function ($transporter) use ($transporterType) {
@@ -847,46 +847,50 @@ class Package extends Model implements AttachableContract
     public function getEstimationPricesAttribute()
     {
         if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
-            $items = $this->items()->get();
-            $results = [];
-            foreach ($items as $item) {
-                $packingFee = 0;
-                if ($item->handling) {
-                    $packingFee = collect($item->handling)->map(function ($q) use ($item) {
-                        $p = $q['price'] * $item->qty;
-                        $r = [
-                            'type' => $q['type'],
-                            'price' => $p
-                        ];
-                        return $r;
-                    })->toArray();
+            $bike = $this->motoBikes()->first();
+            if (!is_null($bike)) {
+                $results = $this->getEstimationBikePrices();
+            } else {
+                $items = $this->items()->get();
+                $results = [];
+                foreach ($items as $item) {
+                    $packingFee = 0;
+                    if ($item->handling) {
+                        $packingFee = collect($item->handling)->map(function ($q) use ($item) {
+                            $p = $q['price'] * $item->qty;
+                            $r = [
+                                'type' => $q['type'],
+                                'price' => $p
+                            ];
+                            return $r;
+                        })->toArray();
 
-                    $handlingFee = array_sum(array_column($packingFee, 'price'));
-                } else {
-                    $handlingFee = 0;
+                        $handlingFee = array_sum(array_column($packingFee, 'price'));
+                    } else {
+                        $handlingFee = 0;
+                    }
+
+                    $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
+
+                    $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+                    if (!$item->is_insured) {
+                        $insuranceFee = 0;
+                    }
+
+                    // $serviceFee = $item->weight * $this->tier_price;
+                    $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
+
+                    $result = [
+                        'handling_fee' => $packingFee,
+                        'insurance_fee' => $insuranceFee,
+                        'additional_fee' => $additionalFee,
+                        // 'service_fee' => $serviceFee,
+                        'sub_total_amount' => $subTotalAmount
+                    ];
+
+                    array_push($results, $result);
                 }
-
-                $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
-
-                $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-                if (! $item->is_insured) {
-                    $insuranceFee = 0;
-                }
-
-                // $serviceFee = $item->weight * $this->tier_price;
-                $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
-
-                $result = [
-                    'handling_fee' => $packingFee,
-                    'insurance_fee' => $insuranceFee,
-                    'additional_fee' => $additionalFee,
-                    // 'service_fee' => $serviceFee,
-                    'sub_total_amount' => $subTotalAmount
-                ];
-
-                array_push($results, $result);
             }
-
             return $results;
         } else {
             return null;
@@ -989,5 +993,47 @@ class Package extends Model implements AttachableContract
         $additionalPrice = $item['additional_price'];
 
         return $additionalPrice;
+    }
+
+    private function getEstimationBikePrices()
+    {
+        $item = $this->items()->first();
+
+        if ($item->handling) {
+            $packingFee = collect($item->handling)->map(function ($q) use ($item) {
+                $p = $q['price'] * $item->qty;
+                $r = [
+                    'type' => $q['type'],
+                    'price' => $p
+                ];
+                return $r;
+            })->toArray();
+
+            $handlingFeeAdditional = array_sum(array_column($packingFee, 'price'));
+        } else {
+            $handlingFeeAdditional = 0;
+        }
+
+        $handlingBike = $this->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+        if (is_null($handlingBike)) {
+            $handlingFeeRequired = 0;
+        } else {
+            $handlingFeeRequired = $handlingBike->amount;
+        }
+
+        $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+        if (!$item->is_insured) {
+            $insuranceFee = 0;
+        }
+
+        $subTotalAmount = $handlingFeeRequired + $insuranceFee + $handlingFeeAdditional;
+        $result = [
+            'handling_fee_additional' => $handlingFeeAdditional,
+            'handling_fee_required' => $handlingFeeRequired,
+            'insurance_fee' => $insuranceFee,
+            'sub_total_amount' => $subTotalAmount
+        ];
+
+        return $result;
     }
 }
