@@ -95,6 +95,7 @@ class PackageResource extends JsonResource
             ->where('payable_id', $data['id'])
             ->where('service_type', 'pay')
             ->where('status', ['pending', 'success'])
+            ->latest()
             ->first() ?? null;
 
         $isMulti = false;
