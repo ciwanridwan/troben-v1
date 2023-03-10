@@ -130,8 +130,9 @@ class WithdrawalController extends Controller
     public function attachmentTransfer(Request $request, Withdrawal $wd, $id): JsonResponse
     {
         $request->validate([
-            'attachment_transfer' => ['required', 'image', 'mimes:png,jpg,jpeg']
+            'attachment_transfer' => 'required|file'
         ]);
+
         $withdrawal = Withdrawal::where('id', $id)->first();
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
