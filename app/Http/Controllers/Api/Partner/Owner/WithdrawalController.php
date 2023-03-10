@@ -153,7 +153,9 @@ class WithdrawalController extends Controller
             ];
             return (new Response(Response::RC_CREATED, $data))->json();
         } else {
-            return (new Response(Response::RC_INVALID_DATA, []))->json();
+            return (new Response(Response::RC_INVALID_DATA, [
+                'msg' => 'Status should approved, current status: ' . $withdrawal->status
+            ]))->json();
         }
     }
 
