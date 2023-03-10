@@ -248,6 +248,14 @@ class OrderController extends Controller
             }
         }
 
+        $payment = Payment::with('gateway')
+            ->where('payable_type', Package::class)
+            ->where('payable_id', $package->id)
+            ->where('service_type', 'pay')
+            ->where('status', ['pending', 'success'])
+            ->latest()
+            ->first();
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -270,6 +278,7 @@ class OrderController extends Controller
             'multi_items' => $multiItems,
             'is_multi_approve' => $isMultiApprove,
             'driver' => $driver,
+            'payment' => $payment,
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
