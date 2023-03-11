@@ -77,7 +77,8 @@ class Item extends Model implements AttachableContract
         'is_insured',
         'handling',
         'revision',
-        'is_glassware'
+        'is_glassware',
+        'category_item_id',
     ];
 
     /**

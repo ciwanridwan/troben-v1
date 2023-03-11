@@ -33,9 +33,19 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('listDrivers'),
         ]);
 
+        $this->router->get($this->prefix('list/category'), [
+            'as' => $this->name('list.category'),
+            'uses' => $this->uses('listCategories'),
+        ]);
+
         $this->router->patch($this->prefix('assign/{delivery_hash}/{userable_hash}/drivers'), [
             'as' => $this->name('assign.driver'),
             'uses' => $this->uses('orderAssignation'),
+        ]);
+
+        $this->router->post($this->prefix('/create'), [
+            'as' => $this->name('store'),
+            'uses' => $this->uses('store'),
         ]);
 
         $this->router->post($this->prefix('{package_hash}/update'), [
@@ -46,6 +56,16 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('price/estimation'), [
             'as' => $this->name('estimation.prices'),
             'uses' => $this->uses('estimationPrices'),
+        ]);
+
+        $this->router->post($this->prefix('price/estimation/total'), [
+            'as' => $this->name('estimation.prices.total'),
+            'uses' => $this->uses('totalEstimationPrices'),
+        ]);
+
+        $this->router->post($this->prefix('create/multi-destination'), [
+            'as' => $this->name('create.multi-destination'),
+            'uses' => $this->uses('createOrUpdateMulti'),
         ]);
     }
 

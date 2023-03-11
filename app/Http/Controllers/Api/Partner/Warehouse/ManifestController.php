@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse;
 
-use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
 use App\Models\Deliveries\Deliverable;
@@ -16,10 +15,12 @@ use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Resources\Api\Delivery\WarehouseManifestResource;
 use App\Jobs\Deliveries\Actions\V2\ProcessFromCodeToDelivery;
 use App\Jobs\Deliveries\Actions\V2\CreateNewManifest;
+use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ManifestController extends Controller
 {
@@ -54,7 +55,7 @@ class ManifestController extends Controller
 
         if ($request->has('q')) {
             $id = Code::select('codeable_id')
-                ->where('content', 'like', '%'.$request->q.'%')
+                ->where('content', 'like', '%' . $request->q . '%')
                 ->pluck('codeable_id');
             if ($id->count() == 0) {
                 return (new Response(Response::RC_DATA_NOT_FOUND))->json();
@@ -62,27 +63,10 @@ class ManifestController extends Controller
             $query->whereIn('id', $id)->get();
         }
 
-        $query->with(['partner','transporter','item_codes.codeable','code.scan_item_codes.codeable','code.scan_receipt_codes','packages','partner_performance']);
+        $query->with(['partner', 'transporter', 'item_codes.codeable', 'code.scan_item_codes.codeable', 'code.scan_receipt_codes', 'packages', 'partner_performance']);
 
         return $this->jsonSuccess(DeliveryResource::collection($query->orderBy('created_at', 'desc')->paginate($request->input('per_page'))), null, true);
     }
-
-    // old script
-    // /**
-    //  * @param \Illuminate\Http\Request $request
-    //  * @param \App\Supports\Repositories\PartnerRepository $repository
-    //  * @return \Illuminate\Http\JsonResponse
-    //  * @throws \Illuminate\Validation\ValidationException
-    //  */
-    // public function store(Request $request, PartnerRepository $repository): JsonResponse
-    // {
-    //     $job = new CreateNewManifest($repository->getPartner(), $request->all());
-
-    //     $this->dispatchNow($job);
-
-    //     return $this->jsonSuccess();
-    // }
-    // end old
 
     // new script to create manifest
     /**
@@ -93,7 +77,11 @@ class ManifestController extends Controller
      */
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        // Route::generate($repository->getPartner(), $request->all());
+        $packagesInManifest = $this->checkPackages($request->all());
+        if ($packagesInManifest) {
+            Log::info('Package cant insert to delivery, because still progress in delivery', [$request->code]);
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Package has entered in delivery']))->json();
+        }
         $job = new CreateNewManifest($repository->getPartner(), $request->all());
         $this->dispatchNow($job);
 
@@ -243,5 +231,30 @@ class ManifestController extends Controller
         );
 
         $this->dispatchNow($job);
+    }
+
+    /**Check packages if exists entry to manifest */
+    public function checkPackages($request)
+    {
+        $code = $request['code'];
+        $check = 0;
+        $checks = [];
+        $result = false;
+
+        $packages = Code::query()->whereIn('content', $code)->where('codeable_type', Package::class)->with('codeable')->get();
+        foreach ($packages as $value) {
+            $package = $value->codeable;
+            if ($package->status === 'manifested') {
+                $check = 1;
+            }
+
+            array_push($checks, $check);
+        }
+
+        if (in_array(1, $checks)) {
+            $result = true;
+        }
+
+        return $result;
     }
 }

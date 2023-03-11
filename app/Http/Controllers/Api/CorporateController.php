@@ -407,11 +407,19 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination',
-        ])->whereHas('corporate');
+            'multiDestination', 'parentDestination.packages.corporate',
+        ]);
 
         if (! $isAdmin) {
-            $results = $results->where('created_by', auth()->id());
+            $partner = auth()->user()->partners->first();
+            $partnerId = $partner->getKey();
+            $results = $results->where(function($q) use ($partnerId) {
+                $q->where('created_by', auth()->id())
+                ->orWhereHas('deliveries', function($q2) use ($partnerId) {
+                    $q2->where('partner_id', $partnerId);
+                });
+            });
+
         }
         if ($request->get('status')) {
             $results = $results->where('payment_status', $request->get('status'));
@@ -427,13 +435,23 @@ class CorporateController extends Controller
 
         $results->getCollection()->transform(function ($item) {
             $type2 = 'single';
-            if ($item->multiDestination->count()) {
-                $type2 = 'multi';
+            $payment_method = 'va';
+            if (! is_null($item->corporate)) {
+                $payment_method = $item->corporate->payment_method;
             }
+
+            if ($item->multiDestination->count()) $type2 = 'multi';
             if (! is_null($item->parentDestination)) {
+                $payment_method = 'va';
+                if (! is_null($item->parentDestination->packages->corporate)) {
+                    $payment_method = $item->parentDestination->packages->corporate->payment_method;
+                }
                 $type2 = 'multi';
+                $item->payment_status = $item->parentDestination->packages->payment_status;
             }
             $item->type2 = $type2;
+
+            $item->payment_method = $payment_method;
 
             return $item;
         });
@@ -445,7 +463,7 @@ class CorporateController extends Controller
     {
         $isAdmin = auth()->user()->is_admin;
 
-        $query = Package::query()->whereHas('corporate');
+        $query = Package::query();
 
         if (! $isAdmin) {
             $query = $query->where('created_by', auth()->id());

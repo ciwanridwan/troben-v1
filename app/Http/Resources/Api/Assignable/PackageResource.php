@@ -64,6 +64,7 @@ class PackageResource extends JsonResource
             'destination_regency' => $this->resource->destination_regency ? RegencyResource::make($this->resource->destination_regency)->only('name') : null,
             'destination_district' => $this->resource->destination_district ? DistrictResource::make($this->resource->destination_district)->only('name') : null,
             'destination_sub_district' => SubDistrictResource::make($this->resource->destination_sub_district)->only('name'),
+            'deliveries' => $this->deliveries
         ];
     }
 }

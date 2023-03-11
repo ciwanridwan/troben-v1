@@ -30,6 +30,7 @@ class Regency extends Model
     public const JABODETABEK = [
             'Kota Tangerang',
             'Kota Tangerang Selatan',
+            'Kabupaten Tangerang Selatan',
             'Kota Adm. Jakarta Barat',
             'Kota Adm. Jakarta Pusat',
             'Kota Adm. Jakarta Selatan',

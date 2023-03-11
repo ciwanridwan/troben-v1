@@ -165,7 +165,7 @@ class GenerateBalanceHistory
                         $balancePickup = 0;
                         $extraFee = 0;
                         $bikeFeeHandling = 0;
-                        $feeAdditional = 0;
+                        // $feeAdditional = 0;
 
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
@@ -184,15 +184,15 @@ class GenerateBalanceHistory
                             }
 
                             /**Get fee additional */
-                            if ($package->total_weight > 100) {
-                                $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
-                                $this
-                                    ->setBalance($feeAdditional)
-                                    ->setType(History::TYPE_DEPOSIT)
-                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                    ->setAttributes()
-                                    ->recordHistory();
-                            }
+                            // if ($package->total_weight > 100) {
+                            //     $feeAdditional = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->first()->amount;
+                            //     $this
+                            //         ->setBalance($feeAdditional)
+                            //         ->setType(History::TYPE_DEPOSIT)
+                            //         ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                            //         ->setAttributes()
+                            //         ->recordHistory();
+                            // }
                         }
 
                         # total balance insurance > record insurance fee
@@ -234,6 +234,12 @@ class GenerateBalanceHistory
                         if ($this->partner->get_fee_pickup) {
                             if ($package->type == Package::TYPE_APP) {
                                 $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                                $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
+
+                                if (!is_null($discountPickup)) {
+                                    $balancePickup -= $discountPickup->amount;
+                                }
+
                                 if ($balancePickup !== 0) {
                                     $this
                                         ->setBalance($balancePickup)
@@ -249,7 +255,7 @@ class GenerateBalanceHistory
 
 
                         /** Set balance partner*/
-                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee + $feeAdditional;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee;
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;

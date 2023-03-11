@@ -58,13 +58,13 @@ class BalanceController extends Controller
                     });
 
                     $totalAmount = 0;
-                    $penaltyIncome = $k->where('type', 'penalty')->first();
+		    $penaltyIncome = $k->where('type', 'penalty')->first();
 
-                    if (is_null($penaltyIncome)) {
-                        $totalAmount = $k->sum('amount');
-                    } else {
-                        $totalAmount = $k->where('type', '!=', 'penalty')->sum('amount') - $penaltyIncome->amount;
-                    }
+		    $subber = ['penalty', 'discount', 'withdraw'];
+		    $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
+		    $totalSubber = $k->whereIn('type', $subber)->sum('amount');
+
+                    $totalAmount = $totalAmount - $totalSubber;
 
                     return [
                     'package_code' => $k[0]->package_code,

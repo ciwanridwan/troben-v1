@@ -130,7 +130,7 @@ class FinanceController extends Controller
         }
 
         if ($result->partner->type === Partner::TYPE_TRANSPORTER) {
-            return $this->findManifest($result, $this->attributes['receipt']);
+            return $this->findManifest($request, $result, $this->attributes['receipt']);
         } else {
             $query = $this->newQueryDetailDisbursment($result->partner_id);
             $packages = collect(DB::select($query));
@@ -165,9 +165,9 @@ class FinanceController extends Controller
      * Filter by manifest code
      * Include receipt code.
      */
-    public function findManifest($withdrawal, $manifestCode)
+    public function findManifest(Request $request, $withdrawal, $manifestCode)
     {
-        $deliveries = $this->getDetailDisbursmentTransporter($withdrawal->partner_id);
+        $deliveries = $this->getDetailDisbursmentTransporter($request, $withdrawal->partner_id);
 
         $receipt = $deliveries->where('receipt', $manifestCode)->map(function ($r) use ($withdrawal, $manifestCode) {
             $r['total_payment'] = intval($r['total_payment']);
@@ -311,7 +311,7 @@ class FinanceController extends Controller
      * Get a detail of disbursment.
      * @param $disbursment_id
      * */
-    public function detail($disbursment_id)
+    public function detail($disbursment_id, Request $request)
     {
         $disbursment = Withdrawal::where('id', $disbursment_id)->first();
 
@@ -323,10 +323,10 @@ class FinanceController extends Controller
 
         switch ($partner->type) {
             case Partner::TYPE_TRANSPORTER:
-                return $this->detailDisbursTransporter($partner->type, $disbursment);
+                return $this->detailDisbursTransporter($request, $partner->type, $disbursment);
                 break;
             default:
-                return $this->detailDisburs($disbursment);
+                return $this->detailDisburs($request, $disbursment);
                 break;
         }
     }
@@ -509,17 +509,20 @@ class FinanceController extends Controller
      * */
     private function newQueryDetailDisbursment($partnerId)
     {
-        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
-        left join (
-            select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
-            ) pbh
-            on pbd.partner_id = pbh.partner_id
-        left join (
-            select * from codes c where codeable_type = 'App\Models\Packages\Package'
-            ) c
-            on pbh.package_id = c.codeable_id
-        left join packages p on pbh.package_id = p.id
-        where pbd.partner_id = $partnerId";
+        $q = "SELECT
+        c.content receipt,
+        p.total_amount total_payment,
+        pbh.total_accepted,
+        pbh.partner_id
+        FROM (
+            select package_id, partner_id, SUM(balance) total_accepted
+            from partner_balance_histories pbh
+            where pbh.partner_id = %d
+            group by partner_id, package_id
+        ) pbh
+        LEFT JOIN codes c ON pbh.package_id = c.codeable_id AND c.codeable_type = 'App\Models\Packages\Package'
+        LEFT JOIN packages p ON pbh.package_id = p.id";
+        $q = sprintf($q, $partnerId);
 
         return $q;
     }
@@ -528,10 +531,22 @@ class FinanceController extends Controller
      * To get detail disbursment of partner transporter.
      * @param $partnerId
      */
-    private function getDetailDisbursmentTransporter($partnerId)
+    private function getDetailDisbursmentTransporter($request, $partnerId)
     {
-        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
-            ->map(function ($q) {
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId);
+
+        if ($date_start = $request->get('date_start')) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_start) {
+                $q->where('created_at', '>=', sprintf('%s 00:00:00', $date_start));
+            });
+        }
+        if ($date_end = $request->get('date_end')) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_end) {
+                $q->where('created_at', '<=', sprintf('%s 23:59:59', $date_end));
+            });
+        }
+
+        $deliveryHistory = $deliveryHistory->orderByDesc('created_at')->get()->map(function ($q) {
                 $amount = $q->deliveries->packages->sum('total_amount');
                 $res = [
                     'receipt' => $q->deliveries->code->content,
@@ -566,10 +581,10 @@ class FinanceController extends Controller
     /**
      * Set detail disbursment of partner transporter.
      */
-    private function detailDisbursTransporter($partnerType, $disbursment): JsonResponse
+    private function detailDisbursTransporter(Request $request, $partnerType, $disbursment): JsonResponse
     {
         if ($partnerType == Partner::TYPE_TRANSPORTER) {
-            $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+            $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
 
             $disbursHistory = DisbursmentHistory::all();
 
@@ -670,17 +685,28 @@ class FinanceController extends Controller
     /**
      * Sub function for a get detail disburs.
      */
-    private function detailDisburs($disbursment): JsonResponse
+    private function detailDisburs(Request $request, $disbursment): JsonResponse
     {
-        $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
-        $packages = collect(DB::select($query));
+        $request->validate([
+            'date_start' => 'nullable|date_format:Y-m-d',
+            'date_end' => 'nullable|date_format:Y-m-d',
+        ]);
 
-        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->get()->filter(function ($q) use ($disbursment) {
-            if ($q->parentDisbursment->partner_id !== $disbursment->partner_id) {
-                return false;
-            }
-            return true;
-        });
+        $partnerId = $disbursment->partner_id;
+
+        $query = $this->newQueryDetailDisbursment($partnerId);
+        $packages = collect(DB::select($query))->sortByDesc('created_at');
+
+        if ($date_start = $request->get('date_start')) {
+            $packages = $packages->where('created_at', '>=', $date_start);
+        }
+        if ($date_end = $request->get('date_end')) {
+            $packages = $packages->where('created_at', '<=', $date_end);
+        }
+
+        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function($q) use ($partnerId) {
+            $q->where('partner_id', $partnerId);
+        })->get();
 
         if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
             $data = $this->detailWithRequest($disbursment, $packages, $disbursHistory);
@@ -748,9 +774,9 @@ class FinanceController extends Controller
     /**
      * Approve deliveries by with manifest code.
      */
-    private function approveForDeliveries($disbursment, $receipt): JsonResponse
+    private function approveForDeliveries(Request $request, $disbursment, $receipt): JsonResponse
     {
-        $deliveries = $this->getDetailDisbursmentTransporter($disbursment->partner_id);
+        $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
         $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
             $r['total_accepted'] = ceil($r['total_accepted']);
             return $r;

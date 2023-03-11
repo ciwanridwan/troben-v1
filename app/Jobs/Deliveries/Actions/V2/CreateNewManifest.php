@@ -3,6 +3,7 @@
 namespace App\Jobs\Deliveries\Actions\V2;
 
 use App\Events\Deliveries\DeliveryCreatedWithDeadline;
+use App\Events\Deliveries\DriverAssignedOfTransit;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Support\Facades\Validator;
@@ -83,7 +84,12 @@ class CreateNewManifest
             $job->delivery->save();
         }
 
-        event(new DeliveryCreatedWithDeadline($job->delivery));
+        if (is_null($this->userable)) {
+            event(new DeliveryCreatedWithDeadline($job->delivery));
+        } else {
+            event(new DriverAssignedOfTransit($job->delivery, $this->userable));
+        }
+
         $this->delivery = $job->delivery;
     }
 }

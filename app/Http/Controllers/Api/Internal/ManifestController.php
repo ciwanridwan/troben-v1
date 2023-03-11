@@ -90,6 +90,11 @@ class ManifestController extends Controller
         if ($request->partner) {
             return $this->getPartnerTransporter($request);
         }
+        if ($search = $request->get('search')) {
+            $this->query->whereHas('code', function($q) use ($search) {
+                $q->where('content', $search);
+            });
+        }
         $this->query->where('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
         $this->getSearch($request);
         $this->dataRelation();
@@ -113,16 +118,28 @@ class ManifestController extends Controller
             $packages = $delivery->packages;
 
             foreach ($packages as $package) {
-                if (! is_null($package->deliveryRoutes)) {
-                    $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
-                    if (! is_null($partnerCode)) {
-                        if (! is_array($partnerCode)) {
-                            $partnerCode = [$partnerCode];
+                $fromPickup = false;
+                if ($package->deliveries->count() <= 2) {
+                    $fromPickup = true;
+                }
+            }
+
+            $originPartner = $delivery->origin_partner;
+            if ($originPartner->isJabodetabek() && $fromPickup) {
+                $query->where('code', 'MTM-CGK-00');
+            } else {
+                foreach ($packages as $package) {
+                    if (! is_null($package->deliveryRoutes)) {
+                        $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                        if (! is_null($partnerCode)) {
+                            if (! is_array($partnerCode)) {
+                                $partnerCode = [$partnerCode];
+                            }
+                            $query->whereIn('code', $partnerCode);
                         }
-                        $query->whereIn('code', $partnerCode);
+                    } else {
+                        $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
                     }
-                } else {
-                    $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
                 }
             }
 
