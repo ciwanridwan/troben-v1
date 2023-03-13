@@ -11,6 +11,7 @@ use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Payment\Nicepay\PayByNicepay;
 use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use App\Events\Payment\Nicepay\PaymentIsCorporateMode;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Performances\Delivery as PartnerDeliveryPerformance;
 use App\Models\Partners\Performances\Package as PartnerPackagePerformance;
@@ -43,6 +44,19 @@ class DeadlineCreatedByEvent
                     'deadline' => $deadline
                 ]);
 
+                # Add performance to child receipt
+                if ($package->multiDestination()->exists()) {
+                    $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+                    $packageChild = Package::query()->whereIn('id', $childId)->get();
+                    $packageChild->each(function ($r) use ($deadline, $partnerPickup) {
+                        PartnerPackagePerformance::query()->create([
+                            'partner_id' => $partnerPickup->id,
+                            'package_id' => $r->id,
+                            'deadline' => $deadline
+                        ]);
+                    });
+                }
+
                 Log::debug('Deadline Payment Has Been Created: ', [$performanceQuery]);
                 break;
             case $event instanceof PaymentIsCorporateMode:
@@ -61,7 +75,7 @@ class DeadlineCreatedByEvent
                 break;
             case $event instanceof DriverAssigned:
                 $delivery = $event->delivery;
-                $partnerOrigin = $delivery->origin_partner;
+                $partnerOrigin = $delivery->partner;
 
                 $startTimeAlert = Carbon::today()->addHours(18);
                 $now = Carbon::now();
@@ -72,7 +86,7 @@ class DeadlineCreatedByEvent
                 $deadline = $now > $startTimeAlert ? Carbon::now()->endOfDay() : null;
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerOrigin->id)->where('delivery_id', $delivery->id)->first();
 
-                if (! $performanceDelivery || is_null($performanceDelivery)) {
+                if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerOrigin->id,
                         'delivery_id' => $delivery->id,
@@ -94,11 +108,11 @@ class DeadlineCreatedByEvent
                 $now = Carbon::now();
                 $endTime = Carbon::today()->addHours(18);
 
-                // real first time
+                # real first time
                 $firstTime = Carbon::today()->addHours(12);
 
-                // for test
-                // $firstTime = Carbon::today()->addHours(9);
+                # for test
+                # $firstTime = Carbon::today()->addHours(9);
                 if ($now < $firstTime) {
                     Log::info('Deadline not create because outside the specified time is less 12.00 hours');
                     break;
@@ -113,7 +127,7 @@ class DeadlineCreatedByEvent
 
                 $performanceDelivery = PartnerDeliveryPerformance::query()->where('partner_id', $partnerDestination->id)->where('delivery_id', $delivery->id)->first();
 
-                if (! $performanceDelivery || is_null($performanceDelivery)) {
+                if (!$performanceDelivery || is_null($performanceDelivery)) {
                     $performanceQuery = PartnerDeliveryPerformance::query()->create([
                         'partner_id' => $partnerDestination->id,
                         'delivery_id' => $delivery->id,
@@ -213,14 +227,15 @@ class DeadlineCreatedByEvent
                 $delivery = $event->delivery;
                 $partnerTransporter = $event->delivery->assigned_to;
                 $originPartner = $delivery->origin_partner;
-                if (! $partnerTransporter instanceof UserablePivot || $partnerTransporter->userable_type !== Transporter::class) {
+                if (!$partnerTransporter instanceof UserablePivot || $partnerTransporter->userable_type !== Transporter::class) {
                     break;
                 }
                 $now = Carbon::now();
-                // $firstTime = Carbon::today()->addHours(18);
+                # real time for production
+                $firstTime = Carbon::today()->addHours(18);
 
-                // for test
-                $firstTime = Carbon::today()->addHours(9);
+                # for test
+                # $firstTime = Carbon::today()->addHours(9);
                 $endTime = Carbon::now()->endOfDay();
                 if ($now < $firstTime) {
                     break;
