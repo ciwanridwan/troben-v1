@@ -168,6 +168,20 @@ class UpdatePackageStatusByEvent
                     $package->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
                     $package->setAttribute('updated_by', User::USER_SYSTEM_ID);
                     $package->save();
+
+                    // update package child status
+                    if ($package->multiDestination()->exists()) {
+                        $childId = $package->multiDestination()->get()->pluck('child_id')->toArray();
+                        $packageChild = Package::whereIn('id', $childId)->get();
+                        $packageChild->each(function ($r) {
+                            if ($r->payment_status !== Package::PAYMENT_STATUS_PAID) {
+                                $r->setAttribute('payment_status', Package::PAYMENT_STATUS_PAID);
+                                $r->setAttribute('status', Package::STATUS_WAITING_FOR_PACKING);
+                                $r->setAttribute('updated_by', User::USER_SYSTEM_ID);
+                                $r->save();
+                            }
+                        });
+                    }
                 }
                 break;
         }

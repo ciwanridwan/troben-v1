@@ -31,6 +31,7 @@ class History extends Model
     public const TYPE_WITHDRAW = 'withdraw';
     public const TYPE_CHARGE = 'charge';
     public const TYPE_PENALTY = 'penalty';
+    public const TYPE_DISCOUNT = 'discount';
 
     public const DESCRIPTION_SERVICE = 'service'; // service fee get order
     public const DESCRIPTION_PICKUP = 'pickup'; // pickup fee by transporter
@@ -73,6 +74,7 @@ class History extends Model
             self::TYPE_WITHDRAW,
             self::TYPE_CHARGE,
             self::TYPE_PENALTY,
+            self::TYPE_DISCOUNT
         ];
     }
 
