@@ -108,11 +108,11 @@ class DeadlineCreatedByEvent
                 $now = Carbon::now();
                 $endTime = Carbon::today()->addHours(18);
 
-                // real first time
+                # real first time
                 $firstTime = Carbon::today()->addHours(12);
 
-                // for test
-                // $firstTime = Carbon::today()->addHours(9);
+                # for test
+                # $firstTime = Carbon::today()->addHours(9);
                 if ($now < $firstTime) {
                     Log::info('Deadline not create because outside the specified time is less 12.00 hours');
                     break;
@@ -231,10 +231,11 @@ class DeadlineCreatedByEvent
                     break;
                 }
                 $now = Carbon::now();
-                // $firstTime = Carbon::today()->addHours(18);
+                # real time for production
+                $firstTime = Carbon::today()->addHours(18);
 
-                // for test
-                $firstTime = Carbon::today()->addHours(9);
+                # for test
+                # $firstTime = Carbon::today()->addHours(9);
                 $endTime = Carbon::now()->endOfDay();
                 if ($now < $firstTime) {
                     break;
