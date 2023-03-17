@@ -27,19 +27,21 @@ class ProfileController extends Controller
         $user = $request->user();
         $avatar = null;
 
-        $owner = User::query()->where('id', $user->id)->update([
+        // dd(substr($request->phone, 0, 2) === '08');
+
+        User::query()->where('id', $user->id)->update([
             'email' => $request->email ?? $user->email,
             'phone' =>   $request->phone ?? $user->phone,
             'avatar' =>   $avatar ?? $user->avatar,
         ]);
 
-        $bankOwner = $user->bankOwner->update([
+        $user->bankOwner->update([
             'bank_id' => $request->bank_id ?? $user->bankOwner->bank_id,
             'account_name' => $request->bank_account_name ?? $user->bankOwner->account_name,
             'account_number' => $request->bank_account_number ?? $user->bankOwner->account_number,
         ]);
 
-        $partner = $user->partners->update([
+        $user->partners->first()->update([
             'address' => $request->address ?? $user->partners->first()->address
         ]);
 
