@@ -184,10 +184,18 @@
       </a-col>
       <a-col :span="12">
         <a-row>
-          <a-col :span="12">Biaya Packing Kayu</a-col>
+          <a-col :span="12">Biaya Packing Wajib</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ currency(handlingPrice) }}</b></a-col
+            ><b>{{ currency(handlingPriceBike) }}</b></a-col
+          >
+        </a-row>
+
+        <a-row>
+          <a-col :span="12">Biaya Packing Tambahan</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ currency(handlingPriceAdditionalBike) }}</b></a-col
           >
         </a-row>
 
@@ -199,21 +207,21 @@
           >
         </a-row>
 
-        <a-row>
+        <!-- <a-row>
           <a-col :span="12">Biaya Kirim</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(servicePrice) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
 
-        <a-row>
+        <!-- <a-row>
           <a-col :span="12">Biaya Penjemputan</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(getPickupFee) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
         <a-divider />
 
         <a-row>
@@ -413,6 +421,24 @@ export default {
             price: 0,
           },
         ];
+      }
+      return result;
+    },
+    handlingPriceBike() {
+      let result = 0;
+      if (this.estPrice?.handling_fee) {
+        result = this.estPrice?.handling_fee;
+      } else {
+        result = 0;
+      }
+      return result;
+    },
+    handlingPriceAdditionalBike() {
+      let result = 0;
+      if (this.estPrice?.handling_fee_additional) {
+        result = this.estPrice?.handling_fee_additional;
+      } else {
+        result = 0;
       }
       return result;
     },
