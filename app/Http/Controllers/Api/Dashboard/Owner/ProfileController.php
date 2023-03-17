@@ -27,11 +27,20 @@ class ProfileController extends Controller
         $user = $request->user();
         $avatar = null;
 
-        // dd(substr($request->phone, 0, 2) === '08');
+        $phoneNumber = change_format_number($request->phone);
+
+        if ($request->avatar) {
+            $file = $request->file('avatar');
+            $extension = $file->getClientOriginalExtension();
+            $name = str_replace(' ', '_', $user->name);
+            $avatar = $name.'.'.$extension;
+
+            $file->storeAs('avatar', $avatar);
+        }
 
         User::query()->where('id', $user->id)->update([
             'email' => $request->email ?? $user->email,
-            'phone' =>   $request->phone ?? $user->phone,
+            'phone' =>   $phoneNumber ?? $user->phone,
             'avatar' =>   $avatar ?? $user->avatar,
         ]);
 

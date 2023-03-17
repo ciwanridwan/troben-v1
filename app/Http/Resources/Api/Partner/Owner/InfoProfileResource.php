@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Partner\Owner;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class InfoProfileResource extends JsonResource
 {
@@ -20,6 +21,7 @@ class InfoProfileResource extends JsonResource
         $bankOwner = $this->resource->bankOwner ? $this->resource->bankOwner->only('account_name', 'account_number') : null;
         $bank = $this->resource->bankOwner ? $this->resource->bankOwner->banks->only('name') : null;
 
+        $path = Storage::path($this->avatar);
         return [
             'name' => $this->name,
             'email' => $this->email,
