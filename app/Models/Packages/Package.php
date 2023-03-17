@@ -1028,8 +1028,6 @@ class Package extends Model implements AttachableContract
 
         $subTotalAmount = $insuranceFee;
         $result = [
-            'handling_fee_additional' => $handlingFeeAdditional,
-            'handling_fee' => $handlingFeeRequired,
             'insurance_fee' => $insuranceFee,
             'sub_total_amount' => $subTotalAmount
         ];
