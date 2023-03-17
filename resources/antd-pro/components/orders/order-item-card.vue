@@ -184,10 +184,18 @@
       </a-col>
       <a-col :span="12">
         <a-row>
-          <a-col :span="12">Biaya Packing Kayu</a-col>
+          <a-col :span="12">Biaya Packing Wajib</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ currency(handlingPrice) }}</b></a-col
+            ><b>{{ currency(handlingPriceBike) }}</b></a-col
+          >
+        </a-row>
+
+        <a-row>
+          <a-col :span="12">Biaya Packing Tambahan</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"
+            ><b>{{ currency(handlingPriceAdditionalBike) }}</b></a-col
           >
         </a-row>
 
@@ -199,21 +207,21 @@
           >
         </a-row>
 
-        <a-row>
+        <!-- <a-row>
           <a-col :span="12">Biaya Kirim</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(servicePrice) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
 
-        <a-row>
+        <!-- <a-row>
           <a-col :span="12">Biaya Penjemputan</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
             ><b>{{ currency(getPickupFee) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
         <a-divider />
 
         <a-row>
@@ -416,6 +424,24 @@ export default {
       }
       return result;
     },
+    handlingPriceBike() {
+      let result = 0;
+      if (this.estPrice?.handling_fee) {
+        result = this.estPrice?.handling_fee;
+      } else {
+        result = 0;
+      }
+      return result;
+    },
+    handlingPriceAdditionalBike() {
+      let result = 0;
+      if (this.estPrice?.handling_fee_additional) {
+        result = this.estPrice?.handling_fee_additional;
+      } else {
+        result = 0;
+      }
+      return result;
+    },
     totalHandlingPrice() {
       let total_price = 0;
       this.handlingPrice.forEach((el) => {
@@ -521,9 +547,9 @@ export default {
   },
   mounted() {
     this.item = this.value;
-    // console.log("item", this.item);
-    // console.log("package", this.package);
-    // console.log("estPrice", this.estPrice);
+    console.log("item", this.item);
+    console.log("package", this.package);
+    console.log("estPrice", this.estPrice);
     // console.log(">>", this.estPrice?.insurance_fee.toString().split(".")[0]);
   },
 };
