@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Owner\UpdateProfileRequest;
 use App\Http\Resources\Api\Partner\Owner\InfoProfileResource;
 use App\Http\Response;
+use App\Models\Partners\BankAccount;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,6 +25,23 @@ class ProfileController extends Controller
     public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
+        $avatar = null;
+
+        $owner = User::query()->where('id', $user->id)->update([
+            'email' => $request->email ?? $user->email,
+            'phone' =>   $request->phone ?? $user->phone,
+            'avatar' =>   $avatar ?? $user->avatar,
+        ]);
+
+        $bankOwner = $user->bankOwner->update([
+            'bank_id' => $request->bank_id ?? $user->bankOwner->bank_id,
+            'account_name' => $request->bank_account_name ?? $user->bankOwner->account_name,
+            'account_number' => $request->bank_account_number ?? $user->bankOwner->account_number,
+        ]);
+
+        $partner = $user->partners->update([
+            'address' => $request->address ?? $user->partners->first()->address
+        ]);
 
         return (new Response(Response::RC_UPDATED))->json();
     }

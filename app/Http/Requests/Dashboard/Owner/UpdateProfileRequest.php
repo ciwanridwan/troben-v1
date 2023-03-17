@@ -24,7 +24,13 @@ class UpdateProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            '//'
+            'email' => ['nullable', 'email'],
+            'phone' => ['nullable', 'numeric'],
+            'address' => ['nullable', 'string'],
+            'bank_id' => ['nullable', 'numeric'],
+            'bank_account_name' => ['nullable', 'string'],
+            'bank_account_number' => ['nullable', 'numeric'],
+            'avatar' => ['nullable', 'image:png,jpg,jpeg']
         ];
     }
 }
