@@ -158,49 +158,39 @@ class GeneratePackageBikePrices
                 $is_approved = true;
             }
 
-            /** Inserting required handling prices of bikes */
-            try {
-                $ccInput = [
-                    'moto_cc' => $package->motoBikes()->first()->cc
-                ];
-                switch ($ccInput['moto_cc']) {
-                    case 150:
-                        $handlingBikePrices = 175000;
-                        break;
-                    case 250:
-                        $handlingBikePrices = 250000;
-                        break;
-                    case 999:
-                        $handlingBikePrices = 450000;
-                        break;
-                }
-
-                $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
-                    'type' => Price::TYPE_HANDLING,
-                    'description' => Handling::TYPE_BIKES,
-                    'amount' => $handlingBikePrices
-                ]);
-                $this->dispatch($job);
-
-                /** Set Packate item id to bike handling */
-                $itemId = $event->package->items()->first()->id;
-                $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
-                $packagePrices->update(['package_item_id' => $itemId]);
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
 
+            /** Inserting required handling prices of bikes */
             // try {
-            //     $origin_regency = $package->origin_regency;
-            //     $price = PricingCalculator::getPrice($origin_regency->province_id, $origin_regency->id, $package->destination_sub_district_id);
-            //     $tier = PricingCalculator::getTier($price, $package->total_weight);
-            //     $package->setAttribute('tier_price', $tier)->save();
+            //     $ccInput = [
+            //         'moto_cc' => $package->motoBikes()->first()->cc
+            //     ];
+            //     switch ($ccInput['moto_cc']) {
+            //         case 150:
+            //             $handlingBikePrices = 175000;
+            //             break;
+            //         case 250:
+            //             $handlingBikePrices = 250000;
+            //             break;
+            //         case 999:
+            //             $handlingBikePrices = 450000;
+            //             break;
+            //     }
+
+            //     $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+            //         'type' => Price::TYPE_HANDLING,
+            //         'description' => Handling::TYPE_BIKES,
+            //         'amount' => $handlingBikePrices
+            //     ]);
+            //     $this->dispatch($job);
+
+            //     /** Set Packate item id to bike handling */
+            //     $itemId = $event->package->items()->first()->id;
+            //     $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+            //     $packagePrices->update(['package_item_id' => $itemId]);
             // } catch (\Throwable $th) {
-            //     //throw $th;
+            //     throw $th;
             // }
-            // todo : create service lainnya, contoh : biaya penjemputan
         }
     }
 }
