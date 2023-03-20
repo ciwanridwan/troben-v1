@@ -19,15 +19,24 @@ class InfoProfileResource extends JsonResource
         $partnerResult = $partner ? $partner->only('code', 'address') : null;
 
         $bankOwner = $this->resource->bankOwner ? $this->resource->bankOwner->only('account_name', 'account_number') : null;
-        $bank = $this->resource->bankOwner ? $this->resource->bankOwner->banks->only('name') : null;
 
-        $path = Storage::path($this->avatar);
+        if (!is_null($bankOwner)) {
+            $bank = $this->resource->bankOwner->banks->only('name') ?? null;
+            $bankAccount = array_merge($bank, $bankOwner); 
+        } else {
+            $bankAccount = null;
+        }
+
+        # todo get url avatar
+        // $path = Storage::path($this->avatar);
+        # end
+
         return [
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
             'partner' => $partnerResult,
-            'bank_account' => array_merge($bank, $bankOwner),
+            'bank_account' => $bankAccount,
             'avatar' => $this->avatar
         ];
     }
