@@ -327,4 +327,37 @@ class Queries
                 break;
         }
     }
+
+    public function getDashboardIncome()
+    {
+        $q = "select
+        p.balance balance,
+        coalesce(sum(pbh.balance), 0) + coalesce(sum(pbdh.balance), 0) as total_income
+        from
+            partners p
+        left join (
+            select
+                *
+            from
+                partner_balance_histories
+            where
+                to_char(created_at, 'MONTH') = to_char(now(), 'MONTH')
+                and type = 'deposit') pbh on
+            p.id = pbh.partner_id
+        left join (
+            select
+                *
+            from
+                partner_balance_delivery_histories
+            where
+                to_char(created_at, 'MONTH') = to_char(now(), 'MONTH')
+                    and type = 'deposit') pbdh on
+            p.id = pbdh.partner_id
+        where
+            p.id = 10
+        group by
+        p.id";
+
+        return $q;
+    }
 }

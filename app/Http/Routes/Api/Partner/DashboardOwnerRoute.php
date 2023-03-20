@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes\Api\Partner;
 
+use App\Http\Controllers\Api\Dashboard\Owner\PartnerController;
 use App\Http\Controllers\Api\Dashboard\Owner\ProfileController;
 use Jalameta\Router\BaseRoute;
 
@@ -29,5 +30,20 @@ class DashboardOwnerRoute extends BaseRoute
             'as' => $this->name('update'),
             'uses' => $this->uses('update', ProfileController::class),
         ]);
+
+        $this->router->get($this->prefix('income'), [
+            'as' => $this->name('income'),
+            'uses' => $this->uses('income'),
+        ]);
+
+        $this->router->post($this->prefix('item-into-warehouse'), [
+            'as' => $this->name('update'),
+            'uses' => $this->uses('update'),
+        ]);
+    }
+
+    public function controller()
+    {
+        return PartnerController::class;
     }
 }
