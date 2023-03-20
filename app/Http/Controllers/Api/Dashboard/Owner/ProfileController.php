@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Owner\UpdateProfileRequest;
 use App\Http\Resources\Api\Partner\Owner\InfoProfileResource;
 use App\Http\Response;
-use App\Models\Partners\BankAccount;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
