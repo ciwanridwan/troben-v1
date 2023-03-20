@@ -54,8 +54,8 @@ class ProfileController extends Controller
             BankAccount::create([
                 "user_id" => $user->id,
                 "bank_id" => $request->bank_id,
-                "bank_account_name" => $request->bank_account_name,
-                "bank_account_number" => $request->bank_account_number,
+                "account_name" => $request->bank_account_name,
+                "account_number" => $request->bank_account_number,
             ]);
         }
 
