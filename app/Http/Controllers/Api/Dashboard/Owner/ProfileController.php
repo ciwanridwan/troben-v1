@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Owner\UpdateProfileRequest;
 use App\Http\Resources\Api\Partner\Owner\InfoProfileResource;
 use App\Http\Response;
+use App\Models\Partners\BankAccount;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class ProfileController extends Controller
             $file = $request->file('avatar');
             $extension = $file->getClientOriginalExtension();
             $name = str_replace(' ', '_', $user->name);
-            $avatar = $name.'.'.$extension;
+            $avatar = $name . '.' . $extension;
 
             $file->storeAs('avatar', $avatar);
         }
@@ -43,11 +44,20 @@ class ProfileController extends Controller
             'avatar' =>   $avatar ?? $user->avatar,
         ]);
 
-        $user->bankOwner->update([
-            'bank_id' => $request->bank_id ?? $user->bankOwner->bank_id,
-            'account_name' => $request->bank_account_name ?? $user->bankOwner->account_name,
-            'account_number' => $request->bank_account_number ?? $user->bankOwner->account_number,
-        ]);
+        if (!is_null($user->bankOwner)) {
+            $user->bankOwner->update([
+                'bank_id' => $request->bank_id ?? $user->bankOwner->bank_id,
+                'account_name' => $request->bank_account_name ?? $user->bankOwner->account_name,
+                'account_number' => $request->bank_account_number ?? $user->bankOwner->account_number,
+            ]);
+        } else {
+            BankAccount::create([
+                "user_id" => $user->id,
+                "bank_id" => $request->bank_id,
+                "bank_account_name" => $request->bank_account_name,
+                "bank_account_number" => $request->bank_account_number,
+            ]);
+        }
 
         $user->partners->first()->update([
             'address' => $request->address ?? $user->partners->first()->address
