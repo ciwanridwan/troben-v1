@@ -68,7 +68,10 @@
             "NotificationChannels\\NusaSms\\": "packages/nusa-sms/src",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
