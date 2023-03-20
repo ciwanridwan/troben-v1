@@ -20,7 +20,7 @@ class DashboardOwnerRoute extends BaseRoute
      */
     public function register()
     {
-        $this->router->get($this->prefix('profile/info'), [
+        $this->router->get($this->prefix('profile'), [
             'as' => $this->name('info'),
             'uses' => $this->uses('info', ProfileController::class),
         ]);

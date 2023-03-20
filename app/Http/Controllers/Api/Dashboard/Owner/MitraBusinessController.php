@@ -7,5 +7,8 @@ use Illuminate\Http\Request;
 
 class MitraBusinessController extends Controller
 {
-
+    public function income()
+    {
+        
+    }
 }
