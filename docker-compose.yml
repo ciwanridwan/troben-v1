@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   nginx:
-    container_name: tb-core-nginx
+    container_name: api-develop-tb-core-nginx
     build:
       context: .
       dockerfile: Dockerfile-nginx
@@ -11,7 +11,7 @@ services:
       - .:/var/www
       - 'tbcorestorage:/var/www/storage'
     ports:
-      - 8070:80
+      - 8071:80
     links:
       - "core:php-fpm"
     depends_on:
@@ -19,7 +19,7 @@ services:
     networks:
       - tbcorenet
   core:
-    container_name: tb-core
+    container_name: api-develop-tb-core
     build:
       context: .
       dockerfile: Dockerfile-phpfpm
@@ -34,7 +34,7 @@ services:
     networks:
       - tbcorenet
   cache:
-    container_name: tb-core-cache
+    container_name: api-develop-tb-core-cache
     image: redis:6-alpine
     restart: always
     networks:
