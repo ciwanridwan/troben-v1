@@ -14,6 +14,13 @@ class DashboardOwnerRoute extends BaseRoute
 
     /** Declare name for show in routing */
     protected $name = 'partner.dashboard.owner';
+
+    /**
+     * Declare middlware
+     */
+    protected $middleware = [
+        'partner.scope.role:owner',
+    ];
     /**
      * Register routes handled by this class.
      *

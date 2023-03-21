@@ -328,35 +328,68 @@ class Queries
         }
     }
 
-    public function getDashboardIncome()
+    public function getDashboardIncome($partnerId, $date)
     {
         $q = "select
-        p.balance balance,
-        coalesce(sum(pbh.balance), 0) + coalesce(sum(pbdh.balance), 0) as total_income
+        income.balance,
+        income.total_income current_income,
+        coalesce(sum(pbh2.balance), 0) + coalesce(sum(pbdh2.balance), 0) previous_income,
+            income.total_income - (coalesce(sum(pbh2.balance), 0) + coalesce(sum(pbdh2.balance), 0)) as increased_income
         from
-            partners p
+            (
+            select
+                p.id partner_id,
+                p.balance balance,
+                coalesce(sum(pbh.balance), 0) + coalesce(sum(pbdh.balance), 0) as total_income
+            from
+                partners p
+            left join (
+                select
+                    *
+                from
+                    partner_balance_histories
+                where
+                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    and type = 'deposit') pbh on
+                p.id = pbh.partner_id
+            left join (
+                select
+                    *
+                from
+                    partner_balance_delivery_histories
+                where
+                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                        and type = 'deposit') pbdh on
+                p.id = pbdh.partner_id
+            where
+                p.id = $partnerId
+            group by
+                p.id
+        ) income
         left join (
             select
                 *
             from
                 partner_balance_histories
             where
-                to_char(created_at, 'MONTH') = to_char(now(), 'MONTH')
-                and type = 'deposit') pbh on
-            p.id = pbh.partner_id
+                type = 'deposit'
+                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                ) pbh2 on
+            income.partner_id = pbh2.partner_id
         left join (
             select
                 *
             from
                 partner_balance_delivery_histories
             where
-                to_char(created_at, 'MONTH') = to_char(now(), 'MONTH')
-                    and type = 'deposit') pbdh on
-            p.id = pbdh.partner_id
-        where
-            p.id = 10
+                type = 'deposit'
+                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                ) pbdh2 on
+            income.partner_id = pbdh2.partner_id
         group by
-        p.id";
+            income.partner_id,
+            income.balance,
+            income.total_income";
 
         return $q;
     }
