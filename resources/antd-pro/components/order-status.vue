@@ -88,6 +88,10 @@
       <a-badge status="success" text=""></a-badge>
       <span :class="['trawl-status-success']">Barang sudah diterima{{ record.received_by ? ' oleh ' + record.received_by : '.' }}</span>
     </div>
+    <div v-else-if="record.status == 'paid_cancel'">
+      <a-badge status="success" text=""></a-badge>
+      <span :class="['trawl-status-success']">Pengguna melakukan pembatalan</span>
+    </div>
     <div v-else>
       <a-badge status="warning" text=""></a-badge>
       <span :class="['trawl-status-warning']"
