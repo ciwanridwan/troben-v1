@@ -11,9 +11,13 @@ use App\Http\Resources\Api\Partner\Owner\WithdrawalResource;
 use App\Http\Response;
 use App\Jobs\Partners\CreateNewBalanceDisbursement;
 use App\Models\Code;
+use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
+use App\Models\Partners\Balance\History;
 use App\Models\Partners\BankAccount;
+use App\Models\Partners\Partner;
 use App\Models\Payments\Bank;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
@@ -85,16 +89,18 @@ class WithdrawalController extends Controller
 
     public function store(Request $request, PartnerRepository $repository): JsonResponse
     {
-        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->where('status', Withdrawal::STATUS_REQUESTED)
-            ->orWhere('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
+        if (! auth()->user()->bankOwner) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'please fill the bank account']))->json();
+        }
+        $withdrawal = Withdrawal::where('partner_id', $repository->getPartner()->id)->orWhere('status', Withdrawal::STATUS_REQUESTED)
+            ->where('status', Withdrawal::STATUS_APPROVED)->orderBy('created_at', 'desc')->first();
         $currentDate = Carbon::now();
-
         if (is_null($withdrawal)) {
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
             $request['expired_at'] = $expiredTime;
             $request['status'] = Withdrawal::STATUS_REQUESTED;
-
+            $request->merge(['user' => $request->user()]);
             $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
             $this->dispatch($job);
 
@@ -111,7 +117,7 @@ class WithdrawalController extends Controller
 
             $request['expired_at'] = $expiredTime;
             $request['status'] = Withdrawal::STATUS_REQUESTED;
-
+	    $request->merge(['user' => $request->user()]);
             $job = new CreateNewBalanceDisbursement($repository->getPartner(), $request->all());
             $this->dispatch($job);
 
@@ -124,8 +130,9 @@ class WithdrawalController extends Controller
     public function attachmentTransfer(Request $request, Withdrawal $wd, $id): JsonResponse
     {
         $request->validate([
-            'attachment_transfer' => ['required','image','mimes:png,jpg,jpeg']
+            'attachment_transfer' => 'required|file'
         ]);
+
         $withdrawal = Withdrawal::where('id', $id)->first();
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $attachment = $request->attachment_transfer;
@@ -146,7 +153,9 @@ class WithdrawalController extends Controller
             ];
             return (new Response(Response::RC_CREATED, $data))->json();
         } else {
-            return (new Response(Response::RC_INVALID_DATA, []))->json();
+            return (new Response(Response::RC_INVALID_DATA, [
+                'msg' => 'Status should approved, current status: ' . $withdrawal->status
+            ]))->json();
         }
     }
 
@@ -181,22 +190,30 @@ class WithdrawalController extends Controller
     {
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
             $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
-            $data = [
-                'attachment_transfer' => Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60)),
-                'result' => $result
-            ];
-            return (new Response(Response::RC_SUCCESS, $data))->json();
+
+            $data = $result->map(function ($q) use ($withdrawal) {
+                $q->attachment_transfer = Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60));
+                return $q;
+            })->toArray();
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         } else {
-            $pendingReceipts = $this->getPendingReceipt($withdrawal);
-            $toCollect = collect(DB::select($pendingReceipts));
+            if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
+                $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);
+                $data = $this->paginate($pendingReceipts);
+                return (new Response(Response::RC_SUCCESS, $data))->json();
+            } else {
+                $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
+                $toCollect = collect(DB::select($pendingReceipts));
 
-            $toCollect->map(function ($r) use ($withdrawal) {
-                $r->created_at = $withdrawal->created_at;
-                return $r;
-            })->values();
+                $toCollect->map(function ($r) use ($withdrawal) {
+                    $r->created_at = $withdrawal->created_at;
+                    return $r;
+                })->values();
 
-            $data = $this->paginate($toCollect);
-            return (new Response(Response::RC_SUCCESS, $data))->json();
+                $data = $this->paginate($toCollect);
+                return (new Response(Response::RC_SUCCESS, $data))->json();
+            }
         }
         /** End todo */
     }
@@ -205,18 +222,64 @@ class WithdrawalController extends Controller
     {
         $this->withdrawal = $withdrawal;
 
-        $code = Code::where('content', $receipt)->where('codeable_type', Package::class)->first();
-        if (is_null($code)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND));
+        if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
+            $code = Code::where('content', $receipt)->where('codeable_type', Delivery::class)->first();
+            if (is_null($code)) {
+                return (new Response(Response::RC_DATA_NOT_FOUND));
+            }
+
+            $deliveryBalanceHistory = DeliveryHistory::where('delivery_id', $code->codeable->id)
+                ->where('partner_id', $this->withdrawal->partner_id)->first();
+
+            $result = [
+                'type_income' => DeliveryHistory::DESCRIPTION_DELIVERY,
+                'receipt' => $receipt,
+                'total_amount' => $deliveryBalanceHistory->balance,
+                'detail' => null
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        } else {
+            $code = Code::where('content', $receipt)->where('codeable_type', Package::class)->first();
+            if (is_null($code)) {
+                return (new Response(Response::RC_DATA_NOT_FOUND));
+            }
+
+            $balanceHistory = History::where('package_id', $code->codeable->id)
+                ->where('partner_id', $this->withdrawal->partner_id)->first();
+
+            switch ($balanceHistory->description) {
+                case History::DESCRIPTION_TRANSIT:
+                    $type = History::DESCRIPTION_TRANSIT;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                case History::DESCRIPTION_DELIVERY:
+                    $type = History::DESCRIPTION_DELIVERY;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                case History::DESCRIPTION_DOORING:
+                    $type = History::DESCRIPTION_DOORING;
+                    $data = null;
+                    $totalAmount = $balanceHistory->balance;
+                    break;
+                default:
+                    $type = 'main';
+                    $data = $code->codeable->prices;
+                    $totalAmount = $data->sum('amount');
+                    break;
+            }
+
+            $result = [
+                'type_income' => $type,
+                'receipt' => $receipt,
+                'total_amount' => $totalAmount,
+                'detail' => $data
+            ];
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
-
-        $data = $code->codeable->prices;
-        $receipt = [
-            'receipt' => $receipt,
-            'total_amount' => $data->sum('amount')
-        ];
-
-        return (new Response(Response::RC_SUCCESS, [$data, $receipt]))->json();
     }
 
     public function export(Withdrawal $withdrawal)
@@ -285,5 +348,60 @@ class WithdrawalController extends Controller
                     ) r";
 
         return $query;
+    }
+
+    /** New Query For Get non approved receipt */
+    private function newQueryDetailDisbursment($partnerId)
+    {
+        $q = "select c.content as receipt, p.total_amount as total_payment, pbh.balance as total_accepted from partner_balance_disbursement pbd
+        left join (
+            select pbh.partner_id, pbh.package_id, sum(pbh.balance) as balance from partner_balance_histories pbh where pbh.package_id notnull group by pbh.package_id, pbh.partner_id
+            ) pbh
+            on pbd.partner_id = pbh.partner_id
+        left join (
+            select * from codes c where codeable_type = 'App\Models\Packages\Package'
+            ) c
+            on pbh.package_id = c.codeable_id
+        left join packages p on pbh.package_id = p.id
+        where pbd.partner_id = $partnerId";
+
+        return $q;
+    }
+
+    private function getDetailDisbursmentTransporter($partnerId, $created_at)
+    {
+        $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId)->get()
+            ->map(function ($q) use ($created_at) {
+                $amount = $q->deliveries->packages->sum('total_amount');
+                $res = [
+                    'receipt' => $q->deliveries->code->content,
+                    'total_accepted' => $q->balance,
+                    'total_payment' => $amount,
+                    'created_at' => $created_at->format('Y-m-d H:i:s')
+                ];
+
+                return $res;
+            })->toArray();
+
+        $balanceHistory = Partner::with(['balance_history' => function ($query) {
+            $query->where('type', History::TYPE_DEPOSIT);
+        }, 'balance_history.package'])->where('id', $partnerId)->get();
+
+        $results = [];
+        foreach ($balanceHistory as $bh) {
+            foreach ($bh->balance_history as $history) {
+                $result = [
+                    'receipt' => $history->package->code->content,
+                    'total_accepted' => $history->balance,
+                    'total_payment' => $history->package->total_amount,
+                    'created_at' => $created_at->format('Y-m-d H:i:s')
+                ];
+
+                array_push($results, $result);
+            }
+        }
+
+        $data = array_merge($deliveryHistory, $results);
+        return $data;
     }
 }

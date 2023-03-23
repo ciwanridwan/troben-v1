@@ -9,7 +9,7 @@
 return [
     'groups' => [
         'api' => [
-            'middleware' => ['api', 'auth:sanctum'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api' : '',
             'domain' => env('API_DOMAIN')
         ],
@@ -34,12 +34,12 @@ return [
             'prefix' => 'partner/customer-service',
         ],
         'self_service' => [
-            'middleware' => ['jwt'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/v/sf' : 'v/sf',
             'domain' => env('API_DOMAIN')
         ],
         'operation' => [
-            'middleware' => ['jwt'],
+            'middleware' => ['api'],
             'prefix' => empty(env('API_DOMAIN')) ? 'api/operation' : 'operation',
             'domain' => env('API_DOMAIN')
         ]
@@ -62,6 +62,7 @@ return [
         App\Http\Routes\Api\ProductRoute::class,
         App\Http\Routes\Api\TransporterRoute::class,
         App\Http\Routes\Api\Internal\FinanceRoute::class,
+        App\Http\Routes\Api\Internal\WithdrawalRoute::class,
         App\Http\Routes\Api\Partner\AssetRoute::class,
         App\Http\Routes\Api\Partner\PartnerRoute::class,
         App\Http\Routes\Api\Partner\VoucherRoute::class,
@@ -87,7 +88,11 @@ return [
         App\Http\Routes\Api\Partner\Owner\ScheduleTransportationRoute::class,
         App\Http\Routes\Api\SupportRoute::class,
         App\Http\Routes\TermAndConditionRoute::class,
-        App\Http\Routes\Api\MotorBikeRoute::class
+        App\Http\Routes\Api\MotorBikeRoute::class,
+        App\Http\Routes\TestingRoute::class,
+        App\Http\Routes\Api\Internal\ManifestRoute::class,
+        App\Http\Routes\Api\Partner\Owner\CheckRoute::class,
+        App\Http\Routes\Api\V2\Dashboard\OrderRoute::class
         /** @inject api **/
     ],
     'admin' => [
@@ -135,6 +140,8 @@ return [
     'self_service' => [
         App\Http\Routes\Api\V\SelfRoute::class,
         App\Http\Routes\Api\V\OfficeRoute::class,
+        App\Http\Routes\Api\SlaRoute::class,
+
     ],
 
     'operation' => [

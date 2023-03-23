@@ -72,7 +72,7 @@ class AccountController extends Controller
             : $this->getUserInfo($account);
     }
 
-    /** Todo 
+    /** Todo
      * Delete Account Customer */
     public function deleteAccount(Request $request): JsonResponse
     {

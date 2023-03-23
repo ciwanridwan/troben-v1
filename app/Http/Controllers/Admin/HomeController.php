@@ -10,13 +10,16 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Concerns\Controllers\HasResource;
 use App\Events\Packages\PackageCanceledByAdmin;
-use App\Events\Packages\PackagePaymentVerified;
 use App\Jobs\Codes\Logs\CreateNewLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Models\Code;
 use App\Models\CodeLogable;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Service;
 use Veelasky\LaravelHashId\Rules\ExistsByHash;
 
 class HomeController extends Controller
@@ -63,9 +66,12 @@ class HomeController extends Controller
     public function dataRelation()
     {
         $this->query->with(
-            ['items', 'prices', 'payments', 'items.prices', 'origin_regency',
-            'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
-            'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes']
+            [
+                'items', 'prices', 'payments', 'items.prices', 'origin_regency',
+                'origin_district', 'origin_sub_district', 'destination_regency', 'destination_district',
+                'destination_sub_district', 'deliveries', 'deliveries.partner', 'code', 'attachments', 'motoBikes','canceled',
+                'multiDestination', 'parentDestination',
+            ]
         );
         // $this->query->orderBy('status','desc');
 
@@ -81,13 +87,41 @@ class HomeController extends Controller
 
             $this->getSearch($request);
 
-            // dont show canceled order
-            // $this->query->where('status', '!=', Package::STATUS_CANCEL);
             $this->dataRelation($request);
             $this->query->orderBy('created_at', 'desc');
-            // $this->query->whereDoesntHave('deliveries');
 
-            return (new Response(Response::RC_SUCCESS, $this->query->paginate(request('per_page', 15))))->json();
+            $result = $this->query->paginate(request('per_page', 15));
+
+            $itemCollection = $result->getCollection()->map(function ($r) {
+                $shipping_method = 'Standart';
+                $order_mode = true;
+                // todo if status is paid return true
+                if ($r->multiDestination->count()) {
+                    $order_mode = false;
+                }
+                if (! is_null($r->parentDestination)) {
+                    $order_mode = false;
+                }
+
+                if ($r->service_code == Service::TRAWLPACK_EXPRESS) {
+                    $shipping_method = 'Express';
+                }
+                if ($r->service_code == Service::TRAWLPACK_CUBIC) {
+                    $shipping_method = 'Cubic';
+                }
+
+                $r->order_mode = $order_mode ? 'Single' : 'Multiple';
+                $r->shipping_method = $shipping_method;
+
+                unset($r->multiDestination);
+                unset($r->parentDestination);
+
+                return $r;
+            })->values();
+
+            $result->setCollection($itemCollection);
+
+            return (new Response(Response::RC_SUCCESS, $result))->json();
         }
 
         return view('admin.home.index');
@@ -199,6 +233,44 @@ class HomeController extends Controller
     {
         event(new PackageCanceledByAdmin($package));
         return (new Response(Response::RC_SUCCESS, $package->refresh()))->json();
+    }
+
+    public function loginother(Request $request)
+    {
+        $users = [];
+
+        $search = $request->get('search');
+        if ($search) {
+            $q = "SELECT
+                u.id,
+                MAX(u.name) name,
+                MAX(username) username,
+                MAX(email) email,
+                STRING_AGG(p.code, ',') partner,
+                MAX(u.deleted_at) deleted_at,
+                STRING_AGG(uu.role, ', ') roles
+            FROM users u
+            LEFT JOIN userables uu ON u.id = uu.user_id AND uu.userable_type = 'App\Models\Partners\Partner'
+            LEFT JOIN partners p ON uu.userable_id = p.id
+            WHERE u.email ILIKE '%".$search."%' OR u.username ILIKE '%".$search."%' OR u.name ILIKE '%".$search."%' OR p.code ILIKE '%".$search."%'
+            GROUP BY u.id";
+            $users = DB::select($q);
+        }
+
+        return view('admin.superadmin.loginother', compact('users'));
+    }
+
+    public function loginotherSubmit(Request $request)
+    {
+        $rule = ['email' => 'required'];
+        $this->validate($request, $rule);
+
+        $user = User::where('email', $request->get('email'))->firstOrFail();
+
+        Auth::guard('web')->logout();
+        Auth::guard('web')->loginUsingId($user->getKey());
+
+        return redirect('/');
     }
 
     private function getPartners(Request $request, bool $hasTransporter = true): JsonResponse

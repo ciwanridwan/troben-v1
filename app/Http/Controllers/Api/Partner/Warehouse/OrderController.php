@@ -16,7 +16,7 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Events\Packages\PackageEstimatedByWarehouse;
 use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\PackageAlreadyPackedByWarehouse;
-use App\Exceptions\Error;
+use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Package\PackageResourceDeprecated;
 use App\Http\Response;
 use App\Models\Code;
@@ -33,6 +33,7 @@ class OrderController extends Controller
         $query->when($request->input('status'), fn (Builder $builder, $status) => $builder
             ->whereIn('status', Arr::wrap($status)));
 
+
         $query->when($request->input('delivery_type'), fn (Builder $builder, $deliveryType) => $builder
             ->whereHas('deliveries', fn (Builder $builder) => $builder
                 ->whereIn('type', Arr::wrap($deliveryType))));
@@ -44,10 +45,16 @@ class OrderController extends Controller
             'packager',
             'code.scanned_by',
             'partner_performance',
-            'motoBikes'
+            'motoBikes',
         ]);
 
         return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page', 15))), null, true);
+    }
+
+    public function allResiCancel(Request $req, PartnerRepository $repository)
+    {
+        $query = $repository->queries()->getCancelResi();
+        return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($req->input('per_page', 15))), null, true);
     }
 
     /**
@@ -75,7 +82,7 @@ class OrderController extends Controller
     public function showByReceipt(Code $code): JsonResponse
     {
         if (! $code->codeable instanceof Package) {
-            throw_if(true, Error::make(Response::RC_INVALID_DATA));
+            throw_if(true, InvalidDataException::make(Response::RC_INVALID_DATA));
         }
 
         $package = $code->codeable;
@@ -213,14 +220,22 @@ class OrderController extends Controller
             ->where('status', Package::STATUS_CANCEL_SELF_PICKUP)
             ->count();
 
+        $return_to_sender_address = $repository->queries()
+            ->getCancelQuery('return_to_sender_address')
+            ->count();
+
+        $sender_to_warehouse = $repository->queries()
+            ->getCancelQuery('sender_to_warehouse')
+            ->count();
+
         return $this->jsonSuccess(DashboardResource::make([
             'estimating' => $this->resolveItemsCount($estimating),
             'estimated' => $this->resolveItemsCount($estimated),
             'packing' => $this->resolveItemsCount($packing),
             'packed' => $this->resolveItemsCount($packed),
             'item_count' => $this->resolveItemsCount($items),
-            'return_with_transporter' => $returnWith,
-            'return_without_transporter' => $returnWithout,
+            'return_with_transporter' => $sender_to_warehouse,
+            'return_without_transporter' => $return_to_sender_address,
         ]));
     }
 

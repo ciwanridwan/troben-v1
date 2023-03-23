@@ -37,6 +37,12 @@
             record.contact_email
           }}</span>
           <span slot="action" slot-scope="record">
+            <!-- Add show button with have purpose to show in customer apps -->
+            <a-space>
+              <show-button @click="changeIsShow(record.hash)"></show-button>
+            </a-space>
+          </span>
+          <span slot="action" slot-scope="record">
             <a-space>
               <delete-button @click="deleteConfirm(record)"></delete-button>
             </a-space>
@@ -51,12 +57,14 @@
 import DeleteButton from "../../../../components/button/delete-button.vue";
 import partnerColumns from "../../../../config/table/partner";
 import ContentLayout from "../../../../layouts/content-layout.vue";
+import ShowButton from "../../../../components/button/show-button.vue";
 
 export default {
   name: "customer-list",
   components: {
     DeleteButton,
-    ContentLayout
+    ContentLayout,
+    ShowButton,
   },
   created() {
     this.items = this.getDefaultPagination();
@@ -103,6 +111,9 @@ export default {
       this.filter.per_page = pagination.pageSize;
 
       this.getItems();
+    },
+    changeIsShow(record) {
+      this.$router.push({name: 'admin.master.partner.{hash}.show', params: {hash : record.hash}})
     }
   }
 };

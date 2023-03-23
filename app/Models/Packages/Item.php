@@ -76,6 +76,9 @@ class Item extends Model implements AttachableContract
         'in_estimation',
         'is_insured',
         'handling',
+        'revision',
+        'is_glassware',
+        'category_item_id',
     ];
 
     /**
@@ -93,6 +96,7 @@ class Item extends Model implements AttachableContract
         'in_estimation' => 'boolean',
         'is_insured' => 'boolean',
         'handling' => Handling::class,
+        'is_glassware' => 'boolean'
     ];
 
     protected $hidden = [
@@ -141,9 +145,9 @@ class Item extends Model implements AttachableContract
     {
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
-            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->service_code));
+            return PricingCalculator::ceilByTolerance(Handling::woodWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->getServiceCode()));
         }
-        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight, $this->service_code);
+        return PricingCalculator::getWeight($this->height, $this->length, $this->width, $this->weight, $this->getServiceCode());
     }
 
     public function getWeightBorneTotalAttribute()
@@ -156,9 +160,10 @@ class Item extends Model implements AttachableContract
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->service_code));
+            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->getServiceCode()));
         }
-        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->service_code));
+
+        return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->getServiceCode()));
     }
     public function getTierPriceAttribute()
     {
@@ -189,8 +194,22 @@ class Item extends Model implements AttachableContract
         ];
     }
 
+    public function categories(): BelongsTo
+    {
+        return $this->belongsTo(CategoryItem::class, 'category_item_id', 'id');
+    }
+
     private function getHandling()
     {
         return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+    }
+
+    /**
+     * To get serviceCode from packages.
+     * @return string $serviceCode
+     */
+    private function getServiceCode()
+    {
+        return $this->package()->first()->service_code;
     }
 }

@@ -102,8 +102,55 @@ class Queries
             'packages',
             'origin_partner',
             'partner',
-            'transporter'
+            'transporter',
+            'partner_performance'
         ]);
+
+        return $query;
+    }
+
+    public function getCancelQuery(string $type): Builder
+    {
+        $query = Package::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled' => function ($q) use ($type) {
+                $q->where('type', $type);
+            },
+        ]);
+
+        $query->whereHas('canceled', function ($q) use ($type) {
+            $q->where('type', $type);
+        });
+        $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
+
+    public function getCancelResi(): Builder
+    {
+        $query = Package::query();
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'canceled'
+        ]);
+        $query->whereHas('canceled');
+        $query->whereHas('deliveries', $queryPartnerId);
+
+
+        $this->resolvePackagesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
 
         return $query;
     }
@@ -116,8 +163,10 @@ class Queries
 
         $query->with([
             'deliveries' => $queryPartnerId,
+            'deliveries',
             'deliveries.origin_partner',
-            'deliveries.partner'
+            'deliveries.partner',
+            'deliveryRoutes'
         ]);
 
         $query->whereHas('deliveries', $queryPartnerId);
@@ -194,7 +243,7 @@ class Queries
     {
         switch (true) {
             case $this->role === UserablePivot::ROLE_CS:
-                $deliveriesQueryBuilder->whereNull('userable_id');
+                // $deliveriesQueryBuilder->whereNull('userable_id');
                 break;
             case $this->role === UserablePivot::ROLE_DRIVER:
                 $deliveriesQueryBuilder
@@ -230,6 +279,10 @@ class Queries
                     ->orWhere(fn (Builder $builder) => $builder
                         ->where('status', Package::STATUS_WAITING_FOR_ESTIMATING)
                         ->whereNull('estimator_id'))
+
+                    ->orWhere(fn (Builder $builder) => $builder
+                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL,Package::STATUS_WAITING_FOR_CANCEL_PAYMENT]))
+
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
                         ->whereIn('packages.status', [
@@ -260,6 +313,7 @@ class Queries
                     Package::STATUS_WAITING_FOR_PACKING,
                     Package::STATUS_ESTIMATED,
                     Package::STATUS_WAITING_FOR_APPROVAL,
+                    Package::STATUS_WAITING_FOR_PAYMENT,
                     Package::STATUS_REVAMP,
                     Package::STATUS_PACKING,
                     Package::STATUS_PACKED,

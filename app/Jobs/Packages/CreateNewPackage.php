@@ -97,6 +97,7 @@ class CreateNewPackage
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
+            '*.is_glassware' => ['nullable', 'boolean'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
@@ -128,6 +129,8 @@ class CreateNewPackage
             $regency = Regency::query()->find($this->attributes['origin_regency_id']);
             $this->attributes['sender_address'] = $regency->name.', '.$regency->province->name;
         }
+
+        $this->attributes['sender_address'] = substr($this->attributes['sender_address'], 0, 255);
 
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;

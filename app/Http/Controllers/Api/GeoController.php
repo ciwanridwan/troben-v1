@@ -20,6 +20,7 @@ use App\Http\Resources\Geo\RegencyResource;
 use App\Http\Resources\Geo\DistrictResource;
 use App\Http\Resources\Geo\ProvinceResource;
 use App\Http\Resources\Geo\SubDistrictResource;
+use Illuminate\Support\Facades\DB;
 
 class GeoController extends Controller
 {
@@ -133,7 +134,8 @@ class GeoController extends Controller
         $query->when(request()->has('country_id'), fn ($q) => $q->where('country_id', $this->attributes['country_id']));
         $query->when(request()->has('province_id'), fn ($q) => $q->where('province_id', $this->attributes['province_id']));
         /** List Regency For Showing Apps */
-        $regencyId = [36, 39, 40, 58, 59, 60, 61, 62, 76, 77, 94, 95, 98, 186, 200, 289, 92, 133, 74, 365, 393, 134, 135, 126, 123, 173, 268];
+        $q = 'SELECT origin_regency_id FROM prices GROUP BY origin_regency_id';
+        $regencyId = collect(DB::select($q))->pluck('origin_regency_id')->toArray();
         $query->when(request()->input('origin') == '1', fn ($q) => $q->whereIn('id', $regencyId));
 
         return $is_apps
@@ -183,17 +185,21 @@ class GeoController extends Controller
      */
     protected function getSubDistrictsList(): JsonResponse
     {
-        $caps = ucwords($this->attributes['search']);
+        $caps = ucwords($this->attributes['search'] ?? '');
 
         $query = SubDistrict::query()
             ->join('geo_regencies', 'geo_sub_districts.regency_id', '=', 'geo_regencies.id')
             ->join('geo_districts', 'geo_sub_districts.district_id', '=', 'geo_districts.id')
-            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code')
+            ->select('geo_regencies.name as regency', 'geo_regencies.id as regency_id', 'geo_districts.name as district', 'geo_districts.id as district_id', 'geo_sub_districts.name as sub_district', 'geo_sub_districts.id', 'geo_sub_districts.zip_code');
 
-            ->Where('geo_regencies.name', 'ilike', '%'.$caps.'%')
-            ->orWhere('geo_districts.name', 'ilike', '%'.$caps.'%')
-            ->orWhere('geo_sub_districts.name', 'ilike', '%'.$caps.'%')
-            ->orderBy('geo_regencies.name', 'desc');
+        if (isset($this->attributes['search'])) {
+            $caps = ucwords($this->attributes['search']);
+            $query = $query->Where('geo_regencies.name', 'ilike', '%'.$caps.'%')
+                ->orWhere('geo_districts.name', 'ilike', '%'.$caps.'%')
+                ->orWhere('geo_sub_districts.name', 'ilike', '%'.$caps.'%');
+        }
+
+        $query = $query->orderBy('geo_regencies.name', 'desc');
 
         return $this->jsonSuccess(KelurahanResource::collection($query->paginate(request('per_page', 15))));
     }

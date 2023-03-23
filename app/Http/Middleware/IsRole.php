@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Http\Response;
 use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use Illuminate\Http\Request;
 use App\Models\Partners\Pivot\UserablePivot;
 
@@ -26,7 +27,7 @@ class IsRole
         if ($roleName === 'admin') {
             if ($partners) {
                 if ($request->expectsJson()) {
-                    throw Error::make(Response::RC_UNAUTHORIZED);
+                    throw UserUnauthorizedException::make(Response::RC_UNAUTHORIZED);
                 }
 
                 $role = $partners->pluck('pivot.role')->first();

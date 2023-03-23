@@ -59,6 +59,13 @@ class NotificationController extends Controller
         return $this->jsonSuccess();
     }
 
+    public function counter(Request $request)
+    {
+        $this->user = $request->user();
+        $this->query = $this->getFinalBuilder($this->getBasicBuilder($this->user->notifications()->getQuery()))->whereNull('read_at');
+        return $this->jsonResponse(['unread' => $this->query->count()]);
+    }
+
     /**
      * @param Builder $builder
      * @return Builder

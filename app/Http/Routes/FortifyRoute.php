@@ -2,6 +2,7 @@
 
 namespace App\Http\Routes;
 
+use App\Http\Controllers\DefaultController;
 use Jalameta\Router\BaseRoute;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
@@ -42,6 +43,16 @@ class FortifyRoute extends BaseRoute
             'as' => $this->name('logout'),
             'uses' => $this->uses('destroy'),
         ])->middleware(['web']);
+
+        $this->router->post($this->prefix('check'), [
+            'as' => $this->name('change.check'),
+            'uses' => $this->uses('checkUsername', DefaultController::class),
+        ])->middleware(['web', 'guest']);
+
+        $this->router->post($this->prefix('change'), [
+            'as' => $this->name('change.submit'),
+            'uses' => $this->uses('changePasswordGuest', DefaultController::class),
+        ])->middleware(['web', 'guest']);
 
         $this->router->get($this->prefix(), function () {
             return redirect()->route('auth.login');

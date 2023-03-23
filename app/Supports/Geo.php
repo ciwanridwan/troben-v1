@@ -269,6 +269,40 @@ class Geo
         }
     }
 
+    public static function callGeocodingService(string $address)
+    {
+        $url = sprintf('https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s&language=id', $address, config('services.maps'));
+        $request = Http::withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->get($url);
+        $response = json_decode($request->body());
+
+        // err checker
+        if ($response === null && json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('geocodezero', ['address' => $address, 'response' => $request->body()]);
+            return [
+                'lat' => 0,
+                'lon' => 0,
+            ];
+        }
+
+        if (isset($response->results)
+            && count($response->results)
+            && isset($response->results[0]->geometry)) {
+            return [
+                'lat' => $response->results[0]->geometry->location->lat,
+                'lon' => $response->results[0]->geometry->location->lng,
+            ];
+        } else {
+            Log::error('geocodezero', ['address' => $address, 'response' => $response]);
+            return [
+                'lat' => 0,
+                'lon' => 0,
+            ];
+        }
+    }
+
     public static function findInDB($type, $place, $coord, $provinceId = null, $regencyId = null, $districtId = null)
     {
         // find in mapping first

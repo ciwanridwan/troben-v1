@@ -53,7 +53,7 @@ class WalkinController extends Controller
             'order_type' => ['nullable', 'in:bike,other'], // for check condition bike or not
         ]);
 
-        $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
+        // $bikes = $request->only(['moto_cc', 'moto_type', 'moto_merk', 'moto_year', 'package_id', 'package_item_id']);
 
         $inputs = $request->except('photos');
         foreach ($inputs as $key => $value) {
@@ -80,9 +80,18 @@ class WalkinController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
-        if ($request->input('order_type') === $this->bike) {
+        $bikes = [
+            'type' => $item->moto_type,
+            'merk' => $item->moto_merk,
+            'cc' => $item->moto_cc,
+            'years' => $item->moto_year,
+            'package_id' => null,
+            'package_item_id' => null
+        ];
+
+        if ($item->order_type === $this->bike) {
             $isSeparate = false;
-            $job = new CreateWalkinOrderTypeBike($inputs, $item, $isSeparate, $bikes);
+            $job = new CreateWalkinOrderTypeBike($inputs, $items[$key], $isSeparate, $bikes);
             $this->dispatchNow($job);
         } else {
             $job = new CreateWalkinOrder($inputs, $items);
@@ -91,10 +100,6 @@ class WalkinController extends Controller
 
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
-
-        // Copy from walkin order
-        /** @var Package $package */
-        // $package = $job->package;
 
         $job = new AssignFirstPartnerToPackage($job->package, $partner);
 
@@ -119,10 +124,66 @@ class WalkinController extends Controller
             'origin_province_id' => $regency->province_id,
             'origin_regency_id' => $regency->id,
             'destination_id' => $request->destination_sub_district_id,
-            'items' => $request->items
+            'items' => $request->items,
+            'service_code' => $request->service_code,
         ];
 
-        return PricingCalculator::calculate($paramsCalculator);
+        if (count($paramsCalculator['items']) && $paramsCalculator['items'][0]['desc'] == 'bike') {
+            $getPrice = PricingCalculator::getBikePrice($paramsCalculator['origin_regency_id'], $paramsCalculator['destination_id']);
+            $pickup_price = 0;
+            $insurance = 0;
+
+            $handling_price = 0;
+            $service_price = 0;
+            switch ($paramsCalculator['items'][0]['moto_cc']) {
+                case 150:
+                    $handling_price = 175000;
+                    $service_price = $getPrice->lower_cc;
+                    break;
+                case 250:
+                    $handling_price = 250000;
+                    $service_price = $getPrice->middle_cc;
+                    break;
+                case 999:
+                    $handling_price = 450000;
+                    $service_price = $getPrice->high_cc;
+                    break;
+            }
+
+            if ($paramsCalculator['items'] !== null) {
+                $handlingAdditionalPrice = 50000;
+            } else {
+                $handlingAdditionalPrice = 0;
+            }
+
+            foreach ($paramsCalculator['items'] as $item) {
+                if (isset($item['is_insured']) && $item['is_insured'] == true) {
+                    // if ($item['is_insured'] == true) {
+                    $insurance = $item['price'] * 0.002;
+                } else {
+                    $insurance = 0;
+                }
+            }
+
+            $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
+
+            $result = [
+                'details' => [
+                    'pickup_price' => $pickup_price,
+                    'insurance_price' => $insurance,
+                    'handling_price' => $handling_price,
+                    'handling_additional_price' => $handlingAdditionalPrice,
+                    'service_price' => intval($service_price)
+                ],
+                'total_amount' => $total_amount,
+                'notes' => $getPrice->notes
+            ];
+
+            // return $result;
+            return (new Response(Response::RC_SUCCESS, $result))->json();
+        } else {
+            return PricingCalculator::calculate($paramsCalculator);
+        }
     }
 
     public function customer(Request $request)

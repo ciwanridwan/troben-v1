@@ -85,6 +85,7 @@
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import axios from "axios";
+import moment from "moment";
 
 const data = [];
 
@@ -145,6 +146,14 @@ export default {
           dataIndex: "city",
           key: "city",
         },
+        {
+          title: "Tanggal",
+          dataIndex: "created_at",
+          key: "created_at",
+          customRender: (text, row, index) => {
+            return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
+          },
+        },
       ],
     };
   },
@@ -156,7 +165,7 @@ export default {
       this.loading = true;
       const options = {
         method: "GET",
-        url: "https://apiv2.trawlbens.co.id/corporate",
+        url: `${process.env.MIX_TB_APIV2_URL}/corporate`,
       };
       axios
         .request(options)

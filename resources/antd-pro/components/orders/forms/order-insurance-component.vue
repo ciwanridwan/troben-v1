@@ -1,11 +1,28 @@
 <template>
   <a-form-model ref="formRules" :rules="rules" :model="value">
     <a-form-model-item prop="is_insured">
-      <a-space>
-        <a-checkbox v-model="value.is_insured">
-          Ganti rugi 90% jika produk hilang akibat insiden saat pengiriman barang. Biaya…
-        </a-checkbox>
-        <a-icon :component="InformationCircleIcon" :style="{ cursor: 'pointer' }" />
+      <a-space direction="vertical">
+        <a-space>
+          <a-checkbox v-model="value.is_insured">
+            Ganti rugi 90% jika produk hilang akibat insiden saat pengiriman
+            barang. Biaya…
+          </a-checkbox>
+          <a-icon
+            :component="InformationCircleIcon"
+            :style="{ cursor: 'pointer' }"
+          />
+        </a-space>
+        <a-form-model-item
+          v-if="value.is_insured && isMotor == 'bike'"
+          label="Asuransi Motor"
+        >
+          <a-input
+            v-model.number="value.price"
+            type="number"
+            size="large"
+            placeholder="Masukan harga motor anda"
+          ></a-input>
+        </a-form-model-item>
       </a-space>
     </a-form-model-item>
   </a-form-model>
@@ -32,9 +49,11 @@ export default {
       default: () => {
         return {
           is_insured: false,
+          price: null,
         };
       },
     },
+    isMotor: String,
   },
   methods: {
     setDefaultValue() {
@@ -46,6 +65,9 @@ export default {
   watch: {
     value: {
       handler: function (value) {
+        if (!this.value.is_insured) {
+          value.price = null;
+        }
         this.$emit("change", value);
       },
       deep: true,

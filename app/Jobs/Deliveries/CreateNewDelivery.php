@@ -39,7 +39,7 @@ class CreateNewDelivery
             'origin_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
             'destination_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'destination_district_id' => ['nullable', 'exists:geo_districts,id'],
-            'destination_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
+            'destination_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id']
         ])->validate();
 
         $this->delivery = new Delivery();

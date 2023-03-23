@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Home;
 
+use App\Actions\Deliveries\Route;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
 use App\Http\Response;
@@ -110,15 +111,47 @@ class ManifestController extends Controller
 
     public function getPartnerTransporter(Request $request): JsonResponse
     {
-//        $query = Partner::query()->where('type', Partner::TYPE_TRANSPORTER)
-//            ->orWhere('type', Partner::TYPE_BUSINESS);
-        $query = Partner::query();
+        if ($request->delivery_hash) {
+            $query = Partner::query();
 
-        $request->whenHas('q', function ($value) use ($query) {
-            $query->where(function ($query) use ($value) {
-                $query->search($value);
+            $delivery = Delivery::byHash($request->delivery_hash);
+            $packages = $delivery->packages;
+
+            foreach ($packages as $package) {
+                $fromPickup = false;
+                if ($package->deliveries->count() <= 2) {
+                    $fromPickup = true;
+                }
+            }
+
+            $originPartner = $delivery->origin_partner;
+            if ($originPartner->isJabodetabek() && $fromPickup) {
+                $query->where('code', 'MTM-CGK-00');
+            } else {
+                foreach ($packages as $package) {
+                    if (! is_null($package->deliveryRoutes)) {
+                        $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                        if (! is_null($partnerCode)) {
+                            if (! is_array($partnerCode)) {
+                                $partnerCode = [$partnerCode];
+                            }
+                            $query->whereIn('code', $partnerCode);
+                        }
+                    } else {
+                        $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
+                    }
+                }
+            }
+
+            $request->whenHas('q', function ($value) use ($query) {
+                $query->where(function ($query) use ($value) {
+                    $query->search($value);
+                });
             });
-        });
-        return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+
+            return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
+        } else {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['Message' => 'Mitra Belum Tersedia']))->json();
+        }
     }
 }

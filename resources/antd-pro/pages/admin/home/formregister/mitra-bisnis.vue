@@ -11,6 +11,9 @@
         :columns="columns"
         rowKey="id"
       >
+        <!-- <span slot="created_at" slot-scope="record">
+          Rp.{{ record.created_at }}
+        </span> -->
         <div
           slot="filterDropdown"
           slot-scope="{
@@ -85,6 +88,7 @@
 <script>
 import ContentLayout from "../../../../layouts/content-layout.vue";
 import axios from "axios";
+import moment from "moment";
 
 const data = [];
 
@@ -140,6 +144,14 @@ export default {
           dataIndex: "city",
           key: "city",
         },
+        {
+          title: "Tanggal",
+          dataIndex: "created_at",
+          key: "created_at",
+          customRender: (text, row, index) => {
+            return moment(text).format("ddd, DD MMM YYYY HH:mm:ss");
+          },
+        },
       ],
     };
   },
@@ -151,7 +163,7 @@ export default {
       this.loading = true;
       const options = {
         method: "GET",
-        url: "https://apiv2.trawlbens.co.id/mitra",
+        url: `${process.env.MIX_TB_APIV2_URL}/mitra`,
         params: { code: "mb" },
       };
       axios

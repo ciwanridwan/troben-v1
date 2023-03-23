@@ -47,6 +47,11 @@ class PartnerRoute extends BaseRoute
             'as' => $this->name('destroy'),
             'uses' => $this->uses('destroy'),
         ]);
+
+        $this->router->post($this->prefix('{hash}/show'), [
+            'as' => $this->name('updateShowPartner'),
+            'uses' => $this->uses('updateShowPartner'),
+        ]);
     }
 
     /**

@@ -8,7 +8,6 @@ use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
-use App\Models\Payments\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +39,14 @@ class OrderController extends Controller
      */
     public function index(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $request->validate([
+            'manifest' => ['nullable', 'boolean']
+        ]);
+
         if ($repository->getPartner()->type === Partner::TYPE_TRANSPORTER) {
+            $this->query = $repository->queries()->getDeliveriesByUserableQuery();
+            return $this->orderByDeliveries($request);
+        } elseif ($repository->getPartner()->type === Partner::TYPE_BUSINESS && $request->manifest) {
             $this->query = $repository->queries()->getDeliveriesByUserableQuery();
             return $this->orderByDeliveries($request);
         } else {
@@ -72,7 +78,7 @@ class OrderController extends Controller
             ->whereHas('deliveries', fn (Builder $builder) => $builder
                 ->whereIn('type', Arr::wrap($deliveryType))));
 
-        $this->query->with(['items', 'items.prices', 'estimator', 'packager']);
+        $this->query->with(['items', 'items.prices', 'estimator', 'packager', 'canceled']);
         return $this->jsonSuccess(PackageResourceDeprecated::collection($this->query->paginate($request->input('per_page'))));
     }
 
@@ -109,9 +115,9 @@ class OrderController extends Controller
             ->whereIn('payment_status', [Package::PAYMENT_STATUS_PENDING, Package::PAYMENT_STATUS_DRAFT])
             ->count();
 
-//        $depositAmount = $repository->queries()->getPaymentQuery()
-//            ->where('service_type', Payment::SERVICE_TYPE_DEPOSIT)
-//            ->sum('total_payment');
+        //        $depositAmount = $repository->queries()->getPaymentQuery()
+        //            ->where('service_type', Payment::SERVICE_TYPE_DEPOSIT)
+        //            ->sum('total_payment');
 
         return $this->jsonSuccess(DashboardResource::make([
             'incoming_order' => $incomingOrder,
@@ -153,7 +159,7 @@ class OrderController extends Controller
 
         $agentId = 0;
         $agentFind = DB::table('agents')->where('user_id', $voucher->user_id)->first();
-        if (! is_null($agentFind)) {
+        if (!is_null($agentFind)) {
             $agentId = $agentFind->id;
         }
 
@@ -183,7 +189,7 @@ class OrderController extends Controller
         $builder->when(request()->has('id'), fn ($q) => $q->where('id', $this->attributes['id']));
         $builder->when(
             request()->has('q') and request()->has('id') === false,
-            fn ($q) => $q->where('title', 'like', '%'.$this->attributes['q'].'%')
+            fn ($q) => $q->where('title', 'like', '%' . $this->attributes['q'] . '%')
         );
 
         return $builder;

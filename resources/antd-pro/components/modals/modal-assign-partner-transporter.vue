@@ -125,6 +125,7 @@ export default {
         .get(this.routeUri(this.getRoute()), {
           params: {
             ...this.filter,
+            delivery_hash: this.delivery?.hash,
             partner: true,
           },
         })

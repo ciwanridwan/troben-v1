@@ -10,6 +10,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Users\UserModificationFailed;
+use App\Models\Partners\BankAccount;
+use App\Models\Payments\Bank;
 use Illuminate\Support\Arr;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
@@ -58,6 +60,12 @@ class UpdateExistingUser
             'fcm_token' => ['nullable','unique:users,fcm_token,'.$user->id.',id,deleted_at,NULL'],
             'verified_at' => ['nullable'],
         ])->validate();
+        $bank = Bank::all()->pluck('id')->toArray();
+        $this->banks = Validator::make($inputs, [
+            'bank_id' => ['filled','in:'.implode(',', $bank)],
+            'account_name' => ['filled','string'],
+            'account_number' => ['filled','numeric']
+        ])->validate();
     }
 
     /**
@@ -67,6 +75,25 @@ class UpdateExistingUser
      */
     public function handle(): bool
     {
+        if (array_key_exists('bank_id', $this->banks)
+            && array_key_exists('account_name', $this->banks)
+            && array_key_exists('account_number', $this->banks)) {
+            $ExistBank = BankAccount::where('user_id', $this->user->id)->first();
+            if (! $ExistBank) {
+                BankAccount::create([
+                    'bank_id' => $this->banks['bank_id'],
+                    'user_id' => $this->user->id,
+                    'account_name' => $this->banks['account_name'],
+                    'account_number' => $this->banks['account_number'],
+                ]);
+            } else {
+                $ExistBank->bank_id = $this->banks['bank_id'];
+                $ExistBank->account_name = $this->banks['account_name'];
+                $ExistBank->account_number = $this->banks['account_number'];
+                $ExistBank->save();
+            }
+        }
+
         if (array_key_exists('referral_code', $this->attributes)) {
             // todo unused
             if (User::where('referral_code', $this->attributes['referral_code'])->first() == null) {

@@ -14,7 +14,11 @@
               @click="removeItem(index)"
             />
           </trawl-divider>
-          <order-item-form :key="index" ref="itemForm" v-model="form.items[index]" />
+          <order-item-form
+            :key="index"
+            ref="itemForm"
+            v-model="form.items[index]"
+          />
         </template>
 
         <trawl-divider orientation="right">
@@ -28,6 +32,13 @@
       <a-form-model-item prop="photos">
         <h3>Foto Keseluruhan Barang</h3>
         <trawl-upload-list v-model="form.photos" />
+        <h5
+          style="background: antiquewhite; width: 600px; text-align: center"
+          v-if="items[0].desc == 'bike'"
+        >
+          Harap cantumkan foto kendaraan dari samping, depan, belakang, dan juga
+          STNK motor yang mau dikirim
+        </h5>
       </a-form-model-item>
     </a-form-model>
   </div>

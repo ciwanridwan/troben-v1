@@ -30,6 +30,8 @@ class History extends Model
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAW = 'withdraw';
     public const TYPE_CHARGE = 'charge';
+    public const TYPE_PENALTY = 'penalty';
+    public const TYPE_DISCOUNT = 'discount';
 
     public const DESCRIPTION_SERVICE = 'service'; // service fee get order
     public const DESCRIPTION_PICKUP = 'pickup'; // pickup fee by transporter
@@ -40,18 +42,10 @@ class History extends Model
     public const DESCRIPTION_DOORING = 'dooring'; // dooring fee to end user (transporter)
     public const DESCRIPTION_RETURN = 'return'; // return fee (transporter)
     public const DESCRIPTION_ADDITIONAL = 'additional'; // charge
+    public const DESCRIPTION_LATENESS = 'late'; // pengiriman terlambat
 
-
-    /**LAST DESCRIPTION TO WITHDRAWAL */
-    // public const DESCRIPTION_WITHDRAW_REJECT = 'reject';
-    // public const DESCRIPTION_WITHDRAW_CONFIRMED = 'confirmed';
-    // public const DESCRIPTION_WITHDRAW_SUCCESS = 'success';
-    // END LAST
-
-    // TODO NEW DESCRIPTION
     public const DESCRIPTION_WITHDRAW_REQUESTED = 'request';
     public const DESCRIPTION_WITHDRAW_APPROVED = 'approve';
-    // END TODO
 
     protected $table = 'partner_balance_histories';
 
@@ -79,6 +73,8 @@ class History extends Model
             self::TYPE_DEPOSIT,
             self::TYPE_WITHDRAW,
             self::TYPE_CHARGE,
+            self::TYPE_PENALTY,
+            self::TYPE_DISCOUNT
         ];
     }
 
@@ -99,14 +95,9 @@ class History extends Model
             self::DESCRIPTION_DELIVERY,
             self::DESCRIPTION_DOORING,
             self::DESCRIPTION_ADDITIONAL,
-            // self::DESCRIPTION_WITHDRAW_REJECT,
-            // self::DESCRIPTION_WITHDRAW_SUCCESS,
-            // self::DESCRIPTION_WITHDRAW_CONFIRMED,
-
-            /**TODO NEW REQUEST */
+            self::DESCRIPTION_LATENESS,
             self::DESCRIPTION_WITHDRAW_REQUESTED,
             self::DESCRIPTION_WITHDRAW_APPROVED,
-            /**END TODO */
         ];
     }
 

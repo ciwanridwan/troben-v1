@@ -1,305 +1,291 @@
 <template>
-  <content-layout>
-    <template slot="title">
-      <div class="red-color">Register Driver</div>
-    </template>
-    <template slot="content">
-      <a-table :class="['trawl']" :data-source="data" :columns="columns">
-        <div
-          slot="filterDropdown"
-          slot-scope="{
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-            column,
-          }"
-          style="padding: 8px"
+  <div>
+    <content-layout>
+      <template slot="content">
+        <!-- table -->
+        <a-table
+          :columns="driverColumns"
+          :loading="loading"
+          :data-source="filteredItems"
+          :class="['trawl']"
+          rowKey="id"
         >
-          <a-input
-            v-ant-ref="(c) => (searchInput = c)"
-            :placeholder="`Search ${column.dataIndex}`"
-            :value="selectedKeys[0]"
-            style="width: 188px; margin-bottom: 8px; display: block"
-            @change="
-              (e) => setSelectedKeys(e.target.value ? [e.target.value] : [])
-            "
-            @pressEnter="
-              () => handleSearch(selectedKeys, confirm, column.dataIndex)
-            "
-          />
-          <a-button
-            type="primary"
-            icon="search"
-            size="small"
-            style="width: 90px; margin-right: 8px"
-            @click="() => handleSearch(selectedKeys, confirm, column.dataIndex)"
-          >
-            Search
-          </a-button>
-          <a-button
-            size="small"
-            style="width: 90px"
-            @click="() => handleReset(clearFilters)"
-          >
-            Reset
-          </a-button>
-        </div>
-        <a-icon
-          slot="filterIcon"
-          slot-scope="filtered"
-          type="search"
-          :style="{ color: filtered ? '#108ee9' : undefined }"
-        />
-        <template slot="customRender" slot-scope="text, record, index, column">
-          <span v-if="searchText && searchedColumn === column.dataIndex">
-            <template
-              v-for="(fragment, i) in text
-                .toString()
-                .split(new RegExp(`(?<=${searchText})|(?=${searchText})`, 'i'))"
+          <span slot="number" slot-scope="number" class="fw-bold">{{
+            number
+          }}</span>
+          <span slot="name" slot-scope="name, record" class="fw-bold">
+            <a-space
+              @click="showModal(record)"
+              class="cursor-pointer uppercase"
             >
-              <mark
-                v-if="fragment.toLowerCase() === searchText.toLowerCase()"
-                :key="i"
-                class="highlight"
-                >{{ fragment }}</mark
-              >
-              <template v-else>{{ fragment }}</template>
-            </template>
+              {{ name }}
+            </a-space>
           </span>
-          <template v-else>
-            {{ text }}
+          <span slot="phone" slot-scope="phone">
+            <u>{{ phone }}</u>
+          </span>
+          <span slot="created_at" slot-scope="created_at">
+            <u>{{ created_at }}</u>
+          </span>
+          <span slot="address" slot-scope="address">
+            <u>{{ address }}</u>
+          </span>
+          <span slot="status" slot-scope="record">
+            <a-dropdown>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="1" @click="changeStatus(record.id)">
+                    <UserOutlined />
+                    Non Active
+                  </a-menu-item>
+                </a-menu>
+              </template>
+              <a-button
+                type="primary"
+                class="trawl-outline-button-success"
+                v-if="record.is_active"
+              >
+                Active
+                <a-icon class="ml-1" type="down" />
+              </a-button>
+              <a-button
+                type="primary"
+                class="trawl-outline-button-danger disabled"
+                v-else
+              >
+                Non Active
+                <a-icon class="ml-1" type="down" />
+              </a-button>
+            </a-dropdown>
+          </span>
+        </a-table>
+
+        <a-modal
+          v-model="visible"
+          :width="550"
+          @cancel="onCancel"
+          :closable="true"
+          :mask-closable="true"
+          footer=""
+        >
+          <template slot="closeIcon"
+            ><a-icon type="close" @click="onCancel"></a-icon
+          ></template>
+          <template slot="title">
+            <div class="red-color">Agen TrawlBens</div>
           </template>
-        </template>
-      </a-table>
-    </template>
-  </content-layout>
+          <a-row type="flex" :gutter="[24, 24]">
+            <a-col :span="8">
+              <img
+                alt="detail-image"
+                class="detail-image"
+                :src="data_modal.avatar"
+                v-if="data_modal.avatar"
+              />
+              <img
+                alt="detail-image"
+                class="detail-image"
+                src="/assets/empty-image.png"
+                v-else
+              />
+            </a-col>
+            <a-col :span="16">
+              <div class="gray-color size-12">Nama</div>
+              <div class="fw-bold">
+                {{ data_modal.name }}
+              </div>
+              <div class="line-gray"></div>
+              <div class="gray-color size-12 mt-1">nomor telepon</div>
+              <div class="fw-bold">
+                {{ data_modal.phone }}
+              </div>
+              <div class="line-gray"></div>
+              <div class="gray-color size-12 mt-1">Alamat</div>
+              <div class="fw-bold">
+                {{ data_modal.address }}
+              </div>
+              <div class="line-gray"></div>
+              <div class="gray-color size-12 mt-1">Akun Bank</div>
+              <div class="fw-bold">
+                {{ data_modal.account_number }}
+              </div>
+            </a-col>
+          </a-row>
+        </a-modal>
+      </template>
+    </content-layout>
+  </div>
 </template>
 
 <script>
+import driverColumns from "../../../../config/table/driver-trawltruck";
 import ContentLayout from "../../../../layouts/content-layout.vue";
-
-const data = [
-  {
-    key: "1",
-    name: "Bagas",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "2",
-    name: "gery",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "3",
-    name: "danang",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "4",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "5",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "6",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "7",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "8",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "9",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "10",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "11",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "12",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "13",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "14",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "15",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "16",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "17",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-  {
-    key: "18",
-    name: "tegar",
-    phone: "089766786868",
-    date: "12 Jnuari 2022",
-    address: "JL. rasamala 35",
-    action: "Accept Driver",
-  },
-];
+import axios from "axios";
 
 export default {
-  name: "account-driver",
+  name: "account-agent",
   components: {
     ContentLayout,
   },
+
   data() {
     return {
-      data,
-      searchText: "",
-      searchInput: null,
-      searchedColumn: "",
-      columns: [
-        {
-          title: "Nama",
-          dataIndex: "name",
-          key: "name",
-          scopedSlots: {
-            filterDropdown: "filterDropdown",
-            filterIcon: "filterIcon",
-            customRender: "customRender",
-          },
-          onFilter: (value, record) =>
-            record.name.toString().toLowerCase().includes(value.toLowerCase()),
-          onFilterDropdownVisibleChange: (visible) => {
-            if (visible) {
-              setTimeout(() => {
-                this.searchInput.focus();
-              }, 0);
-            }
-          },
-        },
-        {
-          title: "Nomor Telepon",
-          dataIndex: "phone",
-          key: "phone",
-        },
-        {
-          title: "Tanggal",
-          dataIndex: "date",
-          key: "date",
-        },
-        {
-          title: "Alamat Domisili",
-          dataIndex: "address",
-          key: "address",
-        },
-        {
-          title: "Accept",
-          dataIndex: "action",
-          key: "action",
-        },
-      ],
+      loading: false,
+      driverColumns,
+      visible: false,
+      lists: {
+        data: [],
+      },
+      data_modal: {},
+      check_status: null,
+      is_active: false,
     };
   },
-  methods: {
-    handleSearch(selectedKeys, confirm, dataIndex) {
-      confirm();
-      this.searchText = selectedKeys[0];
-      this.searchedColumn = dataIndex;
-    },
-
-    handleReset(clearFilters) {
-      clearFilters();
-      this.searchText = "";
+  created() {
+    this.getDriverList();
+  },
+  computed: {
+    filteredItems() {
+      return this.lists.data.filter((item) => {
+        if (this.check_status != null) {
+          return item.is_active == this.check_status;
+        } else {
+          return true;
+        }
+      });
     },
   },
-  mounted() {
-    // console.log("tes", this.$laravel.jwt_token);
+  methods: {
+    onCancel() {
+      this.visible = false;
+    },
+    getDriverList() {
+      this.loading = true;
+      axios
+        .get(process.env.MIX_TB_AE_URL + `/account/accountList`, {
+          headers: {
+            Authorization: `Bearer ${this.$laravel.jwt_token}`,
+          },
+        })
+        .then((res) => {
+          this.lists = res.data;
+          let numbering = 1;
+          this.lists.data.forEach((o, k) => {
+            o.number = numbering++;
+          });
+          this.loading = false;
+        })
+        .catch(function (error) {
+          console.error(error);
+          this.loading = false;
+        });
+    },
+    showModal(key) {
+      this.visible = true;
+      this.data_modal = key;
+    },
+    changeStatus(id) {
+      var data = { is_active: this.is_active };
+      axios
+        .patch(process.env.MIX_TB_AE_URL + `/account/setAccountStatus`, data, {
+          params: {
+            id: id,
+          },
+          headers: {
+            Authorization: `Bearer ${this.$laravel.jwt_token}`,
+          },
+        })
+        .then((res) => {
+          this.getDriverList();
+          this.$message.success(`Change status success`);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
   },
 };
 </script>
-<style scoped>
-.highlight {
-  background-color: rgb(255, 192, 105);
-  padding: 0px;
+
+<style lang="scss">
+.trawl-outline-button-success {
+  background-color: #fff;
+  padding: 0 23px;
+  height: 40px;
+  border: 2px solid #3d8824;
+  color: #3d8824;
+  border-radius: 50px !important;
+  &:hover {
+    background-color: #fff;
+    border: 2px solid #3d8824;
+    color: #3d8824;
+    border-radius: 50px !important;
+  }
+}
+.trawl-outline-button-danger {
+  background-color: #fff;
+  padding: 0 23px;
+  height: 40px;
+  border: 2px solid #e60013;
+  color: #fff;
+  border-radius: 50px !important;
+  &:hover {
+    background-color: #fff;
+    border: 2px solid #e60013;
+    color: #fff;
+    border-radius: 50px !important;
+  }
+}
+.ml-1 {
+  margin-left: 25px !important;
+}
+.ant-table-thead > tr > th .ant-table-column-sorter {
+  display: unset !important;
+}
+.trawl .ant-table-thead tr th {
+  text-align: unset !important;
+}
+.fw-bold {
+  font-weight: 700;
+}
+.black-color {
+  color: #000 !important;
+}
+.red-color {
+  color: #e60013 !important;
+}
+.detail-image {
+  width: 100%;
+  border-radius: 10px;
+}
+.ant-modal-mask {
+  opacity: 0.4;
+}
+.gray-color {
+  color: gray !important;
+}
+.mt-1 {
+  margin-top: 10px;
+}
+.size-12 {
+  font-size: 12px;
+}
+.line-gray {
+  width: 100%;
+  height: 1px;
+  background-color: #dfe6e9;
+  margin-top: 10px;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.uppercase {
+  text-transform: capitalize;
+}
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #3d8824;
+  border-color: #3d8824;
+  color: #fff;
 }
 </style>

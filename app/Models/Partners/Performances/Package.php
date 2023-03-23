@@ -27,6 +27,7 @@ class Package extends PerformanceModel
         'package_id',
         'level',
         'deadline',
-        'status'
+        'status',
+        'type'
     ];
 }

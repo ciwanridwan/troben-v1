@@ -46,9 +46,14 @@ class ManifestRoute extends BaseRoute
             'uses' => $this->uses('show', PartnerManifestController::class),
         ]);
 
-        $this->router->get($this->prefix('assignable/partner'), [
+        $this->router->post($this->prefix('assignable/partner'), [
             'as' => $this->name('assignable.partner'),
             'uses' => $this->uses('partner', Manifest\AssignableController::class),
+        ]);
+
+        $this->router->get($this->prefix('assignable/partner/unroute'), [
+            'as' => $this->name('assignable.partner.without.route'),
+            'uses' => $this->uses('partnerWithOutRoute', Manifest\AssignableController::class),
         ]);
 
         $this->router->get($this->prefix('assignable/driver'), [
@@ -79,6 +84,16 @@ class ManifestRoute extends BaseRoute
         $this->router->patch($this->prefix('assignation/{delivery_hash}/partner/{partner_hash}'), [
             'as' => $this->name('assignation.partner'),
             'uses' => $this->uses('partner', Manifest\AssignationController::class),
+        ]);
+
+        $this->router->patch($this->prefix('assignation/{delivery_hash}/partner-destination/{partner_hash}'), [
+            'as' => $this->name('assignation.partner.destination'),
+            'uses' => $this->uses('partnerDestination', Manifest\AssignationController::class),
+        ]);
+
+        $this->router->post($this->prefix('assignable/check/receipt'), [
+            'as' => $this->name('assignable.check.receipt'),
+            'uses' => $this->uses('checkPackages', Manifest\AssignableController::class),
         ]);
     }
 

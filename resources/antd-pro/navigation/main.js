@@ -75,31 +75,37 @@ const main = {
             title: "Register Driver",
             text: "Register Driver",
             route: "admin.master.trawltruck.dashboard.driver.register",
+            children: null,
           },
           accountDriver: {
             title: "Account Driver",
             text: "Account Driver",
             route: "admin.master.trawltruck.dashboard.driver.account",
+            children: null,
           },
           suspendDriver: {
             title: "Suspend Driver",
             text: "Suspend Driver",
             route: "admin.master.trawltruck.dashboard.driver.suspend",
+            children: null,
           },
           trackingOrder: {
             title: "Tracking Order",
             text: "Tracking Order",
             route: "admin.master.trawltruck.dashboard.tracking.order",
+            children: null,
           },
           accountDetail: {
             title: "Account Detail",
             text: "Account Detail",
             route: "admin.master.trawltruck.dashboard.account.detail",
+            children: null,
           },
           orderDetail: {
             title: "Order Detail",
             text: "Order Detail",
             route: "admin.master.trawltruck.dashboard.order.detail",
+            children: null,
           },
         },
       },
@@ -109,8 +115,8 @@ const main = {
         route: "admin.home.formregister.trawlbenscorporate",
         children: {
           trawlbensCorporate: {
-            title: "Mitra Corporate",
-            text: "Mitra Corporate",
+            title: "Pelanggan Corporate",
+            text: "Pelanggan Corporate",
             route: "admin.home.formregister.trawlbenscorporate",
             children: null,
           },

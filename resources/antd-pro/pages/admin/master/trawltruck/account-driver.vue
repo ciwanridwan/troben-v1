@@ -254,7 +254,7 @@ export default {
       this.loading = true;
       const options = {
         method: "GET",
-        url: "https://apiv2.trawlbens.com/mitra",
+        url: process.env.MIX_TB_APIV2_URL + `/mitra`,
         params: { code: "mb" },
       };
       axios

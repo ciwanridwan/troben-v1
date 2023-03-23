@@ -75,7 +75,7 @@ export default {
         },
         getDatas(){
             this.loading = true
-            axios.get(`https://ae.trawlbens.com/agent/teamDetail`, {
+            axios.get(process.env.MIX_TB_AE_URL + `/agent/teamDetail`, {
                 params: {
                     code:this.code_item
                 },

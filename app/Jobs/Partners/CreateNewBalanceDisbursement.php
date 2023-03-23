@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Partners;
 
-use App\Events\Partners\NewBalanceDisbursementCreated;
 use App\Models\Partners\Partner;
 use App\Models\Payments\Withdrawal;
 use App\Supports\Repositories\PartnerRepository;
@@ -40,10 +39,8 @@ class CreateNewBalanceDisbursement
         $this->attributes = Validator::make($inputs, [
             'status' => ['required', 'max:255'],
             'amount' => ['nullable', 'max:255'],
-            'bank_id' => ['required','max:255', 'exists:bank,id'],
-            'account_name' => ['required','max:255'],
-            'account_number' => ['required', 'max:255'],
-            'expired_at' => ['required']
+            'expired_at' => ['required'],
+            'transaction_code' => ['nullable']
         ])->validate();
         $this->withdrawal = new Withdrawal();
         $this->partner = $partner;
@@ -61,10 +58,13 @@ class CreateNewBalanceDisbursement
         $this->withdrawal->partner_id = $this->partner->id;
         $this->withdrawal->first_balance = $this->partner->balance;
         $this->withdrawal->amount = $this->partner->balance;
+        $this->withdrawal->bank_id = $this->input['user']->bankOwner->banks->id;
+        $this->withdrawal->account_name = $this->input['user']->bankOwner->account_name;
+        $this->withdrawal->account_number = $this->input['user']->bankOwner->account_number;
+        $this->withdrawal->transaction_code  = Withdrawal::generateCodeTransaction();
         $this->withdrawal->save();
 
         if ($this->withdrawal->save()) {
-            // event(new NewBalanceDisbursementCreated($this->withdrawal));
             $this->partner->balance = 0;
             $this->partner->save();
         }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Partner\Driver\Order;
 
 use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
 use App\Events\Deliveries\Dooring\PackageLoadedByDriver;
-use App\Exceptions\Error;
+use App\Exceptions\UserUnauthorizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Delivery\DeliveryResource;
 use App\Http\Response;
@@ -15,6 +15,8 @@ use App\Models\Deliveries\Deliverable;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\User;
+use App\Services\Chatbox\Chatbox;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,7 +65,7 @@ class ReturnController extends Controller
 
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, Error::class, Response::RC_UNAUTHORIZED);
+        throw_if(! $package instanceof Package, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         $job = new UpdateExistingPackage($package, $inputs);
         $this->dispatchNow($job);
@@ -71,7 +73,21 @@ class ReturnController extends Controller
         $this->dispatchNow($uploadJob);
 
         event(new DriverUnloadedPackageInDooringPoint($delivery, $package));
-
+        $driverSignIn = User::where('id', $delivery->driver->id)->first();
+        if ($driverSignIn) {
+            $token = auth('api')->login($driverSignIn);
+        }
+        $param = [
+            'token' => $token ?? null,
+            'type' => 'trawlpack',
+            'participant_id' => $delivery->driver->id,
+            'customer_id' => $delivery->packages[0]->customer_id
+        ];
+        try {
+            Chatbox::endSessionDriverChatbox($param);
+        } catch (\Exception $th) {
+            report($th);
+        }
         return $this->jsonSuccess(DeliveryResource::make($delivery));
     }
 }

@@ -11,8 +11,6 @@ use App\Models\Packages\Price as PackagePrice;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Packages\Item\Prices\UpdateOrCreatePriceFromExistingItem;
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
-use App\Models\Deliveries\Delivery;
-use App\Models\Partners\Transporter;
 use App\Models\Partners\Voucher;
 use App\Models\Service;
 use Illuminate\Validation\ValidationException;
@@ -126,16 +124,12 @@ class GeneratePackagePrices
                     break;
             }
 
-            /** Additional Price */
-            // if ($package->prices->exists) {
-            //     # code...
-            // }
+            // Set Additional Price
             if ($package->prices) {
                 $serviceCode = $package->service_code;
-                $totalWeight = $package->total_weight;
                 $items = $package->items->toArray();
 
-                $additionalPrice = PricingCalculator::getAdditionalPrices($serviceCode, $items, $totalWeight);
+                $additionalPrice = PricingCalculator::getAdditionalPrices($items, $serviceCode);
 
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_SERVICE,
@@ -146,22 +140,6 @@ class GeneratePackagePrices
             }
 
             $is_approved = false;
-            // generate pickup price
-            //            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-            //                'type' => Price::TYPE_DELIVERY,
-            //                'description' => Delivery::TYPE_PICKUP,
-            //                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            //            ]);
-            //            $this->dispatch($job);
-
-            //            $job = new UpdateOrCreatePriceFromExistingPackage($package, [
-            //                'type' => Price::TYPE_DISCOUNT,
-            //                'description' => Delivery::TYPE_PICKUP,
-            //                'amount' => Transporter::getGeneralTypePrice($package->transporter_type),
-            //            ]);
-            // generate pickup price discount
-            // $this->dispatch($job);
-
 
             // generate discount if using promotion code
             if ($package->claimed_promotion != null) {

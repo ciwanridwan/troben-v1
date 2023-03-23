@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\Error;
 use App\Http\Response;
 use App\Models\Geo\Regency;
 use App\Models\Price;
@@ -13,9 +12,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PriceResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Actions\Pricing\PricingCalculator;
+use App\Exceptions\InvalidDataException;
 use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
+use App\Exceptions\OutOfRangePricingException;
+use App\Models\Packages\BikePrices;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -48,9 +50,9 @@ class PricingController extends Controller
         ]);
         $prices = Price::query();
 
-        ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-        ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-        ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+        !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+        !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+        !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
         return $this->jsonSuccess(PriceResource::collection($prices->paginate(request('per_page', 15))));
     }
@@ -69,32 +71,26 @@ class PricingController extends Controller
      */
     public function calculate(Request $request): JsonResponse
     {
+        $request->validate([
+            'is_multi' => ['nullable', 'boolean']
+        ]);
+
         $origin_regency_id = $request->get('origin_regency_id');
         $destination_id = $request->get('destination_id');
-        // $destination_id = $request->get('destination_id');
         if ($origin_regency_id == null) {
             // add validation
             $request->validate([
                 'origin_lat' => 'required|numeric',
                 'origin_lon' => 'required|numeric',
-                // 'destination_lat' => 'required|numeric',
-                // 'destination_lon' => 'required|numeric',
             ]);
 
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin, true);
             if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
-            // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-            // $resultDestination = Geo::getRegional($coordDestination, true);
-            // if ($resultDestination == null) {
-            //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-            // }
-
             $origin_regency_id = $resultOrigin['regency'];
-            // $destination_id = $resultDestination['subdistrict'];
             $request->merge([
                 'origin_regency_id' => $origin_regency_id,
                 'destination_id' => $destination_id,
@@ -106,11 +102,12 @@ class PricingController extends Controller
         /** @var Regency $regency */
         $regency = Regency::query()->findOrFail($origin_regency_id);
         $additional = ['origin_province_id' => $regency->province_id, 'origin_regency_id' => $origin_regency_id, 'destination_id' => $destination_id];
+        $request->merge(['is_multi' => $request->is_multi ?? false]);
         $payload = array_merge($request->toArray(), $additional);
         $tempData = PricingCalculator::calculate($payload, 'array');
         Log::info('New Order.', ['request' => $request->all(), 'tempData' => $tempData]);
         Log::info('Ordering service. ', ['result' => $tempData['result']['service'] != 0]);
-        throw_if($tempData['result']['service'] == 0, Error::make(Response::RC_OUT_OF_RANGE));
+        throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
         return PricingCalculator::calculate($payload);
     }
 
@@ -135,7 +132,7 @@ class PricingController extends Controller
         $coordLocation = sprintf('%s,%s', $request->get('location_lat'), $request->get('location_lon'));
         $resultLocation = Geo::getRegional($coordLocation);
         if ($resultLocation == null) {
-            throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Location not found', 'coord' => $coordLocation]);
         }
 
         return (new Response(Response::RC_SUCCESS, $resultLocation))->json();
@@ -184,13 +181,15 @@ class PricingController extends Controller
         $this->attributes = $request->validate([
             'origin_id' => ['nullable', 'numeric', 'exists:geo_regencies,id'],
             'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
+            'moto_cc' => ['nullable', 'numeric', 'in:150,250,999'],
             // 'service_code' => ['nullable', 'exists:services,code'],
         ]);
 
         $originId = $this->attributes['origin_id'];
         $destinationId = $this->attributes['destination_id'];
+        $motoCc = $this->attributes['moto_cc'] ?? null;
 
-        return $this->getAllPrices($originId, $destinationId);
+        return $this->getAllPrices($originId, $destinationId, $motoCc);
     }
 
     /**
@@ -214,13 +213,13 @@ class PricingController extends Controller
             $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
             $resultOrigin = Geo::getRegional($coordOrigin);
             if ($resultOrigin == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
             }
 
             $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
             $resultDestination = Geo::getRegional($coordDestination);
             if ($resultDestination == null) {
-                throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
             }
 
             $origin_regency_id = $resultOrigin['regency'];
@@ -248,13 +247,16 @@ class PricingController extends Controller
         }
     }
 
-    private function getAllPrices($originId, $destinationId)
+    private function getAllPrices($originId, $destinationId, $motoCc)
     {
         $regularPrices = Price::where('origin_regency_id', $originId)
             ->where('destination_id', $destinationId)
             ->where('service_code', Service::TRAWLPACK_STANDARD)
             ->first();
-
+        $resultPrices = [
+            'amount' => 0,
+            'notes' => '',
+        ];
         if ($regularPrices !== null) {
             $regularPrices = $regularPrices->only('tier_1', 'notes');
 
@@ -280,10 +282,37 @@ class PricingController extends Controller
             $expressPrices = $expressPrices->only('amount', 'notes');
         }
 
+        $resultBikePrice = null;
+        if (isset($motoCc)) {
+            $bikePrices = BikePrices::where('origin_regency_id', $originId)->where('destination_id', $destinationId)->first();
+            $ccPrices = null;
+            if (!is_null($bikePrices)) {
+                switch ($motoCc) {
+                    case 150:
+                        $ccPrices = $bikePrices->lower_cc;
+                        break;
+                    case 250:
+                        $ccPrices = $bikePrices->middle_cc;
+                        break;
+                    case 999:
+                        $ccPrices = $bikePrices->high_cc;
+                        break;
+                    default:
+                        $ccPrices = 0;
+                        break;
+                }
+                $resultBikePrice = [
+                    'amount' => (int) $ccPrices,
+                    'notes' => $bikePrices->notes ?? null
+                ];
+            }
+        }
+
         $data = [
             'regular' => $resultPrices,
             'kubikasi' => $cubicPrices,
-            'express' =>  $expressPrices
+            'express' =>  $expressPrices,
+            'bike' => $resultBikePrice,
         ];
 
         return (new Response(Response::RC_SUCCESS, $data))->json();
@@ -294,9 +323,9 @@ class PricingController extends Controller
         switch ($serviceCode) {
             case Service::TRAWLPACK_STANDARD:
                 $prices = Price::query();
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -317,9 +346,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_CUBIC:
                 $prices = CubicPrice::query();
 
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];
@@ -339,9 +368,9 @@ class PricingController extends Controller
             case Service::TRAWLPACK_EXPRESS:
                 $prices = ExpressPrice::query();
 
-                ! Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
-                ! Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
-                ! Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
+                !Arr::has($this->attributes, 'origin_id') ?: $prices = $this->filterOrigin($prices);
+                !Arr::has($this->attributes, 'destination_id') ?: $prices = $this->filterDestination($prices);
+                !Arr::has($this->attributes, 'service_code') ?: $prices = $this->filterService($prices);
 
                 $origin_id = (int) $this->attributes['origin_id'];
                 $destination_id = (int) $this->attributes['destination_id'];

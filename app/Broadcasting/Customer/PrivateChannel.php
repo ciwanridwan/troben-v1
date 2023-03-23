@@ -6,6 +6,7 @@ use App\Abstracts\TrawlNotification;
 use App\Models\Customers\Customer;
 use App\Models\Notifications\Notification;
 use App\Models\Notifications\Template;
+use Illuminate\Support\Facades\Log;
 
 class PrivateChannel extends TrawlNotification
 {
@@ -23,6 +24,10 @@ class PrivateChannel extends TrawlNotification
             ->validateData()
             ->recordLog()
             ->push();
+
+        if ($this->customer->fcm_token) {
+            Log::info('Notification has been sent to customer');
+        }
     }
 
     /**

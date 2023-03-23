@@ -3,11 +3,20 @@
 namespace App\Listeners\Partners;
 
 use App\Events\Deliveries\Dooring\DriverDooringFinished;
+use App\Events\Deliveries\Dooring\DriverUnloadedPackageInDooringPoint;
+use App\Events\Deliveries\DriverAssignedOfTransit;
+use App\Events\Deliveries\PartnerRequested;
+use App\Events\Deliveries\Dooring\PackageLoadedByDriver as DooringPackageLoadedByDriver;
+use App\Events\Deliveries\Transit\PackageLoadedByDriver as TransitPackageLoadedByDriver;
 use App\Events\Deliveries\Transit\DriverUnloadedPackageInDestinationWarehouse;
 use App\Events\Deliveries\Transit\WarehouseUnloadedPackages;
+use App\Events\Packages\WarehouseIsStartPacking;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Performances as Performance;
+use App\Models\Partners\Performances\Delivery as PerformancesDelivery;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -41,6 +50,14 @@ class PartnerPerformanceEvaluatedByEvent
      */
     private Package $package;
 
+    /** Set date time now */
+    private string $reach_at;
+
+    /**
+     * Partner Instance.
+     */
+    private Partner $partner;
+
     /**
      * Handle the event.
      *
@@ -52,30 +69,145 @@ class PartnerPerformanceEvaluatedByEvent
         switch (true) {
             case $event instanceof DriverUnloadedPackageInDestinationWarehouse:
                 $this->delivery = $event->delivery;
-                $packages = $this->delivery->packages;
+                $this->reach_at = Carbon::now();
 
-                foreach ($packages as $package) {
-                    /** @var Package $package */
-                    $this->package = $package;
-                    if ($this->package->partner_performance !== null) {
-                        $this
-                        ->setPerformance($this->package->partner_performance)
-                        ->updatePerformance();
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
                     }
-                }
-                if ($this->delivery->partner_performance !== null) {
+
                     $this
-                    ->setPerformance($this->delivery->partner_performance)
-                    ->updatePerformance();
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
                 }
+                Log::info('Driver finish unload in destination warehouse');
                 break;
             case $event instanceof WarehouseUnloadedPackages || $event instanceof DriverDooringFinished:
                 $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
                 if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
                     $this
-                    ->setPerformance($this->delivery->partner_performance)
-                    ->updatePerformance();
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
                 }
+                break;
+            case $event instanceof WarehouseIsStartPacking:
+                $this->package = $event->package;
+                $this->reach_at = Carbon::now();
+
+                if (is_null($this->package->partner_performance)) {
+                    break;
+                }
+
+                $deadline = $this->package->partner_performance->deadline;
+                $level = $this->package->partner_performance->level;
+
+                if ($this->reach_at > $deadline && $level === 3) {
+                    $this->setPenaltyIncome($this->package, $this->package->partner_performance->partner_id, $deadline);
+                }
+
+                $this->setPerformance($this->package->partner_performance)->updatePerformance();
+                break;
+            case $event instanceof DriverAssignedOfTransit:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
+                if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                break;
+            case $event instanceof DriverUnloadedPackageInDooringPoint:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+                $this->package = $event->package;
+
+                if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->package, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                break;
+            case $event instanceof PartnerRequested:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
+                if ($this->delivery->partner_performance !== null) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                break;
+            case $event instanceof TransitPackageLoadedByDriver:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                Log::info('Driver load item on transit delivery and set evaluated SLA');
+                break;
+            case $event instanceof DooringPackageLoadedByDriver:
+                $this->delivery = $event->delivery;
+                $this->reach_at = Carbon::now();
+
+                if (!is_null($this->delivery->partner_performance)) {
+                    $deadline = $this->delivery->partner_performance->deadline;
+                    $level = $this->delivery->partner_performance->level;
+
+                    if ($this->reach_at > $deadline && $level === 3) {
+                        $this->setPenaltyIncome($this->delivery, $this->delivery->partner_performance->partner_id, $deadline);
+                    }
+
+                    $this
+                        ->setPerformance($this->delivery->partner_performance)
+                        ->updatePerformance();
+                }
+                Log::info('Driver load item on dooring delivery and set evaluated SLA');
+                break;
+            default:
+                Log::info('No Performance Evaluated On SLA');
                 break;
         }
     }
@@ -98,18 +230,30 @@ class PartnerPerformanceEvaluatedByEvent
         $this->setAttributes();
         $is_package = $this->performance instanceof Performance\Package;
 
-        if (! empty($this->attributes)) {
+        if (!empty($this->attributes)) {
             $query = match ($is_package) {
                 true => $this->package->partner_performance(),
                 false => $this->delivery->partner_performance()
             };
 
-            $query
-                ->where($this->attributes)
-                ->update([
+            if ($this->performance->type === PerformancesDelivery::TYPE_MTAK_DRIVER_TO_WAREHOUSE) {
+                $query->where($this->attributes)->update([
                     'reached_at' => Carbon::now(),
-                    'status' => Performance\PerformanceModel::STATUS_REACHED
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                    'counter' => 0
                 ]);
+            } elseif ($this->performance->type === PerformancesDelivery::TYPE_MTAK_OWNER_TO_DRIVER) {
+                $query->where($this->attributes)->update([
+                    'reached_at' => Carbon::now(),
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                    'counter' => 1
+                ]);
+            } else {
+                $query->where($this->attributes)->update([
+                    'reached_at' => Carbon::now(),
+                    'status' => Performance\PerformanceModel::STATUS_REACHED,
+                ]);
+            }
         }
     }
 
@@ -128,5 +272,59 @@ class PartnerPerformanceEvaluatedByEvent
             Log::info('performance: ', ['delivery' => $this->delivery->code->content, 'performance' => $this->performance]);
             $this->attributes = [];
         }
+    }
+
+
+    protected function setPenaltyIncome($type, $partnerId, $deadline): void
+    {
+        switch (true) {
+            case $type instanceof Package:
+                $this->package = $type;
+
+                $this->createHistory($this->package, $partnerId, $deadline);
+                break;
+            case $type instanceof Delivery:
+                $this->delivery = $type;
+                $packages = $this->delivery->packages;
+
+                foreach ($packages as $package) {
+                    $this->package = $package;
+                    $this->createHistory($this->package, $partnerId, $deadline);
+                }
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
+
+
+    protected function createHistory($package, $partnerId, $deadline): void
+    {
+        $now = Carbon::now();
+        $endDate = Carbon::parse($deadline);
+        $dateDiff = $endDate->diffInDays($now);
+
+        $serviceFee = $package->service_price;
+        $incomePenalty = ($serviceFee * Partner::PENALTY_PERCENTAGE) * $dateDiff;
+
+        History::create([
+            'partner_id' => $partnerId,
+            'package_id' => $package->id,
+            'balance' => $incomePenalty,
+            'type' => History::TYPE_PENALTY,
+            'description' => History::TYPE_PENALTY,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
+        $this->updateBalancePartner($partnerId, $incomePenalty);
+    }
+
+    protected function updateBalancePartner($partnerId, $incomePenalty): void
+    {
+        $this->partner = Partner::find($partnerId);
+        $this->partner->balance -= $incomePenalty;
+        $this->partner->save();
     }
 }
