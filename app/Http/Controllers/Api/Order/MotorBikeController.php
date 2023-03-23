@@ -119,13 +119,6 @@ class MotorBikeController extends Controller
             throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
-        // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        // $resultDestination = Geo::getRegional($coordDestination, true);
-
-        // if ($resultDestination == null) {
-        //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        // }
-
         $origin_regency_id = $resultOrigin['regency'];
         $destination_id = $request->get('destination_sub_district_id');
         $request->merge([
@@ -257,8 +250,6 @@ class MotorBikeController extends Controller
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
-            // 'destination_lat' => 'required|numeric',
-            // 'destination_lon' => 'required|numeric',
             'destination_id' => 'nullable|exists:geo_sub_districts,id',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
@@ -285,12 +276,6 @@ class MotorBikeController extends Controller
             throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Origin not found', 'coord' => $coordOrigin]);
         }
 
-        // $coordDestination = sprintf('%s,%s', $request->get('destination_lat'), $request->get('destination_lon'));
-        // $resultDestination = Geo::getRegional($coordDestination, true);
-        // if ($resultDestination == null) {
-        //     throw Error::make(Response::RC_INVALID_DATA, ['message' => 'Destination not found', 'coord' => $coordDestination]);
-        // }
-
         $pickup_price = 0;
         if ($request->input('transporter_type') != null && $request->input('transporter_type') != '' && $request->input('partner_code') != '' && $request->input('partner_code') != null) {
             $partner = Partner::where('code', $request->input('partner_code'))->first();
@@ -310,27 +295,29 @@ class MotorBikeController extends Controller
         $insurance = 0;
         $insurance = ceil(self::getInsurancePrice($request->input('price')));
 
-        $handling_price = 0;
-        switch ($req['moto_cc']) {
-            case 150:
-                $handling_price = 175000;
-                break;
-            case 250:
-                $handling_price = 250000;
-                break;
-            case 999:
-                $handling_price = 450000;
-                break;
-        }
+        # Not use
+        // $handling_price = 0;
+        // switch ($req['moto_cc']) {
+        //     case 150:
+        //         $handling_price = 175000;
+        //         break;
+        //     case 250:
+        //         $handling_price = 250000;
+        //         break;
+        //     case 999:
+        //         $handling_price = 450000;
+        //         break;
+        // }
 
-        $type = $request->get('handling') ?? '';
-        $height = $request->get('height');
-        $length = $request->get('length');
-        $width = $request->get('width');
+        // $type = $request->get('handling') ?? '';
+        // $height = $request->get('height');
+        // $length = $request->get('length');
+        // $width = $request->get('width');
 
-        $handlingAdditionalPrice = 0;
+        # not use
+        // $handlingAdditionalPrice = 0;
         // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-        $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
+        // $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
@@ -346,14 +333,15 @@ class MotorBikeController extends Controller
                 $service_price = $getPrice->high_cc;
                 break;
         }
-        $total_amount = $pickup_price + $insurance + $handling_price + $handlingAdditionalPrice + $service_price;
+
+        $total_amount = $pickup_price + $insurance + $service_price;
 
         $result = [
             'details' => [
                 'pickup_price' => $pickup_price,
                 'insurance_price' => $insurance,
-                'handling_price' => $handling_price,
-                'handling_additional_price' => $handlingAdditionalPrice,
+                'handling_price' => 0,
+                'handling_additional_price' => 0,
                 'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,
@@ -378,13 +366,13 @@ class MotorBikeController extends Controller
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }
 
-    private static function getHandlingWoodPrice($type, $height, $length, $width)
-    {
-        if ($type == '' || $height == 0 || $length == 0 || $width == 0) {
-            return 0;
-        } else {
-            $price = 50000;
-            return $price;
-        }
-    }
+    // private static function getHandlingWoodPrice($type, $height, $length, $width)
+    // {
+    //     if ($type == '' || $height == 0 || $length == 0 || $width == 0) {
+    //         return 0;
+    //     } else {
+    //         $price = 50000;
+    //         return $price;
+    //     }
+    // }
 }
