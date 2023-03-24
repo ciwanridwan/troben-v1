@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Http\JsonResponse;
@@ -12,14 +13,21 @@ use Illuminate\Support\Facades\DB;
 
 class PartnerController extends Controller
 {
+    /** @var Builder $query */
+    protected Builder $query;
+
     # todo income partner
     /**
-     *
+     * get total income, request disbursment on dashboard
+     * @param Request $request
+     * @param PartnerRepository $repository
      */
     public function income(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['required']
+            'date' => ['required'],
+            'search' => ['nullable'],
+            'disbursment_date' => ['nullable'],
         ]);
 
         $date = $request->date;
@@ -67,5 +75,16 @@ class PartnerController extends Controller
         }
 
         return $this->jsonSuccess(IncomeResource::make($result));
+    }
+
+    public function itemIntoWarehouse(Request $request, PartnerRepository $repository)
+    {
+        $request->validate([
+            'type' => ['required', 'in:arrival,departure']
+        ]);
+
+        $this->query = $repository->queries()->getPackagesQueryByOwner($request->type);
+
+        return $this->jsonSuccess(ItemIntoWarehouseResource::collection($this->query->paginate($request->input('per_page'))));
     }
 }

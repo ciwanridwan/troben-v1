@@ -459,4 +459,45 @@ class Queries
                 where p.id = $partnerId";
         return $q;
     }
+
+    /**
+     * Get packages by owner of web dashboard owner
+     */
+    public function getPackagesQueryByOwner($type): Builder
+    {
+        $query = Package::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'deliveries',
+            'deliveries.origin_partner',
+            'deliveries.partner',
+            'deliveryRoutes'
+        ]);
+
+        $query->whereHas('deliveries', $queryPartnerId);
+
+        $packageStatus = [];
+        if ($type === 'come') {
+            $packageStatus = [
+                Package::STATUS_WAITING_FOR_ESTIMATING,
+                Package::STATUS_ESTIMATING,
+                Package::STATUS_PACKING,
+                Package::STATUS_PACKED,
+                Package::STATUS_IN_TRANSIT
+            ];
+        } else {
+            $packageStatus = [
+                Package::STATUS_IN_TRANSIT
+            ];
+        }
+
+        $query->whereIn('status', $packageStatus);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
+    }
 }
