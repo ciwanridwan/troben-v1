@@ -21,6 +21,7 @@ class PartnerController extends Controller
         $request->validate([
             'date' => ['required']
         ]);
+
         $date = $request->date;
         $partnerType = $repository->getPartner()->type;
         $partnerId = $repository->getPartner()->id;
@@ -33,15 +34,35 @@ class PartnerController extends Controller
                 # code...
                 break;
             default:
-                $query = $repository->queries()->getDashboardIncome($partnerId, $date);
-                $result = collect(DB::select($query))->map(function ($q) {
+                $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $date);
+                $mainIncome = collect(DB::select($queryMainIncome))->map(function ($q) {
                    $q->balance = intval($q->balance);
                    $q->current_income = intval($q->current_income);
                    $q->previous_income = intval($q->previous_income);
                    $q->increased_income = intval($q->increased_income);
 
                    return $q;
-                })->values();
+                })->first();
+
+                $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $date);
+                $incomePerDay = collect(DB::select($queryIncomePerDay))->map(function ($r) {
+                    $r->amount = intval($r->amount);
+
+                    return $r;
+                })->toArray();
+
+                $queryDisbursHistory = $repository->queries()->getDisbursmentHistory($partnerId);
+                $disbursmentHistory = collect(DB::select($queryDisbursHistory))->map(function ($r) {
+                    $r->request_amonut = intval($r->request_amount);
+                    $r->total_accepted = intval($r->total_accepted);
+                    return $r;
+                })->toArray();
+
+                $result = [
+                    'income' => $mainIncome,
+                    'income_per_day' => $incomePerDay,
+                    'disbursment_history' => $disbursmentHistory
+                ];
                 break;
         }
 
