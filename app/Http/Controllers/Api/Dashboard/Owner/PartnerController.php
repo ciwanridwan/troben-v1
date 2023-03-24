@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class PartnerController extends Controller
 {
-    /** @var Builder $query */
-    protected Builder $query;
-
     # todo income partner
     /**
      * get total income, request disbursment on dashboard
@@ -80,11 +77,13 @@ class PartnerController extends Controller
     public function itemIntoWarehouse(Request $request, PartnerRepository $repository)
     {
         $request->validate([
-            'type' => ['required', 'in:arrival,departure']
+            'type' => ['required', 'in:arrival,departure'],
+            'date' => ['required'],
+            'status' => ['nullable']
         ]);
 
-        $this->query = $repository->queries()->getPackagesQueryByOwner($request->type);
+        $query = $repository->queries()->getPackagesQueryByOwner($request->type, $request->date);
 
-        return $this->jsonSuccess(ItemIntoWarehouseResource::collection($this->query->paginate($request->input('per_page'))));
+        return $this->jsonSuccess(ItemIntoWarehouseResource::collection($query->paginate($request->input('per_page'))));
     }
 }

@@ -463,7 +463,7 @@ class Queries
     /**
      * Get packages by owner of web dashboard owner
      */
-    public function getPackagesQueryByOwner($type): Builder
+    public function getPackagesQueryByOwner($type, $date): Builder
     {
         $query = Package::query();
 
@@ -480,7 +480,7 @@ class Queries
         $query->whereHas('deliveries', $queryPartnerId);
 
         $packageStatus = [];
-        if ($type === 'come') {
+        if ($type === 'arrival') {
             $packageStatus = [
                 Package::STATUS_WAITING_FOR_ESTIMATING,
                 Package::STATUS_ESTIMATING,
@@ -494,10 +494,16 @@ class Queries
             ];
         }
 
+
+        $month = substr($date, 0, 2);
+        $query->whereMonth('created_at', $month);
+
+        $year = substr($date, 3);
+        $query->whereYear('created_at', $year);
+
         $query->whereIn('status', $packageStatus);
-
         $query->orderByDesc('created_at');
-
+        ;
         return $query;
     }
 }
