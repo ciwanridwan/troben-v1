@@ -85,7 +85,6 @@ class SummaryController extends Controller
             $date = $request->date;
         }
 
-
         $currentDate = $date;
         $currentMonth = substr($currentDate, 0, 2);
         $currentYear = substr($currentDate, 3);

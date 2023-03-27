@@ -582,4 +582,27 @@ class Queries
                     p.id in ($id)";
         
         return $q;
-    }}
+    }
+
+    public function getDetailIncomeDashboard($partnerId)
+    {
+        $q = "select pbdh.balance as amount, c.content as package_code, pbdh.created_at as date, pbdh.description, pbdh.type,
+        d.total_weight as weight
+        from partner_balance_delivery_histories pbdh
+        left join (select * from codes where codeable_type = 'App\Models\Deliveries\Delivery') c on pbdh.delivery_id = c.codeable_id
+        left join (
+        	select delivery_id, sum(p.total_weight) total_weight from deliverables
+        	left join packages p on deliverables.deliverable_id = p.id
+			where deliverable_type = 'App\Models\Packages\Package'
+        	group by delivery_id
+        ) d on pbdh.delivery_id = d.delivery_id
+        where pbdh.partner_id = $partnerId
+        union all
+        select pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
+        left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
+        left join packages p2 on c2.codeable_id = p2.id
+        where pbh.partner_id = $partnerId and pbh.type != 'withdraw' order by date desc";
+
+        return $q;   
+    }
+}

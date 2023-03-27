@@ -58,6 +58,51 @@ class PartnerController extends Controller
         // return $this->jsonSuccess(IncomeResource::make($result));
     }
 
+    public function detailIncome(Request $request, PartnerRepository $repository)
+    {
+        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id);
+                $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
+                    $k->map(function ($q) {
+                        $q->amount = intval($q->amount);
+                        $q->weight = intval($q->weight);
+                    });
+                    $serviceFee = $k->where('description', 'service')->where('type', 'deposit')->first(); 
+                    $pickupFee = $k->where('description', 'pickup')->where('type', 'deposit')->first();
+                    $handlingFee = $k->where('description', 'handling')->where('type', 'deposit')->first();
+                    $insuranceFee = $k->where('description', 'insurance')->where('type', 'deposit')->first();
+                    $dooringFee = $k->where('description', 'dooring')->where('type', 'deposit')->first();
+                    $transitFee = $k->where('description', 'transit')->where('type', 'deposit')->first();
+                    $discountFee = $k->where('type', 'discount')->first();
+
+                    $totalAmount = 0;
+                    $penaltyIncome = $k->where('type', 'penalty')->first();
+
+                    $subber = ['penalty', 'discount', 'withdraw'];
+                    $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
+                    $totalSubber = $k->whereIn('type', $subber)->sum('amount');
+
+                    $totalAmount = $totalAmount - $totalSubber;
+
+                    $receivedType = ['dooring', 'transit', 'pickup', 'walkin'];
+                    $keyRandom = array_rand($receivedType, 1); 
+                    return [
+                        'package_code' => $k[0]->package_code,
+                        'service_fee' => $serviceFee ? $serviceFee->amount : 0,
+                        'pickup_fee' => $pickupFee ? $pickupFee->amount : 0,
+                        'handling_fee' => $handlingFee ? $handlingFee->amount : 0,
+                        'insurance_fee' => $insuranceFee ? $insuranceFee->amount : 0,
+                        'dooring_fee' => $dooringFee ? $dooringFee->amount : 0,
+                        'transit_fee' => $transitFee ? $transitFee->amount : 0,
+                        'discount_fee' => $discountFee ? $discountFee->amount : 0,
+                        'total_amount' => $totalAmount,
+                        'type' => $receivedType[$keyRandom] // still dummy
+                        // 'detail' => $k
+                    ];
+                })->values();
+
+                return (new Response(Response::RC_SUCCESS, $this->paginate($result, 10)))->json();
+    }
+
     /**
      * Item join to warehouse
      */
