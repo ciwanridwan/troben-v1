@@ -1034,4 +1034,18 @@ class Package extends Model implements AttachableContract
 
         return array($result);
     }
+
+    /**
+     * To get receipt with status arrival
+     */
+    public static function getArrivalStatus(): array
+    {
+        return [
+            self::STATUS_WAITING_FOR_ESTIMATING,
+            self::STATUS_ESTIMATED,
+            self::STATUS_PACKING,
+            self::STATUS_PACKED,
+            self::STATUS_IN_TRANSIT
+        ];
+    }
 }

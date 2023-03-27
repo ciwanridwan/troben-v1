@@ -4,6 +4,7 @@ namespace App\Http\Routes\Api\Partner;
 
 use App\Http\Controllers\Api\Dashboard\Owner\PartnerController;
 use App\Http\Controllers\Api\Dashboard\Owner\ProfileController;
+use App\Http\Controllers\Api\Dashboard\Owner\SummaryController;
 use Jalameta\Router\BaseRoute;
 
 class DashboardOwnerRoute extends BaseRoute
@@ -51,6 +52,11 @@ class DashboardOwnerRoute extends BaseRoute
         $this->router->get($this->prefix('incoming-orders'), [
             'as' => $this->name('incomingOrders'),
             'uses' => $this->uses('incomingOrders'),
+        ]);
+
+        $this->router->get($this->prefix('summary/incoming-orders'), [
+            'as' => $this->name('incomingOrders'),
+            'uses' => $this->uses('incomingOrders', SummaryController::class),
         ]);
     }
 

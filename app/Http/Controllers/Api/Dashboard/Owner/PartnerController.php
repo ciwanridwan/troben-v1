@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
+use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Service;
 use App\Supports\Repositories\PartnerRepository;
@@ -146,6 +147,14 @@ class PartnerController extends Controller
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
+
+        $request->whenHas('list_type', function ($value) use ($query) {
+            if ($value === 'arrival') {
+                $query->whereIn('status', Package::getArrivalStatus());
+            } else {
+                $query->where('status', Package::STATUS_IN_TRANSIT);
+            }
+        });
 
         $request->whenHas('service_type', function ($value) use ($query) {
             $query->where('service_code', $value);

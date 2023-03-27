@@ -34,7 +34,8 @@ class IncomingOrderResource extends JsonResource
             })->first(),
             'total_qty' => $this->items->sum('qty'),
             'total_weight' => $this->total_weight,
-            'sender_address' => $this->sender_address
+            'sender_address' => $this->sender_address,
+            'receiver_address' => $this->receiver_address
         ];
     }
 }
