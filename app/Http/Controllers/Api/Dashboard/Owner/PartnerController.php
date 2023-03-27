@@ -67,7 +67,7 @@ class PartnerController extends Controller
         
         $attributes = $request->all();
 
-        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id);
+        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search']);
         $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
             $k->map(function ($q) {
                 $q->amount = intval($q->amount);
