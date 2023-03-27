@@ -28,6 +28,9 @@ class Service extends Model
     public const TRAWLPACK_STANDARD = 'tps';
     public const TRAWLPACK_CUBIC = 'tpc';
 
+    public const TPS = 'Reguler';
+    public const TPX = 'Express';
+
     /**
      * Indicates if the IDs are auto-incrementing.
      *
@@ -74,6 +77,17 @@ class Service extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'service_code', 'code');
+    }
+
+    /**
+     * To get available service type
+     */
+    public static function getAvailableType(): array
+    {
+        return [
+            self::TRAWLPACK_EXPRESS,
+            self::TRAWLPACK_STANDARD
+        ];
     }
 
     /**

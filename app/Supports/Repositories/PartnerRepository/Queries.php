@@ -582,5 +582,4 @@ class Queries
                     p.id in ($id)";
         
         return $q;
-    }
-}
+    }}

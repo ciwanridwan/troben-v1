@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api\Dashboard\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Models\Partners\Partner;
+use App\Models\Service;
 use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PartnerController extends Controller
 {
@@ -42,12 +45,12 @@ class PartnerController extends Controller
             default:
                 $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $date);
                 $mainIncome = collect(DB::select($queryMainIncome))->map(function ($q) {
-                   $q->balance = intval($q->balance);
-                   $q->current_income = intval($q->current_income);
-                   $q->previous_income = intval($q->previous_income);
-                   $q->increased_income = intval($q->increased_income);
+                    $q->balance = intval($q->balance);
+                    $q->current_income = intval($q->current_income);
+                    $q->previous_income = intval($q->previous_income);
+                    $q->increased_income = intval($q->increased_income);
 
-                   return $q;
+                    return $q;
                 })->first();
 
                 $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $date);
@@ -75,7 +78,10 @@ class PartnerController extends Controller
         return $this->jsonSuccess(IncomeResource::make($result));
     }
 
-    public function itemIntoWarehouse(Request $request, PartnerRepository $repository)
+    /**
+     * Item join to warehouse
+     */
+    public function itemIntoWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
             'type' => ['required', 'in:arrival,departure'],
@@ -88,7 +94,7 @@ class PartnerController extends Controller
         $currentIdPackages = $query->get()->pluck('id')->toArray();
         $currentTotalItem = collect(DB::select($repository->queries()->getTotalItem($currentIdPackages)))->first();
         $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
-        
+
         $previousDate = Carbon::createFromFormat('m-Y', $request->date)->startOfMonth()->subMonth()->format('m-Y');
         $queryPreviousPackages = $repository->queries()->getPackagesQueryByOwner($request->type, $previousDate);
         $previousIdPackages = $queryPreviousPackages->get()->pluck('id')->toArray();
@@ -102,7 +108,7 @@ class PartnerController extends Controller
                 'code' => $r->code->content,
                 'total_qty' => $r->items->sum('qty'),
                 'total_weight' => $r->total_weight,
-                'status' => $r->status  
+                'status' => $r->status
             ];
             return $result;
         })->filter(function ($r) use ($status) {
@@ -118,12 +124,47 @@ class PartnerController extends Controller
         $totalItems = [
             'total_current_item' => $currentTotalItem->total_item,
             'total_previous_item' => $previousTotalItem->total_item,
-            'enhancement' => $currentTotalItem->total_item - $previousTotalItem->total_item,     
+            'enhancement' => $currentTotalItem->total_item - $previousTotalItem->total_item,
             'item_join_perday' => $itemPerday,
-            'item_in_warehouse' => $itemInWarehouse, 
+            'item_in_warehouse' => $itemInWarehouse,
         ];
 
 
         return $this->jsonSuccess(ItemIntoWarehouseResource::make($totalItems));
+    }
+
+    /**
+     * 
+     */
+    public function incomingOrders(Request $request, PartnerRepository $repository): JsonResponse
+    {
+        $request->validate([
+            'list_type' => ['required', 'in:arrival,departure'],
+            'service_type' => ['nullable', Rule::in(Service::getAvailableType())],
+            'category_id' => ['nullable', 'exists:category_items,id'],
+            'receipt_code' => ['nullable', 'exists:codes,content'] 
+        ]);
+
+        $query = $repository->queries()->getPackagesQuery();
+
+        $request->whenHas('service_type', function ($value) use ($query) {
+            $query->where('service_code', $value);
+        });
+
+        $request->whenHas('receipt_code', function ($value) use ($query) {
+            $query->whereHas('code', function ($code) use ($value) {
+                $code->where('content', $value);
+            });
+        });
+
+        $request->whenHas('category_id', function ($value) use ($query) {
+            $query->whereHas('items', function ($category) use ($value) {
+                $category->where('category_item_id', $value);
+            });
+        });
+
+        $packages = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(IncomingOrderResource::collection($packages));
     }
 }
