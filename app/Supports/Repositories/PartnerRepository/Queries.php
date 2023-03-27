@@ -463,7 +463,7 @@ class Queries
     /**
      * Get packages by owner of web dashboard owner
      */
-    public function getPackagesQueryByOwner($type, $date): Builder
+    public function getPackagesQueryByOwner($type): Builder
     {
         $query = Package::query();
 
@@ -495,11 +495,11 @@ class Queries
         }
 
 
-        $month = substr($date, 0, 2);
-        $query->whereMonth('created_at', $month);
+        // $month = substr($date, 0, 2);
+        // $query->whereMonth('created_at', $month);
 
-        $year = substr($date, 3);
-        $query->whereYear('created_at', $year);
+        // $year = substr($date, 3);
+        // $query->whereYear('created_at', $year);
 
         $query->whereIn('status', $packageStatus);
         $query->orderByDesc('created_at');

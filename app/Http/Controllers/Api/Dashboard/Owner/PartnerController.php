@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
+use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Service;
@@ -27,12 +28,10 @@ class PartnerController extends Controller
     public function income(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['required'],
             'search' => ['nullable'],
-            'disbursment_date' => ['nullable'],
+            'date' => ['nullable'],
         ]);
 
-        $date = $request->date;
         $partnerType = $repository->getPartner()->type;
         $partnerId = $repository->getPartner()->id;
 
@@ -44,39 +43,19 @@ class PartnerController extends Controller
                 # code...
                 break;
             default:
-                $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $date);
-                $mainIncome = collect(DB::select($queryMainIncome))->map(function ($q) {
-                    $q->balance = intval($q->balance);
-                    $q->current_income = intval($q->current_income);
-                    $q->previous_income = intval($q->previous_income);
-                    $q->increased_income = intval($q->increased_income);
-
-                    return $q;
-                })->first();
-
-                $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $date);
-                $incomePerDay = collect(DB::select($queryIncomePerDay))->map(function ($r) {
-                    $r->amount = intval($r->amount);
-
-                    return $r;
-                })->toArray();
-
                 $queryDisbursHistory = $repository->queries()->getDisbursmentHistory($partnerId);
                 $disbursmentHistory = collect(DB::select($queryDisbursHistory))->map(function ($r) {
                     $r->request_amonut = intval($r->request_amount);
                     $r->total_accepted = intval($r->total_accepted);
                     return $r;
-                })->toArray();
+                })->values();
 
-                $result = [
-                    'income' => $mainIncome,
-                    'income_per_day' => $incomePerDay,
-                    'disbursment_history' => $disbursmentHistory
-                ];
+                $result = $this->paginate($disbursmentHistory, 10);
                 break;
         }
 
-        return $this->jsonSuccess(IncomeResource::make($result));
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+        // return $this->jsonSuccess(IncomeResource::make($result));
     }
 
     /**
@@ -86,23 +65,12 @@ class PartnerController extends Controller
     {
         $request->validate([
             'type' => ['required', 'in:arrival,departure'],
-            'date' => ['required'],
             'status' => ['nullable']
         ]);
 
-        $currentDate = $request->date;
-        $query = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate);
-        $currentIdPackages = $query->get()->pluck('id')->toArray();
-        $currentTotalItem = collect(DB::select($repository->queries()->getTotalItem($currentIdPackages)))->first();
-        $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
-
-        $previousDate = Carbon::createFromFormat('m-Y', $request->date)->startOfMonth()->subMonth()->format('m-Y');
-        $queryPreviousPackages = $repository->queries()->getPackagesQueryByOwner($request->type, $previousDate);
-        $previousIdPackages = $queryPreviousPackages->get()->pluck('id')->toArray();
-        $previousTotalItem = collect(DB::select($repository->queries()->getTotalItem($previousIdPackages)))->first();
-
+        // $currentDate = $request->date;
         $status = $request->status;
-        $packages = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate)->get();
+        $packages = $repository->queries()->getPackagesQueryByOwner($request->type)->get();
         $itemInWarehouse = $packages->map(function ($r) {
             $result = [
                 'updated_at' => $r->updated_at->format('y-M-d'),
@@ -122,16 +90,9 @@ class PartnerController extends Controller
             }
         })->values()->toArray();
 
-        $totalItems = [
-            'total_current_item' => $currentTotalItem->total_item,
-            'total_previous_item' => $previousTotalItem->total_item,
-            'enhancement' => $currentTotalItem->total_item - $previousTotalItem->total_item,
-            'item_join_perday' => $itemPerday,
-            'item_in_warehouse' => $itemInWarehouse,
-        ];
-
-
-        return $this->jsonSuccess(ItemIntoWarehouseResource::make($totalItems));
+        $items = $this->paginate($itemInWarehouse, 10);
+        return (new Response(Response::RC_SUCCESS, $items))->json();
+        // return $this->jsonSuccess(ItemIntoWarehouseResource::make($totalItems));
     }
 
     /**
@@ -143,7 +104,7 @@ class PartnerController extends Controller
             'list_type' => ['required', 'in:arrival,departure'],
             'service_type' => ['nullable', Rule::in(Service::getAvailableType())],
             'category_id' => ['nullable', 'exists:category_items,id'],
-            'receipt_code' => ['nullable', 'exists:codes,content'] 
+            'receipt_code' => ['nullable', 'exists:codes,content']
         ]);
 
         $query = $repository->queries()->getPackagesQuery();

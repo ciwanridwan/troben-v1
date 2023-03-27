@@ -55,8 +55,20 @@ class DashboardOwnerRoute extends BaseRoute
         ]);
 
         $this->router->get($this->prefix('summary/incoming-orders'), [
-            'as' => $this->name('incomingOrders'),
+            'as' => $this->name('summary.incomingOrders'),
             'uses' => $this->uses('incomingOrders', SummaryController::class),
+        ]);
+
+
+        $this->router->get($this->prefix('summary/income'), [
+            'as' => $this->name('summary.income'),
+            'uses' => $this->uses('income', SummaryController::class),
+        ]);
+
+
+        $this->router->get($this->prefix('summary/item-into-warehouse'), [
+            'as' => $this->name('summary.item-into-warehouse'),
+            'uses' => $this->uses('itemIntoWarehouse', SummaryController::class),
         ]);
     }
 
