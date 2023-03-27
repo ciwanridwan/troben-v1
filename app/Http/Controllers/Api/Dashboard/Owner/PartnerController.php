@@ -228,29 +228,27 @@ class PartnerController extends Controller
 
         $request->whenHas('status', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['status' => Rule::in(array_values(Delivery::getStatusConst()))]);
+                $request->validate(['status' => Rule::in(Delivery::STATUS_FINISHED,Delivery::STATUS_EN_ROUTE)]);
                 $query->where('status', $value);
             }
         });
 
         $request->whenHas('type', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['type' => Rule::in(array_values(Delivery::getTypeConst()))]);
+                $request->validate(['type' => Rule::in(Delivery::TYPE_TRANSIT,Delivery::TYPE_DOORING)]);
                 $query->where('type', $value);
             }
         });
 
-        $request->whenHas('search', function ($value) use ($query, $request) {
+        $request->whenHas('search', function ($value) use ($query) {
             if ($value !== "''") {
                 $query->whereHas('code', function ($q) use ($value) {
                     $q->where('content', 'ilike', '%'.$value.'%');
                 });
             }
         });
-
         
         $deliveries = $query->paginate($request->input('per_page', 10));
-
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
         // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
