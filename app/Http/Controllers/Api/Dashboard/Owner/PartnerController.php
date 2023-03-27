@@ -7,6 +7,7 @@ use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -82,8 +83,39 @@ class PartnerController extends Controller
             'status' => ['nullable']
         ]);
 
-        $query = $repository->queries()->getPackagesQueryByOwner($request->type, $request->date);
+        $currentDate = $request->date;
+        $query = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate);
+        $currentIdPackages = $query->get()->pluck('id')->toArray();
+        $currentTotalItem = collect(DB::select($repository->queries()->getTotalItem($currentIdPackages)))->first();
+        $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
+        
+        $previousDate = Carbon::createFromFormat('m-Y', $request->date)->startOfMonth()->subMonth()->format('m-Y');
+        $queryPreviousPackages = $repository->queries()->getPackagesQueryByOwner($request->type, $previousDate);
+        $previousIdPackages = $queryPreviousPackages->get()->pluck('id')->toArray();
+        $previousTotalItem = collect(DB::select($repository->queries()->getTotalItem($previousIdPackages)))->first();
 
-        return $this->jsonSuccess(ItemIntoWarehouseResource::collection($query->paginate($request->input('per_page'))));
+
+        $packages = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate)->get();
+        $itemInWarehouse = $packages->map(function ($r) {
+            $result = [
+                'updated_at' => $r->updated_at->format('y-M-d'),
+                'code' => $r->code->content,
+                'total_qty' => $r->items->sum('qty'),
+                'total_weight' => $r->total_weight,
+                'status' => $r->status  
+            ];
+            return $result;
+        })->values()->toArray();
+
+        $totalItems = [
+            'total_current_item' => $currentTotalItem->total_item,
+            'total_previous_item' => $previousTotalItem->total_item,
+            'enhancement' => $currentTotalItem->total_item - $previousTotalItem->total_item,     
+            'item_join_perday' => $itemPerday,
+            'item_in_warehouse' => $itemInWarehouse, 
+        ];
+
+
+        return $this->jsonSuccess(ItemIntoWarehouseResource::make($totalItems));
     }
 }

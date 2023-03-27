@@ -506,4 +506,81 @@ class Queries
         ;
         return $query;
     }
+
+    public function getPreviousPackagesByOwner($type, $date): Builder
+    {
+        $query = Package::query();
+
+        $queryPartnerId = fn ($builder) => $builder->where('partner_id', $this->partner->id);
+
+        $query->with([
+            'deliveries' => $queryPartnerId,
+            'deliveries',
+            'deliveries.origin_partner',
+            'deliveries.partner',
+            'deliveryRoutes'
+        ]);
+
+        $query->whereHas('deliveries', $queryPartnerId);
+
+        $packageStatus = [];
+        if ($type === 'arrival') {
+            $packageStatus = [
+                Package::STATUS_WAITING_FOR_ESTIMATING,
+                Package::STATUS_ESTIMATING,
+                Package::STATUS_PACKING,
+                Package::STATUS_PACKED,
+                Package::STATUS_IN_TRANSIT
+            ];
+        } else {
+            $packageStatus = [
+                Package::STATUS_IN_TRANSIT
+            ];
+        }
+
+
+        $month = substr($date, 0, 2);
+        $query->whereMonth('created_at', $month);
+
+        $year = substr($date, 3);
+        $query->whereYear('created_at', $year);
+
+        $query->whereIn('status', $packageStatus);
+        $query->orderByDesc('created_at');
+        ;
+        return $query;
+    }
+
+    public function getTotalItem($packageId)
+    {
+        $id = implode(",", $packageId);
+
+        $q = "select
+                    sum(pi2.qty) total_item
+                from
+                    packages p
+                left join package_items pi2 on
+                    p.id = pi2.package_id
+                where
+                    p.id in ($id)";
+        
+        return $q;
+    }
+
+    public function getHistoryItemPerday($packageId)
+    {
+        $id = implode(",", $packageId);
+
+        $q = "select
+                    pi2.qty,
+                    to_char(pi2.created_at, 'yyyy-mm-dd') date
+                from
+                    packages p
+                left join package_items pi2 on
+                    p.id = pi2.package_id
+                where
+                    p.id in ($id)";
+        
+        return $q;
+    }
 }
