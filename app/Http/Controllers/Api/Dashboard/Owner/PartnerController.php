@@ -94,7 +94,7 @@ class PartnerController extends Controller
         $previousIdPackages = $queryPreviousPackages->get()->pluck('id')->toArray();
         $previousTotalItem = collect(DB::select($repository->queries()->getTotalItem($previousIdPackages)))->first();
 
-
+        $status = $request->status;
         $packages = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate)->get();
         $itemInWarehouse = $packages->map(function ($r) {
             $result = [
@@ -105,6 +105,14 @@ class PartnerController extends Controller
                 'status' => $r->status  
             ];
             return $result;
+        })->filter(function ($r) use ($status) {
+            if (!is_null($status) && $r['status'] === $status) {
+                return true;
+            } elseif (is_null($status)) {
+                return true;
+            } else {
+                return false;
+            }
         })->values()->toArray();
 
         $totalItems = [
