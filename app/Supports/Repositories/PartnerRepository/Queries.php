@@ -48,6 +48,7 @@ class Queries
             $this->resolveDeliveriesQueryByRole($query);
         }
 
+        $query->orderByDesc('created_at');
         return $query;
     }
 
@@ -263,6 +264,13 @@ class Queries
                     Delivery::TYPE_TRANSIT,
                     Delivery::TYPE_RETURN,
                 ]);
+            default:
+                $deliveriesQueryBuilder->whereIn('type', [
+                    Delivery::TYPE_DOORING,
+                    Delivery::TYPE_TRANSIT,
+                    Delivery::TYPE_RETURN,
+                ]);
+                break;
         }
     }
 
@@ -281,7 +289,7 @@ class Queries
                         ->whereNull('estimator_id'))
 
                     ->orWhere(fn (Builder $builder) => $builder
-                        ->whereIn('packages.status', [Package::STATUS_CANCEL,Package::STATUS_PAID_CANCEL,Package::STATUS_WAITING_FOR_CANCEL_PAYMENT]))
+                        ->whereIn('packages.status', [Package::STATUS_CANCEL, Package::STATUS_PAID_CANCEL, Package::STATUS_WAITING_FOR_CANCEL_PAYMENT]))
 
                     // condition that need authorization for estimator
                     ->orWhere(fn (Builder $builder) => $builder
@@ -454,9 +462,21 @@ class Queries
 
     public function getDisbursmentHistory($partnerId)
     {
-        $q = "select pbd.created_at, pbd.transaction_code, pbd.first_balance request_amount, pbd.amount total_accepted, pbd.status from partners p
-                left join partner_balance_disbursement pbd on p.id = pbd.partner_id
-                where p.id = $partnerId";
+        $q = "select
+        pbd.created_at,
+        pbd.transaction_code,
+        pbd.first_balance request_amount,
+        case 
+            when pbd.status = 'requested' then 0
+            else pbd.amount
+        end total_accepted,
+        pbd.status
+        from
+            partners p
+        left join partner_balance_disbursement pbd on
+            p.id = pbd.partner_id
+        where
+        p.id = $partnerId";
         return $q;
     }
 
@@ -502,8 +522,7 @@ class Queries
         // $query->whereYear('created_at', $year);
 
         $query->whereIn('status', $packageStatus);
-        $query->orderByDesc('created_at');
-        ;
+        $query->orderByDesc('created_at');;
         return $query;
     }
 
@@ -546,8 +565,7 @@ class Queries
         $query->whereYear('created_at', $year);
 
         $query->whereIn('status', $packageStatus);
-        $query->orderByDesc('created_at');
-        ;
+        $query->orderByDesc('created_at');;
         return $query;
     }
 
@@ -563,7 +581,7 @@ class Queries
                     p.id = pi2.package_id
                 where
                     p.id in ($id)";
-        
+
         return $q;
     }
 
@@ -580,7 +598,7 @@ class Queries
                     p.id = pi2.package_id
                 where
                     p.id in ($id)";
-        
+
         return $q;
     }
 
@@ -613,6 +631,6 @@ class Queries
             where pbh.partner_id = $partnerId and pbh.type != 'withdraw' %s order by date desc";
 
         $q = sprintf($q, $pbdhQuery, $pbhQuery);
-        return $q;   
+        return $q;
     }
 }

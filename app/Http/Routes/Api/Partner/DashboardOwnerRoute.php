@@ -75,6 +75,11 @@ class DashboardOwnerRoute extends BaseRoute
             'as' => $this->name('summary.item-into-warehouse'),
             'uses' => $this->uses('itemIntoWarehouse', SummaryController::class),
         ]);
+
+        $this->router->get($this->prefix('manifest'), [
+            'as' => $this->name('manifest'),
+            'uses' => $this->uses('listManifest'),
+        ]);
     }
 
     public function controller()

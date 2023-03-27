@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\ListManifestResource;
 use App\Http\Response;
+use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Service;
 use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -45,8 +48,10 @@ class PartnerController extends Controller
             default:
                 $queryDisbursHistory = $repository->queries()->getDisbursmentHistory($partnerId);
                 $disbursmentHistory = collect(DB::select($queryDisbursHistory))->map(function ($r) {
-                    $r->request_amonut = intval($r->request_amount);
+                    $detailReceipt = '';
+                    $r->request_amount = intval($r->request_amount);
                     $r->total_accepted = intval($r->total_accepted);
+                    $r->detail = $detailReceipt;
                     return $r;
                 })->values();
 
@@ -64,7 +69,7 @@ class PartnerController extends Controller
             'type' => ['nullable', 'string', 'in:Dooring,Pickup,Transit,Delivery,Walkin'],
             'search' => ['nullable', 'string']
         ]);
-        
+
         $attributes = $request->all();
 
         $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search']);
@@ -72,7 +77,7 @@ class PartnerController extends Controller
             $k->map(function ($q) {
                 $q->amount = intval($q->amount);
             });
-            
+
             $serviceFee = $k->where('description', 'service')->where('type', 'deposit')->first();
             $pickupFee = $k->where('description', 'pickup')->where('type', 'deposit')->first();
             $handlingFee = $k->where('description', 'handling')->where('type', 'deposit')->first();
@@ -208,5 +213,45 @@ class PartnerController extends Controller
         $packages = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(IncomingOrderResource::collection($packages));
+    }
+
+    public function listManifest(Request $request, PartnerRepository $repository): JsonResponse
+    {
+        $request->validate([
+            'status' => ['nullable', 'string'],
+            'type' => ['nullable', 'string'],
+            'search' =>  ['nullable', 'string']
+        ]);
+
+        $query = $repository->queries()->getDeliveriesQuery();
+        $query->with(['code', 'partner:id,code,name', 'origin_partner:id,code,name', 'partner_performance']);
+
+        $request->whenHas('status', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $request->validate(['status' => Rule::in(array_values(Delivery::getStatusConst()))]);
+                $query->where('status', $value);
+            }
+        });
+
+        $request->whenHas('type', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $request->validate(['type' => Rule::in(array_values(Delivery::getTypeConst()))]);
+                $query->where('type', $value);
+            }
+        });
+
+        $request->whenHas('search', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $query->whereHas('code', function ($q) use ($value) {
+                    $q->where('content', 'ilike', '%'.$value.'%');
+                });
+            }
+        });
+
+        
+        $deliveries = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(ListManifestResource::collection($deliveries));
+        // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
 }
