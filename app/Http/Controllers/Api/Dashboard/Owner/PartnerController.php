@@ -60,47 +60,74 @@ class PartnerController extends Controller
 
     public function detailIncome(Request $request, PartnerRepository $repository)
     {
+        $request->validate([
+            'type' => ['nullable', 'string', 'in:Dooring,Pickup,Transit,Delivery,Walkin'],
+            'search' => ['nullable', 'string']
+        ]);
+        
+        $attributes = $request->all();
+
         $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id);
-                $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
-                    $k->map(function ($q) {
-                        $q->amount = intval($q->amount);
-                        $q->weight = intval($q->weight);
-                    });
-                    $serviceFee = $k->where('description', 'service')->where('type', 'deposit')->first(); 
-                    $pickupFee = $k->where('description', 'pickup')->where('type', 'deposit')->first();
-                    $handlingFee = $k->where('description', 'handling')->where('type', 'deposit')->first();
-                    $insuranceFee = $k->where('description', 'insurance')->where('type', 'deposit')->first();
-                    $dooringFee = $k->where('description', 'dooring')->where('type', 'deposit')->first();
-                    $transitFee = $k->where('description', 'transit')->where('type', 'deposit')->first();
-                    $discountFee = $k->where('type', 'discount')->first();
+        $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
+            $k->map(function ($q) {
+                $q->amount = intval($q->amount);
+            });
+            
+            $serviceFee = $k->where('description', 'service')->where('type', 'deposit')->first();
+            $pickupFee = $k->where('description', 'pickup')->where('type', 'deposit')->first();
+            $handlingFee = $k->where('description', 'handling')->where('type', 'deposit')->first();
+            $insuranceFee = $k->where('description', 'insurance')->where('type', 'deposit')->first();
+            $dooringFee = $k->where('description', 'dooring')->where('type', 'deposit')->first();
+            $transitFee = $k->where('description', 'transit')->where('type', 'deposit')->first();
+            $deliveryFee = $k->where('description', 'delivery')->where('type', 'deposit')->first();
+            $discountFee = $k->where('type', 'discount')->first();
 
-                    $totalAmount = 0;
-                    $penaltyIncome = $k->where('type', 'penalty')->first();
+            $totalAmount = 0;
+            // $penaltyIncome = $k->where('type', 'penalty')->first();
 
-                    $subber = ['penalty', 'discount', 'withdraw'];
-                    $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
-                    $totalSubber = $k->whereIn('type', $subber)->sum('amount');
+            $subber = ['penalty', 'discount', 'withdraw'];
+            $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
+            $totalSubber = $k->whereIn('type', $subber)->sum('amount');
 
-                    $totalAmount = $totalAmount - $totalSubber;
+            $totalAmount = $totalAmount - $totalSubber;
 
-                    $receivedType = ['dooring', 'transit', 'pickup', 'walkin'];
-                    $keyRandom = array_rand($receivedType, 1); 
-                    return [
-                        'package_code' => $k[0]->package_code,
-                        'service_fee' => $serviceFee ? $serviceFee->amount : 0,
-                        'pickup_fee' => $pickupFee ? $pickupFee->amount : 0,
-                        'handling_fee' => $handlingFee ? $handlingFee->amount : 0,
-                        'insurance_fee' => $insuranceFee ? $insuranceFee->amount : 0,
-                        'dooring_fee' => $dooringFee ? $dooringFee->amount : 0,
-                        'transit_fee' => $transitFee ? $transitFee->amount : 0,
-                        'discount_fee' => $discountFee ? $discountFee->amount : 0,
-                        'total_amount' => $totalAmount,
-                        'type' => $receivedType[$keyRandom] // still dummy
-                        // 'detail' => $k
-                    ];
-                })->values();
+            if (!is_null($serviceFee) && !is_null($pickupFee)) {
+                $receivedType = 'Pickup';
+            } elseif (!is_null($dooringFee)) {
+                $receivedType = 'Dooring';
+            } elseif (!is_null($transitFee)) {
+                $receivedType = 'Transit';
+            } elseif (!is_null($deliveryFee)) {
+                $receivedType = 'Delivery';
+            } else {
+                $receivedType = 'Walkin';
+            }
 
-                return (new Response(Response::RC_SUCCESS, $this->paginate($result, 10)))->json();
+            return [
+                'package_code' => $k[0]->package_code,
+                'service_fee' => $serviceFee ? $serviceFee->amount : 0,
+                'pickup_fee' => $pickupFee ? $pickupFee->amount : 0,
+                'handling_fee' => $handlingFee ? $handlingFee->amount : 0,
+                'insurance_fee' => $insuranceFee ? $insuranceFee->amount : 0,
+                'dooring_fee' => $dooringFee ? $dooringFee->amount : 0,
+                'transit_fee' => $transitFee ? $transitFee->amount : 0,
+                'delivery_fee' => $deliveryFee ? $deliveryFee->amount : 0,
+                'discount_fee' => $discountFee ? $discountFee->amount : 0,
+                'total_amount' => $totalAmount,
+                'type' => $receivedType
+                // 'detail' => $k
+            ];
+        })->filter(function ($r) use ($attributes) {
+            if ($r['type'] === $attributes['received_type']) {
+                return true;
+            } elseif ($attributes['received_type'] === "''") {
+                return true;
+            } else {
+                return false;
+            }
+        })->values();
+
+        return (new Response(Response::RC_SUCCESS, $this->paginate($result, $request->input('per_page'))))->json();
     }
 
     /**
