@@ -333,9 +333,15 @@ class PricingCalculator
                             'type' => $handling['type']
                         ];
                     } else {
-                        $packing[] = [
-                            'type' => $handling
-                        ];
+                        if (is_array($handling) && array_key_exists("type", $handling)) {
+                            $packing[] = [
+                                'type' => $handling['type']
+                            ];
+                        } else {
+                            $packing[] = [
+                                'type' => $handling
+                            ];
+                        }
                     }
                 }
             }
