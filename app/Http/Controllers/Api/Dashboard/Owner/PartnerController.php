@@ -252,4 +252,19 @@ class PartnerController extends Controller
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
         // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
+
+    public function estimateOfWarehouse()
+    {
+        // todo, take a rest because your tired
+    }
+
+    public function packOfWarehouse()
+    {
+        // todo, take a rest because your tired
+    }
+
+    public function transitOfWarehouse()
+    {
+        // todo, take a rest because your tired
+    }
 }
