@@ -517,7 +517,7 @@ class FinanceController extends Controller
         FROM (
             select package_id, partner_id, SUM(balance) total_accepted
             from partner_balance_histories pbh
-            where pbh.partner_id = %d
+            where pbh.partner_id = %d and pbh.type IN ('deposit', 'charge')
             group by partner_id, package_id
         ) pbh
         LEFT JOIN codes c ON pbh.package_id = c.codeable_id AND c.codeable_type = 'App\Models\Packages\Package'
