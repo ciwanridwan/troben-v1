@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Dashboard\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Dashboard\Owner\UpdatePasswordRequest;
 use App\Http\Requests\Dashboard\Owner\UpdateProfileRequest;
 use App\Http\Resources\Api\Partner\Owner\InfoProfileResource;
 use App\Http\Response;
@@ -62,6 +63,18 @@ class ProfileController extends Controller
         $user->partners->first()->update([
             'address' => $request->address ?? $user->partners->first()->address
         ]);
+
+        return (new Response(Response::RC_UPDATED))->json();
+    }
+
+    /**
+     * Update password owner account
+     */
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
+    {
+        $request->validated();
+        $user = $request->user();
+        $user->update(['password' => $request->password]);
 
         return (new Response(Response::RC_UPDATED))->json();
     }

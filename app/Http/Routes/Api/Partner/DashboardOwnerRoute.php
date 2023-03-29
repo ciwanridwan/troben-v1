@@ -39,6 +39,11 @@ class DashboardOwnerRoute extends BaseRoute
             'uses' => $this->uses('update', ProfileController::class),
         ]);
 
+        $this->router->post($this->prefix('profile/update/password'), [
+            'as' => $this->name('updatePassword'),
+            'uses' => $this->uses('updatePassword', ProfileController::class),
+        ]);
+
         $this->router->get($this->prefix('income'), [
             'as' => $this->name('income'),
             'uses' => $this->uses('income'),
