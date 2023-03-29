@@ -35,7 +35,9 @@ class IncomingOrderResource extends JsonResource
             'total_qty' => $this->items->sum('qty'),
             'total_weight' => $this->total_weight,
             'sender_address' => $this->sender_address,
-            'receiver_address' => $this->receiver_address
+            'origin_regency' => $this->origin_regency ? $this->origin_regency->name : null,
+            'receiver_address' => $this->receiver_address,
+            'destination_regency' => $this->destination_regency ? $this->destination_regency->name : null
         ];
     }
 }
