@@ -7,6 +7,7 @@ use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ListManifestResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\EstimationResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
@@ -173,7 +174,7 @@ class PartnerController extends Controller
     }
 
     /**
-     * 
+     *
      */
     public function incomingOrders(Request $request, PartnerRepository $repository): JsonResponse
     {
@@ -247,15 +248,31 @@ class PartnerController extends Controller
                 });
             }
         });
-        
+
         $deliveries = $query->paginate($request->input('per_page', 10));
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
         // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
 
-    public function estimateOfWarehouse()
+    public function estimateOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
-        // todo, take a rest because your tired
+        $request->validate([
+            'date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'in:done,not'],
+            'code' => ['nullable', 'string']
+        ]);
+
+        $query = $repository->queries()->getPackagesQuery();
+        $estimationStatus = [
+            Package::STATUS_WAITING_FOR_ESTIMATING,
+            Package::STATUS_ESTIMATING,
+            Package::STATUS_ESTIMATED
+        ];
+
+        $query->whereIn('status', $estimationStatus);
+        $result = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(EstimationResource::collection($result));
     }
 
     public function packOfWarehouse()

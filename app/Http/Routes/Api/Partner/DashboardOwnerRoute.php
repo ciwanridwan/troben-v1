@@ -80,6 +80,25 @@ class DashboardOwnerRoute extends BaseRoute
             'as' => $this->name('manifest'),
             'uses' => $this->uses('listManifest'),
         ]);
+
+        // warehouse
+        $this->router->get($this->prefix('warehouse/estimation'), [
+            'as' => $this->name('warehouse.estimation'),
+            'uses' => $this->uses('estimateOfWarehouse'),
+        ]);
+
+
+        $this->router->get($this->prefix('warehouse/pack'), [
+            'as' => $this->name('warehouse.pack'),
+            'uses' => $this->uses('packOfWarehouse'),
+        ]);
+
+
+        $this->router->get($this->prefix('warehouse/transit'), [
+            'as' => $this->name('warehouse.estimation'),
+            'uses' => $this->uses('transitOfWarehouse'),
+        ]);
+        // end warehouse
     }
 
     public function controller()
