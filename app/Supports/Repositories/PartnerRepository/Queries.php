@@ -466,7 +466,7 @@ class Queries
         pbd.created_at,
         pbd.transaction_code,
         pbd.first_balance request_amount,
-        case 
+        case
             when pbd.status = 'requested' then 0
             else pbd.amount
         end total_accepted,
@@ -632,5 +632,27 @@ class Queries
 
         $q = sprintf($q, $pbdhQuery, $pbhQuery);
         return $q;
+    }
+
+    public function getDeliveriesTransitByOwner(): Builder
+    {
+        $query = Delivery::query();
+
+        // if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+        //     $userables = $this->user->transporters;
+        //     $ids = [];
+        //     foreach ($userables as $userable) {
+        //         $ids[] = $userable->pivot->id;
+        //     }
+        //     $query->whereIn('userable_id', $ids);
+        // } else {
+        // }
+        $query->where('origin_partner_id', $this->partner->id);
+        $query->whereNotIn('status', [Delivery::STATUS_EN_ROUTE, Delivery::STATUS_FINISHED]);
+        $this->resolveDeliveriesQueryByRole($query);
+
+        $query->orderByDesc('created_at');
+
+        return $query;
     }
 }

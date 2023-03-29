@@ -231,14 +231,14 @@ class PartnerController extends Controller
 
         $request->whenHas('status', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['status' => Rule::in(Delivery::STATUS_FINISHED,Delivery::STATUS_EN_ROUTE)]);
+                $request->validate(['status' => Rule::in(Delivery::STATUS_FINISHED, Delivery::STATUS_EN_ROUTE)]);
                 $query->where('status', $value);
             }
         });
 
         $request->whenHas('type', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['type' => Rule::in(Delivery::TYPE_TRANSIT,Delivery::TYPE_DOORING)]);
+                $request->validate(['type' => Rule::in(Delivery::TYPE_TRANSIT, Delivery::TYPE_DOORING)]);
                 $query->where('type', $value);
             }
         });
@@ -246,7 +246,7 @@ class PartnerController extends Controller
         $request->whenHas('search', function ($value) use ($query) {
             if ($value !== "''") {
                 $query->whereHas('code', function ($q) use ($value) {
-                    $q->where('content', 'ilike', '%'.$value.'%');
+                    $q->where('content', 'ilike', '%' . $value . '%');
                 });
             }
         });
@@ -260,11 +260,12 @@ class PartnerController extends Controller
     {
         $request->validate([
             'date' => ['nullable', 'date'],
-            'status' => ['nullable', 'string', 'in:done,not'],
+            'status' => ['nullable', 'string'],
             'code' => ['nullable', 'string']
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
+
         $packageStatus = [
             Package::STATUS_WAITING_FOR_ESTIMATING,
             Package::STATUS_ESTIMATING,
@@ -272,6 +273,28 @@ class PartnerController extends Controller
         ];
 
         $query->whereIn('status', $packageStatus);
+
+        $request->whenHas('status', function ($v) use ($query, $request) {
+            if ($request->status !== "''") {
+                $request->validate(['status' => 'in:done,not']);
+                if ($v === 'done') {
+                    $query->where('status', Package::STATUS_ESTIMATED);
+                }
+
+                if ($v === 'not') {
+                    $query->whereIn('status', [Package::STATUS_WAITING_FOR_ESTIMATING, Package::STATUS_ESTIMATING]);
+                }
+            }
+        });
+
+        $request->whenHas('code', function ($v) use ($query) {
+            if ($v !== "''") {
+                $query->whereHas('code', function ($q) use ($v) {
+                    $q->where('content', 'ilike', '%'.$v.'%');
+                });
+            }
+        });
+
         $result = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(EstimationResource::collection($result));
@@ -286,12 +309,35 @@ class PartnerController extends Controller
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
+
         $packageStatus = [
             Package::STATUS_PACKING,
             Package::STATUS_PACKED,
         ];
 
         $query->whereIn('status', $packageStatus);
+
+        $request->whenHas('status', function ($v) use ($query, $request) {
+            if ($request->status !== "''") {
+                $request->validate(['status' => 'in:done,not']);
+                if ($v === 'done') {
+                    $query->where('status', Package::STATUS_PACKED);
+                }
+
+                if ($v === 'not') {
+                    $query->whereIn('status', [Package::STATUS_PACKING]);
+                }
+            }
+        });
+
+        $request->whenHas('code', function ($v) use ($query) {
+            if ($v !== "''") {
+                $query->whereHas('code', function ($q) use ($v) {
+                    $q->where('content', 'ilike', '%'.$v.'%');
+                });
+            }
+        });
+
         $result = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(PackageResource::collection($result));
@@ -300,18 +346,27 @@ class PartnerController extends Controller
     public function transitOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['nullable', 'date'],
-            'status' => ['nullable', 'string', 'in:done,not'],
+            'date' => ['nullable'],
             'code' => ['nullable', 'string']
         ]);
 
-        $query = $repository->queries()->getPackagesQuery();
-        $packageStatus = [
-            Package::STATUS_PACKED,
-            Package::STATUS_IN_TRANSIT,
-        ];
+        $query = $repository->queries()->getDeliveriesTransitByOwner();
 
-        $query->whereIn('status', $packageStatus);
+        $request->whenHas('date', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $request->validate(['date' => 'date']);
+                $query->whereDate('created_at', $value);
+            }
+        });
+
+        $request->whenHas('code', function ($v) use ($query) {
+            if ($v !== "''") {
+                $query->whereHas('code', function ($q) use ($v) {
+                    $q->where('content', 'ilike', '%'.$v.'%');
+                });
+            }
+        });
+
         $result = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(TransitResource::collection($result));
