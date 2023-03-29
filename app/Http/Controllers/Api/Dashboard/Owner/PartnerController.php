@@ -225,7 +225,7 @@ class PartnerController extends Controller
         ]);
 
         $query = $repository->queries()->getDeliveriesQuery();
-        $query->with(['code', 'partner:id,code,name', 'origin_partner:id,code,name', 'partner_performance']);
+        $query->with(['code', 'partner:id,code,name', 'origin_partner:id,code,name', 'partner_performance', 'transporter']);
 
         $request->whenHas('status', function ($value) use ($query, $request) {
             if ($value !== "''") {
