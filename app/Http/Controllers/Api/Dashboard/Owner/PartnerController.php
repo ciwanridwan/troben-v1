@@ -8,6 +8,8 @@ use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ListManifestResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\EstimationResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\PackageResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\TransitResource;
 use App\Http\Response;
 use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
@@ -263,25 +265,55 @@ class PartnerController extends Controller
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
-        $estimationStatus = [
+        $packageStatus = [
             Package::STATUS_WAITING_FOR_ESTIMATING,
             Package::STATUS_ESTIMATING,
             Package::STATUS_ESTIMATED
         ];
 
-        $query->whereIn('status', $estimationStatus);
+        $query->whereIn('status', $packageStatus);
         $result = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(EstimationResource::collection($result));
     }
 
-    public function packOfWarehouse()
+    public function packOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
-        // todo, take a rest because your tired
+        $request->validate([
+            'date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'in:done,not'],
+            'code' => ['nullable', 'string']
+        ]);
+
+        $query = $repository->queries()->getPackagesQuery();
+        $packageStatus = [
+            Package::STATUS_PACKING,
+            Package::STATUS_PACKED,
+        ];
+
+        $query->whereIn('status', $packageStatus);
+        $result = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(PackageResource::collection($result));
     }
 
-    public function transitOfWarehouse()
+    public function transitOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
-        // todo, take a rest because your tired
+        $request->validate([
+            'date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'in:done,not'],
+            'code' => ['nullable', 'string']
+        ]);
+
+        $query = $repository->queries()->getPackagesQuery();
+        $packageStatus = [
+            Package::STATUS_PACKED,
+            Package::STATUS_IN_TRANSIT,
+        ];
+
+        $query->whereIn('status', $packageStatus);
+        $result = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(TransitResource::collection($result));
     }
 }
