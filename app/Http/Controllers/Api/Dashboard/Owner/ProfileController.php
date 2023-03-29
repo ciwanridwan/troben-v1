@@ -11,6 +11,7 @@ use App\Models\Partners\BankAccount;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -74,8 +75,12 @@ class ProfileController extends Controller
     {
         $request->validated();
         $user = $request->user();
-        $user->update(['password' => $request->password]);
 
+        if (!Hash::check($request->old_password, $user->password)) {
+            return (new Response(Response::RC_BAD_REQUEST, ['Message' => 'Old Password Does Not Match']))->json();
+        }
+
+        $user->update(['password' => $request->new_password]);
         return (new Response(Response::RC_UPDATED))->json();
     }
 }

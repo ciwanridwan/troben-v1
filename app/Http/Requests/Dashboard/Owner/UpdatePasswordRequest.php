@@ -25,7 +25,15 @@ class UpdatePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'password' => ['required', 'confirmed', Password::min(8)]
+            'old_password' => ['required'],
+            'new_password' => ['required', 'confirmed', Password::min(8)]
         ];
+    }
+
+    public function messages()
+    {
+       return [
+        'new_password.confirmed' => 'Password Confirmation Not Match With New Password'
+       ];
     }
 }
