@@ -16,13 +16,19 @@ class TransporterResource extends JsonResource
     public function toArray($request)
     {
         foreach ($this->resource as $transporter) {
+            $isActive = false;
+            if ($transporter->is_verified === true) {
+                $isActive = true;
+            }
             $this->data[] = [
                 'hash' => $transporter->hash,
-                'name' => $transporter->name,
+                'name' => $transporter->registration_name,
                 'registration_number' => $transporter->registration_number,
+                'is_active' => $isActive,
                 'is_verified' => $transporter->is_verified,
                 'verified_at' => $transporter->verified_at,
                 'type' => $transporter->type,
+                'year' => $transporter->registration_year,
             ];
         }
 
