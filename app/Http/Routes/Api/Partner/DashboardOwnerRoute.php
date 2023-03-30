@@ -100,7 +100,7 @@ class DashboardOwnerRoute extends BaseRoute
 
 
         $this->router->get($this->prefix('warehouse/transit'), [
-            'as' => $this->name('warehouse.estimation'),
+            'as' => $this->name('warehouse.transit'),
             'uses' => $this->uses('transitOfWarehouse'),
         ]);
         // end warehouse
