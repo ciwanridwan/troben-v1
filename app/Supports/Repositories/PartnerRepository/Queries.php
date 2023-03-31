@@ -406,57 +406,61 @@ class Queries
     public function getIncomePerDay($partnerId, $date)
     {
         $q = "select
-        pbdh.balance as amount,
-        to_char(pbdh.created_at, 'yyyy-mm-dd') as date
-        from
-            partner_balance_delivery_histories pbdh
-        left join (
-            select
-                *
-            from
-                codes
-            where
-                codeable_type = 'App\Models\Deliveries\Delivery') c on
-            pbdh.delivery_id = c.codeable_id
-        left join (
-            select
-                delivery_id,
-                sum(p.total_weight) total_weight
-            from
-                deliverables
-            left join packages p on
-                deliverables.deliverable_id = p.id
-            where
-                deliverable_type = 'App\Models\Packages\Package'
-            group by
-                delivery_id
-                ) d on
-            pbdh.delivery_id = d.delivery_id
-        where
-            pbdh.partner_id = $partnerId
-            and to_char(pbdh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
-        union all
-                select
-            pbh.balance,
-            to_char(pbh.created_at, 'yyyy-mm-dd') created_at
-        from
-            partner_balance_histories pbh
-        left join (
-            select
-                *
-            from
-                codes
-            where
-                codeable_type = 'App\Models\Packages\Package') c2 on
-            pbh.package_id = c2.codeable_id
-        left join packages p2 on
-            c2.codeable_id = p2.id
-        where
-        pbh.partner_id = $partnerId
-        and pbh.type != 'withdraw'
-        and to_char(pbh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
-        order by
-        date desc";
+                    sum(pbdh.balance) as amount,
+                    to_char(pbdh.created_at, 'yyyy-mm-dd') as date
+                from
+                    partner_balance_delivery_histories pbdh
+                left join (
+                    select
+                        *
+                    from
+                        codes
+                    where
+                        codeable_type = 'App\Models\Deliveries\Delivery') c on
+                    pbdh.delivery_id = c.codeable_id
+                left join (
+                    select
+                        delivery_id,
+                        sum(p.total_weight) total_weight
+                    from
+                        deliverables
+                    left join packages p on
+                        deliverables.deliverable_id = p.id
+                    where
+                        deliverable_type = 'App\Models\Packages\Package'
+                    group by
+                        delivery_id
+                                ) d on
+                    pbdh.delivery_id = d.delivery_id
+                where
+                    pbdh.partner_id = $partnerId
+                    and to_char(pbdh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                group by
+                    to_char(pbdh.created_at, 'yyyy-mm-dd')
+                union all
+                                select
+                    sum(pbh.balance) amount,
+                    to_char(pbh.created_at, 'yyyy-mm-dd') created_at
+                from
+                    partner_balance_histories pbh
+                left join (
+                    select
+                        *
+                    from
+                        codes
+                    where
+                        codeable_type = 'App\Models\Packages\Package') c2 on
+                    pbh.package_id = c2.codeable_id
+                left join packages p2 on
+                    c2.codeable_id = p2.id
+                where
+                    pbh.partner_id = $partnerId
+                    and pbh.type != 'withdraw'
+                    and to_char(pbh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                group by
+                    to_char(pbh.created_at, 'yyyy-mm-dd')
+                order by
+                    date desc";
 
         return $q;
     }

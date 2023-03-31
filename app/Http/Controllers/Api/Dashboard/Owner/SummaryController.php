@@ -50,7 +50,8 @@ class SummaryController extends Controller
     public function itemIntoWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'type' => ['required', 'in:arrival,departure']
+            'type' => ['required', 'in:arrival,departure'],
+            'date' => ['nullable', 'string']
         ]);
 
         $currentDate = $request->date;
