@@ -32,7 +32,7 @@ class PartnerController extends Controller
      * @param Request $request
      * @param PartnerRepository $repository
      */
-    public function income(Request $request, PartnerRepository $repository): JsonResponse
+    public function listWithdrawal(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
             'search' => ['nullable', 'string'],
