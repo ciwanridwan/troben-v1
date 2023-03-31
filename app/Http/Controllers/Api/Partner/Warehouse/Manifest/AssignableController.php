@@ -32,11 +32,18 @@ class AssignableController extends Controller
                     if (!is_null($package->deliveryRoutes)) {
                         $partnerByRoute = Route::setPartners($package->deliveryRoutes);
                         array_push($partnerByRoutes, $partnerByRoute);
-                    } else {
-                        $partnerCode = null;
                     }
                 }
+
                 $partnerCode = $partnerByRoutes;
+                if (!empty($partnerCode)) {
+                    for ($i=0; $i < count($partnerByRoutes); $i++) {
+                        if (is_null($partnerCode[$i])) {
+                            $partnerCode = null;
+                        };
+                    }
+                }
+
                 break;
             case $setPartner === 2:
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
