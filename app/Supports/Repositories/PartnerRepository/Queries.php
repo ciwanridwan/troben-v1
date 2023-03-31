@@ -13,6 +13,7 @@ use App\Models\Partners\Transporter;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\Payments\Withdrawal;
 
 class Queries
 {
@@ -637,22 +638,21 @@ class Queries
     public function getDeliveriesTransitByOwner(): Builder
     {
         $query = Delivery::query();
-
-        // if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
-        //     $userables = $this->user->transporters;
-        //     $ids = [];
-        //     foreach ($userables as $userable) {
-        //         $ids[] = $userable->pivot->id;
-        //     }
-        //     $query->whereIn('userable_id', $ids);
-        // } else {
-        // }
         $query->where('origin_partner_id', $this->partner->id);
         $query->whereNotIn('status', [Delivery::STATUS_EN_ROUTE, Delivery::STATUS_FINISHED]);
         $this->resolveDeliveriesQueryByRole($query);
 
         $query->orderByDesc('created_at');
 
+        return $query;
+    }
+
+    public function getWithdrawalQuery(): Builder
+    {
+        $query = Withdrawal::query();
+        $query->where('partner_id', $this->partner->id);
+
+        $query->orderByDesc('created_at');
         return $query;
     }
 }

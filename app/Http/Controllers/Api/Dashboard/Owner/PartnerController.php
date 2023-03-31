@@ -7,6 +7,7 @@ use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomeResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\IncomingOrderResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ItemIntoWarehouseResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\ListManifestResource;
+use App\Http\Resources\Api\Partner\Owner\Dashboard\ListWithdrawalResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\EstimationResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\PackageResource;
 use App\Http\Resources\Api\Partner\Owner\Dashboard\Warehouse\TransitResource;
@@ -34,36 +35,22 @@ class PartnerController extends Controller
     public function income(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'search' => ['nullable'],
-            'date' => ['nullable'],
+            'search' => ['nullable', 'string'],
+            'date' => ['nullable', 'string'],
         ]);
 
-        $partnerType = $repository->getPartner()->type;
-        $partnerId = $repository->getPartner()->id;
-
-        switch ($partnerType) {
-            case Partner::TYPE_POOL:
-                # code...
-                break;
-            case Partner::TYPE_TRANSPORTER:
-                # code...
-                break;
-            default:
-                $queryDisbursHistory = $repository->queries()->getDisbursmentHistory($partnerId);
-                $disbursmentHistory = collect(DB::select($queryDisbursHistory))->map(function ($r) {
-                    $detailReceipt = '';
-                    $r->request_amount = intval($r->request_amount);
-                    $r->total_accepted = intval($r->total_accepted);
-                    $r->detail = $detailReceipt;
-                    return $r;
-                })->values();
-
-                $result = $this->paginate($disbursmentHistory, 10);
-                break;
+        $query = $repository->queries()->getWithdrawalQuery();
+        if ($request->search !== "''") {
+            $query->where('transaction_code', 'ilike', '%' . $request->search . '%');
         }
 
-        return (new Response(Response::RC_SUCCESS, $result))->json();
-        // return $this->jsonSuccess(IncomeResource::make($result));
+        if ($request->date !== "''") {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $withdrawal = $query->paginate($request->input('per_page', 10));
+
+        return $this->jsonSuccess(ListWithdrawalResource::collection($withdrawal));
     }
 
     public function detailIncome(Request $request, PartnerRepository $repository)
@@ -290,7 +277,7 @@ class PartnerController extends Controller
         $request->whenHas('code', function ($v) use ($query) {
             if ($v !== "''") {
                 $query->whereHas('code', function ($q) use ($v) {
-                    $q->where('content', 'ilike', '%'.$v.'%');
+                    $q->where('content', 'ilike', '%' . $v . '%');
                 });
             }
         });
@@ -333,7 +320,7 @@ class PartnerController extends Controller
         $request->whenHas('code', function ($v) use ($query) {
             if ($v !== "''") {
                 $query->whereHas('code', function ($q) use ($v) {
-                    $q->where('content', 'ilike', '%'.$v.'%');
+                    $q->where('content', 'ilike', '%' . $v . '%');
                 });
             }
         });
@@ -362,7 +349,7 @@ class PartnerController extends Controller
         $request->whenHas('code', function ($v) use ($query) {
             if ($v !== "''") {
                 $query->whereHas('code', function ($q) use ($v) {
-                    $q->where('content', 'ilike', '%'.$v.'%');
+                    $q->where('content', 'ilike', '%' . $v . '%');
                 });
             }
         });
