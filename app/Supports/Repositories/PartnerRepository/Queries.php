@@ -488,7 +488,7 @@ class Queries
     /**
      * Get packages by owner of web dashboard owner
      */
-    public function getPackagesQueryByOwner($type): Builder
+    public function getPackagesQueryByOwner($type, $date): Builder
     {
         $query = Package::query();
 
@@ -519,15 +519,17 @@ class Queries
             ];
         }
 
+        if (!is_null($date)) {
+            $month = substr($date, 0, 2);
+            $query->whereMonth('created_at', $month);
 
-        // $month = substr($date, 0, 2);
-        // $query->whereMonth('created_at', $month);
-
-        // $year = substr($date, 3);
-        // $query->whereYear('created_at', $year);
+            $year = substr($date, 3);
+            $query->whereYear('created_at', $year);
+        }
 
         $query->whereIn('status', $packageStatus);
-        $query->orderByDesc('created_at');;
+        $query->orderByDesc('created_at');
+
         return $query;
     }
 
@@ -570,7 +572,7 @@ class Queries
         $query->whereYear('created_at', $year);
 
         $query->whereIn('status', $packageStatus);
-        $query->orderByDesc('created_at');;
+        $query->orderByDesc('created_at');
         return $query;
     }
 
@@ -595,14 +597,15 @@ class Queries
         $id = implode(",", $packageId);
 
         $q = "select
-                    pi2.qty,
+                    sum(pi2.qty) qty,
                     to_char(pi2.created_at, 'yyyy-mm-dd') date
                 from
                     packages p
                 left join package_items pi2 on
-                    p.id = pi2.package_id
+                        p.id = pi2.package_id
                 where
-                    p.id in ($id)";
+                        p.id in ($id)
+                group by date";
 
         return $q;
     }

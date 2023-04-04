@@ -135,9 +135,9 @@ class PartnerController extends Controller
             'status' => ['nullable']
         ]);
 
-        // $currentDate = $request->date;
+        $date = null;
         $status = $request->status;
-        $packages = $repository->queries()->getPackagesQueryByOwner($request->type)->get();
+        $packages = $repository->queries()->getPackagesQueryByOwner($request->type, $date)->get();
         $itemInWarehouse = $packages->map(function ($r) {
             $result = [
                 'updated_at' => $r->updated_at->format('y-M-d'),
