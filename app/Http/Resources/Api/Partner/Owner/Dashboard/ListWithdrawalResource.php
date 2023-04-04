@@ -22,7 +22,7 @@ class ListWithdrawalResource extends JsonResource
 
         return [
             'hash' => $this->hash,
-            'created_at' => $this->created_at->format('yyyy-mm-dd H:i:s'),
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'transaction_code' => $this->transaction_code,
             'request_amount' => $this->first_balance,
             'total_accepted' => $totalAccepted,
