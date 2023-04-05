@@ -169,9 +169,9 @@ class PartnerController extends Controller
     {
         $request->validate([
             'list_type' => ['required', 'in:arrival,departure'],
-            'service_type' => ['nullable', Rule::in(Service::getAvailableType())],
-            'category_id' => ['nullable', 'exists:category_items,id'],
-            'receipt_code' => ['nullable', 'exists:codes,content']
+            'service_type' => ['nullable'],
+            'category_id' => ['nullable'],
+            'receipt_code' => ['nullable']
         ]);
 
         $query = $repository->queries()->getPackagesQuery();
@@ -184,22 +184,25 @@ class PartnerController extends Controller
             }
         });
 
-        $request->whenHas('service_type', function ($value) use ($query) {
+        $request->whenHas('service_type', function ($value) use ($query, $request) {
             if ($value !== "''") {
+                $request->validate(['service_type' => [Rule::in(Service::getAvailableType())]]);
                 $query->where('service_code', $value);
             }
         });
 
-        $request->whenHas('receipt_code', function ($value) use ($query) {
+        $request->whenHas('receipt_code', function ($value) use ($query, $request) {
             if ($value !== "''") {
+                $request->validate(['receipt_code' => ['exists:codes,content']]);
                 $query->whereHas('code', function ($code) use ($value) {
                     $code->where('content', $value);
                 });
             }
         });
 
-        $request->whenHas('category_id', function ($value) use ($query) {
+        $request->whenHas('category_id', function ($value) use ($query, $request) {
             if ($value !== "''") {
+                $request->validate(['receipt_code' => ['exists:category_items,id']]);
                 $query->whereHas('items', function ($category) use ($value) {
                     $category->where('category_item_id', $value);
                 });
