@@ -23,7 +23,7 @@ class TransitResource extends JsonResource
         ];
 
         return [
-            'created_at' => $this->created_at->format('y-m-d H:i:s'),
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'code' => $this->code ? $this->code->content : null,
             'employee_name' => $this->createdBy ? $this->createdBy->name : null,
             'destination_partner' => $this->partner ? $this->partner->code : null,
