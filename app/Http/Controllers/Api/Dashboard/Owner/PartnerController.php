@@ -255,7 +255,7 @@ class PartnerController extends Controller
     public function estimateOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['nullable', 'date'],
+            'date' => ['nullable',],
             'status' => ['nullable', 'string'],
             'code' => ['nullable', 'string']
         ]);
@@ -291,6 +291,13 @@ class PartnerController extends Controller
             }
         });
 
+        $request->whenHas('date', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $request->validate(['date' => 'date']);
+                $query->whereDate('created_at', $value);
+            }
+        });
+
         $result = $query->paginate($request->input('per_page', 10));
 
         return $this->jsonSuccess(EstimationResource::collection($result));
@@ -299,7 +306,7 @@ class PartnerController extends Controller
     public function packOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['nullable', 'date'],
+            'date' => ['nullable'],
             'status' => ['nullable', 'string', 'in:done,not'],
             'code' => ['nullable', 'string']
         ]);
@@ -331,6 +338,13 @@ class PartnerController extends Controller
                 $query->whereHas('code', function ($q) use ($v) {
                     $q->where('content', 'ilike', '%' . $v . '%');
                 });
+            }
+        });
+
+        $request->whenHas('date', function ($value) use ($query, $request) {
+            if ($value !== "''") {
+                $request->validate(['date' => 'date']);
+                $query->whereDate('created_at', $value);
             }
         });
 
