@@ -185,19 +185,25 @@ class PartnerController extends Controller
         });
 
         $request->whenHas('service_type', function ($value) use ($query) {
-            $query->where('service_code', $value);
+            if ($value !== "''") {
+                $query->where('service_code', $value);
+            }
         });
 
         $request->whenHas('receipt_code', function ($value) use ($query) {
-            $query->whereHas('code', function ($code) use ($value) {
-                $code->where('content', $value);
-            });
+            if ($value !== "''") {
+                $query->whereHas('code', function ($code) use ($value) {
+                    $code->where('content', $value);
+                });
+            }
         });
 
         $request->whenHas('category_id', function ($value) use ($query) {
-            $query->whereHas('items', function ($category) use ($value) {
-                $category->where('category_item_id', $value);
-            });
+            if ($value !== "''") {
+                $query->whereHas('items', function ($category) use ($value) {
+                    $category->where('category_item_id', $value);
+                });
+            }
         });
 
         $packages = $query->paginate($request->input('per_page', 10));
