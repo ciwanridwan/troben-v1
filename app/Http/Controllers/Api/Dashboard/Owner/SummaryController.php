@@ -57,18 +57,30 @@ class SummaryController extends Controller
         $currentDate = $request->date;
         $query = $repository->queries()->getPackagesQueryByOwner($request->type, $currentDate);
         $currentIdPackages = $query->get()->pluck('id')->toArray();
-        $currentTotalItem = collect(DB::select($repository->queries()->getTotalItem($currentIdPackages)))->first();
-        $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
+
+        if (!empty($currentIdPackages)) {
+            $currentItem = collect(DB::select($repository->queries()->getTotalItem($currentIdPackages)))->first();
+            $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
+            $currentTotalItem = $currentItem->total_item;
+        } else {
+           $currentTotalItem = 0;
+           $itemPerday = [];
+        }
 
         $previousDate = Carbon::createFromFormat('m-Y', $request->date)->startOfMonth()->subMonth()->format('m-Y');
         $queryPreviousPackages = $repository->queries()->getPackagesQueryByOwner($request->type, $previousDate);
         $previousIdPackages = $queryPreviousPackages->get()->pluck('id')->toArray();
-        $previousTotalItem = collect(DB::select($repository->queries()->getTotalItem($previousIdPackages)))->first();
+        if (!empty($previousIdPackages)) {
+            $previousItem = collect(DB::select($repository->queries()->getTotalItem($previousIdPackages)))->first();
+            $previousTotalItem = $previousItem->total_item;
+        } else {
+            $previousTotalItem = 0;
+        }
 
         $totalItems = [
-            'total_current_item' => $currentTotalItem->total_item,
-            'total_previous_item' => $previousTotalItem->total_item,
-            'enhancement' => $currentTotalItem->total_item - $previousTotalItem->total_item,
+            'total_current_item' => $currentTotalItem,
+            'total_previous_item' => $previousTotalItem,
+            'enhancement' => $currentTotalItem - $previousTotalItem,
             'item_join_perday' => $itemPerday
         ];
 
