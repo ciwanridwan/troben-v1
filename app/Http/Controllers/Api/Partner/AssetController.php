@@ -62,13 +62,14 @@ class AssetController extends Controller
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in(['transporter', 'employee'])],
+            'driver' => ['nullable', 'boolean'],
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
 
         return $this->attributes['type'] === 'transporter'
             ? $this->getTransporter()
-            : $this->getEmployees();
+            : $this->getEmployees($this->attributes['driver']);
     }
 
     /**
@@ -147,9 +148,15 @@ class AssetController extends Controller
 
         return $this->jsonSuccess();
     }
-    public function getEmployees(): JsonResponse
+    public function getEmployees($driver): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
+        if ($driver === '1') {
+            $employees = $this->partner->users()->wherePivotIn('role', ['driver'])->orderBy('name')->get()->groupBy('id');
+        } else {
+            $employees = $this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id');
+        }
+
+        return $this->jsonSuccess(new UserResource(collect($employees)));
     }
     public function getEmployee(): JsonResponse
     {
@@ -195,11 +202,10 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
 
         $verifyJob = new VerifyExistingUser($job->user);
         $this->dispatch($verifyJob);
-
 
         foreach ($request->role as $role) {
             $pivot = new UserablePivot();
@@ -227,7 +233,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
