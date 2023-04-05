@@ -307,7 +307,7 @@ class PartnerController extends Controller
     {
         $request->validate([
             'date' => ['nullable'],
-            'status' => ['nullable', 'string', 'in:done,not'],
+            'status' => ['nullable', 'string'],
             'code' => ['nullable', 'string']
         ]);
 
