@@ -37,7 +37,7 @@ class InfoProfileResource extends JsonResource
             'phone' => $this->phone,
             'partner' => $partnerResult,
             'bank_account' => $bankAccount,
-            'avatar' => $this->avatar ?? null
+            'avatar' => $this->avatar ? generateUrl($this->avatar) : null
         ];
     }
 }
