@@ -26,18 +26,14 @@ class ProfileController extends Controller
      */
     public function update(UpdateProfileRequest $request): JsonResponse
     {
+        $request->validated();
         $user = $request->user();
         $avatar = null;
 
         $phoneNumber = change_format_number($request->phone);
 
         if ($request->avatar) {
-            $file = $request->file('avatar');
-            $extension = $file->getClientOriginalExtension();
-            $name = str_replace(' ', '_', $user->name);
-            $avatar = $name . '.' . $extension;
-
-            $file->storeAs('avatar', $avatar);
+            $avatar = handleUpload($request->avatar, 'avatar/users');
         }
 
         User::query()->where('id', $user->id)->update([
