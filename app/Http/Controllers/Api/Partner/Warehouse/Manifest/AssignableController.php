@@ -17,6 +17,7 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Assignable\DriverTransporterResource;
 use App\Http\Resources\Api\Assignable\PackageResource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AssignableController extends Controller
@@ -209,7 +210,9 @@ class AssignableController extends Controller
                     return true;
                 }
             } else {
-                if ($partnerIdFromDeliveries === $partnerId) {
+                $delivery = $q->deliveries->last();
+                $isDooring = Route::checkDooring($q, $delivery);
+                if ($partnerIdFromDeliveries === $partnerId && $isDooring === false ) {
                     return true;
                 }
             }
@@ -230,6 +233,12 @@ class AssignableController extends Controller
             if (!is_null($q->deliveryRoutes)) {
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
+                    return true;
+                }
+            } else {
+                $delivery = $q->deliveries->last();
+                $isDooring = Route::checkDooring($q, $delivery);
+                if ($isDooring) {
                     return true;
                 }
             }
