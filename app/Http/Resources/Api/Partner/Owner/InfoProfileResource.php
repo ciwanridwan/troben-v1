@@ -21,8 +21,8 @@ class InfoProfileResource extends JsonResource
         $bankOwner = $this->resource->bankOwner ? $this->resource->bankOwner->only('account_name', 'account_number') : null;
 
         if (!is_null($bankOwner)) {
-            $bank = $this->resource->bankOwner->banks->only('name') ?? null;
-            $bankAccount = array_merge($bank, $bankOwner); 
+            $bank = $this->resource->bankOwner->banks->only('id', 'name') ?? null;
+            $bankAccount = array_merge($bank, $bankOwner);
         } else {
             $bankAccount = null;
         }
@@ -37,7 +37,7 @@ class InfoProfileResource extends JsonResource
             'phone' => $this->phone,
             'partner' => $partnerResult,
             'bank_account' => $bankAccount,
-            'avatar' => $this->avatar
+            'avatar' => $this->avatar ?? null
         ];
     }
 }

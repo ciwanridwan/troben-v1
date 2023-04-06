@@ -341,6 +341,14 @@ class Delivery extends Model
             ->orderBy('created_at', 'desc');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function sla(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class, 'delivery_id', 'id');
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
