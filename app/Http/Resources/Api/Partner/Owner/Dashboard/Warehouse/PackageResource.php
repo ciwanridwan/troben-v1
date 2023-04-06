@@ -21,13 +21,25 @@ class PackageResource extends JsonResource
             $status = 'Belum Selesai';
         }
 
-        // set dummy sla
+        if (!is_null($this->sla)) {
+            if (!is_null($this->sla->reached_at) && $this->sla->reached_at > $this->sla->deadline) {
+                $isLate = true;
+                $lateAt = $this->sla->reached_at;
+            } else {
+                $isLate = false;
+                $lateAt = null;
+            }
+        } else {
+            $isLate = false;
+            $lateAt = null;
+        }
+
         $sla = [
-            'level' => 1,
-            'is_late' => true,
-            'deadline_at' => '2023-03-16 18:00:00',
-            'late_at' => '2023-03-16 16:52:40',
-            'done_at' => '2023-03-16 16:52:40'
+            'level' => $this->sla ? $this->sla->level : null,
+            'is_late' => $isLate,
+            'deadline_at' => $this->sla ? $this->sla->deadline : null,
+            'late_at' =>  $lateAt,
+            'done_at' => $this->sla ? $this->sla->reached_at : null
         ];
 
         return [
