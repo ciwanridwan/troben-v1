@@ -165,7 +165,8 @@ class AssetController extends Controller
 
     public function getTransporter(): JsonResponse
     {
-        return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
+        // return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
+        return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
     }
 
     public function deleteEmployee($hash): JsonResponse

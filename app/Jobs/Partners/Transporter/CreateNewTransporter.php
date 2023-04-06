@@ -46,13 +46,13 @@ class CreateNewTransporter
     {
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
-            'registration_number' => ['required'],
             'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
+            'registration_number' => ['required'],
             'production_year' => ['required'],
-            'registration_name' => ['required'],
-            'registration_year' => ['required'],
+            'registration_name' => ['filled'],
+            'registration_year' => ['filled'],
             'is_verified' => ['nullable'],
-            'verified_at' => ['filled'],
+            'verified_at' => ['nullable'],
         ])->validate();
     }
 
