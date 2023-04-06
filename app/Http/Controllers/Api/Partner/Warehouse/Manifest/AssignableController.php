@@ -130,8 +130,6 @@ class AssignableController extends Controller
         $result = $data->setCollection($packages);
 
         return $this->jsonSuccess(PackageResource::collection($result), null, true);
-        // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
-        // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
 
     public function checkPackages(Request $request)
