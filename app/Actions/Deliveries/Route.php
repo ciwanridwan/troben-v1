@@ -432,9 +432,9 @@ class Route
     public static function checkWarehouse($deliveryRoutes): string|null
     {
         if ($deliveryRoutes instanceof Delivery) {
-            $code = $deliveryRoutes->partner->code;
+            $code = $deliveryRoutes->partner ? $deliveryRoutes->partner->code : null;
         } else {
-            $code = $deliveryRoutes->originWarehouse->code;
+            $code = $deliveryRoutes->originWarehouse ? $deliveryRoutes->originWarehouse->code : null;
         }
 
         switch (true) {
