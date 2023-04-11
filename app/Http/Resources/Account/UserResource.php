@@ -87,6 +87,14 @@ class UserResource extends JsonResource
         $data['roles'] = $roles;
         $data['partner_id'] = $partnerId;
 
+        $avatar = null;
+
+        if (! is_null($this->avatar)) {
+            $avatar = Storage::disk('s3')->temporaryUrl($this->avatar, Carbon::now()->addHours(24));
+        }
+
+        $data['avatar'] = $avatar;
+
         return $data;
     }
 }
