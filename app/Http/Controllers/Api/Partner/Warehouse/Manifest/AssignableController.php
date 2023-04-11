@@ -32,11 +32,18 @@ class AssignableController extends Controller
                     if (!is_null($package->deliveryRoutes)) {
                         $partnerByRoute = Route::setPartners($package->deliveryRoutes);
                         array_push($partnerByRoutes, $partnerByRoute);
-                    } else {
-                        $partnerCode = null;
                     }
                 }
+
                 $partnerCode = $partnerByRoutes;
+                if (!empty($partnerCode)) {
+                    for ($i=0; $i < count($partnerByRoutes); $i++) {
+                        if (is_null($partnerCode[$i])) {
+                            $partnerCode = null;
+                        };
+                    }
+                }
+
                 break;
             case $setPartner === 2:
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
@@ -51,7 +58,7 @@ class AssignableController extends Controller
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
 
-        if ($partnerCode === 'all' || is_null($partnerCode) || count($partnerCode) == 0) {
+        if ($partnerCode === 'all' || is_null($partnerCode) || count($partnerCode) == 0 || empty($partnerCode)) {
             $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
         } else {
             $query->whereIn('code', $partnerCode);
