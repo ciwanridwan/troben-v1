@@ -611,7 +611,7 @@ class Route
             $q->where('province_id', $provinceId);
         })->first();
 
-        if (!is_null($route) && empty($route->code_mtak_1_dest)) {
+        if (!is_null($route) && empty($route->code_mtak_1_dest) || !is_null($route) && empty($route->code_mtak_2_dest) || !is_null($route) && empty($route->code_mtak_3_dest)) {
             $isDooring = true;
         }
 
