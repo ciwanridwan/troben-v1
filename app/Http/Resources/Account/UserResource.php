@@ -3,9 +3,11 @@
 namespace App\Http\Resources\Account;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UserResource extends JsonResource
 {
@@ -86,6 +88,14 @@ class UserResource extends JsonResource
 
         $data['roles'] = $roles;
         $data['partner_id'] = $partnerId;
+
+        $avatar = null;
+
+        if (! is_null($this->avatar)) {
+            $avatar = Storage::disk('s3')->temporaryUrl($this->avatar, Carbon::now()->addHours(24));
+        }
+
+        $data['avatar'] = $avatar;
 
         return $data;
     }
