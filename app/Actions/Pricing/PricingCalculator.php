@@ -28,6 +28,7 @@ use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use App\Models\Partners\VoucherAE;
 use App\Supports\DistanceMatrix;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -325,10 +326,17 @@ class PricingCalculator
         }
 
         $items = [];
+
         foreach ($inputs['items'] as $item) {
             if ($item['handling']) {
                 foreach ($item['handling'] as $handling) {
-                    if (array_key_exists('type', $item['handling'])) {
+                    if ($handling instanceof Collection) {
+                        $checkHandling = $handling->toArray();
+                    } else {
+                        $checkHandling = $handling;
+                    }
+
+                    if (array_key_exists('type', $item['handling']) || array_key_exists('type', $checkHandling)) {
                         $packing[] = [
                             'type' => $handling['type']
                         ];
@@ -408,8 +416,8 @@ class PricingCalculator
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
+
         return (self::ceilByTolerance($weight) * $qty);
-        // return $result;
     }
 
     public static function getInsurancePrice($price)
