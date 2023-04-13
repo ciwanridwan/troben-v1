@@ -23,6 +23,8 @@ use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 
 class AssetController extends Controller
@@ -266,6 +268,13 @@ class AssetController extends Controller
 
     protected function updateTransporter(Request $request, $hash): JsonResponse
     {
-        # CODE UPDATE
+        $transporter = Transporter::byHash($hash);
+        if (is_null($transporter)) {
+            return (new Response(Response::RC_BAD_REQUEST, ['Message' => 'Hash Invalid, Please Send Correct Hash']))->json();
+        }
+
+        $job = new UpdateExistingTransporterByOwner($transporter, $request->all());
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 }

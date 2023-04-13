@@ -14,7 +14,8 @@ class AddFieldVehicleIdentificationNumberToTransportersTable extends Migration
     public function up()
     {
         Schema::table('transporters', function (Blueprint $table) {
-            $table->string('vehicle_identification_number')->nullable();
+            $table->string('vehicle_identification')->nullable();
+            $table->string('chassis_number')->nullable();
         });
     }
 
@@ -26,7 +27,8 @@ class AddFieldVehicleIdentificationNumberToTransportersTable extends Migration
     public function down()
     {
         Schema::table('transporters', function (Blueprint $table) {
-            $table->dropColumn('vehicle_indentification_number');
+            $table->dropColumn('vehicle_identification');
+            $table->dropColumn('chassis_number');
         });
     }
 }
