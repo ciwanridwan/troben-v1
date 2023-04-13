@@ -44,9 +44,9 @@ class UpdateExistingTransporterByOwner
         $this->attributes = Validator::make($inputs, [
             'type' => ['filled', Rule::in(Transporter::getAvailableTypes())], // jenis kendaraan
             'registration_number' => ['filled'], // nomor stnk atau registrasi
-            'vehichle_number' => ['filled'], // nomor rangka
+            'vehicle_number' => ['filled'], // nomor rangka
             'is_active' => ['filled', 'boolean'], // active or not
-            'photo' => ['array', 'image:png,jpg,jpeg'], // foto kendaraan
+            'photo' => ['array', 'nullable', 'image:png,jpg,jpeg'], // foto kendaraan
             'vehicler_reg' => ['filled'], // stnk
 
             // not use to update, nullable
@@ -65,11 +65,18 @@ class UpdateExistingTransporterByOwner
      */
     public function handle(): bool
     {
+        // dd($this->attributes);
         $this->transporter->type = $this->attributes['type'] ?? $this->transporter->type;
         $this->transporter->registration_number = $this->attributes['registration_number'] ?? $this->transporter->registration_number;
         $this->transporter->chassis_number = $this->attributes['vehicle_number'] ?? $this->transporter->chassis_number;
         $this->transporter->is_verified = $this->attributes['is_active'] ?? $this->transporter->is_verified;
 
+        if (!empty($this->attributes['vehicler_reg'])) {
+            $vehicleImage = handleUpload($this->attributes['vehicler_reg'], 'vehicle_identification');
+            $this->transporter->vehicle_identification = $vehicleImage;
+        }
+
+        $this->transporter->save();
         return $this->transporter->exists;
     }
 }

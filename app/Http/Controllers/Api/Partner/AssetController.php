@@ -23,7 +23,6 @@ use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
 use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 
@@ -275,6 +274,6 @@ class AssetController extends Controller
 
         $job = new UpdateExistingTransporterByOwner($transporter, $request->all());
         $this->dispatch($job);
-        return (new Response(Response::RC_SUCCESS))->json();
+        return (new Response(Response::RC_SUCCESS, ['Message' => "Data Armada Berhasil Diperbaharui"]))->json();
     }
 }
