@@ -57,10 +57,7 @@ class TransporterResource extends JsonResource
             'verified_at' => $this->verified_at ? $this->verified_at->format('Y-m-d H:i:s') : null,
             'vehicle_identification' => !is_null($this->vehicle_identification) ? generateUrl($this->vehicle_identification) : null,
             # set dummy for temporary changes
-            'images' => [
-                ["id" => 1, "url" => "https://imgx.gridoto.com/crop/0x0:0x0/700x465/photo/2020/08/11/3709085591.jpg"],
-                ["id" => 2, "url" => "https://awsimages.detik.net.id/community/media/visual/2019/07/22/932d2a4f-816c-4c47-9aac-80feb35389d8.jpeg?w=700&q=90"]
-            ]
+            'images' => $this->images->isNotEmpty() ? $this->images : null,
         ];
 
         return $this->data;

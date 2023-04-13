@@ -38,7 +38,7 @@ class UpdateExistingTransporterByOwner
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function __construct(Transporter $transporter, $inputs = [])
+public function __construct(Transporter $transporter, $inputs = [])
     {
         $this->transporter = $transporter;
         $this->attributes = Validator::make($inputs, [
@@ -46,7 +46,7 @@ class UpdateExistingTransporterByOwner
             'registration_number' => ['filled'], // nomor stnk atau registrasi
             'vehicle_number' => ['filled'], // nomor rangka
             'is_active' => ['filled', 'boolean'], // active or not
-            'photo' => ['array', 'nullable', 'image:png,jpg,jpeg'], // foto kendaraan
+            'photo' => ['array', 'nullable'], // foto kendaraan
             'vehicler_reg' => ['filled'], // stnk
 
             // not use to update, nullable
@@ -74,6 +74,15 @@ class UpdateExistingTransporterByOwner
         if (!empty($this->attributes['vehicler_reg'])) {
             $vehicleImage = handleUpload($this->attributes['vehicler_reg'], 'vehicle_identification');
             $this->transporter->vehicle_identification = $vehicleImage;
+        }
+
+        if (!empty($this->attributes['photo'])) {
+            foreach ($this->attributes['photo'] as $photo) {
+                $image = handleUpload($photo, 'vehicle');
+                $this->transporter->images()->create([
+                    'path' => $image
+                ]);
+            }
         }
 
         $this->transporter->save();
