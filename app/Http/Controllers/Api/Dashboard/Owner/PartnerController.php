@@ -249,7 +249,6 @@ class PartnerController extends Controller
 
         $deliveries = $query->paginate($request->input('per_page', 10));
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
-        // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
 
     public function estimateOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse

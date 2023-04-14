@@ -252,17 +252,14 @@ class AssignableController extends Controller
             } else {
                 if ($q->deliveries->count() === 1) {
                     return false;
-                } else {
-                    $delivery = $q->deliveries->last();
-                    $isDooring = Route::checkDooring($q, $delivery);
-                    if ($isDooring ) {
-                        return true;
-                    }
-
-                    // if ($partnerIdFromDeliveries === $partnerId) {
-                    //     return false;
-                    // }
                 }
+                // else {
+                //     $delivery = $q->deliveries->last();
+                //     $isDooring = Route::checkDooring($q, $delivery);
+                //     if ($isDooring ) {
+                //         return true;
+                //     }
+                // }
             }
 
             return false;
