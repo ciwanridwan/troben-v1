@@ -219,7 +219,7 @@ class AssignableController extends Controller
                 } else {
                     $delivery = $q->deliveries->last();
                     $isDooring = Route::checkDooring($q, $delivery);
-                    if ($partnerIdFromDeliveries === $partnerId && $isDooring === false) {
+                    if ($partnerIdFromDeliveries === $partnerId || $isDooring === false) {
                         return true;
                     }
                 }
@@ -255,9 +255,13 @@ class AssignableController extends Controller
                 } else {
                     $delivery = $q->deliveries->last();
                     $isDooring = Route::checkDooring($q, $delivery);
-                    if ($isDooring) {
+                    if ($isDooring ) {
                         return true;
                     }
+
+                    // if ($partnerIdFromDeliveries === $partnerId) {
+                    //     return false;
+                    // }
                 }
             }
 
