@@ -53,6 +53,31 @@ class Queries
         return $query;
     }
 
+    public function getDeliveriesQueryByOwner(): Builder
+    {
+        $query = Delivery::query();
+
+        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+            $userables = $this->user->transporters;
+            $ids = [];
+            foreach ($userables as $userable) {
+                $ids[] = $userable->pivot->id;
+            }
+            $query->whereIn('userable_id', $ids);
+        } else {
+            $query->where(fn (Builder $builder) => $builder
+                ->orWhere('partner_id', $this->partner->id)
+                ->orWhere('origin_partner_id', $this->partner->id));
+
+            // $this->resolveDeliveriesQueryByRole($query);
+            $query->whereIn('status', [Delivery::STATUS_FINISHED, Delivery::STATUS_EN_ROUTE]);
+            $query->whereIn('type', [Delivery::TYPE_DOORING, Delivery::TYPE_TRANSIT, Delivery::TYPE_PICKUP]);
+        }
+
+        $query->orderByDesc('created_at');
+        return $query;
+    }
+
     public function getDeliveriesRejectCourierQuery(): Builder
     {
         $query = HistoryReject::query();
@@ -269,7 +294,6 @@ class Queries
                 $deliveriesQueryBuilder->whereIn('type', [
                     Delivery::TYPE_DOORING,
                     Delivery::TYPE_TRANSIT,
-                    Delivery::TYPE_PICKUP,
                     Delivery::TYPE_RETURN,
                 ]);
                 break;

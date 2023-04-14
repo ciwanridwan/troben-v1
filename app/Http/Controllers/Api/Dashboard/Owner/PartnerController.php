@@ -222,7 +222,7 @@ class PartnerController extends Controller
             'search' =>  ['nullable', 'string']
         ]);
 
-        $query = $repository->queries()->getDeliveriesQuery();
+        $query = $repository->queries()->getDeliveriesQueryByOwner();
         $query->with(['code', 'partner:id,code,name', 'origin_partner:id,code,name', 'partner_performance', 'transporter']);
 
         $request->whenHas('status', function ($value) use ($query, $request) {
