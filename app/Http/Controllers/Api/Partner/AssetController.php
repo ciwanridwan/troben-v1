@@ -25,6 +25,7 @@ use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
+use Illuminate\Database\Query\Builder;
 
 class AssetController extends Controller
 {
@@ -50,6 +51,11 @@ class AssetController extends Controller
     protected array $attributes;
 
     /**
+     *
+     */
+    // protected Builder $query;
+
+    /**
      * Get partner assets
      * Route Path       : {API_DOMAIN}/partner/asset
      * Route Name       : api.partner.asset
@@ -64,13 +70,16 @@ class AssetController extends Controller
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in(['transporter', 'employee'])],
             'driver' => ['nullable', 'boolean'],
+            'search' => ['nullable', 'string']
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
 
+        $search = $this->attributes['search'] ?? null;
+
         return $this->attributes['type'] === 'transporter'
-            ? $this->getTransporter()
-            : $this->getEmployees($this->attributes['driver']);
+            ? $this->getTransporter($search)
+            : $this->getEmployees($this->attributes['driver'], $search);
     }
 
     /**
@@ -164,10 +173,24 @@ class AssetController extends Controller
         return (new Response(Response::RC_SUCCESS, $this->employee))->json();
     }
 
-    public function getTransporter(): JsonResponse
+    public function getTransporter($search): JsonResponse
     {
         // return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
-        return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
+        $query = Transporter::query();
+        $queryPartnerId = fn ($builder) => $builder->where('id', $this->partner->id);
+        $query->with(['partner' => $queryPartnerId]);
+        $query->whereHas('partner', $queryPartnerId);
+
+        if ($search !== "''") {
+            $query->where(function ($q) use ($search){
+                $q->where('registration_number', 'ilike', '%'.$search.'%');
+                $q->orWhere('registration_year', 'ilike', '%'.$search.'%');
+                $q->orWhere('registration_year', 'ilike', '%'.$search.'%');
+            });
+        }
+
+        // return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
+        return $this->jsonSuccess(TransporterResource::collection($query->paginate(request()->input('per_page', 10))));
     }
 
     public function deleteEmployee($hash): JsonResponse
