@@ -269,6 +269,7 @@ class Queries
                 $deliveriesQueryBuilder->whereIn('type', [
                     Delivery::TYPE_DOORING,
                     Delivery::TYPE_TRANSIT,
+                    Delivery::TYPE_PICKUP,
                     Delivery::TYPE_RETURN,
                 ]);
                 break;

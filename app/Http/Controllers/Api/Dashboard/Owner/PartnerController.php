@@ -234,7 +234,7 @@ class PartnerController extends Controller
 
         $request->whenHas('type', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['type' => Rule::in(Delivery::TYPE_TRANSIT, Delivery::TYPE_DOORING)]);
+                $request->validate(['type' => Rule::in(Delivery::TYPE_PICKUP, Delivery::TYPE_TRANSIT, Delivery::TYPE_DOORING)]);
                 $query->where('type', $value);
             }
         });
