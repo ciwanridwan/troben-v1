@@ -15,24 +15,6 @@ class TransporterResource extends JsonResource
      */
     public function toArray($request)
     {
-        // foreach ($this->resource as $transporter) {
-        //     $isActive = false;
-        //     if ($transporter->is_verified === true) {
-        //         $isActive = true;
-        //     }
-
-        //     $this->data[] = [
-        // 'hash' => $transporter->hash,
-        // 'name' => $transporter->registration_name,
-        // 'registration_number' => $transporter->registration_number,
-        // 'is_active' => $isActive,
-        // 'is_verified' => $transporter->is_verified,
-        // 'verified_at' => $transporter->verified_at,
-        // 'type' => $transporter->type,
-        // 'year' => $transporter->registration_year,
-        //     ];
-        // }
-
         switch (true) {
             case $this->is_verified === true && !is_null($this->verified_at):
                 $status = 'Active';
@@ -56,7 +38,6 @@ class TransporterResource extends JsonResource
             'is_verified' => $this->is_verified,
             'verified_at' => $this->verified_at ? $this->verified_at->format('Y-m-d H:i:s') : null,
             'vehicle_identification' => !is_null($this->vehicle_identification) ? generateUrl($this->vehicle_identification) : null,
-            # set dummy for temporary changes
             'images' => $this->images->isNotEmpty() ? $this->images : null,
         ];
 

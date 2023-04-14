@@ -158,15 +158,36 @@ class AssetController extends Controller
 
         return $this->jsonSuccess();
     }
-    public function getEmployees($driver): JsonResponse
+    public function getEmployees($driver, $search): JsonResponse
     {
+        $query = User::query();
+        $queryPartnerId = fn ($builder) => $builder->where('partners.id', $this->partner->id);
+        $query->with(['partners' => $queryPartnerId, 'transporters']);
+        $query->whereHas('partners', $queryPartnerId);
+
         if ($driver === '1') {
-            $employees = $this->partner->users()->wherePivotIn('role', ['driver'])->orderBy('name')->get()->groupBy('id');
+            $query->whereHas('partners', function ($q) {
+                $q->where('userables.role', '=', 'driver');
+            });
         } else {
-            $employees = $this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id');
+            $query->whereHas('partners', function ($q) {
+                $q->where('userables.role', '!=', 'owner');
+            });
         }
 
-        return $this->jsonSuccess(new UserResource(collect($employees)));
+        if ($search !== "''") {
+            $query->where(function ($q) use ($search){
+                $q->where('name', 'ilike', '%'.$search.'%');
+                $q->orWhere('username', 'ilike', '%'.$search.'%');
+                $q->orWhere('email', 'ilike', '%'.$search.'%');
+                $q->orWhere('phone', 'ilike', '%'.$search.'%');
+            });
+        }
+
+        $query->orderBy('name');
+        $query->groupBy('id');
+
+        return $this->jsonSuccess(UserResource::collection($query->paginate(request()->input('per_page', 10))));
     }
     public function getEmployee(): JsonResponse
     {
@@ -175,21 +196,19 @@ class AssetController extends Controller
 
     public function getTransporter($search): JsonResponse
     {
-        // return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
         $query = Transporter::query();
         $queryPartnerId = fn ($builder) => $builder->where('id', $this->partner->id);
         $query->with(['partner' => $queryPartnerId]);
         $query->whereHas('partner', $queryPartnerId);
 
         if ($search !== "''") {
-            $query->where(function ($q) use ($search){
-                $q->where('registration_number', 'ilike', '%'.$search.'%');
-                $q->orWhere('registration_year', 'ilike', '%'.$search.'%');
-                $q->orWhere('registration_year', 'ilike', '%'.$search.'%');
+            $query->where(function ($q) use ($search) {
+                $q->where('type', 'ilike', '%' . $search . '%');
+                $q->orWhere('registration_number', 'ilike', '%' . $search . '%');
+                $q->orWhere('registration_year', 'ilike', '%' . $search . '%');
             });
         }
 
-        // return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
         return $this->jsonSuccess(TransporterResource::collection($query->paginate(request()->input('per_page', 10))));
     }
 
