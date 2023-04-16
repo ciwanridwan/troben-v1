@@ -154,7 +154,7 @@ class CorporateController extends Controller
             'sender_phone' => ['required'],
 
             'items' => ['required'],
-            'payment_method' => ['required', 'in:va,top,cash'],
+            'payment_method' => ['required', 'in:'.implode(',', PackageCorporate::CORPORATE_PAYMENT_ALL)],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
@@ -252,7 +252,7 @@ class CorporateController extends Controller
             'meta' => $metaCorporate,
         ]);
 
-        if (in_array($payment_method, ['cash', 'top'])) {
+        if (in_array($payment_method, [PackageCorporate::CORPORATE_PAYMENT_CASH, PackageCorporate::CORPORATE_PAYMENT_TOP])) {
             $job->package->refresh();
             $job->package->payment_status = Package::PAYMENT_STATUS_PAID;
             $job->package->status = Package::STATUS_WAITING_FOR_PACKING;
@@ -261,7 +261,7 @@ class CorporateController extends Controller
             // trigger sla
             event(new PaymentIsCorporateMode($job->package));
         }
-        if ($payment_method == 'va') {
+        if ($payment_method == PackageCorporate::CORPORATE_PAYMENT_VA) {
             // go to different method: paymentMethod, paymentMethodSet
         }
 
@@ -292,7 +292,8 @@ class CorporateController extends Controller
             ->where('status', Payment::STATUS_PENDING)
             ->first();
         $gateway = $gateway->filter(function ($r) {
-            return $r->type == 'va';
+            // only va method
+            return $r->type == PackageCorporate::CORPORATE_PAYMENT_VA;
         })->values()->map(function ($r) use ($gatewayChoosed, $picture) {
             $select = false;
             if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
