@@ -175,7 +175,7 @@ class GenerateBalanceHistory
                             $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
                             $discountService = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
 
-                            // set discount fee service 
+                            // set discount fee service
                             if (!is_null($discountService)) {
                                 $discountServiceFee = $discountService->amount;
                                 $this
@@ -248,7 +248,7 @@ class GenerateBalanceHistory
                                         ->setAttributes()
                                         ->recordHistory();
 
-                                    $balancePickup -= $discountPickup->amount;
+                                    // $balancePickup -= $discountPickup->amount;
                                 }
 
                                 $this
