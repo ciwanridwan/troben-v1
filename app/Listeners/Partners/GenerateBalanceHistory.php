@@ -319,9 +319,7 @@ class GenerateBalanceHistory
                             });
                         }
 
-                        if ($manifest_weight < 10) {
-                            $manifest_weight = 10;
-                        }
+                        $manifest_weight = $this->checkMinimalChargeWeight($this->partner->code, $manifest_weight);
 
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
@@ -491,6 +489,8 @@ class GenerateBalanceHistory
                 // Set Income Delivery
                 if ($this->partner->get_fee_delivery) {
                     $weight = $this->package->total_weight;
+                    $weight = $this->checkMinimalChargeWeight($this->partner->code, $weight);
+
                     $tier = PricingCalculator::getTierType($weight);
                     $originPartner = $this->delivery->origin_partner()->first();
 
@@ -1061,5 +1061,41 @@ class GenerateBalanceHistory
                 return 0;
                 break;
         }
+    }
+
+    /**
+     * Check minimal charge in the some partner
+     */
+    protected function checkMinimalChargeWeight($partnerCode, $manifestWeight): int
+    {
+        switch (true) {
+            case $partnerCode === 'MTM-TNA-01':
+                if ($manifestWeight < 50) {
+                    $manifestWeight = 50;
+                }
+                break;
+            case $partnerCode === 'MT-JKT-13':
+                if ($manifestWeight < 20) {
+                    $manifestWeight = 20;
+                }
+                break;
+            case $partnerCode === 'MT-JKT-06':
+                if ($manifestWeight < 100) {
+                    $manifestWeight = 100;
+                }
+                break;
+            case $partnerCode === 'MTM-CKR-01':
+                if ($manifestWeight < 50) {
+                    $manifestWeight = 50;
+                }
+                break;
+            default:
+                if ($manifestWeight < 10) {
+                    $manifestWeight = 10;
+                }
+                break;
+        }
+
+        return $manifestWeight;
     }
 }
