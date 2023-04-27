@@ -638,7 +638,7 @@ class Queries
         return $q;
     }
 
-    public function getDetailIncomeDashboard($partnerId, $code)
+    public function getDetailIncomeDashboard($partnerId, $code, $date)
     {
         $pbdhQuery = '';
         $pbhQuery = '';
@@ -659,14 +659,16 @@ class Queries
             	group by delivery_id
             ) d on pbdh.delivery_id = d.delivery_id
             where pbdh.partner_id = $partnerId
+            and to_char(pbdh.created_at, 'YYYY-MM') = '%s'
             %s
             union all
             select pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
             left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
             left join packages p2 on c2.codeable_id = p2.id
-            where pbh.partner_id = $partnerId and pbh.type != 'withdraw' %s order by date desc";
+            where pbh.partner_id = $partnerId and to_char(pbh.created_at, 'YYYY-MM') = '%s'
+            and pbh.type != 'withdraw' %s order by date desc";
 
-        $q = sprintf($q, $pbdhQuery, $pbhQuery);
+        $q = sprintf($q, $date, $pbdhQuery, $date, $pbhQuery);
         return $q;
     }
 

@@ -57,12 +57,18 @@ class PartnerController extends Controller
     {
         $request->validate([
             'type' => ['nullable', 'string', 'in:Dooring,Pickup,Transit,Delivery,Walkin'],
-            'search' => ['nullable', 'string']
+            'search' => ['nullable', 'string'],
+            'date' => ['required']
         ]);
 
         $attributes = $request->all();
+        if ($attributes['date'] === "''") {
+            $attributes['date'] = Carbon::now()->format('Y-m');
+        } else {
+            $request->validate(['date' => 'date_format:Y-m']);
+        }
 
-        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search']);
+        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search'], $attributes['date']);
         $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
             $k->map(function ($q) {
                 $q->amount = intval($q->amount);

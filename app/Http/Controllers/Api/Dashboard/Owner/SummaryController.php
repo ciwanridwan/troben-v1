@@ -16,12 +16,14 @@ class SummaryController extends Controller
     public function income(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['required', 'date_format:Y-m'],
+            'date' => ['required'],
         ]);
 
         $currentDate = $request->date;
         if ($currentDate === "''") {
             $currentDate = Carbon::now()->format('Y-m');
+        } else {
+            $request->validate(['date' => 'date_format:Y-m']);
         }
 
         $previousDate = Carbon::createFromFormat('Y-m', $currentDate)->subMonth()->format('Y-m');
