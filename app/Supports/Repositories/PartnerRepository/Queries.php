@@ -14,6 +14,7 @@ use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Payments\Withdrawal;
+use Illuminate\Support\Facades\DB;
 
 class Queries
 {
@@ -362,7 +363,7 @@ class Queries
         }
     }
 
-    public function getDashboardIncome($partnerId, $date)
+    public function getDashboardIncome($partnerId, $currentDate, $previousDate)
     {
         $q = "select
         income.balance,
@@ -383,7 +384,7 @@ class Queries
                 from
                     partner_balance_histories
                 where
-                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    to_char(created_at, 'YYYY-MM') = '%s'
                     and type = 'deposit') pbh on
                 p.id = pbh.partner_id
             left join (
@@ -392,11 +393,11 @@ class Queries
                 from
                     partner_balance_delivery_histories
                 where
-                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    to_char(created_at, 'YYYY-MM') = '%s'
                         and type = 'deposit') pbdh on
                 p.id = pbdh.partner_id
             where
-                p.id = $partnerId
+                p.id = '%s'
             group by
                 p.id
         ) income
@@ -407,7 +408,7 @@ class Queries
                 partner_balance_histories
             where
                 type = 'deposit'
-                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                and to_char(created_at, 'YYYY-MM') = '%s'
                 ) pbh2 on
             income.partner_id = pbh2.partner_id
         left join (
@@ -417,7 +418,7 @@ class Queries
                 partner_balance_delivery_histories
             where
                 type = 'deposit'
-                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                and to_char(created_at, 'YYYY-MM') = '%s'
                 ) pbdh2 on
             income.partner_id = pbdh2.partner_id
         group by
@@ -425,10 +426,11 @@ class Queries
             income.balance,
             income.total_income";
 
+        $q = sprintf($q, $currentDate, $currentDate, $partnerId, $previousDate, $previousDate);
         return $q;
     }
 
-    public function getIncomePerDay($partnerId, $date)
+    public function getIncomePerDay($partnerId, $currentDate)
     {
         $q = "select
                     sum(pbdh.balance) as amount,
@@ -458,8 +460,8 @@ class Queries
                                 ) d on
                     pbdh.delivery_id = d.delivery_id
                 where
-                    pbdh.partner_id = $partnerId
-                    and to_char(pbdh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    pbdh.partner_id = '%s'
+                    and to_char(pbdh.created_at, 'YYYY-MM') = '%s'
                 group by
                     to_char(pbdh.created_at, 'yyyy-mm-dd')
                 union all
@@ -479,14 +481,15 @@ class Queries
                 left join packages p2 on
                     c2.codeable_id = p2.id
                 where
-                    pbh.partner_id = $partnerId
+                    pbh.partner_id = '%s'
                     and pbh.type != 'withdraw'
-                    and to_char(pbh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    and to_char(pbh.created_at, 'YYYY-MM') = '%s'
                 group by
                     to_char(pbh.created_at, 'yyyy-mm-dd')
                 order by
                     date desc";
 
+        $q = sprintf($q, $partnerId, $currentDate, $partnerId, $currentDate);
         return $q;
     }
 

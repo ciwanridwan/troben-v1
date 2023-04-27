@@ -16,13 +16,19 @@ class SummaryController extends Controller
     public function income(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
-            'date' => ['required'],
+            'date' => ['required', 'date_format:Y-m'],
         ]);
 
-        $date = $request->date;
+        $currentDate = $request->date;
+        if ($currentDate === "''") {
+            $currentDate = Carbon::now()->format('Y-m');
+        }
+
+        $previousDate = Carbon::createFromFormat('Y-m', $currentDate)->subMonth()->format('Y-m');
         $partnerId = $repository->getPartner()->id;
 
-        $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $date);
+        $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $currentDate, $previousDate);
+
         $mainIncome = collect(DB::select($queryMainIncome))->map(function ($q) {
             $q->balance = intval($q->balance);
             $q->current_income = intval($q->current_income);
@@ -32,7 +38,7 @@ class SummaryController extends Controller
             return $q;
         })->first();
 
-        $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $date);
+        $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $currentDate);
         $incomePerDay = collect(DB::select($queryIncomePerDay))->map(function ($r) {
             $r->amount = intval($r->amount);
 
