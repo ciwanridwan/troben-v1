@@ -123,7 +123,10 @@ class SlaLevel
 
         foreach ($query as $q) {
             $user = User::where('id', $q->user_id)->first();
-            $notification = self::getTemplate($q->type, $level);
+
+            $notification = self::getTemplate($q, $level);
+            if (is_null($notification)) continue;
+
             $code = null;
 
             switch ($type) {
@@ -143,8 +146,9 @@ class SlaLevel
         }
     }
 
-    private static function getTemplate($type, $level)
+    private static function getTemplate($row, $level)
     {
+        $type = $row->type;
         if ($level === 2) {
             switch ($type) {
                 case Delivery::TYPE_DRIVER_DOORING:
@@ -178,7 +182,10 @@ class SlaLevel
                     return $notification;
                     break;
                 default:
-                    throw new \Exception("Invalid type for Template: $type [$level]");
+                    $msg = "Invalid type for Template: $type [lvl:$level, id:$row->package_id]";
+                    // throw new \Exception($msg);
+                    var_dump($msg);
+                    return null;
                     break;
             }
         } else {
