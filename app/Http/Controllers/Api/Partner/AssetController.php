@@ -104,7 +104,7 @@ class AssetController extends Controller
         // return $type === 'transporter'
         //     ? $this->getTransporter()
         //     : $this->getEmployee();
-        return (new Response(Response::RC_CREATED, ['message' => 'Armada berhasil ditambah']))->json();
+        return $type === 'transporter' ? (new Response(Response::RC_CREATED, ['message' => 'Armada berhasil ditambah']))->json() : (new Response(Response::RC_CREATED, ['message' => 'Pegawai berhasil ditambah']))->json();
     }
 
     /**
@@ -178,11 +178,11 @@ class AssetController extends Controller
         }
 
         if ($search !== "''") {
-            $query->where(function ($q) use ($search){
-                $q->where('name', 'ilike', '%'.$search.'%');
-                $q->orWhere('username', 'ilike', '%'.$search.'%');
-                $q->orWhere('email', 'ilike', '%'.$search.'%');
-                $q->orWhere('phone', 'ilike', '%'.$search.'%');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', '%' . $search . '%');
+                $q->orWhere('username', 'ilike', '%' . $search . '%');
+                $q->orWhere('email', 'ilike', '%' . $search . '%');
+                $q->orWhere('phone', 'ilike', '%' . $search . '%');
             });
         }
 
@@ -223,7 +223,8 @@ class AssetController extends Controller
         $this->dispatch($job);
         $this->employee = $job->user;
 
-        return $this->getEmployee();
+        // return $this->getEmployee();
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Data pegawai berhasil dihapus']))->json();
     }
 
     public function deleteTransporter($hash): JsonResponse
