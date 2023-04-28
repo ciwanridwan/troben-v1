@@ -319,6 +319,7 @@ class PartnerController extends Controller
         $query = $repository->queries()->getPackagesQuery();
 
         $packageStatus = [
+            Package::STATUS_WAITING_FOR_PACKING,
             Package::STATUS_PACKING,
             Package::STATUS_PACKED,
         ];
@@ -333,7 +334,7 @@ class PartnerController extends Controller
                 }
 
                 if ($v === 'not') {
-                    $query->whereIn('status', [Package::STATUS_PACKING]);
+                    $query->whereIn('status', [Package::STATUS_PACKING, Package::STATUS_WAITING_FOR_PACKING]);
                 }
             }
         });
