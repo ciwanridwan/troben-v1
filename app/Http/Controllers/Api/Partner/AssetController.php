@@ -26,6 +26,7 @@ use App\Http\Resources\Api\Partner\Asset\TransporterResource;
 use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -291,6 +292,7 @@ class AssetController extends Controller
         $this->dispatch($job);
 
         if ($request->role) {
+            // update roles v1
             foreach ($request->role as $role) {
                 UserablePivot::firstOrCreate([
                     'user_id' => $job->user->id,
@@ -302,6 +304,28 @@ class AssetController extends Controller
             UserablePivot::whereNotIn('role', $request->role)
                 ->where('user_id', $job->user->id)
                 ->delete();
+
+            // update roles v2
+            $deleteExistRoles = "DELETE FROM role_users_v2 WHERE user_id = %d";
+            $deleteExistRoles = sprintf($deleteExistRoles, $job->user->id);
+            DB::statement($deleteExistRoles);
+
+            $updateRolesV2 = "INSERT INTO role_users_v2 (user_id, role_id, created_at, updated_at)
+            SELECT
+                user_id,
+                CASE
+                    WHEN role = 'customer-service' THEN 'trawlpack-partner-cs'
+                    ELSE CONCAT('trawlpack-partner-', role)
+                END role_id,
+                NOW(),
+                NOW()
+            FROM userables
+            WHERE userable_type = 'App\Models\Partners\Partner' AND user_id = %d
+            ON CONFLICT (user_id, role_id)
+            DO UPDATE SET updated_at = NOW()";
+
+            $updateRolesV2 = sprintf($updateRolesV2, $job->user->id);
+            DB::statement($updateRolesV2);
         }
         $user = $job->user;
         if ($user->type == UserablePivot::ROLE_DRIVER) {

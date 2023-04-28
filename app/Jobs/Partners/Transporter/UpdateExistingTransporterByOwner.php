@@ -70,6 +70,13 @@ public function __construct(Transporter $transporter, $inputs = [])
         $this->transporter->registration_number = $this->attributes['registration_number'] ?? $this->transporter->registration_number;
         $this->transporter->chassis_number = $this->attributes['vehicle_number'] ?? $this->transporter->chassis_number;
         $this->transporter->is_verified = $this->attributes['is_active'] ?? $this->transporter->is_verified;
+        if ($this->attributes['is_active'] === '1') {
+            $this->attributes['verified_at'] = Carbon::now();
+        }
+
+        if ($this->attributes['is_active'] === '0') {
+            # code...
+        }
 
         if (!empty($this->attributes['vehicler_reg'])) {
             $vehicleImage = handleUpload($this->attributes['vehicler_reg'], 'vehicle_identification');
