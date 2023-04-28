@@ -100,9 +100,11 @@ class AssetController extends Controller
 
         $type === 'transporter' ? $this->createTransporter($request) : $this->createEmployee($request);
 
-        return $type === 'transporter'
-            ? $this->getTransporter()
-            : $this->getEmployee();
+        // old script for response after create
+        // return $type === 'transporter'
+        //     ? $this->getTransporter()
+        //     : $this->getEmployee();
+        return (new Response(Response::RC_CREATED, ['message' => 'Armada berhasil ditambah']))->json();
     }
 
     /**
@@ -230,7 +232,8 @@ class AssetController extends Controller
         $job = new  DeleteExistingTransporter($transporter);
         $this->dispatch($job);
 
-        return $this->getTransporter();
+        // return $this->getTransporter();
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Data armada berhasil dihapus']))->json();
     }
 
     /**
