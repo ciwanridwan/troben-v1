@@ -208,7 +208,7 @@ class PartnerController extends Controller
 
         $request->whenHas('category_id', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['receipt_code' => ['exists:category_items,id']]);
+                $request->validate(['category_id' => ['exists:category_items,id']]);
                 $query->whereHas('items', function ($category) use ($value) {
                     $category->where('category_item_id', $value);
                 });
