@@ -3,7 +3,6 @@
 namespace App\Jobs\Partners\Transporter;
 
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
 use Illuminate\Bus\Batchable;
 use Illuminate\Validation\Rule;
 use App\Models\Partners\Transporter;
@@ -11,8 +10,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Events\Partners\Transporter\TransporterModified;
-use App\Events\Partners\Transporter\TransporterModificationFailed;
 
 class UpdateExistingTransporterByOwner
 {

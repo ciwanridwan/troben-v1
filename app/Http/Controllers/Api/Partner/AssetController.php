@@ -265,6 +265,24 @@ class AssetController extends Controller
                 'role' => $role,
             ])->save();
         }
+
+        $newRoles = "INSERT INTO role_users_v2 (user_id, role_id, created_at, updated_at)
+            SELECT
+                user_id,
+                CASE
+                    WHEN role = 'customer-service' THEN 'trawlpack-partner-cs'
+                    ELSE CONCAT('trawlpack-partner-', role)
+                END role_id,
+                NOW(),
+                NOW()
+            FROM userables
+            WHERE userable_type = 'App\Models\Partners\Partner' AND user_id = %d
+            ON CONFLICT (user_id, role_id)
+            DO UPDATE SET updated_at = NOW()";
+
+        $newRoles = sprintf($newRoles, $job->user->id);
+        DB::statement($newRoles);
+
         $this->employee = $job->user;
     }
 
