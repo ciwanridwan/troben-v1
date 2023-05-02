@@ -70,7 +70,7 @@ class AssetController extends Controller
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in(['transporter', 'employee'])],
-            'driver' => ['nullable', 'boolean'],
+            'driver' => ['nullable', 'boolean'], // nullable because mobile is running to hit endpoint and validation, actually should required
             'search' => ['nullable', 'string']
         ])->validate();
 
