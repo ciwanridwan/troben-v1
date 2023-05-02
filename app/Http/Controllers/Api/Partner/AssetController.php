@@ -80,7 +80,7 @@ class AssetController extends Controller
 
         return $this->attributes['type'] === 'transporter'
             ? $this->getTransporter($search)
-            : $this->getEmployees($this->attributes['driver'], $search);
+            : $this->getEmployees($this->attributes['driver'] ?? null, $search);
     }
 
     /**
@@ -168,7 +168,7 @@ class AssetController extends Controller
         $query->with(['partners' => $queryPartnerId, 'transporters']);
         $query->whereHas('partners', $queryPartnerId);
 
-        if ($driver === '1') {
+        if ($driver === '1' && !is_null($driver)) {
             $query->whereHas('partners', function ($q) {
                 $q->where('userables.role', '=', 'driver');
             });
