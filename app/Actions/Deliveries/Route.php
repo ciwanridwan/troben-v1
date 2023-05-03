@@ -598,7 +598,7 @@ class Route
      * Check receipt if match with transport routes records
      *
      */
-    public static function checkDooring($package, $delivery)
+    public static function checkDooring($package, $delivery, $type)
     {
         $isDooring = false;
         $warehouse = self::checkWarehouse($delivery);
@@ -611,8 +611,32 @@ class Route
             $q->where('province_id', $provinceId);
         })->first();
 
-        if (!is_null($route) && empty($route->code_mtak_1_dest) || !is_null($route) && empty($route->code_mtak_2_dest) || !is_null($route) && empty($route->code_mtak_3_dest)) {
-            $isDooring = true;
+        $firstCase = !is_null($route) && empty($route->code_mtak_1_dest);
+        $secondCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && ($route->code_mtak_2_dest === $delivery->partner->code);
+        $thirdCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && (!is_null($route) && !empty($route->code_mtak_2_dest));
+        $lastCase = ($thirdCase && empty($route->code_mtak_3_dest) && ($thirdCase && $route->code_dooring === $delivery->partner->code ));
+
+        if ($type === 'dooring') {
+            switch (true) {
+                case $firstCase:
+                    $isDooring = true;
+                    break;
+                case $secondCase:
+                    $isDooring = true;
+                    break;
+                case $lastCase:
+                    $isDooring = true;
+                    break;
+                default:
+                    $isDooring = false;
+                    break;
+            }
+        } else {
+            if ($firstCase) {
+                $isDooring = true;
+            } else {
+                $isDooring = false;
+            }
         }
 
         return $isDooring;
