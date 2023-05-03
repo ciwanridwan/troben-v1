@@ -121,21 +121,21 @@ class AssignableController extends Controller
         );
 
         $data = $query->paginate($request->input('per_page'));
-        $packages = $data->getCollection();
-        $partnerId = $repository->getPartner()->id;
+        // $packages = $data->getCollection();
+        // $partnerId = $repository->getPartner()->id;
 
-        $type = $request->get('type');
+        // $type = $request->get('type');
 
-        if ($type == 'dooring') {
-            $packages = $this->getPackagesDooring($packages, $partnerId);
-        }
-        if ($type == 'transit') {
-            $packages = $this->getPackagesTransit($packages, $partnerId);
-        }
+        // if ($type == 'dooring') {
+        //     $packages = $this->getPackagesDooring($packages, $partnerId);
+        // }
+        // if ($type == 'transit') {
+        //     $packages = $this->getPackagesTransit($packages, $partnerId);
+        // }   
 
-        $result = $data->setCollection($packages);
+        // $result = $data->setCollection($packages);
 
-        return $this->jsonSuccess(PackageResource::collection($result), null, true);
+        return $this->jsonSuccess(PackageResource::collection($data), null, true);
         // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
         // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
     }
