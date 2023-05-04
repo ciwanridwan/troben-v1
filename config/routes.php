@@ -6,6 +6,8 @@
  * @author      veelasky <veelasky@gmail.com>
  */
 
+use App\Http\Routes\Api\Partner\Cashier\OrderRoute;
+
 return [
     'groups' => [
         'api' => [
@@ -93,7 +95,8 @@ return [
         App\Http\Routes\Api\Internal\ManifestRoute::class,
         App\Http\Routes\Api\Partner\Owner\CheckRoute::class,
         App\Http\Routes\Api\V2\Dashboard\OrderRoute::class,
-        App\Http\Routes\Api\Partner\DashboardOwnerRoute::class
+        App\Http\Routes\Api\Partner\DashboardOwnerRoute::class,
+        App\Http\Routes\Api\Partner\Cashier\OrderRoute::class
         /** @inject api **/
     ],
     'admin' => [

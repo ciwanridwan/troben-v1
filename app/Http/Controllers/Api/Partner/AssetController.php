@@ -103,7 +103,7 @@ class AssetController extends Controller
 
         // old script for response after create
          return $type === 'transporter'
-             ? $this->getTransporter()
+             ? $this->getTransporter(null)
              : $this->getEmployee();
         //return $type === 'transporter' ? (new Response(Response::RC_CREATED, ['message' => 'Armada berhasil ditambah']))->json() : (new Response(Response::RC_CREATED, ['message' => 'Pegawai berhasil ditambah']))->json();
     }
