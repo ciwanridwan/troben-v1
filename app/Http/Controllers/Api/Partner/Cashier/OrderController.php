@@ -8,6 +8,8 @@ use App\Models\Packages\Package;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use App\Http\Resources\Api\Order\Dashboard\DetailResource;
 
 class OrderController extends Controller
 {
@@ -16,7 +18,10 @@ class OrderController extends Controller
      */
     protected Builder $query;
 
-    public function index(Request $request, PartnerRepository $partnerRepository)
+    /**
+     * To get list orders, between get invoice orders and default orders
+     */
+    public function index(Request $request, PartnerRepository $partnerRepository): JsonResponse
     {
         $request->validate(
             [
@@ -38,17 +43,5 @@ class OrderController extends Controller
         }
 
         return $this->jsonSuccess(OrderInvoiceResource::collection( $this->query->paginate(request('per_page', 10))));
-    }
-
-    // TO DO DETAIL ORDER
-    public function detail(Package $packageHash)
-    {
-
-    }
-
-    // TODO SEND INVOICE
-    public function sendInvoice()
-    {
-
     }
 }
