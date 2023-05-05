@@ -5,6 +5,7 @@ namespace App\Http\Resources\Api\Order\Dashboard;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Price;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DetailResource extends JsonResource
@@ -41,11 +42,16 @@ class DetailResource extends JsonResource
 
         $estimationCubicPrices = array_diff_key($this->estimation_cubic_prices, array_flip(["sub_total_amount", "items"]));
 
+        $dayName = Carbon::parse($this->created_at)->dayName;
+        $createdAt = $this->created_at->format('d-M-Y');
+        $createdAtPrint = $dayName.', '.$createdAt;
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
             'package_hash' => $this->hash,
             'service_code' => $this->service_code,
+            'partner_code' => $this->deliveries->first()->partner ? $this->deliveries->first()->partner->code : null,
             'transporter_type' => $this->transporter_type,
             'order_type' => $orderType,
             'sender_name' => $this->sender_name,
@@ -57,6 +63,7 @@ class DetailResource extends JsonResource
             'receiver_detail_address' => $this->receiver_way_point,
             'receiver_phone' => $receiverPhone,
             'tier_price' => $this->tier_price,
+            'created_at' => $createdAtPrint,
             'estimation_notes' => $this->getNotes($this->resource),
             'estimation_kg_prices' => $this->estimation_kg_prices,
             'estimation_cubic_prices' => $estimationCubicPrices,
@@ -74,7 +81,8 @@ class DetailResource extends JsonResource
                 'district' => $this->destination_district ? $this->destination_district->name : null,
                 'district_id' => $this->destination_district ? $this->destination_district->id : null,
                 'sub_district' => $this->destination_sub_district ? $this->destination_sub_district->name : null,
-                'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null
+                'sub_district_id' => $this->destination_sub_district ? $this->destination_sub_district->id : null,
+                'zip_code' => $this->destination_sub_district ? $this->destination_sub_district->zip_code : null,
             ],
             'items' => $this->items ? $this->items->map(function ($q) {
                 $packings = [];
@@ -101,7 +109,8 @@ class DetailResource extends JsonResource
                     'handling' => $packings,
                     'category_name' => $q->categories ? $q->categories->name : '',
                     'category_item_id' => $q->categories ? $q->categories->id : 0,
-                    'is_glassware' => $q->is_glassware
+                    'is_glassware' => $q->is_glassware,
+                    'code' => $q->codes ? $q->codes->first()->content : null,
                 ];
                 return $result;
             }) : null,
