@@ -39,7 +39,7 @@ class OrderInvoiceResource extends JsonResource
             'receipt_code' => $this->code ? $this->code->content : null,
             'status' => $this->status,
             'status_label' => $this->getMessagesFromStatus($this->status),
-            'created_at' => $this->created_at->format('d-m-Y'),
+            'created_at' => $this->created_at->format('Y-m-d'),
             'order_type' => $orderType,
             'service_code' => $this->service_code,
             'service_label' => $serviceLabel,
