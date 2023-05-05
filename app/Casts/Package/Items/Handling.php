@@ -7,13 +7,13 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class Handling implements CastsAttributes
 {
-    public const TYPE_BUBBLE_WRAP = 'bubble wrap';
-    public const TYPE_PLASTIC = 'plastic';
-    public const TYPE_CARDBOARD = 'cardboard';
-    public const TYPE_WOOD = 'wood';
-    public const TYPE_SANDBAG_SM = 'sandbag sm';
-    public const TYPE_SANDBAG_MD = 'sandbag md';
-    public const TYPE_SANDBAG_L = 'sandbag l';
+    public const TYPE_BUBBLE_WRAP = 'bubble wrap'; // plastik gelembung
+    public const TYPE_PLASTIC = 'plastic'; // plastik
+    public const TYPE_CARDBOARD = 'cardboard'; // kardus
+    public const TYPE_WOOD = 'wood'; // kayu
+    public const TYPE_SANDBAG_SM = 'sandbag sm'; // karung kecil
+    public const TYPE_SANDBAG_MD = 'sandbag md'; // karung sedang
+    public const TYPE_SANDBAG_L = 'sandbag l'; // karung besar
     public const TYPE_PALLETE = 'pallete';
 
     /**Motobikes const */

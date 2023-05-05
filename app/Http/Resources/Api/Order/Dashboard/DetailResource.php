@@ -56,6 +56,8 @@ class DetailResource extends JsonResource
             'receiver_phone' => $receiverPhone,
             'tier_price' => $this->tier_price,
             'estimation_notes' => $this->getNotes($this->resource),
+            'estimation_prices' => $this->estimation_prices,
+            'estimation_cubic_prices' => $this->estimation_cubic_prices,
             'origin_address' => [
                 'province' => $this->origin_regency ? $this->origin_regency->province->name : null,
                 'regency' => $this->origin_regency ? $this->origin_regency->name : null
