@@ -259,6 +259,7 @@ class Package extends Model implements AttachableContract
         'type',
         'order_type',
         'estimation_prices',
+        'estimation_kg_prices',
         'estimation_cubic_prices'
     ];
 
@@ -902,6 +903,74 @@ class Package extends Model implements AttachableContract
         }
     }
 
+    /**To get default amount and calculate all item of each packages */
+    public function getEstimationKgPricesAttribute()
+    {
+        if ($this->service_code == Service::TRAWLPACK_EXPRESS || $this->service_code == Service::TRAWLPACK_STANDARD) {
+            $bike = $this->motoBikes()->first();
+            if (!is_null($bike)) {
+                $results = $this->getEstimationBikePrices();
+            } else {
+                $items = $this->items()->get();
+                $results = [];
+                foreach ($items as $item) {
+                    $packingFee = 0;
+                    if ($item->handling) {
+                        $packingFee = collect($item->handling)->map(function ($q) use ($item) {
+                            $p = $q['price'] * $item->qty;
+                            $r = [
+                                'type' => $q['type'],
+                                'price' => $p
+                            ];
+                            return $r;
+                        })->toArray();
+
+                        $handlingFee = array_sum(array_column($packingFee, 'price'));
+                    } else {
+                        $handlingFee = 0;
+                    }
+
+                    $additionalFee = $this->getAdditionalFeePerItem($item, $this->service_code);
+
+                    $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+                    if (!$item->is_insured) {
+                        $insuranceFee = 0;
+                    }
+
+                    $subTotalAmount = $handlingFee + $insuranceFee + $additionalFee;
+
+                    $result = [
+                        'handling_fee' => $packingFee,
+                        'insurance_fee' => $insuranceFee,
+                        'additional_fee' => $additionalFee,
+                        'sub_total_amount' => $subTotalAmount
+                    ];
+
+                    array_push($results, $result);
+                }
+            }
+            $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
+            $serviceFee = $this->total_weight * $this->tier_price;
+
+            $totalHandlingFee = array_sum(array_column($results, 'handling_fee'));
+            $totalInsuranceFee = array_sum(array_column($results, 'insurance_fee'));
+            $totalAdditionalFee = array_sum(array_column($results, 'additional_fee'));
+            $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee;
+
+            $res = [
+                'handling_fee' => $totalHandlingFee,
+                'insurance_fee' => $totalInsuranceFee,
+                'additional_fee' => $totalAdditionalFee,
+                'pickup_fee' => intval($pickupFee),
+                'service_fee' => $serviceFee,
+                'total_amount' => $totalAmount
+            ];
+            return $res;
+        } else {
+            return null;
+        }
+    }
+
     public function getEstimationCubicPricesAttribute()
     {
         $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
@@ -959,8 +1028,10 @@ class Package extends Model implements AttachableContract
         $result = [
             'handling_fee' => intval($handlingFee),
             'insurance_fee' => intval($insuranceFee),
-            'service_fee' => $serviceFee,
             'sub_total_amount' => $subTotalAmount,
+            'additional_fee' => intval($additionalFee),
+            'pickup_fee' => intval($pickupFee),
+            'service_fee' => $serviceFee,
             'total_amount' => $totalAmount,
             'items' => $weightVolume
         ];

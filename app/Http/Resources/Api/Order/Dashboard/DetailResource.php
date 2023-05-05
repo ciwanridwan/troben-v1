@@ -39,6 +39,8 @@ class DetailResource extends JsonResource
             $receiverPhone = $this->receiver_phone;
         }
 
+        $estimationCubicPrices = array_diff_key($this->estimation_cubic_prices, array_flip(["sub_total_amount", "items"]));
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -56,8 +58,8 @@ class DetailResource extends JsonResource
             'receiver_phone' => $receiverPhone,
             'tier_price' => $this->tier_price,
             'estimation_notes' => $this->getNotes($this->resource),
-            'estimation_prices' => $this->estimation_prices,
-            'estimation_cubic_prices' => $this->estimation_cubic_prices,
+            'estimation_kg_prices' => $this->estimation_kg_prices,
+            'estimation_cubic_prices' => $estimationCubicPrices,
             'origin_address' => [
                 'province' => $this->origin_regency ? $this->origin_regency->province->name : null,
                 'regency' => $this->origin_regency ? $this->origin_regency->name : null
