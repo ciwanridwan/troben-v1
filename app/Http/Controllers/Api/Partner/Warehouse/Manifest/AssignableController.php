@@ -32,18 +32,11 @@ class AssignableController extends Controller
                     if (!is_null($package->deliveryRoutes)) {
                         $partnerByRoute = Route::setPartners($package->deliveryRoutes);
                         array_push($partnerByRoutes, $partnerByRoute);
+                    } else {
+                        $partnerCode = null;
                     }
                 }
-
                 $partnerCode = $partnerByRoutes;
-                if (!empty($partnerCode)) {
-                    for ($i=0; $i < count($partnerByRoutes); $i++) {
-                        if (is_null($partnerCode[$i])) {
-                            $partnerCode = null;
-                        };
-                    }
-                }
-
                 break;
             case $setPartner === 2:
                 $partnerCode = Route::generate($repository->getPartner(), $request->all());
@@ -58,7 +51,7 @@ class AssignableController extends Controller
 
         $query = Partner::query()->where('id', '!=', $repository->getPartner()->id);
 
-        if ($partnerCode === 'all' || is_null($partnerCode) || count($partnerCode) == 0 || empty($partnerCode)) {
+        if ($partnerCode === 'all' || is_null($partnerCode) || count($partnerCode) == 0) {
             $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_POOL]);
         } else {
             $query->whereIn('code', $partnerCode);
@@ -121,23 +114,21 @@ class AssignableController extends Controller
         );
 
         $data = $query->paginate($request->input('per_page'));
-        // $packages = $data->getCollection();
-        // $partnerId = $repository->getPartner()->id;
+        $packages = $data->getCollection();
+        $partnerId = $repository->getPartner()->id;
 
-        // $type = $request->get('type');
+        $type = $request->get('type');
 
-        // if ($type == 'dooring') {
-        //     $packages = $this->getPackagesDooring($packages, $partnerId);
-        // }
-        // if ($type == 'transit') {
-        //     $packages = $this->getPackagesTransit($packages, $partnerId);
-        // }   
+        if ($type == 'dooring') {
+            $packages = $this->getPackagesDooring($packages, $partnerId);
+        }
+        if ($type == 'transit') {
+            $packages = $this->getPackagesTransit($packages, $partnerId);
+        }
 
-        // $result = $data->setCollection($packages);
+        $result = $data->setCollection($packages);
 
-        return $this->jsonSuccess(PackageResource::collection($data), null, true);
-        // return $this->jsonSuccess(PackageResource::collection($query->paginate($request->input('per_page'))), null, true);
-        // return $this->jsonSuccess(PackageResourceDeprecated::collection($query->paginate($request->input('per_page'))), null, true);
+        return $this->jsonSuccess(PackageResource::collection($result), null, true);
     }
 
     public function checkPackages(Request $request)
@@ -212,12 +203,25 @@ class AssignableController extends Controller
             $partnerIdFromDeliveries = $q->deliveries->last()->partner_id;
             if (!is_null($q->deliveryRoutes)) {
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
+                $partnerDooring = Partner::query()->where('id', $partnerDooringId)->first();
+
+                if (!is_null($partnerDooring) && $partnerDooring->type === Partner::TYPE_TRANSPORTER) {
+                    return false;
+                }
+
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
                     return true;
                 }
             } else {
-                if ($partnerIdFromDeliveries === $partnerId) {
+                if ($q->deliveries->count() === 1) {
                     return true;
+                } else {
+                    $type = 'transit';
+                    $delivery = $q->deliveries->last();
+                    $isDooring = Route::checkDooring($q, $delivery, $type);
+                    if (!$isDooring && $partnerIdFromDeliveries === $partnerId) {
+                        return true;
+                    }
                 }
             }
 
@@ -238,6 +242,29 @@ class AssignableController extends Controller
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
+                } else {
+                    $type = 'dooring';
+                    $delivery = $q->deliveries->last();
+                    $isDooringFromRoute = Route::checkDooring($q, $delivery, $type);
+                    if ($isDooringFromRoute && $partnerDooringId === $partnerId) {
+                        return true;
+                    }
+                }
+            } else {
+                if ($q->deliveries->count() === 1) {
+                    return false;
+                } else {
+                    $type = 'dooring';
+                    $delivery = $q->deliveries->last();
+                    $isDooring = Route::checkDooring($q, $delivery, $type);
+                    if ($partnerIdFromDeliveries !== $partnerId) {
+                        return false;
+                    } else {
+                        if ($isDooring) {
+                            return true;
+                        }
+                    }
+
                 }
             }
 
