@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\Order\Dashboard;
 
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
+use App\Models\Partners\Partner;
 use App\Models\Price;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -44,15 +45,32 @@ class DetailResource extends JsonResource
 
         $dayName = Carbon::parse($this->created_at)->dayName;
         $createdAt = $this->created_at->format('d-M-Y');
-        $createdAtPrint = $dayName.', '.$createdAt;
+        $createdAtPrint = $dayName . ', ' . $createdAt;
 
+        $partnerCode = $this->deliveries->first()->partner ? $this->deliveries->first()->partner->code : null;
+        $partnerType = $this->deliveries->first()->partner ? $this->deliveries->first()->partner->type : null;
+        $checkCode = substr($partnerCode, 0, 2);
+        if (!is_null($partnerType)) {
+            switch (true) {
+                case $partnerType === Partner::TYPE_SPACE:
+                    $partnerType = 'Mitra Space';
+                    break;
+                case $checkCode === 'MC':
+                    $partnerType = 'Mitra Cargo';
+                    break;
+                default:
+                    $partnerType = 'Mitra Bisnis';
+                    break;
+            }
+        }
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
             'package_hash' => $this->hash,
             'package_code' => $this->code ? $this->code->content : null,
             'service_code' => $this->service_code,
-            'partner_code' => $this->deliveries->first()->partner ? $this->deliveries->first()->partner->code : null,
+            'partner_code' => $partnerCode,
+            'partner_type' => $partnerType,
             'transporter_type' => $this->transporter_type,
             'order_type' => $orderType,
             'sender_name' => $this->sender_name,
