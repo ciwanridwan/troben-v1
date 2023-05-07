@@ -130,6 +130,7 @@ class DetailResource extends JsonResource
 
                 $prices = [
                     'handling' => $handlingFee,
+                    'total_handling_fee' => $totalHandlingFee,
                     'insurance_fee' => $insuranceFee,
                     'additional_fee' => $additionalFee,
                     'sub_total_fee' => $subTotalAmount  
