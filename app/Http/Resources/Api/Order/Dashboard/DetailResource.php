@@ -203,19 +203,27 @@ class DetailResource extends JsonResource
         $additional = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where('description', PackagesPrice::TYPE_ADDITIONAL)->first();
         $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
         $discount = $this->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->first();
-        $adminFee = $this->payments()->where('payable_type', Package::class)->first();
+        $admin = $this->payments()->where('payable_type', Package::class)->first();
 
-        $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0) + ($pickup ? $pickup->amount : 0);
+        $insuranceFee = (int) $insurance ?? 0;
+        $handlingFee = (int) $handling ?? 0;
+        $additionalFee = $additional ? $additional->amount : 0;
+        $serviceFee = $service ? $service->amount : 0;
+        $pickupFee = $pickup ? $pickup->amount : 0;
+        $adminFee = $admin ? $admin->payment_admin_charges : 0;
+        $discountFee = $discount ? $discount->amount : 0;
+
+        $totalAmount = $insuranceFee + $handlingFee + $additionalFee + $serviceFee + $pickupFee + $adminFee - $discountFee;
 
         return [
             'total_weight' => $this->total_weight,
-            'admin_fee' => $adminFee ? $adminFee->payment_admin_charges : 0,
-            'insurance_price_total' => (int) $insurance ?? 0,
-            'handling' => (int) $handling ?? 0,
-            'additional_price' => $additional ? $additional->amount : 0,
-            'service' => $service ? $service->amount : 0,
-            'pickup' => $pickup ? $pickup->amount : 0,
-            'discount' => $discount ? $discount->amount : 0,
+            'admin_fee' => $adminFee,
+            'insurance_price_total' => $insuranceFee,
+            'handling' => $handlingFee,
+            'additional_price' => $additionalFee,
+            'service' => $serviceFee,
+            'pickup' => $pickupFee,
+            'discount' => $discountFee,
             'total_amount' => $totalAmount
         ];
     }
