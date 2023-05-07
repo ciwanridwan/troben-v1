@@ -228,10 +228,6 @@ class DetailResource extends JsonResource
         ];
     }
 
-    private function getPricesEachItems()
-    {
-    }
-
     private function getMultiChildPackages($manifest, $orderType): array
     {
         $childId = $this->multiDestination->pluck('child_id')->toArray();
