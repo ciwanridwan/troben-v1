@@ -9,7 +9,6 @@ use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Models\Packages\RatingAndReview;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class RatingAndReviewController extends Controller
 {
@@ -24,12 +23,13 @@ class RatingAndReviewController extends Controller
             return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Hash not valid, please check hash again']))->json();
         }
 
-        $result = RatingAndReview::create([
+        RatingAndReview::create([
             'package_id' => $package->id,
             'rating' => $request->rating,
             'review' => $request->review
         ]);
 
-        return $this->jsonSuccess(RatingAndReviewResource::make($result));
+        // return $this->jsonSuccess(RatingAndReviewResource::make($result));
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 }
