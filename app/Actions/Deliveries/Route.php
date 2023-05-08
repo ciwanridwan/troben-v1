@@ -2,6 +2,7 @@
 
 namespace App\Actions\Deliveries;
 
+use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\DeliveryRoute;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
@@ -419,15 +420,6 @@ class Route
             case in_array($partner->geo_regency_id, self::jabodetabek()):
                 $code = self::WAREHOUSE_NAROGONG;
                 break;
-                // case in_array($partner->geo_regency_id, self::semarang()):
-                //     $code = self::WAREHOUSE_SEMARANG;
-                //     break;
-                // case in_array($partner->geo_regency_id, self::tegal()):
-                //     $code = self::WAREHOUSE_TEGAL;
-                //     break;
-                // case in_array($partner->geo_regency_id, self::makassar()):
-                //     $code = self::WAREHOUSE_MAKASSAR;
-                //     break;
             default:
                 $code = null;
                 break;
@@ -439,38 +431,44 @@ class Route
 
     public static function checkWarehouse($deliveryRoutes): string|null
     {
+        if ($deliveryRoutes instanceof Delivery) {
+            $code = $deliveryRoutes->partner ? $deliveryRoutes->partner->code : null;
+        } else {
+            $code = $deliveryRoutes->originWarehouse ? $deliveryRoutes->originWarehouse->code : null;
+        }
+
         switch (true) {
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_NAROGONG):
+            case in_array($code, self::WAREHOUSE_NAROGONG):
                 $warehouse = 'NAROGONG';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_PONTIANAK):
+            case in_array($code, self::WAREHOUSE_PONTIANAK):
                 $warehouse = 'PONTIANAK';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_BANDUNG):
+            case in_array($code, self::WAREHOUSE_BANDUNG):
                 $warehouse = 'BANDUNG';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_AMBON):
+            case in_array($code, self::WAREHOUSE_AMBON):
                 $warehouse = 'AMBON';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_PEKANBARU):
+            case in_array($code, self::WAREHOUSE_PEKANBARU):
                 $warehouse = 'PEKANBARU';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_SEMARANG):
+            case in_array($code, self::WAREHOUSE_SEMARANG):
                 $warehouse = 'SEMARANG';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_SURABAYA):
+            case in_array($code, self::WAREHOUSE_SURABAYA):
                 $warehouse = 'SURABAYA';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_TEGAL):
+            case in_array($code, self::WAREHOUSE_TEGAL):
                 $warehouse = 'TEGAL';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_MATARAM):
+            case in_array($code, self::WAREHOUSE_MATARAM):
                 $warehouse = 'MATARAM';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_MAKASSAR):
+            case in_array($code, self::WAREHOUSE_MAKASSAR):
                 $warehouse = 'MAKASSAR';
                 break;
-            case in_array($deliveryRoutes->originWarehouse->code, self::WAREHOUSE_BANJARMASIN):
+            case in_array($code, self::WAREHOUSE_BANJARMASIN):
                 $warehouse = 'BANJARMASIN';
                 break;
             default:
@@ -486,29 +484,6 @@ class Route
             58, 59, 60, 61, 62, 98, 77, 95, 36, 39, 40, 76, 94
         ];
     }
-
-    public static function semarang(): array
-    {
-        return [
-            123, 133
-        ];
-    }
-
-    public static function tegal(): array
-    {
-        return [
-            126, 135
-        ];
-    }
-
-    // disable for get warehouse nearby
-    public static function makassar(): array
-    {
-        return [
-            393
-        ];
-    }
-
 
     public static function checkDestinationCityTransit($firstPackage, $packages): bool
     {
@@ -616,5 +591,54 @@ class Route
                 break;
         }
         return $fromPartner;
+    }
+
+
+    /**
+     * Check receipt if match with transport routes records
+     *
+     */
+    public static function checkDooring($package, $delivery, $type)
+    {
+        $isDooring = false;
+        $warehouse = self::checkWarehouse($delivery);
+        $regencyId = $package->destination_regency_id;
+        $provinceId = $package->destination_regency->province_id;
+
+        $route = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
+            $q->where('warehouse', $warehouse);
+            $q->where('regency_id', 0);
+            $q->where('province_id', $provinceId);
+        })->first();
+
+        $firstCase = !is_null($route) && empty($route->code_mtak_1_dest);
+        $secondCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && ($route->code_mtak_2_dest === $delivery->partner->code);
+        $thirdCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && (!is_null($route) && !empty($route->code_mtak_2_dest));
+        $lastCase = ($thirdCase && empty($route->code_mtak_3_dest) && ($thirdCase && $route->code_dooring === $delivery->partner->code ));
+
+        if ($type === 'dooring') {
+            switch (true) {
+                case $firstCase:
+                    $isDooring = true;
+                    break;
+                case $secondCase:
+                    $isDooring = true;
+                    break;
+                case $lastCase:
+                    $isDooring = true;
+                    break;
+                default:
+                    $isDooring = false;
+                    break;
+            }
+        } else {
+            if ($firstCase) {
+                $isDooring = true;
+            } else {
+                $isDooring = false;
+            }
+        }
+
+        return $isDooring;
     }
 }
