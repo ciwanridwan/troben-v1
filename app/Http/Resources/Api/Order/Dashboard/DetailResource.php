@@ -2,8 +2,11 @@
 
 namespace App\Http\Resources\Api\Order\Dashboard;
 
+use App\Actions\Pricing\PricingCalculator;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
+use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use App\Models\Price;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -44,15 +47,34 @@ class DetailResource extends JsonResource
 
         $dayName = Carbon::parse($this->created_at)->dayName;
         $createdAt = $this->created_at->format('d-M-Y');
-        $createdAtPrint = $dayName.', '.$createdAt;
+        $createdAtPrint = $dayName . ', ' . $createdAt;
 
+        $partnerCode = $this->deliveries->first()->partner ? $this->deliveries->first()->partner->code : null;
+        $partnerType = $this->deliveries->first()->partner ? $this->deliveries->first()->partner->type : null;
+        $checkCode = substr($partnerCode, 0, 2);
+        if (!is_null($partnerType)) {
+            switch (true) {
+                case $partnerType === Partner::TYPE_SPACE:
+                    $partnerType = 'Mitra Space';
+                    break;
+                case $checkCode === 'MC':
+                    $partnerType = 'Mitra Cargo';
+                    break;
+                default:
+                    $partnerType = 'Mitra Bisnis';
+                    break;
+            }
+        }
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
             'package_hash' => $this->hash,
+            'package_code' => $this->code ? $this->code->content : null,
             'service_code' => $this->service_code,
-            'partner_code' => $this->deliveries->first()->partner ? $this->deliveries->first()->partner->code : null,
+            'partner_code' => $partnerCode,
+            'partner_type' => $partnerType,
             'transporter_type' => $this->transporter_type,
+            'transporter_detail' => $this->getTransporter($this->transporter_type),
             'order_type' => $orderType,
             'sender_name' => $this->sender_name,
             'sender_address' => $this->sender_address,
@@ -93,6 +115,27 @@ class DetailResource extends JsonResource
                     }
                 }
 
+                $insurance = $q->prices()->where('type', 'insurance')->first(); 
+                $insuranceFee = $insurance ? $insurance->amount : 0;
+                $additionalFee = $this->getAdditionalFeePerItem($q, $this->service_code);
+                $handlingFee = $q->prices()->where('type', 'handling')->get()->map(function ($r) {
+                    return [
+                        'type' => $r->description,
+                        'amount' => $r->amount
+                    ];
+                }) ?? 0;
+
+                $totalHandlingFee = $q->prices()->where('type', 'handling')->sum('amount'); 
+                $subTotalAmount = $insuranceFee + $additionalFee + (int)$totalHandlingFee; 
+
+                $prices = [
+                    'handling' => $handlingFee,
+                    'total_handling_fee' => (int)$totalHandlingFee,
+                    'insurance_fee' => $insuranceFee,
+                    'additional_fee' => $additionalFee,
+                    'sub_total_fee' => $subTotalAmount  
+                ];
+
                 $result = [
                     'hash' => $q->hash,
                     'name' => $q->name ?? '',
@@ -111,6 +154,7 @@ class DetailResource extends JsonResource
                     'category_item_id' => $q->categories ? $q->categories->id : 0,
                     'is_glassware' => $q->is_glassware,
                     'code' => $q->codes ? $q->codes->first()->content : null,
+                    'prices' => $prices,
                 ];
                 return $result;
             }) : null,
@@ -159,15 +203,28 @@ class DetailResource extends JsonResource
         })->first();
         $additional = $this->prices()->where('type', PackagesPrice::TYPE_SERVICE)->where('description', PackagesPrice::TYPE_ADDITIONAL)->first();
         $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
+        $discount = $this->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->first();
+        $admin = $this->payments()->where('payable_type', Package::class)->first();
 
-        $totalAmount = ($insurance ?? 0) + ($handling ?? 0) + ($additional ? $additional->amount : 0) + ($service ? $service->amount : 0) + ($pickup ? $pickup->amount : 0);
+        $insuranceFee = (int) $insurance ?? 0;
+        $handlingFee = (int) $handling ?? 0;
+        $additionalFee = $additional ? $additional->amount : 0;
+        $serviceFee = $service ? $service->amount : 0;
+        $pickupFee = $pickup ? $pickup->amount : 0;
+        $adminFee = $admin ? $admin->payment_admin_charges : 0;
+        $discountFee = $discount ? $discount->amount : 0;
+
+        $totalAmount = $insuranceFee + $handlingFee + $additionalFee + $serviceFee + $pickupFee + $adminFee - $discountFee;
 
         return [
-            'insurance_price_total' => (int) $insurance ?? 0,
-            'handling' => (int) $handling ?? 0,
-            'additional_price' => $additional ? $additional->amount : 0,
-            'service' => $service ? $service->amount : 0,
-            'pickup' => $pickup ? $pickup->amount : 0,
+            'total_weight' => $this->total_weight,
+            'admin_fee' => $adminFee,
+            'insurance_price_total' => $insuranceFee,
+            'handling' => $handlingFee,
+            'additional_price' => $additionalFee,
+            'service' => $serviceFee,
+            'pickup' => $pickupFee,
+            'discount' => $discountFee,
             'total_amount' => $totalAmount
         ];
     }
@@ -260,5 +317,56 @@ class DetailResource extends JsonResource
         })->values()->toArray();
 
         return $packageChild;
+    }
+
+    /**
+     * To get transporter detail from transporter_type of this packages
+     */
+    private function getTransporter($type)
+    {
+        $transporter = collect(Transporter::getDetailAvailableTypes())->map(function ($r) {
+            $result = [
+                'type' => $r['name'],
+                'max_height' => $r['height'],
+                'max_width' => $r['width'],
+                'max_length' => $r['length'],
+                'max_weight' => $r['weight']
+            ];
+
+            return $result;
+        });
+        
+        $detailTransporter = $transporter->filter(function ($r) use ($type) {
+            if ($r['type'] === $type) {
+                return true;
+            }
+
+            return false;
+        })->values()->toArray();
+        
+        return $detailTransporter[0];
+    }
+
+    private function getAdditionalFeePerItem($item, $serviceCode)
+    {
+        $additionalPrice = 0;  
+        $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+        $item['additional_price'] = 0;
+
+        if ($totalWeight < 100) {
+            $item['additional_price'] = 0;
+        } elseif ($totalWeight < 300) {
+            $item['additional_price'] = 100000;
+        } elseif ($totalWeight < 2000) {
+            $item['additional_price'] = 250000;
+        } elseif ($totalWeight < 5000) {
+            $item['additional_price'] = 1500000;
+        } else {
+            $item['additional_price'] = 0;
+        }
+
+        $additionalPrice = $item['additional_price'];
+
+        return $additionalPrice;
     }
 }
