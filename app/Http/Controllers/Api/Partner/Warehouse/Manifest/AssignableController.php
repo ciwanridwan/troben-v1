@@ -212,6 +212,7 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
                     return true;
                 }
+
             } else {
                 if ($q->deliveries->count() === 1) {
                     return true;
@@ -241,6 +242,8 @@ class AssignableController extends Controller
             if (!is_null($q->deliveryRoutes)) {
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
+                    return true;
+                } elseif(Route::checkVendorJktDooring($partnerDooringId)) {
                     return true;
                 } else {
                     $type = 'dooring';
