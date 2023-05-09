@@ -7,6 +7,7 @@ use Jalameta\Router\BaseRoute;
 use App\Http\Controllers\Api\Order\ItemController;
 use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Http\Controllers\Api\Order\OrderController;
+use App\Http\Controllers\Api\Order\V2\MultiDestinationController;
 
 class OrderRoute extends BaseRoute
 {
@@ -154,6 +155,11 @@ class OrderRoute extends BaseRoute
         $this->router->post($this->prefix('store/multi-destination'), [
             'as' => $this->name('storeMultiDestination'),
             'uses' => $this->uses('storeMultiDestination'),
+        ]);
+
+        $this->router->post($this->prefix('store/multi-destination-new'), [
+            'as' => $this->name('store.multiDestination.new'),
+            'uses' => $this->uses('store', MultiDestinationController::class),
         ]);
 
         $this->router->post($this->prefix('assign/partner/{partner_hash}'), [

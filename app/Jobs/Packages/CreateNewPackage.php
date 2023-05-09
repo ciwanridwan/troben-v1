@@ -82,6 +82,12 @@ class CreateNewPackage
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+
+            // optional
+            'sender_detail_address' => ['nullable', 'string'],
+            'receiver_detail_address' => ['nullable', 'string'],
+            'origin_district_id' => ['nullable', 'exists:geo_districts,id'],
+            'origin_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id']
         ])->validate();
         Log::info('validate package success', [$this->attributes['sender_name']]);
 
@@ -98,6 +104,7 @@ class CreateNewPackage
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             '*.is_glassware' => ['nullable', 'boolean'],
+            '*.category_item_id' => ['nullable', 'boolean'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
@@ -131,6 +138,11 @@ class CreateNewPackage
         }
 
         $this->attributes['sender_address'] = substr($this->attributes['sender_address'], 0, 255);
+
+        if (isset($this->attributes['sender_detail_address']) && isset($this->attributes['receiver_detail_address'])) {
+            $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
+            $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
+        }
 
         $this->package->fill($this->attributes);
         $this->package->is_separate_item = $this->isSeparate;
