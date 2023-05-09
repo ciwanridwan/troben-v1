@@ -23,6 +23,10 @@ class RatingAndReviewController extends Controller
             return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Hash not valid, please check hash again']))->json();
         }
 
+        if (!is_null($package->ratings) || $package->ratings()->exists()) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Rating and reviews has submitted, cant submit again']))->json();
+        }
+
         RatingAndReview::create([
             'package_id' => $package->id,
             'rating' => $request->rating,

@@ -20,17 +20,30 @@ class ComplaintController extends Controller
 
         $package = Package::byHash($request->package_hash);
         if (is_null($package)) {
-            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Hash not valid, please check hash again']));
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Hash not valid, please check hash again']))->json();
         }
 
-        $image = null;
+        if (!is_null($package->complaints) || $package->complaints()->exists()) {
+            return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Customer has submit complaint, cant submit complaint']))->json();
+        }
+
+        $imageArr = [];
+        if ($request->photos) {
+            foreach ($request->photos as $picture) {
+                $images = handleUpload($picture, 'pack_customer_complaint');
+
+                array_push($imageArr, $images);
+            }
+        }
+
+        $imageToDb = ["photos" => $imageArr];
 
         Complaint::create(
             [
                 'package_id' => $package->id,
                 'type' => $request->type,
                 'desc' => $request->desc,
-                'photos' => $image
+                'meta' => json_encode($imageToDb)
             ]
         );
 

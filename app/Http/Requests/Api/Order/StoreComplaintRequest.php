@@ -29,7 +29,7 @@ class StoreComplaintRequest extends FormRequest
             'package_hash' => ['required', new ExistsByHash(Package::class)],
             'type' => ['required', 'string'],
             'desc' => ['required', 'string'],
-            'photos' => ['nullable', 'image:jpg,jpeg,png']
+            'photos.*' => ['nullable', 'image:jpg,jpeg,png']
         ];
     }
 

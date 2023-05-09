@@ -22,7 +22,7 @@ class Complaint extends Model
         'package_id',
         'type',
         'desc',
-        'photos'
+        'meta'
     ];
 
     /**

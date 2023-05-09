@@ -18,7 +18,7 @@ class CreatePackageComplaintsTable extends Migration
             $table->unsignedBigInteger('package_id');
             $table->string('type');
             $table->longText('desc');
-            $table->json('photos')->nullable();
+            $table->json('meta');
             $table->timestamps();
             $table->softDeletes();
 
@@ -33,6 +33,6 @@ class CreatePackageComplaintsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('add_package_complaints');
+        Schema::dropIfExists('package_complaints');
     }
 }
