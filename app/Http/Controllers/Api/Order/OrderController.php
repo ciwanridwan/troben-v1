@@ -258,7 +258,11 @@ class OrderController extends Controller
             ->first();
 
         // complaint, rating and review
-        $ratingAndReview = $package->ratings ? $package->ratings->only('rating', 'review') : null;
+        $ratingAndReview = $package->ratings ?? null;
+        $ratingResult = [
+            'rating' => $ratingAndReview->rating,
+            'description' => $ratingAndReview->review
+        ];
 
         $complaint = $package->complaints ? $package->complaints->only('type', 'desc') : null;
         $imageComplaint = $package->complaints ? $package->complaints->meta : null;
@@ -295,7 +299,7 @@ class OrderController extends Controller
             'is_multi_approve' => $isMultiApprove,
             'driver' => $driver,
             'payment' => $payment,
-            'finish' => $ratingAndReview,
+            'review' => $ratingResult,
             'complaint' => $complaint
         ];
 
