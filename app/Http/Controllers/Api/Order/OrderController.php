@@ -53,6 +53,7 @@ use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -256,6 +257,21 @@ class OrderController extends Controller
             ->latest()
             ->first();
 
+        // complaint, rating and review
+        $ratingAndReview = $package->ratings ? $package->ratings->only('rating', 'review') : null;
+
+        $complaint = $package->complaints ? $package->complaints->only('type', 'desc') : null;
+        $imageComplaint = $package->complaints ? $package->complaints->meta : null;
+        $complaintImages = ['photos' => json_decode($imageComplaint)];
+        $complaintUrlImage = [];
+
+        $photos = (array)$complaintImages['photos'];
+        foreach ($photos['photos'] as $photo) {
+            $url = generateUrl($photo);
+            array_push($complaintUrlImage, $url);
+        }
+        $complaint = array_merge($complaint, ["photos" => $complaintUrlImage]);
+
         $data = [
             'type' => $result['type'],
             'notes' => $result['notes'],
@@ -279,6 +295,8 @@ class OrderController extends Controller
             'is_multi_approve' => $isMultiApprove,
             'driver' => $driver,
             'payment' => $payment,
+            'finish' => $ratingAndReview,
+            'complaint' => $complaint
         ];
 
         // return $this->jsonSuccess(DataDiscountResource::make($data));
