@@ -65,6 +65,14 @@ class DetailResource extends JsonResource
                     break;
             }
         }
+
+        // check relation to package bikes
+        if ($this->motoBikes) {
+            $isBike = true;
+        } else {
+            $isBike = false;
+        }
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -76,6 +84,7 @@ class DetailResource extends JsonResource
             'transporter_type' => $this->transporter_type,
             'transporter_detail' => $this->getTransporter($this->transporter_type),
             'order_type' => $orderType,
+            'is_bike' => $isBike,
             'sender_name' => $this->sender_name,
             'sender_address' => $this->sender_address,
             'sender_detail_address' => $this->sender_way_point,
@@ -115,7 +124,7 @@ class DetailResource extends JsonResource
                     }
                 }
 
-                $insurance = $q->prices()->where('type', 'insurance')->first(); 
+                $insurance = $q->prices()->where('type', 'insurance')->first();
                 $insuranceFee = $insurance ? $insurance->amount : 0;
                 $additionalFee = $this->getAdditionalFeePerItem($q, $this->service_code);
                 $handlingFee = $q->prices()->where('type', 'handling')->get()->map(function ($r) {
@@ -125,15 +134,15 @@ class DetailResource extends JsonResource
                     ];
                 }) ?? 0;
 
-                $totalHandlingFee = $q->prices()->where('type', 'handling')->sum('amount'); 
-                $subTotalAmount = $insuranceFee + $additionalFee + (int)$totalHandlingFee; 
+                $totalHandlingFee = $q->prices()->where('type', 'handling')->sum('amount');
+                $subTotalAmount = $insuranceFee + $additionalFee + (int)$totalHandlingFee;
 
                 $prices = [
                     'handling' => $handlingFee,
                     'total_handling_fee' => (int)$totalHandlingFee,
                     'insurance_fee' => $insuranceFee,
                     'additional_fee' => $additionalFee,
-                    'sub_total_fee' => $subTotalAmount  
+                    'sub_total_fee' => $subTotalAmount
                 ];
 
                 $result = [
@@ -158,6 +167,7 @@ class DetailResource extends JsonResource
                 ];
                 return $result;
             }) : null,
+            'moto_bike' => $this->motoBikes ?? null,
             'images' => $this->attachments ? $this->attachments->map(function ($q) {
                 $result = [
                     'id' => $q->id,
@@ -335,7 +345,7 @@ class DetailResource extends JsonResource
 
             return $result;
         });
-        
+
         $detailTransporter = $transporter->filter(function ($r) use ($type) {
             if ($r['type'] === $type) {
                 return true;
@@ -343,13 +353,13 @@ class DetailResource extends JsonResource
 
             return false;
         })->values()->toArray();
-        
+
         return $detailTransporter[0];
     }
 
     private function getAdditionalFeePerItem($item, $serviceCode)
     {
-        $additionalPrice = 0;  
+        $additionalPrice = 0;
         $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
         $item['additional_price'] = 0;
 
