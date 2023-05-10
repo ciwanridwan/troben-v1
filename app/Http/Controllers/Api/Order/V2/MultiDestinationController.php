@@ -10,6 +10,8 @@ use App\Http\Response;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
+use App\Models\Packages\MultiDestination;
+use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
@@ -47,6 +49,7 @@ class MultiDestinationController extends Controller
             }
         }
 
+        // sender attributes
         $senderAttributes = $request->only('sender_address', 'sender_phone', 'sender_name', 'sender_detail_address', 'sender_latitude', 'sender_longitude', 'service_code', 'transporter_type', 'partner_code');
         $senderAttributes['customer_id'] = $user->id;
         $senderAttributes['origin_regency_id'] = $resultOrigin['regency'];
@@ -54,9 +57,9 @@ class MultiDestinationController extends Controller
         $senderAttributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
 
         $countReceiver = count($this->attributes['receiver_name']);
+        $packageIds = [];
+        $childId = [];
 
-        $allHash = [];
-        $childHash = [];
         for ($i = 0; $i < $countReceiver; $i++) {
             $receiverAttributes = [
                 'receiver_name' => $this->attributes['receiver_name'][$i],
@@ -85,22 +88,36 @@ class MultiDestinationController extends Controller
 
             $this->dispatchNow($uploadJob);
 
-
             if ($i === 0) {
-                $result['parent_hash'] =  $job->package->hash;
+                $result['parent_id'] =  $job->package->id;
             } else {
-                $result['child_hash'] = $job->package->hash;
+                $pickupFee = $job->package->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
+                $job->package->amount -= $pickupFee->amount;
+                $job->package->save();
 
-                array_push($childHash, $result['child_hash']);
+                $pickupFee->amount = 0;
+                $pickupFee->save();
+
+                $result['child_id'] = $job->package->id;
+                array_push($childId, $result['child_id']);
             }
-
-            $allHash = $result;
+            $packageIds = $result;
         }
 
+        // set package id parent package and child package
         $results = [
-            'parent_hash' => $allHash['parent_hash'],
-            'child_hash' => $childHash
+            'parent_id' => $packageIds['parent_id'],
+            'child_id' => $childId
         ];
+
+        // inserting to multi destination table
+        foreach ($results['child_id'] as $idChild) {
+            MultiDestination::create([
+                'parent_id' => $results['parent_id'],
+                'child_id' => $idChild
+            ]);
+        }
+
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
