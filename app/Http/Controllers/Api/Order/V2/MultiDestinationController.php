@@ -55,7 +55,8 @@ class MultiDestinationController extends Controller
 
         $countReceiver = count($this->attributes['receiver_name']);
 
-        $results = [];
+        $allHash = [];
+        $childHash = [];
         for ($i = 0; $i < $countReceiver; $i++) {
             $receiverAttributes = [
                 'receiver_name' => $this->attributes['receiver_name'][$i],
@@ -86,13 +87,20 @@ class MultiDestinationController extends Controller
 
 
             if ($i === 0) {
-                $result['parent_hash'] = $job->package->hash;
+                $result['parent_hash'] =  $job->package->hash;
             } else {
                 $result['child_hash'] = $job->package->hash;
+
+                array_push($childHash, $result['child_hash']);
             }
 
-            $results = $result;
+            $allHash = $result;
         }
+
+        $results = [
+            'parent_hash' => $allHash['parent_hash'],
+            'child_hash' => $childHash
+        ];
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
