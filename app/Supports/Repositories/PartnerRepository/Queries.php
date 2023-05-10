@@ -674,9 +674,15 @@ class Queries
 
     public function getDeliveriesTransitByOwner(): Builder
     {
+        $listStatus = [
+            Delivery::STATUS_ACCEPTED,
+            Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER,
+            Delivery::STATUS_WAITING_TRANSPORTER
+        ];
+
         $query = Delivery::query();
         $query->where('origin_partner_id', $this->partner->id);
-        $query->whereNotIn('status', [Delivery::STATUS_EN_ROUTE, Delivery::STATUS_FINISHED]);
+        $query->whereIn('status', $listStatus);
         $this->resolveDeliveriesQueryByRole($query);
 
         $query->orderByDesc('created_at');

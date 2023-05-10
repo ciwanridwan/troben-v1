@@ -1124,4 +1124,20 @@ class Package extends Model implements AttachableContract
             self::STATUS_IN_TRANSIT
         ];
     }
+
+    /**
+     * Relation to complaints tables
+     */
+    public function complaints(): HasOne
+    {
+        return $this->hasOne(Complaint::class, 'package_id', 'id');
+    }
+
+    /**
+     * Relation to rating and reviews tables
+     */
+    public function Ratings(): HasOne
+    {
+        return $this->hasOne(RatingAndReview::class, 'package_id', 'id');
+    }
 }

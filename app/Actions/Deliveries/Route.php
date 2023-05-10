@@ -641,4 +641,14 @@ class Route
 
         return $isDooring;
     }
+
+    public static function checkVendorJktDooring($partnerId)
+    {
+        $check = false;
+        $jakarta = [182];
+        if (in_array($partnerId, $jakarta)) {
+            return true;
+        }
+        return $check;
+    }
 }

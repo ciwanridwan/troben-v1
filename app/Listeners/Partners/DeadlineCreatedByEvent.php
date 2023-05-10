@@ -236,12 +236,14 @@ class DeadlineCreatedByEvent
 
                 # for test
                 # $firstTime = Carbon::today()->addHours(9);
+
                 $endTime = Carbon::now()->endOfDay();
                 if ($now < $firstTime) {
                     break;
                 }
 
                 $deadline = $now < $endTime ? $endTime : null;
+
                 if ($originPartner->type === Partner::TYPE_BUSINESS) {
                     $performanceDelivery = PartnerDeliveryPerformance::create([
                         'partner_id' => $delivery->transporter->partner_id,
