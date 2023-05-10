@@ -340,7 +340,8 @@ class DetailResource extends JsonResource
                 'max_height' => $r['height'],
                 'max_width' => $r['width'],
                 'max_length' => $r['length'],
-                'max_weight' => $r['weight']
+                'max_weight' => $r['weight'],
+                'images_url' => $r['path_icons']
             ];
 
             return $result;
