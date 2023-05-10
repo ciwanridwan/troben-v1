@@ -55,6 +55,7 @@ class MultiDestinationController extends Controller
 
         $countReceiver = count($this->attributes['receiver_name']);
 
+        $results = [];
         for ($i = 0; $i < $countReceiver; $i++) {
             $receiverAttributes = [
                 'receiver_name' => $this->attributes['receiver_name'][$i],
@@ -67,12 +68,12 @@ class MultiDestinationController extends Controller
             ];
 
             $packageAttributes = array_merge($senderAttributes, $receiverAttributes);
-            foreach ($this->attributes['items'] as $key => $item) {
-                if ($item[$key]['insurance'] === '1') {
+            foreach ($this->attributes['items'][$i] as $key => $item) {
+                if ($item['insurance'] === '1') {
                     $this->attributes['items'][$i][$key]['is_insured'] = true;
                 }
 
-                $this->attributes['items'][$i][$key]['category_item_id'] = $item[$key]['category_id'];
+                $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
             }
 
             $job = new CreateNewPackage($packageAttributes, $this->attributes['items'][$i]);
@@ -82,8 +83,17 @@ class MultiDestinationController extends Controller
             $uploadJob = new CustomerUploadPackagePhotos($job->package, $this->attributes['photos'][$i] ?? []);
 
             $this->dispatchNow($uploadJob);
+
+
+            if ($i === 0) {
+                $result['parent_hash'] = $job->package->hash;
+            } else {
+                $result['child_hash'] = $job->package->hash;
+            }
+
+            $results = $result;
         }
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        return (new Response(Response::RC_SUCCESS, $results))->json();
     }
 }

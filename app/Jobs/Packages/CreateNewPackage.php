@@ -104,7 +104,7 @@ class CreateNewPackage
             '*.handling' => ['nullable', 'array'],
             '*.handling.*' => ['string', Rule::in(Handling::getTypes())],
             '*.is_glassware' => ['nullable', 'boolean'],
-            '*.category_item_id' => ['nullable', 'boolean'],
+            '*.category_item_id' => ['nullable', 'exists:category_items,id'],
         ])->validate();
         Log::info('validate package items success', [$this->attributes['sender_name']]);
 
