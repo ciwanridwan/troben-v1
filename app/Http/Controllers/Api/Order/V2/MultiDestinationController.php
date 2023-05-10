@@ -7,6 +7,7 @@ use App\Exceptions\UserUnauthorizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Order\StoreMultiDestinationRequest;
 use App\Http\Response;
+use App\Jobs\Packages\Actions\MultiAssignFirstPartner;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Customers\Customer;
@@ -59,6 +60,7 @@ class MultiDestinationController extends Controller
         $countReceiver = count($this->attributes['receiver_name']);
         $packageIds = [];
         $childId = [];
+        $allHash = [];
 
         for ($i = 0; $i < $countReceiver; $i++) {
             $receiverAttributes = [
@@ -90,9 +92,10 @@ class MultiDestinationController extends Controller
 
             if ($i === 0) {
                 $result['parent_id'] =  $job->package->id;
+                $packageHash['parent_hash'] = $job->package->hash;
             } else {
                 $pickupFee = $job->package->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
-                $job->package->amount -= $pickupFee->amount;
+                $job->package->total_amount -= $pickupFee->amount;
                 $job->package->save();
 
                 $pickupFee->amount = 0;
@@ -100,24 +103,35 @@ class MultiDestinationController extends Controller
 
                 $result['child_id'] = $job->package->id;
                 array_push($childId, $result['child_id']);
+
+                $packageHash['child_hash'] = $job->package->hash;
+                array_push($allHash, $packageHash['child_hash']);
             }
             $packageIds = $result;
+            $hashPackage = $packageHash;
+            // assign partner
+            $assignJob = new MultiAssignFirstPartner($job->package->toArray(), $partner);;
+            $this->dispatchNow($assignJob);
         }
 
         // set package id parent package and child package
-        $results = [
+        $idPackages = [
             'parent_id' => $packageIds['parent_id'],
             'child_id' => $childId
         ];
 
         // inserting to multi destination table
-        foreach ($results['child_id'] as $idChild) {
+        foreach ($idPackages['child_id'] as $idChild) {
             MultiDestination::create([
-                'parent_id' => $results['parent_id'],
+                'parent_id' => $idPackages['parent_id'],
                 'child_id' => $idChild
             ]);
         }
 
+        $results = [
+            'parent_hash' => $hashPackage['parent_hash'],
+            'child_hash' => $allHash
+        ];
 
         return (new Response(Response::RC_SUCCESS, $results))->json();
     }
