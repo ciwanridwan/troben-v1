@@ -58,7 +58,9 @@
           <a-col :span="9">Dimensi Barang</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
-            ><b>{{ length }} x {{ width }} x {{ height }} cm</b></a-col
+            >
+            <b>{{ height }} x {{ width }} x {{ length }} cm</b>
+            </a-col
           >
         </a-row>
 
