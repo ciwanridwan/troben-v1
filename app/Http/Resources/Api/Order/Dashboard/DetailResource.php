@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Order\Dashboard;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
@@ -145,6 +146,8 @@ class DetailResource extends JsonResource
                     'sub_total_fee' => $subTotalAmount
                 ];
 
+                $dimensions = Handling::switchDimension($q->handling, $q->height, $q->width, $q->length);
+
                 $result = [
                     'hash' => $q->hash,
                     'name' => $q->name ?? '',
@@ -152,9 +155,9 @@ class DetailResource extends JsonResource
                     'qty' => $q->qty,
                     'is_insured' => $q->is_insured,
                     'weight' => $q->weight,
-                    'height' => $q->height,
-                    'length' => $q->length,
-                    'width' => $q->width,
+                    'height' => $dimensions['height'],
+                    'length' => $dimensions['length'],
+                    'width' => $dimensions['width'],
                     'price' => $q->price,
                     'weight_borne_volume' => $q->weight_volume,
                     'weight_borne_total' => $q->weight_borne_total,

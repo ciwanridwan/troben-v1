@@ -155,4 +155,25 @@ class Handling implements CastsAttributes
                 break;
         }
     }
+
+    public static function switchDimension($type, $height, $width, $length)
+    {
+        $dimensions = [
+            'height' => $height,
+            'width' => $width,
+            'length' => $length
+        ];
+
+        if (is_array($type)) {
+            foreach ($type as $value) {
+                if ($value['type'] === self::TYPE_WOOD) {
+                    $dimensions['height'] += self::ADD_WOOD_DIMENSION;
+                    $dimensions['width'] += self::ADD_WOOD_DIMENSION;
+                    $dimensions['length'] += self::ADD_WOOD_DIMENSION;
+                }
+            }
+        }
+
+        return $dimensions;
+    }
 }
