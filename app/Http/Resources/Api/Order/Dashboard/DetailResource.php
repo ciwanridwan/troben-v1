@@ -228,6 +228,7 @@ class DetailResource extends JsonResource
         $discountFee = $discount ? $discount->amount : 0;
 
         $totalAmount = $insuranceFee + $handlingFee + $additionalFee + $serviceFee + $pickupFee + $adminFee - $discountFee;
+        $summaryTotalAmount = $insuranceFee + $handlingFee + $serviceFee + $additionalFee;
 
         return [
             'total_weight' => $this->total_weight,
@@ -238,6 +239,7 @@ class DetailResource extends JsonResource
             'service' => $serviceFee,
             'pickup' => $pickupFee,
             'discount' => $discountFee,
+            'total_amount_item' =>$summaryTotalAmount,
             'total_amount' => $totalAmount
         ];
     }
