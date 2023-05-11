@@ -203,6 +203,7 @@ class AssetController extends Controller
         $queryPartnerId = fn ($builder) => $builder->where('id', $this->partner->id);
         $query->with(['partner' => $queryPartnerId]);
         $query->whereHas('partner', $queryPartnerId);
+        $query->orderBy('created_at', 'desc');
 
         if ($search !== "''") {
             $query->where(function ($q) use ($search) {

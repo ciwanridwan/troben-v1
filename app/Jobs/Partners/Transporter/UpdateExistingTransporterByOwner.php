@@ -35,7 +35,7 @@ class UpdateExistingTransporterByOwner
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-public function __construct(Transporter $transporter, $inputs = [])
+    public function __construct(Transporter $transporter, $inputs = [])
     {
         $this->transporter = $transporter;
         $this->attributes = Validator::make($inputs, [
