@@ -18,6 +18,7 @@ use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Exceptions\Error;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
+use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
 use App\Models\Customers\Customer;
 use App\Models\PackageCorporate;
 use App\Models\Packages\MultiDestination;
@@ -245,6 +246,154 @@ class CorporateController extends Controller
             'is_parent' => false,
             'order_from' => $isAdmin ? 'ho' : 'partner',
             'customer' => $customer,
+            'moto' => false, // not a motobike
+        ];
+        PackageCorporate::create([
+            'package_id' => $job->package->getKey(),
+            'payment_method' => $payment_method,
+            'meta' => $metaCorporate,
+        ]);
+
+        if (in_array($payment_method, ['cash', 'top'])) {
+            $job->package->refresh();
+            $job->package->payment_status = Package::PAYMENT_STATUS_PAID;
+            $job->package->status = Package::STATUS_WAITING_FOR_PACKING;
+            $job->package->save();
+
+            // trigger sla
+            event(new PaymentIsCorporateMode($job->package));
+        }
+        if ($payment_method == 'va') {
+            // go to different method: paymentMethod, paymentMethodSet
+        }
+
+        return (new Response(Response::RC_SUCCESS, $job->package))->json();
+    }
+
+    public function storeBike(Request $request)
+    {
+        $isAdmin = auth()->user()->is_admin;
+
+        $rules = [
+            'service_code' => ['required', 'in:tps,tpx'],
+            'sender_name' => ['required'],
+            'sender_phone' => ['required'],
+
+            'payment_method' => ['required', 'in:va,top,cash'],
+
+            'receiver_name' => ['required'],
+            'receiver_phone' => ['required'],
+            'receiver_address' => ['required'],
+
+            'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+        ];
+
+        if (! is_null($request->get('customer_id'))) {
+            $rules['customer_id'] = ['required', 'exists:customers,id'];
+            $hasCustomerAcc = true;
+        } else {
+            $rules['customer_name'] = ['required'];
+            $rules['customer_phone'] = ['required', 'numeric'];
+            $hasCustomerAcc = false;
+        }
+
+        if ($isAdmin) {
+            $rules['partner_code'] = ['required'];
+        }
+
+        // motobike validation
+        if (true) {
+            $rules['type'] = ['required', 'in:matic,gigi,kopling'];
+            $rules['merk'] = ['required'];
+            $rules['cc'] = ['required', 'in:150,250,999'];
+            $rules['years'] = ['required', 'numeric'];
+        }
+
+
+        $request->validate($rules);
+
+        $inputs = $request->except('photos');
+
+        /** @var Partner $partner */
+        if ($isAdmin) {
+            $partner = Partner::where('code', $inputs['partner_code'])->firstOrFail();
+        } else {
+            $partners = auth()->user()->partners;
+            if ($partners->count() == 0) {
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
+            }
+            $partner = $partners->first();
+        }
+
+        $inputs['sender_address'] = $partner->geo_address;
+        $inputs['origin_regency_id'] = $partner->geo_regency_id;
+        $inputs['origin_district_id'] = $partner->geo_district_id;
+        $inputs['origin_sub_district_id'] = $partner->geo_sub_district_id;
+        $inputs['sender_way_point'] = $partner->address;
+        $inputs['sender_latitude'] = $partner->latitude;
+        $inputs['sender_longitude'] = $partner->longitude;
+        $inputs['destination_id'] = $inputs['destination_sub_district_id'];
+        if (! $hasCustomerAcc) {
+            $inputs['customer_id'] = 0;
+        }
+
+        // add partner code
+        $inputs['partner_code'] = $partner->code;
+        $inputs['order_type'] = 'bike';
+        $items = json_decode($request->input('items'), true);
+        $payment_method = $request->get('payment_method');
+
+        $bike = null;
+        foreach ($items??[] as $key => $item) {
+            $bike = [
+                'type' => $item->moto_type,
+                'merk' => $item->moto_merk,
+                'cc' => $item->moto_cc,
+                'years' => $item->moto_year,
+                'package_id' => null,
+                'package_item_id' => null
+            ];
+            $items[$key] = (new Collection($item))->toArray();
+        }
+
+        if (is_null($bike)) {
+            return (new Response(Response::RC_INVALID_DATA, ['message' => 'No item submit']))->json();
+        }
+
+        $isSeparate = false;
+        $job = new CreateWalkinOrderTypeBike($inputs, $items[$key], $isSeparate, $bike);
+        $this->dispatchNow($job);
+
+        $photos = $request->file('photos') ?? [];
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $photos);
+        $this->dispatchNow($uploadJob);
+
+        $job = new AssignFirstPartnerToPackage($job->package, $partner);
+        $this->dispatch($job);
+
+        $delivery = $job->delivery;
+        event(new DriverUnloadedPackageInWarehouse($delivery));
+
+        $job->package->setAttribute('status', Package::STATUS_WAITING_FOR_APPROVAL)->save();
+
+        $customer = [];
+        foreach (['customer_id', 'customer_name', 'customer_phone'] as $k) {
+            if (isset($inputs[$k])) {
+                $customer[$k] = $inputs[$k];
+            }
+        }
+
+        $metaCorporate = [
+            'is_multi' => false,
+            'childs_id' => [],
+            'parent_id' => null,
+            'is_child' => false,
+            'is_parent' => false,
+            'order_from' => $isAdmin ? 'ho' : 'partner',
+            'customer' => $customer,
+            'moto' => true, // only for motobike
         ];
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
@@ -489,6 +638,7 @@ class CorporateController extends Controller
                 'corporate', 'payments', 'attachments',
                 'items', 'prices', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
                 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices',
+                'motoBikes',
             ])
             // ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
