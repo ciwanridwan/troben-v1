@@ -110,7 +110,8 @@ class MultiDestinationController extends Controller
             $packageIds = $result;
             $hashPackage = $packageHash;
             // assign partner
-            $assignJob = new MultiAssignFirstPartner($job->package->toArray(), $partner);;
+            $type = 'new';
+            $assignJob = new MultiAssignFirstPartner($job->package->toArray(), $partner, $type);
             $this->dispatchNow($assignJob);
         }
 

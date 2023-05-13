@@ -923,7 +923,8 @@ class OrderController extends Controller
             array_push($packages, $data);
         }
 
-        $job = new MultiAssignFirstPartner($packages, $partner);
+        $type = 'old';
+        $job = new MultiAssignFirstPartner($packages, $partner, $type);
         $this->dispatchNow($job);
 
         return (new Response(Response::RC_SUCCESS, $job->packages))->json();
