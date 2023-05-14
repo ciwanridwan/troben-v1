@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Actions\Pricing\PricingCalculator;
+use App\Casts\Package\Items\Handling;
 use App\Events\Deliveries\Pickup\DriverUnloadedPackageInWarehouse;
 use App\Events\Payment\Nicepay\PaymentIsCorporateMode;
 use App\Exceptions\DataNotFoundException;
@@ -17,6 +18,7 @@ use App\Exceptions\OutOfRangePricingException;
 use App\Jobs\Packages\CreateWalkinOrder;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Exceptions\Error;
+use App\Http\Controllers\Api\Order\MotorBikeController;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
 use App\Models\Customers\Customer;
@@ -32,6 +34,7 @@ use libphonenumber\PhoneNumberUtil;
 use App\Models\Payments\Gateway;
 use App\Models\Payments\Payment;
 use App\Models\User;
+use App\Supports\DistanceMatrix;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -305,10 +308,10 @@ class CorporateController extends Controller
 
         // motobike validation
         if (true) {
-            $rules['type'] = ['required', 'in:matic,gigi,kopling'];
-            $rules['merk'] = ['required'];
-            $rules['cc'] = ['required', 'in:150,250,999'];
-            $rules['years'] = ['required', 'numeric'];
+            $rules['items.*.moto_type'] = ['required', 'in:matic,gigi,kopling'];
+            $rules['items.*.moto_merk'] = ['required'];
+            $rules['items.*.moto_cc'] = ['required', 'in:150,250,999'];
+            $rules['items.*.moto_year'] = ['required', 'numeric'];
         }
 
 
@@ -348,10 +351,10 @@ class CorporateController extends Controller
         $bike = null;
         foreach ($items??[] as $key => $item) {
             $bike = [
-                'type' => $item->moto_type,
-                'merk' => $item->moto_merk,
-                'cc' => $item->moto_cc,
-                'years' => $item->moto_year,
+                'type' => $item['moto_type'],
+                'merk' => $item['moto_merk'],
+                'cc' => $item['moto_cc'],
+                'years' => $item['moto_year'],
                 'package_id' => null,
                 'package_item_id' => null
             ];
@@ -676,6 +679,83 @@ class CorporateController extends Controller
         $result->partner = $partner;
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    public function pricingBike(Request $request): JsonResponse
+    {
+        $isAdmin = auth('api')->user()->is_admin;
+
+        $rules = [
+            'destination_id' => 'nullable|exists:geo_sub_districts,id',
+
+            'moto_type' => 'required|in:matic,kopling,gigi',
+            'moto_cc' => 'required|numeric|in:150,250,999',
+
+            /**Handling */
+            'handling' => 'nullable|in:'.Handling::TYPE_WOOD,
+            'height' => 'required_if:handling,wood|numeric',
+            'length' => 'required_if:handling,wood|numeric',
+            'width' => 'required_if:handling,wood|numeric',
+
+            /**Pickup Fee */
+            'transporter_type' => 'nullable',
+
+            /**Insurance Price */
+            'price' => 'nullable',
+        ];
+
+        if ($isAdmin) {
+            $rules['partner_code'] = 'required|exists:partners,code';
+        }
+
+        $request->validate($rules);
+        $req = $request->all();
+
+        /** @var Partner $partner */
+        if ($isAdmin) {
+            $partner = Partner::where('code', $req['partner_code'])->firstOrFail();
+        } else {
+            $partners = auth()->user()->partners;
+            if ($partners->count() == 0) {
+                return (new Response(Response::RC_INVALID_DATA, ['message' => 'No partner found']))->json();
+            }
+            $partner = $partners->first();
+        }
+
+        $pickup_price = 0;
+        $insurance = 0;
+        $insurance = ceil(MotorBikeController::getInsurancePrice($request->input('price')));
+
+        $getPrice = PricingCalculator::getBikePrice($partner->geo_regency_id, $req['destination_id']);
+        $service_price = 0; // todo get from regional mapping
+
+        switch ($request->get('moto_cc')) {
+            case 150:
+                $service_price = $getPrice->lower_cc;
+                break;
+            case 250:
+                $service_price = $getPrice->middle_cc;
+                break;
+            case 999:
+                $service_price = $getPrice->high_cc;
+                break;
+        }
+
+        $total_amount = $pickup_price + $insurance + $service_price;
+
+        $result = [
+            'details' => [
+                'pickup_price' => $pickup_price,
+                'insurance_price' => $insurance,
+                'handling_price' => 0,
+                'handling_additional_price' => 0,
+                'service_price' => intval($service_price)
+            ],
+            'total_amount' => $total_amount,
+            'notes' => $getPrice->notes
+        ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }

@@ -54,6 +54,11 @@ class PartnerRoute extends BaseRoute
             'uses' => $this->uses('storeBike', CorporateController::class),
         ]);
 
+        $this->router->post($this->prefix('/corporate/pricing-bike'), [
+            'as' => $this->name('corporate.pricing-bike'),
+            'uses' => $this->uses('pricingBike', CorporateController::class),
+        ]);
+
         $this->router->post($this->prefix('/corporate/order/multi'), [
             'as' => $this->name('corporate.order.multi'),
             'uses' => $this->uses('storeMulti', CorporateController::class),
