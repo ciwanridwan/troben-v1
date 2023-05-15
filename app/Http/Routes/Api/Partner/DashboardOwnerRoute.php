@@ -86,6 +86,11 @@ class DashboardOwnerRoute extends BaseRoute
             'uses' => $this->uses('listManifest'),
         ]);
 
+        $this->router->get($this->prefix('profile/bank-account'), [
+            'as' => $this->name('bank-account.withdrawal'),
+            'uses' => $this->uses('bankAccountWithdrawal', SummaryController::class),
+        ]);
+
         // warehouse
         $this->router->get($this->prefix('warehouse/estimation'), [
             'as' => $this->name('warehouse.estimation'),

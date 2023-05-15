@@ -53,6 +53,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(ListWithdrawalResource::collection($withdrawal));
     }
 
+    /**
+     * Detail income like a detail order from income order
+     */
     public function detailIncome(Request $request, PartnerRepository $repository)
     {
         $request->validate([
@@ -169,7 +172,7 @@ class PartnerController extends Controller
     }
 
     /**
-     *
+     * List incoming orders which entered to partner
      */
     public function incomingOrders(Request $request, PartnerRepository $repository): JsonResponse
     {
@@ -220,6 +223,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(IncomingOrderResource::collection($packages));
     }
 
+    /**
+     * List manifest of this partner
+     */
     public function listManifest(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -257,6 +263,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
     }
 
+    /**
+     * Process estimation packages on warehouse, this is show all data
+     */
     public function estimateOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -308,6 +317,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(EstimationResource::collection($result));
     }
 
+    /**
+     * List packages when package going to packing
+     */
     public function packOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -359,6 +371,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(PackageResource::collection($result));
     }
 
+    /**
+     * List transit of warehouse on warehouse menu
+     */
     public function transitOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([

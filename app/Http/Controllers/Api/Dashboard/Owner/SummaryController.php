@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Dashboard\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Partner\Owner\Balance\WithdrawalResource;
 use App\Http\Response;
 use App\Models\Packages\Package;
 use App\Supports\Repositories\PartnerRepository;
@@ -129,5 +130,15 @@ class SummaryController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * Summary info banks and other when partner request withdrawal
+     */
+    public function bankAccountWithdrawal(Request $request)
+    {
+        $owner = $request->user();
+        
+        return $this->jsonSuccess(WithdrawalResource::make($owner));
     }
 }
