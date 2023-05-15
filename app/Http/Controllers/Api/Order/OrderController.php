@@ -53,6 +53,7 @@ use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Models\Packages\MultiDestination;
 use App\Models\Payments\Payment;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -263,7 +264,7 @@ class OrderController extends Controller
             $ratingResult = [
                 'rating' => $ratingAndReview->rating,
                 'description' => $ratingAndReview->review,
-                'created_at' => $ratingAndReview->created_at
+                'created_at' => $ratingAndReview->created_at->format('Y-m-d H:i:s')
             ];
         } else {
             $ratingResult = null;
@@ -283,6 +284,7 @@ class OrderController extends Controller
                 array_push($complaintUrlImage, $url);
             }
             $complaint = array_merge($complaint, ["photos" => $complaintUrlImage]);
+            $complaint['created_at'] = Carbon::parse($complaint['created_at'])->format('Y-m-d H:i:s');
         } else {
             $complaint = null;
         }
