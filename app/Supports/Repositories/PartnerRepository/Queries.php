@@ -537,12 +537,12 @@ class Queries
             $packageStatus = [
                 Package::STATUS_WAITING_FOR_ESTIMATING,
                 Package::STATUS_ESTIMATING,
+                Package::STATUS_WAITING_FOR_PACKING,
                 Package::STATUS_PACKING,
-                Package::STATUS_PACKED,
-                Package::STATUS_IN_TRANSIT
             ];
         } else {
             $packageStatus = [
+                Package::STATUS_PACKED,
                 Package::STATUS_IN_TRANSIT
             ];
         }
