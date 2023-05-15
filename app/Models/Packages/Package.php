@@ -1117,8 +1117,13 @@ class Package extends Model implements AttachableContract
     public static function getArrivalStatus(): array
     {
         return [
+            self::STATUS_WAITING_FOR_PICKUP,
+            self::STATUS_PICKED_UP,
             self::STATUS_WAITING_FOR_ESTIMATING,
+            self::STATUS_ESTIMATING,
             self::STATUS_ESTIMATED,
+            self::STATUS_WAITING_FOR_APPROVAL,
+            self::STATUS_ACCEPTED,
             self::STATUS_WAITING_FOR_PACKING,
             self::STATUS_PACKING
         ];

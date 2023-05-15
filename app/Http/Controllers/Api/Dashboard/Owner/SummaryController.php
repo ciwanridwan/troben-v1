@@ -117,8 +117,8 @@ class SummaryController extends Controller
         $previousDate = Carbon::createFromFormat('m-Y', $date)->startOfMonth()->subMonth()->format('m-Y');
         $previousMonth = substr($previousDate, 0, 2);
         $previousYear = substr($previousDate, 3);
-        $orderPreviousArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
-        $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->where('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+        $orderPreviousArrival = $repository->queries()->getsPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+        $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
 
         $result = [
             'total_order' => $totalOrder,
