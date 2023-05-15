@@ -199,9 +199,9 @@ class PartnerController extends Controller
 
         $request->whenHas('receipt_code', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['receipt_code' => ['exists:codes,content']]);
+                // $request->validate(['receipt_code' => ['exists:codes,content']]);
                 $query->whereHas('code', function ($code) use ($value) {
-                    $code->where('content', $value);
+                    $code->where('content', 'ilike', '%'.$value.'%');
                 });
             }
         });

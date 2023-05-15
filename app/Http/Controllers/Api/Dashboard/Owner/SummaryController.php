@@ -110,7 +110,7 @@ class SummaryController extends Controller
         $currentMonth = substr($currentDate, 0, 2);
         $currentYear = substr($currentDate, 3);
 
-        $totalOrder = $repository->queries()->getPackagesQuery()->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+        $totalOrder = $repository->queries()->getPackagesQuery()->whereNotIn('status', Package::getStatusNotIncomingOrders())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $orderArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $orderDeparture = $repository->queries()->getPackagesQuery()->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 

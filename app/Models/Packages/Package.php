@@ -1124,6 +1124,7 @@ class Package extends Model implements AttachableContract
             self::STATUS_ESTIMATED,
             self::STATUS_WAITING_FOR_APPROVAL,
             self::STATUS_ACCEPTED,
+            self::STATUS_REVAMP,
             self::STATUS_WAITING_FOR_PACKING,
             self::STATUS_PACKING
         ];
@@ -1143,5 +1144,19 @@ class Package extends Model implements AttachableContract
     public function Ratings(): HasOne
     {
         return $this->hasOne(RatingAndReview::class, 'package_id', 'id');
+    }
+
+    /**
+     * List status not in incoming
+     */
+    public static function getStatusNotIncomingOrders(): array
+    {
+        return [
+            self::STATUS_CREATED,
+            self::STATUS_PENDING,
+            self::STATUS_MANIFESTED,
+            self::STATUS_WITH_COURIER,
+            self::STATUS_DELIVERED
+        ];
     }
 }
