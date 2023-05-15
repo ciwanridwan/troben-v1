@@ -1119,9 +1119,8 @@ class Package extends Model implements AttachableContract
         return [
             self::STATUS_WAITING_FOR_ESTIMATING,
             self::STATUS_ESTIMATED,
-            self::STATUS_PACKING,
-            self::STATUS_PACKED,
-            self::STATUS_IN_TRANSIT
+            self::STATUS_WAITING_FOR_PACKING,
+            self::STATUS_PACKING
         ];
     }
 

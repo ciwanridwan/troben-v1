@@ -112,13 +112,13 @@ class SummaryController extends Controller
 
         $totalOrder = $repository->queries()->getPackagesQuery()->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
         $orderArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $orderDeparture = $repository->queries()->getPackagesQuery()->where('status', Package::STATUS_IN_TRANSIT)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+        $orderDeparture = $repository->queries()->getPackagesQuery()->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 
         $previousDate = Carbon::createFromFormat('m-Y', $date)->startOfMonth()->subMonth()->format('m-Y');
         $previousMonth = substr($previousDate, 0, 2);
         $previousYear = substr($previousDate, 3);
         $orderPreviousArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
-        $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->where('status', Package::STATUS_IN_TRANSIT)->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+        $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->where('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
 
         $result = [
             'total_order' => $totalOrder,
