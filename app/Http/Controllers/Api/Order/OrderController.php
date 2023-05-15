@@ -262,14 +262,15 @@ class OrderController extends Controller
         if (!is_null($ratingAndReview)) {
             $ratingResult = [
                 'rating' => $ratingAndReview->rating,
-                'description' => $ratingAndReview->review
+                'description' => $ratingAndReview->review,
+                'created_at' => $ratingAndReview->created_at
             ];
         } else {
             $ratingResult = null;
         }
 
 
-        $complaint = $package->complaints ? $package->complaints->only('type', 'desc') : null;
+        $complaint = $package->complaints ? $package->complaints->only('type', 'desc', 'created_at') : null;
         $imageComplaint = $package->complaints ? $package->complaints->meta : null;
 
         if (!is_null($imageComplaint) && !is_null($complaint)) {
