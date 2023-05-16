@@ -39,7 +39,7 @@ class OrderController extends Controller
         }
 
         if (!is_null($request->status) && $request->status === Package::STATUS_ESTIMATED) {
-            $this->query->where('status', Package::STATUS_ESTIMATED);
+            $this->query->whereIn('status', [Package::STATUS_ESTIMATED, Package::STATUS_REVAMP]);
         }
 
         return $this->jsonSuccess(OrderInvoiceResource::collection( $this->query->paginate(request('per_page', 10))));

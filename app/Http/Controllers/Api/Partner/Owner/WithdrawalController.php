@@ -186,17 +186,54 @@ class WithdrawalController extends Controller
      * @return JsonResponse
      * Todo Status Of Withdrawal Partners
      */
-    public function detail(Withdrawal $withdrawal)
+    public function detail(Request $request, Withdrawal $withdrawal)
     {
+        $request->validate([
+            'type' => ['nullable', 'in:web,mobile']
+        ]);
+
         if ($withdrawal->status == Withdrawal::STATUS_APPROVED) {
-            $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
+            if (!is_null($request->type) && $request->type === 'web') {
+                $disbursHistory = DisbursmentHistory::select('receipt', 'amount', 'created_at')->where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
 
-            $data = $result->map(function ($q) use ($withdrawal) {
-                $q->attachment_transfer = Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60));
-                return $q;
-            })->toArray();
+                $itemCollection = $disbursHistory->getCollection();
+                $disbursCollection = $itemCollection->map(function ($r) {
+                    $code = Code::where('content', $r->receipt)->where(function ($q) {
+                        $q->where('codeable_type', Package::class)->orWhere('codeable_type', Delivery::class);
+                    })->first();
 
-            return (new Response(Response::RC_SUCCESS, $result))->json();
+                    $codeable = $code ? $code->codeable : null;
+                    if (!is_null($codeable) && $codeable instanceof Package) {
+                        $totalAmountFromPackage = $codeable->total_amount;
+                        $totalAmount = $totalAmountFromPackage;
+                    } else {
+                        $totalAmountFromDelivery = $codeable->packages()->sum('total_amount');
+                        $totalAmount = $totalAmountFromDelivery;
+                    }
+
+                    $r->total_accepted = $r->amount;
+                    $res = [
+                        'receipt' => $r->receipt,
+                        'total_payment' => $totalAmount,
+                        'total_accepted' => (int)$r->amount,
+                        'created_at' => $r->created_at->format('Y-m-d')
+                    ];
+                    return $res;
+                });
+
+                $result = $disbursHistory->setCollection($disbursCollection);
+
+                return (new Response(Response::RC_SUCCESS, $result))->json();
+            } else {
+                $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
+
+                $data = $result->map(function ($q) use ($withdrawal) {
+                    $q->attachment_transfer = Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$withdrawal->attachment_transfer, Carbon::now()->addMinutes(60));
+                    return $q;
+                })->toArray();
+
+                return (new Response(Response::RC_SUCCESS, $result))->json();
+            }
         } else {
             if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
                 $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);
@@ -207,7 +244,7 @@ class WithdrawalController extends Controller
                 $toCollect = collect(DB::select($pendingReceipts));
 
                 $toCollect->map(function ($r) use ($withdrawal) {
-                    $r->created_at = $withdrawal->created_at;
+                    $r->created_at = $withdrawal->created_at->format('Y-m-d');
                     return $r;
                 })->values();
 
