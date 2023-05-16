@@ -69,11 +69,6 @@ class ProcessFromCodeToDelivery
     {
         $this->transitOfPackage();
 
-        if ($this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE && $this->delivery->partner_id === null) {
-            $this->delivery->setAttribute('status', Delivery::STATUS_WAITING_ASSIGN_PARTNER);
-            $this->delivery->save();
-        }
-
         $this->codes->each(function (Code $code) {
             $this->assignToDelivery($code);
         });
@@ -166,14 +161,14 @@ class ProcessFromCodeToDelivery
      */
     private function transitOfPackage()
     {
-        if ($this->delivery->type === Delivery::TYPE_DOORING && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
+        if ($this->delivery->type === Delivery::TYPE_DOORING) {
             $partner = $this->delivery->origin_partner()->first();
             if ($partner->type == Partner::TYPE_POOL) {
                 $this->package_codes->each(function (Code $packageCode) {
                     $this->setTransitCount($packageCode);
                 });
             }
-        } elseif ($this->delivery->type === Delivery::TYPE_TRANSIT && $this->delivery->status === Delivery::STATUS_WAITING_ASSIGN_PACKAGE) {
+        } elseif ($this->delivery->type === Delivery::TYPE_TRANSIT) {
             $partner = $this->delivery->origin_partner()->first();
             if ($partner->type == Partner::TYPE_POOL) {
                 $this->package_codes->each(function (Code $packageCode) {
