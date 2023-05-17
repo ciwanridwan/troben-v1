@@ -119,7 +119,7 @@ class SummaryController extends Controller
 
         $type = $repository->getPartner()->type;
         if ($type === Partner::TYPE_TRANSPORTER) {
-            $totalOrder = $repository->queries()->getDeliveriesByUserableQuery()->where('status', Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $totalOrder = $repository->queries()->getDeliveriesByUserableQuery()->whereIn('status', [Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER, Delivery::STATUS_ACCEPTED, Delivery::STATUS_EN_ROUTE])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
             $orderArrival = $repository->queries()->getDeliveriesByUserableQuery()->where('status', Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
             $orderDeparture = $repository->queries()->getDeliveriesByUserableQuery()->whereIn('status', Delivery::getStatusDeparture())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
 
