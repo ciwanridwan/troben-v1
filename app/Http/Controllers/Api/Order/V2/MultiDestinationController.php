@@ -75,11 +75,18 @@ class MultiDestinationController extends Controller
 
             $packageAttributes = array_merge($senderAttributes, $receiverAttributes);
             foreach ($this->attributes['items'][$i] as $key => $item) {
-                if ($item['insurance'] === '1') {
-                    $this->attributes['items'][$i][$key]['is_insured'] = true;
+                $this->attributes['items'][$i][$key]['is_insured'] = false;
+                
+                if (isset($item['insurance'])) {
+                    if ($item['insurance'] === '1') {
+                        $this->attributes['items'][$i][$key]['is_insured'] = true;
+                    }
                 }
 
-                $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
+                if (isset($item['category_id'])) {
+                    $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
+                }
+
             }
 
             $job = new CreateNewPackage($packageAttributes, $this->attributes['items'][$i]);
