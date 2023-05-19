@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Exceptions\InvalidDataException;
+use App\Http\Requests\CreateMotobikeRequest;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Packages\Item;
@@ -295,30 +296,6 @@ class MotorBikeController extends Controller
         $insurance = 0;
         $insurance = ceil(self::getInsurancePrice($request->input('price')));
 
-        # Not use
-        // $handling_price = 0;
-        // switch ($req['moto_cc']) {
-        //     case 150:
-        //         $handling_price = 175000;
-        //         break;
-        //     case 250:
-        //         $handling_price = 250000;
-        //         break;
-        //     case 999:
-        //         $handling_price = 450000;
-        //         break;
-        // }
-
-        // $type = $request->get('handling') ?? '';
-        // $height = $request->get('height');
-        // $length = $request->get('length');
-        // $width = $request->get('width');
-
-        # not use
-        // $handlingAdditionalPrice = 0;
-        // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-        // $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
-
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
@@ -366,13 +343,13 @@ class MotorBikeController extends Controller
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }
 
-    // private static function getHandlingWoodPrice($type, $height, $length, $width)
-    // {
-    //     if ($type == '' || $height == 0 || $length == 0 || $width == 0) {
-    //         return 0;
-    //     } else {
-    //         $price = 50000;
-    //         return $price;
-    //     }
-    // }
+    /**
+     * Create new store
+     */
+    public function storeNew(CreateMotobikeRequest $request): JsonResponse
+    {
+        $request->validated();
+
+
+    }
 }

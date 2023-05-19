@@ -42,6 +42,12 @@ class OrderRoute extends BaseRoute
             'uses' => $this->uses('storeItem', MotorBikeController::class),
         ]);
 
+
+        $this->router->post($this->prefix('/store/bike-new'), [
+            'as' => $this->name('store.motobike.new'),
+            'uses' => $this->uses('storeNew', MotorBikeController::class),
+        ]);
+
         $this->router->get($this->prefix('find/{code_content}'), [
             'as' => $this->name('find'),
             'uses' => $this->uses('findReceipt')

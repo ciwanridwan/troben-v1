@@ -75,8 +75,10 @@ class MultiDestinationController extends Controller
 
             $packageAttributes = array_merge($senderAttributes, $receiverAttributes);
             foreach ($this->attributes['items'][$i] as $key => $item) {
-                if ($item['insurance'] === '1') {
-                    $this->attributes['items'][$i][$key]['is_insured'] = true;
+                if (isset($item['insurance'])) {
+                    if ($item['insurance'] === '1') {
+                        $this->attributes['items'][$i][$key]['is_insured'] = true;
+                    }
                 }
 
                 $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
