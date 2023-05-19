@@ -20,6 +20,8 @@ class MotorBike extends Model
         'merk',
         'cc',
         'years',
+        'package_id',
+        'package_item_id'
     ];
 
     protected $hidden = [

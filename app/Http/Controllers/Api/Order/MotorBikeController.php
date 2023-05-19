@@ -14,6 +14,7 @@ use App\Http\Requests\CreateMotobikeRequest;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Motobikes\CreatePackageForBike;
+use App\Models\Packages\CategoryItem;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
@@ -364,9 +365,32 @@ class MotorBikeController extends Controller
         $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
         $this->attributes['origin_district_id'] = $resultOrigin['district'];
         $this->attributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
+        $this->attributes['customer_id'] = $request->user()->id; 
+        $this->attributes['created_by'] = $request->user()->id;
+        if (isset($this->attributes['item']['insurance'])) {
+            if ($this->attributes['item']['insurance'] === '1') {
+                $this->attributes['item']['is_insured'] = true;
+            }
+        }
+
+        if (isset($this->attributes['sender_detail_address']) && isset($this->attributes['receiver_detail_address'])) {
+            $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
+            $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
+        }
+        
+        $this->attributes['item']['handling'] = Handling::TYPE_WOOD;
+        $this->attributes['item']['qty'] = 1;
+        $this->attributes['item']['name'] = $this->attributes['item']['moto_merk'];
+        $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%'.CategoryItem::TYPE_BIKE.'%')->first()->id;
+        $this->attributes['item']['weight'] = 0;
+        $this->attributes['item']['height'] = 0;
+        $this->attributes['item']['width'] = 0;
+        $this->attributes['item']['length'] = 0;
 
         $this->items = $this->attributes['item'];
         $job = new CreatePackageForBike($this->attributes, $this->items);
-        $this->dispatcNow($job);   
+        $this->dispatchNow($job);
+
+        return (new Response(Response::RC_SUCCESS, ['bike_hash' => $job->package->hash]))->json();
     }
 }

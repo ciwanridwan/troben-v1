@@ -9,6 +9,8 @@ class CategoryItem extends Model
 {
     use HasFactory;
 
+    public const TYPE_BIKE = "Motor";
+
     protected $table = 'category_items';
 
     protected $fillable = [
