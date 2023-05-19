@@ -94,14 +94,12 @@ class DashboardController extends Controller
         $query = CategoryItem::query()->select('id', 'name', 'is_insured');
 
         if (!is_null($request->service_code)) {
-            if ($request->service_code === Service::TRAWLPACK_STANDARD) {
-                $list = $query->get();
-            } else {
-                $list = $query->where('name', '!=', 'Motor')->get();
+            if ($request->service_code === Service::TRAWLPACK_EXPRESS) {
+                $query->where('name', '!=', 'Motor');
             }
-        } else {
-            $list = $query->get();
         }
+
+        $list = $query->orderBy('id', 'ASC')->get();
 
         return $this->jsonSuccess(ListCategoryResource::make($list));
     }
