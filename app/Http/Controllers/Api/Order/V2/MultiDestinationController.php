@@ -83,7 +83,10 @@ class MultiDestinationController extends Controller
                     }
                 }
 
-                $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
+                if (isset($item['category_id'])) {
+                    $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
+                }
+
             }
 
             $job = new CreateNewPackage($packageAttributes, $this->attributes['items'][$i]);
