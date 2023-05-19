@@ -13,6 +13,7 @@ use App\Exceptions\InvalidDataException;
 use App\Http\Requests\CreateMotobikeRequest;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Motobikes\CreatePackageForBike;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
@@ -350,6 +351,22 @@ class MotorBikeController extends Controller
     {
         $request->validated();
 
+        $this->attributes = $request->all();
+        Log::info('validate package success', $this->attributes);
 
+        $coordOrigin = sprintf('%s,%s', $request->get('sender_latitude'), $request->get('sender_longitude'));
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
+
+        if ($resultOrigin == null) {
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Sender latitude and longitude not found', 'coord' => $coordOrigin]);
+        }
+
+        $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
+        $this->attributes['origin_district_id'] = $resultOrigin['district'];
+        $this->attributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
+
+        $this->items = $this->attributes['item'];
+        $job = new CreatePackageForBike($this->attributes, $this->items);
+        $this->dispatcNow($job);   
     }
 }

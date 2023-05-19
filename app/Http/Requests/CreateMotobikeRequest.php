@@ -17,7 +17,7 @@ class CreateMotobikeRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,8 +37,8 @@ class CreateMotobikeRequest extends FormRequest
             'sender_phone' => ['required', 'string'],
             'sender_address' => ['required', 'string'],
             'sender_detail_address' => ['nullable', 'string'],
-            'sender_lat' => ['required', 'numeric'],
-            'sender_lon' => ['required', 'numeric'],
+            'sender_latitude' => ['required', 'numeric'],
+            'sender_longitude' => ['required', 'numeric'],
             'origin_regency_id' => ['nullable', 'exists:geo_regencies,id'],
             'origin_district_id' => ['nullable', 'exists:geo_districts,id'],
             'origin_sub_district_id' => ['nullable', 'exists:geo_sub_districts,id'],
@@ -54,19 +54,13 @@ class CreateMotobikeRequest extends FormRequest
             'photos' => ['required'],
             'photos.*' => ['image:jpg,jpeg,png', 'max:10240'],
 
-            'item' => ['nullable', 'array'],
-            'item.*.moto_type' => ['required', Rule::in(MotorBike::getListType())],  
-            'item.*.moto_brand' => ['required', 'string'],
-            'item.*.moto_cc' => ['required', 'numeric'],
-            'item.*.moto_year' => ['required', 'numeric'],
-            'item.*.is_insured' => ['nullable', 'boolean'],
-            'item.*.price' => ['required_if:*.is_insured,true', 'numeric'],
-
-            'item.*.handling' => ['nullable'],
-            'item.*.handling.*' => ['nullable', Rule::in(Handling::TYPE_WOOD)],
-            'item.*.height' => [Rule::requiredIf('handling.*', '!=', null), 'numeric'],
-            'item.*.length' => [Rule::requiredIf('handling.*', '!=', null), 'numeric'],
-            'item.*.width' => [Rule::requiredIf('handling.*', '!=', null), 'numeric'],
+            'item' => ['required', 'array'],
+            '*.moto_type' => ['nullable', Rule::in(MotorBike::getListType())],  
+            '*.moto_brand' => ['nullable', 'string'],
+            '*.moto_cc' => ['nullable', 'numeric'],
+            '*.moto_year' => ['nullable', 'numeric'],
+            '*.is_insured' => ['nullable', 'boolean'],
+            '*.price' => ['required_if:*.is_insured,true', 'numeric'],
             
             'created_by' => ['nullable', 'exists:customers,id'],
         ];
