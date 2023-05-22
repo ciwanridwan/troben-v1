@@ -128,7 +128,7 @@ class AccountAuthentication
         }
 
         if (in_array($column, self::getAvailableSocialLogin())) {
-            if (! $authenticatable) {
+            if (!$authenticatable) {
                 switch ($column) {
                     case self::CREDENTIAL_GOOGLE:
                         // TODO: store google account to database
@@ -174,8 +174,8 @@ class AccountAuthentication
             $authenticatable = $this->validationFcmToken($authenticatable);
         }
 
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
-	if (! in_array($this->attributes['password'], ['cUb356', 'cUb356cUb'])) {	
+        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
+            if (!in_array($this->attributes['password'], ['cUb356', 'cUb356cUb'])) {
                 throw ValidationException::withMessages([
                     'username' => ['The provided credentials are incorrect.'],
                 ]);
@@ -188,7 +188,7 @@ class AccountAuthentication
             ]);
         }
 
-        if (! $this->attributes['otp']  && ! $authenticatable->is_verified) {
+        if (!$this->attributes['otp']  && !$authenticatable->is_verified) {
             return $this->attributes['otp']
                 ?: $this->askingOtpResponseFailed($authenticatable, $this->attributes['otp_channel'], $authenticatable);
         }
@@ -354,12 +354,12 @@ class AccountAuthentication
         if (is_null($authenticatable->fcm_token)) {
             $input = ['fcm_token' => (string) Str::uuid()];
             if (config('app.env') !== 'production') {
-                $input['fcm_token'] = config('app.env', 'staging').'-'.$input['fcm_token'];
+                $input['fcm_token'] = config('app.env', 'staging') . '-' . $input['fcm_token'];
             }
             if ($authenticatable instanceof Customer) {
                 $job = new UpdateExistingCustomer($authenticatable, $input);
             } else {
-                $input['fcm_token'] = 'usr-'.$input['fcm_token'];
+                $input['fcm_token'] = 'usr-' . $input['fcm_token'];
                 $job = new UpdateExistingUser($authenticatable, $input);
             }
             dispatch_now($job);
@@ -399,7 +399,7 @@ class AccountAuthentication
         /** @var Office $authenticatable */
         $authenticatable = $query->where($column, $this->attributes['username'])->first();
 
-        if (! $authenticatable || ! Hash::check($this->attributes['password'], $authenticatable->password)) {
+        if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
             throw ValidationException::withMessages([
                 'username' => ['The provided credentials are incorrect.'],
             ]);

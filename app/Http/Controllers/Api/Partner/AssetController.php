@@ -23,6 +23,8 @@ use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
+use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
 
 class AssetController extends Controller
@@ -62,13 +64,14 @@ class AssetController extends Controller
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in(['transporter', 'employee'])],
+            'driver' => ['nullable', 'boolean'],
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
 
         return $this->attributes['type'] === 'transporter'
             ? $this->getTransporter()
-            : $this->getEmployees();
+            : $this->getEmployees($this->attributes['driver']);
     }
 
     /**
@@ -147,9 +150,15 @@ class AssetController extends Controller
 
         return $this->jsonSuccess();
     }
-    public function getEmployees(): JsonResponse
+    public function getEmployees($driver): JsonResponse
     {
-        return $this->jsonSuccess(new UserResource(collect($this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id'))));
+        if ($driver === '1') {
+            $employees = $this->partner->users()->wherePivotIn('role', ['driver'])->orderBy('name')->get()->groupBy('id');
+        } else {
+            $employees = $this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id');
+        }
+
+        return $this->jsonSuccess(new UserResource(collect($employees)));
     }
     public function getEmployee(): JsonResponse
     {
@@ -158,7 +167,8 @@ class AssetController extends Controller
 
     public function getTransporter(): JsonResponse
     {
-        return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
+        // return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
+        return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
     }
 
     public function deleteEmployee($hash): JsonResponse
@@ -195,11 +205,10 @@ class AssetController extends Controller
         $job = new CreateNewUser($request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
 
         $verifyJob = new VerifyExistingUser($job->user);
         $this->dispatch($verifyJob);
-
 
         foreach ($request->role as $role) {
             $pivot = new UserablePivot();
@@ -227,7 +236,7 @@ class AssetController extends Controller
         $job = new CreateNewTransporter($this->partner, $request->all());
         $this->dispatch($job);
 
-        throw_if(! $job, Error::make(Response::RC_DATABASE_ERROR));
+        throw_if(!$job, Error::make(Response::RC_DATABASE_ERROR));
     }
 
     protected function updateEmployee(Request $request, $hash): JsonResponse
@@ -259,6 +268,13 @@ class AssetController extends Controller
 
     protected function updateTransporter(Request $request, $hash): JsonResponse
     {
-        # CODE UPDATE
+        $transporter = Transporter::byHash($hash);
+        if (is_null($transporter)) {
+            return (new Response(Response::RC_BAD_REQUEST, ['Message' => 'Hash Invalid, Please Send Correct Hash']))->json();
+        }
+
+        $job = new UpdateExistingTransporterByOwner($transporter, $request->all());
+        $this->dispatch($job);
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 }

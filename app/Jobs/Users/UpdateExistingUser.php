@@ -54,7 +54,7 @@ class UpdateExistingUser
             'username' => ['filled', "unique:users,username,$user->id,id,deleted_at,NULL", 'regex:/^\S*$/u'],
             'email' => ['filled', "unique:users,email,$user->id,id,deleted_at,NULL"],
             'phone' => ['filled', "unique:users,phone,$user->id,id,deleted_at,NULL", 'numeric', 'phone:AUTO,ID'],
-            'password' => ['filled', 'confirmed'],
+            'password' => ['filled'],
             'email_verified_at' => ['nullable'],
             'remember_token' => ['filled'],
             'fcm_token' => ['nullable','unique:users,fcm_token,'.$user->id.',id,deleted_at,NULL'],

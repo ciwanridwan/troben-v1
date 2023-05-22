@@ -1,6 +1,9 @@
 sh:
 	docker-compose exec core sh
 
+phpv:
+	docker-compose exec core php -v
+
 install:
 	docker-compose exec core composer update && php artisan key:generate
 

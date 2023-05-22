@@ -179,13 +179,19 @@
         </a-row>
 
         <a-row>
+          <a-col :span="9">Packing Wajib</a-col>
+          <a-col :span="4">:</a-col>
+          <a-col :span="8"><b>Karung Besar, Bubble Wrap</b></a-col>
+        </a-row>
+
+        <a-row>
           <a-col :span="9">Jenis Pengiriman</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"><b>Reguler</b></a-col>
         </a-row>
       </a-col>
       <a-col :span="12">
-        <a-row>
+        <!-- <a-row>
           <a-col :span="12">Biaya Packing Wajib</a-col>
           <a-col :span="4">:</a-col>
           <a-col :span="8"
@@ -199,7 +205,7 @@
           <a-col :span="8"
             ><b>{{ currency(handlingPriceAdditionalBike) }}</b></a-col
           >
-        </a-row>
+        </a-row> -->
 
         <a-row>
           <a-col :span="12">Asuransi</a-col>
@@ -549,9 +555,9 @@ export default {
   },
   mounted() {
     this.item = this.value;
-    console.log("item", this.item);
-    console.log("package", this.package);
-    console.log("estPrice", this.estPrice);
+    // console.log("item", this.item);
+    // console.log("package", this.package);
+    // console.log("estPrice", this.estPrice);
     // console.log(">>", this.estPrice?.insurance_fee.toString().split(".")[0]);
   },
 };

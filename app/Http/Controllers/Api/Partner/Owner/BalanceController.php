@@ -58,20 +58,20 @@ class BalanceController extends Controller
                     });
 
                     $totalAmount = 0;
-		    $penaltyIncome = $k->where('type', 'penalty')->first();
+                    $penaltyIncome = $k->where('type', 'penalty')->first();
 
-		    $subber = ['penalty', 'discount', 'withdraw'];
-		    $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
-		    $totalSubber = $k->whereIn('type', $subber)->sum('amount');
+                    $subber = ['penalty', 'discount', 'withdraw'];
+                    $totalAmount = $k->whereNotIn('type', $subber)->sum('amount');
+                    $totalSubber = $k->whereIn('type', $subber)->sum('amount');
 
                     $totalAmount = $totalAmount - $totalSubber;
 
                     return [
-                    'package_code' => $k[0]->package_code,
-                    'total_amount' => $totalAmount,
-                    'created_at' => $k[0]->date,
-                    'detail' => $k
-                   ];
+                        'package_code' => $k[0]->package_code,
+                        'total_amount' => $totalAmount,
+                        'created_at' => $k[0]->date,
+                        'detail' => $k
+                    ];
                 })->values();
 
                 return (new Response(Response::RC_SUCCESS, $result))->json();

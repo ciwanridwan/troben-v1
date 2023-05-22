@@ -92,6 +92,8 @@ class Transporter extends Model
         'type',
         'is_verified',
         'verified_at',
+        'vehicle_identification', // stnk
+        'chassis_number' // nomor rangka
     ];
 
     /**

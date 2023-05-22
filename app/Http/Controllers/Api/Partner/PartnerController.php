@@ -143,6 +143,44 @@ class PartnerController extends Controller
                 return $r;
             })->sortBy('distance_matrix')->values();
 
+        if ($result->count() == 1 && strtoupper($request->get('q')) == strtoupper($result->first()->code)) {
+            $parentPartner = $result->first();
+            // result is exact as search code, trigger check for satellite partner
+            $q = "SELECT id, address, display_name, longitude, latitude,
+                6371 * acos(cos(radians(%f)) * cos(radians(latitude::FLOAT))
+                    * cos(radians(longitude::FLOAT) - radians(%f))
+                    + sin(radians(%f))
+                    * sin(radians(latitude::FLOAT))) AS distance_radian
+            FROM partner_satellites
+            WHERE 1=1
+                AND latitude IS NOT NULL
+                AND longitude IS NOT NULL
+                AND id_partner = %d
+            ORDER BY distance_radian
+            LIMIT 1";
+            $q = sprintf($q, $lat, $lon, $lat, $parentPartner->getKey());
+            $resultSatellite = DB::select($q);
+
+            // partner satellite found
+            if (count($resultSatellite)) {
+                $result = $result->map(function($r) use ($resultSatellite, $origin) {
+                    $partnerSatellite = $resultSatellite[0];
+                    $destination = sprintf('%f,%f', $partnerSatellite->latitude, $partnerSatellite->longitude);
+                    $distance = DistanceMatrix::calculateDistance($origin, $destination);
+
+                    $r->distance_matrix = $distance;
+                    $r->distance_radian = $partnerSatellite->distance_radian;
+
+                    $r->name = $partnerSatellite->display_name;
+                    $r->address = $partnerSatellite->address;
+                    $r->latitude = $partnerSatellite->latitude;
+                    $r->longitude = $partnerSatellite->longitude;
+
+                    return $r;
+                });
+            }
+        }
+
         return $this->jsonSuccess(PartnerNearbyResource::collection($result));
     }
 
