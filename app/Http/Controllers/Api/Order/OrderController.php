@@ -808,6 +808,10 @@ class OrderController extends Controller
         ]);
 
         if (is_null($request->package_parent_hash) || is_null($request->package_child_hash)) {
+	// assume it created, to allow ios skip
+        return (new Response(Response::RC_CREATED))->json();
+
+
             return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Package hash or child hash is null, cant given null value']))->json();
         }
 
