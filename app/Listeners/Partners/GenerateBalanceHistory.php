@@ -220,8 +220,9 @@ class GenerateBalanceHistory
                             $package_prices = $package->prices()->where('type', Price::TYPE_HANDLING)->get();
                             foreach ($package_prices as $price) {
                                 $handling_price = $price->amount;
-                                $item_qty = $price->item->qty;
-                                $balance_handling += ($handling_price * $item_qty);
+                                //$item_qty = $price->item->qty;
+				//remove multiplier qty, as handling calculate already all qty
+                                $balance_handling += $handling_price;
                             }
 
                             if ($balance_handling !== 0.0) {
