@@ -15,24 +15,6 @@ class TransporterResource extends JsonResource
      */
     public function toArray($request)
     {
-        // foreach ($this->resource as $transporter) {
-        //     $isActive = false;
-        //     if ($transporter->is_verified === true) {
-        //         $isActive = true;
-        //     }
-
-        //     $this->data[] = [
-        // 'hash' => $transporter->hash,
-        // 'name' => $transporter->registration_name,
-        // 'registration_number' => $transporter->registration_number,
-        // 'is_active' => $isActive,
-        // 'is_verified' => $transporter->is_verified,
-        // 'verified_at' => $transporter->verified_at,
-        // 'type' => $transporter->type,
-        // 'year' => $transporter->registration_year,
-        //     ];
-        // }
-
         switch (true) {
             case $this->is_verified === true && !is_null($this->verified_at):
                 $status = 'Active';
@@ -52,13 +34,12 @@ class TransporterResource extends JsonResource
             'driver' => $this->drivers()->first() ? $this->drivers()->first()->name : null,
             'year' => $this->registration_year,
             'name' => $this->registration_name,
-            // 'is_active' => $isActive,
             'status' => $status,
             'is_verified' => $this->is_verified,
             'verified_at' => $this->verified_at ? $this->verified_at->format('Y-m-d H:i:s') : null,
+            'vehicle_identification' => !is_null($this->vehicle_identification) ? generateUrl($this->vehicle_identification) : null,
+            'images' => $this->images->isNotEmpty() ? $this->images : null,
         ];
-
-        // dd($this->is_verified);
 
         return $this->data;
     }

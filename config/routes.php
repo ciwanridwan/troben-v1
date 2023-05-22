@@ -93,7 +93,9 @@ return [
         App\Http\Routes\Api\Internal\ManifestRoute::class,
         App\Http\Routes\Api\Partner\Owner\CheckRoute::class,
         App\Http\Routes\Api\V2\Dashboard\OrderRoute::class,
-        App\Http\Routes\Api\Partner\DashboardOwnerRoute::class
+        App\Http\Routes\Api\Partner\DashboardOwnerRoute::class,
+        App\Http\Routes\Api\Partner\Cashier\OrderRoute::class,
+        App\Http\Routes\Api\Order\FinishedRoute::class
         /** @inject api **/
     ],
     'admin' => [

@@ -53,16 +53,25 @@ class PartnerController extends Controller
         return $this->jsonSuccess(ListWithdrawalResource::collection($withdrawal));
     }
 
+    /**
+     * Detail income like a detail order from income order
+     */
     public function detailIncome(Request $request, PartnerRepository $repository)
     {
         $request->validate([
             'type' => ['nullable', 'string', 'in:Dooring,Pickup,Transit,Delivery,Walkin'],
-            'search' => ['nullable', 'string']
+            'search' => ['nullable', 'string'],
+            'date' => ['required']
         ]);
 
         $attributes = $request->all();
+        if ($attributes['date'] === "''") {
+            $attributes['date'] = Carbon::now()->format('Y-m');
+        } else {
+            $request->validate(['date' => 'date_format:Y-m']);
+        }
 
-        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search']);
+        $query = $repository->queries()->getDetailIncomeDashboard($repository->getPartner()->id, $attributes['search'], $attributes['date']);
         $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
             $k->map(function ($q) {
                 $q->amount = intval($q->amount);
@@ -163,7 +172,7 @@ class PartnerController extends Controller
     }
 
     /**
-     *
+     * List incoming orders which entered to partner
      */
     public function incomingOrders(Request $request, PartnerRepository $repository): JsonResponse
     {
@@ -193,16 +202,16 @@ class PartnerController extends Controller
 
         $request->whenHas('receipt_code', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['receipt_code' => ['exists:codes,content']]);
+                // $request->validate(['receipt_code' => ['exists:codes,content']]);
                 $query->whereHas('code', function ($code) use ($value) {
-                    $code->where('content', $value);
+                    $code->where('content', 'ilike', '%'.$value.'%');
                 });
             }
         });
 
         $request->whenHas('category_id', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['receipt_code' => ['exists:category_items,id']]);
+                $request->validate(['category_id' => ['exists:category_items,id']]);
                 $query->whereHas('items', function ($category) use ($value) {
                     $category->where('category_item_id', $value);
                 });
@@ -214,6 +223,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(IncomingOrderResource::collection($packages));
     }
 
+    /**
+     * List manifest of this partner
+     */
     public function listManifest(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -222,7 +234,7 @@ class PartnerController extends Controller
             'search' =>  ['nullable', 'string']
         ]);
 
-        $query = $repository->queries()->getDeliveriesQuery();
+        $query = $repository->queries()->getDeliveriesQueryByOwner();
         $query->with(['code', 'partner:id,code,name', 'origin_partner:id,code,name', 'partner_performance', 'transporter']);
 
         $request->whenHas('status', function ($value) use ($query, $request) {
@@ -234,7 +246,7 @@ class PartnerController extends Controller
 
         $request->whenHas('type', function ($value) use ($query, $request) {
             if ($value !== "''") {
-                $request->validate(['type' => Rule::in(Delivery::TYPE_TRANSIT, Delivery::TYPE_DOORING)]);
+                $request->validate(['type' => Rule::in(Delivery::TYPE_PICKUP, Delivery::TYPE_TRANSIT, Delivery::TYPE_DOORING)]);
                 $query->where('type', $value);
             }
         });
@@ -249,9 +261,11 @@ class PartnerController extends Controller
 
         $deliveries = $query->paginate($request->input('per_page', 10));
         return $this->jsonSuccess(ListManifestResource::collection($deliveries));
-        // return (new Response(Response::RC_SUCCESS, $deliveries))->json();
     }
 
+    /**
+     * Process estimation packages on warehouse, this is show all data
+     */
     public function estimateOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -303,6 +317,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(EstimationResource::collection($result));
     }
 
+    /**
+     * List packages when package going to packing
+     */
     public function packOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([
@@ -314,6 +331,7 @@ class PartnerController extends Controller
         $query = $repository->queries()->getPackagesQuery();
 
         $packageStatus = [
+            Package::STATUS_WAITING_FOR_PACKING,
             Package::STATUS_PACKING,
             Package::STATUS_PACKED,
         ];
@@ -328,7 +346,7 @@ class PartnerController extends Controller
                 }
 
                 if ($v === 'not') {
-                    $query->whereIn('status', [Package::STATUS_PACKING]);
+                    $query->whereIn('status', [Package::STATUS_PACKING, Package::STATUS_WAITING_FOR_PACKING]);
                 }
             }
         });
@@ -353,6 +371,9 @@ class PartnerController extends Controller
         return $this->jsonSuccess(PackageResource::collection($result));
     }
 
+    /**
+     * List transit of warehouse on warehouse menu
+     */
     public function transitOfWarehouse(Request $request, PartnerRepository $repository): JsonResponse
     {
         $request->validate([

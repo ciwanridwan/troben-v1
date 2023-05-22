@@ -34,6 +34,7 @@ use App\Models\Packages\CategoryItem;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Price;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\Service;
 use App\Services\Chatbox\Chatbox;
 use Illuminate\Support\Facades\DB;
 
@@ -87,9 +88,19 @@ class DashboardController extends Controller
         return $this->jsonSuccess(DetailResource::make($package));
     }
 
-    public function listCategories(): JsonResponse
+    public function listCategories(Request $request): JsonResponse
     {
-        $list = CategoryItem::select('id', 'name', 'is_insured')->get();
+        $request->validate(['service_code' => ['nullable', 'exists:services,code']]);
+        $query = CategoryItem::query()->select('id', 'name', 'is_insured');
+
+        if (!is_null($request->service_code)) {
+            if ($request->service_code === Service::TRAWLPACK_EXPRESS) {
+                $query->where('name', '!=', 'Motor');
+            }
+        }
+
+        $list = $query->orderBy('id', 'ASC')->get();
+
         return $this->jsonSuccess(ListCategoryResource::make($list));
     }
 

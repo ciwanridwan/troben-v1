@@ -268,7 +268,7 @@ class HomeController extends Controller
 
         event(new PackageCheckedByCashier($package));
 
-        return (new Response(Response::RC_SUCCESS))->json();
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Invoice berhasil dikirim ke customer']))->json();
     }
 
     public function check(float $fee_percentage, Package $package): float

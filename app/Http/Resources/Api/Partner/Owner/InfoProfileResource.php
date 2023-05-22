@@ -27,9 +27,11 @@ class InfoProfileResource extends JsonResource
             $bankAccount = null;
         }
 
-        # todo get url avatar
-        // $path = Storage::path($this->avatar);
-        # end
+        $avatar = null;
+
+        if ($this->avatar !== 'nopic.png' && !is_null($this->avatar)) {
+            $avatar = generateUrl($this->avatar);
+        }
 
         return [
             'name' => $this->name,
@@ -37,7 +39,7 @@ class InfoProfileResource extends JsonResource
             'phone' => $this->phone,
             'partner' => $partnerResult,
             'bank_account' => $bankAccount,
-            'avatar' => $this->avatar !== 'nopic.png' ? generateUrl($this->avatar) : null
+            'avatar' => $avatar
         ];
     }
 }

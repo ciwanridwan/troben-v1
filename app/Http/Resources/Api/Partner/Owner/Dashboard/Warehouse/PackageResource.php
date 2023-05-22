@@ -17,7 +17,7 @@ class PackageResource extends JsonResource
     {
         // return parent::toArray($request);
         $status = 'Selesai';
-        if ($this->status === Package::STATUS_PACKING) {
+        if ($this->status === Package::STATUS_PACKING || $this->status === Package::STATUS_WAITING_FOR_PACKING) {
             $status = 'Belum Selesai';
         }
 
