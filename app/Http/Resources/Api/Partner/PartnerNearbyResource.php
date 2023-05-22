@@ -20,6 +20,7 @@ class PartnerNearbyResource extends JsonResource
             'hash' => $this->hash,
             'name' => $this->name,
             'code' => $this->code,
+            'satellite' => $this->partner_satellite,
             'regency_id' => $this->geo_regency_id,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
