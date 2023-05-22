@@ -10,8 +10,10 @@ use App\Http\Response;
 use App\Jobs\Packages\Actions\MultiAssignFirstPartner;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Code;
 use App\Models\Customers\Customer;
 use App\Models\Packages\MultiDestination;
+use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
 use App\Supports\Geo;
@@ -136,8 +138,13 @@ class MultiDestinationController extends Controller
             ]);
         }
 
+        $code = '';
+        $parentCode = Code::where('codeable_id', $idPackages['parent_id'])->where('codeable_type', Package::class)->first();
+        if ($parentCode) $code = $parentCode->content;
+
         $results = [
             'parent_hash' => $hashPackage['parent_hash'],
+            'receipt_code' => $code,
             'child_hash' => $allHash
         ];
 
