@@ -34,9 +34,14 @@ class MultiAssignFirstPartner
      *
      * @return void
      */
-    public function __construct(array $inputs, Partner $partner)
+    public function __construct(array $inputs, Partner $partner, string $type)
     {
-        $this->packages = Package::whereIn('id', array_column($inputs, 'package_id'))->get();
+        if ($type === 'new') {
+            $this->packages = Package::where('id', $inputs['id'])->get();
+        } else {
+            $this->packages = Package::whereIn('id', array_column($inputs, 'id'))->get();
+        }
+
         $this->partner = $partner;
     }
 

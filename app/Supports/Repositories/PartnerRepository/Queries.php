@@ -14,6 +14,7 @@ use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Models\Payments\Withdrawal;
+use Illuminate\Support\Facades\DB;
 
 class Queries
 {
@@ -47,6 +48,31 @@ class Queries
                 ->orWhere('origin_partner_id', $this->partner->id));
 
             $this->resolveDeliveriesQueryByRole($query);
+        }
+
+        $query->orderByDesc('created_at');
+        return $query;
+    }
+
+    public function getDeliveriesQueryByOwner(): Builder
+    {
+        $query = Delivery::query();
+
+        if ($this->partner->type === Partner::TYPE_TRANSPORTER) {
+            $userables = $this->user->transporters;
+            $ids = [];
+            foreach ($userables as $userable) {
+                $ids[] = $userable->pivot->id;
+            }
+            $query->whereIn('userable_id', $ids);
+        } else {
+            $query->where(fn (Builder $builder) => $builder
+                ->orWhere('partner_id', $this->partner->id)
+                ->orWhere('origin_partner_id', $this->partner->id));
+
+            // $this->resolveDeliveriesQueryByRole($query);
+            $query->whereIn('status', [Delivery::STATUS_FINISHED, Delivery::STATUS_EN_ROUTE]);
+            $query->whereIn('type', [Delivery::TYPE_DOORING, Delivery::TYPE_TRANSIT, Delivery::TYPE_PICKUP]);
         }
 
         $query->orderByDesc('created_at');
@@ -337,7 +363,7 @@ class Queries
         }
     }
 
-    public function getDashboardIncome($partnerId, $date)
+    public function getDashboardIncome($partnerId, $currentDate, $previousDate)
     {
         $q = "select
         income.balance,
@@ -358,7 +384,7 @@ class Queries
                 from
                     partner_balance_histories
                 where
-                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    to_char(created_at, 'YYYY-MM') = '%s'
                     and type = 'deposit') pbh on
                 p.id = pbh.partner_id
             left join (
@@ -367,11 +393,11 @@ class Queries
                 from
                     partner_balance_delivery_histories
                 where
-                    to_char(created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    to_char(created_at, 'YYYY-MM') = '%s'
                         and type = 'deposit') pbdh on
                 p.id = pbdh.partner_id
             where
-                p.id = $partnerId
+                p.id = '%s'
             group by
                 p.id
         ) income
@@ -382,7 +408,7 @@ class Queries
                 partner_balance_histories
             where
                 type = 'deposit'
-                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                and to_char(created_at, 'YYYY-MM') = '%s'
                 ) pbh2 on
             income.partner_id = pbh2.partner_id
         left join (
@@ -392,7 +418,7 @@ class Queries
                 partner_balance_delivery_histories
             where
                 type = 'deposit'
-                and to_char(created_at, 'MONTH YYYY') = to_char(date_trunc('month', current_date - interval '1' month), 'MONTH YYYY')
+                and to_char(created_at, 'YYYY-MM') = '%s'
                 ) pbdh2 on
             income.partner_id = pbdh2.partner_id
         group by
@@ -400,10 +426,11 @@ class Queries
             income.balance,
             income.total_income";
 
+        $q = sprintf($q, $currentDate, $currentDate, $partnerId, $previousDate, $previousDate);
         return $q;
     }
 
-    public function getIncomePerDay($partnerId, $date)
+    public function getIncomePerDay($partnerId, $currentDate)
     {
         $q = "select
                     sum(pbdh.balance) as amount,
@@ -433,8 +460,8 @@ class Queries
                                 ) d on
                     pbdh.delivery_id = d.delivery_id
                 where
-                    pbdh.partner_id = $partnerId
-                    and to_char(pbdh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    pbdh.partner_id = '%s'
+                    and to_char(pbdh.created_at, 'YYYY-MM') = '%s'
                 group by
                     to_char(pbdh.created_at, 'yyyy-mm-dd')
                 union all
@@ -454,14 +481,15 @@ class Queries
                 left join packages p2 on
                     c2.codeable_id = p2.id
                 where
-                    pbh.partner_id = $partnerId
+                    pbh.partner_id = '%s'
                     and pbh.type != 'withdraw'
-                    and to_char(pbh.created_at, 'MONTH YYYY') = to_char(now(), 'MONTH YYYY')
+                    and to_char(pbh.created_at, 'YYYY-MM') = '%s'
                 group by
                     to_char(pbh.created_at, 'yyyy-mm-dd')
                 order by
                     date desc";
 
+        $q = sprintf($q, $partnerId, $currentDate, $partnerId, $currentDate);
         return $q;
     }
 
@@ -509,12 +537,12 @@ class Queries
             $packageStatus = [
                 Package::STATUS_WAITING_FOR_ESTIMATING,
                 Package::STATUS_ESTIMATING,
+                Package::STATUS_WAITING_FOR_PACKING,
                 Package::STATUS_PACKING,
-                Package::STATUS_PACKED,
-                Package::STATUS_IN_TRANSIT
             ];
         } else {
             $packageStatus = [
+                Package::STATUS_PACKED,
                 Package::STATUS_IN_TRANSIT
             ];
         }
@@ -610,7 +638,7 @@ class Queries
         return $q;
     }
 
-    public function getDetailIncomeDashboard($partnerId, $code)
+    public function getDetailIncomeDashboard($partnerId, $code, $date)
     {
         $pbdhQuery = '';
         $pbhQuery = '';
@@ -631,22 +659,30 @@ class Queries
             	group by delivery_id
             ) d on pbdh.delivery_id = d.delivery_id
             where pbdh.partner_id = $partnerId
+            and to_char(pbdh.created_at, 'YYYY-MM') = '%s'
             %s
             union all
             select pbh.balance, c2.content, pbh.created_at, pbh.description, pbh.type, p2.total_weight from partner_balance_histories pbh
             left join (select * from codes where codeable_type = 'App\Models\Packages\Package') c2 on pbh.package_id = c2.codeable_id
             left join packages p2 on c2.codeable_id = p2.id
-            where pbh.partner_id = $partnerId and pbh.type != 'withdraw' %s order by date desc";
+            where pbh.partner_id = $partnerId and to_char(pbh.created_at, 'YYYY-MM') = '%s'
+            and pbh.type != 'withdraw' %s order by date desc";
 
-        $q = sprintf($q, $pbdhQuery, $pbhQuery);
+        $q = sprintf($q, $date, $pbdhQuery, $date, $pbhQuery);
         return $q;
     }
 
     public function getDeliveriesTransitByOwner(): Builder
     {
+        $listStatus = [
+            Delivery::STATUS_ACCEPTED,
+            Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER,
+            Delivery::STATUS_WAITING_TRANSPORTER
+        ];
+
         $query = Delivery::query();
         $query->where('origin_partner_id', $this->partner->id);
-        $query->whereNotIn('status', [Delivery::STATUS_EN_ROUTE, Delivery::STATUS_FINISHED]);
+        $query->whereIn('status', $listStatus);
         $this->resolveDeliveriesQueryByRole($query);
 
         $query->orderByDesc('created_at');

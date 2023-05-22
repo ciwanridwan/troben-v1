@@ -353,4 +353,15 @@ class Delivery extends Model
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
+
+    /**
+     * List of departure order
+     */
+    public static function getStatusDeparture(): array
+    {
+        return [
+            self::STATUS_ACCEPTED,
+            self::STATUS_EN_ROUTE
+        ];
+    }
 }

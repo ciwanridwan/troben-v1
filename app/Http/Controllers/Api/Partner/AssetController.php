@@ -23,9 +23,10 @@ use App\Jobs\Partners\Transporter\CreateNewTransporter;
 use App\Jobs\Partners\Transporter\AttachDriverToTransporter;
 use App\Jobs\Partners\Transporter\DeleteExistingTransporter;
 use App\Http\Resources\Api\Partner\Asset\TransporterResource;
-use App\Jobs\Partners\Transporter\UpdateExistingTransporter;
 use App\Jobs\Partners\Transporter\UpdateExistingTransporterByOwner;
 use App\Jobs\Users\Actions\VerifyExistingUser;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
@@ -51,6 +52,11 @@ class AssetController extends Controller
     protected array $attributes;
 
     /**
+     *
+     */
+    // protected Builder $query;
+
+    /**
      * Get partner assets
      * Route Path       : {API_DOMAIN}/partner/asset
      * Route Name       : api.partner.asset
@@ -64,14 +70,17 @@ class AssetController extends Controller
     {
         $this->attributes = Validator::make($request->all(), [
             'type' => ['required', Rule::in(['transporter', 'employee'])],
-            'driver' => ['nullable', 'boolean'],
+            'driver' => ['nullable', 'boolean'], // nullable because mobile is running to hit endpoint and validation, actually should required
+            'search' => ['nullable', 'string']
         ])->validate();
 
         $this->partner = $request->user()->partners->first()->fresh();
 
+        $search = $this->attributes['search'] ?? null;
+
         return $this->attributes['type'] === 'transporter'
-            ? $this->getTransporter()
-            : $this->getEmployees($this->attributes['driver']);
+            ? $this->getTransporter($search)
+            : $this->getEmployees($this->attributes['driver'] ?? null, $search);
     }
 
     /**
@@ -92,9 +101,11 @@ class AssetController extends Controller
 
         $type === 'transporter' ? $this->createTransporter($request) : $this->createEmployee($request);
 
-        return $type === 'transporter'
-            ? $this->getTransporter()
-            : $this->getEmployee();
+        // old script for response after create
+         return $type === 'transporter'
+             ? $this->getTransporter(null)
+             : $this->getEmployee();
+        //return $type === 'transporter' ? (new Response(Response::RC_CREATED, ['message' => 'Armada berhasil ditambah']))->json() : (new Response(Response::RC_CREATED, ['message' => 'Pegawai berhasil ditambah']))->json();
     }
 
     /**
@@ -150,25 +161,59 @@ class AssetController extends Controller
 
         return $this->jsonSuccess();
     }
-    public function getEmployees($driver): JsonResponse
+    public function getEmployees($driver, $search): JsonResponse
     {
-        if ($driver === '1') {
-            $employees = $this->partner->users()->wherePivotIn('role', ['driver'])->orderBy('name')->get()->groupBy('id');
+        $query = User::query();
+        $queryPartnerId = fn ($builder) => $builder->where('partners.id', $this->partner->id);
+        $query->with(['partners' => $queryPartnerId, 'transporters']);
+        $query->whereHas('partners', $queryPartnerId);
+
+        if ($driver === '1' && !is_null($driver)) {
+            $query->whereHas('partners', function ($q) {
+                $q->where('userables.role', '=', 'driver');
+            });
         } else {
-            $employees = $this->partner->users()->wherePivotNotIn('role', ['owner'])->orderBy('name')->get()->groupBy('id');
+            $query->whereHas('partners', function ($q) {
+                $q->where('userables.role', '!=', 'owner');
+            });
         }
 
-        return $this->jsonSuccess(new UserResource(collect($employees)));
+        if ($search !== "''") {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', '%' . $search . '%');
+                $q->orWhere('username', 'ilike', '%' . $search . '%');
+                $q->orWhere('email', 'ilike', '%' . $search . '%');
+                $q->orWhere('phone', 'ilike', '%' . $search . '%');
+            });
+        }
+
+        $query->orderBy('name');
+        $query->groupBy('id');
+
+        return $this->jsonSuccess(UserResource::collection($query->paginate(request()->input('per_page', 10))));
     }
     public function getEmployee(): JsonResponse
     {
         return (new Response(Response::RC_SUCCESS, $this->employee))->json();
     }
 
-    public function getTransporter(): JsonResponse
+    public function getTransporter($search): JsonResponse
     {
-        // return $this->jsonSuccess(new TransporterResource(collect($this->partner->transporters->fresh())));
-        return $this->jsonSuccess(TransporterResource::collection($this->partner->transporters));
+        $query = Transporter::query();
+        $queryPartnerId = fn ($builder) => $builder->where('id', $this->partner->id);
+        $query->with(['partner' => $queryPartnerId]);
+        $query->whereHas('partner', $queryPartnerId);
+        $query->orderBy('created_at', 'desc');
+
+        if ($search !== "''") {
+            $query->where(function ($q) use ($search) {
+                $q->where('type', 'ilike', '%' . $search . '%');
+                $q->orWhere('registration_number', 'ilike', '%' . $search . '%');
+                $q->orWhere('registration_year', 'ilike', '%' . $search . '%');
+            });
+        }
+
+        return $this->jsonSuccess(TransporterResource::collection($query->paginate(request()->input('per_page', 10))));
     }
 
     public function deleteEmployee($hash): JsonResponse
@@ -180,7 +225,8 @@ class AssetController extends Controller
         $this->dispatch($job);
         $this->employee = $job->user;
 
-        return $this->getEmployee();
+        // return $this->getEmployee();
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Data pegawai berhasil dihapus']))->json();
     }
 
     public function deleteTransporter($hash): JsonResponse
@@ -189,7 +235,8 @@ class AssetController extends Controller
         $job = new  DeleteExistingTransporter($transporter);
         $this->dispatch($job);
 
-        return $this->getTransporter();
+        // return $this->getTransporter();
+        return (new Response(Response::RC_SUCCESS, ['message' => 'Data armada berhasil dihapus']))->json();
     }
 
     /**
@@ -219,6 +266,24 @@ class AssetController extends Controller
                 'role' => $role,
             ])->save();
         }
+
+        $newRoles = "INSERT INTO role_users_v2 (user_id, role_id, created_at, updated_at)
+            SELECT
+                user_id,
+                CASE
+                    WHEN role = 'customer-service' THEN 'trawlpack-partner-cs'
+                    ELSE CONCAT('trawlpack-partner-', role)
+                END role_id,
+                NOW(),
+                NOW()
+            FROM userables
+            WHERE userable_type = 'App\Models\Partners\Partner' AND user_id = %d
+            ON CONFLICT (user_id, role_id)
+            DO UPDATE SET updated_at = NOW()";
+
+        $newRoles = sprintf($newRoles, $job->user->id);
+        DB::statement($newRoles);
+
         $this->employee = $job->user;
     }
 
@@ -246,6 +311,7 @@ class AssetController extends Controller
         $this->dispatch($job);
 
         if ($request->role) {
+            // update roles v1
             foreach ($request->role as $role) {
                 UserablePivot::firstOrCreate([
                     'user_id' => $job->user->id,
@@ -257,6 +323,28 @@ class AssetController extends Controller
             UserablePivot::whereNotIn('role', $request->role)
                 ->where('user_id', $job->user->id)
                 ->delete();
+
+            // update roles v2
+            $deleteExistRoles = "DELETE FROM role_users_v2 WHERE user_id = %d";
+            $deleteExistRoles = sprintf($deleteExistRoles, $job->user->id);
+            DB::statement($deleteExistRoles);
+
+            $updateRolesV2 = "INSERT INTO role_users_v2 (user_id, role_id, created_at, updated_at)
+            SELECT
+                user_id,
+                CASE
+                    WHEN role = 'customer-service' THEN 'trawlpack-partner-cs'
+                    ELSE CONCAT('trawlpack-partner-', role)
+                END role_id,
+                NOW(),
+                NOW()
+            FROM userables
+            WHERE userable_type = 'App\Models\Partners\Partner' AND user_id = %d
+            ON CONFLICT (user_id, role_id)
+            DO UPDATE SET updated_at = NOW()";
+
+            $updateRolesV2 = sprintf($updateRolesV2, $job->user->id);
+            DB::statement($updateRolesV2);
         }
         $user = $job->user;
         if ($user->type == UserablePivot::ROLE_DRIVER) {
@@ -275,6 +363,6 @@ class AssetController extends Controller
 
         $job = new UpdateExistingTransporterByOwner($transporter, $request->all());
         $this->dispatch($job);
-        return (new Response(Response::RC_SUCCESS))->json();
+        return (new Response(Response::RC_SUCCESS, ['Message' => "Data Armada Berhasil Diperbaharui"]))->json();
     }
 }

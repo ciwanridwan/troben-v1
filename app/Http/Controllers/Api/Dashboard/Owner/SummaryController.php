@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\Dashboard\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Partner\Owner\Balance\WithdrawalResource;
 use App\Http\Response;
+use App\Models\Deliveries\Delivery;
 use App\Models\Packages\Package;
+use App\Models\Partners\Partner;
 use App\Supports\Repositories\PartnerRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -19,10 +22,18 @@ class SummaryController extends Controller
             'date' => ['required'],
         ]);
 
-        $date = $request->date;
+        $currentDate = $request->date;
+        if ($currentDate === "''") {
+            $currentDate = Carbon::now()->format('Y-m');
+        } else {
+            $request->validate(['date' => 'date_format:Y-m']);
+        }
+
+        $previousDate = Carbon::createFromFormat('Y-m', $currentDate)->subMonth()->format('Y-m');
         $partnerId = $repository->getPartner()->id;
 
-        $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $date);
+        $queryMainIncome = $repository->queries()->getDashboardIncome($partnerId, $currentDate, $previousDate);
+
         $mainIncome = collect(DB::select($queryMainIncome))->map(function ($q) {
             $q->balance = intval($q->balance);
             $q->current_income = intval($q->current_income);
@@ -32,7 +43,7 @@ class SummaryController extends Controller
             return $q;
         })->first();
 
-        $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $date);
+        $queryIncomePerDay = $repository->queries()->getIncomePerDay($partnerId, $currentDate);
         $incomePerDay = collect(DB::select($queryIncomePerDay))->map(function ($r) {
             $r->amount = intval($r->amount);
 
@@ -63,8 +74,8 @@ class SummaryController extends Controller
             $itemPerday = collect(DB::select($repository->queries()->getHistoryItemPerday($currentIdPackages)))->values()->toArray();
             $currentTotalItem = $currentItem->total_item;
         } else {
-           $currentTotalItem = 0;
-           $itemPerday = [];
+            $currentTotalItem = 0;
+            $itemPerday = [];
         }
 
         $previousDate = Carbon::createFromFormat('m-Y', $request->date)->startOfMonth()->subMonth()->format('m-Y');
@@ -102,15 +113,27 @@ class SummaryController extends Controller
         $currentMonth = substr($currentDate, 0, 2);
         $currentYear = substr($currentDate, 3);
 
-        $totalOrder = $repository->queries()->getPackagesQuery()->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $orderArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-        $orderDeparture = $repository->queries()->getPackagesQuery()->where('status', Package::STATUS_IN_TRANSIT)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
-
         $previousDate = Carbon::createFromFormat('m-Y', $date)->startOfMonth()->subMonth()->format('m-Y');
         $previousMonth = substr($previousDate, 0, 2);
         $previousYear = substr($previousDate, 3);
-        $orderPreviousArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
-        $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->where('status', Package::STATUS_IN_TRANSIT)->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+
+        $type = $repository->getPartner()->type;
+        if ($type === Partner::TYPE_TRANSPORTER) {
+            $totalOrder = $repository->queries()->getDeliveriesByUserableQuery()->whereIn('status', [Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER, Delivery::STATUS_ACCEPTED, Delivery::STATUS_EN_ROUTE])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $orderArrival = $repository->queries()->getDeliveriesByUserableQuery()->where('status', Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER)->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $orderDeparture = $repository->queries()->getDeliveriesByUserableQuery()->whereIn('status', Delivery::getStatusDeparture())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+
+            $orderPreviousArrival = $repository->queries()->getDeliveriesByUserableQuery()->where('status', Delivery::STATUS_WAITING_PARTNER_ASSIGN_TRANSPORTER)->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+            $orderPreviousDeparture = $repository->queries()->getDeliveriesByUserableQuery()->whereIn('status', Delivery::getStatusDeparture())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+        } else {
+            $totalOrder = $repository->queries()->getPackagesQuery()->whereNotIn('status', Package::getStatusNotIncomingOrders())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $orderArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+            $orderDeparture = $repository->queries()->getPackagesQuery()->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $currentMonth)->whereYear('created_at', $currentYear)->count();
+
+            $orderPreviousArrival = $repository->queries()->getPackagesQuery()->whereIn('status', Package::getArrivalStatus())->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+            $orderPreviousDeparture = $repository->queries()->getPackagesQuery()->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT])->whereMonth('created_at', $previousMonth)->whereYear('created_at', $previousYear)->count();
+        }
+
 
         $result = [
             'total_order' => $totalOrder,
@@ -121,5 +144,15 @@ class SummaryController extends Controller
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * Summary info banks and other when partner request withdrawal
+     */
+    public function bankAccountWithdrawal(Request $request)
+    {
+        $owner = $request->user();
+
+        return $this->jsonSuccess(WithdrawalResource::make($owner));
     }
 }

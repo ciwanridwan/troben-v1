@@ -47,8 +47,12 @@ class CreateNewTransporter
         $this->partner = $partner;
         $this->attributes = Validator::make($inputs, [
             'type' => ['required', Rule::in(Transporter::getAvailableTypes())],
-            'registration_number' => ['required'],
-            'production_year' => ['required'],
+            'registration_number' => ['required', 'string'],
+            'production_year' => ['filled', 'numeric'],
+            'vehicle_number' => ['filled', 'numeric'],
+            'photo.*' => ['filled', 'image:jpg,jpeg,png'],
+            'vehicle_reg' => ['filled', 'image:jpg,jpeg,png'],
+
             'registration_name' => ['filled'],
             'registration_year' => ['filled'],
             'is_verified' => ['nullable'],
@@ -63,7 +67,25 @@ class CreateNewTransporter
      */
     public function handle(): bool
     {
+        if (!empty($this->attributes['vehicle_reg'])) {
+            $vehicleImage = handleUpload($this->attributes['vehicle_reg'], 'vehicle_identification');
+            $this->attributes['vehicle_identification'] = $vehicleImage;
+        }
+
+        if (!empty($this->attributes['vehicle_number'])) {
+            $this->attributes['chassis_number'] = $this->attributes['vehicle_number'];
+        }
+
         $this->transporter = $this->partner->transporters()->create($this->attributes);
+
+        if (!empty($this->attributes['photo'])) {
+            foreach ($this->attributes['photo'] as $photo) {
+                $image = handleUpload($photo, 'vehicle');
+                $this->transporter->images()->create([
+                    'path' => $image
+                ]);
+            }
+        }
 
         if ($this->transporter) {
             event(new TransporterCreated($this->transporter));

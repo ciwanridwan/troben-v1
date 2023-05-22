@@ -361,7 +361,7 @@ class MotorBikeController extends Controller
     }
 
     /** Get Insurance Price */
-    private static function getInsurancePrice($price)
+    public static function getInsurancePrice($price)
     {
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }

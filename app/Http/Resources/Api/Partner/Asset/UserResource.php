@@ -23,41 +23,21 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        foreach ($this->resource as $users) {
-            $this->data[] = $this->formattingRole($users);
+        $role = $this->partners->pluck('pivot')->map->role->toArray();
+
+        $this->data = [
+            'hash' => $this->hash,
+            'name' => $this->name,
+            'username' => $this->username,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'role' => $role
+        ];
+
+        if ($this->transporters->isNotEmpty()) {
+            $this->data['transporters'] = $this->transporters;
         }
 
         return $this->data;
-    }
-
-    /**
-     * @param array $users
-     *
-     * @return array
-     */
-    protected function formattingRole($users = []): array
-    {
-        $data = [
-            'hash' => null,
-            'name' => null,
-            'username' => null,
-            'email' => null,
-            'phone' => null,
-            'role' => [],
-        ];
-
-        foreach ($users as $user) {
-            if (is_null($data['hash'])) {
-                foreach (Arr::except($data, 'role') as $key => $value) {
-                    $data[$key] = $user->{$key};
-                }
-            }
-            $data['role'][] = $user->getOriginal('pivot_role');
-            if ($user->getOriginal('pivot_role') === UserablePivot::ROLE_DRIVER) {
-                $data['transporters'] = $user->transporters;
-            }
-        }
-
-        return $data;
     }
 }

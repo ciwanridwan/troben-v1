@@ -8,12 +8,14 @@ use App\Models\User;
 use App\Models\Deliveries\Delivery;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Partners\Pivot\UserablePivot;
+use App\Models\TransporterImage;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Storage;
@@ -534,5 +536,13 @@ class Transporter extends Model
                 'path_icons' => Storage::disk('s3')->temporaryUrl('asset/pickupbox.png', Carbon::now()->addMinutes(60)),
             ]
         ];
+    }
+
+    /**
+     * Relation to Images
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(TransporterImage::class, 'transporter_id', 'id');
     }
 }
