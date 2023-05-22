@@ -32,6 +32,7 @@ class CreateMotobikeRequest extends FormRequest
             'service_code' => ['required', 'exists:services,code'],
             'transporter_type' => ['required', Rule::in(Transporter::getListForBike())],
             'partner_code' => ['required', 'exists:partners,code'],
+            'partner_satellite' => ['nullable'],
 
             'sender_name' => ['required', 'string'],
             'sender_phone' => ['required', 'string'],

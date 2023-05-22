@@ -140,6 +140,7 @@ class PartnerController extends Controller
                 }
                 $r->distance_radian = $dr;
                 $r->distance_matrix = $dm;
+                $r->partner_satellite = null;
                 return $r;
             })->sortBy('distance_matrix')->values();
 
@@ -175,6 +176,7 @@ class PartnerController extends Controller
                     $r->address = $partnerSatellite->address;
                     $r->latitude = $partnerSatellite->latitude;
                     $r->longitude = $partnerSatellite->longitude;
+                    $r->partner_satellite = $partnerSatellite->id;
 
                     return $r;
                 });

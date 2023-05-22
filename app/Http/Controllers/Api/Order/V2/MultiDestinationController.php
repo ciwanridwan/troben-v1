@@ -12,10 +12,12 @@ use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Models\Code;
 use App\Models\Customers\Customer;
+use App\Models\PackageMeta;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
+use App\Models\PartnerSatellite;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -45,10 +47,20 @@ class MultiDestinationController extends Controller
         }
 
         // check partner
+        $partner = null;
         if (isset($this->attributes['partner_code'])) {
             $partner = Partner::where('code', $this->attributes['partner_code'])->first();
             if (is_null($partner)) {
                 throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner not found', 'code' => $this->attributes['partner_code']]);
+            }
+        }
+
+        // check if partner satellite
+        $partnerSatellite = null;
+        if (isset($this->attributes['partner_satellite']) && $this->attributes['partner_satellite']) {
+            $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $this->attributes['partner_satellite'])->first();
+            if (is_null($partnerSatellite)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner Satellite not found', 'code' => $this->attributes['partner_code'], 'satellite' => $this->attributes['partner_satellite']]);
             }
         }
 
@@ -102,6 +114,18 @@ class MultiDestinationController extends Controller
             if ($i === 0) {
                 $result['parent_id'] =  $job->package->id;
                 $packageHash['parent_hash'] = $job->package->hash;
+
+                // setup satellite partner
+                if (! is_null($partnerSatellite)) {
+                    PackageMeta::create([
+                        'package_id' => $job->package->id,
+                        'key' => PackageMeta::KEY_PARTNER_SATELLITE,
+                        'meta' => [
+                            'partner_satellite' => $partnerSatellite->getKey(),
+                            'partner_main' => $partner->getKey(),
+                        ],
+                    ]);
+                }
             } else {
                 $pickupFee = $job->package->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
                 $job->package->total_amount -= $pickupFee->amount;
