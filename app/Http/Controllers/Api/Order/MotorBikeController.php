@@ -14,12 +14,14 @@ use App\Http\Requests\CreateMotobikeRequest;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
 use App\Jobs\Packages\Motobikes\CreatePackageForBike;
+use App\Models\PackageMeta;
 use App\Models\Packages\CategoryItem;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
@@ -370,6 +372,15 @@ class MotorBikeController extends Controller
 
             return (new Response(Response::RC_BAD_REQUEST, $message))->json();
         }
+
+        // check if partner satellite
+        $partnerSatellite = null;
+        if (isset($this->attributes['partner_satellite']) && $this->attributes['partner_satellite']) {
+            $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $this->attributes['partner_satellite'])->first();
+            if (is_null($partnerSatellite)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner Satellite not found', 'code' => $this->attributes['partner_code'], 'satellite' => $this->attributes['partner_satellite']]);
+            }
+        }
         
         $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
         $this->attributes['origin_district_id'] = $resultOrigin['district'];
@@ -401,6 +412,18 @@ class MotorBikeController extends Controller
         $this->dispatchNow($job);
 
         event(new PackageCreatedForBike($job->package));
+
+        // setup satellite partner
+        if (! is_null($partnerSatellite)) {
+            PackageMeta::create([
+                'package_id' => $job->package->getKey(),
+                'key' => PackageMeta::KEY_PARTNER_SATELLITE,
+                'meta' => [
+                    'partner_satellite' => $partnerSatellite->getKey(),
+                    'partner_main' => $partner->getKey(),
+                ],
+            ]);
+        }
 
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
