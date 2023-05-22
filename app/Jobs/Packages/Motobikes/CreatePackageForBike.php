@@ -99,12 +99,12 @@ class CreatePackageForBike
         if ($this->package->exists) {
             $this->items['package_id'] = $this->package->id;
             $this->item->fill($this->items);
-            $this->item->Save();
+            $this->item->save();
 
             $this->bikes['package_id'] = $this->package->id;
             $this->bikes['package_item_id'] = $this->item->id;
             $this->bikes['cc'] = $this->bikes['moto_cc'];
-            $this->bikes['year'] = $this->bikes['moto_year'];
+            $this->bikes['years'] = $this->bikes['moto_year'];
             $this->bikes['merk'] = $this->bikes['moto_merk'];
             $this->bikes['type'] = $this->bikes['moto_type'];
             

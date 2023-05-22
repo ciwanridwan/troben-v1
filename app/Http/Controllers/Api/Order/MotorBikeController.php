@@ -361,7 +361,7 @@ class MotorBikeController extends Controller
         if ($resultOrigin == null) {
             throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Sender latitude and longitude not found', 'coord' => $coordOrigin]);
         }
-
+        
         $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
         $this->attributes['origin_district_id'] = $resultOrigin['district'];
         $this->attributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
@@ -391,6 +391,29 @@ class MotorBikeController extends Controller
         $job = new CreatePackageForBike($this->attributes, $this->items);
         $this->dispatchNow($job);
 
-        return (new Response(Response::RC_SUCCESS, ['bike_hash' => $job->package->hash]))->json();
+        event(new PackageCreatedForBike($job->package));
+
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+
+        $partner = Partner::where('code', $request->input('partner_code'))->first();
+        $transporters = $partner->transporters()->where('type', $request->input('transporter_type'))->first();
+
+        if (is_null($transporters)) {
+            $message = ['message' => 'Mitra tidak menyediakan armada yang anda pilih, silahkan pilih type armada yang lain'];
+
+            return (new Response(Response::RC_BAD_REQUEST, $message))->json();
+        }
+        
+        event(new PackageBikeCreated($job->package, $partner->code));
+
+        $this->orderAssignation($job->package, $partner);
+
+        $result = [
+            'bike_hash' => $job->package->hash,
+            'receipt_code' => $job->package->code()->first()->content 
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }
