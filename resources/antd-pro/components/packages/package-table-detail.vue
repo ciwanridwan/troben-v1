@@ -13,6 +13,10 @@
     >Total Biaya :
       <span class="trawl-text-bolder">{{ currency(total_amount) }}</span>
     </span>
+    <span v-if="cancel_amount"
+    >Biaya Pengembalian :
+      <span class="trawl-text-bolder">{{ currency(cancel_amount) }}</span>
+    </span>
     <span
     >Status Pembayaran :
       <span class="trawl-text-bolder">{{ capitalizeFirstLetter(payment_status) }}</span>
@@ -36,6 +40,9 @@ export default {
     },
     total_amount() {
       return this.package?.total_amount;
+    },
+    cancel_amount() {
+      return this.package?.canceled?.pickup_price;
     },
     payment_status() {
       return this.package?.payment_status;

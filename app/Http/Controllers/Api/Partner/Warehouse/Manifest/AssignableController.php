@@ -243,7 +243,7 @@ class AssignableController extends Controller
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
-                } elseif(Route::checkVendorJktDooring($partnerDooringId)) {
+                } elseif(Route::checkVendorDooring($q->deliveryRoutes)) {
                     return true;
                 } else {
                     $type = 'dooring';

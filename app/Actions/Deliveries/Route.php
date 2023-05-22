@@ -642,13 +642,18 @@ class Route
         return $isDooring;
     }
 
-    public static function checkVendorJktDooring($partnerId)
+    /**
+     * Check partner dooring, transporter or business
+     */
+    public static function checkVendorDooring($deliveryRoutes)
     {
         $check = false;
-        $jakarta = [182];
-        if (in_array($partnerId, $jakarta)) {
-            return true;
+
+        $partnerType = $deliveryRoutes->partnerDoorings->type;
+        if ($partnerType === Partner::TYPE_TRANSPORTER) {
+            $check = true;
         }
+
         return $check;
     }
 }

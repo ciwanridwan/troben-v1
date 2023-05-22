@@ -201,16 +201,16 @@ class CancelController extends Controller
 
     public function claimOrder(Request $req, Package $package)
     {
+	//only set status to paid cancel
         $package->status = Package::STATUS_PAID_CANCEL;
-        $package->payment_status = Package::PAYMENT_STATUS_PAID;
         $package->save();
 
         $existCodeLogable = CodeLogable::where('code_id', $package->code->id)
             ->latest()
             ->first();
         $arr = [
-            'status' => CodeLogable::STATUS_CANCEL_ORDER_COMPLETED,
-            'status_description' => 'Pesanan sudah sampai kepada customer',
+            'status' => CodeLogable::STATUS_CANCEL_DRAFT,
+            'status_description' => 'Pesanan dibatalkan oleh customer',
         ];
         CancelOrderTracker::PayThenClaimOrder($package, $existCodeLogable, $arr);
         return (new Response(Response::RC_SUCCESS, ['message' => 'Claim Order Success']))->json();
