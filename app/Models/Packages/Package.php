@@ -806,6 +806,11 @@ class Package extends Model implements AttachableContract
             ->orderBy('created_at', 'desc');
     }
 
+    public function sla(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Package::class, 'package_id', 'id');
+    }
+
     /** List of type order */
     public function getOrderTypeAttribute()
     {
@@ -1033,5 +1038,19 @@ class Package extends Model implements AttachableContract
         ];
 
         return array($result);
+    }
+
+    /**
+     * To get receipt with status arrival
+     */
+    public static function getArrivalStatus(): array
+    {
+        return [
+            self::STATUS_WAITING_FOR_ESTIMATING,
+            self::STATUS_ESTIMATED,
+            self::STATUS_PACKING,
+            self::STATUS_PACKED,
+            self::STATUS_IN_TRANSIT
+        ];
     }
 }

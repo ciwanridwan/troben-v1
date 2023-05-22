@@ -17,6 +17,7 @@ use App\Supports\Repositories\PartnerRepository;
 use App\Http\Resources\Admin\Master\PartnerResource;
 use App\Http\Resources\Api\Assignable\DriverTransporterResource;
 use App\Http\Resources\Api\Assignable\PackageResource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AssignableController extends Controller

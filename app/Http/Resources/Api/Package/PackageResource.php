@@ -132,7 +132,7 @@ class PackageResource extends JsonResource
         $result = [
             'hash' => $data['hash'],
             'created_at' => $data['created_at'],
-            'content' => $data['code']['content'],
+            'content' => isset($data['code']) ?  $data['code']['content'] : null,
             'origin_regency' => $data['origin_regency']['name'],
             'destination_regency' => $data['destination_regency']['name'],
             'status' => $data['status'],

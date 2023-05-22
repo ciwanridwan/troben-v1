@@ -20,6 +20,7 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
 use App\Supports\Repositories\PartnerRepository;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use ReflectionClass;
 
@@ -338,5 +339,18 @@ class Delivery extends Model
         return $this->hasOne(\App\Models\Partners\Performances\Delivery::class, 'delivery_id', 'id')
             ->where('status', PerformanceModel::STATUS_ON_PROCESS)
             ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function sla(): HasOne
+    {
+        return $this->hasOne(\App\Models\Partners\Performances\Delivery::class, 'delivery_id', 'id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 }

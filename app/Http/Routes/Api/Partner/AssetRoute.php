@@ -55,6 +55,11 @@ class AssetRoute extends BaseRoute
             'uses' => $this->uses('update'),
         ]);
 
+        $this->router->post($this->prefix('/{type}/{hash}/update'), [
+            'as' => $this->name('update.owner.employee'),
+            'uses' => $this->uses('update'),
+        ]);
+
         $this->router->delete($this->prefix('/{type}/{hash}'), [
             'as' => $this->name('delete'),
             'uses' => $this->uses('destroy'),
