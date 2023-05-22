@@ -32,6 +32,7 @@ class StoreMultiDestinationRequest extends FormRequest
             'transporter_type' => ['required', 'exists:transporters,type'],
             'partner_code' => ['required', 'exists:partners,code'],
             'photos.*.*' => ['nullable', 'image:jpg,jpeg,png'],
+            'partner_satellite' => ['nullable'],
 
             // sender
             'sender_name' => ['required', 'string'],
