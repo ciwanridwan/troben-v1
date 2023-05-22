@@ -213,13 +213,15 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
                     return true;
                 }
+
             } else {
                 if ($q->deliveries->count() === 1) {
                     return true;
                 } else {
+                    $type = 'transit';
                     $delivery = $q->deliveries->last();
-                    $isDooring = Route::checkDooring($q, $delivery);
-                    if ($partnerIdFromDeliveries === $partnerId && $isDooring === false) {
+                    $isDooring = Route::checkDooring($q, $delivery, $type);
+                    if (!$isDooring && $partnerIdFromDeliveries === $partnerId) {
                         return true;
                     }
                 }
@@ -242,10 +244,13 @@ class AssignableController extends Controller
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
+                } elseif(Route::checkVendorDooring($q->deliveryRoutes)) {
+                    return true;
                 } else {
+                    $type = 'dooring';
                     $delivery = $q->deliveries->last();
-                    $isDooringFromRoute = Route::checkDooring($q, $delivery);
-                    if ($isDooringFromRoute) {
+                    $isDooringFromRoute = Route::checkDooring($q, $delivery, $type);
+                    if ($isDooringFromRoute && $partnerDooringId === $partnerId) {
                         return true;
                     }
                 }
@@ -253,11 +258,17 @@ class AssignableController extends Controller
                 if ($q->deliveries->count() === 1) {
                     return false;
                 } else {
+                    $type = 'dooring';
                     $delivery = $q->deliveries->last();
-                    $isDooring = Route::checkDooring($q, $delivery);
-                    if ($isDooring) {
-                        return true;
+                    $isDooring = Route::checkDooring($q, $delivery, $type);
+                    if ($partnerIdFromDeliveries !== $partnerId) {
+                        return false;
+                    } else {
+                        if ($isDooring) {
+                            return true;
+                        }
                     }
+
                 }
             }
 
