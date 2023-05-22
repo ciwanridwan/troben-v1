@@ -396,34 +396,39 @@ class WithdrawalController extends Controller
                     pbh.balance as total_accepted
                 from
                     partner_balance_disbursement pbd
-                    left join (
-                        select
-                            pbh.partner_id,
-                            pbh.package_id,
-                            pbh.created_at,
-                            sum(pbh.balance) as balance
-                        from
-                            partner_balance_histories pbh
-                        where
-                            pbh.package_id notnull
-                        group by
-                            pbh.package_id,
-                            pbh.partner_id,
-                            pbh.created_at
-                    ) pbh on pbd.partner_id = pbh.partner_id
-                    left join (
-                        select
-                            *
-                        from
-                            codes c
-                        where
-                            codeable_type = 'App\Models\Packages\Package'
-                    ) c on pbh.package_id = c.codeable_id
-                    left join packages p on pbh.package_id = p.id
+                left join (
+                    select
+                        pbh.partner_id,
+                        pbh.package_id,
+                        cast(pbh.created_at as date) time_at,
+                        sum(pbh.balance) as balance
+                    from
+                        partner_balance_histories pbh
+                    where
+                        pbh.package_id notnull
+                    group by
+                        pbh.package_id,
+                        pbh.partner_id,
+                        time_at
+                            ) pbh
+                            on
+                    pbd.partner_id = pbh.partner_id
+                left join (
+                    select
+                        *
+                    from
+                        codes c
+                    where
+                        codeable_type = 'App\Models\Packages\Package'
+                            ) c
+                            on
+                    pbh.package_id = c.codeable_id
+                left join packages p on
+                    pbh.package_id = p.id
                 where
                     pbd.partner_id = $partnerId
                 order by
-                    pbh.created_at desc";
+                    pbh.time_at desc";
 
         return $q;
     }
