@@ -107,18 +107,6 @@ class MultiDestinationController extends Controller
             $this->dispatchNow($job);
             Log::info('after dispatch job. ', [$request->get('sender_name')]);
 
-            // setup satellite partner
-            if (! is_null($partnerSatellite)) {
-                PackageMeta::create([
-                    'package_id' => $job->package->getKey(),
-                    'key' => PackageMeta::KEY_PARTNER_SATELLITE,
-                    'meta' => [
-                        'partner_satellite' => $partnerSatellite->getKey(),
-                        'partner_main' => $partner->getKey(),
-                    ],
-                ]);
-            }
-
             $uploadJob = new CustomerUploadPackagePhotos($job->package, $this->attributes['photos'][$i] ?? []);
 
             $this->dispatchNow($uploadJob);
@@ -126,6 +114,18 @@ class MultiDestinationController extends Controller
             if ($i === 0) {
                 $result['parent_id'] =  $job->package->id;
                 $packageHash['parent_hash'] = $job->package->hash;
+
+                // setup satellite partner
+                if (! is_null($partnerSatellite)) {
+                    PackageMeta::create([
+                        'package_id' => $job->package->id,
+                        'key' => PackageMeta::KEY_PARTNER_SATELLITE,
+                        'meta' => [
+                            'partner_satellite' => $partnerSatellite->getKey(),
+                            'partner_main' => $partner->getKey(),
+                        ],
+                    ]);
+                }
             } else {
                 $pickupFee = $job->package->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
                 $job->package->total_amount -= $pickupFee->amount;
