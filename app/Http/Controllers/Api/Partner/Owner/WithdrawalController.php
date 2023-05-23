@@ -391,45 +391,53 @@ class WithdrawalController extends Controller
     private function newQueryDetailDisbursment($partnerId)
     {
         $q = "select
-                    c.content as receipt,
-                    p.total_amount as total_payment,
-                    pbh.balance as total_accepted
-                from
-                    partner_balance_disbursement pbd
-                left join (
-                    select
-                        pbh.partner_id,
-                        pbh.package_id,
-                        cast(pbh.created_at as date) time_at,
-                        sum(pbh.balance) as balance
-                    from
-                        partner_balance_histories pbh
-                    where
-                        pbh.package_id notnull
-                    group by
-                        pbh.package_id,
-                        pbh.partner_id,
-                        time_at
-                            ) pbh
-                            on
-                    pbd.partner_id = pbh.partner_id
-                left join (
-                    select
-                        *
-                    from
-                        codes c
-                    where
-                        codeable_type = 'App\Models\Packages\Package'
-                            ) c
-                            on
-                    pbh.package_id = c.codeable_id
-                left join packages p on
-                    pbh.package_id = p.id
-                where
-                    pbd.partner_id = $partnerId
-                order by
-                    pbh.time_at desc";
-
+        c.content as receipt,
+        p.total_amount as total_payment,
+        pbh.balance as total_accepted
+            from
+                partner_balance_disbursement pbd
+            left join (
+        select
+            pbh.partner_id,
+            pbh.package_id,
+            cast(pbh.created_at as date) time_at,
+            sum(
+            case 
+                when pbh.type = 'discount' 
+                then pbh.balance * -1 
+                else pbh.balance 
+                end
+                ) balance
+        from
+            partner_balance_histories pbh
+        where
+            pbh.package_id notnull
+        group by
+            pbh.package_id,
+            pbh.partner_id,
+            time_at
+                                ) pbh
+                                on
+        pbd.partner_id = pbh.partner_id
+        left join (
+        select
+            *
+        from
+            codes c
+        where
+            codeable_type = 'App\Models\Packages\Package'
+                                ) c
+                                on
+        pbh.package_id = c.codeable_id
+        left join packages p on
+            pbh.package_id = p.id
+        left join disbursment_histories dh on
+            pbd.id = dh.disbursment_id
+        where
+            pbd.partner_id = $partnerId
+            and dh.receipt != c.content
+        order by
+        pbh.time_at desc";
         return $q;
     }
 
