@@ -90,7 +90,7 @@ class MultiDestinationController extends Controller
             $packageAttributes = array_merge($senderAttributes, $receiverAttributes);
             foreach ($this->attributes['items'][$i] as $key => $item) {
                 $this->attributes['items'][$i][$key]['is_insured'] = false;
-                
+
                 if (isset($item['insurance'])) {
                     if ($item['insurance'] === '1') {
                         $this->attributes['items'][$i][$key]['is_insured'] = true;
@@ -100,7 +100,6 @@ class MultiDestinationController extends Controller
                 if (isset($item['category_id'])) {
                     $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
                 }
-
             }
 
             $job = new CreateNewPackage($packageAttributes, $this->attributes['items'][$i]);
@@ -116,7 +115,7 @@ class MultiDestinationController extends Controller
                 $packageHash['parent_hash'] = $job->package->hash;
 
                 // setup satellite partner
-                if (! is_null($partnerSatellite)) {
+                if (!is_null($partnerSatellite)) {
                     PackageMeta::create([
                         'package_id' => $job->package->id,
                         'key' => PackageMeta::KEY_PARTNER_SATELLITE,
@@ -142,12 +141,8 @@ class MultiDestinationController extends Controller
             }
             $packageIds = $result;
             $hashPackage = $packageHash;
-            // assign partner
-            $type = 'new';
-            $assignJob = new MultiAssignFirstPartner($job->package->toArray(), $partner, $type);
-            $this->dispatchNow($assignJob);
         }
-
+        
         // set package id parent package and child package
         $idPackages = [
             'parent_id' => $packageIds['parent_id'],
@@ -155,12 +150,23 @@ class MultiDestinationController extends Controller
         ];
 
         // inserting to multi destination table
+        $idPackagesToAssigns = array();
+        $idPackagesToAssigns[0] = $idPackages['parent_id'];
         foreach ($idPackages['child_id'] as $idChild) {
             MultiDestination::create([
                 'parent_id' => $idPackages['parent_id'],
                 'child_id' => $idChild
             ]);
+
+            $idPackagesToAssign = $idChild;
+            array_push($idPackagesToAssigns, $idPackagesToAssign);            
         }
+
+        // assign partner
+        $type = 'new';
+        $idInputs = ['id' => $idPackagesToAssigns];
+        $assignJob = new MultiAssignFirstPartner($idInputs, $partner, $type);
+        $this->dispatchNow($assignJob);
 
         $code = '';
         $parentCode = Code::where('codeable_id', $idPackages['parent_id'])->where('codeable_type', Package::class)->first();
