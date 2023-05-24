@@ -269,6 +269,7 @@ class MotorBikeController extends Controller
             /**Pickup Fee */
             'transporter_type' => 'nullable',
             'partner_code' => 'nullable|exists:partners,code',
+            'partner_satellite' => 'nullable',
 
             /**Insurance Price */
             'price' => 'nullable',
@@ -286,6 +287,15 @@ class MotorBikeController extends Controller
             $partner = Partner::where('code', $request->input('partner_code'))->first();
             $origin = $request->input('origin_lat').', '.$request->input('origin_lon');
             $destination = $partner->latitude.', '.$partner->longitude;
+
+            if ($request->input('partner_satellite') != null && $request->input('partner_satellite')) {
+                $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $request->input('partner_satellite'))->first();
+                if (! is_null($partnerSatellite)) {
+                    // override destination partner
+                    $destination = $partnerSatellite->latitude.', '.$partnerSatellite->longitude;
+                }
+            }
+
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($request->input('transporter_type') != 'bike') {
