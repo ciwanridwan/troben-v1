@@ -169,6 +169,11 @@ class PartnerController extends Controller
                     $destination = sprintf('%f,%f', $partnerSatellite->latitude, $partnerSatellite->longitude);
                     $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
+                    // if parent partner is closer, skip it
+                    if ($distance > $r->distance_matrix) {
+                        return $r;
+                    }
+
                     $r->distance_matrix = $distance;
                     $r->distance_radian = $partnerSatellite->distance_radian;
 
