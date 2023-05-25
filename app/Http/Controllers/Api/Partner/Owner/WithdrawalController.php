@@ -108,9 +108,9 @@ class WithdrawalController extends Controller
 
             return $this->jsonSuccess(new WithdrawalResource($job->withdrawal));
         } elseif (!empty($withdrawal)) {
-            if ($currentDate < $withdrawal->expired_at) {
-                return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Request pencairan belum bisa dilakukan sekarang karena, silahkan tunggu minggu depan']))->json();
-            }
+            // if ($currentDate < $withdrawal->expired_at) {
+            //     return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Request pencairan belum bisa dilakukan sekarang karena, silahkan tunggu minggu depan']))->json();
+            // }
 
             $currentTime = Carbon::now();
             $expiredTime = $currentTime->addDays(7);
