@@ -360,7 +360,7 @@ class DetailResource extends JsonResource
             return false;
         })->values()->toArray();
 
-        return $detailTransporter[0];
+        return $detailTransporter[0] ?? null;
     }
 
     private function getAdditionalFeePerItem($item, $serviceCode)
