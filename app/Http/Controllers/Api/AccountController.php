@@ -82,7 +82,7 @@ class AccountController extends Controller
             return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
 
-        $customers->delete_expired_at = Carbon::now();
+        $customers->delete_expired_at = Carbon::now()->addMonth();
         $customers->save();
 
         return (new Response(Response::RC_SUCCESS))->json();
