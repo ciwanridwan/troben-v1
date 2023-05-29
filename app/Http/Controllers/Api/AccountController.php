@@ -18,6 +18,7 @@ use App\Http\Resources\Account\UserResource;
 use App\Jobs\Customers\UpdateExistingCustomer;
 use App\Http\Resources\Account\CustomerResource;
 use App\Http\Requests\Api\Account\UpdateAccountRequest;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use libphonenumber\PhoneNumberFormat;
@@ -72,25 +73,19 @@ class AccountController extends Controller
             : $this->getUserInfo($account);
     }
 
-    /** Todo
+    /**
      * Delete Account Customer */
     public function deleteAccount(Request $request): JsonResponse
     {
-        $request->validate([
-            'password' => ['required']
-        ]);
-
         $customers = $request->user();
         if (is_null($customers)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND))->json();
+            return (new Response(Response::RC_UNAUTHORIZED))->json();
         }
-        $password = $request->user()->password;
-        if (password_verify($request->password, $password)) {
-            $customers->delete();
-            return (new Response(Response::RC_DELETED))->json();
-        }
-        return (new Response(Response::RC_BAD_REQUEST))->json();
-        /**End Todo */
+
+        $customers->delete_expired_at = Carbon::now()->addMonth();
+        $customers->save();
+
+        return (new Response(Response::RC_SUCCESS))->json();
     }
 
     /**
