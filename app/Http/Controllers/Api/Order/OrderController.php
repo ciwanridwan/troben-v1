@@ -768,7 +768,7 @@ class OrderController extends Controller
         $query->where('status', '!=', CodeLogable::TYPE_SCAN);
         $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
         // $query->groupBy('status');
-        $query->orderBy('id');
+        $query->orderBy('created_at', 'desc');
 
         return $this->jsonSuccess(FindReceiptResource::make([
             'package' => $package,
