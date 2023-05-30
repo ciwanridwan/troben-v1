@@ -290,7 +290,7 @@ class OrderController extends Controller
         }
         
         $package->items->map(function ($r) use ($package) {
-            $r->attachments = $package->attachments ?? [];
+            $r->attachments_item = $package->attachments ?? [];
             $r->category_item_name = $r->categories ? $r->categories->name : null;
 
             return $r;
