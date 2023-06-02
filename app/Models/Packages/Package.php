@@ -950,7 +950,9 @@ class Package extends Model implements AttachableContract
                 }
             }
             $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
-            $serviceFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->sum('amount') ?? 0;
+            $serviceFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where(function ($q) {
+                $q->where('description', Price::TYPE_SERVICE)->orWhere('description', Price::DESCRIPTION_TYPE_CUBIC);
+            })->sum('amount') ?? 0;
 
             $totalHandlingFee = array_sum(array_column($results, 'handling_fee'));
             $totalInsuranceFee = array_sum(array_column($results, 'insurance_fee'));
