@@ -606,6 +606,11 @@ class CorporateController extends Controller
 
             $item->payment_method = $payment_method;
 
+            $item->items->map(function($r) {
+                $r->category_item_name = $r->categories ? $r->categories->name : null;
+                return $r;
+            });
+            
             return $item;
         });
 

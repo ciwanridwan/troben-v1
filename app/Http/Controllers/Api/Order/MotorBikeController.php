@@ -10,13 +10,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Response;
 use App\Exceptions\Error;
 use App\Exceptions\InvalidDataException;
+use App\Http\Requests\CreateMotobikeRequest;
 use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Jobs\Packages\Motobikes\CreatePackageForBike;
+use App\Models\PackageMeta;
+use App\Models\Packages\CategoryItem;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
@@ -264,6 +269,7 @@ class MotorBikeController extends Controller
             /**Pickup Fee */
             'transporter_type' => 'nullable',
             'partner_code' => 'nullable|exists:partners,code',
+            'partner_satellite' => 'nullable',
 
             /**Insurance Price */
             'price' => 'nullable',
@@ -281,6 +287,15 @@ class MotorBikeController extends Controller
             $partner = Partner::where('code', $request->input('partner_code'))->first();
             $origin = $request->input('origin_lat').', '.$request->input('origin_lon');
             $destination = $partner->latitude.', '.$partner->longitude;
+
+            if ($request->input('partner_satellite') != null && $request->input('partner_satellite')) {
+                $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $request->input('partner_satellite'))->first();
+                if (! is_null($partnerSatellite)) {
+                    // override destination partner
+                    $destination = $partnerSatellite->latitude.', '.$partnerSatellite->longitude;
+                }
+            }
+
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($request->input('transporter_type') != 'bike') {
@@ -294,30 +309,6 @@ class MotorBikeController extends Controller
         }
         $insurance = 0;
         $insurance = ceil(self::getInsurancePrice($request->input('price')));
-
-        # Not use
-        // $handling_price = 0;
-        // switch ($req['moto_cc']) {
-        //     case 150:
-        //         $handling_price = 175000;
-        //         break;
-        //     case 250:
-        //         $handling_price = 250000;
-        //         break;
-        //     case 999:
-        //         $handling_price = 450000;
-        //         break;
-        // }
-
-        // $type = $request->get('handling') ?? '';
-        // $height = $request->get('height');
-        // $length = $request->get('length');
-        // $width = $request->get('width');
-
-        # not use
-        // $handlingAdditionalPrice = 0;
-        // $handlingAdditionalPrice = Handling::calculator($type, $height, $length, $width, 0);
-        // $handlingAdditionalPrice = self::getHandlingWoodPrice($type, $height, $length, $width);
 
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
@@ -366,13 +357,96 @@ class MotorBikeController extends Controller
         return $price > self::INSURANCE_MIN ? $price * self::INSURANCE_MUL : 0;
     }
 
-    // private static function getHandlingWoodPrice($type, $height, $length, $width)
-    // {
-    //     if ($type == '' || $height == 0 || $length == 0 || $width == 0) {
-    //         return 0;
-    //     } else {
-    //         $price = 50000;
-    //         return $price;
-    //     }
-    // }
+    /**
+     * Create new store
+     */
+    public function storeNew(CreateMotobikeRequest $request): JsonResponse
+    {
+        $request->validated();
+
+        $this->attributes = $request->all();
+        Log::info('validate package success', $this->attributes);
+
+        $coordOrigin = sprintf('%s,%s', $request->get('sender_latitude'), $request->get('sender_longitude'));
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
+
+        if ($resultOrigin == null) {
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Sender latitude and longitude not found', 'coord' => $coordOrigin]);
+        }
+
+        $partner = Partner::where('code', $request->input('partner_code'))->first();
+        $transporters = $partner->transporters()->where('type', $request->input('transporter_type'))->first();
+
+        if (is_null($transporters)) {
+            $message = ['message' => 'Mitra tidak menyediakan armada yang anda pilih, silahkan pilih type armada yang lain'];
+
+            return (new Response(Response::RC_BAD_REQUEST, $message))->json();
+        }
+
+        // check if partner satellite
+        $partnerSatellite = null;
+        if (isset($this->attributes['partner_satellite']) && $this->attributes['partner_satellite']) {
+            $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $this->attributes['partner_satellite'])->first();
+            if (is_null($partnerSatellite)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner Satellite not found', 'code' => $this->attributes['partner_code'], 'satellite' => $this->attributes['partner_satellite']]);
+            }
+        }
+        
+        $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
+        $this->attributes['origin_district_id'] = $resultOrigin['district'];
+        $this->attributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
+        $this->attributes['customer_id'] = $request->user()->id; 
+        $this->attributes['created_by'] = $request->user()->id;
+        if (isset($this->attributes['item']['insurance'])) {
+            if ($this->attributes['item']['insurance'] === '1') {
+                $this->attributes['item']['is_insured'] = true;
+            }
+        }
+
+        if (isset($this->attributes['sender_detail_address']) && isset($this->attributes['receiver_detail_address'])) {
+            $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
+            $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
+        }
+        
+        $this->attributes['item']['handling'] = Handling::TYPE_WOOD;
+        $this->attributes['item']['qty'] = 1;
+        $this->attributes['item']['name'] = $this->attributes['item']['moto_merk'];
+        $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%'.CategoryItem::TYPE_BIKE.'%')->first()->id;
+        $this->attributes['item']['weight'] = 0;
+        $this->attributes['item']['height'] = 0;
+        $this->attributes['item']['width'] = 0;
+        $this->attributes['item']['length'] = 0;
+
+        $this->items = $this->attributes['item'];
+        $job = new CreatePackageForBike($this->attributes, $this->items);
+        $this->dispatchNow($job);
+
+        event(new PackageCreatedForBike($job->package));
+
+        // setup satellite partner
+        if (! is_null($partnerSatellite)) {
+            PackageMeta::create([
+                'package_id' => $job->package->getKey(),
+                'key' => PackageMeta::KEY_PARTNER_SATELLITE,
+                'meta' => [
+                    'partner_satellite' => $partnerSatellite->getKey(),
+                    'partner_main' => $partner->getKey(),
+                ],
+            ]);
+        }
+
+        $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
+        $this->dispatchNow($uploadJob);
+        
+        event(new PackageBikeCreated($job->package, $partner->code));
+
+        $this->orderAssignation($job->package, $partner);
+
+        $result = [
+            'bike_hash' => $job->package->hash,
+            'receipt_code' => $job->package->code()->first()->content 
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
 }

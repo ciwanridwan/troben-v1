@@ -77,7 +77,7 @@ class GeneratePackageBikePrices
                     'destination_id' => $package->destination_sub_district->id,
                     'moto_cc' => $package->motoBikes()->first()->cc
                 ];
-
+                
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
                 switch ($service_input['moto_cc']) {
                     case 150:

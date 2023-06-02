@@ -4,10 +4,12 @@ namespace App\Listeners\Packages;
 
 use App\Jobs\Packages\UpdateOrCreatePriceFromExistingPackage;
 use App\Models\Deliveries\Delivery;
+use App\Models\PackageMeta;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
+use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -29,6 +31,19 @@ class GeneratePackagePickupPrices
         $origin = $package->sender_latitude.', '.$package->sender_longitude;
         $partner = Partner::where('code', $event->partner_code)->first();
         $destination = $partner->latitude.', '.$partner->longitude;
+
+        $checkSatellite = PackageMeta::query()
+            ->where('package_id', $package->getKey())
+            ->where('key', PackageMeta::KEY_PARTNER_SATELLITE)
+            ->first();
+        if (! is_null($checkSatellite)) {
+            $partnerSatellite = PartnerSatellite::find($checkSatellite->meta['partner_satellite']);
+            if (! is_null($partnerSatellite)) {
+                // override partner property
+                $destination = $partner->latitude.', '.$partner->longitude;
+            }
+        }
+
         $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
         if ($package->transporter_type == null) {

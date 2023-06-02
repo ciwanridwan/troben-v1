@@ -10,10 +10,14 @@ use App\Http\Response;
 use App\Jobs\Packages\Actions\MultiAssignFirstPartner;
 use App\Jobs\Packages\CreateNewPackage;
 use App\Jobs\Packages\CustomerUploadPackagePhotos;
+use App\Models\Code;
 use App\Models\Customers\Customer;
+use App\Models\PackageMeta;
 use App\Models\Packages\MultiDestination;
+use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagePrice;
 use App\Models\Partners\Partner;
+use App\Models\PartnerSatellite;
 use App\Supports\Geo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -43,10 +47,20 @@ class MultiDestinationController extends Controller
         }
 
         // check partner
+        $partner = null;
         if (isset($this->attributes['partner_code'])) {
             $partner = Partner::where('code', $this->attributes['partner_code'])->first();
             if (is_null($partner)) {
                 throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner not found', 'code' => $this->attributes['partner_code']]);
+            }
+        }
+
+        // check if partner satellite
+        $partnerSatellite = null;
+        if (isset($this->attributes['partner_satellite']) && $this->attributes['partner_satellite']) {
+            $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $this->attributes['partner_satellite'])->first();
+            if (is_null($partnerSatellite)) {
+                throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner Satellite not found', 'code' => $this->attributes['partner_code'], 'satellite' => $this->attributes['partner_satellite']]);
             }
         }
 
@@ -76,7 +90,7 @@ class MultiDestinationController extends Controller
             $packageAttributes = array_merge($senderAttributes, $receiverAttributes);
             foreach ($this->attributes['items'][$i] as $key => $item) {
                 $this->attributes['items'][$i][$key]['is_insured'] = false;
-                
+
                 if (isset($item['insurance'])) {
                     if ($item['insurance'] === '1') {
                         $this->attributes['items'][$i][$key]['is_insured'] = true;
@@ -86,7 +100,6 @@ class MultiDestinationController extends Controller
                 if (isset($item['category_id'])) {
                     $this->attributes['items'][$i][$key]['category_item_id'] = $item['category_id'];
                 }
-
             }
 
             $job = new CreateNewPackage($packageAttributes, $this->attributes['items'][$i]);
@@ -100,6 +113,18 @@ class MultiDestinationController extends Controller
             if ($i === 0) {
                 $result['parent_id'] =  $job->package->id;
                 $packageHash['parent_hash'] = $job->package->hash;
+
+                // setup satellite partner
+                if (!is_null($partnerSatellite)) {
+                    PackageMeta::create([
+                        'package_id' => $job->package->id,
+                        'key' => PackageMeta::KEY_PARTNER_SATELLITE,
+                        'meta' => [
+                            'partner_satellite' => $partnerSatellite->getKey(),
+                            'partner_main' => $partner->getKey(),
+                        ],
+                    ]);
+                }
             } else {
                 $pickupFee = $job->package->prices->where('type', PackagePrice::TYPE_DELIVERY)->where('description', PackagePrice::TYPE_PICKUP)->first();
                 $job->package->total_amount -= $pickupFee->amount;
@@ -116,12 +141,8 @@ class MultiDestinationController extends Controller
             }
             $packageIds = $result;
             $hashPackage = $packageHash;
-            // assign partner
-            $type = 'new';
-            $assignJob = new MultiAssignFirstPartner($job->package->toArray(), $partner, $type);
-            $this->dispatchNow($assignJob);
         }
-
+        
         // set package id parent package and child package
         $idPackages = [
             'parent_id' => $packageIds['parent_id'],
@@ -129,15 +150,31 @@ class MultiDestinationController extends Controller
         ];
 
         // inserting to multi destination table
+        $idPackagesToAssigns = array();
+        $idPackagesToAssigns[0] = $idPackages['parent_id'];
         foreach ($idPackages['child_id'] as $idChild) {
             MultiDestination::create([
                 'parent_id' => $idPackages['parent_id'],
                 'child_id' => $idChild
             ]);
+
+            $idPackagesToAssign = $idChild;
+            array_push($idPackagesToAssigns, $idPackagesToAssign);            
         }
+
+        // assign partner
+        $type = 'new';
+        $idInputs = ['id' => $idPackagesToAssigns];
+        $assignJob = new MultiAssignFirstPartner($idInputs, $partner, $type);
+        $this->dispatchNow($assignJob);
+
+        $code = '';
+        $parentCode = Code::where('codeable_id', $idPackages['parent_id'])->where('codeable_type', Package::class)->first();
+        if ($parentCode) $code = $parentCode->content;
 
         $results = [
             'parent_hash' => $hashPackage['parent_hash'],
+            'receipt_code' => $code,
             'child_hash' => $allHash
         ];
 

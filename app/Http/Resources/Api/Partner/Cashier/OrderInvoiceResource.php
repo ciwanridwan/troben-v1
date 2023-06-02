@@ -25,7 +25,7 @@ class OrderInvoiceResource extends JsonResource
         }
 
         $orderType = '';
-        if ($this->multiDestination()->exists()) {
+        if ($this->multiDestination()->exists() || $this->parentDestination) {
             $orderType = 'Multiple';
         } else {
             $orderType = 'Single';

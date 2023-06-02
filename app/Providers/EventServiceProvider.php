@@ -50,6 +50,7 @@ use App\Events\Packages\PackageCanceledByAdmin;
 use App\Events\Packages\PackageCanceledByCustomer;
 use App\Events\Packages\PackageCancelMethodSelected;
 use App\Listeners\Codes\WriteCodeLog;
+use App\Listeners\Codes\CheckDuplicateReceiptCode;
 use App\Listeners\Deliveries\CreateDeliveryByEvent;
 use App\Listeners\Packages\UpdatePackageTotalWeightByEvent;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -249,6 +250,7 @@ class EventServiceProvider extends ServiceProvider
             PartnerPerformanceEvaluatedByEvent::class,
         ],
         CodeCreated::class => [
+            CheckDuplicateReceiptCode::class,
             // UpdateOrCreateScannedCode::class
         ],
         CodeScanned::class => [

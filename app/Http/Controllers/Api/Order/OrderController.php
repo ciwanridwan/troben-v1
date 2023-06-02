@@ -288,7 +288,13 @@ class OrderController extends Controller
         } else {
             $complaint = null;
         }
+        
+        $package->items->map(function ($r) use ($package) {
+            $r->attachments_item = $package->attachments ?? [];
+            $r->category_item_name = $r->categories ? $r->categories->name : null;
 
+            return $r;
+        });
 
         $data = [
             'type' => $result['type'],
@@ -768,7 +774,7 @@ class OrderController extends Controller
         $query->where('status', '!=', CodeLogable::TYPE_SCAN);
         $query->whereJsonContains('showable', CodeLogable::SHOW_CUSTOMER);
         // $query->groupBy('status');
-        $query->orderBy('id');
+        $query->orderBy('created_at', 'desc');
 
         return $this->jsonSuccess(FindReceiptResource::make([
             'package' => $package,
@@ -1017,5 +1023,30 @@ class OrderController extends Controller
         });
 
         event(new PackageApprovedByCustomer($package));
+    }
+
+    public function test($code)
+    {
+        $test = Code::query();
+
+        $test->with(['codeable', 'logs']);
+
+        $data = $test->where('content', $code)->where('codeable_type', Package::class)->first(); 
+        $log = $data->logs()->orderBy('created_at', 'desc')->get()->map(function ($q) {
+            $result = [
+                'st,atus' => $q->status,
+                'desc' => $q->description,
+                'time_at' => $q->created_at->format('Y-m-d')
+            ];
+
+            return $result;
+        });
+
+        $res = [
+            'package' => $data->codeable,
+            'log' => $log  
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $res))->json();
     }
 }

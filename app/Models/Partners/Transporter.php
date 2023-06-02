@@ -187,7 +187,7 @@ class Transporter extends Model
     public static function getGeneralTypePrice($type)
     {
         $general_type = self::getGeneralType($type);
-        if (! $general_type) {
+        if (!$general_type) {
             return 0;
         }
         return self::getAvailableTransporterPrices()[$general_type];
@@ -544,5 +544,20 @@ class Transporter extends Model
     public function images(): HasMany
     {
         return $this->hasMany(TransporterImage::class, 'transporter_id', 'id');
+    }
+
+    /**
+     * List Transporters
+     */
+    public static function getListForBike(): array 
+    {
+        return [
+            self::TYPE_CDD_DOUBLE_BAK,
+            self::TYPE_CDD_DOUBLE_BOX,
+            self::TYPE_CDE_ENGKEL_BAK,
+            self::TYPE_CDE_ENGKEL_BOX,
+            self::TYPE_PICKUP_BOX,
+            self::TYPE_PICKUP
+        ];
     }
 }
