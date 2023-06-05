@@ -294,12 +294,13 @@ class DetailResource extends JsonResource
                 ],
                 'items' => $q->items ? $q->items->map(function ($i) {
                     $packings = [];
-                    if (!is_null($i->handling)) {
+                    if (!empty($i->handling) || !is_null($i->handling)) {
                         foreach ($i->handling as $handling) {
                             $packing = $handling['type'];
                             array_push($packings, $packing);
                         }
                     }
+                    
                     $result = [
                         'hash' => $i->hash,
                         'name' => $i->name ?? '',
