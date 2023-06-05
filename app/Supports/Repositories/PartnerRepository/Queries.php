@@ -334,8 +334,8 @@ class Queries
                         ->whereIn('packages.status', [
                             Package::STATUS_PACKING,
                             Package::STATUS_PACKED,
-                        ])
-                        ->where('packager_id', $this->user->id))
+                        ]))
+                        // ->where('packager_id', $this->user->id))
                     // condition after driver unloaded the package
                     ->orWhere(fn (Builder $builder) => $builder
                         ->where(

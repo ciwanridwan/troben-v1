@@ -240,6 +240,7 @@ class GenerateBalanceHistory
                                 $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
                                 $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
 
+                                // set fee discount pickup
                                 if (!is_null($discountPickup)) {
                                     $discountPickupFee = $discountPickup->amount;
                                     $this
@@ -835,18 +836,19 @@ class GenerateBalanceHistory
         if (is_null($service_price)) {
             $this->servicePriceCubic($type, $variant, $isTransit);
         } else {
-            if ($variant == '0') {
-                $discount = 0;
-                $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->first();
-                if (is_null($check)) {
-                    $discount = 0;
-                } else {
-                    $discount = $check->amount;
-                }
-                $balance_service = ($service_price->amount  * $this->getServiceFee($type)) - $discount;
-            } else {
-                $balance_service = $this->package->total_weight * $this->getServiceFee($type);
-            }
+            // if ($variant == '0') {
+            //     $discount = 0;
+            //     $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->first();
+            //     if (is_null($check)) {
+            //         $discount = 0;
+            //     } else {
+            //         $discount = $check->amount;
+            //     }
+            //     $balance_service = ($service_price->amount  * $this->getServiceFee($type)) - $discount;
+            // } else {
+            //     $balance_service = $this->package->total_weight * $this->getServiceFee($type);
+            // }
+            $balance_service = $service_price->amount  * $this->getServiceFee($type);
 
             $this
                 ->setBalance($balance_service)

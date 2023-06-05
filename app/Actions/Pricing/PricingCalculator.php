@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
@@ -221,6 +222,10 @@ class PricingCalculator
 
         $discount = 0;
         $handling_price = 0;
+
+        if (!isset($inputs['items'])) {
+            throw_if($price === null, InvalidDataException::make(Response::RC_INVALID_DATA, ["message" => "Items doesn't input, please input items"]));
+        }
 
         foreach ($inputs['items'] as $index => $item) {
             if (!Arr::has($item, 'handling')) {
