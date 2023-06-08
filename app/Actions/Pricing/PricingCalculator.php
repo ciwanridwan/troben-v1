@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
@@ -27,6 +28,7 @@ use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Prices\PriceModel as PartnerPrice;
 use App\Models\Partners\VoucherAE;
+use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
@@ -152,6 +154,7 @@ class PricingCalculator
             'destination_id' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
             'service_code' => ['required', 'exists:services,code'],
             'partner_code' => ['nullable'],
+            'partner_satellite' => ['nullable'],
             'sender_latitude' => ['nullable'],
             'sender_longitude' => ['nullable'],
             'fleet_name' => ['nullable'],
@@ -186,6 +189,15 @@ class PricingCalculator
             $partner = Partner::where('code', $inputs['partner_code'])->first();
             $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
             $destination = $partner->latitude . ', ' . $partner->longitude;
+
+            if (isset($inputs['partner_satellite']) && $inputs['partner_satellite']) {
+                $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $inputs['partner_satellite'])->first();
+                if (! is_null($partnerSatellite)) {
+                    // override destination partner
+                    $destination = $partnerSatellite->latitude.', '.$partnerSatellite->longitude;
+                }
+            }
+
             $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
             if ($inputs['fleet_name'] == 'bike') {
@@ -210,6 +222,10 @@ class PricingCalculator
 
         $discount = 0;
         $handling_price = 0;
+
+        if (!isset($inputs['items'])) {
+            throw_if($price === null, InvalidDataException::make(Response::RC_INVALID_DATA, ["message" => "Items doesn't input, please input items"]));
+        }
 
         foreach ($inputs['items'] as $index => $item) {
             if (!Arr::has($item, 'handling')) {

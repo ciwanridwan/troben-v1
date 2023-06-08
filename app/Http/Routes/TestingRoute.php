@@ -4,6 +4,7 @@ namespace App\Http\Routes;
 
 use App\Http\Controllers\Admin\Home\ManifestController;
 use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\Api\Order\OrderController;
 use App\Http\Controllers\Partner\Cashier\HomeController as CashierHomeController;
 use Jalameta\Router\BaseRoute;
 
@@ -48,6 +49,11 @@ class TestingRoute extends BaseRoute
         $this->router->patch($this->prefix('/admin/assign/transporter/{delivery_hash}/{partner_hash}'), [
             'as' => $this->name('admin.assignation.transporter'),
             'uses' => $this->uses('assign', ManifestController::class),
+        ]);
+
+        $this->router->get($this->prefix('/order/relation/{code}'), [
+            'as' => $this->name('order.test.relation'),
+            'uses' => $this->uses('test', OrderController::class),
         ]);
     }
 }

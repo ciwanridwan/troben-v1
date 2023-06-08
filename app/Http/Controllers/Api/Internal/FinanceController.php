@@ -534,6 +534,7 @@ class FinanceController extends Controller
         ) pbh
         left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
         left join packages p on pbh.package_id = p.id";
+
         $q = sprintf($q, $partnerId);
 
         return $q;

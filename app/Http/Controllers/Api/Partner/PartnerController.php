@@ -140,6 +140,7 @@ class PartnerController extends Controller
                 }
                 $r->distance_radian = $dr;
                 $r->distance_matrix = $dm;
+                $r->partner_satellite = null;
                 return $r;
             })->sortBy('distance_matrix')->values();
 
@@ -168,6 +169,11 @@ class PartnerController extends Controller
                     $destination = sprintf('%f,%f', $partnerSatellite->latitude, $partnerSatellite->longitude);
                     $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
+                    // if parent partner is closer, skip it
+                    if ($distance > $r->distance_matrix) {
+                        return $r;
+                    }
+
                     $r->distance_matrix = $distance;
                     $r->distance_radian = $partnerSatellite->distance_radian;
 
@@ -175,6 +181,7 @@ class PartnerController extends Controller
                     $r->address = $partnerSatellite->address;
                     $r->latitude = $partnerSatellite->latitude;
                     $r->longitude = $partnerSatellite->longitude;
+                    $r->partner_satellite = $partnerSatellite->id;
 
                     return $r;
                 });

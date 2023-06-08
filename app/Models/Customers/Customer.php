@@ -88,7 +88,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
         'facebook_id',
         'fcm_token',
         'is_active',
-        'blocked_at'
+        'delete_expired_at'
     ];
 
     protected $verifiedColumn = 'phone_verified_at';
@@ -100,6 +100,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
      */
     protected $appends = [
         'hash',
+        'isDelete'
     ];
 
     /**
@@ -110,7 +111,7 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     protected $casts = [
         'verified_at' => 'datetime',
         'deleted_at' => 'datetime',
-        'blocked_at' => 'datetime'
+        'delete_expired_at' => 'datetime'
     ];
 
     /**
@@ -195,5 +196,17 @@ class Customer extends Model implements AttachableContract, AuthenticatableContr
     public function notifications(): MorphMany
     {
         return $this->morphMany(Notification::class, 'notifiable');
+    }
+
+    /**
+     * Notice customer has request delete account or not 
+     */
+    public function getIsDeleteAttribute(): bool
+    {
+        if (is_null($this->delete_expired_at)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

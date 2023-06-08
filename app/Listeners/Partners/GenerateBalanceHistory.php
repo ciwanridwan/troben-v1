@@ -240,6 +240,7 @@ class GenerateBalanceHistory
                                 $balancePickup = $package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
                                 $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
 
+                                // set fee discount pickup
                                 if (!is_null($discountPickup)) {
                                     $discountPickupFee = $discountPickup->amount;
                                     $this

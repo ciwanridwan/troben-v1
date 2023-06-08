@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class MotorBike extends Model
 {
     use HasFactory;
+    public CONST TYPE_MATIC = 'matic';
+    public CONST TYPE_KOPLING = 'kopling';
+    public CONST TYPE_GIGI = 'gigi';
 
     protected $table = 'package_bikes';
 
@@ -17,6 +20,8 @@ class MotorBike extends Model
         'merk',
         'cc',
         'years',
+        'package_id',
+        'package_item_id'
     ];
 
     protected $hidden = [
@@ -28,13 +33,31 @@ class MotorBike extends Model
     ];
 
 
+    /**
+     * Relation to packages table
+     */
     public function packages()
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
     }
 
+    /**
+     * Relation to packages items
+     */
     public function packageItems()
     {
         return $this->belongsTo(Package::class, 'package_item_id', 'id');
+    }
+
+    /**
+     * List type of motobike
+     */
+    public static function getListType(): array
+    {
+        return [
+        self::TYPE_GIGI,
+        self::TYPE_KOPLING,
+        self::TYPE_MATIC   
+        ];
     }
 }
