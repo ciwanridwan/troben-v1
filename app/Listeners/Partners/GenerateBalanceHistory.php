@@ -848,7 +848,8 @@ class GenerateBalanceHistory
             // } else {
             //     $balance_service = $this->package->total_weight * $this->getServiceFee($type);
             // }
-            $balance_service = $service_price->amount  * $this->getServiceFee($type);
+
+            $balance_service = $service_price->amount * $this->getServiceFee($type);
 
             $this
                 ->setBalance($balance_service)
