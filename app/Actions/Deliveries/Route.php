@@ -349,8 +349,19 @@ class Route
             $warehouse = self::checkWarehouse($deliveryRoutes);
 
             if ($deliveryRoutes->regency_destination_1 === 0) {
-                $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
-                $transporter = self::getSelectedTransporter($deliveryRoutes, $partner);
+                $countPartner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->count();
+                if ($countPartner === 1) {
+                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+                    $transporter = self::getSelectedTransporter($deliveryRoutes, $partner);
+                } else {
+                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->get();
+                    $listTransporter = [];
+                    foreach ($partner as $p) {
+                        $partnerTransporter = self::getSelectedTransporter($deliveryRoutes, $p);
+                        array_push($listTransporter, $partnerTransporter);
+                    }
+                    $transporter = $listTransporter;
+                }
             } else {
                 $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
 
