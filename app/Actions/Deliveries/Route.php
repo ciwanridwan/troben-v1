@@ -389,6 +389,10 @@ class Route
      */
     public static function getSelectedTransporter($deliveryRoutes, $partner)
     {
+if (is_null($partner)) {
+return null;
+}
+
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
                 return $partner->code_mtak_1;
