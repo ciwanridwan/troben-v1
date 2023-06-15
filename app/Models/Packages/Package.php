@@ -951,6 +951,7 @@ class Package extends Model implements AttachableContract
             }
             $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
             $serviceFee = $this->total_weight * $this->tier_price;
+            $platformFee = $this->prices()->where('type', Price::TYPE_PLATFORM)->sum('amount') ?? 0;
 
             $totalHandlingFee = array_sum(array_column($results, 'handling_fee'));
             $totalInsuranceFee = array_sum(array_column($results, 'insurance_fee'));
@@ -963,6 +964,7 @@ class Package extends Model implements AttachableContract
                 'additional_fee' => $totalAdditionalFee,
                 'pickup_fee' => intval($pickupFee),
                 'service_fee' => $serviceFee,
+                'platform_fee' => $platformFee,
                 'total_amount' => $totalAmount
             ];
             return $res;
@@ -984,6 +986,8 @@ class Package extends Model implements AttachableContract
         $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
 
         $additionalFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_ADDITIONAL)->sum('amount') ?? 0;
+
+        $platformFee = $this->prices()->where('type', Price::TYPE_PLATFORM)->sum('amount') ?? 0;
 
         $weightVolume = [];
         $cubicResult = 0;
@@ -1032,6 +1036,7 @@ class Package extends Model implements AttachableContract
             'additional_fee' => intval($additionalFee),
             'pickup_fee' => intval($pickupFee),
             'service_fee' => $serviceFee,
+            'platform_fee' => $platformFee,
             'total_amount' => $totalAmount,
             'items' => $weightVolume
         ];
