@@ -119,8 +119,7 @@ class PricingCalculator
 
         $handlingBikePrices = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', Handling::TYPE_BIKES)->get()->sum('amount');
 
-        $platformType = $package->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->first();
-        $platformPrice = $platformType ? $platformType->amount : 0;
+        $platformPrice = $package->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
 
         if ($is_approved == true) {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice- ($pickup_discount_price + $service_discount_price);
@@ -619,7 +618,7 @@ class PricingCalculator
         $insurance_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_INSURANCE)->get()->sum('amount');
         $pickup_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_PICKUP)->get()->sum('amount');
         $service_discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->where('description', PackagePrice::TYPE_SERVICE)->get()->sum('amount');
-
+        $platformPrice = $package->prices()->where('type', PackagePrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
         // $service_fee = $package->prices()->where('type', PackagePrice::TYPE_SERVICE)->where('description', PackagePrice::TYPE_ADDITIONAL)->get()->sum('amount');
 
         return [
@@ -632,6 +631,7 @@ class PricingCalculator
             'packing_price_discount' => $handling_discount,
             'pickup_price' => $pickup_price,
             'pickup_price_discount' => $pickup_discount,
+            'platform_price' => $platformPrice
         ];
     }
 
@@ -934,10 +934,13 @@ class PricingCalculator
 
         $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount - $discount;
 
+        $platformFee = $r->prices()->where('type', PackagePrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
+
         $data = [
             'service_code' => $package->service_code,
             'prices' => $prices,
             'pickup_price' => $pickupPrice,
+            'platform_fee' => $platformFee,
             'total_handling_prices' => $totalHandling,
             'total_insurance_prices' => $totalInsurance,
             'total_service_price' => $totalServiceFee,
