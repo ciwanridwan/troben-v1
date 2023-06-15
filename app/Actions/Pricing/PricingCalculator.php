@@ -305,6 +305,7 @@ class PricingCalculator
                 'tier' => $result['tier'],
                 'additional_price' => $additionalCost,
                 'service' => $servicePrice,
+                'platform_fee' => PackagePrice::FEE_PLATFORM,
                 'total_amount' => $totalAmount
             ]
         ];
