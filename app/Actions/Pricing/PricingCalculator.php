@@ -119,10 +119,13 @@ class PricingCalculator
 
         $handlingBikePrices = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', Handling::TYPE_BIKES)->get()->sum('amount');
 
+        $platformType = $package->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->first();
+        $platformPrice = $platformType ? $platformType->amount : 0;
+
         if ($is_approved == true) {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices - ($pickup_discount_price + $service_discount_price);
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice- ($pickup_discount_price + $service_discount_price);
         } else {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices - $pickup_discount_price;
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices + $platformPrice - $pickup_discount_price;
         }
 
         if ($package->claimed_promotion != null) {
