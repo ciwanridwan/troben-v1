@@ -63,11 +63,11 @@ class GeneratePackagePrices
             /** @var Package $package */
             $package = $event->package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -139,6 +139,16 @@ class GeneratePackagePrices
                 $this->dispatch($job);
             }
 
+            // platform fee
+            if ($package->prices) {
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_PLATFORM,
+                    'description' => Price::TYPE_SERVICE,
+                    'amount' => Price::FEE_PLATFORM,
+                ]);
+                $this->dispatch($job);
+            }
+
             $is_approved = false;
 
             // generate discount if using promotion code
@@ -192,6 +202,7 @@ class GeneratePackagePrices
                 $this->dispatch($job);
                 $is_approved = true;
             }
+            
             if ($event instanceof PartnerCashierDiscount) {
                 $is_approved = true;
             }
