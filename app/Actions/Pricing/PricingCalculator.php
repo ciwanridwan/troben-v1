@@ -300,7 +300,7 @@ class PricingCalculator
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
-
+        
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
 
         $response = [
