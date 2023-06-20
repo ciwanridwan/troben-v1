@@ -326,7 +326,7 @@ class MotorBikeController extends Controller
                 break;
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price;
+        $total_amount = $pickup_price + $insurance + $service_price + Price::FEE_PLATFORM;
 
         $result = [
             'details' => [
@@ -334,7 +334,7 @@ class MotorBikeController extends Controller
                 'insurance_price' => $insurance,
                 'handling_price' => 0,
                 'handling_additional_price' => 0,
-                'platform_fee' => Price::TYPE_PLATFORM,
+                'platform_fee' => Price::FEE_PLATFORM,
                 'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,

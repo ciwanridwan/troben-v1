@@ -932,9 +932,9 @@ class PricingCalculator
 
         $discount = $package->prices()->where('type', PackagePrice::TYPE_DISCOUNT)->first()->amount ?? array_sum(array_column($prices, 'discount'));
 
-        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount - $discount;
-
         $platformFee = $r->prices()->where('type', PackagePrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
+
+        $totalAmount = Package::whereIn('id', $package->multiDestination->pluck('child_id'))->get()->sum('total_amount') + $package->total_amount + $platformFee - $discount;
 
         $data = [
             'service_code' => $package->service_code,
