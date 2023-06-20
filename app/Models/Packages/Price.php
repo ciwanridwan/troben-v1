@@ -31,12 +31,13 @@ class Price extends Model
     public const TYPE_PICKUP = 'pickup';
     public const TYPE_OTHER = 'other';
     public const TYPE_DELIVERY = 'delivery';
+    public const TYPE_PLATFORM = 'platform';
     public const DESCRIPTION_TYPE_BIKE = 'bike';
     public const DESCRIPTION_TYPE_WOOD = 'wood';
     public const DESCRIPTION_TYPE_CUBIC = 'kubikasi';
     public const DESCRIPTION_TYPE_EXPRESS = 'express';
+    public const DESCRIPTION_PLATFORM_FEE = 'fee';
     
-    public const TYPE_PLATFORM = 'platform';
     public const FEE_PLATFORM = 3000;
     /**
      * The table associated with the model.

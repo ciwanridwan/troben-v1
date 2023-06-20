@@ -143,7 +143,7 @@ class GeneratePackagePrices
             if ($package->prices) {
                 $job = new UpdateOrCreatePriceFromExistingPackage($package, [
                     'type' => Price::TYPE_PLATFORM,
-                    'description' => Price::TYPE_SERVICE,
+                    'description' => Price::DESCRIPTION_PLATFORM_FEE,
                     'amount' => Price::FEE_PLATFORM,
                 ]);
                 $this->dispatch($job);
