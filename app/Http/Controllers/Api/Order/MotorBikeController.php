@@ -326,7 +326,7 @@ class MotorBikeController extends Controller
                 break;
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price + Price::FEE_PLATFORM;
+        $total_amount = $pickup_price + $insurance + $service_price;
 
         $result = [
             'details' => [
