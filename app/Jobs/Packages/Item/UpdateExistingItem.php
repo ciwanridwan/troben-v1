@@ -65,6 +65,14 @@ class UpdateExistingItem
 //        if (count($this->attributes['handling']) < 1) {
 //            $this->attributes['handling'] = null;
 //        }
+
+//remove from filled data if null
+foreach(['width', 'height', 'length', 'weight'] as $k) {
+  if (is_null($this->attributes[$k])) {
+    unset($this->attributes[$k]);
+  }
+}
+
         $this->item->fill($this->attributes);
         $this->item->fill([
             'revision'=>$this->item->revision + 1
