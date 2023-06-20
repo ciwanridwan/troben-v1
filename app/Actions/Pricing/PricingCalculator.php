@@ -300,8 +300,9 @@ class PricingCalculator
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
-
-        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
+        
+        $platformFee = PackagePrice::FEE_PLATFORM;
+        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost + $platformFee - $discount;
 
         $response = [
             'price' => $result['price'],
@@ -315,7 +316,7 @@ class PricingCalculator
                 'tier' => $result['tier'],
                 'additional_price' => $additionalCost,
                 'service' => $servicePrice,
-                'platform_fee' => PackagePrice::FEE_PLATFORM,
+                'platform_fee' => $platformFee,
                 'total_amount' => $totalAmount
             ]
         ];
