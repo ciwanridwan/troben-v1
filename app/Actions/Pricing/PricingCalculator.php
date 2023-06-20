@@ -98,6 +98,9 @@ class PricingCalculator
         if (!$package->relationLoaded('prices')) {
             $package->load('prices');
         }
+        if (!$package->relationLoaded('motoBikes')) {
+            $package->load('motoBikes');
+        }
         // get handling and insurance prices
         $handling_price = 0;
         $insurance_price = 0;
@@ -107,6 +110,11 @@ class PricingCalculator
             }
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
+        
+        if (!is_null($package->motoBikes)) {
+            $handling_price = 0;
+        }
+
         $service_price = $package->prices()->where('type', PackagesPrice::TYPE_SERVICE)->get()->sum('amount');
 
         $pickup_discount_price = $package->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)
@@ -122,7 +130,7 @@ class PricingCalculator
         $platformPrice = $package->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
 
         if ($is_approved == true) {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice- ($pickup_discount_price + $service_discount_price);
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice - ($pickup_discount_price + $service_discount_price);
         } else {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices + $platformPrice - $pickup_discount_price;
         }
@@ -194,9 +202,9 @@ class PricingCalculator
 
             if (isset($inputs['partner_satellite']) && $inputs['partner_satellite']) {
                 $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $inputs['partner_satellite'])->first();
-                if (! is_null($partnerSatellite)) {
+                if (!is_null($partnerSatellite)) {
                     // override destination partner
-                    $destination = $partnerSatellite->latitude.', '.$partnerSatellite->longitude;
+                    $destination = $partnerSatellite->latitude . ', ' . $partnerSatellite->longitude;
                 }
             }
 
