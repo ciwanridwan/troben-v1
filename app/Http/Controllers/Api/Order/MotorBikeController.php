@@ -403,7 +403,7 @@ class MotorBikeController extends Controller
             }
         }
 
-        if (isset($this->attributes['sender_detail_address']) && isset($this->attributes['receiver_detail_address'])) {
+        if (isset($this->attributes['sender_detail_address']) || isset($this->attributes['receiver_detail_address'])) {
             $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
             $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
         }
