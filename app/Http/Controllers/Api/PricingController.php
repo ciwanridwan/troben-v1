@@ -17,6 +17,7 @@ use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
+use App\Http\Requests\Api\PricingCalculatorRequest;
 use App\Models\Packages\BikePrices;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
@@ -388,5 +389,41 @@ class PricingController extends Controller
                 return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
+    }
+
+    /**
+     * New calculator to estimation price
+     */
+    public function calculateNew(PricingCalculatorRequest $request)
+    {
+        $request->validated();
+
+        $this->attributes = $request->except('destination_sub_district_id', 'items');
+        $coordOrigin = sprintf('%s,%s', $request->get('sender_latitude'), $request->get('sender_longitude'));
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
+        if ($resultOrigin == null) {
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Sender latitude and longitude not found', 'coord' => $coordOrigin]);
+        }
+        
+        $destinationId = $request->destination_sub_district_id;
+        $items = $request->items;
+
+        $this->attributes['fleet_name'] = $request->transporter_type;
+        $this->attributes['origin_province_id'] = $resultOrigin['province'];
+        $this->attributes['origin_regency_id'] = $resultOrigin['regency'];
+        $this->attributes['is_multi'] = false;
+        if (count($request->destination_sub_district_id) > 1) {
+            $this->attributes['is_multi'] = true;
+        }
+
+        for ($i=0; $i < count($request->destination_sub_district_id); $i++) {
+            $this->attributes['destination_id'] = $destinationId[$i];
+            $this->attributes['items'] = $items[$i];
+            $rows = PricingCalculator::calculate($this->attributes);
+            dd($rows);
+        }
+
+        return (new Response(Response::RC_SUCCESS))->json();
+        // return PricingCalculator::calculate($this->attributes);
     }
 }
