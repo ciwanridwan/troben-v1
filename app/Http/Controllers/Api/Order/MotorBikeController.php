@@ -19,6 +19,7 @@ use App\Models\Packages\CategoryItem;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
+use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\PartnerSatellite;
@@ -333,6 +334,7 @@ class MotorBikeController extends Controller
                 'insurance_price' => $insurance,
                 'handling_price' => 0,
                 'handling_additional_price' => 0,
+                'platform_fee' => Price::FEE_PLATFORM,
                 'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,
@@ -403,7 +405,7 @@ class MotorBikeController extends Controller
             }
         }
 
-        if (isset($this->attributes['sender_detail_address']) && isset($this->attributes['receiver_detail_address'])) {
+        if (isset($this->attributes['sender_detail_address']) || isset($this->attributes['receiver_detail_address'])) {
             $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
             $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
         }
