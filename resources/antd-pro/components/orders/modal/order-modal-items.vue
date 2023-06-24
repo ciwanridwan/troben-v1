@@ -19,6 +19,7 @@
             >Perhitungan Menggunakan Kilogram ( KG )</a-radio
           >
         </a-col>
+	<!--
         <a-col :span="12">
           <a-radio
             v-if="
@@ -31,6 +32,7 @@
             >Perhitungan Menggunakan Kubikasi</a-radio
           >
         </a-col>
+	-->
       </a-row>
     </a-radio-group>
     <a-row type="flex" :gutter="[12, 12]">

@@ -510,33 +510,31 @@ class FinanceController extends Controller
     private function newQueryDetailDisbursment($partnerId)
     {
         $q = "select
-                    c.content receipt,
-                    p.total_amount total_payment,
-                    pbh.total_accepted,
-                    pbh.partner_id
-                from
-                    (
-                    select
-                        package_id,
-                        partner_id,
-                        SUM(
-                        case when pbh.type = 'discount' 
-                        then pbh.balance * -1 
-                        else pbh.balance 
-                        end) total_accepted
-                    from
-                        partner_balance_histories pbh
-                    where
-                        pbh.partner_id = %d
-                    group by
-                        partner_id,
-                        package_id
-                        ) pbh
-                left join codes c on
-                    pbh.package_id = c.codeable_id
-                    and c.codeable_type = 'App\Models\Packages\Package'
-                left join packages p on
-                pbh.package_id = p.id";
+            c.content receipt,
+            p.total_amount total_payment,
+            pbh.total_accepted,
+            pbh.partner_id
+        from
+            (
+            select
+                package_id,
+                partner_id,
+                SUM(
+                case when pbh.type = 'discount' 
+                then pbh.balance * -1 
+                else pbh.balance 
+                end) total_accepted
+            from
+                partner_balance_histories pbh
+            where
+                pbh.partner_id = %d
+            group by
+                partner_id,
+                package_id
+        ) pbh
+        left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
+        left join packages p on pbh.package_id = p.id";
+
         $q = sprintf($q, $partnerId);
 
         return $q;
