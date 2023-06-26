@@ -400,6 +400,8 @@ class PricingController extends Controller
         $request->validated();
 
         $this->attributes = $request->except('destination_sub_district_id', 'items');
+
+        // check sender lat lon if not found
         $coordOrigin = sprintf('%s,%s', $request->get('sender_latitude'), $request->get('sender_longitude'));
         $resultOrigin = Geo::getRegional($coordOrigin, true);
         if ($resultOrigin == null) {
@@ -408,7 +410,6 @@ class PricingController extends Controller
 
         $destinationId = $request->destination_sub_district_id;
         $items = $request->items;
-
         $this->attributes['fleet_name'] = $request->transporter_type;
         $this->attributes['origin_province_id'] = $resultOrigin['province'];
         $this->attributes['origin_regency_id'] = $resultOrigin['regency'];
@@ -416,6 +417,8 @@ class PricingController extends Controller
 
         $rows = array();
         $grandTotal = array();
+
+        // get data by loop
         for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
@@ -432,6 +435,7 @@ class PricingController extends Controller
             $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));    
         }
 
+        // sum total
         $totalInsurancePrice = array_sum(array_column($grandTotal, 'insurance_price_total'));
         $totalWeightBorne = array_sum(array_column($grandTotal, 'total_weight_borne'));
         $totalHandlingPrice = array_sum(array_column($grandTotal, 'handling'));
@@ -454,7 +458,7 @@ class PricingController extends Controller
             'total_amount' => $totalAmount
         ];
 
-
+        // parse to response
         $result = [
             'rows' => $rows,
             'grand_total' => $resultGrandTotal
