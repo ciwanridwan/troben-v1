@@ -17,7 +17,9 @@ use App\Http\Resources\Api\Pricings\CheckPriceResource;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
+use App\Http\Requests\Api\PricingCalculatorRequest;
 use App\Models\Packages\BikePrices;
+use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\ScheduleTransportation;
 use App\Models\Service;
 use App\Supports\Geo;
@@ -388,5 +390,76 @@ class PricingController extends Controller
                 return $this->jsonSuccess(CheckPriceResource::make($prices));
                 break;
         }
+    }
+
+    /**
+     * New calculator to estimation price
+     */
+    public function calculateNew(PricingCalculatorRequest $request)
+    {
+        $request->validated();
+
+        $this->attributes = $request->except('destination_sub_district_id', 'items');
+        $coordOrigin = sprintf('%s,%s', $request->get('sender_latitude'), $request->get('sender_longitude'));
+        $resultOrigin = Geo::getRegional($coordOrigin, true);
+        if ($resultOrigin == null) {
+            throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Sender latitude and longitude not found', 'coord' => $coordOrigin]);
+        }
+
+        $destinationId = $request->destination_sub_district_id;
+        $items = $request->items;
+
+        $this->attributes['fleet_name'] = $request->transporter_type;
+        $this->attributes['origin_province_id'] = $resultOrigin['province'];
+        $this->attributes['origin_regency_id'] = $resultOrigin['regency'];
+        $this->attributes['is_multi'] = false;
+
+        $rows = array();
+        $grandTotal = array();
+        for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
+            $this->attributes['destination_id'] = $destinationId[$i];
+            $this->attributes['items'] = $items[$i];
+            $row = PricingCalculator::calculate($this->attributes, 'array');
+            $subGrandTotal = $row['result'];
+
+            array_push($grandTotal, $subGrandTotal);
+            array_push($rows, $row);
+        }
+
+        if (count($request->destination_sub_district_id) > 1) {
+            $totalPickupPrice = $rows[0]['result']['pickup_price'];
+        } else {
+            $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));    
+        }
+
+        $totalInsurancePrice = array_sum(array_column($grandTotal, 'insurance_price_total'));
+        $totalWeightBorne = array_sum(array_column($grandTotal, 'total_weight_borne'));
+        $totalHandlingPrice = array_sum(array_column($grandTotal, 'handling'));
+        $totalDiscount = array_sum(array_column($grandTotal, 'discount'));
+        $totalTier = array_sum(array_column($grandTotal, 'tier'));
+        $totalAdditionalPrice = array_sum(array_column($grandTotal, 'additional_price'));
+        $totalServicePrice = array_sum(array_column($grandTotal, 'service'));
+        $totalAmount = array_sum(array_column($grandTotal, 'total_amount'));
+        $platformFee = PackagesPrice::FEE_PLATFORM;
+        $resultGrandTotal = [
+            'insurance_price_total' => $totalInsurancePrice,
+            'total_weight_borne' => $totalWeightBorne,
+            'handling' => $totalHandlingPrice,
+            'pickup_price' => $totalPickupPrice,
+            'discount' => $totalDiscount,
+            'tier' => $totalTier,
+            'additional_price' => $totalAdditionalPrice,
+            'service' => $totalServicePrice,
+            'platfofrm_fee' => $platformFee,
+            'total_amount' => $totalAmount
+        ];
+
+
+        $result = [
+            'rows' => $rows,
+            'grand_total' => $resultGrandTotal
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }
