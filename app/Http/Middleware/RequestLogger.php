@@ -26,6 +26,7 @@ class RequestLogger
             $jwt = explode('Bearer', $auth);
             if (count($jwt) >= 2) {
                 $jwtItem = explode('.', trim($jwt[1]));
+		if (count($jwtItem) >= 2) {
                 $claim = base64_decode($jwtItem[1]);
                 $claims = json_decode($claim, true);
                 
@@ -35,6 +36,7 @@ class RequestLogger
                 if (isset($claims['role'])) {
                     $user = $claims['role'] . ' - ' . $user;
                 }
+		}
             }
         }
 
