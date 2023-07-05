@@ -389,6 +389,7 @@ class Route
      */
     public static function getSelectedTransporter($deliveryRoutes, $partner)
     {
+try {
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
                 return $partner->code_mtak_1;
@@ -402,7 +403,13 @@ class Route
             default:
                 return null;
                 break;
-        }
+}
+} catch (\Exception $e) {
+report($e);
+\Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
+return null;
+
+       }
     }
 
     /**
