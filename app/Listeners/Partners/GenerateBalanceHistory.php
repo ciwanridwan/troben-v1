@@ -859,14 +859,7 @@ class GenerateBalanceHistory
         $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first();
 
         if ($variant == '0') {
-            $discount = 0;
-            $check = $this->package->prices->where('type', Price::TYPE_DISCOUNT)->first();
-            if (is_null($check)) {
-                $discount = 0;
-            } else {
-                $discount = $check->amount;
-            }
-            $balance_service = ($service_price->amount  * $incomeCubic) - $discount;
+            $balance_service = $service_price->amount  * $incomeCubic;
         } else {
             $balance_service = $this->package->total_weight * $incomeCubic;
         }
