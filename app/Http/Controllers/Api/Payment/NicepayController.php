@@ -54,6 +54,7 @@ class NicepayController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
+	Log::debug('NicepayWebhook: ', $request->all());
         event(new PayByNicepay($request));
 
         return $this->jsonSuccess();
