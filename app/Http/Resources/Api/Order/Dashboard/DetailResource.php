@@ -218,6 +218,7 @@ class DetailResource extends JsonResource
         $pickup = $this->prices()->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
         $discount = $this->prices()->where('type', PackagesPrice::TYPE_DISCOUNT)->first();
         $admin = $this->payments()->where('payable_type', Package::class)->first();
+        $platform = $this->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->first();
 
         $insuranceFee = (int) $insurance ?? 0;
         $handlingFee = (int) $handling ?? 0;
@@ -226,8 +227,9 @@ class DetailResource extends JsonResource
         $pickupFee = $pickup ? $pickup->amount : 0;
         $adminFee = $admin ? $admin->payment_admin_charges : 0;
         $discountFee = $discount ? $discount->amount : 0;
+        $platformFee = $platform ? $platform->amount : 0;
 
-        $totalAmount = $insuranceFee + $handlingFee + $additionalFee + $serviceFee + $pickupFee + $adminFee - $discountFee;
+        $totalAmount = $insuranceFee + $handlingFee + $additionalFee + $serviceFee + $pickupFee + $adminFee + $platformFee - $discountFee;
         $summaryTotalAmount = $insuranceFee + $handlingFee + $serviceFee + $additionalFee;
 
         return [
@@ -239,6 +241,7 @@ class DetailResource extends JsonResource
             'service' => $serviceFee,
             'pickup' => $pickupFee,
             'discount' => $discountFee,
+            'platform_fee' => $platformFee,
             'total_amount_item' =>$summaryTotalAmount,
             'total_amount' => $totalAmount
         ];

@@ -311,6 +311,7 @@ class OrderController extends Controller
             'pickup_price_discount' => $prices['pickup_price_discount'] ?? 0,
             'voucher_price_discount' => $prices['voucher_price_discount'] ?? 0,
             'fee_additional' => $feeAdditional,
+            'platform_fee' => $prices['platform_price'],
             'is_walkin' => $isWalkin,
             'total_amount' => $package->total_amount - $prices['voucher_price_discount'],
             'is_multi' => $isMulti,

@@ -29,22 +29,22 @@ class GeneratePackageBikePrices
     {
         if (property_exists($event, 'package') && $event->package instanceof Package && $event->package->payment_status !== Package::PAYMENT_STATUS_PAID) {
             $event->package->items->each(function (Item $item) use ($event) {
-                $existing_handling = [];
-                foreach (($item->handling ?? []) as $handling) {
-                    $handling['price'] = $item->qty * $handling['price'];
-                    $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
-                        'type' => Price::TYPE_HANDLING,
-                        'description' => $handling['type'],
-                        'amount' => $handling['price'],
-                    ]);
-                    $this->dispatch($job);
+                // $existing_handling = [];
+                // foreach (($item->handling ?? []) as $handling) {
+                //     $handling['price'] = $item->qty * $handling['price'];
+                //     $job = new UpdateOrCreatePriceFromExistingItem($event->package, $item, [
+                //         'type' => Price::TYPE_HANDLING,
+                //         'description' => $handling['type'],
+                //         'amount' => $handling['price'],
+                //     ]);
+                //     $this->dispatch($job);
 
-                    $existing_handling[] = $handling['type'];
-                }
+                //     $existing_handling[] = $handling['type'];
+                // }
 
-                $item->prices()->where('type', Price::TYPE_HANDLING)
-                    ->whereNotIn('description', $existing_handling)
-                    ->delete();
+                // $item->prices()->where('type', Price::TYPE_HANDLING)
+                //     ->whereNotIn('description', $existing_handling)
+                //     ->delete();
 
                 if ($item->is_insured) {
                     $insured_mul = 0.2 / 100; // 0.2%
@@ -158,39 +158,17 @@ class GeneratePackageBikePrices
                 $is_approved = true;
             }
 
+            // platform fee
+            if ($package->prices) {
+                $job = new UpdateOrCreatePriceFromExistingPackage($package, [
+                    'type' => Price::TYPE_PLATFORM,
+                    'description' => Price::DESCRIPTION_PLATFORM_FEE,
+                    'amount' => Price::FEE_PLATFORM,
+                ]);
+                $this->dispatch($job);
+            }
+
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
-
-            /** Inserting required handling prices of bikes */
-            // try {
-            //     $ccInput = [
-            //         'moto_cc' => $package->motoBikes()->first()->cc
-            //     ];
-            //     switch ($ccInput['moto_cc']) {
-            //         case 150:
-            //             $handlingBikePrices = 175000;
-            //             break;
-            //         case 250:
-            //             $handlingBikePrices = 250000;
-            //             break;
-            //         case 999:
-            //             $handlingBikePrices = 450000;
-            //             break;
-            //     }
-
-            //     $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
-            //         'type' => Price::TYPE_HANDLING,
-            //         'description' => Handling::TYPE_BIKES,
-            //         'amount' => $handlingBikePrices
-            //     ]);
-            //     $this->dispatch($job);
-
-            //     /** Set Packate item id to bike handling */
-            //     $itemId = $event->package->items()->first()->id;
-            //     $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
-            //     $packagePrices->update(['package_item_id' => $itemId]);
-            // } catch (\Throwable $th) {
-            //     throw $th;
-            // }
         }
     }
 }

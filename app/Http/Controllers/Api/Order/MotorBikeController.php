@@ -19,6 +19,7 @@ use App\Models\Packages\CategoryItem;
 use App\Models\Packages\Item;
 use App\Models\Packages\MotorBike;
 use App\Models\Packages\Package;
+use App\Models\Packages\Price;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\PartnerSatellite;
@@ -325,7 +326,7 @@ class MotorBikeController extends Controller
                 break;
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price;
+        $total_amount = $pickup_price + $insurance + $service_price + Price::FEE_PLATFORM;
 
         $result = [
             'details' => [
@@ -333,6 +334,7 @@ class MotorBikeController extends Controller
                 'insurance_price' => $insurance,
                 'handling_price' => 0,
                 'handling_additional_price' => 0,
+                'platform_fee' => Price::FEE_PLATFORM,
                 'service_price' => intval($service_price)
             ],
             'total_amount' => $total_amount,
