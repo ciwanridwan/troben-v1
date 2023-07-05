@@ -237,7 +237,7 @@ class PricingCalculator
             throw_if($price === null, InvalidDataException::make(Response::RC_INVALID_DATA, ["message" => "Items doesn't input, please input items"]));
         }
 
-        foreach ($inputs['items'] as $index => $item) {
+        foreach (($inputs['items']??[]) as $index => $item) {
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
