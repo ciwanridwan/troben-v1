@@ -138,7 +138,7 @@ class Handling implements CastsAttributes
     {
         switch ($cc) {
             case 150:
-                $price = 150000;
+                $price = 175000;
                 return $price;
                 break;
             case 250:
@@ -146,7 +146,7 @@ class Handling implements CastsAttributes
                 return $price;
                 break;
             case 999:
-                $price = 500000;
+                $price = 450000;
                 return $price;
                 break;
             default:
