@@ -36,7 +36,7 @@ class RequestLogger
                     if (isset($claims['role'])) {
                         $user = $claims['role'] . ' - ' . $user;
                     }
-                }
+		}
             }
         }
 
