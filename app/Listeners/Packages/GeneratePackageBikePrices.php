@@ -168,6 +168,7 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
             }
 
+            // dd('abbb');
             try {
                 $ccInput = [
                     'moto_cc' => $package->motoBikes()->first()->cc
@@ -195,13 +196,13 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
 
                 /** Set Packate item id to bike handling */
-                $itemId = $event->package->items()->first()->id;
+                $item = $event->package->items()->first();
                 $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
-                $packagePrices->update(['package_item_id' => $itemId]);
+                $packagePrices->update(['package_item_id' => $item->id]);
             } catch (\Exception $e) {
                 report($e);
             }
-
+            
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
         }
     }

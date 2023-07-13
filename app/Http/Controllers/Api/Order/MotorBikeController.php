@@ -326,6 +326,7 @@ class MotorBikeController extends Controller
                 break;
         }
 
+        throw_if($service_price == 0, new Error(Response::RC_BAD_REQUEST, ["message" => 'Service price not available']));
         // get required handling
         $handlingPrice = Handling::bikeCalculator($req['moto_cc']);
 
@@ -413,7 +414,7 @@ class MotorBikeController extends Controller
             $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
         }
         
-        $this->attributes['item']['handling'] = Handling::TYPE_WOOD;
+        $this->attributes['item']['handling'] = Handling::TYPE_BIKES;
         $this->attributes['item']['qty'] = 1;
         $this->attributes['item']['name'] = $this->attributes['item']['moto_merk'];
         $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%'.CategoryItem::TYPE_BIKE.'%')->first()->id;
