@@ -397,6 +397,8 @@ if (is_null($partner)) {
 return null;
 }
 
+try {
+
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
                 return $partner->code_mtak_1;
@@ -410,7 +412,13 @@ return null;
             default:
                 return null;
                 break;
-        }
+}
+} catch (\Exception $e) {
+report($e);
+\Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
+return null;
+
+       }
     }
 
     /**

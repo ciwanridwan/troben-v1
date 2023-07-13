@@ -22,18 +22,20 @@ class RequestLogger
         $agent = $request->header('User-Agent');
         $user = 'guest';
         $auth = $request->header('Authorization');
-        if ($auth && strpos( $auth, 'Bearer' ) !== false) {
+        if ($auth && strpos($auth, 'Bearer') !== false) {
             $jwt = explode('Bearer', $auth);
             if (count($jwt) >= 2) {
                 $jwtItem = explode('.', trim($jwt[1]));
-                $claim = base64_decode($jwtItem[1]);
-                $claims = json_decode($claim, true);
-                
-                if (isset($claims['sub'])) {
-                    $user = $claims['sub'];
-                }
-                if (isset($claims['role'])) {
-                    $user = $claims['role'] . ' - ' . $user;
+                if (count($jwtItem) >= 2) {
+                    $claim = base64_decode($jwtItem[1]);
+                    $claims = json_decode($claim, true);
+
+                    if (isset($claims['sub'])) {
+                        $user = $claims['sub'];
+                    }
+                    if (isset($claims['role'])) {
+                        $user = $claims['role'] . ' - ' . $user;
+                    }
                 }
             }
         }

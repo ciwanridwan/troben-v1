@@ -77,6 +77,12 @@ class MultiDestinationController extends Controller
         $allHash = [];
 
         for ($i = 0; $i < $countReceiver; $i++) {
+
+	// if index not set, skip it
+	if (! isset($this->attributes['items'][$i])) {
+	continue;
+	}	
+
             $receiverAttributes = [
                 'receiver_name' => $this->attributes['receiver_name'][$i],
                 'receiver_phone' => $this->attributes['receiver_phone'][$i],
