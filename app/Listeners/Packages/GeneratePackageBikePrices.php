@@ -62,11 +62,11 @@ class GeneratePackageBikePrices
             /** @var Package $package */
             $package = $event->package->refresh();
 
-            if (! $package->relationLoaded('origin_regency')) {
+            if (!$package->relationLoaded('origin_regency')) {
                 $package->load('origin_regency');
             }
 
-            if (! $package->relationLoaded('destination_sub_district')) {
+            if (!$package->relationLoaded('destination_sub_district')) {
                 $package->load('destination_sub_district');
             }
 
@@ -77,7 +77,7 @@ class GeneratePackageBikePrices
                     'destination_id' => $package->destination_sub_district->id,
                     'moto_cc' => $package->motoBikes()->first()->cc
                 ];
-                
+
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
                 switch ($service_input['moto_cc']) {
                     case 150:
@@ -166,6 +166,40 @@ class GeneratePackageBikePrices
                     'amount' => Price::FEE_PLATFORM,
                 ]);
                 $this->dispatch($job);
+            }
+
+            try {
+                $ccInput = [
+                    'moto_cc' => $package->motoBikes()->first()->cc
+                ];
+                switch ($ccInput['moto_cc']) {
+                    case 150:
+                        $handlingBikePrices = 175000;
+                        break;
+                    case 250:
+                        $handlingBikePrices = 250000;
+                        break;
+                    case 999:
+                        $handlingBikePrices = 450000;
+                        break;
+                    default:
+                        $handlingBikePrices = 0;
+                        break;
+                }
+
+                $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                    'type' => Price::TYPE_HANDLING,
+                    'description' => Handling::TYPE_BIKES,
+                    'amount' => $handlingBikePrices,
+                ]);
+                $this->dispatch($job);
+
+                /** Set Packate item id to bike handling */
+                $itemId = $event->package->items()->first()->id;
+                $packagePrices = $event->package->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+                $packagePrices->update(['package_item_id' => $itemId]);
+            } catch (\Exception $e) {
+                report($e);
             }
 
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
