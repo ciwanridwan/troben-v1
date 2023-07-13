@@ -36,7 +36,10 @@ class PackageController extends Controller
             $this->dispatch($deliveryJob);
         }
         $this->dispatch($job);
-        $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+
+	$userId = 0;
+	if ($request->auth) { $userId = $request->auth->id; }
+        $code->codeable->setAttribute('updated_by', $userId)->save();
 
         return $this->jsonSuccess();
     }
@@ -222,7 +225,12 @@ class PackageController extends Controller
         $pickupPrice->amount = $attributes['amount'];
         $pickupPrice->save();
 
-        $code->codeable->setAttribute('updated_by', $request->auth->id)->save();
+	$userId = 0;
+	if ($request->auth) {
+	$userId = $request->auth->id;
+	}
+
+        $code->codeable->setAttribute('updated_by', $userId)->save();
 
         return (new Response(Response::RC_UPDATED))->json();
     }
