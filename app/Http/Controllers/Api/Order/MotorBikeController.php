@@ -326,13 +326,16 @@ class MotorBikeController extends Controller
                 break;
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price;
+        // get required handling
+        $handlingPrice = Handling::bikeCalculator($req['moto_cc']);
+
+        $total_amount = $pickup_price + $insurance + $service_price + Price::FEE_PLATFORM + $handlingPrice;
 
         $result = [
             'details' => [
                 'pickup_price' => $pickup_price,
                 'insurance_price' => $insurance,
-                'handling_price' => 0,
+                'handling_price' => $handlingPrice,
                 'handling_additional_price' => 0,
                 'platform_fee' => Price::FEE_PLATFORM,
                 'service_price' => intval($service_price)
