@@ -86,7 +86,7 @@ class Handling implements CastsAttributes
         return $weight;
     }
 
-    public static function calculator($type, $height, $length, $width, $weight, $itemId)
+    public static function calculator($type, $height, $length, $width, $weight, $itemId = null)
     {
         switch ($type) {
             case self::TYPE_BUBBLE_WRAP:
