@@ -62,7 +62,7 @@ class CreatePackageForBike
         $this->items = Validator::make($items, [
             'is_insured' => ['nullable', 'boolean'],
             'price' => ['required_if:is_insured,true', 'numeric'],
-            'handling' => ['required', Rule::in(Handling::TYPE_BIKES)],
+            'handling' => ['required', Rule::in(Handling::TYPE_WOOD)],
             'qty' => ['required', 'numeric'],
             'name' => ['required', 'string'],
             'weight' => ['required', 'numeric'],
