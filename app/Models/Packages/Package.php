@@ -1036,7 +1036,7 @@ class Package extends Model implements AttachableContract
             'additional_fee' => intval($additionalFee),
             'pickup_fee' => intval($pickupFee),
             'service_fee' => $serviceFee,
-            'platform_fee' => $platformFee,
+            'platform_fee' => (int)$platformFee,
             'total_amount' => $totalAmount,
             'items' => $weightVolume
         ];

@@ -241,7 +241,7 @@ class DetailResource extends JsonResource
             'service' => $serviceFee,
             'pickup' => $pickupFee,
             'discount' => $discountFee,
-            'platform_fee' => $platformFee,
+            'platform_fee' => (int)$platformFee,
             'total_amount_item' =>$summaryTotalAmount,
             'total_amount' => $totalAmount
         ];
