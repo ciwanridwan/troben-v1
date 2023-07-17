@@ -969,7 +969,7 @@ class Package extends Model implements AttachableContract
                 'insurance_fee' => $totalInsuranceFee,
                 'additional_fee' => $totalAdditionalFee,
                 'pickup_fee' => intval($pickupFee),
-                'service_fee' => $serviceFee,
+                'service_fee' => (int)$serviceFee,
                 'platform_fee' => (int)$platformFee,
                 'total_amount' => $totalAmount
             ];
@@ -1116,6 +1116,7 @@ class Package extends Model implements AttachableContract
         $subTotalAmount = $insuranceFee;
         $result = [
             'insurance_fee' => $insuranceFee,
+            'handling_fee' => $handlingFeeRequired,
             'sub_total_amount' => $subTotalAmount
         ];
 
