@@ -962,7 +962,7 @@ class Package extends Model implements AttachableContract
             $totalHandlingFee = array_sum(array_column($results, 'handling_fee'));
             $totalInsuranceFee = array_sum(array_column($results, 'insurance_fee'));
             $totalAdditionalFee = array_sum(array_column($results, 'additional_fee'));
-            $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee;
+            $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee + $platformFee;
 
             $res = [
                 'handling_fee' => $totalHandlingFee,
@@ -1033,7 +1033,7 @@ class Package extends Model implements AttachableContract
 
         $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
-        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee;
+        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee + $platformFee;
 
         $result = [
             'handling_fee' => intval($handlingFee),
