@@ -432,7 +432,7 @@ class MotorBikeController extends Controller
             $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
         }
 
-        $this->attributes['item']['handling'] = Handling::TYPE_BIKES;
+        $this->attributes['item']['handling'] = Handling::TYPE_WOOD;
         $this->attributes['item']['qty'] = 1;
         $this->attributes['item']['name'] = $this->attributes['item']['moto_merk'];
         $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%' . CategoryItem::TYPE_BIKE . '%')->first()->id;
