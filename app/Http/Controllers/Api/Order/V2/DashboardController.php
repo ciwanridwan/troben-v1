@@ -90,11 +90,18 @@ class DashboardController extends Controller
 
     public function listCategories(Request $request): JsonResponse
     {
-        $request->validate(['service_code' => ['nullable', 'exists:services,code']]);
+        $request->validate([
+            'service_code' => ['nullable', 'exists:services,code'],
+            'type' => ['nullable', 'in:multi']
+        ]);
         $query = CategoryItem::query()->select('id', 'name', 'is_insured');
 
         if (!is_null($request->service_code)) {
             if ($request->service_code === Service::TRAWLPACK_EXPRESS) {
+                $query->where('name', '!=', 'Motor');
+            }
+
+            if (!is_null($request->type)) {
                 $query->where('name', '!=', 'Motor');
             }
         }
