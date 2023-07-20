@@ -77,6 +77,10 @@ class DashboardController extends Controller
             $q->where('status', Delivery::STATUS_PENDING)->orWhere('status', Delivery::STATUS_ACCEPTED);
         });
 
+        $this->query->whereHas('packages', function (Builder $builder) {
+            $builder->whereIn('packages.status', [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_PICKUP]);
+        });
+
         $this->query->orderBy('created_at', 'desc');
 
         return $this->jsonSuccess(ListOrderResource::collection($this->query->paginate(request('per_page', 15))));
