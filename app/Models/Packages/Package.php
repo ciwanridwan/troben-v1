@@ -1086,41 +1086,36 @@ class Package extends Model implements AttachableContract
     {
         $item = $this->items()->first();
 
-        if ($item->handling) {
-            $packingFee = collect($item->handling)->map(function ($q) use ($item) {
-                $p = $q['price'] * $item->qty;
-                $r = [
-                    'type' => $q['type'],
-                    'price' => $p
-                ];
-                return $r;
-            })->toArray();
+        if (!is_null($item)) {
+            $handlingBike = $this->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+            if (is_null($handlingBike)) {
+                $handlingFeeRequired = 0;
+            } else {
+                $handlingFeeRequired = $handlingBike->amount;
+            }
 
-            $handlingFeeAdditional = array_sum(array_column($packingFee, 'price'));
+            $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+            if (!$item->is_insured) {
+                $insuranceFee = 0;
+            }
+
+            $subTotalAmount = $insuranceFee;
+            $result = [
+                'insurance_fee' => $insuranceFee,
+                'handling_fee' => $handlingFeeRequired,
+                'sub_total_amount' => $subTotalAmount
+            ];
+
+            return array($result);
         } else {
-            $handlingFeeAdditional = 0;
+            $result = [
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'sub_total_amount' => 0
+            ];
+
+            return array($result);
         }
-
-        $handlingBike = $this->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
-        if (is_null($handlingBike)) {
-            $handlingFeeRequired = 0;
-        } else {
-            $handlingFeeRequired = $handlingBike->amount;
-        }
-
-        $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-        if (!$item->is_insured) {
-            $insuranceFee = 0;
-        }
-
-        $subTotalAmount = $insuranceFee;
-        $result = [
-            'insurance_fee' => $insuranceFee,
-            'handling_fee' => $handlingFeeRequired,
-            'sub_total_amount' => $subTotalAmount
-        ];
-
-        return array($result);
     }
 
     /**
