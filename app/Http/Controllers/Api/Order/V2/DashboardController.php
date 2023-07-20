@@ -60,9 +60,7 @@ class DashboardController extends Controller
 
     public function index(PartnerRepository $partnerRepository)
     {
-        $queryPackageCancelled = fn (Builder $builder) => $builder->where('status', '!=', Package::STATUS_CANCEL);
-
-        $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages', $queryPackageCancelled)->with([
+        $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages')->with([
             'packages', 'packages.code',
             'packages.origin_regency',
             'packages.origin_district',
