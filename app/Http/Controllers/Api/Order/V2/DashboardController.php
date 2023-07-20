@@ -60,9 +60,7 @@ class DashboardController extends Controller
 
     public function index(PartnerRepository $partnerRepository)
     {
-        $queryPackageCancelled = fn (Builder $builder) => $builder->where('status', '!=', Package::STATUS_CANCEL);
-
-        $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages', $queryPackageCancelled)->with([
+        $this->query = $partnerRepository->queries()->getDeliveriesQuery()->whereHas('packages')->with([
             'packages', 'packages.code',
             'packages.origin_regency',
             'packages.origin_district',
@@ -77,6 +75,10 @@ class DashboardController extends Controller
 
         $this->query->where('type', Delivery::TYPE_PICKUP)->where(function ($q) {
             $q->where('status', Delivery::STATUS_PENDING)->orWhere('status', Delivery::STATUS_ACCEPTED);
+        });
+
+        $this->query->whereHas('packages', function (Builder $builder) {
+            $builder->whereIn('packages.status', [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_PICKUP]);
         });
 
         $this->query->orderBy('created_at', 'desc');
