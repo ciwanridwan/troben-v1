@@ -77,6 +77,10 @@ class DashboardController extends Controller
             $q->where('status', Delivery::STATUS_PENDING)->orWhere('status', Delivery::STATUS_ACCEPTED);
         });
 
+        $this->query->whereHas('packages', function (Builder $builder) {
+            $builder->whereIn('packages.status', [Package::STATUS_PENDING, Package::STATUS_WAITING_FOR_PICKUP]);
+        });
+
         $this->query->orderBy('created_at', 'desc');
 
         return $this->jsonSuccess(ListOrderResource::collection($this->query->paginate(request('per_page', 15))));
@@ -90,11 +94,18 @@ class DashboardController extends Controller
 
     public function listCategories(Request $request): JsonResponse
     {
-        $request->validate(['service_code' => ['nullable', 'exists:services,code']]);
+        $request->validate([
+            'service_code' => ['nullable', 'exists:services,code'],
+            'type' => ['nullable', 'in:multi']
+        ]);
         $query = CategoryItem::query()->select('id', 'name', 'is_insured');
 
         if (!is_null($request->service_code)) {
             if ($request->service_code === Service::TRAWLPACK_EXPRESS) {
+                $query->where('name', '!=', 'Motor');
+            }
+
+            if (!is_null($request->type)) {
                 $query->where('name', '!=', 'Motor');
             }
         }

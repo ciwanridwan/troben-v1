@@ -3,6 +3,7 @@
 namespace App\Casts\Package\Items;
 
 use App\Actions\Pricing\PricingCalculator;
+use App\Models\Packages\MotorBike;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class Handling implements CastsAttributes
@@ -48,7 +49,7 @@ class Handling implements CastsAttributes
     {
         $data = collect($value)->map(fn (string $type) => [
             'type' => $type,
-            'price' => ceil(self::calculator($type, $model->height, $model->length, $model->width, $model->weight)),
+            'price' => ceil(self::calculator($type, $model->height, $model->length, $model->width, $model->weight, $model->id)),
         ]);
 
         return json_encode($data);
@@ -85,7 +86,7 @@ class Handling implements CastsAttributes
         return $weight;
     }
 
-    public static function calculator($type, $height, $length, $width, $weight)
+    public static function calculator($type, $height, $length, $width, $weight, $itemId = null)
     {
         switch ($type) {
             case self::TYPE_BUBBLE_WRAP:
@@ -129,6 +130,10 @@ class Handling implements CastsAttributes
                 $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.6);
 
                 return $price < $min_price ? $min_price : $price;
+            case self::TYPE_BIKES:
+                $cc = MotorBike::query()->where('package_item_id', $itemId)->first()->cc;
+                $price = self::bikeCalculator($cc);
+                return $price;
             default:
                 return 0;
         }

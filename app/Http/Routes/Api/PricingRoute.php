@@ -34,6 +34,11 @@ class PricingRoute extends BaseRoute
             'uses' => $this->uses('calculate'),
         ])->withoutMiddleware('api');
 
+        $this->router->post($this->prefix('calculator/bulk'), [
+            'as' => $this->name('calculator.bulk'),
+            'uses' => $this->uses('calculateNew'),
+        ])->withoutMiddleware('api');
+
         $this->router->post($this->prefix('location'), [
             'as' => $this->name('location'),
             'uses' => $this->uses('locationCheck'),

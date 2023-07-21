@@ -837,7 +837,7 @@ class GenerateBalanceHistory
             $this->servicePriceCubic($type, $variant, $isTransit);
         } else {
             if ($variant == '0') {
-                $balance_service = $service_price->amount * $this->getServiceFee($type);
+                $balance_service = $service_price->amount  * $this->getServiceFee($type);
             } else {
                 $balance_service = $this->package->total_weight * $this->getServiceFee($type);
             }

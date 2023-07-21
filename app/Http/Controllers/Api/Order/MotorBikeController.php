@@ -192,12 +192,12 @@ class MotorBikeController extends Controller
             'price' => 'required_if:is_insured,true|numeric',
 
             'handling' => 'nullable',
-            'handling.*' => 'nullable|in:'.Handling::TYPE_WOOD,
+            'handling.*' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => [Rule::requiredIf($request->handling != null), 'numeric'],
             'length' => [Rule::requiredIf($request->handling != null), 'numeric'],
             'width' => [Rule::requiredIf($request->handling != null), 'numeric'],
 
-            'transporter_type' => 'required|in:'.Transporter::TYPE_CDD_DOUBLE_BAK.','.Transporter::TYPE_CDD_DOUBLE_BOX.','.Transporter::TYPE_CDE_ENGKEL_BAK.','.Transporter::TYPE_CDE_ENGKEL_BOX.','.Transporter::TYPE_PICKUP_BOX.','.Transporter::TYPE_PICKUP,
+            'transporter_type' => 'required|in:' . Transporter::TYPE_CDD_DOUBLE_BAK . ',' . Transporter::TYPE_CDD_DOUBLE_BOX . ',' . Transporter::TYPE_CDE_ENGKEL_BAK . ',' . Transporter::TYPE_CDE_ENGKEL_BOX . ',' . Transporter::TYPE_PICKUP_BOX . ',' . Transporter::TYPE_PICKUP,
             'partner_code' => ['required', 'exists:partners,code']
         ], $messages);
 
@@ -262,7 +262,7 @@ class MotorBikeController extends Controller
             'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
-            'handling' => 'nullable|in:'.Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -286,14 +286,14 @@ class MotorBikeController extends Controller
         $pickup_price = 0;
         if ($request->input('transporter_type') != null && $request->input('transporter_type') != '' && $request->input('partner_code') != '' && $request->input('partner_code') != null) {
             $partner = Partner::where('code', $request->input('partner_code'))->first();
-            $origin = $request->input('origin_lat').', '.$request->input('origin_lon');
-            $destination = $partner->latitude.', '.$partner->longitude;
+            $origin = $request->input('origin_lat') . ', ' . $request->input('origin_lon');
+            $destination = $partner->latitude . ', ' . $partner->longitude;
 
             if ($request->input('partner_satellite') != null && $request->input('partner_satellite')) {
                 $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $request->input('partner_satellite'))->first();
-                if (! is_null($partnerSatellite)) {
+                if (!is_null($partnerSatellite)) {
                     // override destination partner
-                    $destination = $partnerSatellite->latitude.', '.$partnerSatellite->longitude;
+                    $destination = $partnerSatellite->latitude . ', ' . $partnerSatellite->longitude;
                 }
             }
 
@@ -326,9 +326,9 @@ class MotorBikeController extends Controller
                 break;
         }
 
+        throw_if($service_price == 0, new Error(Response::RC_BAD_REQUEST, ["message" => 'Service price not available']));
         // get required handling
         $handlingPrice = Handling::bikeCalculator($req['moto_cc']);
-
 
         $total_amount = $pickup_price + $insurance + $service_price + Price::FEE_PLATFORM + $handlingPrice;
 
@@ -397,11 +397,29 @@ class MotorBikeController extends Controller
                 throw InvalidDataException::make(Response::RC_INVALID_DATA, ['message' => 'Partner Satellite not found', 'code' => $this->attributes['partner_code'], 'satellite' => $this->attributes['partner_satellite']]);
             }
         }
-        
-        $this->attributes['origin_regency_id'] = $resultOrigin['regency']; 
+
+        $bikePrices = PricingCalculator::getBikePrice($resultOrigin['regency'], $this->attributes['destination_sub_district_id']);
+        switch ($this->attributes['item']['moto_cc']) {
+            case 150:
+                $checkPrices = $bikePrices->lower_cc;
+                break;
+            case 250:
+                $checkPrices = $bikePrices->middle_cc;
+                break;
+            case 999:
+                $checkPrices = $bikePrices->high_cc;
+                break;
+            default:
+                $checkPrices = 0;
+                break;
+        }
+
+        throw_if($checkPrices == 0, new Error(Response::RC_BAD_REQUEST, ["message" => 'Service price not available']));
+
+        $this->attributes['origin_regency_id'] = $resultOrigin['regency'];
         $this->attributes['origin_district_id'] = $resultOrigin['district'];
         $this->attributes['origin_sub_district_id'] = $resultOrigin['subdistrict'];
-        $this->attributes['customer_id'] = $request->user()->id; 
+        $this->attributes['customer_id'] = $request->user()->id;
         $this->attributes['created_by'] = $request->user()->id;
         if (isset($this->attributes['item']['insurance'])) {
             if ($this->attributes['item']['insurance'] === '1') {
@@ -413,11 +431,11 @@ class MotorBikeController extends Controller
             $this->attributes['sender_way_point'] = $this->attributes['sender_detail_address'];
             $this->attributes['receiver_way_point'] = $this->attributes['receiver_detail_address'];
         }
-        
+
         $this->attributes['item']['handling'] = Handling::TYPE_WOOD;
         $this->attributes['item']['qty'] = 1;
         $this->attributes['item']['name'] = $this->attributes['item']['moto_merk'];
-        $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%'.CategoryItem::TYPE_BIKE.'%')->first()->id;
+        $this->attributes['item']['category_item_id'] = CategoryItem::where("name", "ilike", '%' . CategoryItem::TYPE_BIKE . '%')->first()->id;
         $this->attributes['item']['weight'] = 0;
         $this->attributes['item']['height'] = 0;
         $this->attributes['item']['width'] = 0;
@@ -430,7 +448,7 @@ class MotorBikeController extends Controller
         event(new PackageCreatedForBike($job->package));
 
         // setup satellite partner
-        if (! is_null($partnerSatellite)) {
+        if (!is_null($partnerSatellite)) {
             PackageMeta::create([
                 'package_id' => $job->package->getKey(),
                 'key' => PackageMeta::KEY_PARTNER_SATELLITE,
@@ -443,14 +461,14 @@ class MotorBikeController extends Controller
 
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
-        
+
         event(new PackageBikeCreated($job->package, $partner->code));
 
         $this->orderAssignation($job->package, $partner);
 
         $result = [
             'bike_hash' => $job->package->hash,
-            'receipt_code' => $job->package->code()->first()->content 
+            'receipt_code' => $job->package->code()->first()->content
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();

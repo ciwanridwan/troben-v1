@@ -951,20 +951,26 @@ class Package extends Model implements AttachableContract
             }
             $pickupFee = $this->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount') ?? 0;
             $serviceFee = $this->total_weight * $this->tier_price;
+
+            if (!is_null($this->motoBikes())) {
+                $serviceFee = $this->prices()->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->sum('amount') ?? 0;
+            }
+
+            $serviceFee = $this->prices()->where('type', Price::TYPE_SERVICE)->sum('amount') ?? 0;
             $platformFee = $this->prices()->where('type', Price::TYPE_PLATFORM)->sum('amount') ?? 0;
 
             $totalHandlingFee = array_sum(array_column($results, 'handling_fee'));
             $totalInsuranceFee = array_sum(array_column($results, 'insurance_fee'));
             $totalAdditionalFee = array_sum(array_column($results, 'additional_fee'));
-            $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee;
+            $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee + $platformFee;
 
             $res = [
                 'handling_fee' => $totalHandlingFee,
                 'insurance_fee' => $totalInsuranceFee,
                 'additional_fee' => $totalAdditionalFee,
                 'pickup_fee' => intval($pickupFee),
-                'service_fee' => $serviceFee,
-                'platform_fee' => $platformFee,
+                'service_fee' => (int)$serviceFee,
+                'platform_fee' => (int)$platformFee,
                 'total_amount' => $totalAmount
             ];
             return $res;
@@ -1027,7 +1033,7 @@ class Package extends Model implements AttachableContract
 
         $subTotalAmount = $handlingFee + $insuranceFee + $serviceFee;
 
-        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee;
+        $totalAmount = $handlingFee + $insuranceFee + $serviceFee + $pickupFee + $additionalFee + $platformFee;
 
         $result = [
             'handling_fee' => intval($handlingFee),
@@ -1036,7 +1042,7 @@ class Package extends Model implements AttachableContract
             'additional_fee' => intval($additionalFee),
             'pickup_fee' => intval($pickupFee),
             'service_fee' => $serviceFee,
-            'platform_fee' => $platformFee,
+            'platform_fee' => (int)$platformFee,
             'total_amount' => $totalAmount,
             'items' => $weightVolume
         ];
@@ -1080,40 +1086,36 @@ class Package extends Model implements AttachableContract
     {
         $item = $this->items()->first();
 
-        if ($item->handling) {
-            $packingFee = collect($item->handling)->map(function ($q) use ($item) {
-                $p = $q['price'] * $item->qty;
-                $r = [
-                    'type' => $q['type'],
-                    'price' => $p
-                ];
-                return $r;
-            })->toArray();
+        if (!is_null($item)) {
+            $handlingBike = $this->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
+            if (is_null($handlingBike)) {
+                $handlingFeeRequired = 0;
+            } else {
+                $handlingFeeRequired = $handlingBike->amount;
+            }
 
-            $handlingFeeAdditional = array_sum(array_column($packingFee, 'price'));
+            $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
+            if (!$item->is_insured) {
+                $insuranceFee = 0;
+            }
+
+            $subTotalAmount = $insuranceFee;
+            $result = [
+                'insurance_fee' => $insuranceFee,
+                'handling_fee' => $handlingFeeRequired,
+                'sub_total_amount' => $subTotalAmount
+            ];
+
+            return array($result);
         } else {
-            $handlingFeeAdditional = 0;
+            $result = [
+                'insurance_fee' => 0,
+                'handling_fee' => 0,
+                'sub_total_amount' => 0
+            ];
+
+            return array($result);
         }
-
-        $handlingBike = $this->prices()->where('type', Price::TYPE_HANDLING)->where('description', Price::DESCRIPTION_TYPE_BIKE)->first();
-        if (is_null($handlingBike)) {
-            $handlingFeeRequired = 0;
-        } else {
-            $handlingFeeRequired = $handlingBike->amount;
-        }
-
-        $insuranceFee = $item->price * 0.002; // is calculate formula to get insurance
-        if (!$item->is_insured) {
-            $insuranceFee = 0;
-        }
-
-        $subTotalAmount = $insuranceFee;
-        $result = [
-            'insurance_fee' => $insuranceFee,
-            'sub_total_amount' => $subTotalAmount
-        ];
-
-        return array($result);
     }
 
     /**
