@@ -142,10 +142,10 @@ class CorporateController extends Controller
         ];
         $request->merge(['is_multi' => $request->is_multi ?? false]);
         $payload = array_merge($request->toArray(), $additional);
-        $tempData = PricingCalculator::calculate($payload, 'array');
+        $tempData = PricingCalculator::corporateCalculate($payload, 'array');
         throw_if($tempData['result']['service'] == 0, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE));
 
-        return PricingCalculator::calculate($payload);
+        return PricingCalculator::corporateCalculate($payload);
     }
 
     public function store(Request $request)
@@ -749,13 +749,15 @@ class CorporateController extends Controller
                 break;
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price;
+        $handlingPrice = Handling::bikeCalculator($request->get('moto_cc'));
+
+        $total_amount = $pickup_price + $insurance + $service_price + $handlingPrice;
 
         $result = [
             'details' => [
                 'pickup_price' => $pickup_price,
                 'insurance_price' => $insurance,
-                'handling_price' => 0,
+                'handling_price' => $handlingPrice,
                 'handling_additional_price' => 0,
                 'service_price' => intval($service_price)
             ],

@@ -110,7 +110,7 @@ class PricingCalculator
             }
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
-        
+
         if (!is_null($package->motoBikes)) {
             $handling_price = 0;
         }
@@ -226,7 +226,7 @@ class PricingCalculator
                 }
             }
         }
-        
+
         if (isset($inputs['is_multi']) && $inputs['is_multi']) {
             $pickup_price = 0;
         }
@@ -238,7 +238,7 @@ class PricingCalculator
             throw_if($price === null, InvalidDataException::make(Response::RC_INVALID_DATA, ["message" => "Items doesn't input, please input items"]));
         }
 
-        foreach (($inputs['items']??[]) as $index => $item) {
+        foreach (($inputs['items'] ?? []) as $index => $item) {
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
@@ -301,8 +301,191 @@ class PricingCalculator
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
         }
-        
+
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
+
+        $response = [
+            'price' => $result['price'],
+            'items' => $inputs['items'],
+            'result' => [
+                'insurance_price_total' => $insurancePriceTotal,
+                'total_weight_borne' => $totalWeightBorne,
+                'handling' => $handling_price,
+                'pickup_price' => $pickup_price,
+                'discount' => $discount,
+                'tier' => $result['tier'],
+                'additional_price' => $additionalCost,
+                'service' => $servicePrice,
+                'platform_fee' => PackagePrice::FEE_PLATFORM,
+                'total_amount' => $totalAmount
+            ]
+        ];
+
+        switch ($returnType) {
+            case 'array':
+                return $response;
+            case 'json':
+                return (new Response(Response::RC_SUCCESS, $response))->json();
+                break;
+            default:
+                return (new Response(Response::RC_SUCCESS, $response))->json();
+                break;
+        }
+    }
+
+    /**
+     * @param array $inputs
+     * @param string $returnType="json"|"array"
+     *
+     * @return JsonResponse|array
+     */
+    public static function corporateCalculate(array $inputs, string $returnType = 'json')
+    {
+        $inputs =  Validator::validate($inputs, [
+            'origin_province_id' => ['required', 'numeric', 'exists:geo_provinces,id'],
+            'origin_regency_id' => ['required', 'numeric', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
+            'service_code' => ['required', 'exists:services,code'],
+            'partner_code' => ['nullable'],
+            'partner_satellite' => ['nullable'],
+            'sender_latitude' => ['nullable'],
+            'sender_longitude' => ['nullable'],
+            'fleet_name' => ['nullable'],
+            'items' => ['nullable'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric'],
+            'items.*.weight' => ['required', 'numeric'],
+            'items.*.qty' => ['required', 'numeric'],
+            'items.*.handling' => ['nullable'],
+            'is_multi' => ['nullable', 'boolean']
+        ]);
+
+        $serviceCode = $inputs['service_code'];
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_CUBIC:
+                $cubicPrice = self::getCubicPrice($inputs['origin_regency_id'], $inputs['destination_id']);
+                break;
+            case Service::TRAWLPACK_EXPRESS:
+                $expressPrice = self::getExpressPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+                break;
+        }
+
+        /** @var Price $price */
+        $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+        $totalWeightBorne = self::getTotalWeightBorne($inputs['items'] ?? [], $serviceCode);
+        $insurancePriceTotal = 0;
+        $pickup_price = 0;
+
+        if (array_key_exists('fleet_name', $inputs) && isset($inputs['partner_code']) && $inputs['partner_code'] != '' && $inputs['partner_code'] != null) {
+            $partner = Partner::where('code', $inputs['partner_code'])->first();
+            $origin = $inputs['sender_latitude'] . ', ' . $inputs['sender_longitude'];
+            $destination = $partner->latitude . ', ' . $partner->longitude;
+
+            if (isset($inputs['partner_satellite']) && $inputs['partner_satellite']) {
+                $partnerSatellite = PartnerSatellite::where('id_partner', $partner->getKey())->where('id', $inputs['partner_satellite'])->first();
+                if (!is_null($partnerSatellite)) {
+                    // override destination partner
+                    $destination = $partnerSatellite->latitude . ', ' . $partnerSatellite->longitude;
+                }
+            }
+
+            $distance = DistanceMatrix::calculateDistance($origin, $destination);
+
+            if ($inputs['fleet_name'] == 'bike') {
+                if ($distance < 5) {
+                    $pickup_price = 8000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 8000 + (2000 * $substraction);
+                }
+            } else {
+                if ($distance < 5) {
+                    $pickup_price = 15000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 15000 + (4000 * $substraction);
+                }
+            }
+        }
+
+        if (isset($inputs['is_multi']) && $inputs['is_multi']) {
+            $pickup_price = 0;
+        }
+
+        $discount = 0;
+        $handling_price = 0;
+
+        if (!isset($inputs['items'])) {
+            throw_if($price === null, InvalidDataException::make(Response::RC_INVALID_DATA, ["message" => "Items doesn't input, please input items"]));
+        }
+
+        foreach (($inputs['items'] ?? []) as $index => $item) {
+            if (!Arr::has($item, 'handling')) {
+                $item['handling'] = [];
+            }
+            $handlingResult = [];
+            if ($item['handling'] != null) {
+                foreach ($item['handling'] as $packing) {
+                    $packingType = $packing;
+                    if (is_array($packingType) && isset($packingType['type'])) {
+                        $packingType = $packingType['type'];
+                    }
+
+                    $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handling_price += Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    $handlingResult[] = collect([
+                        'type' => $packing,
+                        'price' => ceil($handling),
+                    ]);
+                    $item['handling'] = $handlingResult;
+                }
+            }
+            $item['handling'] = self::checkHandling($item['handling']);
+            $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
+            $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+
+            $hasNotInsurance = isset($item['insurance']) && $item['insurance'] == false;
+            if ($hasNotInsurance) {
+                $item['insurance_price'] = 0;
+                $item['insurance_price_total'] = 0;
+            } else {
+                $item['insurance_price'] = ceil(self::getInsurancePrice($item['price']));
+                $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price'] * $item['qty']));
+            }
+            $inputs['items'][$index] = $item;
+            $insurancePriceTotal += $item['insurance_price_total'];
+        }
+
+        switch ($serviceCode) {
+            case Service::TRAWLPACK_STANDARD:
+                $tierPrice = self::getTier($price, $totalWeightBorne);
+                $servicePrice = self::getServicePrice($inputs, $price);
+                $result['price'] = PriceResource::make($price);
+                $result['tier'] = $tierPrice;
+                $result['total_weight_borne'] = $totalWeightBorne;
+                $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
+                break;
+
+            case Service::TRAWLPACK_CUBIC:
+                $servicePrice = self::getServiceCubicPrice($inputs, $cubicPrice);
+                $result['price'] = CubicPriceResource::make($cubicPrice);
+                $result['tier'] = $cubicPrice->amount;
+                $result['total_weight_borne'] = 0;
+                $additionalCost = 0;
+                break;
+
+            case Service::TRAWLPACK_EXPRESS:
+                $servicePrice = self::getServiceExpressPrice($inputs, $expressPrice);
+                $result['price'] = ExpressPriceResource::make($expressPrice);
+                $result['tier'] = $expressPrice->amount;
+                $result['total_weight_borne'] = $totalWeightBorne;
+                $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
+                break;
+        }
+
+        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost + PackagePrice::FEE_PLATFORM - $discount;
 
         $response = [
             'price' => $result['price'],
