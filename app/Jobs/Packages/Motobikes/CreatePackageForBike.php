@@ -97,20 +97,20 @@ class CreatePackageForBike
         $this->package->save();
 
         if ($this->package->exists) {
+	    // store item bike
+            $this->items['package_id'] = $this->package->id;
+            $this->item->fill($this->items);
+            $this->item->save();
+
+	    // store meta bike
             $this->bikes['package_id'] = $this->package->id;
+            $this->bikes['package_item_id'] = $this->item->id;
             $this->bikes['cc'] = $this->bikes['moto_cc'];
             $this->bikes['years'] = $this->bikes['moto_year'];
             $this->bikes['merk'] = $this->bikes['moto_merk'];
             $this->bikes['type'] = $this->bikes['moto_type'];
             
             $this->motoBike->fill($this->bikes);
-            $this->motoBike->save();
-
-            $this->items['package_id'] = $this->package->id;
-            $this->item->fill($this->items);
-            $this->item->save();
-
-            $this->motoBike['package_item_id'] = $this->item->id;
             $this->motoBike->save();
         }
 
