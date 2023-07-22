@@ -549,6 +549,7 @@ class CorporateController extends Controller
     public function listOrder(Request $request)
     {
         $request->validate([
+            'search' => ['nullable'],
             'status' => ['nullable', 'in:paid,draft,pending'],
             'start_date' => ['nullable', 'date_format:Y-m-d'],
             'end_date' => ['nullable', 'date_format:Y-m-d'],
@@ -582,6 +583,12 @@ class CorporateController extends Controller
         }
         if ($request->get('end_date')) {
             $results = $results->whereRaw("DATE(packages.created_at) <= '".$request->get('end_date')."'");
+        }
+        if ($request->get('search')) {
+            $search = $request->get('search');
+            $results = $results->whereHas('code', function($q) use ($search) {
+                $q->where('content', 'ILIKE', $search);
+            });
         }
 
         $results = $results->latest()->paginate(request('per_page', 15));
