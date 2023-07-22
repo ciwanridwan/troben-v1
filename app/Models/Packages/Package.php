@@ -256,6 +256,7 @@ class Package extends Model implements AttachableContract
         'hash',
         'service_price',
         'discount_service_price',
+        'discount_pickup_price',
         'type',
         'order_type',
         'estimation_prices',
@@ -380,14 +381,31 @@ class Package extends Model implements AttachableContract
         try {
             $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
                 ->where('description', Price::TYPE_SERVICE)
-                ->first()->amount;
+                ->first();
             if ($discount == null) {
                 $discount_service_price = 0;
             } else {
-                $discount_service_price = $discount;
+                $discount_service_price = $discount->amount;
             }
             return $discount_service_price;
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    public function getDiscountPickupPriceAttribute()
+    {
+        try {
+            $discount = $this->prices()->where('type', Price::TYPE_DISCOUNT)
+                ->where('description', Price::TYPE_PICKUP)
+                ->first();
+            if ($discount == null) {
+                $discount_service_price = 0;
+            } else {
+                $discount_service_price = $discount->amount;
+            }
+            return $discount_service_price;
+        } catch (\Exception $e) {
             return 0;
         }
     }
