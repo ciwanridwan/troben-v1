@@ -8,7 +8,6 @@
         <template slot="content">
             <h3
                 class="trawl-text-bolder trawl-text-danger"
-                :style="textStyle"
                 style="margin: 50px"
                 >
 Pengumuman Penting <br>                
