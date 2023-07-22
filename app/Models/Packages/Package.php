@@ -255,6 +255,7 @@ class Package extends Model implements AttachableContract
     protected $appends = [
         'hash',
         'service_price',
+        'additional_service_price',
         'discount_service_price',
         'discount_pickup_price',
         'type',
@@ -376,6 +377,23 @@ class Package extends Model implements AttachableContract
         }
     }
 
+    public function getAdditionalServicePriceAttribute()
+    {
+        try {
+            $price = $this->prices()->where('type', Price::TYPE_SERVICE)
+                ->where('description', Price::TYPE_ADDITIONAL)
+                ->first();
+            if ($price == null) {
+                $price_price = 0;
+            } else {
+                $price_price = $price->amount;
+            }
+            return $price_price;
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
     public function getDiscountServicePriceAttribute()
     {
         try {
@@ -383,11 +401,11 @@ class Package extends Model implements AttachableContract
                 ->where('description', Price::TYPE_SERVICE)
                 ->first();
             if ($discount == null) {
-                $discount_service_price = 0;
+                $price_price = 0;
             } else {
-                $discount_service_price = $discount->amount;
+                $price_price = $discount->amount;
             }
-            return $discount_service_price;
+            return $price_price;
         } catch (\Exception $e) {
             return 0;
         }
@@ -400,11 +418,11 @@ class Package extends Model implements AttachableContract
                 ->where('description', Price::TYPE_PICKUP)
                 ->first();
             if ($discount == null) {
-                $discount_service_price = 0;
+                $price_price = 0;
             } else {
-                $discount_service_price = $discount->amount;
+                $price_price = $discount->amount;
             }
-            return $discount_service_price;
+            return $price_price;
         } catch (\Exception $e) {
             return 0;
         }
