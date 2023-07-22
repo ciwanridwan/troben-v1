@@ -68,7 +68,7 @@ class UpdateExistingItem
 
 //remove from filled data if null
 foreach(['width', 'height', 'length', 'weight'] as $k) {
-  if (is_null($this->attributes[$k])) {
+  if (isset($this->attributes[$k]) && is_null($this->attributes[$k])) {
     unset($this->attributes[$k]);
   }
 }
