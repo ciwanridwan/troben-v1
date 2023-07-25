@@ -689,6 +689,13 @@ class CorporateController extends Controller
                 $partner = $partners->first();
             }
         }
+        // partner still null, get partner pickup
+        if (is_null($partner)) {
+            $partnerPickup = $result->picked_up_by->where('type', 'pickup')->first();
+            if (! is_null($partnerPickup)) {
+                $partner = $partnerPickup->partner;
+            }
+        }
         $result->partner = $partner;
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
