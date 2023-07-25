@@ -145,7 +145,7 @@ class ManifestController extends Controller
             }
 
             if ($request->has('search')) {
-                if (!is_null($request->search) || $request->search != "''" || $request->search != ""){
+                if (!is_null($request->search) || $request->search != ""){
                     $resetQuery = true;
                 }
             }
