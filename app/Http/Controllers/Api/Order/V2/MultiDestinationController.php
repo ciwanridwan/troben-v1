@@ -76,12 +76,15 @@ class MultiDestinationController extends Controller
         $childId = [];
         $allHash = [];
 
+        $isFirst = null;
         for ($i = 0; $i < $countReceiver; $i++) {
 
-	// if index not set, skip it
-	if (! isset($this->attributes['items'][$i])) {
-	continue;
-	}	
+            // if index not set, skip it
+            if (!isset($this->attributes['items'][$i])) {
+                continue;
+            }
+
+            if (is_null($isFirst)) $isFirst = $i;
 
             $receiverAttributes = [
                 'receiver_name' => $this->attributes['receiver_name'][$i],
@@ -116,7 +119,7 @@ class MultiDestinationController extends Controller
 
             $this->dispatchNow($uploadJob);
 
-            if ($i === 0) {
+            if ($i === $isFirst) {
                 $result['parent_id'] =  $job->package->id;
                 $packageHash['parent_hash'] = $job->package->hash;
 
@@ -148,7 +151,7 @@ class MultiDestinationController extends Controller
             $packageIds = $result;
             $hashPackage = $packageHash;
         }
-        
+
         // set package id parent package and child package
         $idPackages = [
             'parent_id' => $packageIds['parent_id'],
@@ -165,7 +168,7 @@ class MultiDestinationController extends Controller
             ]);
 
             $idPackagesToAssign = $idChild;
-            array_push($idPackagesToAssigns, $idPackagesToAssign);            
+            array_push($idPackagesToAssigns, $idPackagesToAssign);
         }
 
         // assign partner
