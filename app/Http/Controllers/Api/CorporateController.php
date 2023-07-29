@@ -586,8 +586,15 @@ class CorporateController extends Controller
         }
         if ($request->get('search')) {
             $search = $request->get('search');
-            $results = $results->whereHas('code', function($q) use ($search) {
-                $q->where('content', 'ILIKE', $search);
+            $results = $results->where(function($q) use ($search) {
+                $q
+                ->where('sender_name', 'ILIKE', '%'.$search.'%')
+                ->orWhere('sender_phone', 'ILIKE', '%'.$search.'%')
+                ->orWhere('receiver_name', 'ILIKE', '%'.$search.'%')
+                ->orWhere('receiver_phone', 'ILIKE', '%'.$search.'%')
+                ->whereHas('code', function($q) use ($search) {
+                    $q->where('content', 'ILIKE', $search);
+                });
             });
         }
 
