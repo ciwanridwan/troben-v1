@@ -1209,4 +1209,68 @@ class PricingCalculator
 
         return $handling;
     }
+
+    /**
+     * get income bike service for partner
+     */
+    public static function getIncomeBikePartner($cc): int
+    {
+        switch ($cc) {
+            case 150:
+                $income = 200000;
+                break;
+            case 250:
+                $income = 250000;
+                break;
+            case 999:
+                $income = 350000;
+                break;
+            default:
+                $income = 0;
+                break;
+        }
+
+        return $income;
+    }
+
+    /**
+     * Get income bike on dooring delivery of partner
+     */
+    public static function getIncomeBikeDooringPartner($cc): int
+    {
+        switch (true) {
+            case $cc <= 250:
+                $income = 150000;
+                break;
+            case $cc == 999:
+                $income = 300000;
+                break;
+            default:
+                $income = 0;
+                break;
+        }
+
+        return $income;
+    }
+
+    /**
+     * Partner get commision of cubic service
+     */
+    public static function cubicCalculate($items): int
+    {
+        $weightVolume = [];
+        foreach ($items as $item) {
+            $dimension = $item->height * $item->length * $item->width / 1000000;
+
+            if ($dimension < 3) {
+                $dimension = 3;
+            }
+
+            array_push($weightVolume, $dimension);
+        }
+
+        $cubic = array_sum($weightVolume);
+
+        return $cubic;
+    }
 }

@@ -1054,8 +1054,7 @@ class Package extends Model implements AttachableContract
         if (isset($cubicResult)) {
             if ($cubicResult <= 3) {
                 $cubicResult = 3;
-            } else {
-            }
+            } 
         } else {
             $cubicResult = 0;
         }
