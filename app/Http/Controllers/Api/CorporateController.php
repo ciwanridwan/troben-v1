@@ -561,11 +561,12 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination.packages.corporate',
+            'multiDestination', 'parentDestination.packages.corporate', 'picked_up_by'
         ]);
 
         if (! $isAdmin) {
             $partner = auth()->user()->partners->first();
+	if (! is_null($partner)) {
             $partnerId = $partner->getKey();
             $results = $results->where(function($q) use ($partnerId) {
                 $q->where('created_by', auth()->id())
@@ -573,6 +574,7 @@ class CorporateController extends Controller
                     $q2->where('partner_id', $partnerId);
                 });
             });
+	}
 
         }
         if ($request->get('status')) {

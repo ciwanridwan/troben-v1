@@ -12,7 +12,7 @@
                 >
 Pengumuman Penting <br>                
 Mulai tanggal 1 Agustus 2023, dashboard lama akan dimatikan. <br>
-Mohon gunakan dashboard baru di alamat <a href="https://admin.trawlbens.com/">admin.trawlbens.com</a> sebagai penggantinya. 
+Mohon gunakan dashboard baru di alamat <a href="https://admin.trawlbens.com/">https://admin.trawlbens.com</a> sebagai penggantinya. 
                 </h3>
             @yield('content')
         </template>

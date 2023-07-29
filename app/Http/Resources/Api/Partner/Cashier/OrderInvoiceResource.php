@@ -38,6 +38,7 @@ class OrderInvoiceResource extends JsonResource
             'hash' => $this->hash,
             'receipt_code' => $this->code ? $this->code->content : null,
             'status' => $this->status,
+            'payment_status' => $this->payment_status,
             'status_label' => $this->getMessagesFromStatus($this->status),
             'created_at' => $this->created_at->format('Y-m-d'),
             'order_type' => $orderType,
@@ -103,7 +104,10 @@ class OrderInvoiceResource extends JsonResource
                 $message = 'Pesanan dalam pengantaran kurir';
                 break;
             case $status === Package::STATUS_PACKED:
-                $message = 'Pesanan telah sampai tujuan';
+                $message = 'Paket telah dipacking dan siap diantar menuju gudang transit';
+                break;
+            case $status === Package::STATUS_DELIVERED:
+                $message = 'Pesanan telah diterima';
                 break;
             default:
                 $message = 'Status pesanan tidak diketahui, segera lapor IT Team';
