@@ -619,6 +619,7 @@ class CorporateController extends Controller
             $item->type2 = $type2;
 
             $item->payment_method = $payment_method;
+            $item->status_label = Package::statusParser($item->status);
 
             $item->items->map(function($r) {
                 $r->category_item_name = $r->categories ? $r->categories->name : null;
