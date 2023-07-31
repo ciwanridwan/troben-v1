@@ -15,7 +15,7 @@ class AddFieldServicesToPartnerBalanceHistoriesTable extends Migration
     public function up()
     {
         Schema::table('partner_balance_histories', function (Blueprint $table) {
-            $table->enum('services', History::getAvailableServices())->nullable();
+            $table->enum('services', History::getAvailableServices())->default(History::DESCRIPTION_SERVICE_REGULAR);
         });
     }
 

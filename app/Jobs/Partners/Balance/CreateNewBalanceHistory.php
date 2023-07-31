@@ -41,6 +41,7 @@ class CreateNewBalanceHistory
             'balance' => ['required','numeric'],
             'type' => ['required', Rule::in(History::getAvailableType())],
             'description' => ['required', Rule::in(History::getAvailableDescription())],
+            'services' => ['nullable', Rule::in(History::getAvailableServices())]
         ])->validate();
         $this->history = new History();
     }
