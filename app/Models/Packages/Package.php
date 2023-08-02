@@ -1209,7 +1209,7 @@ class Package extends Model implements AttachableContract
             case $status === Package::STATUS_CANCEL:
                 $message = 'Pesanan dibatalkan';
                 break;
-            case $status === Package::CREATED_AT:
+            case $status === Package::STATUS_CREATED:
                 $message = 'Pesanan dibuat';
                 break;
             case $status === Package::STATUS_PENDING:
@@ -1263,7 +1263,7 @@ class Package extends Model implements AttachableContract
                 $message = 'Pesanan telah diterima';
                 break;
             default:
-                $message = 'Status pesanan tidak diketahui, segera lapor IT Team';
+                $message = 'Status pesanan tidak diketahui: '.$status;
                 break;
         }
 
