@@ -34,6 +34,8 @@ class MultiDestinationController extends Controller
         $request->validated();
         $this->attributes = $request->all();
 
+	\Log::info('reqmultinew', $request->all());
+
         // check user
         $user = $request->user();
         throw_if(!$user instanceof Customer, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
