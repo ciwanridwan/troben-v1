@@ -235,21 +235,38 @@ class WithdrawalController extends Controller
                 return (new Response(Response::RC_SUCCESS, $result))->json();
             }
         } else {
-            if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
-                $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);
-                $data = $this->paginate($pendingReceipts);
-                return (new Response(Response::RC_SUCCESS, $data))->json();
-            } else {
-                $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
-                $toCollect = collect(DB::select($pendingReceipts));
+            if ($withdrawal->status == Withdrawal::STATUS_TRANSFERRED) {
+                $result = DisbursmentHistory::where('disbursment_id', $withdrawal->id)->where('status', DisbursmentHistory::STATUS_APPROVE)->paginate(10);
 
-                $toCollect->map(function ($r) use ($withdrawal) {
-                    $r->created_at = $withdrawal->created_at->format('Y-m-d');
-                    return $r;
+                $itemCollection = $result->getCollection()->map(function ($r) {
+                    return [
+                        'receipt' => $r->receipt,
+                        'total_accepted' => $r->amount,
+                        'total_payment' => $r->amount,
+                        'created_at' => $r->created_at->format('Y-m-d H:i:s')
+                    ];
                 })->values();
 
-                $data = $this->paginate($toCollect);
-                return (new Response(Response::RC_SUCCESS, $data))->json();
+                $result->setCollection($itemCollection);
+
+                return (new Response(Response::RC_SUCCESS, $result))->json();
+            } else {
+                if ($withdrawal->partner->type == Partner::TYPE_TRANSPORTER) {
+                    $pendingReceipts = $this->getDetailDisbursmentTransporter($withdrawal->partner_id, $withdrawal->created_at);
+                    $data = $this->paginate($pendingReceipts);
+                    return (new Response(Response::RC_SUCCESS, $data))->json();
+                } else {
+                    $pendingReceipts = $this->newQueryDetailDisbursment($withdrawal->partner_id);
+                    $toCollect = collect(DB::select($pendingReceipts));
+
+                    $toCollect->map(function ($r) use ($withdrawal) {
+                        $r->created_at = $withdrawal->created_at->format('Y-m-d');
+                        return $r;
+                    })->values();
+
+                    $data = $this->paginate($toCollect);
+                    return (new Response(Response::RC_SUCCESS, $data))->json();
+                }
             }
         }
         /** End todo */
