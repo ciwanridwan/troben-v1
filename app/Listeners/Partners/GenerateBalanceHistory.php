@@ -94,6 +94,7 @@ class GenerateBalanceHistory
     protected Withdrawal $withdrawal;
 
     protected string $type;
+    protected string $serviceType;
     protected string $description;
 
     /**
@@ -164,7 +165,7 @@ class GenerateBalanceHistory
                         $balance_insurance = 0;
                         $balancePickup = 0;
                         $extraFee = 0;
-                        $bikeFeeHandling = 0;
+                        $bikeServiceFee = 0;
                         $discountServiceFee = 0;
                         $discountPickupFee = 0;
                         // $feeAdditional = 0;
@@ -172,7 +173,12 @@ class GenerateBalanceHistory
                         # total balance service > record service balance
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
-                            $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
+                            if (!is_null($package->motoBikes)) {
+                                $servicePrice = $this->saveServiceFee($this->partner->type, $variant, false, $package->motoBikes->cc);
+                            } else {
+                                $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
+                            }
+
                             $discountService = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
 
                             // set discount fee service
@@ -221,7 +227,7 @@ class GenerateBalanceHistory
                             foreach ($package_prices as $price) {
                                 $handling_price = $price->amount;
                                 //$item_qty = $price->item->qty;
-				//remove multiplier qty, as handling calculate already all qty
+                                //remove multiplier qty, as handling calculate already all qty
                                 $balance_handling += $handling_price;
                             }
 
@@ -277,7 +283,7 @@ class GenerateBalanceHistory
                         }
 
                         /** Set balance partner*/
-                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $bikeFeeHandling + $extraFee - $discount;
+                        $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $extraFee - $discount;
 
                         $balanceExisting = floatval($this->partner->balance);
                         $totalBalance = $balanceExisting + $newIncome;
@@ -440,6 +446,20 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
+                if (!is_null($this->package->motoBikes)) {
+                    $bikeServiceFee = PricingCalculator::getIncomeBikeDooringPartner($this->package->motoBikes->cc);
+                    $this->partner->balance += $bikeServiceFee;
+                    $this->partner->save();
+
+                    $this
+                        ->setBalance($bikeServiceFee)
+                        ->setType(History::TYPE_DEPOSIT)
+                        ->setDescription(History::DESCRIPTION_DOORING)
+                        ->setServiceType(History::DESCRIPTION_SERVICE_BIKE)
+                        ->setAttributes()
+                        ->recordHistory();
+                    break;
+                }
 
                 $weight = $this->package->total_weight;
 
@@ -648,6 +668,18 @@ class GenerateBalanceHistory
     }
 
     /**
+     * Define service type.
+     *
+     * @param string $serviceType
+     * @return $this
+     */
+    protected function setServiceType(string $serviceType): self
+    {
+        $this->serviceType = $serviceType;
+        return $this;
+    }
+
+    /**
      * Define Description.
      *
      * @param string $description
@@ -670,7 +702,8 @@ class GenerateBalanceHistory
             'partner_id' => $this->partner->id,
             'balance' => $this->balance,
             'type' => $this->type,
-            'description' => $this->description
+            'description' => $this->description,
+            'services' => $this->serviceType ?? History::DESCRIPTION_SERVICE_REGULAR
         ];
 
         if ($this->type === History::TYPE_WITHDRAW) {
@@ -809,7 +842,7 @@ class GenerateBalanceHistory
                 $this->dispatch(new CreateNewBalanceHistory($this->attributes));
             }
             #TODO: job create delivery history
-            else {
+            else { // recordHistory
                 $this->dispatch(new CreateNewBalanceDeliveryHistory($this->attributes));
             }
         }
@@ -830,11 +863,22 @@ class GenerateBalanceHistory
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function saveServiceFee(string $type, string $variant, bool $isTransit = false)
+    protected function saveServiceFee(string $type, string $variant, bool $isTransit = false, $cc = null)
     {
         $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
         if (is_null($service_price)) {
             $this->servicePriceCubic($type, $variant, $isTransit);
+        } elseif (!is_null($cc)) {
+            $bikeServiceFee = PricingCalculator::getIncomeBikePartner($cc);
+            $this
+                ->setBalance($bikeServiceFee)
+                ->setType(History::TYPE_DEPOSIT)
+                ->setDescription(History::DESCRIPTION_SERVICE)
+                ->setServiceType(History::DESCRIPTION_SERVICE_BIKE)
+                ->setAttributes()
+                ->recordHistory();
+
+            return $bikeServiceFee;
         } else {
             if ($variant == '0') {
                 $balance_service = $service_price->amount  * $this->getServiceFee($type);
@@ -855,19 +899,23 @@ class GenerateBalanceHistory
 
     protected function servicePriceCubic(string $type, string $variant, $isTransit)
     {
-        $incomeCubic = 0.2;
-        $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first();
+        // $incomeCubic = 0.2;
+        // $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::DESCRIPTION_TYPE_CUBIC)->first();
 
-        if ($variant == '0') {
-            $balance_service = $service_price->amount  * $incomeCubic;
-        } else {
-            $balance_service = $this->package->total_weight * $incomeCubic;
-        }
+        // if ($variant == '0') {
+        //     $balance_service = $service_price->amount  * $incomeCubic;
+        // } else {
+        //     $balance_service = $this->package->total_weight * $incomeCubic;
+        // }
+
+        $cubic = PricingCalculator::cubicCalculate($this->package->items);
+        $balance_service = Partner::FEE_CUBIC * $cubic;
 
         $this
             ->setBalance($balance_service)
             ->setType(History::TYPE_DEPOSIT)
             ->setDescription($isTransit ? History::DESCRIPTION_TRANSIT : History::DESCRIPTION_SERVICE)
+            ->setServiceType(History::DESCRIPTION_SERVICE_CUBIC)
             ->setAttributes()
             ->recordHistory();
 
