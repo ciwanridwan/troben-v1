@@ -91,7 +91,7 @@ class ManifestController extends Controller
             return $this->getPartnerTransporter($request);
         }
         if ($search = $request->get('search')) {
-            $this->query->whereHas('code', function($q) use ($search) {
+            $this->query->whereHas('code', function ($q) use ($search) {
                 $q->where('content', $search);
             });
         }
@@ -112,6 +112,7 @@ class ManifestController extends Controller
     public function getPartnerTransporter(Request $request): JsonResponse
     {
         if ($request->delivery_hash) {
+            $resetQuery = false;
             $query = Partner::query();
 
             $delivery = Delivery::byHash($request->delivery_hash);
@@ -129,10 +130,10 @@ class ManifestController extends Controller
                 $query->where('code', 'MTM-CGK-00');
             } else {
                 foreach ($packages as $package) {
-                    if (! is_null($package->deliveryRoutes)) {
+                    if (!is_null($package->deliveryRoutes)) {
                         $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
-                        if (! is_null($partnerCode)) {
-                            if (! is_array($partnerCode)) {
+                        if (!is_null($partnerCode)) {
+                            if (!is_array($partnerCode)) {
                                 $partnerCode = [$partnerCode];
                             }
                             $query->whereIn('code', $partnerCode);
@@ -143,11 +144,22 @@ class ManifestController extends Controller
                 }
             }
 
-            $request->whenHas('search', function ($value) use ($query) {
-                $query->where(function ($query) use ($value) {
-                    $query->search($value);
+            if ($request->has('search')) {
+                if (!is_null($request->search) || $request->search != ""){
+                    $resetQuery = true;
+                }
+            }
+
+            if ($resetQuery) {
+                $query = Partner::query();
+                $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
+
+                $request->whenHas('search', function ($value) use ($query) {
+                    $query->where(function ($query) use ($value) {
+                        $query->search($value);
+                    });
                 });
-            });
+            }
 
             return (new Response(Response::RC_SUCCESS, $query->paginate(request('per_page', 15))))->json();
         } else {
