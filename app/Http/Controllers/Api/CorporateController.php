@@ -707,6 +707,7 @@ class CorporateController extends Controller
             }
         }
         $result->partner = $partner;
+        $result->total_handling_price = intval($result->prices()->where('type', 'handling')->sum('amount') ?? 0);
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
 
