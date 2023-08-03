@@ -70,6 +70,10 @@ class ItemController extends Controller
      */
     public function update(Request $request, Package $package, Item $item): JsonResponse
     {
+        if (!is_null($package->motoBikes)) {
+            return $this->jsonResponse(["message" => "this is bike order, can't update this item"]);
+        }
+
         $this->authorize('update', $package);
 
         if ($request->hasAny(['handling'])) {
