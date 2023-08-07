@@ -1,0 +1,64 @@
+# name: CI Trawlbens Core Project
+
+# on:
+#   push:
+#     branches:
+#       - master
+# jobs:
+#   build:
+#     # runs-on: self-hosted
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: send telegram message on push
+#       uses: appleboy/telegram-action@master
+#       with:
+#         to: ${{ secrets.TELEGRAM_TO }}
+#         token: ${{ secrets.TELEGRAM_TOKEN }}
+#         message: |
+#           ${{ github.actor }} created commit:
+#           Commit message: ${{ github.event.commits[0].message }}
+          
+#           Branch: *${{ github.ref }}*
+#           Repository: *${{ github.repository }}*
+          
+#           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
+
+name: CI/CD for Trawlbens Core Branch Staging
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest 
+    steps:    
+    - name: Deploy using Username Password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ vars.HOST_IP }}
+        username: ${{ vars.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        # key: ${{ secrets.DEV_TBADMIN_SSH_PRIVATE_KEY }}
+        # port: ${{ secrets.DEV_TBADMIN_SSH_PORT }}
+        script: |
+         cd /home/deployer/repo/admin-v2/trawlbens.admin.vue
+         GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.admin.vue.git
+         docker compose build
+         docker compose up -d
+    - name: send telegram message on push
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.actor }} created commit:
+          Commit message: ${{ github.event.commits[0].message }}
+          
+          Branch: *${{ github.ref }}*
+          Repository: *${{ github.repository }}*
+          
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}     
+       
