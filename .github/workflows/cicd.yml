@@ -45,7 +45,7 @@ jobs:
         # port: ${{ secrets.DEV_TBADMIN_SSH_PORT }}
         script: |
          cd /home/deployer/repo/admin-v2/trawlbens.admin.vue
-         GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.admin.vue.git
+         GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
          docker compose build
          docker compose up -d
     - name: send telegram message on push
