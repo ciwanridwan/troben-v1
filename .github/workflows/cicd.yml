@@ -44,10 +44,11 @@ jobs:
         # key: ${{ secrets.DEV_TBADMIN_SSH_PRIVATE_KEY }}
         # port: ${{ secrets.DEV_TBADMIN_SSH_PORT }}
         script: |
-         cd /home/deployer/repo/admin-v2/trawlbens.admin.vue
-         GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
-         docker compose build
-         docker compose up -d
+         cd /home/deployer/repo/tbcore-develop
+         git pull origin develop
+# GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
+# docker compose build
+# docker compose up -d
     - name: send telegram message on push
       uses: appleboy/telegram-action@master
       with:
