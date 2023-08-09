@@ -24,12 +24,12 @@
           
 #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
 
-name: CI/CD for Trawlbens Core Branch Develop 
 
+name: CI/CD for Trawlbens Core Branch Staging
 on:
   push:
     branches:
-      - develop
+      - staging
 
 jobs:
   deploy:
@@ -44,8 +44,8 @@ jobs:
         # key: ${{ secrets.DEV_TBADMIN_SSH_PRIVATE_KEY }}
         # port: ${{ secrets.DEV_TBADMIN_SSH_PORT }}
         script: |
-         cd /home/deployer/repo/admin-v2/trawlbens.admin.vue
-         GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
+         cd /home/deployer/repo/tbcore
+         git pull origin staging
          docker compose build
          docker compose up -d
     - name: send telegram message on push
@@ -60,5 +60,10 @@ jobs:
           Branch: *${{ github.ref }}*
           Repository: *${{ github.repository }}*
           
-          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}     
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}   
+
+
+
+         # GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
+          
        
