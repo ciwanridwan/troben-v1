@@ -1061,7 +1061,7 @@ class Package extends Model implements AttachableContract
             $cubicResult = 0;
         }
 
-        dd($cubicPrice->amount);
+        // dd($cubicPrice->amount);
         if (is_null($cubicPrice)) {
             $serviceFee = 0;
         } else {
