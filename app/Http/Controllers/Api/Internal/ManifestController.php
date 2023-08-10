@@ -88,6 +88,7 @@ class ManifestController extends Controller
     public function requestTransporter(Request $request)
     {
         if ($request->partner) {
+            // this is for search list available mitra
             return $this->getPartnerTransporter($request);
         }
         if ($search = $request->get('search')) {
@@ -127,6 +128,7 @@ class ManifestController extends Controller
 
             $originPartner = $delivery->origin_partner;
             if ($originPartner->isJabodetabek() && $fromPickup) {
+                // partner pickup for jabodetabek, hardcoded to this
                 $query->where('code', 'MTM-CGK-00');
             } else {
                 foreach ($packages as $package) {
@@ -139,15 +141,24 @@ class ManifestController extends Controller
                             $query->whereIn('code', $partnerCode);
                         }
                     } else {
+                        // list all partner business, transporter
                         $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
                     }
                 }
+            }
+
+            // todo checker for dooring
+            $dooring = false;
+            if ($dooring) {
+                // todo query to table transport_routes, dont forget filter 
+                // by code_mtak_1 == code_dooring and code_mtak_1_dest is null
             }
 
             if ($request->has('search')) {
                 $resetQuery = true;
             }
 
+            // if searching enable, force override to partner
             if ($resetQuery) {
                 $query = Partner::query();
                 $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
