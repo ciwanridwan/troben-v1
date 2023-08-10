@@ -561,11 +561,12 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination.packages.corporate',
+            'multiDestination', 'parentDestination.packages.corporate', 'picked_up_by'
         ]);
 
         if (! $isAdmin) {
             $partner = auth()->user()->partners->first();
+	if (! is_null($partner)) {
             $partnerId = $partner->getKey();
             $results = $results->where(function($q) use ($partnerId) {
                 $q->where('created_by', auth()->id())
@@ -573,6 +574,7 @@ class CorporateController extends Controller
                     $q2->where('partner_id', $partnerId);
                 });
             });
+	}
 
         }
         if ($request->get('status')) {
@@ -586,8 +588,15 @@ class CorporateController extends Controller
         }
         if ($request->get('search')) {
             $search = $request->get('search');
-            $results = $results->whereHas('code', function($q) use ($search) {
-                $q->where('content', 'ILIKE', $search);
+            $results = $results->where(function($q) use ($search) {
+                $q
+                ->where('sender_name', 'ILIKE', '%'.$search.'%')
+                ->orWhere('sender_phone', 'ILIKE', '%'.$search.'%')
+                ->orWhere('receiver_name', 'ILIKE', '%'.$search.'%')
+                ->orWhere('receiver_phone', 'ILIKE', '%'.$search.'%')
+                ->whereHas('code', function($q) use ($search) {
+                    $q->where('content', 'ILIKE', $search);
+                });
             });
         }
 
@@ -612,6 +621,7 @@ class CorporateController extends Controller
             $item->type2 = $type2;
 
             $item->payment_method = $payment_method;
+            $item->status_label = Package::statusParser($item->status);
 
             $item->items->map(function($r) {
                 $r->category_item_name = $r->categories ? $r->categories->name : null;
@@ -689,7 +699,15 @@ class CorporateController extends Controller
                 $partner = $partners->first();
             }
         }
+        // partner still null, get partner pickup
+        if (is_null($partner)) {
+            $partnerPickup = $result->picked_up_by->where('type', 'pickup')->first();
+            if (! is_null($partnerPickup)) {
+                $partner = $partnerPickup->partner;
+            }
+        }
         $result->partner = $partner;
+        $result->total_handling_price = intval($result->prices()->where('type', 'handling')->sum('amount') ?? 0);
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
 

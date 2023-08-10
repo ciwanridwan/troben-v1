@@ -155,7 +155,9 @@ class ManifestController extends Controller
             }
 
             if ($request->has('search')) {
-                $resetQuery = true;
+                if (!is_null($request->search) || $request->search != ""){
+                    $resetQuery = true;
+                }
             }
 
             // if searching enable, force override to partner

@@ -32,6 +32,8 @@ class Route
 
     public const WAREHOUSE_MAKASSAR = ['MB-UPG-01', 'MB-UPG-05', 'MB-UPG-02', 'MB-UPG-03'];
 
+    public const WAREHOUSE_UPG_MAKASSAR = ['MB-UPG-05'];
+
     public const WAREHOUSE_MATARAM = ['MB-MTR-01'];
 
     public const WAREHOUSE_AMBON = ['MB-AMB-01'];
@@ -319,9 +321,9 @@ class Route
             $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
         }
 
-	if (is_null($partner)) {
-		return null;
-	}
+        if (is_null($partner)) {
+            return null;
+        }
 
         switch (true) {
             case is_null($deliveryRoutes->reach_destination_1_at):
@@ -393,32 +395,30 @@ class Route
      */
     public static function getSelectedTransporter($deliveryRoutes, $partner)
     {
-if (is_null($partner)) {
-return null;
-}
+        if (is_null($partner)) {
+            return null;
+        }
 
-try {
-
-        switch (true) {
-            case is_null($deliveryRoutes->reach_destination_1_at):
-                return $partner->code_mtak_1;
-                break;
-            case is_null($deliveryRoutes->reach_destination_2_at):
-                return $partner->code_mtak_2;
-                break;
-            case is_null($deliveryRoutes->reach_destination_3_at):
-                return $partner->code_mtak_3;
-                break;
-            default:
-                return null;
-                break;
-}
-} catch (\Exception $e) {
-report($e);
-\Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
-return null;
-
-       }
+        try {
+            switch (true) {
+                case is_null($deliveryRoutes->reach_destination_1_at):
+                    return $partner->code_mtak_1;
+                    break;
+                case is_null($deliveryRoutes->reach_destination_2_at):
+                    return $partner->code_mtak_2;
+                    break;
+                case is_null($deliveryRoutes->reach_destination_3_at):
+                    return $partner->code_mtak_3;
+                    break;
+                default:
+                    return null;
+                    break;
+            }
+        } catch (\Exception $e) {
+            report($e);
+            \Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
+            return null;
+        }
     }
 
     /**
@@ -447,6 +447,10 @@ return null;
             case in_array($partner->geo_regency_id, self::jabodetabek()):
                 $code = self::WAREHOUSE_NAROGONG;
                 break;
+                # turn off function to temporary
+                // case in_array($partner->geo_regency_id, self::makassar()):
+                //     $code = self::WAREHOUSE_UPG_MAKASSAR;
+                //     break;
             default:
                 $code = null;
                 break;
@@ -505,12 +509,26 @@ return null;
         return $warehouse;
     }
 
+    /**
+     * List id regency of jabodetabek
+     */
     public static function jabodetabek(): array
     {
         return [
             58, 59, 60, 61, 62, 98, 77, 95, 36, 39, 40, 76, 94
         ];
     }
+
+    /**
+     * List id regency partner on makassar
+     */
+    public static function makassar(): array
+    {
+        return [
+            393
+        ];
+    }
+
 
     public static function checkDestinationCityTransit($firstPackage, $packages): bool
     {
@@ -641,7 +659,7 @@ return null;
         $firstCase = !is_null($route) && empty($route->code_mtak_1_dest);
         $secondCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && ($route->code_mtak_2_dest === $delivery->partner->code);
         $thirdCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && (!is_null($route) && !empty($route->code_mtak_2_dest));
-        $lastCase = ($thirdCase && empty($route->code_mtak_3_dest) && ($thirdCase && $route->code_dooring === $delivery->partner->code ));
+        $lastCase = ($thirdCase && empty($route->code_mtak_3_dest) && ($thirdCase && $route->code_dooring === $delivery->partner->code));
 
         if ($type === 'dooring') {
             switch (true) {

@@ -43,6 +43,10 @@ class History extends Model
     public const DESCRIPTION_RETURN = 'return'; // return fee (transporter)
     public const DESCRIPTION_ADDITIONAL = 'additional'; // charge
     public const DESCRIPTION_LATENESS = 'late'; // pengiriman terlambat
+    public const DESCRIPTION_SERVICE_REGULAR = 'regular'; // income pengiriman motor
+    public const DESCRIPTION_SERVICE_BIKE = 'bike'; // income pengiriman motor
+    public const DESCRIPTION_SERVICE_CUBIC = 'cubic'; // income pengiriman kubikasi
+
 
     public const DESCRIPTION_WITHDRAW_REQUESTED = 'request';
     public const DESCRIPTION_WITHDRAW_APPROVED = 'approve';
@@ -55,7 +59,8 @@ class History extends Model
         'balance',
         'type',
         'description',
-        'disbursement_id'
+        'disbursement_id',
+        'services'
     ];
 
     protected $casts = [
@@ -97,7 +102,16 @@ class History extends Model
             self::DESCRIPTION_ADDITIONAL,
             self::DESCRIPTION_LATENESS,
             self::DESCRIPTION_WITHDRAW_REQUESTED,
-            self::DESCRIPTION_WITHDRAW_APPROVED,
+            self::DESCRIPTION_WITHDRAW_APPROVED
+        ];
+    }
+
+    public static function getAvailableServices(): array 
+    {
+        return [
+            self::DESCRIPTION_SERVICE_REGULAR,
+            self::DESCRIPTION_SERVICE_BIKE,
+            self::DESCRIPTION_SERVICE_CUBIC,
         ];
     }
 
