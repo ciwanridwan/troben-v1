@@ -702,16 +702,4 @@ class Route
 
         return $check;
     }
-
-    /**
-     * Check receipt on dooring manifest
-     * is should set transporter or not
-     */
-    public static function checkReceiptOnDooring($partner, $package)
-    {
-        $code = $partner->code;
-        $warehouse = self::getWarehousePartner($code, $package);
-        // dd($warehouse);
-        return $warehouse;
-    }
 }

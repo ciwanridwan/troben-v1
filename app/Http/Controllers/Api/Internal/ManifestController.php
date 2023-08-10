@@ -151,9 +151,10 @@ class ManifestController extends Controller
             if ($delivery->type === Delivery::TYPE_DOORING) {
                 $package = $delivery->packages()->first();
                 $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
-
-                if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest)) {
-                    $query->where('code', $route->code_mtak_1);
+                if (!is_null($route) || empty($route)) {
+                    if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest)) {
+                        $query->where('code', $route->code_mtak_1);
+                    }
                 }
             }
 
