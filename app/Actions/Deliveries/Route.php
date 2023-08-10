@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Route
 {
@@ -416,7 +417,7 @@ class Route
             }
         } catch (\Exception $e) {
             report($e);
-            \Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
+            Log::info('errrouting', ['d' => $deliveryRoutes, 'p' => $partner]);
             return null;
         }
     }
