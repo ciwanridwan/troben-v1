@@ -19,16 +19,16 @@
         <a-col :span="12">
           <a-space>
             <h4>{{ name }}</h4>
-            <order-modal-edit
+            <!-- <order-modal-edit
               v-if="!isMotorBike && modifiable ? editable : false"
               ref="editForm"
               v-model="item"
               @submit="onEdit"
-            ></order-modal-edit>
-            <delete-button
+            ></order-modal-edit> -->
+            <!-- <delete-button
               v-if="!isMotorBike && modifiable ? deletable : false"
               @click="onDelete"
-            ></delete-button>
+            ></delete-button> -->
           </a-space>
         </a-col>
         <a-col :span="12"><h4>Rincian Biaya Pengiriman</h4></a-col>
