@@ -148,14 +148,17 @@ class ManifestController extends Controller
             }
 
             // todo checker for dooring
-            $dooring = false;
-            if ($dooring) {
-                // todo query to table transport_routes, dont forget filter 
-                // by code_mtak_1 == code_dooring and code_mtak_1_dest is null
+            if ($delivery->type === Delivery::TYPE_DOORING) {
+                $package = $delivery->packages()->first();
+                $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
+
+                if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest)) {
+                    $query->where('code', $route->code_mtak_1);
+                }
             }
 
             if ($request->has('search')) {
-                if (!is_null($request->search) || $request->search != ""){
+                if (!is_null($request->search) || $request->search != "") {
                     $resetQuery = true;
                 }
             }
