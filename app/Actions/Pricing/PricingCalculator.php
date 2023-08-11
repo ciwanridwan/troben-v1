@@ -1256,7 +1256,7 @@ class PricingCalculator
     /**
      * Partner get commision of cubic service
      */
-    public static function cubicCalculate($items): int
+    public static function cubicCalculate($items): float
     {
         $weightVolume = [];
         foreach ($items as $item) {
