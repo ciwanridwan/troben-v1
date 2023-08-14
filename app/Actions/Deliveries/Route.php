@@ -238,6 +238,7 @@ class Route
             $q->where('province_id', $provinceId);
         })->first();
 
+        // todo change the logic condition
         if (!is_null($partner) && $partner->note !== '') {
             $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
                 $q->where('warehouse', $warehouse);
