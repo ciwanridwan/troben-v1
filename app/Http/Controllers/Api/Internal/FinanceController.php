@@ -322,10 +322,10 @@ class FinanceController extends Controller
         $partner = $disbursment->partner()->first();
 
         switch ($partner->type) {
-            case Partner::TYPE_TRANSPORTER:
+            case Partner::TYPE_TRANSPORTER: // MTAK only
                 return $this->detailDisbursTransporter($request, $partner->type, $disbursment);
                 break;
-            default:
+            default: // MB MPW MS goes here
                 return $this->detailDisburs($request, $disbursment);
                 break;
         }

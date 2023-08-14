@@ -150,7 +150,7 @@ class HomeController extends Controller
         $request->validate(
             [
                 'type' => ['nullable', 'in:service,pickup'],
-                'calculate_type' => ['nullable', 'in:kg,cubic']
+                'caculate_type' => ['nullable', 'in:kg,cubic']
             ]
         );
         $type = $request->type;
@@ -262,7 +262,7 @@ class HomeController extends Controller
             }
         }
 
-        if ($request->calculate_type === 'cubic') {
+        if ($request->caculate_type === 'cubic') {
             $this->changePriceToCubic($package);
         }
 
