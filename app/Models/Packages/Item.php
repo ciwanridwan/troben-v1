@@ -210,6 +210,6 @@ class Item extends Model implements AttachableContract
      */
     private function getServiceCode()
     {
-        return $this->package()->first()->service_code;
+        return  $this->package()->first() ? $this->package()->first()->service_code : null;
     }
 }
