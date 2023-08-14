@@ -168,16 +168,20 @@ class Item extends Model implements AttachableContract
     public function getTierPriceAttribute()
     {
         $package = $this->package()->first();
-        $origin_province_id = $package->origin_regency->province_id;
-        $origin_regency_id = $package->origin_regency_id;
-        $destination_id = $package->destination_sub_district_id;
-        try {
-            $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
-            $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
-        } catch (\Throwable $th) {
-            $tierPrice = 0;
+        if (!is_null($package)) {
+            $origin_province_id = $package->origin_regency->province_id;
+            $origin_regency_id = $package->origin_regency_id;
+            $destination_id = $package->destination_sub_district_id;
+            try {
+                $price = PricingCalculator::getPrice($origin_province_id, $origin_regency_id, $destination_id);
+                $tierPrice = PricingCalculator::getTier($price, $this->WeightBorne);
+            } catch (\Throwable $th) {
+                $tierPrice = 0;
+            }
+            return $tierPrice;
+        } else {
+            return 0;
         }
-        return $tierPrice;
     }
 
     public function getCodeableAttribute($value)
@@ -201,7 +205,7 @@ class Item extends Model implements AttachableContract
 
     private function getHandling()
     {
-        return ! empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
+        return !empty($this->attributes['handling']) ? array_column(json_decode($this->attributes['handling']), 'type') : [];
     }
 
     /**
