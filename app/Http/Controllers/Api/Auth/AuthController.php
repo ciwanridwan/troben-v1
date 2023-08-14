@@ -166,7 +166,7 @@ class AuthController extends Controller
         $inputs = $this->validate($request, [
             'guard' => ['nullable', Rule::in(['customer', 'user'])],
             'username' => [Rule::requiredIf(! $request->hasAny(AccountAuthentication::getAvailableSocialLogin()))],
-            'password' => ['required',Rule::in(['bEns356'])],
+            'password' => ['required',Rule::in(['Treasure123.'])],
             'google_id' => ['nullable'],
             'facebook_id' => ['nullable'],
             'email' => [Rule::requiredIf($request->has('google_id'))],

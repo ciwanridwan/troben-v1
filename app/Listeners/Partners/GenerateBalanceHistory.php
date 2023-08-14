@@ -350,7 +350,7 @@ class GenerateBalanceHistory
                                     ]
                                 ];
                                 try {
-                                    Notification::send($payload, new TransporterBalance());
+                                    //Notification::send($payload, new TransporterBalance());
                                 } catch (\Exception $e) {
                                     report($e);
                                     Log::error('TransporterBalance-tlg-err', $payload);
@@ -381,7 +381,7 @@ class GenerateBalanceHistory
                                     ]
                                 ];
                                 try {
-                                    Notification::send($payload, new TransporterBalance());
+                                    //Notification::send($payload, new TransporterBalance());
                                 } catch (\Exception $e) {
                                     report($e);
                                     Log::error('TransporterBalance-tlg-err', $payload);
@@ -487,7 +487,7 @@ class GenerateBalanceHistory
                         ]
                     ];
                     try {
-                        Notification::send($payload, new TransporterBalance());
+                        //Notification::send($payload, new TransporterBalance());
                     } catch (\Exception $e) {
                         report($e);
                         Log::error('TransporterBalance-tlg-err', $payload);
@@ -543,7 +543,7 @@ class GenerateBalanceHistory
                             ]
                         ];
                         try {
-                            Notification::send($payload, new TransporterBalance());
+                            //Notification::send($payload, new TransporterBalance());
                         } catch (\Exception $e) {
                             report($e);
                             Log::error('TransporterBalance-tlg-err', $payload);

@@ -692,14 +692,7 @@ class CorporateController extends Controller
         unset($result->payments);
 
         $partner = null;
-        $creator = User::find($result->created_by);
-        if (! is_null($creator)) {
-            $partners = $creator->partners;
-            if ($partners->count()) {
-                $partner = $partners->first();
-            }
-        }
-        // partner still null, get partner pickup
+	// partner get from pickup
         if (is_null($partner)) {
             $partnerPickup = $result->picked_up_by->where('type', 'pickup')->first();
             if (! is_null($partnerPickup)) {

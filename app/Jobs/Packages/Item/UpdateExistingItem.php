@@ -20,6 +20,8 @@ class UpdateExistingItem
      */
     public Item $item;
 
+	public Package $package;
+
     private array $attributes;
 
     /**
@@ -37,6 +39,7 @@ class UpdateExistingItem
             ]),
         ]));
 
+	$this->package = $package;
         $this->item = $item;
         $this->attributes = Validator::make($inputs, [
             'qty' => ['nullable', 'numeric'],
@@ -55,6 +58,9 @@ class UpdateExistingItem
 
     public function handle()
     {
+
+\Log::info('itemschanges', ['pid' => $this->package->getKey(), 'attr' => $this->attributes]);
+
         if (! isset($this->attributes['qty']) || $this->attributes['qty'] == null) {
             $this->attributes['qty'] = 0;
         }

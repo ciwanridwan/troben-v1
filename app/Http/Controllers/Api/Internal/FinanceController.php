@@ -528,6 +528,7 @@ class FinanceController extends Controller
                 partner_balance_histories pbh
             where
                 pbh.partner_id = %d
+		AND pbh.type != 'withdraw'
             group by
                 partner_id,
                 package_id
