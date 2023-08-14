@@ -88,6 +88,7 @@ class ManifestController extends Controller
     public function requestTransporter(Request $request)
     {
         if ($request->partner) {
+            // this is for search list available mitra
             return $this->getPartnerTransporter($request);
         }
         if ($search = $request->get('search')) {
@@ -127,6 +128,7 @@ class ManifestController extends Controller
 
             $originPartner = $delivery->origin_partner;
             if ($originPartner->isJabodetabek() && $fromPickup) {
+                // partner pickup for jabodetabek, hardcoded to this
                 $query->where('code', 'MTM-CGK-00');
             } else {
                 foreach ($packages as $package) {
@@ -139,17 +141,30 @@ class ManifestController extends Controller
                             $query->whereIn('code', $partnerCode);
                         }
                     } else {
+                        // list all partner business, transporter
                         $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);
                     }
                 }
             }
 
+            // todo checker for dooring
+            if ($delivery->type === Delivery::TYPE_DOORING) {
+                $package = $delivery->packages()->first();
+                $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
+                if (!is_null($route) || !empty($route)) {
+                    if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest)) {
+                        $query->where('code', $route->code_mtak_1);
+                    }
+                }
+            }
+
             if ($request->has('search')) {
-                if (!is_null($request->search) || $request->search != ""){
+                if (!is_null($request->search) || $request->search != "") {
                     $resetQuery = true;
                 }
             }
 
+            // if searching enable, force override to partner
             if ($resetQuery) {
                 $query = Partner::query();
                 $query->whereIn('type', [Partner::TYPE_BUSINESS, Partner::TYPE_TRANSPORTER]);

@@ -1256,21 +1256,20 @@ class PricingCalculator
     /**
      * Partner get commision of cubic service
      */
-    public static function cubicCalculate($items): int
+    public static function cubicCalculate($items): float
     {
         $weightVolume = [];
         foreach ($items as $item) {
             $dimension = $item->height * $item->length * $item->width / 1000000;
-
             if ($dimension < 3) {
                 $dimension = 3;
             }
 
             array_push($weightVolume, $dimension);
         }
-
         $cubic = array_sum($weightVolume);
-
-        return $cubic;
+        $cubicResult = floatval(number_format($cubic, 2,'.',''));
+        
+        return $cubicResult;
     }
 }

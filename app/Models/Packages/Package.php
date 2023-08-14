@@ -1050,7 +1050,9 @@ class Package extends Model implements AttachableContract
 
             array_push($weightVolume, $weightVolumeResult);
         }
-
+        // change format cubic
+        $cubicResult = floatval(number_format($cubicResult, 2,'.','')); 
+        
         if (isset($cubicResult)) {
             if ($cubicResult <= 3) {
                 $cubicResult = 3;
@@ -1059,7 +1061,7 @@ class Package extends Model implements AttachableContract
             $cubicResult = 0;
         }
 
-
+        // dd($cubicPrice->amount);
         if (is_null($cubicPrice)) {
             $serviceFee = 0;
         } else {

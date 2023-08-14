@@ -9,6 +9,8 @@
 
 ### License
 
+P
+
 Proprietary Software, all rights reserved under [PT. TrawlBens Teknologi Anak Indonesia](https://trawlbens.co.id) 
  
  
