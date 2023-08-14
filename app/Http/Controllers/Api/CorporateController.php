@@ -594,7 +594,7 @@ class CorporateController extends Controller
                 ->orWhere('sender_phone', 'ILIKE', '%'.$search.'%')
                 ->orWhere('receiver_name', 'ILIKE', '%'.$search.'%')
                 ->orWhere('receiver_phone', 'ILIKE', '%'.$search.'%')
-                ->whereHas('code', function($q) use ($search) {
+                ->orWhereHas('code', function($q) use ($search) {
                     $q->where('content', 'ILIKE', $search);
                 });
             });
