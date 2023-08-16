@@ -689,6 +689,28 @@ class CorporateController extends Controller
             unset($payment->gateway);
         }
         $result->payment = $payment;
+
+        # new object for get payment transaction
+        $trxPayment = null; 
+        $arrTrxPayment = null;
+        if ($result->payments->count()) {
+            $bank = null;
+            $trxPayment = $result->payments()->where('status', Payment::STATUS_SUCCESS)->first();
+            if (is_null($trxPayment)) {
+                $trxPayment = $result->payments()->latest()->first();
+            }
+
+            $arrTrxPayment = [
+                'bank' => $trxPayment->gateway->bank,
+                'amount' => $trxPayment->total_payment,
+                'admin' => $trxPayment->payment_admin_charges,
+                'expired_at' => $trxPayment->expired_at,
+                'paid_at' => $trxPayment->confirmed_at->format('Y-m-d H:i:s'),
+                'status' => $trxPayment->status,
+            ];
+        }
+
+        $result->trx_payment = $arrTrxPayment;
         unset($result->payments);
 
         $partner = null;
