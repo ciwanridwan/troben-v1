@@ -132,7 +132,7 @@ class Queries
             'partner',
             'transporter',
             'partner_performance'
-        ]);
+        ])->whereHas('packages');
 
         return $query;
     }
