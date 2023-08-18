@@ -1050,7 +1050,9 @@ class Package extends Model implements AttachableContract
 
             array_push($weightVolume, $weightVolumeResult);
         }
-
+        // change format cubic
+        $cubicResult = floatval(number_format($cubicResult, 2,'.','')); 
+        
         if (isset($cubicResult)) {
             if ($cubicResult <= 3) {
                 $cubicResult = 3;
@@ -1059,7 +1061,7 @@ class Package extends Model implements AttachableContract
             $cubicResult = 0;
         }
 
-
+        // dd($cubicPrice->amount);
         if (is_null($cubicPrice)) {
             $serviceFee = 0;
         } else {
@@ -1208,7 +1210,7 @@ class Package extends Model implements AttachableContract
             case $status === Package::STATUS_CANCEL:
                 $message = 'Pesanan dibatalkan';
                 break;
-            case $status === Package::CREATED_AT:
+            case $status === Package::STATUS_CREATED:
                 $message = 'Pesanan dibuat';
                 break;
             case $status === Package::STATUS_PENDING:
@@ -1262,7 +1264,7 @@ class Package extends Model implements AttachableContract
                 $message = 'Pesanan telah diterima';
                 break;
             default:
-                $message = 'Status pesanan tidak diketahui, segera lapor IT Team';
+                $message = 'Status pesanan tidak diketahui: '.$status;
                 break;
         }
 
