@@ -705,7 +705,7 @@ class CorporateController extends Controller
                 'amount' => $trxPayment->total_payment,
                 'admin' => $trxPayment->payment_admin_charges,
                 'expired_at' => $trxPayment->expired_at,
-                'paid_at' => $trxPayment->confirmed_at->format('Y-m-d H:i:s'),
+                'paid_at' => $trxPayment->confirmed_at ? $trxPayment->confirmed_at->format('Y-m-d H:i:s') : null,
                 'status' => $trxPayment->status,
             ];
         }
