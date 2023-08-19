@@ -27,6 +27,7 @@ use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
@@ -730,6 +731,23 @@ class CorporateController extends Controller
         }
         $result->partner = $partner;
         $result->total_handling_price = intval($result->prices()->where('type', 'handling')->sum('amount') ?? 0);
+
+        $transporterDetail = null;
+        if (! is_null($result->transporter_type)) {
+            $transporterDetail = collect(Transporter::getDetailAvailableTypes())->map(function ($r) {
+                $result = [
+                    'type' => $r['name'],
+                    'max_height' => $r['height'],
+                    'max_width' => $r['width'],
+                    'max_length' => $r['length'],
+                    'max_weight' => $r['weight'],
+                    'images_url' => $r['path_icons']
+                ];
+    
+                return $result;
+            })->where('type', $result->transporter_type)->first();
+        }
+        $result->transporter_detail = $transporterDetail;
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
 
