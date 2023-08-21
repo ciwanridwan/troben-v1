@@ -32,6 +32,12 @@ class CustomerInfoResource extends JsonResource
 
         if ($address->count() > 0) {
             $data['address'] = ($address->where('is_default', true)->first()->only('address'))['address'];
+
+            if (is_null($data['address'])) {
+                $data['address'] = ($address->where('is_selected', true)->first()->only('address'))['address'];
+            } else {
+                $data['address'] = ($address->first()->only('address'))['address'];
+            }
         }
 
         return $data;
