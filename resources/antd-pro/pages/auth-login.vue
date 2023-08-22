@@ -11,6 +11,7 @@ export default {
       e.preventDefault();
       this.form.validateFields((err, formData) => {
         if (!err) {
+	formData['device_name'] = 'web'
           this.loading = true;
           this.$http
             .post(this.routeUri("auth.login.store"), formData)
