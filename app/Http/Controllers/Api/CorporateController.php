@@ -27,6 +27,7 @@ use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\Partner;
+use App\Models\Partners\Transporter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use libphonenumber\PhoneNumberFormat;
@@ -689,6 +690,28 @@ class CorporateController extends Controller
             unset($payment->gateway);
         }
         $result->payment = $payment;
+
+        # new object for get payment transaction
+        $trxPayment = null; 
+        $arrTrxPayment = null;
+        if ($result->payments->count()) {
+            $bank = null;
+            $trxPayment = $result->payments()->where('status', Payment::STATUS_SUCCESS)->first();
+            if (is_null($trxPayment)) {
+                $trxPayment = $result->payments()->latest()->first();
+            }
+
+            $arrTrxPayment = [
+                'bank' => $trxPayment->gateway->bank,
+                'amount' => $trxPayment->total_payment,
+                'admin' => $trxPayment->payment_admin_charges,
+                'expired_at' => $trxPayment->expired_at,
+                'paid_at' => $trxPayment->confirmed_at ? $trxPayment->confirmed_at->format('Y-m-d H:i:s') : null,
+                'status' => $trxPayment->status,
+            ];
+        }
+
+        $result->trx_payment = $arrTrxPayment;
         unset($result->payments);
 
         $partner = null;
@@ -701,6 +724,23 @@ class CorporateController extends Controller
         }
         $result->partner = $partner;
         $result->total_handling_price = intval($result->prices()->where('type', 'handling')->sum('amount') ?? 0);
+
+        $transporterDetail = null;
+        if (! is_null($result->transporter_type)) {
+            $transporterDetail = collect(Transporter::getDetailAvailableTypes())->map(function ($r) {
+                $result = [
+                    'type' => $r['name'],
+                    'max_height' => $r['height'],
+                    'max_width' => $r['width'],
+                    'max_length' => $r['length'],
+                    'max_weight' => $r['weight'],
+                    'images_url' => $r['path_icons']
+                ];
+    
+                return $result;
+            })->where('type', $result->transporter_type)->first();
+        }
+        $result->transporter_detail = $transporterDetail;
 
         $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
 
