@@ -159,6 +159,7 @@ class DetailResource extends JsonResource
                     'length' => $dimensions['length'],
                     'width' => $dimensions['width'],
                     'price' => $q->price,
+                    'codes' => $q->codes,
                     'weight_borne_volume' => $q->weight_volume,
                     'weight_borne_total' => $q->weight_borne_total,
                     'handling' => $packings,
