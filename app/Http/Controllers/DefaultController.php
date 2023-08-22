@@ -22,7 +22,7 @@ class DefaultController extends Controller
         } catch (\Exception $e) {
             $p = public_path('assets/tb-logo.png');
             return request()->has('stream') && (bool) request()->input('stream') === true
-            ? response()->stream($p)
+            ? response()->file($p)
             : response()->download($p);
         }
     }

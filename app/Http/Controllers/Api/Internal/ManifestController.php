@@ -152,7 +152,8 @@ class ManifestController extends Controller
                 $package = $delivery->packages()->first();
                 $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
                 if (!is_null($route) || !empty($route)) {
-                    if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest)) {
+			$route = $route->first();
+                    if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest) && isset($route->code_mtak_1) && !is_null($route->code_mtak_1)) {
                         $query->where('code', $route->code_mtak_1);
                     }
                 }
