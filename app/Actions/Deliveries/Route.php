@@ -192,6 +192,7 @@ class Route
         $regencyId = $package->destination_regency_id;
         $provinceId = $package->destination_regency->province_id;
 
+        // check base on each warehouse, has match or not
         switch (true) {
             case in_array($partnerCode, self::WAREHOUSE_NAROGONG):
                 $warehouse =  'NAROGONG';
@@ -232,28 +233,38 @@ class Route
                 break;
         }
 
-        $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
-            $q->where('warehouse', $warehouse);
-            $q->where('regency_id', 0);
-            $q->where('province_id', $provinceId);
-        })->first();
+        // check by regency
+        $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->first();
+
+        // check by province id if by regency doest not exists
+        if (is_null($partner)) {
+            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->first();
+        }
+        
+        // check if route get two destination MTAK
         if (!is_null($partner) && (is_null($partner->note) || $partner->note !== '')) {
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
-                $q->where('warehouse', $warehouse);
-                $q->where('regency_id', 0);
-                $q->where('province_id', $provinceId);
-            })->get();
+            // get by regency
+            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+
+            // check if by regency is not, so switch get by province
+            if ($partner->isEmpty()) {
+                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->get();
+            }
         }
 
+        // check if route available direct to district
         if ($partner instanceof Partner) {
             if (!is_null($partner) && $partner->district_id !== 0) {
                 $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
+                
+                // if get by district is null
                 if (is_null($partner)) {
                     $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
                 }
             }
         }
 
+        // return with check if single or multiple routes
         if ($partner instanceof SupportCollection) {
             return $partner->isNotEmpty() ? $partner : null;
         } else {
