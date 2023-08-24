@@ -661,11 +661,19 @@ class Route
         $regencyId = $package->destination_regency_id;
         $provinceId = $package->destination_regency->province_id;
 
-        $route = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->orWhere(function ($q) use ($warehouse, $provinceId) {
-            $q->where('warehouse', $warehouse);
-            $q->where('regency_id', 0);
-            $q->where('province_id', $provinceId);
-        })->first();
+        $route = DB::table('transport_routes')
+            ->where('warehouse', $warehouse)
+            ->where('regency_id', $regencyId)
+            ->first();
+        // if regency not found, fallback to province level
+        if (is_null($route)) {
+            $route = DB::table('transport_routes')
+            ->where(function ($q) use ($warehouse, $provinceId) {
+                $q->where('warehouse', $warehouse);
+                $q->where('regency_id', 0);
+                $q->where('province_id', $provinceId);
+            })->first();
+        }
 
         $firstCase = !is_null($route) && empty($route->code_mtak_1_dest);
         $secondCase = (!is_null($route) && !empty($route->code_mtak_1_dest)) && ($route->code_mtak_2_dest === $delivery->partner->code);
