@@ -1051,12 +1051,12 @@ class Package extends Model implements AttachableContract
             array_push($weightVolume, $weightVolumeResult);
         }
         // change format cubic
-        $cubicResult = floatval(number_format($cubicResult, 2,'.','')); 
-        
+        $cubicResult = floatval(number_format($cubicResult, 2,'.',''));
+
         if (isset($cubicResult)) {
             if ($cubicResult <= 3) {
                 $cubicResult = 3;
-            } 
+            }
         } else {
             $cubicResult = 0;
         }
@@ -1099,16 +1099,17 @@ class Package extends Model implements AttachableContract
     private function getAdditionalFeePerItem($item, $serviceCode)
     {
         $additionalPrice = 0;
-        $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+        # not use, use $item['weight']
+        // $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
         $item['additional_price'] = 0;
 
-        if ($totalWeight < 100) {
+        if ($item['weight'] < 100) {
             $item['additional_price'] = 0;
-        } elseif ($totalWeight < 300) {
+        } elseif ($item['weight'] < 300) {
             $item['additional_price'] = 100000;
-        } elseif ($totalWeight < 2000) {
+        } elseif ($item['weight'] < 2000) {
             $item['additional_price'] = 250000;
-        } elseif ($totalWeight < 5000) {
+        } elseif ($item['weight'] < 5000) {
             $item['additional_price'] = 1500000;
         } else {
             $item['additional_price'] = 0;

@@ -1045,16 +1045,17 @@ class PricingCalculator
         $additionalPrice = [];
 
         foreach ($items as $item) {
-            $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+            # not use, use $item['weight']
+            // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             $item['additional_price'] = 0;
 
-            if ($totalWeight < 100) {
+            if ($item['weight'] < 100) {
                 $item['additional_price'] = 0;
-            } elseif ($totalWeight < 300) {
+            } elseif ($item['weight'] < 300) {
                 $item['additional_price'] = 100000;
-            } elseif ($totalWeight < 2000) {
+            } elseif ($item['weight'] < 2000) {
                 $item['additional_price'] = 250000;
-            } elseif ($totalWeight < 5000) {
+            } elseif ($item['weight'] < 5000) {
                 $item['additional_price'] = 1500000;
             } else {
                 $item['additional_price'] = 0;
@@ -1269,7 +1270,7 @@ class PricingCalculator
         }
         $cubic = array_sum($weightVolume);
         $cubicResult = floatval(number_format($cubic, 2,'.',''));
-        
+
         return $cubicResult;
     }
 }
