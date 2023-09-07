@@ -20,7 +20,7 @@ class UpdateExistingItem
      */
     public Item $item;
 
-	public Package $package;
+    public Package $package;
 
     private array $attributes;
 
@@ -39,7 +39,7 @@ class UpdateExistingItem
             ]),
         ]));
 
-	$this->package = $package;
+        $this->package = $package;
         $this->item = $item;
         $this->attributes = Validator::make($inputs, [
             'qty' => ['nullable', 'numeric'],
@@ -59,29 +59,29 @@ class UpdateExistingItem
     public function handle()
     {
 
-\Log::info('itemschanges', ['pid' => $this->package->getKey(), 'attr' => $this->attributes]);
+        \Log::info('itemschanges', ['pid' => $this->package->getKey(), 'attr' => $this->attributes]);
 
-        if (! isset($this->attributes['qty']) || $this->attributes['qty'] == null) {
+        if (!isset($this->attributes['qty']) || $this->attributes['qty'] == null) {
             $this->attributes['qty'] = 0;
         }
         if (isset($this->attributes['qty']) && $this->attributes['qty'] == 0) {
             // remove 0 qty item
             unset($this->attributes['qty']);
         }
-//        if (count($this->attributes['handling']) < 1) {
-//            $this->attributes['handling'] = null;
-//        }
+        //        if (count($this->attributes['handling']) < 1) {
+        //            $this->attributes['handling'] = null;
+        //        }
 
-//remove from filled data if null
-foreach(['width', 'height', 'length', 'weight'] as $k) {
-  if (isset($this->attributes[$k]) && is_null($this->attributes[$k])) {
-    unset($this->attributes[$k]);
-  }
-}
+        //remove from filled data if null
+        foreach (['width', 'height', 'length', 'weight'] as $k) {
+            if (isset($this->attributes[$k]) && is_null($this->attributes[$k])) {
+                unset($this->attributes[$k]);
+            }
+        }
 
         $this->item->fill($this->attributes);
         $this->item->fill([
-            'revision'=>$this->item->revision + 1
+            'revision' => $this->item->revision + 1
         ]);
         $this->item->save();
 
