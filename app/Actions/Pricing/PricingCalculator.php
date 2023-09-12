@@ -31,6 +31,7 @@ use App\Models\Partners\VoucherAE;
 use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -583,6 +584,15 @@ class PricingCalculator
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
         $servicePrice = $tierPrice * $totalWeightBorne;
+
+        $log = [
+            'tier_price' => $tierPrice,
+            'total_weight_borne' => $totalWeightBorne,
+            'service_price' => $servicePrice
+        ];
+
+        Log::info('this is tier price => ', $log);
+
         return $servicePrice;
     }
 
