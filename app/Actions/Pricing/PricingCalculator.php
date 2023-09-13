@@ -539,8 +539,9 @@ class PricingCalculator
         }
 
         $items = [];
-        $packing = [];
-        foreach ($inputs['items'] as $key => $item) {
+        $itemsTemp = $inputs['items'] ?? [];
+        foreach ($itemsTemp as $key => $item) {
+            $packing = [];
             if ($item['handling']) {
                 foreach ($item['handling'] as $handling) {
                     if ($handling instanceof Collection) {
@@ -584,7 +585,11 @@ class PricingCalculator
         // $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
 
         # use this total weight, get by sum
-        $totalWeightBorne = array_sum(array_column($inputs['items'], 'weight_borne_total'));
+        if (count($itemsTemp) > 1 && isset($itemsTemp[0]['weight_borne_total'])) {
+            $totalWeightBorne = array_sum(array_column($itemsTemp, 'weight_borne_total'));
+        } else {
+            $totalWeightBorne = self::getTotalWeightBorne($itemsTemp, Service::TRAWLPACK_STANDARD);   
+        }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
