@@ -192,6 +192,7 @@ class PricingCalculator
 
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items'] ?? [], $serviceCode);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
@@ -538,8 +539,8 @@ class PricingCalculator
         }
 
         $items = [];
-
-        foreach ($inputs['items'] as $item) {
+        $packing = [];
+        foreach ($inputs['items'] as $key => $item) {
             if ($item['handling']) {
                 foreach ($item['handling'] as $handling) {
                     if ($handling instanceof Collection) {
@@ -577,10 +578,14 @@ class PricingCalculator
                 'width' => $item['width'],
                 'qty' => $item['qty'],
                 'handling' => !empty($packing) ? array_column($packing, 'type') : null
-
             ];
         }
-        $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
+        # still get bug, not use
+        // $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
+
+        # use this total weight, get by sum
+        $totalWeightBorne = array_sum(array_column($inputs['items'], 'weight_borne_total'));
+
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
         $servicePrice = $tierPrice * $totalWeightBorne;
@@ -617,7 +622,6 @@ class PricingCalculator
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
-
             $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             array_push($totalWeightBorne, $totalWeight);
         }
@@ -628,7 +632,6 @@ class PricingCalculator
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
         $handling = self::checkHandling($handling);
-
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
@@ -1211,13 +1214,11 @@ class PricingCalculator
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
-
         if ($handling !== []) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
         }
-
         return $handling;
     }
 
@@ -1279,7 +1280,7 @@ class PricingCalculator
             array_push($weightVolume, $dimension);
         }
         $cubic = array_sum($weightVolume);
-        $cubicResult = floatval(number_format($cubic, 2,'.',''));
+        $cubicResult = floatval(number_format($cubic, 2, '.', ''));
 
         return $cubicResult;
     }
