@@ -1099,6 +1099,7 @@ class Package extends Model implements AttachableContract
     private function getAdditionalFeePerItem($item, $serviceCode)
     {
         $additionalPrice = 0;
+        # not use, use $item['weight']
         // $totalWeight = PricingCalculator::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
         $item['additional_price'] = 0;
 
