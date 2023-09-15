@@ -624,6 +624,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
@@ -1221,12 +1222,11 @@ class PricingCalculator
     {
         $handling = Arr::wrap($handling);
         $packings = [];
-        if ($handling !== []) {
+        if ($handling !== [] && !in_array('null', $handling)) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
 
-            // $handling = array_column($handling, 'type');
             foreach ($handling as $key => $packing) {
 
                 if (Arr::has($packing, 'type')) {
