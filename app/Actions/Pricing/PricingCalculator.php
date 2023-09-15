@@ -257,14 +257,14 @@ class PricingCalculator
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
-                    ]);
+                    ])->toArray();
                     $item['handling'] = $handlingResult;
                 }
             }
+
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
-
             $hasNotInsurance = isset($item['insurance']) && $item['insurance'] == false;
             if ($hasNotInsurance) {
                 $item['insurance_price'] = 0;
@@ -588,7 +588,7 @@ class PricingCalculator
         if (count($itemsTemp) >= 1 && isset($itemsTemp[0]['weight_borne_total'])) {
             $totalWeightBorne = array_sum(array_column($itemsTemp, 'weight_borne_total'));
         } else {
-            $totalWeightBorne = self::getTotalWeightBorne($itemsTemp, Service::TRAWLPACK_STANDARD);   
+            $totalWeightBorne = self::getTotalWeightBorne($itemsTemp, Service::TRAWLPACK_STANDARD);
         }
 
         $tierPrice = self::getTier($price, $totalWeightBorne);
@@ -636,8 +636,10 @@ class PricingCalculator
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
-        $handling = self::checkHandling($handling);
-        if (in_array(Handling::TYPE_WOOD, $handling)) {
+        # not use
+        // $handling = self::checkHandling($handling);
+
+        if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
             $act_weight = $weight;
@@ -649,7 +651,6 @@ class PricingCalculator
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
-
         return (self::ceilByTolerance($weight) * $qty);
     }
 
@@ -1219,12 +1220,23 @@ class PricingCalculator
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
+        $packings = [];
         if ($handling !== []) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
+
+            // $handling = array_column($handling, 'type');
+            foreach ($handling as $key => $packing) {
+
+                if (Arr::has($packing, 'type')) {
+                    $packing = array_column($handling, 'type');
+                    $packings = $packing;
+                }
+            }
         }
-        return $handling;
+
+        return $packings;
     }
 
     /**
