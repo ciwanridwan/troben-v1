@@ -1227,16 +1227,17 @@ class PricingCalculator
             }
 
             // $handling = array_column($handling, 'type');
-            // foreach ($handling as $key => $packing) {
+            foreach ($handling as $key => $packing) {
 
-            //     if (Arr::has($packing, 'type')) {
-            //         $packing = array_column($handling, 'type');
-            //         $packings = $packing;
-            //     }
-            // }
+                if (Arr::has($packing, 'type')) {
+                    $packing = array_column($handling, 'type');
+                    $packings = $packing;
+                }
+            }
         }
 
-        return $handling;
+        Log::info("Check handling", $packings);
+        return $packings;
     }
 
     /**
