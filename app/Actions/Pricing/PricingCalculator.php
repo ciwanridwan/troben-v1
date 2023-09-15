@@ -265,6 +265,7 @@ class PricingCalculator
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
+
             $hasNotInsurance = isset($item['insurance']) && $item['insurance'] == false;
             if ($hasNotInsurance) {
                 $item['insurance_price'] = 0;
@@ -636,8 +637,7 @@ class PricingCalculator
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
-        # not use
-        // $handling = self::checkHandling($handling);
+        $handling = self::checkHandling($handling);
 
         if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
@@ -1220,20 +1220,11 @@ class PricingCalculator
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
-        $packings = [];
+
         if ($handling !== []) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
-
-            // $handling = array_column($handling, 'type');
-            // foreach ($handling as $key => $packing) {
-
-            //     if (Arr::has($packing, 'type')) {
-            //         $packing = array_column($handling, 'type');
-            //         $packings = $packing;
-            //     }
-            // }
         }
 
         return $handling;
