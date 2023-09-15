@@ -31,6 +31,7 @@ use App\Models\Partners\VoucherAE;
 use App\Models\PartnerSatellite;
 use App\Supports\DistanceMatrix;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -191,6 +192,7 @@ class PricingCalculator
 
         /** @var Price $price */
         $price = self::getPrice($inputs['origin_province_id'], $inputs['origin_regency_id'], $inputs['destination_id']);
+
         $totalWeightBorne = self::getTotalWeightBorne($inputs['items'] ?? [], $serviceCode);
         $insurancePriceTotal = 0;
         $pickup_price = 0;
@@ -255,14 +257,14 @@ class PricingCalculator
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
-                    ]);
+                    ])->toArray();
                     $item['handling'] = $handlingResult;
                 }
             }
+
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
-
             $hasNotInsurance = isset($item['insurance']) && $item['insurance'] == false;
             if ($hasNotInsurance) {
                 $item['insurance_price'] = 0;
@@ -537,8 +539,9 @@ class PricingCalculator
         }
 
         $items = [];
-
-        foreach ($inputs['items'] as $item) {
+        $itemsTemp = $inputs['items'] ?? [];
+        foreach ($itemsTemp as $key => $item) {
+            $packing = [];
             if ($item['handling']) {
                 foreach ($item['handling'] as $handling) {
                     if ($handling instanceof Collection) {
@@ -576,13 +579,30 @@ class PricingCalculator
                 'width' => $item['width'],
                 'qty' => $item['qty'],
                 'handling' => !empty($packing) ? array_column($packing, 'type') : null
-
             ];
         }
-        $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
+        # still get bug, not use
+        // $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
+
+        # use this total weight, get by sum
+        if (count($itemsTemp) >= 1 && isset($itemsTemp[0]['weight_borne_total'])) {
+            $totalWeightBorne = array_sum(array_column($itemsTemp, 'weight_borne_total'));
+        } else {
+            $totalWeightBorne = self::getTotalWeightBorne($itemsTemp, Service::TRAWLPACK_STANDARD);
+        }
+
         $tierPrice = self::getTier($price, $totalWeightBorne);
 
         $servicePrice = $tierPrice * $totalWeightBorne;
+
+        $log = [
+            'tier_price' => $tierPrice,
+            'total_weight_borne' => $totalWeightBorne,
+            'service_price' => $servicePrice
+        ];
+
+        Log::info('this is tier price => ', $log);
+
         return $servicePrice;
     }
 
@@ -607,7 +627,6 @@ class PricingCalculator
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
-
             $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             array_push($totalWeightBorne, $totalWeight);
         }
@@ -617,9 +636,10 @@ class PricingCalculator
 
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
-        $handling = self::checkHandling($handling);
+        # not use
+        // $handling = self::checkHandling($handling);
 
-        if (in_array(Handling::TYPE_WOOD, $handling)) {
+        if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
             $act_weight = $weight;
@@ -631,7 +651,6 @@ class PricingCalculator
             );
             $weight = $act_weight > $act_volume ? $act_weight : $act_volume;
         }
-
         return (self::ceilByTolerance($weight) * $qty);
     }
 
@@ -1045,6 +1064,7 @@ class PricingCalculator
         $additionalPrice = [];
 
         foreach ($items as $item) {
+            # not use, use $item['weight']
             // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             $item['additional_price'] = 0;
 
@@ -1200,11 +1220,20 @@ class PricingCalculator
     private static function checkHandling($handling = [])
     {
         $handling = Arr::wrap($handling);
-
+        $packings = [];
         if ($handling !== []) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
+
+            // $handling = array_column($handling, 'type');
+            // foreach ($handling as $key => $packing) {
+
+            //     if (Arr::has($packing, 'type')) {
+            //         $packing = array_column($handling, 'type');
+            //         $packings = $packing;
+            //     }
+            // }
         }
 
         return $handling;
@@ -1268,7 +1297,7 @@ class PricingCalculator
             array_push($weightVolume, $dimension);
         }
         $cubic = array_sum($weightVolume);
-        $cubicResult = floatval(number_format($cubic, 2,'.',''));
+        $cubicResult = floatval(number_format($cubic, 2, '.', ''));
 
         return $cubicResult;
     }
