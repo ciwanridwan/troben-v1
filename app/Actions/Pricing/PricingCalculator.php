@@ -639,6 +639,7 @@ class PricingCalculator
         # not use
         // $handling = self::checkHandling($handling);
 
+	$handling = $handling ?? [];
         if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
