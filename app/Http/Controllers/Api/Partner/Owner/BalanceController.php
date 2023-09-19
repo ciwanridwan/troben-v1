@@ -44,9 +44,10 @@ class BalanceController extends Controller
 
         switch ($partnerType) {
             case Partner::TYPE_TRANSPORTER:
-                $query = $this->getMtakIncome($repository->getPartner()->id);
-                $result = DB::select($query);
-
+                // $query = $this->getMtakIncome($repository->getPartner()->id);
+                // $result = DB::select($query);
+                $result = $repository->queries()->getIncomeMtak($repository->getPartner()->id);
+                // dd($result);
                 return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
                 break;
             default:
