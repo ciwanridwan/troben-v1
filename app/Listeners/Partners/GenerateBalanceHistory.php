@@ -329,6 +329,7 @@ class GenerateBalanceHistory
 
                         $manifest_weight = $this->checkMinimalChargeWeight($this->partner->code, $manifest_weight);
 
+
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
                             /** @var \App\Models\Partners\Prices\Transit $price */
@@ -461,7 +462,7 @@ class GenerateBalanceHistory
                     break;
                 }
 
-                $weight = $this->package->total_weight;
+                $weight = $this->package->items->sum('weight_borne_total');
 
                 $tier = PricingCalculator::getTierType($weight);
                 /** @var Dooring $price */
@@ -510,15 +511,22 @@ class GenerateBalanceHistory
 
                 // Set Income Delivery
                 if ($this->partner->get_fee_delivery) {
-                    $weight = $this->package->total_weight;
-                    $weight = $this->checkMinimalChargeWeight($this->partner->code, $weight);
+                    if ($this->delivery->packages()->count() > 1) {
+                        $packages = $this->delivery->packages()->get();
+                        $totalWeightBorne = $packages->map(function ($r) {
+                            return $r->items->sum('weight_borne_total');
+                        })->toArray();
 
-                    $tier = PricingCalculator::getTierType($weight);
+                        $totalWeight = array_sum($totalWeightBorne);
+                    } else {
+                        $totalWeight = $this->package->items->sum('weight_borne_total');
+                    }
+
+                    $totalWeight = $this->checkMinimalChargeWeight($this->partner->code, $totalWeight);
+                    $tier = PricingCalculator::getTierType($totalWeight);
                     $originPartner = $this->delivery->origin_partner()->first();
 
-
                     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
-
                     if (!$price) {
                         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                         $this->dispatchNow($job);
@@ -537,7 +545,7 @@ class GenerateBalanceHistory
                                 'manifest_code' => $this->delivery->code->content,
                                 'package_count' => 1, // only first item
                                 'package_code' => $this->package->code->content,
-                                'total_weight' => $weight,
+                                'total_weight' => $totalWeight,
                                 'partner_code' => $this->partner->code,
                                 'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
                             ]
@@ -553,8 +561,8 @@ class GenerateBalanceHistory
 
                     $tierPrice = $this->getTransitTierPrice(1, $price, $tier);
 
-                    $this->setBalance($weight * $tierPrice);
-                    $income = $weight * $tierPrice;
+                    $this->setBalance($totalWeight * $tierPrice);
+                    $income = $totalWeight * $tierPrice;
 
                     $this
                         ->setType(DeliveryHistory::TYPE_DEPOSIT)
