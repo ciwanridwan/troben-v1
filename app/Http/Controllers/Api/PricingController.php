@@ -432,7 +432,7 @@ class PricingController extends Controller
         if (count($request->destination_sub_district_id) > 1) {
             $totalPickupPrice = $rows[0]['result']['pickup_price'];
         } else {
-            $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));    
+            $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));
         }
 
         // sum total

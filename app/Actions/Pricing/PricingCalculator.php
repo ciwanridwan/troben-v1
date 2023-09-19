@@ -624,6 +624,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
@@ -637,7 +638,7 @@ class PricingCalculator
     public static function getWeightBorne($height = 0, $length = 0, $width = 0, $weight = 0, $qty = 1, $handling = [], $serviceCode = null)
     {
         # not use
-        // $handling = self::checkHandling($handling);
+        $handling = self::checkHandling($handling);
 
 	$handling = $handling ?? [];
         if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
@@ -1220,14 +1221,15 @@ class PricingCalculator
 
     private static function checkHandling($handling = [])
     {
+        // dd($handling);
         $handling = Arr::wrap($handling);
-        $packings = [];
-        if ($handling !== []) {
+        // $packings = [];
+        // if ($handling !== [] && !in_array('null', $handling)) {
+            if ($handling !== []) {
             if (Arr::has($handling, 'type')) {
                 $handling = array_column($handling, 'type');
             }
 
-            // $handling = array_column($handling, 'type');
             // foreach ($handling as $key => $packing) {
 
             //     if (Arr::has($packing, 'type')) {
@@ -1237,6 +1239,7 @@ class PricingCalculator
             // }
         }
 
+        // Log::info("Check handling", $packings);
         return $handling;
     }
 
