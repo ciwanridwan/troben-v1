@@ -583,11 +583,14 @@ class PricingCalculator
             ];
         }
         # still get bug, not use
-        // $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
+        $totalWeightBorne = self::getTotalWeightBorne($items, Service::TRAWLPACK_STANDARD);
 
         # use this total weight, get by sum
         if (count($itemsTemp) >= 1 && isset($itemsTemp[0]['weight_borne_total'])) {
             $totalWeightBorne = array_sum(array_column($itemsTemp, 'weight_borne_total'));
+            if ($totalWeightBorne < 10) {
+                $totalWeightBorne = 10;
+            }
         } else {
             $totalWeightBorne = self::getTotalWeightBorne($itemsTemp, Service::TRAWLPACK_STANDARD);
         }
