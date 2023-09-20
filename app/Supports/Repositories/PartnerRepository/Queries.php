@@ -705,7 +705,7 @@ class Queries
      */
     public function getIncomeMtak($partnerId)
     {
-        $deliveryIncome = DeliveryHistory::with(['partner', 'deliveries.packages', 'deliveries.code'])->where('partner_id', $partnerId)->get();
+        $deliveryIncome = DeliveryHistory::with(['partner', 'deliveries.packages', 'deliveries.code'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
         $resultsDelivery = $deliveryIncome->map(function ($r) {
             $packages = $r->deliveries->packages()->get();
 
@@ -727,7 +727,7 @@ class Queries
             ];
         })->values()->toArray();
 
-        $balanceHistory = History::with(['partner', 'package'])->where('partner_id', $partnerId)->get();
+        $balanceHistory = History::with(['partner', 'package'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
 
         $resultHistory = $balanceHistory->map(function ($r) {
             $totalWeight = $r->package->items->sum('weight_borne_total');

@@ -52,7 +52,7 @@ class BalanceController extends Controller
                 break;
             default:
                 $query = $this->getIncome($repository->getPartner()->id);
-                $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
+                $result = collect(DB::select($query))->sortByDesc('created_at')->groupBy('package_code')->map(function ($k, $v) {
                     $k->map(function ($q) {
                         $q->amount = intval($q->amount);
                         $q->weight = intval($q->weight);
@@ -74,7 +74,6 @@ class BalanceController extends Controller
                         'detail' => $k
                     ];
                 })->values();
-
                 return (new Response(Response::RC_SUCCESS, $result))->json();
                 break;
         }
