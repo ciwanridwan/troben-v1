@@ -27,6 +27,7 @@ use App\Events\Packages\WarehouseIsEstimatingPackage;
 use App\Events\Packages\WarehouseIsStartPacking;
 use App\Jobs\Codes\Logs\CreateNewLog;
 use App\Models\Code;
+use App\Models\Partners\Partner;
 use App\Models\Partners\Pivot\UserablePivot;
 use App\Supports\Translates\Translate;
 use Illuminate\Database\Eloquent\Model;
@@ -145,9 +146,15 @@ class WriteCodeLog
                     'log_type' => CodeLogable::TYPE_SCAN,
                     'log_status' => $role
                 ];
+
                 if ($delivery->type === Delivery::TYPE_DOORING) {
-                    $inputs['log_description'] = 'Paket sedang dikirim ke penerima';
+                    if ($delivery->origin_partner->type === Partner::TYPE_POOL && $delivery->status === Delivery::STATUS_WAITING_ASSIGN_PARTNER) {
+                        $inputs['log_description'] = 'Paket sedang diantar ke kota tujuan';
+                    } else {
+                        $inputs['log_description'] = 'Paket sedang dikirim ke penerima';
+                    }
                 }
+
                 $this->packageLog($delivery->code, $package, $code, $inputs);
                 break;
             case $event instanceof DeliveryPickup\PackageLoadedByDriver || $event instanceof DeliveryTransit\PackageLoadedByDriver:
