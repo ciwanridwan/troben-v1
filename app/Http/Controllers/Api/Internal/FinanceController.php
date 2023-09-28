@@ -351,7 +351,7 @@ class FinanceController extends Controller
         $partnerType = $disbursment->partner->type;
         switch ($partnerType) {
             case Partner::TYPE_TRANSPORTER:
-                return $this->approveForDeliveries($disbursment, $receipt);
+                return $this->approveForDeliveries($request, $disbursment, $receipt);
                 break;
             default:
                 return $this->approveForPackages($disbursment, $receipt);
