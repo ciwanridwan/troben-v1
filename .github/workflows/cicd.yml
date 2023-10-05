@@ -25,24 +25,24 @@
 #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
 
 
-name: CI/CD for Trawlbens Core Branch Staging
+name: CI/CD for Trawlbens Core Branch Staging and Develop
 on:
   push:
     branches:
       - staging
+      - develop
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest 
-    steps:    
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    steps:
     - name: Deploy using Username Password
       uses: appleboy/ssh-action@master
       with:
         host: ${{ vars.HOST_IP }}
         username: ${{ vars.USERNAME }}
         password: ${{ secrets.PASSWORD }}
-        # key: ${{ secrets.DEV_TBADMIN_SSH_PRIVATE_KEY }}
-        # port: ${{ secrets.DEV_TBADMIN_SSH_PORT }}
         script: |
          cd /home/deployer/repo/tbcore
          git pull origin staging
@@ -53,6 +53,7 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
         message: |
           ${{ github.actor }} created commit:
           Commit message: ${{ github.event.commits[0].message }}
@@ -60,10 +61,33 @@ jobs:
           Branch: *${{ github.ref }}*
           Repository: *${{ github.repository }}*
           
-          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}   
-
-
-
-         # GIT_ASKPASS=echo git pull https://${{ secrets.GITTOKEN }}@github.com/Trawlbens-Dev/trawlbens.core.git 
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+  deploy-develop:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+    - name: Deploy using Username Password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ vars.HOST_IP }}
+        username: ${{ vars.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        script: |
+         cd /home/deployer/repo/tbcore-develop
+         git pull origin develop
+         docker compose build
+         docker compose up -d
+    - name: send telegram message on push
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ github.actor }} created commit:
+          Commit message: ${{ github.event.commits[0].message }}
           
-       
+          Branch: *${{ github.ref }}*
+          Repository: *${{ github.repository }}*
+          
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
