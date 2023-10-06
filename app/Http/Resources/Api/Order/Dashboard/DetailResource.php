@@ -6,6 +6,7 @@ use App\Actions\Pricing\PricingCalculator;
 use App\Casts\Package\Items\Handling;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
+use App\Models\Packages\Promo;
 use App\Models\Partners\Partner;
 use App\Models\Partners\Transporter;
 use App\Models\Price;
@@ -74,6 +75,13 @@ class DetailResource extends JsonResource
             $isBike = false;
         }
 
+        // check if package has promo discount
+        if ($this->promos && $this->promos->status === Promo::STATUS_VALID) {
+            $isPromoDiscount = true;
+        } else {
+            $isPromoDiscount = false;
+        }
+
         $data = [
             'id' => $this->id,
             'hash' => $manifest ? $manifest->hash : null, // inject hash delivery request from frontend team
@@ -86,6 +94,7 @@ class DetailResource extends JsonResource
             'transporter_detail' => $this->getTransporter($this->transporter_type),
             'order_type' => $orderType,
             'is_bike' => $isBike,
+            'is_promo_discount' => $isPromoDiscount,
             'sender_name' => $this->sender_name,
             'sender_address' => $this->sender_address,
             'sender_detail_address' => $this->sender_way_point,
@@ -304,7 +313,7 @@ class DetailResource extends JsonResource
                             array_push($packings, $packing);
                         }
                     }
-                    
+
                     $result = [
                         'hash' => $i->hash,
                         'name' => $i->name ?? '',

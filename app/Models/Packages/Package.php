@@ -1271,4 +1271,12 @@ class Package extends Model implements AttachableContract
 
         return $message;
     }
+
+    /**
+     * Relation to promo table
+     */
+    public function promos(): HasOne
+    {
+        return $this->hasOne(Promo::class, 'package_id', 'id');
+    }
 }

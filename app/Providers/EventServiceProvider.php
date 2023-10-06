@@ -72,6 +72,7 @@ use App\Events\Payment\ListPaymentGateway;
 use App\Events\Payment\Nicepay\PayByNicePayDummy;
 use App\Listeners\Deliveries\UpdateDeliveryRoute;
 use App\Listeners\Packages\GeneratePackageBikePrices;
+use App\Listeners\Packages\GeneratePackagePromo;
 use App\Listeners\Packages\SendNotificationToCustomer;
 use App\Listeners\Partners\CalculateIncomeAEIndirect;
 use Illuminate\Support\Facades\Event;
@@ -91,6 +92,7 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePickupPrices::class,
             GeneratePackagePrices::class,
+            GeneratePackagePromo::class,
             WriteCodeLog::class
         ],
         WalkinPackageCreated::class => [
@@ -108,6 +110,7 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             UpdatePackageStatusByEvent::class,
             GeneratePackagePrices::class,
+            GeneratePackagePromo::class,
             WriteCodeLog::class
         ],
 
@@ -193,6 +196,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PackageEstimatedByWarehouse::class => [
             UpdatePackageStatusByEvent::class,
+            GeneratePackagePromo::class,
             WriteCodeLog::class
         ],
         PackageCanceledByCustomer::class => [

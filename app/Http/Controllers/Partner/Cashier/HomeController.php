@@ -21,6 +21,7 @@ use App\Events\Packages\PackageCheckedByCashier;
 use App\Events\Partners\PartnerCashierDiscountForBike;
 use App\Supports\Repositories\PartnerRepository;
 use App\Jobs\Packages\Item\DeleteItemFromExistingPackage;
+use App\Models\Packages\Promo;
 use App\Models\Service;
 
 class HomeController extends Controller
@@ -154,8 +155,18 @@ class HomeController extends Controller
             ]
         );
         $type = $request->type;
+        $promo = $package->promos;
+        $isCanDiscount = false;
 
-        if ($request->has('discount')) {
+        if (!is_null($promo) && $promo->status === Promo::STATUS_FAIL || !is_null($promo) && $promo->status === Promo::STATUS_PENDING) {
+            $isCanDiscount = true;
+        }
+
+        if (is_null($promo)) {
+            $isCanDiscount = true;
+        }
+
+        if ($request->has('discount') && $isCanDiscount) {
             if ($type == Price::TYPE_SERVICE) {
                 switch ($request->user()->partners[0]['type']) {
                     case Partner::TYPE_BUSINESS:
