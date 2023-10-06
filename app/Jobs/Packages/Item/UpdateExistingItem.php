@@ -58,7 +58,6 @@ class UpdateExistingItem
 
     public function handle()
     {
-
         \Log::info('itemschanges', ['pid' => $this->package->getKey(), 'attr' => $this->attributes]);
 
         if (!isset($this->attributes['qty']) || $this->attributes['qty'] == null) {

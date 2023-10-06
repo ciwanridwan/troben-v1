@@ -436,8 +436,8 @@ class PricingController extends Controller
         }
 
         // sum total
-        $totalInsurancePrice = array_sum(array_column($grandTotal, 'insurance_price_total'));
         $totalWeightBorne = array_sum(array_column($grandTotal, 'total_weight_borne'));
+        $totalInsurancePrice = array_sum(array_column($grandTotal, 'insurance_price_total'));
         $totalHandlingPrice = array_sum(array_column($grandTotal, 'handling'));
         $totalDiscount = array_sum(array_column($grandTotal, 'discount'));
         $totalTier = array_sum(array_column($grandTotal, 'tier'));
@@ -445,6 +445,7 @@ class PricingController extends Controller
         $totalServicePrice = array_sum(array_column($grandTotal, 'service'));
         $totalAmount = array_sum(array_column($grandTotal, 'total_amount'));
         $platformFee = PackagesPrice::FEE_PLATFORM;
+
         $resultGrandTotal = [
             'insurance_price_total' => $totalInsurancePrice,
             'total_weight_borne' => $totalWeightBorne,
