@@ -40,34 +40,45 @@ class GeneratePackagePromo
             }
             $promo->save();
         } else {
-            // set promo discount
-            if ($event->package->total_weight >= 50) {
-                $discount = 20000;
-                // update package prices
-                $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
-                    'type' => Price::TYPE_DISCOUNT,
-                    'description' => Price::TYPE_PICKUP,
-                    'amount' => $discount,
-                ]);
-                $this->dispatch($job);
+            if ($event->partner->isJabodetabek()) {
+                // set promo discount
+                if ($event->package->total_weight >= 50) {
+                    $discountMax = 20000;
 
-                // set meta
-                $meta = [
-                    'amount' => $discount
-                ];
+                    $pickupPrice = $event->package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->sum('amount');
+                    // check if pickup price more than discount max
+                    if ($pickupPrice >= $discountMax) {
+                        $discount = $discountMax;
+                    } else {
+                        $discount = $pickupPrice;
+                    }
 
-                // create new record
-                Promo::create([
-                    'package_id' => $event->package->id,
-                    'type' => Promo::TYPE_DISCOUNT_PICKUP,
-                    'status' => Promo::STATUS_PENDING,
-                    'meta' => json_encode($meta)
-                ]);
+                    // update package prices
+                    $job = new UpdateOrCreatePriceFromExistingPackage($event->package, [
+                        'type' => Price::TYPE_DISCOUNT,
+                        'description' => Price::TYPE_PICKUP,
+                        'amount' => $discount,
+                    ]);
+                    $this->dispatch($job);
 
-                $package = $event->package->refresh();
+                    // set meta
+                    $meta = [
+                        'amount' => $discount
+                    ];
 
-                // update total amount
-                $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, false))->save();
+                    // create new record
+                    Promo::create([
+                        'package_id' => $event->package->id,
+                        'type' => Promo::TYPE_DISCOUNT_PICKUP,
+                        'status' => Promo::STATUS_PENDING,
+                        'meta' => json_encode($meta)
+                    ]);
+
+                    $package = $event->package->refresh();
+
+                    // update total amount
+                    $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, false))->save();
+                }
             }
         }
     }
