@@ -305,12 +305,15 @@ class PricingCalculator
                 break;
         }
 
+	// disable for pricing calculator
         // set promo pickup discount 9 - 15 october
+	/*
         $discount = 0;
         if ($totalWeightBorne >= 50) {
             $discount = 20000;
         }
-
+	*/
+        $discount = 0;
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost  - $discount;
 
         $response = [
