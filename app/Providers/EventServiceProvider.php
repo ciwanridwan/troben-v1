@@ -92,7 +92,6 @@ class EventServiceProvider extends ServiceProvider
             UpdatePackageTotalWeightByEvent::class,
             GeneratePackagePickupPrices::class,
             GeneratePackagePrices::class,
-            GeneratePackagePromo::class,
             WriteCodeLog::class
         ],
         WalkinPackageCreated::class => [
@@ -364,6 +363,10 @@ class EventServiceProvider extends ServiceProvider
 
         ListPaymentGateway::class => [
             SendNotificationToCustomer::class
+        ],
+
+        PartnerAssigned::class => [
+            GeneratePackagePromo::class
         ]
     ];
 
