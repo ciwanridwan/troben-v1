@@ -247,16 +247,16 @@ class GenerateBalanceHistory
                                 $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
 
                                 // set fee discount pickup
-                                if (!is_null($discountPickup)) {
-                                    $discountPickupFee = $discountPickup->amount;
-                                    $this
-                                        ->setBalance($discountPickupFee)
-                                        ->setType(History::TYPE_DISCOUNT)
-                                        ->setDescription(History::DESCRIPTION_PICKUP)
-                                        ->setAttributes()
-                                        ->recordHistory();
-
-                                    // $balancePickup -= $discountPickup->amount;
+                                if (is_null($package->promos)) {
+                                    if (!is_null($discountPickup)) {
+                                        $discountPickupFee = $discountPickup->amount;
+                                        $this
+                                            ->setBalance($discountPickupFee)
+                                            ->setType(History::TYPE_DISCOUNT)
+                                            ->setDescription(History::DESCRIPTION_PICKUP)
+                                            ->setAttributes()
+                                            ->recordHistory();
+                                    }
                                 }
 
                                 $this
@@ -1113,21 +1113,21 @@ class GenerateBalanceHistory
     protected function checkMinimalChargeWeight($partnerCode, $manifestWeight): int
     {
         switch (true) {
-            // case $partnerCode === 'MTM-TNA-01':
-            //     if ($manifestWeight < 50) {
-            //         $manifestWeight = 50;
-            //     }
-            //     break;
+                // case $partnerCode === 'MTM-TNA-01':
+                //     if ($manifestWeight < 50) {
+                //         $manifestWeight = 50;
+                //     }
+                //     break;
             case $partnerCode === 'MT-JKT-13':
                 if ($manifestWeight < 20) {
                     $manifestWeight = 20;
                 }
                 break;
-            // case $partnerCode === 'MT-JKT-06':
-            //     if ($manifestWeight < 100) {
-            //         $manifestWeight = 100;
-            //     }
-            //     break;
+                // case $partnerCode === 'MT-JKT-06':
+                //     if ($manifestWeight < 100) {
+                //         $manifestWeight = 100;
+                //     }
+                //     break;
             case $partnerCode === 'MTM-CKR-01':
                 if ($manifestWeight < 50) {
                     $manifestWeight = 50;
