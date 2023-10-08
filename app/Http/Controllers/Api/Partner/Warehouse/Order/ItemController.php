@@ -48,7 +48,7 @@ class ItemController extends Controller
         $inputs = $request->all();
         /** @noinspection PhpParamsInspection */
         /** @noinspection PhpUnhandledExceptionInspection */
-        throw_if(! $package instanceof Package, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
+        throw_if(!$package instanceof Package, UserUnauthorizedException::class, Response::RC_UNAUTHORIZED);
 
         $job = new CreateNewItemFromExistingPackage($package, $inputs);
 
@@ -84,11 +84,13 @@ class ItemController extends Controller
                 $item->save();
                 unset($request['handling']);
             }
-        } else {
-            $price = Price::where('package_item_id', $item->id)
-                ->Where('type', 'handling')->delete();
         }
 
+        # not use
+        // } else {
+        //     $price = Price::where('package_item_id', $item->id)
+        //         ->Where('type', 'handling')->delete();
+        // }
 
         $job = new UpdateExistingItem($package, $item, $request->all());
 

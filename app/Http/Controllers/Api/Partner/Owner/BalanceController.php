@@ -44,14 +44,15 @@ class BalanceController extends Controller
 
         switch ($partnerType) {
             case Partner::TYPE_TRANSPORTER:
-                $query = $this->getMtakIncome($repository->getPartner()->id);
-                $result = DB::select($query);
-
+                // $query = $this->getMtakIncome($repository->getPartner()->id);
+                // $result = DB::select($query);
+                $result = $repository->queries()->getIncomeMtak($repository->getPartner()->id);
+                // dd($result);
                 return $this->jsonSuccess(ReportPartnerTransporterResource::collection($result));
                 break;
             default:
                 $query = $this->getIncome($repository->getPartner()->id);
-                $result = collect(DB::select($query))->groupBy('package_code')->map(function ($k, $v) {
+                $result = collect(DB::select($query))->sortByDesc('created_at')->groupBy('package_code')->map(function ($k, $v) {
                     $k->map(function ($q) {
                         $q->amount = intval($q->amount);
                         $q->weight = intval($q->weight);
@@ -73,7 +74,6 @@ class BalanceController extends Controller
                         'detail' => $k
                     ];
                 })->values();
-
                 return (new Response(Response::RC_SUCCESS, $result))->json();
                 break;
         }

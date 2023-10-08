@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use App\Models\Deliveries\Delivery;
+use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Transporter;
 use App\Supports\Repositories\PartnerBalanceReportRepository;
 use Illuminate\Database\Eloquent\Builder;
@@ -697,5 +698,51 @@ class Queries
 
         $query->orderByDesc('created_at');
         return $query;
+    }
+
+    /**
+     * Get income MTAK partner
+     */
+    public function getIncomeMtak($partnerId)
+    {
+        $deliveryIncome = DeliveryHistory::with(['partner', 'deliveries.packages', 'deliveries.code'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
+        $resultsDelivery = $deliveryIncome->map(function ($r) {
+            $packages = $r->deliveries->packages()->get();
+
+            $totalWeight = $packages->map(function ($p) {
+                $resTotal = $p->items->sum('weight_borne_total');
+
+                return $resTotal;
+            })->toArray();
+
+            $totalWeight = array_sum($totalWeight);
+
+            return [
+                'package_code' => $r->deliveries->code->content,
+                'total_amount' => $r->balance,
+                'weight' => $totalWeight,
+                'date' => $r->created_at->format('Y-m-d H:i:s'),
+                'type' => $r->type,
+                'description' => $r->description
+            ];
+        })->values()->toArray();
+
+        $balanceHistory = History::with(['partner', 'package'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
+
+        $resultHistory = $balanceHistory->map(function ($r) {
+            $totalWeight = $r->package->items->sum('weight_borne_total');
+
+            return [
+                'package_code' => $r->package->code->content,
+                'total_amount' => $r->balance,
+                'weight' => $totalWeight,
+                'date' => $r->created_at->format('Y-m-d H:i:s'),
+                'type' => $r->type,
+                'description' => $r->description
+            ];
+        })->values()->toArray();
+
+        $results = array_merge($resultsDelivery, $resultHistory);
+        return $results;
     }
 }

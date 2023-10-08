@@ -305,7 +305,25 @@ class PricingCalculator
                 break;
         }
 
-        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost - $discount;
+	// disable for pricing calculator
+        // set promo pickup discount 9 - 15 october
+	/*
+        $discount = 0;
+        $partner = Partner::query()->where('code', $inputs['partner_code'])->first();
+        if ($partner->isJabodetabek()) {
+            $discountMax = 20000;
+
+            if ($totalWeightBorne >= 50) {
+                if ($pickup_price >= $discountMax) {
+                    $discount = $discountMax;
+                } else {
+                    $discount = $pickup_price;
+                }
+            }
+        }
+	*/
+        $discount = 0;
+        $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost  - $discount;
 
         $response = [
             'price' => $result['price'],
@@ -628,6 +646,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             if (!empty($item['handling'])) {
                 $item['handling'] = self::checkHandling($item['handling']);
             }
@@ -642,7 +661,8 @@ class PricingCalculator
     {
         $handling = self::checkHandling($handling);
 
-        if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'),)) {
+        $handling = $handling ?? [];
+        if (in_array(Handling::TYPE_WOOD, $handling) || in_array(Handling::TYPE_WOOD, array_column($handling, 'type'))) {
             $weight = Handling::woodWeightBorne($height, $length, $width, $weight, $serviceCode);
         } else {
             $act_weight = $weight;
@@ -1222,6 +1242,7 @@ class PricingCalculator
 
     private static function checkHandling($handling = [])
     {
+        // dd($handling);
         $handling = Arr::wrap($handling);
 
         if ($handling !== []) {
@@ -1230,6 +1251,7 @@ class PricingCalculator
             }
         }
 
+        // Log::info("Check handling", $packings);
         return $handling;
     }
 

@@ -247,16 +247,16 @@ class GenerateBalanceHistory
                                 $discountPickup = $package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
 
                                 // set fee discount pickup
-                                if (!is_null($discountPickup)) {
-                                    $discountPickupFee = $discountPickup->amount;
-                                    $this
-                                        ->setBalance($discountPickupFee)
-                                        ->setType(History::TYPE_DISCOUNT)
-                                        ->setDescription(History::DESCRIPTION_PICKUP)
-                                        ->setAttributes()
-                                        ->recordHistory();
-
-                                    // $balancePickup -= $discountPickup->amount;
+                                if (is_null($package->promos)) {
+                                    if (!is_null($discountPickup)) {
+                                        $discountPickupFee = $discountPickup->amount;
+                                        $this
+                                            ->setBalance($discountPickupFee)
+                                            ->setType(History::TYPE_DISCOUNT)
+                                            ->setDescription(History::DESCRIPTION_PICKUP)
+                                            ->setAttributes()
+                                            ->recordHistory();
+                                    }
                                 }
 
                                 $this
@@ -328,6 +328,7 @@ class GenerateBalanceHistory
                         }
 
                         $manifest_weight = $this->checkMinimalChargeWeight($this->partner->code, $manifest_weight);
+
 
                         if ($package_count == 1) {
                             $tier = PricingCalculator::getTierType($manifest_weight);
@@ -461,7 +462,7 @@ class GenerateBalanceHistory
                     break;
                 }
 
-                $weight = $this->package->total_weight;
+                $weight = $this->package->items->sum('weight_borne_total');
 
                 $tier = PricingCalculator::getTierType($weight);
                 /** @var Dooring $price */
@@ -508,63 +509,70 @@ class GenerateBalanceHistory
                         ->recordHistory();
                 }
 
-                // Set Income Delivery
-                if ($this->partner->get_fee_delivery) {
-                    $weight = $this->package->total_weight;
-                    $weight = $this->checkMinimalChargeWeight($this->partner->code, $weight);
+                # Set Income Delivery
+                // if ($this->partner->get_fee_delivery) {
+                //     if ($this->delivery->packages()->count() > 1) {
+                //         $packages = $this->delivery->packages()->get();
+                //         $totalWeightBorne = $packages->map(function ($r) {
+                //             return $r->items->sum('weight_borne_total');
+                //         })->toArray();
 
-                    $tier = PricingCalculator::getTierType($weight);
-                    $originPartner = $this->delivery->origin_partner()->first();
+                //         $totalWeight = array_sum($totalWeightBorne);
+                //     } else {
+                //         $totalWeight = $this->package->items->sum('weight_borne_total');
+                //     }
 
+                //     $totalWeight = $this->checkMinimalChargeWeight($this->partner->code, $totalWeight);
+                //     $tier = PricingCalculator::getTierType($totalWeight);
+                //     $originPartner = $this->delivery->origin_partner()->first();
 
-                    $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
+                //     $price = $this->getTransitPriceByTypeOfSinglePackage($this->package, $originPartner->geo_regency_id, $this->package->destination_district_id);
+                //     if (!$price) {
+                //         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
+                //         $this->dispatchNow($job);
 
-                    if (!$price) {
-                        $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
-                        $this->dispatchNow($job);
+                //         $manifest_weight = 0;
+                //         try {
+                //             $this->package->items->each(function ($item) use (&$manifest_weight) {
+                //                 $manifest_weight += $item->weight_borne_total;
+                //             });
+                //         } catch (\Exception $e) {
+                //             report($e);
+                //         }
+                //         $payload = [
+                //             'data' => [
+                //                 'manifest_weight' => $manifest_weight,
+                //                 'manifest_code' => $this->delivery->code->content,
+                //                 'package_count' => 1, // only first item
+                //                 'package_code' => $this->package->code->content,
+                //                 'total_weight' => $totalWeight,
+                //                 'partner_code' => $this->partner->code,
+                //                 'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
+                //             ]
+                //         ];
+                //         try {
+                //             //Notification::send($payload, new TransporterBalance());
+                //         } catch (\Exception $e) {
+                //             report($e);
+                //             Log::error('TransporterBalance-tlg-err', $payload);
+                //         }
+                //         break;
+                //     }
 
-                        $manifest_weight = 0;
-                        try {
-                            $this->package->items->each(function ($item) use (&$manifest_weight) {
-                                $manifest_weight += $item->weight_borne_total;
-                            });
-                        } catch (\Exception $e) {
-                            report($e);
-                        }
-                        $payload = [
-                            'data' => [
-                                'manifest_weight' => $manifest_weight,
-                                'manifest_code' => $this->delivery->code->content,
-                                'package_count' => 1, // only first item
-                                'package_code' => $this->package->code->content,
-                                'total_weight' => $weight,
-                                'partner_code' => $this->partner->code,
-                                'type' => TransporterBalance::MESSAGE_TYPE_DELIVERY,
-                            ]
-                        ];
-                        try {
-                            //Notification::send($payload, new TransporterBalance());
-                        } catch (\Exception $e) {
-                            report($e);
-                            Log::error('TransporterBalance-tlg-err', $payload);
-                        }
-                        break;
-                    }
+                //     $tierPrice = $this->getTransitTierPrice(1, $price, $tier);
 
-                    $tierPrice = $this->getTransitTierPrice(1, $price, $tier);
+                //     $this->setBalance($totalWeight * $tierPrice);
+                //     $income = $totalWeight * $tierPrice;
 
-                    $this->setBalance($weight * $tierPrice);
-                    $income = $weight * $tierPrice;
+                //     $this
+                //         ->setType(DeliveryHistory::TYPE_DEPOSIT)
+                //         ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
+                //         ->setAttributes(false)
+                //         ->recordHistory(false);
 
-                    $this
-                        ->setType(DeliveryHistory::TYPE_DEPOSIT)
-                        ->setDescription(DeliveryHistory::DESCRIPTION_DELIVERY)
-                        ->setAttributes(false)
-                        ->recordHistory(false);
-
-                    $this->partner->balance += $income;
-                    $this->partner->save();
-                }
+                //     $this->partner->balance += $income;
+                //     $this->partner->save();
+                // }
                 break;
         }
     }
