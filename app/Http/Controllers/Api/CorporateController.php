@@ -171,7 +171,7 @@ class CorporateController extends Controller
         ];
 
         if (! is_null($request->get('customer_id'))) {
-            $rules['customer_id'] = ['required', 'exists:customers,id'];
+            $rules['customer_id'] = ['required', 'numeric', 'exists:customers,id'];
             $hasCustomerAcc = true;
         } else {
             $rules['customer_name'] = ['required'];
