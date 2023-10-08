@@ -72,13 +72,14 @@ class UpdateExistingItem
         //        }
 
         //remove from filled data if null
+        $update = $this->attributes;
         foreach (['width', 'height', 'length', 'weight'] as $k) {
-            if (isset($this->attributes[$k]) && is_null($this->attributes[$k])) {
-                unset($this->attributes[$k]);
+            if (isset($update[$k]) && is_null($update[$k])) {
+                unset($update[$k]);
             }
         }
 
-        $this->item->fill($this->attributes);
+        $this->item->fill($update);
         $this->item->fill([
             'revision' => $this->item->revision + 1
         ]);
