@@ -63,7 +63,8 @@ class GeneratePackagePromo
 
                     // set meta
                     $meta = [
-                        'amount' => $discount
+                        'amount' => $discount,
+                        'minimum_weight' => Promo::MIN_WEIGHT
                     ];
 
                     // create new record

@@ -15,6 +15,8 @@ class Promo extends Model
     public const STATUS_VALID = 'valid';
     public const STATUS_FAIL = 'fail';
 
+    public const MIN_WEIGHT = 50;
+
     /**
      * Define a table
      */
