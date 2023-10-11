@@ -305,12 +305,24 @@ class PricingCalculator
                 break;
         }
 
+	// disable for pricing calculator
         // set promo pickup discount 9 - 15 october
+	/*
         $discount = 0;
-        if ($totalWeightBorne >= 50) {
-            $discount = 20000;
-        }
+        $partner = Partner::query()->where('code', $inputs['partner_code'])->first();
+        if ($partner->isJabodetabek()) {
+            $discountMax = 20000;
 
+            if ($totalWeightBorne >= 50) {
+                if ($pickup_price >= $discountMax) {
+                    $discount = $discountMax;
+                } else {
+                    $discount = $pickup_price;
+                }
+            }
+        }
+	*/
+        $discount = 0;
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost  - $discount;
 
         $response = [
