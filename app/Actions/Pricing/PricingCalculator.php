@@ -109,9 +109,9 @@ class PricingCalculator
             if ($item->handling) {
                 $handling_price += (array_sum(array_column($item->handling, 'price')) * $item->qty);
             }
+
             $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
         });
-
         if (!is_null($package->motoBikes)) {
             $handling_price = 0;
         }
@@ -133,7 +133,7 @@ class PricingCalculator
         if ($is_approved == true) {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice - ($pickup_discount_price + $service_discount_price);
         } else {
-            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices + $platformPrice - $pickup_discount_price;
+            $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices + $platformPrice - ($pickup_discount_price + $service_discount_price);
         }
 
         if ($package->claimed_promotion != null) {
@@ -379,7 +379,8 @@ class PricingCalculator
             'items.*.weight' => ['required', 'numeric'],
             'items.*.qty' => ['required', 'numeric'],
             'items.*.handling' => ['nullable'],
-            'is_multi' => ['nullable', 'boolean']
+            'is_multi' => ['nullable', 'boolean'],
+            'discount_service' => ['nullable']
         ]);
 
         $serviceCode = $inputs['service_code'];
@@ -504,6 +505,15 @@ class PricingCalculator
                 $result['total_weight_borne'] = $totalWeightBorne;
                 $additionalCost = self::getAdditionalPrices($inputs['items'], $serviceCode);
                 break;
+        }
+
+        if (isset($inputs['discount_service'])) {
+            $discount = $inputs['discount_service'];
+            $maxDiscount = $servicePrice * 0.3;
+
+            // check if discount more than max discount
+            $message = ['message' => 'Discount has more than from max discount, discount not more from max discount'];
+            throw_if($discount > $maxDiscount, OutOfRangePricingException::make(Response::RC_OUT_OF_RANGE, $message));
         }
 
         $totalAmount = $servicePrice + $pickup_price + $handling_price + $insurancePriceTotal + $additionalCost + PackagePrice::FEE_PLATFORM - $discount;
