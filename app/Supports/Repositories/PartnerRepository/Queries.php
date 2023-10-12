@@ -727,7 +727,7 @@ class Queries
             ];
         })->values()->toArray();
 
-        $balanceHistory = History::with(['partner', 'package', 'package.items'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
+        $balanceHistory = History::with(['partner', 'package', 'package.items'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->whereNotNull('package_id')->get();
 
         $resultHistory = $balanceHistory->map(function ($r) {
             // check if items empty or not
