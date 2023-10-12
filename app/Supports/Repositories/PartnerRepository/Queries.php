@@ -727,10 +727,15 @@ class Queries
             ];
         })->values()->toArray();
 
-        $balanceHistory = History::with(['partner', 'package'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
+        $balanceHistory = History::with(['partner', 'package', 'package.items'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->get();
 
         $resultHistory = $balanceHistory->map(function ($r) {
-            $totalWeight = $r->package->items ? $r->package->items->sum('weight_borne_total') : 0;
+            // check if items empty or not
+            if (empty($r->package->items) || count($r->package->items) == 0) {
+                $totalWeight = 0;
+            } else {
+                $totalWeight = $r->package->items->sum('weight_borne_total');
+            }
 
             return [
                 'package_code' => $r->package->code->content,
