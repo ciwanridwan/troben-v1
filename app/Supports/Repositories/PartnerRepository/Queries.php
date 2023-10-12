@@ -336,7 +336,7 @@ class Queries
                             Package::STATUS_PACKING,
                             Package::STATUS_PACKED,
                         ]))
-                        // ->where('packager_id', $this->user->id))
+                    // ->where('packager_id', $this->user->id))
                     // condition after driver unloaded the package
                     ->orWhere(fn (Builder $builder) => $builder
                         ->where(
@@ -727,15 +727,10 @@ class Queries
             ];
         })->values()->toArray();
 
-        $balanceHistory = History::with(['partner', 'package', 'package.items'])->where('partner_id', $partnerId)->orderBy('created_at', 'desc')->whereNotNull('package_id')->get();
+        $balanceHistory = History::with(['partner', 'package'])->where('partner_id', $partnerId)->whereNotNull('package_id')->orderBy('created_at', 'desc')->get();
 
         $resultHistory = $balanceHistory->map(function ($r) {
-            // check if items empty or not
-            if (empty($r->package->items) || count($r->package->items) == 0) {
-                $totalWeight = 0;
-            } else {
-                $totalWeight = $r->package->items->sum('weight_borne_total');
-            }
+            $totalWeight = $r->package->items->sum('weight_borne_total');
 
             return [
                 'package_code' => $r->package->code->content,

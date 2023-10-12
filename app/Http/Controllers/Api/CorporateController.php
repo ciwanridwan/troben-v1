@@ -168,6 +168,8 @@ class CorporateController extends Controller
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+
+            'discount_service' => ['nullable']
         ];
 
         if (! is_null($request->get('customer_id'))) {
@@ -250,8 +252,10 @@ class CorporateController extends Controller
             'is_parent' => false,
             'order_from' => $isAdmin ? 'ho' : 'partner',
             'customer' => $customer,
-            'moto' => false, // not a motobike
+            'moto' => false, // not a motobike,
+            'discount_service' => isset($inputs['discount_service']) ? $inputs['discount_service'] : 0 // discount service
         ];
+
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
             'payment_method' => $payment_method,
@@ -269,6 +273,20 @@ class CorporateController extends Controller
         }
         if ($payment_method == 'va') {
             // go to different method: paymentMethod, paymentMethodSet
+        }
+
+        // ovveride package_prices table if give param discount_service
+        if (isset($inputs['discount_service'])) {
+            $job->package->prices()->create([
+                'package_id' => $job->package->id,
+                'type' => PackagesPrice::TYPE_DISCOUNT,
+                'description' => PackagesPrice::TYPE_SERVICE,
+                'amount' => $inputs['discount_service'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $job->package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($job->package, false))->save();
         }
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
@@ -292,6 +310,7 @@ class CorporateController extends Controller
             'destination_regency_id' => ['required', 'exists:geo_regencies,id'],
             'destination_district_id' => ['required', 'exists:geo_districts,id'],
             'destination_sub_district_id' => ['required', 'exists:geo_sub_districts,id'],
+            'discount_service' => ['nullable']
         ];
 
         if (! is_null($request->get('customer_id'))) {
@@ -397,8 +416,10 @@ class CorporateController extends Controller
             'is_parent' => false,
             'order_from' => $isAdmin ? 'ho' : 'partner',
             'customer' => $customer,
-            'moto' => true, // only for motobike
+            'moto' => true, // only for motobike,
+            'discount_service' => isset($inputs['discount_service']) ? $inputs['discount_service'] : 0
         ];
+
         PackageCorporate::create([
             'package_id' => $job->package->getKey(),
             'payment_method' => $payment_method,
@@ -416,6 +437,20 @@ class CorporateController extends Controller
         }
         if ($payment_method == PackageCorporate::CORPORATE_PAYMENT_VA) {
             // go to different method: paymentMethod, paymentMethodSet
+        }
+
+        // ovveride package_prices table if give param discount_service
+        if (isset($inputs['discount_service'])) {
+            $job->package->prices()->create([
+                'package_id' => $job->package->id,
+                'type' => PackagesPrice::TYPE_DISCOUNT,
+                'description' => PackagesPrice::TYPE_SERVICE,
+                'amount' => $inputs['discount_service'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $job->package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($job->package, false))->save();
         }
 
         return (new Response(Response::RC_SUCCESS, $job->package))->json();
@@ -628,7 +663,7 @@ class CorporateController extends Controller
                 $r->category_item_name = $r->categories ? $r->categories->name : null;
                 return $r;
             });
-            
+
             return $item;
         });
 
@@ -692,7 +727,7 @@ class CorporateController extends Controller
         $result->payment = $payment;
 
         # new object for get payment transaction
-        $trxPayment = null; 
+        $trxPayment = null;
         $arrTrxPayment = null;
         if ($result->payments->count()) {
             $bank = null;
@@ -736,7 +771,7 @@ class CorporateController extends Controller
                     'max_weight' => $r['weight'],
                     'images_url' => $r['path_icons']
                 ];
-    
+
                 return $result;
             })->where('type', $result->transporter_type)->first();
         }
@@ -768,6 +803,7 @@ class CorporateController extends Controller
 
             /**Insurance Price */
             'price' => 'nullable',
+            'discount_service' => 'nullable'
         ];
 
         if ($isAdmin) {
@@ -809,7 +845,18 @@ class CorporateController extends Controller
 
         $handlingPrice = Handling::bikeCalculator($request->get('moto_cc'));
 
-        $total_amount = $pickup_price + $insurance + $service_price + $handlingPrice;
+        // set discount
+        $discount = 0;
+        if (isset($req['discount_service'])) {
+            $discount = $req['discount_service'];
+            $maxDiscount = $service_price * 0.3;
+
+            if ($discount > $maxDiscount) {
+                return (new Response(Response::RC_BAD_REQUEST, ['message' => 'Discount has more than from max discount, discount not more from max discount']))->json();
+            }
+        }
+
+        $total_amount = $pickup_price + $insurance + $service_price + $handlingPrice - $discount;
 
         $result = [
             'details' => [
@@ -817,7 +864,8 @@ class CorporateController extends Controller
                 'insurance_price' => $insurance,
                 'handling_price' => $handlingPrice,
                 'handling_additional_price' => 0,
-                'service_price' => intval($service_price)
+                'service_price' => intval($service_price),
+                'discount_service' => $discount
             ],
             'total_amount' => $total_amount,
             'notes' => $getPrice->notes
