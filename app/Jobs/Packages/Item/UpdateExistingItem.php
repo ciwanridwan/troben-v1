@@ -71,13 +71,31 @@ class UpdateExistingItem
         //            $this->attributes['handling'] = null;
         //        }
 
-        //remove from filled data if null
-        $update = $this->attributes;
-        foreach (['width', 'height', 'length', 'weight'] as $k) {
-            if (isset($update[$k]) && is_null($update[$k])) {
-                unset($update[$k]);
-            }
-        }
+//remove from filled data if null
+$update = $this->attributes;
+foreach(['width', 'height', 'length', 'weight'] as $k) {
+  if (!isset($update[$k]) || is_null($update[$k])) {
+try {
+    unset($update[$k]);
+} catch (\Exception $e) {
+	\Log::info('itemschangeserr', ['pid' => $this->package->getKey(), 'attr' => $update]);
+}
+  }
+}
+
+if (isset($package['height']) && $package['height'] == ''){
+$package['height'] = 0;
+}
+if (isset($package['length']) && $package['length'] == ''){
+$package['length'] = 0;
+}
+if (isset($package['width']) && $package['width'] == ''){
+$package['width'] = 0;
+}
+if (isset($package['weight']) && $package['weight'] == ''){
+$package['weight'] = 0;
+}
+
 
         $this->item->fill($update);
         $this->item->fill([

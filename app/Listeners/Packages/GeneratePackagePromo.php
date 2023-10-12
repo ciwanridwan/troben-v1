@@ -40,7 +40,7 @@ class GeneratePackagePromo
             }
             $promo->save();
         } else {
-            if ($event->partner->isJabodetabek()) {
+            if (isset($event->partner) && ! is_null($event->partner) && $event->partner->isJabodetabek()) {
                 // set promo discount
                 if ($event->package->total_weight >= 50) {
                     $discountMax = 20000;
@@ -63,7 +63,8 @@ class GeneratePackagePromo
 
                     // set meta
                     $meta = [
-                        'amount' => $discount
+                        'amount' => $discount,
+                        'minimum_weight' => Promo::MIN_WEIGHT
                     ];
 
                     // create new record
