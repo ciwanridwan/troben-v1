@@ -135,6 +135,8 @@ class Queries
             'partner_performance'
         ])->whereHas('packages');
 
+        $query->orderBy('created_at', 'desc');
+
         return $query;
     }
 

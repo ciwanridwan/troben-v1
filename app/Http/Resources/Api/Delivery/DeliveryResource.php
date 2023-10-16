@@ -103,6 +103,16 @@ class DeliveryResource extends JsonResource
             $data = array_merge($data, $dataPerformance);
         }
 
+        // ADD TOTAL WEIGHT ACTUAL BEFORE CHARGED FOR TRANSPORTER
+        $totalWeightMin = array();
+        $itemCodes = $this->resource->item_codes;
+        foreach ($itemCodes as $key => $value) {
+            $totalWeight = $value->codeable->weight_borne_total;
+
+            array_push($totalWeightMin, $totalWeight);
+        }
+
+        $data['total_weight_min'] = array_sum($totalWeightMin);
         return $data;
     }
 
