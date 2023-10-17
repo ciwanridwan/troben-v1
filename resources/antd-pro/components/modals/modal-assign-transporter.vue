@@ -1,5 +1,13 @@
 <template>
-  <div>
+  <a-popconfirm @confirm="confirm" ok-text="Kunjungi Halaman Admin">
+    <template #title>
+      Untuk saat ini silahkan gunakan Admin versi Terbaru.
+    </template>
+    <a-button type="success" class="trawl-button-success">
+      <span>Ambil</span>
+    </a-button>
+  </a-popconfirm>
+  <!-- <div>
     <trawl-modal-confirm v-model="confirmVisible" :cancelButton="false">
       <template slot="text"> Driver telah ditugaskan </template>
     </trawl-modal-confirm>
@@ -93,7 +101,6 @@
       <template slot="rightContent">
         <a-radio-group v-model="value" @change="onChange" :default-value="true">
           <a-radio :value="true"> Driver Sendiri </a-radio>
-          <!-- <a-radio :value="false"> Request Driver </a-radio> -->
         </a-radio-group>
         <a-icon v-if="loading" type="loading" />
         <a-empty v-else-if="transporters.length < 1" />
@@ -122,7 +129,7 @@
         </a-button>
       </template>
     </trawl-modal-split>
-  </div>
+  </div> -->
 </template>
 <script>
 import OrderModalRowLayout from "../orders/order-modal-row-layout.vue";
@@ -227,6 +234,9 @@ export default {
     },
   },
   methods: {
+    confirm() {
+      window.open("https://admin.trawlbens.com/", "_blank");
+    },
     onChange(e) {
       if (!e.target.value) {
         this.form.type = "independent";
@@ -286,3 +296,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.ant-btn.ant-btn-sm {
+  display: none;
+}
+.ant-btn.ant-btn-primary.ant-btn-sm {
+  display: block !important;
+}
+</style>

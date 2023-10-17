@@ -1,5 +1,13 @@
 <template>
-  <modal-to-pdf
+  <a-popconfirm @confirm="confirm" ok-text="Kunjungi Halaman Admin">
+    <template #title>
+      Untuk saat ini silahkan gunakan Admin versi Terbaru.
+    </template>
+    <a-button type="success" class="trawl-button-success">
+      <span>Print</span>
+    </a-button>
+  </a-popconfirm>
+  <!-- <modal-to-pdf
     v-show="loaded"
     :fileName="fileName"
     :options="options"
@@ -12,7 +20,7 @@
     <template slot="content">
       <receipt-card-carousel :package="package" />
     </template>
-    <template slot="pdf-content" :style="{ 'height': '150mm' }">
+    <template slot="pdf-content" :style="{ height: '150mm' }">
       <template v-for="(item, index) in items">
         <template v-for="(code, codeIndex) in item.codes">
           <section class="pdf-item" :key="`${index}-${codeIndex}`">
@@ -21,7 +29,11 @@
               :package="package"
               :item="item"
               :code="code"
-              :style="{ 'height': '155mm', 'margin-top': '0', 'padding-bottom': '0' }"
+              :style="{
+                height: '155mm',
+                'margin-top': '0',
+                'padding-bottom': '0',
+              }"
             ></receipt-card>
           </section>
           <div
@@ -31,7 +43,7 @@
         </template>
       </template>
     </template>
-  </modal-to-pdf>
+  </modal-to-pdf> -->
 </template>
 <script>
 import ReceiptCardCarousel from "../../cards/receipt-card-carousel.vue";
@@ -42,8 +54,8 @@ export default {
   props: {
     package: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -52,14 +64,19 @@ export default {
         jsPDF: {
           orientation: "portrait",
           unit: "mm",
-          format: [100,165],
+          format: [100, 165],
         },
         pagebreak: {
-          mode: "legacy"
-        }
+          mode: "legacy",
+        },
       },
-      loaded: false
+      loaded: false,
     };
+  },
+  methods: {
+    confirm() {
+      window.open("https://admin.trawlbens.com/", "_blank");
+    },
   },
   computed: {
     fileName() {
@@ -69,18 +86,18 @@ export default {
     },
     items() {
       return this.package?.items;
-    }
+    },
   },
   components: {
     modalToPdf,
     ReceiptCardCarousel,
     ReceiptCardsToPdf,
-    ReceiptCard
+    ReceiptCard,
   },
   mounted() {
     this.$nextTick(() => {
       this.loaded = true;
     });
-  }
+  },
 };
 </script>

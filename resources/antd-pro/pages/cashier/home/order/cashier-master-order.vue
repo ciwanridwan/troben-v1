@@ -4,11 +4,13 @@
     :search="{ action: search, placeholder: 'cari id order ...' }"
   >
     <template slot="content">
-      <order-table :dataSource="items.data"
-                   :get-data-function="getItems"
-                   :pagination="pagination"
-                   :change-page="changePage"
-                   :change-size-page="changeSizePage"/>
+      <order-table
+        :dataSource="items.data"
+        :get-data-function="getItems"
+        :pagination="pagination"
+        :change-page="changePage"
+        :change-size-page="changeSizePage"
+      />
     </template>
     <!-- <template slot="sider">
       <trawl-notification></trawl-notification>
@@ -24,14 +26,14 @@ export default {
   components: {
     contentLayout,
     OrderTable,
-    TrawlNotification
+    TrawlNotification,
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
 
-      _.forEach(this.items.data, o => {
+      _.forEach(this.items.data, (o) => {
         o.number = numbering++;
       });
       this.pagination = this.trawlbensPagination;
@@ -39,8 +41,8 @@ export default {
     async getParterInfo() {
       let { data } = await this.$http.get(this.routeUri(this.getRoute()), {
         params: {
-          partner: true
-        }
+          partner: true,
+        },
       });
       this.partnerInfo = data.data;
     },
@@ -56,19 +58,19 @@ export default {
       this.filter.page = 1;
       this.filter.per_page = sizePage;
       this.getItems();
-    }
+    },
   },
   data() {
     return {
       items: this.getDefaultPagination(),
       partnerInfo: {},
-      pagination:{},
+      pagination: {},
     };
   },
 
   mounted() {
     this.getItems();
     this.getParterInfo();
-  }
+  },
 };
 </script>

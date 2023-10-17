@@ -1,6 +1,10 @@
 <template>
   <div>
-    <a-button :class="['trawl-button-success']" @click="showModal" @cancel="onCancel">
+    <a-button
+      :class="['trawl-button-success']"
+      @click="showModal"
+      @cancel="onCancel"
+    >
       Print
     </a-button>
     <a-modal v-model="visible" :width="640" centered :footer="null">

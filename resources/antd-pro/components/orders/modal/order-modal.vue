@@ -1,5 +1,24 @@
 <template>
-  <div class="trawl-order-modal-component">
+  <div>
+    <a-popconfirm @confirm="confirm" ok-text="Kunjungi Halaman Admin">
+      <template #title>
+        Untuk saat ini silahkan gunakan Admin versi Terbaru.
+      </template>
+      <a-button
+        type="success"
+        class="trawl-button-success"
+        v-if="hasSlot('trigger')"
+      >
+        <span>Cek</span>
+      </a-button>
+      <template v-else>
+        <a-icon :component="GpsIcon" />
+        <span class="trawl-text-underline"> Invoice </span>
+      </template>
+    </a-popconfirm>
+  </div>
+
+  <!-- <div class="trawl-order-modal-component">
     <span class="trawl-order-modal-component--trigger" @click="showModal">
       <slot v-if="hasSlot('trigger')" name="trigger"></slot>
       <a-space v-else class="trawl-text-success-darken trawl-click">
@@ -26,7 +45,6 @@
 
       <order-modal-address :package="package" :price="price" />
 
-      <!-- <a-space direction="vertical" size="middle"> -->
       <order-modal-items
         @select="onSelectChange"
         @change="onItemChange"
@@ -37,16 +55,13 @@
         :package="package"
       />
 
-      <!-- <order-modal-estimations :package="package" :price="price" /> -->
-
       <order-modal-delivery :package="package" :select="select" />
-      <!-- </a-space> -->
 
       <template v-if="hasSlot('footer')" slot="footer">
         <slot name="footer"></slot>
       </template>
     </a-modal>
-  </div>
+  </div> -->
 </template>
 <script>
 import orderModalRowLayout from "../order-modal-row-layout.vue";
@@ -111,6 +126,9 @@ export default {
     };
   },
   methods: {
+    confirm() {
+      window.open("https://admin.trawlbens.com/", "_blank");
+    },
     getTotalWeightBorne,
     getSubTotalItems,
     getOriginAddress,
