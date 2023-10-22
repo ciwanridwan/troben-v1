@@ -256,7 +256,7 @@ class MotorBikeController extends Controller
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
-            'destination_id' => 'nullable|exists:geo_sub_districts,id',
+            'destination_id' => 'nullable|numeric|exists:geo_sub_districts,id',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
             'moto_cc' => 'required|numeric|in:150,250,999',
