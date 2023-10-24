@@ -37,7 +37,7 @@ export default {
     TrawlNotification,
     ContentLayout,
     TrawlTable,
-    OrderTable
+    OrderTable,
   },
   data() {
     return {
@@ -46,11 +46,11 @@ export default {
       orders,
       items: this.getDefaultPagination(),
       transporters: this.getDefaultPagination(),
-      pagination: {}
+      pagination: {},
     };
   },
   methods: {
-    getTransporters: _.debounce(function(search = null, type = null) {
+    getTransporters: _.debounce(function (search = null, type = null) {
       this.loading = true;
       this.$http
         .get(this.routeUri(this.getRoute()), {
@@ -58,8 +58,8 @@ export default {
             transporter: true,
             type: type,
             per_page: 10,
-            q: search
-          }
+            q: search,
+          },
         })
         .then(({ data: responseData }) => {
           this.transporters = responseData;
@@ -70,7 +70,7 @@ export default {
       this.items = resp;
       let numbering = this.items.from;
 
-      _.forEach(this.items.data, o => {
+      _.forEach(this.items.data, (o) => {
         o.number = numbering++;
       });
       this.pagination = this.trawlbensPagination;
@@ -80,13 +80,13 @@ export default {
 
       const response = await this.$http
         .patch(this.routeUri(this.getRoute() + ".assign", data))
-        .then(resp => {
+        .then((resp) => {
           this.getItems();
           this.$notification.success({
-            message: "Sukses menugaskan transporter!"
+            message: "Sukses menugaskan transporter!",
           });
         })
-        .finally(e => {
+        .finally((e) => {
           this.onErrorResponse(e);
           this.loading = false;
         });
@@ -105,10 +105,10 @@ export default {
       this.filter.page = 1;
       this.filter.per_page = sizePage;
       this.getItems();
-    }
+    },
   },
   mounted() {
     this.getItems();
-  }
+  },
 };
 </script>

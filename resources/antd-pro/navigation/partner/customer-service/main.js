@@ -13,28 +13,28 @@ const main = {
             title: "All Order",
             text: "Permintaan Penjemputan",
             route: "partner.customer_service.home.order.pickup",
-            children: null
+            children: null,
           },
           taken: {
             title: "All Order",
             text: "Order yang diambil",
             route: "partner.customer_service.home.order.taken",
-            children: null
+            children: null,
           },
           passed: {
             title: "All Order",
             text: "Order yang dilewatkan",
             route: "partner.customer_service.home.order.passed",
-            children: null
+            children: null,
           },
           walkin: {
             title: "Create Order",
             text: "Buat Pesanan Walkin",
             route: "partner.customer_service.home.order.walkin.create",
             children: null,
-            display: false
-          }
-        }
+            display: false,
+          },
+        },
       },
       waiting: {
         title: "Menunggu",
@@ -45,44 +45,44 @@ const main = {
             title: "Menunggu",
             text: "Menunggu Konfirmasi Pelanggan",
             route: "partner.customer_service.home.waiting.confirmation",
-            children: null
+            children: null,
           },
           taken: {
             title: "Menunggu",
             text: "Menunggu Pembayaran",
             route: "partner.customer_service.home.waiting.payment",
-            children: null
-          }
-        }
+            children: null,
+          },
+        },
       },
       processed: {
         title: "Telah diproses",
         text: "Telah diproses",
         route: "partner.customer_service.home.processed",
-        children: null
+        children: null,
       },
       done: {
         title: "Selesai",
         text: "Selesai",
         route: "partner.customer_service.home.done",
-        children: null
+        children: null,
       },
       cancel: {
         title: "Cancel",
         text: "Cancel",
         route: "partner.customer_service.home.cancel",
-        children: null
-      }
+        children: null,
+      },
     },
-    shortKey: ["ctrl", "alt", "d"]
+    shortKey: ["ctrl", "alt", "d"],
   },
   message: {
     icon: "mail",
     text: "Pesan",
     route: "partner.customer_service.message",
     children: null,
-    shortKey: ["ctrl", "alt", "c"]
-  }
+    shortKey: ["ctrl", "alt", "c"],
+  },
 };
 
 export default main;

@@ -7,7 +7,7 @@
       <a-row type="flex" justify="end" :gutter="12">
         <a-col :span="8">
           <a-dropdown :trigger="['click']">
-            <a class="ant-dropdown-link" @click="e => e.preventDefault()">
+            <a class="ant-dropdown-link" @click="(e) => e.preventDefault()">
               Click me <a-icon type="down" />
             </a>
           </a-dropdown>
@@ -37,7 +37,7 @@ export default {
   components: {
     ContentLayout,
     // TrawlNotification,
-    ManifestTable
+    ManifestTable,
   },
   data: () => {
     return {
@@ -46,19 +46,19 @@ export default {
       filter: {
         q: null,
         page: 1,
-        per_page: 10
+        per_page: 10,
       },
       loading: false,
       orderModalVisibility: false,
       orderModalObject: {},
-      pagination: {}
+      pagination: {},
     };
   },
   methods: {
     onSuccessResponse(resp) {
       this.items = resp;
       let numbering = this.items.from;
-      _.forEach(this.items.data, o => {
+      _.forEach(this.items.data, (o) => {
         o.number = numbering++;
       });
       this.pagination = this.trawlbensPagination;
@@ -78,12 +78,12 @@ export default {
       this.filter.page = 1;
       this.filter.per_page = sizePage;
       this.getItems();
-    }
+    },
   },
   mounted() {
     this.items = this.getDefaultPagination();
     this.getItems();
-  }
+  },
 };
 </script>
 
