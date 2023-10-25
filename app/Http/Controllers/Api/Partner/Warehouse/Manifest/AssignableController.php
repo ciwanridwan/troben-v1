@@ -145,6 +145,7 @@ class AssignableController extends Controller
 
         $variant = 0;
         $allVariant = [];
+        // $partner = $repository->getPartner();
         $firstPackage = $packages->first();
         $check = $this->matchTransit($firstPackage, $packages);
 

@@ -47,7 +47,9 @@ class DeliveryRoute extends Model
         return $this->belongsTo(Package::class, 'package_id', 'id');
     }
 
-
+    /**
+     * Get transit count attribute
+     */
     public function getTransitCountAttribute(): int
     {
         switch (true) {
