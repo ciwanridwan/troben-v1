@@ -25,6 +25,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Province extends Model
 {
     use CustomSerializeDate;
+
+    public const JAVA_ISLANDS = [
+        'Jawa Barat',
+        'Jawa Tengah',
+        'Jawa Timur',
+        'DKI Jakarta',
+        'Banten',
+        'Yogyakarta'
+    ];
+
     /**
      * The table associated with the model.
      *
@@ -81,5 +91,13 @@ class Province extends Model
     public function sub_districts(): HasMany
     {
         return $this->hasMany(SubDistrict::class, 'province_id', 'id');
+    }
+
+    /**
+     * Get data provinsi yg ada dipulau jawa
+     */
+    public static function getJavaIslandId(): array
+    {
+        return self::query()->whereIn('name', self::JAVA_ISLANDS)->get('id')->pluck('id')->toArray();
     }
 }

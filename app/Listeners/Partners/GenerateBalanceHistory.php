@@ -174,7 +174,17 @@ class GenerateBalanceHistory
                         if ($this->partner->get_fee_service) {
                             $variant = '0';
                             if (!is_null($package->motoBikes)) {
-                                $servicePrice = $this->saveServiceFee($this->partner->type, $variant, false, $package->motoBikes->cc);
+                                // add condition for exception on java island depend on partner income
+                                $originProvince = $package->origin_regency->province;
+                                $destinationProvince = $package->destination_regency->province;
+
+                                $itemBikes =  [
+                                    'origin_province_id' => $originProvince->id,
+                                    'destination_province_id' => $destinationProvince->id,
+                                    'cc' => $package->motoBikes->cc
+                                ];
+
+                                $servicePrice = $this->saveServiceFee($this->partner->type, $variant, false, $itemBikes);
                             } else {
                                 $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
                             }
@@ -871,13 +881,13 @@ class GenerateBalanceHistory
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    protected function saveServiceFee(string $type, string $variant, bool $isTransit = false, $cc = null)
+    protected function saveServiceFee(string $type, string $variant, bool $isTransit = false, $itemBikes = null)
     {
         $service_price = $this->package->prices->where('type', Price::TYPE_SERVICE)->where('description', Price::TYPE_SERVICE)->first();
         if (is_null($service_price)) {
             $this->servicePriceCubic($type, $variant, $isTransit);
-        } elseif (!is_null($cc)) {
-            $bikeServiceFee = PricingCalculator::getIncomeBikePartner($cc);
+        } elseif (!is_null($itemBikes)) {
+            $bikeServiceFee = PricingCalculator::getIncomeBikePartner($itemBikes);
             $this
                 ->setBalance($bikeServiceFee)
                 ->setType(History::TYPE_DEPOSIT)
@@ -1113,21 +1123,21 @@ class GenerateBalanceHistory
     protected function checkMinimalChargeWeight($partnerCode, $manifestWeight): int
     {
         switch (true) {
-            // case $partnerCode === 'MTM-TNA-01':
-            //     if ($manifestWeight < 50) {
-            //         $manifestWeight = 50;
-            //     }
-            //     break;
+                // case $partnerCode === 'MTM-TNA-01':
+                //     if ($manifestWeight < 50) {
+                //         $manifestWeight = 50;
+                //     }
+                //     break;
             case $partnerCode === 'MT-JKT-13':
                 if ($manifestWeight < 20) {
                     $manifestWeight = 20;
                 }
                 break;
-            // case $partnerCode === 'MT-JKT-06':
-            //     if ($manifestWeight < 100) {
-            //         $manifestWeight = 100;
-            //     }
-            //     break;
+                // case $partnerCode === 'MT-JKT-06':
+                //     if ($manifestWeight < 100) {
+                //         $manifestWeight = 100;
+                //     }
+                //     break;
             case $partnerCode === 'MTM-CKR-01':
                 if ($manifestWeight < 50) {
                     $manifestWeight = 50;

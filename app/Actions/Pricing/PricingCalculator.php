@@ -10,7 +10,6 @@ use App\Models\Price;
 use App\Http\Response;
 use App\Models\Promos\Promotion;
 use App\Models\Service;
-use App\Exceptions\Error;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +19,7 @@ use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
 use App\Http\Resources\Api\Pricings\CubicPriceResource;
 use App\Http\Resources\PriceResource;
+use App\Models\Geo\Province;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
@@ -305,9 +305,9 @@ class PricingCalculator
                 break;
         }
 
-	// disable for pricing calculator
+        // disable for pricing calculator
         // set promo pickup discount 9 - 15 october
-	/*
+        /*
         $discount = 0;
         $partner = Partner::query()->where('code', $inputs['partner_code'])->first();
         if ($partner->isJabodetabek()) {
@@ -1268,17 +1268,30 @@ class PricingCalculator
     /**
      * get income bike service for partner
      */
-    public static function getIncomeBikePartner($cc): int
+    public static function getIncomeBikePartner($itemBikes): int
     {
+        $cc = $itemBikes['cc'];
         switch ($cc) {
             case 150:
-                $income = 200000;
+                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
+                    $income = 100000;
+                } else {
+                    $income = 200000;
+                }
                 break;
             case 250:
-                $income = 250000;
+                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
+                    $income = 150000;
+                } else {
+                    $income = 250000;
+                }
                 break;
             case 999:
-                $income = 350000;
+                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
+                    $income = 150000;
+                } else {
+                    $income = 350000;
+                }
                 break;
             default:
                 $income = 0;
