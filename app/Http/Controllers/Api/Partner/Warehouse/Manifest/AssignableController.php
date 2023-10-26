@@ -213,10 +213,16 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
                     return true;
                 }
-
             } else {
                 if ($q->deliveries->count() === 1) {
-                    return true;
+                    $partner = Partner::query()->where('id', $partnerId)->first();
+                    $routes = Route::getWarehousePartner($partner->code, $q);
+                    $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                    if ($isDirectDooring) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 } else {
                     $type = 'transit';
                     $delivery = $q->deliveries->last();
@@ -244,7 +250,7 @@ class AssignableController extends Controller
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
-                } elseif(Route::checkVendorDooring($q->deliveryRoutes)) {
+                } elseif (Route::checkVendorDooring($q->deliveryRoutes)) {
                     return true;
                 } else {
                     $type = 'dooring';
@@ -256,7 +262,14 @@ class AssignableController extends Controller
                 }
             } else {
                 if ($q->deliveries->count() === 1) {
-                    return false;
+                    $partner = Partner::query()->where('id', $partnerId)->first();
+                    $routes = Route::getWarehousePartner($partner->code, $q);
+                    $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                    if ($isDirectDooring) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     $type = 'dooring';
                     $delivery = $q->deliveries->last();
@@ -268,7 +281,6 @@ class AssignableController extends Controller
                             return true;
                         }
                     }
-
                 }
             }
 

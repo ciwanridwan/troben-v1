@@ -801,4 +801,23 @@ class Route
 
         return $transit;
     }
+
+    /**
+     * Check package direct dooring doesnt need transit
+     */
+    public static function checkDirectDooring($partner, $route)
+    {
+        $isDirectDooring = false;
+
+
+        if ($route->code_mtak_1_dest === $route->code_dooring) {
+            if ((is_null($route->code_mtak_2_dest) || $route->code_mtak_2_dest == "") && (is_null($route->code_mtak_3_dest) || $route->code_mtak_3_dest == "")) {
+                if ($partner->code === $route->code_dooring) {
+                    $isDirectDooring = true;
+                }
+            }
+        }
+
+        return $isDirectDooring;
+    }
 }
