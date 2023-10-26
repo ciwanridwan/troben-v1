@@ -1273,24 +1273,42 @@ class PricingCalculator
         $cc = $itemBikes['cc'];
         switch ($cc) {
             case 150:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 100000;
-                } else {
-                    $income = 200000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
+                        $income = 100000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
+                        $income = 100000;
+                        break;
+                    default:
+                        $income = 200000;
+                        break;
                 }
                 break;
             case 250:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 150000;
-                } else {
-                    $income = 250000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
+                        $income = 150000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
+                        $income = 150000;
+                        break;
+                    default:
+                        $income = 250000;
+                        break;
                 }
                 break;
             case 999:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 150000;
-                } else {
-                    $income = 350000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
+                        $income = 150000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
+                        $income= 150000;
+                        break;
+                    default:
+                        $income = 350000;
+                        break;
                 }
                 break;
             default:
