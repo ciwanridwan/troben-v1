@@ -1114,6 +1114,8 @@ class PricingCalculator
         //     array_push($additionalPrice, $item['additional_price']);
         // }
 
+	$additionalPrice = [];
+
         foreach ($items as $item) {
             if ($item['qty'] == 1) {
                 $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
