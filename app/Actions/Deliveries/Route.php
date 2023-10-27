@@ -819,12 +819,12 @@ class Route
                         } else {
                             $isDooring = 0;
                         }
+                        array_push($isDoorings, $isDooring);
                     }
                 }
-                array_push($isDoorings, $isDooring);
             }
 
-            if (in_array(0, $isDoorings)) {
+            if (in_array(0, $isDoorings) || empty($isDoorings)) {
                 $isDirectDooring = false;
             } else {
                 $isDirectDooring = true;
