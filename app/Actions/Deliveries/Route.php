@@ -824,7 +824,7 @@ class Route
                 array_push($isDoorings, $isDooring);
             }
 
-            if (in_array(0, $isDooring)) {
+            if (in_array(0, $isDoorings)) {
                 $isDirectDooring = false;
             } else {
                 $isDirectDooring = true;
