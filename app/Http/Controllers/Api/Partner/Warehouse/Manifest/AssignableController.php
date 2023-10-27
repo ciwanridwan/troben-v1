@@ -264,7 +264,12 @@ class AssignableController extends Controller
                 if ($q->deliveries->count() === 1) {
                     $partner = Partner::query()->where('id', $partnerId)->first();
                     $routes = Route::getWarehousePartner($partner->code, $q);
-                    $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                    if (!is_null($routes)) {
+                        $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                    } else {
+                        $isDirectDooring = false;
+                    }
+
                     if ($isDirectDooring) {
                         return true;
                     } else {
