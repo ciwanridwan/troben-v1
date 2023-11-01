@@ -104,9 +104,17 @@ class DeliveryResource extends JsonResource
         }
 
         // ADD TOTAL WEIGHT ACTUAL BEFORE CHARGED OR CHARGED
-        if ($this->resource->type === Delivery::TYPE_PICKUP) {
-            $data['total_weight_min'] = $this->resource->packages->sum('total_weight');
-        } else {
+        if ($request->delivery_type[0] === Delivery::TYPE_DOORING) {
+            $totalWeightMin = array();
+            $itemCodes = $this->resource->item_codes;
+            foreach ($itemCodes as $key => $value) {
+                $totalWeight = $value->codeable->weight_borne_total;
+
+                array_push($totalWeightMin, $totalWeight);
+            }
+
+            $data['total_weight_min'] = array_sum($totalWeightMin);
+        } elseif ($request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
             switch (true) {
                 case $request->arrival == 1:
                     $totalWeightMin = $this->resource->packages->sum('total_weight');
@@ -151,7 +159,10 @@ class DeliveryResource extends JsonResource
                     }
                     break;
             }
+        } else {
+            $data['total_weight_min'] = $this->resource->packages->sum('total_weight');
         }
+
         return $data;
     }
 
