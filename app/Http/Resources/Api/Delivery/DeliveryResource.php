@@ -117,7 +117,7 @@ class DeliveryResource extends JsonResource
 
             $data['total_weight_min'] = array_sum($totalWeightMin);
         } else {
-            if ($request->delivery_type[0] === Delivery::TYPE_DOORING) {
+            if (isset($request->delivery_type) && $request->delivery_type [0] === Delivery::TYPE_DOORING) {
                 $totalWeightMin = array();
                 $itemCodes = $this->resource->item_codes;
                 foreach ($itemCodes as $key => $value) {
@@ -127,7 +127,7 @@ class DeliveryResource extends JsonResource
                 }
 
                 $data['total_weight_min'] = array_sum($totalWeightMin);
-            } elseif ($request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
+            } elseif (isset($request->delivery_type) && $request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
                 switch (true) {
                     case $request->arrival == 1:
                         $totalWeightMin = $this->resource->packages->sum('total_weight');
