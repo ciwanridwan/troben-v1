@@ -129,11 +129,13 @@ class DeliveryResource extends JsonResource
                 $data['total_weight_min'] = array_sum($totalWeightMin);
             } elseif (isset($request->delivery_type) && $request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
                 switch (true) {
+                    // ini keberangkatan manifest transit
                     case $request->arrival == 1:
                         $totalWeightMin = $this->resource->packages->sum('total_weight');
 
                         $data['total_weight_min'] = $totalWeightMin;
                         break;
+                    // ini kedatangan manifest transit
                     case $request->departure == 1:
                         $totalWeightMin = array();
                         $itemCodes = $this->resource->item_codes;
