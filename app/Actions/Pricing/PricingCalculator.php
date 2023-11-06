@@ -248,6 +248,7 @@ class PricingCalculator
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
                     $packingType = $packing;
+                    // handling for compability
                     if (is_array($packingType) && isset($packingType['type'])) {
                         $packingType = $packingType['type'];
                     }
