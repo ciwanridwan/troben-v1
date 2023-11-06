@@ -315,11 +315,6 @@ class MotorBikeController extends Controller
             $insurance = ceil(self::getInsurancePrice($request->input('price')));
         }
 
-        // existing for apps mobile
-        if ($request->input('price')) {
-            $insurance = ceil(self::getInsurancePrice($request->input('price')));
-        }
-
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
