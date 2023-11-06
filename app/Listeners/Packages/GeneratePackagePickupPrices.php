@@ -28,19 +28,19 @@ class GeneratePackagePickupPrices
     {
         /** @var Package $package */
         $package = $event->package->refresh();
-        $origin = $package->sender_latitude.', '.$package->sender_longitude;
+        $origin = $package->sender_latitude . ', ' . $package->sender_longitude;
         $partner = Partner::where('code', $event->partner_code)->first();
-        $destination = $partner->latitude.', '.$partner->longitude;
+        $destination = $partner->latitude . ', ' . $partner->longitude;
 
         $checkSatellite = PackageMeta::query()
             ->where('package_id', $package->getKey())
             ->where('key', PackageMeta::KEY_PARTNER_SATELLITE)
             ->first();
-        if (! is_null($checkSatellite)) {
+        if (!is_null($checkSatellite)) {
             $partnerSatellite = PartnerSatellite::find($checkSatellite->meta['partner_satellite']);
-            if (! is_null($partnerSatellite)) {
+            if (!is_null($partnerSatellite)) {
                 // override partner property
-                $destination = $partner->latitude.', '.$partner->longitude;
+                $destination = $partner->latitude . ', ' . $partner->longitude;
             }
         }
 
@@ -50,17 +50,17 @@ class GeneratePackagePickupPrices
             $pickup_price = 0;
         } elseif ($package->transporter_type == Transporter::GENERAL_TYPE_BIKE) {
             if ($distance < 5) {
-                $pickup_price = 8000;
-            } else {
-                $substraction = $distance - 4;
-                $pickup_price = 8000 + (2000 * $substraction);
-            }
-        } else {
-            if ($distance < 5) {
                 $pickup_price = 15000;
             } else {
                 $substraction = $distance - 4;
-                $pickup_price = 15000 + (4000 * $substraction);
+                $pickup_price = 15000 + (3000 * $substraction);
+            }
+        } else {
+            if ($distance < 5) {
+                $pickup_price = 25000;
+            } else {
+                $substraction = $distance - 4;
+                $pickup_price = 25000 + (6000 * $substraction);
             }
         }
 

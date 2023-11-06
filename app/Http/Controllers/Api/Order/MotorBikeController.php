@@ -301,10 +301,10 @@ class MotorBikeController extends Controller
 
             if ($request->input('transporter_type') != 'bike') {
                 if ($distance < 5) {
-                    $pickup_price = 15000;
+                    $pickup_price = 25000;
                 } else {
                     $substraction = $distance - 4;
-                    $pickup_price = 15000 + (4000 * $substraction);
+                    $pickup_price = 25000 + (6000 * $substraction);
                 }
             }
         }

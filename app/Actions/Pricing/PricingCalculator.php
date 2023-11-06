@@ -214,17 +214,17 @@ class PricingCalculator
 
             if ($inputs['fleet_name'] == 'bike') {
                 if ($distance < 5) {
-                    $pickup_price = 8000;
-                } else {
-                    $substraction = $distance - 4;
-                    $pickup_price = 8000 + (2000 * $substraction);
-                }
-            } else {
-                if ($distance < 5) {
                     $pickup_price = 15000;
                 } else {
                     $substraction = $distance - 4;
-                    $pickup_price = 15000 + (4000 * $substraction);
+                    $pickup_price = 15000 + (3000 * $substraction);
+                }
+            } else {
+                if ($distance < 5) {
+                    $pickup_price = 25000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 25000 + (6000 * $substraction);
                 }
             }
         }
@@ -417,17 +417,17 @@ class PricingCalculator
 
             if ($inputs['fleet_name'] == 'bike') {
                 if ($distance < 5) {
-                    $pickup_price = 8000;
-                } else {
-                    $substraction = $distance - 4;
-                    $pickup_price = 8000 + (2000 * $substraction);
-                }
-            } else {
-                if ($distance < 5) {
                     $pickup_price = 15000;
                 } else {
                     $substraction = $distance - 4;
-                    $pickup_price = 15000 + (4000 * $substraction);
+                    $pickup_price = 15000 + (3000 * $substraction);
+                }
+            } else {
+                if ($distance < 5) {
+                    $pickup_price = 25000;
+                } else {
+                    $substraction = $distance - 4;
+                    $pickup_price = 25000 + (6000 * $substraction);
                 }
             }
         }
