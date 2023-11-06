@@ -47,9 +47,9 @@ class PricingCalculatorRequest extends FormRequest
             'items.*.width.*' => ['required', 'numeric'],
             'items.*.length.*' => ['required', 'numeric'],
             'items.*.price.*' => ['required_if:*.is_insured,true', 'numeric'],
-            'items.*.handling.*' => ['nullable', 'string'],
-            // 'items.*.handling.*.type' => ['string', Rule::in(Handling::getTypes())],
-            // 'items.*.handling.*.price' => ['numeric']
+            'items.*.handling.*' => ['nullable', 'array'],
+            'items.*.handling.*.type' => ['string', Rule::in(Handling::getTypes())],
+            'items.*.handling.*.price' => ['numeric']
         ];
     }
 }
