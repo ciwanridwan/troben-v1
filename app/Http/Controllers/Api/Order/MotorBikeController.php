@@ -273,6 +273,7 @@ class MotorBikeController extends Controller
             'partner_satellite' => 'nullable',
 
             /**Insurance Price */
+            'insurance' => 'nullable|numeric',
             'price' => 'nullable',
         ]);
         $req = $request->all();
@@ -309,7 +310,10 @@ class MotorBikeController extends Controller
             }
         }
         $insurance = 0;
-        $insurance = ceil(self::getInsurancePrice($request->input('price')));
+        // new condition for web
+        if ($request->input('insurance') == 1 && !is_null($request->input('price'))) {
+            $insurance = ceil(self::getInsurancePrice($request->input('price')));
+        }
 
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
