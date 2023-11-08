@@ -417,12 +417,12 @@ class PricingController extends Controller
 
         $rows = array();
         $grandTotal = array();
-
         // get data by loop
         for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
             $row = PricingCalculator::calculate($this->attributes, 'array');
+            $row['result']['total_amount'] += PackagesPrice::FEE_PLATFORM;
             $subGrandTotal = $row['result'];
 
             array_push($grandTotal, $subGrandTotal);
