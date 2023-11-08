@@ -256,7 +256,7 @@ class MotorBikeController extends Controller
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
-            'destination_id' => 'nullable|exists:geo_sub_districts,id',
+            'destination_id' => 'nullable|numeric|exists:geo_sub_districts,id',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
             'moto_cc' => 'required|numeric|in:150,250,999',
@@ -302,10 +302,10 @@ class MotorBikeController extends Controller
 
             if ($request->input('transporter_type') != 'bike') {
                 if ($distance < 5) {
-                    $pickup_price = 15000;
+                    $pickup_price = 25000;
                 } else {
                     $substraction = $distance - 4;
-                    $pickup_price = 15000 + (4000 * $substraction);
+                    $pickup_price = 25000 + (6000 * $substraction);
                 }
             }
         }
