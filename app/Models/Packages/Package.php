@@ -1000,6 +1000,14 @@ class Package extends Model implements AttachableContract
             $totalAdditionalFee = array_sum(array_column($results, 'additional_fee'));
             $totalAmount = $totalHandlingFee + $totalInsuranceFee + $totalAdditionalFee + $pickupFee + $serviceFee + $platformFee;
 
+            // if have additional price, subtract it
+            $serviceFee = (int)$serviceFee;
+            $additionalPrice = (int) ($this->prices()->where('description', Price::TYPE_ADDITIONAL)->sum('amount') ?? 0);
+            if ($additionalPrice > 0) {
+                $serviceFee = $serviceFee - $additionalPrice;
+                $totalAdditionalFee = $additionalPrice;
+            }
+
             $res = [
                 'handling_fee' => $totalHandlingFee,
                 'insurance_fee' => $totalInsuranceFee,
