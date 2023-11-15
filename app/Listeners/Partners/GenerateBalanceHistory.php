@@ -1322,4 +1322,9 @@ class GenerateBalanceHistory
 
         return $fee;
     }
+
+    protected function test()
+    {
+        $test = 'ciwanananay';
+    }
 }
