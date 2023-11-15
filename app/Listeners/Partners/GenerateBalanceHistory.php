@@ -204,15 +204,7 @@ class GenerateBalanceHistory
                             }
 
                             /** Get fee extra be as commission partners with 0.05*/
-                            if ($package->total_weight > 99) {
-                                $extraFee = $package->service_price * 0.05;
-                                $this
-                                    ->setBalance($extraFee)
-                                    ->setType(History::TYPE_CHARGE)
-                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                    ->setAttributes()
-                                    ->recordHistory();
-                            }
+                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $package->service_price);
                         }
 
                         # total balance insurance > record insurance fee
@@ -507,16 +499,8 @@ class GenerateBalanceHistory
                                 ->recordHistory();
                         }
 
-                        /** Get fee extra be as commission partners with 0.05*/
-                        if ($this->package->total_weight > 99) {
-                            $extraFee = $this->package->service_price * 0.05;
-                            $this
-                                ->setBalance($extraFee)
-                                ->setType(History::TYPE_CHARGE)
-                                ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                ->setAttributes()
-                                ->recordHistory();
-                        }
+                        /** Get fee extra for commission partners*/
+                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $this->package->service_price);
                     }
 
                     # total balance insurance > record insurance fee
@@ -1305,5 +1289,37 @@ class GenerateBalanceHistory
         }
 
         return $manifestWeight;
+    }
+
+    /**
+     * Income charge partner from 5% - 20%
+     */
+    protected function getIncomeChargePartner(int $totalWeight, $serviceFee): int
+    {
+        switch (true) {
+            case $totalWeight > 99:
+                $fee = $serviceFee * 0.05;
+                break;
+            case $totalWeight > 499:
+                $fee = $serviceFee * 0.10;
+                break;
+            case $totalWeight > 999:
+                $fee = $serviceFee * 0.20;
+                break;
+            default:
+                $fee = 0;
+                break;
+        }
+
+        if ($fee != 0) {
+            $this
+                ->setBalance($fee)
+                ->setType(History::TYPE_CHARGE)
+                ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                ->setAttributes()
+                ->recordHistory();
+        }
+
+        return $fee;
     }
 }
