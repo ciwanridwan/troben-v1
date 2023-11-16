@@ -46,8 +46,6 @@ jobs:
         script: |
          cd /home/deployer/repo/tbcore
          git pull origin staging
-         docker compose build
-         docker compose up -d
     - name: send telegram message on push
       uses: appleboy/telegram-action@master
       with:
@@ -75,8 +73,6 @@ jobs:
         script: |
          cd /home/deployer/repo/tbcore-develop
          git pull origin develop
-         docker compose build
-         docker compose up -d
     - name: send telegram message on push
       uses: appleboy/telegram-action@master
       with:
