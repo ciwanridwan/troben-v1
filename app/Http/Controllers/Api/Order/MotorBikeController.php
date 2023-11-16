@@ -253,6 +253,10 @@ class MotorBikeController extends Controller
 
     public function motorbikeCheck(Request $request): JsonResponse
     {
+        $messages = [
+            'transporter_type.in' => 'Transporter tidak tersedia, silahkan pilih transporter pickup, cdd double dan cde engkel sejenisnya'
+        ];
+
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
@@ -268,14 +272,14 @@ class MotorBikeController extends Controller
             'width' => 'required_if:handling,wood|numeric',
 
             /**Pickup Fee */
-            'transporter_type' => 'nullable',
+            'transporter_type' => 'nullable|in:pickup,pickup box, engkel box, cde engkel bak, cdd double bak, cdd double box',
             'partner_code' => 'nullable|exists:partners,code',
             'partner_satellite' => 'nullable',
 
             /**Insurance Price */
             'insurance' => 'nullable|numeric',
             'price' => 'nullable',
-        ]);
+        ], $messages);
         $req = $request->all();
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
