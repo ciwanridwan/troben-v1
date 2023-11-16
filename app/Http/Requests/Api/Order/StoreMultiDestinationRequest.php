@@ -43,12 +43,19 @@ class StoreMultiDestinationRequest extends FormRequest
             'sender_longitude' => ['required', 'string'],
 
             // receiver
+            'receiver_name' => ['required', 'array'],
             'receiver_name.*' => ['required', 'string'],
+            'receiver_phone' => ['required', 'array'],
             'receiver_phone.*' => ['required', 'string'],
+            'receiver_address' => ['required', 'array'],
             'receiver_address.*' => ['required', 'string'],
+            'receiver_detail_address.' => ['nullable', 'array'],
             'receiver_detail_address.*' => ['nullable', 'string'],
+            'destination_regency_id' => ['required', 'array'],
             'destination_regency_id.*' => ['required', 'numeric', 'exists:geo_regencies,id'],
+            'destination_district_id' => ['required', 'array'],
             'destination_district_id.*' => ['required', 'numeric', 'exists:geo_districts,id'],
+            'destination_sub_district_id' => ['required', 'array'],
             'destination_sub_district_id.*' => ['required', 'numeric', 'exists:geo_sub_districts,id'],
 
             // item
