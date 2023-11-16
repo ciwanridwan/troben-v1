@@ -1297,10 +1297,10 @@ class GenerateBalanceHistory
     protected function getIncomeChargePartner(int $totalWeight, $serviceFee): int
     {
         switch (true) {
-            case $totalWeight > 99 && $totalWeight < 499:
+            case $totalWeight > 99 && $totalWeight <= 499:
                 $fee = $serviceFee * 0.05;
                 break;
-            case $totalWeight > 499 && $totalWeight < 999:
+            case $totalWeight > 499 && $totalWeight <= 999:
                 $fee = $serviceFee * 0.10;
                 break;
             case $totalWeight > 999:
