@@ -403,6 +403,10 @@ class MotorBikeController extends Controller
         }
 
         $bikePrices = PricingCalculator::getBikePrice($resultOrigin['regency'], $this->attributes['destination_sub_district_id']);
+        if (!isset($this->attributes['item']['moto_cc'])) {
+            return (new Response(Response::RC_BAD_REQUEST, ['Item Moto CC not submit, please input again']));
+        }
+
         switch ($this->attributes['item']['moto_cc']) {
             case 150:
                 $checkPrices = $bikePrices->lower_cc;
@@ -445,6 +449,7 @@ class MotorBikeController extends Controller
         $this->attributes['item']['width'] = 0;
         $this->attributes['item']['length'] = 0;
 
+        // insert new record
         $this->items = $this->attributes['item'];
         $job = new CreatePackageForBike($this->attributes, $this->items);
         $this->dispatchNow($job);
@@ -463,11 +468,13 @@ class MotorBikeController extends Controller
             ]);
         }
 
+        // upload foto motor
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
 
         event(new PackageBikeCreated($job->package, $partner->code));
 
+        // assign resi to manifest and partner
         $this->orderAssignation($job->package, $partner);
 
         $result = [
