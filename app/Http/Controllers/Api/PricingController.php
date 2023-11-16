@@ -455,7 +455,7 @@ class PricingController extends Controller
             'tier' => $totalTier,
             'additional_price' => $totalAdditionalPrice,
             'service' => $totalServicePrice,
-            'platfofrm_fee' => $platformFee,
+            'platform_fee' => $platformFee,
             'total_amount' => $totalAmount
         ];
 
