@@ -204,7 +204,13 @@ class GenerateBalanceHistory
                             }
 
                             /** Get fee extra be as commission partners with 0.05*/
-                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $package->service_price);
+                            $serviceFromPackagePrices = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', '!=', Price::TYPE_ADDITIONAL)->first();
+                            $serviceFee = $serviceFromPackagePrices ? $serviceFromPackagePrices->amount : 0;
+                            if (!is_null($discountService)) {
+                                $serviceFee -= $discountService->amount;
+                            }
+
+                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
                         }
 
                         # total balance insurance > record insurance fee
@@ -500,7 +506,13 @@ class GenerateBalanceHistory
                         }
 
                         /** Get fee extra for commission partners*/
-                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $this->package->service_price);
+                        /** Get fee extra be as commission partners with 0.05*/
+                        $serviceFromPackagePrices = $this->package->prices()->where('type', Price::TYPE_SERVICE)->where('description', '!=', Price::TYPE_ADDITIONAL)->first();
+                        $serviceFee = $serviceFromPackagePrices ? $serviceFromPackagePrices->amount : 0;
+                        if (!is_null($discountService)) {
+                            $serviceFee -= $discountService->amount;
+                        }
+                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
                     }
 
                     # total balance insurance > record insurance fee
