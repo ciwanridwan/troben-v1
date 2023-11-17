@@ -571,16 +571,7 @@ class Route
                 $regency = Regency::find($destinationCity);
                 $firstProvinceId = $regency->province_id;
             } else {
-                $originPartner = $firstPackage->deliveries()->last()->origin_partner;
-                $destinationPartner = $firstPackage->deliveries()->last()->partner;
-
-                if (!is_null($originPartner)) {
-                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $firstPackage);
-                } else {
-                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $firstPackage);
-                }
-
-                $firstProvinceId = $deliveryRoutes['province_destination_1'];
+                $provinceId = $firstPackage->destination_regency->province_id;
             }
 
             foreach ($packages as $package) {
@@ -605,16 +596,7 @@ class Route
                         $regency = Regency::find($destinationTransit);
                         $provinceId = $regency->province_id;
                     } else {
-                        $originPartner = $package->deliveries()->last()->origin_partner;
-                        $destinationPartner = $package->deliveries()->last()->partner;
-
-                        if (!is_null($originPartner)) {
-                            $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
-                        } else {
-                            $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
-                        }
-
-                        $provinceId = $deliveryRoutes['province_destination_1'];
+                        $provinceId = $firstPackage->destination_regency->province_id;
                     }
                 } else {
                     $originPartner = $package->deliveries->last()->origin_partner;
@@ -668,7 +650,6 @@ class Route
                     } else {
                         $originPartner = $package->deliveries()->last()->origin_partner;
                         $destinationPartner = $package->deliveries()->last()->partner;
-
                         if (!is_null($originPartner)) {
                             $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
                         } else {
@@ -853,14 +834,16 @@ class Route
      */
     public static function getTemporaryDeliveryRoutes($partner, $package)
     {
-        if (in_array($partner->geo_regency_id, Regency::getJabodetabekId())) {
-            $warehouse = self::getWarehousePartner(self::WAREHOUSE_NAROGONG[0], $package);
-        } else {
-            $warehouse = self::getWarehousePartner($partner->code, $package);
+        $warehouse = null;
+        if (!is_null($partner)) {
+            if (in_array($partner->geo_regency_id, Regency::getJabodetabekId())) {
+                $warehouse = self::getWarehousePartner(self::WAREHOUSE_NAROGONG[0], $package);
+            } else {
+                $warehouse = self::getWarehousePartner($partner->code, $package);
+            }
         }
 
         $result = null;
-
         if (!is_null($warehouse)) {
             $checkRegency = self::checkRegency($warehouse);
             if ($checkRegency) {
