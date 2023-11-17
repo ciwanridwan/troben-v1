@@ -596,7 +596,7 @@ class Route
                         $regency = Regency::find($destinationTransit);
                         $provinceId = $regency->province_id;
                     } else {
-                        $provinceId = $firstPackage->destination_regency->province_id;
+                        $provinceId = $package->destination_regency->province_id;
                     }
                 } else {
                     $originPartner = $package->deliveries->last()->origin_partner;
@@ -648,15 +648,8 @@ class Route
                         $regency = Regency::find($destinationTransit);
                         $provinceId = $regency->province_id;
                     } else {
-                        $originPartner = $package->deliveries()->last()->origin_partner;
-                        $destinationPartner = $package->deliveries()->last()->partner;
-                        if (!is_null($originPartner)) {
-                            $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
-                        } else {
-                            $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
-                        }
 
-                        $provinceId = $deliveryRoutes['province_destination_1'];
+                        $provinceId = $package->destination_regency->province_id;
                     }
                 } else {
                     $originPartner = $package->deliveries->last()->origin_partner;
