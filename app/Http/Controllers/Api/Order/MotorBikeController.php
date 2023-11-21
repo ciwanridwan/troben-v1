@@ -272,7 +272,8 @@ class MotorBikeController extends Controller
             'width' => 'required_if:handling,wood|numeric',
 
             /**Pickup Fee */
-            'transporter_type' => 'nullable|in:pickup,pickup box, engkel box, cde engkel bak, cdd double bak, cdd double box',
+            // 'transporter_type' => 'nullable|in:pickup,pickup box, engkel box, cde engkel bak, cdd double bak, cdd double box',
+            'transporter_type' => 'nullable',
             'partner_code' => 'nullable|exists:partners,code',
             'partner_satellite' => 'nullable',
 
