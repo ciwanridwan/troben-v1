@@ -1095,47 +1095,7 @@ class PricingCalculator
      */
     public static function getAdditionalPrices($items, $serviceCode)
     {
-        // foreach ($items as $item) {
-        //     # not use, use $item['weight']
-        //     // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
-        //     $item['additional_price'] = 0;
-
-        //     if ($item['weight'] < 100) {
-        //         $item['additional_price'] = 0;
-        //     } elseif ($item['weight'] < 300) {
-        //         $item['additional_price'] = 100000;
-        //     } elseif ($item['weight'] < 2000) {
-        //         $item['additional_price'] = 250000;
-        //     } elseif ($item['weight'] < 5000) {
-        //         $item['additional_price'] = 1500000;
-        //     } else {
-        //         $item['additional_price'] = 0;
-        //     }
-
-        //     array_push($additionalPrice, $item['additional_price']);
-        // }
-
-	$additionalPrice = [];
-
-        // foreach ($items as $item) {
-        //     # not use, use $item['weight']
-        //     // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
-        //     $item['additional_price'] = 0;
-
-        //     if ($item['weight'] < 100) {
-        //         $item['additional_price'] = 0;
-        //     } elseif ($item['weight'] < 300) {
-        //         $item['additional_price'] = 100000;
-        //     } elseif ($item['weight'] < 2000) {
-        //         $item['additional_price'] = 250000;
-        //     } elseif ($item['weight'] < 5000) {
-        //         $item['additional_price'] = 1500000;
-        //     } else {
-        //         $item['additional_price'] = 0;
-        //     }
-
-        //     array_push($additionalPrice, $item['additional_price']);
-        // }
+        $additionalPrice = [];
 
         foreach ($items as $item) {
             if ($item['qty'] == 1) {
@@ -1319,10 +1279,10 @@ class PricingCalculator
         switch ($cc) {
             case 150:
                 switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
                         $income = 100000;
                         break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
                         $income = 100000;
                         break;
                     default:
@@ -1332,10 +1292,10 @@ class PricingCalculator
                 break;
             case 250:
                 switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
                         $income = 150000;
                         break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
                         $income = 150000;
                         break;
                     default:
@@ -1345,11 +1305,11 @@ class PricingCalculator
                 break;
             case 999:
                 switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']:
-                        $income = 150000;
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
+                        $income = 350000;
                         break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()):
-                        $income = 150000;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
+                        $income = 350000;
                         break;
                     default:
                         $income = 350000;
