@@ -109,6 +109,7 @@ class Item extends Model implements AttachableContract
         'weight_volume',
         'weight_borne',
         'weight_borne_total',
+        'weight_wood',
         'tier_price',
         'codeable'
     ];
@@ -215,5 +216,16 @@ class Item extends Model implements AttachableContract
     private function getServiceCode()
     {
         return  $this->package()->first() ? $this->package()->first()->service_code : null;
+    }
+
+    /**
+     * get weight wood attribute
+     */
+    public function getWeightWoodAttribute()
+    {
+        $handling = $this->getHandling();
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            return 'test';
+        }
     }
 }

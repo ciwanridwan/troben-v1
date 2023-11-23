@@ -181,4 +181,19 @@ class Handling implements CastsAttributes
 
         return $dimensions;
     }
+
+    public static function woodWeightNew($weight, $height, $length, $width)
+    {
+        $addDimension = self::ADD_WOOD_DIMENSION;
+        $volume = 0;
+
+        $result = [
+            'height' => $height + $addDimension,
+            'length' => $length + $addDimension,
+            'width' => $width + $addDimension,
+            'volume' => 0,
+        ];
+
+        return $result;
+    }
 }
