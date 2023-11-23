@@ -4,6 +4,7 @@ namespace App\Actions\Deliveries;
 
 use App\Models\Deliveries\Delivery;
 use App\Models\Deliveries\DeliveryRoute;
+use App\Models\Geo\Regency;
 use App\Models\Packages\Package;
 use App\Models\Partners\Partner;
 use Illuminate\Database\Eloquent\Collection;
@@ -240,7 +241,7 @@ class Route
         if (is_null($partner)) {
             $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->first();
         }
-        
+
         // check if route get two destination MTAK
         if (!is_null($partner) && (is_null($partner->note) || $partner->note !== '')) {
             // get by regency
@@ -256,7 +257,7 @@ class Route
         if ($partner instanceof Partner) {
             if (!is_null($partner) && $partner->district_id !== 0) {
                 $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
-                
+
                 // if get by district is null
                 if (is_null($partner)) {
                     $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
@@ -540,12 +541,15 @@ class Route
         ];
     }
 
-
+    /**
+     * Check destination Transit
+     */
     public static function checkDestinationCityTransit($firstPackage, $packages): bool
     {
         $firstCount = null;
         $transits = [];
 
+        // if first package have a delivery routes
         if ($firstPackage->deliveryRoutes) {
             $firstCount = $firstPackage->deliveryRoutes->transit_count;
             switch (true) {
@@ -561,6 +565,13 @@ class Route
                 default:
                     $destinationCity = $firstPackage->deliveryRoutes->regency_destination_1;
                     break;
+            }
+
+            if ($destinationCity !== 0) {
+                $regency = Regency::find($destinationCity);
+                $firstProvinceId = $regency->province_id;
+            } else {
+                $provinceId = $firstPackage->destination_regency->province_id;
             }
 
             foreach ($packages as $package) {
@@ -580,19 +591,109 @@ class Route
                             $destinationTransit = $package->deliveryRoutes->regency_destination_1;
                             break;
                     }
+
+                    if ($destinationTransit !== 0) {
+                        $regency = Regency::find($destinationTransit);
+                        $provinceId = $regency->province_id;
+                    } else {
+                        $provinceId = $package->destination_regency->province_id;
+                    }
                 } else {
-                    $destinationTransit = 0;
+                    $originPartner = $package->deliveries->last()->origin_partner;
+                    $destinationPartner = $package->deliveries->last()->partner;
+                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
+
+                    if (is_null($deliveryRoutes)) {
+                        $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
+                        $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
+                    } else {
+                        $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
+                    }
+
+                    $provinceId = $deliveryRoutes['province_destination_1'];
                 }
 
                 if ($destinationCity === $destinationTransit) {
                     $transit = 1;
                 } else {
-                    $transit = 0;
+                    if ($provinceId === $firstProvinceId) {
+                        $transit = 1;
+                    } else {
+                        $transit = 0;
+                    }
                 }
                 array_push($transits, $transit);
             }
         } else {
-            return false;
+            // if first package not have delivery routes
+            foreach ($packages as $package) {
+                if ($package->deliveryRoutes) {
+                    $transitCount = $package->deliveryRoutes->transit_count;
+                    switch (true) {
+                        case $transitCount === 3:
+                            $destinationTransit =  $package->deliveryRoutes->regency_dooring_id;
+                            break;
+                        case $transitCount === 2:
+                            $destinationTransit =  $package->deliveryRoutes->regency_destination_3;
+                            break;
+                        case $transitCount === 1:
+                            $destinationTransit =  $package->deliveryRoutes->regency_destination_2;
+                            break;
+                        default:
+                            $destinationTransit = $package->deliveryRoutes->regency_destination_1;
+                            break;
+                    }
+
+                    if ($destinationTransit !== 0) {
+                        $regency = Regency::find($destinationTransit);
+                        $provinceId = $regency->province_id;
+                    } else {
+
+                        $provinceId = $package->destination_regency->province_id;
+                    }
+                } else {
+                    $originPartner = $package->deliveries->last()->origin_partner;
+                    $destinationPartner = $package->deliveries->last()->partner;
+                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
+
+                    if (is_null($deliveryRoutes)) {
+                        $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
+                        $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
+                    } else {
+                        $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
+                    }
+
+                    $provinceId = $deliveryRoutes['province_destination_1'];
+                }
+
+                if (is_null($firstPackage->deliveryRoutes)) {
+                    $originPartner = $firstPackage->deliveries->last()->origin_partner;
+                    $destinationPartner = $firstPackage->deliveries->last()->partner;
+                    $firstDeliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $firstPackage);
+
+                    if (is_null($firstDeliveryRoutes)) {
+                        $firstDeliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $firstPackage);
+                        $destinationCity = self::getTemporaryTransitCount($firstDeliveryRoutes, $firstPackage);
+                    } else {
+                        $destinationCity = self::getTemporaryTransitCount($firstDeliveryRoutes, $firstPackage);
+                    }
+
+                    $firstProvinceId = $firstDeliveryRoutes['province_destination_1'];
+                }
+
+
+                if ($destinationCity === $destinationTransit) {
+                    $transit = 1;
+                } else {
+                    if ($provinceId === $firstProvinceId) {
+                        $transit = 1;
+                    } else {
+                        $transit = 0;
+                    }
+                }
+
+                array_push($transits, $transit);
+            }
         }
 
         if (!in_array(0, $transits)) {
@@ -668,11 +769,11 @@ class Route
         // if regency not found, fallback to province level
         if (is_null($route)) {
             $route = DB::table('transport_routes')
-            ->where(function ($q) use ($warehouse, $provinceId) {
-                $q->where('warehouse', $warehouse);
-                $q->where('regency_id', 0);
-                $q->where('province_id', $provinceId);
-            })->first();
+                ->where(function ($q) use ($warehouse, $provinceId) {
+                    $q->where('warehouse', $warehouse);
+                    $q->where('regency_id', 0);
+                    $q->where('province_id', $provinceId);
+                })->first();
         }
 
         $firstCase = !is_null($route) && empty($route->code_mtak_1_dest);
@@ -719,5 +820,128 @@ class Route
         }
 
         return $check;
+    }
+
+    /**
+     * Get temporary delivery_routes
+     */
+    public static function getTemporaryDeliveryRoutes($partner, $package)
+    {
+        $warehouse = null;
+        if (!is_null($partner)) {
+            if (in_array($partner->geo_regency_id, Regency::getJabodetabekId())) {
+                $warehouse = self::getWarehousePartner(self::WAREHOUSE_NAROGONG[0], $package);
+            } else {
+                $warehouse = self::getWarehousePartner($partner->code, $package);
+            }
+        }
+
+        $result = null;
+        if (!is_null($warehouse)) {
+            $checkRegency = self::checkRegency($warehouse);
+            if ($checkRegency) {
+                $regencyId = self::getFirstPartnerRegency($warehouse);
+                $provinceId = $warehouse->province_id;
+            } else {
+                $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
+                $provinceId = $warehouse instanceof SupportCollection ? $warehouse[0]->province_id : $warehouse->province_id;
+            }
+
+            if ($regencyId !== $package->destination_regency_id) {
+                $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
+                $provinceId = $warehouse instanceof SupportCollection ? $warehouse[0]->province_id : $warehouse->province_id;
+            }
+
+            switch (true) {
+                case $warehouse instanceof SupportCollection:
+                    $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
+                    $nextDestination = self::getNextDestination($warehouse->toArray());
+                    break;
+                default:
+                    $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
+                    $nextDestination = self::getNextDestination($warehouse);
+                    break;
+            }
+
+            $checkPackages = DeliveryRoute::query()->where('package_id', $package->id)->first();
+            if (is_null($checkPackages)) {
+                $result = [
+                    'package_id' => $package->id,
+                    'regency_origin_id' => $partner->geo_regency_id,
+                    'origin_warehouse_id' => $partner->id,
+                    'province_destination_1' => $provinceId,
+                    'regency_destination_1' => $regencyId,
+                    'regency_destination_2' => is_array($nextDestination) ? $nextDestination['second'] : null,
+                    'regency_destination_3' => is_array($nextDestination) ? $nextDestination['third'] : null,
+                    'regency_dooring_id' => $dooringPartner->geo_regency_id,
+                    'partner_dooring_id' => $dooringPartner->id
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get temporary transit_count
+     */
+    public static function getTemporaryTransitCount($deliveryRoutes, $package)
+    {
+        switch (true) {
+            case $package->transit_count === 0:
+                $transit = $deliveryRoutes['regency_destination_1'];
+                break;
+            case $package->transit_count === 1:
+                $transit = $deliveryRoutes['regency_destination_2'];
+                break;
+            case $package->transit_count === 2:
+                $transit = $deliveryRoutes['regency_destination_3'];
+                break;
+            default:
+                $transit = $deliveryRoutes['regency_dooring_id'];
+                break;
+        }
+
+        return $transit;
+    }
+
+    /**
+     * Check package direct dooring doesnt need transit
+     */
+    public static function checkDirectDooring($partner, $route)
+    {
+        $isDirectDooring = false;
+        $isDoorings = [];
+
+        if ($route instanceof SupportCollection) {
+            foreach ($route as $value) {
+                if ($value->code_mtak_1_dest === $value->code_dooring) {
+                    if ((is_null($value->code_mtak_2_dest) || $value->code_mtak_2_dest == "") && (is_null($value->code_mtak_3_dest) || $value->code_mtak_3_dest == "")) {
+                        if ($partner->code === $value->code_dooring) {
+                            $isDooring = 1;
+                        } else {
+                            $isDooring = 0;
+                        }
+                        array_push($isDoorings, $isDooring);
+                    }
+                }
+            }
+
+            if (in_array(0, $isDoorings) || empty($isDoorings)) {
+                $isDirectDooring = false;
+            } else {
+                $isDirectDooring = true;
+            }
+        } else {
+            if ($route->code_mtak_1_dest === $route->code_dooring) {
+                if ((is_null($route->code_mtak_2_dest) || $route->code_mtak_2_dest == "") && (is_null($route->code_mtak_3_dest) || $route->code_mtak_3_dest == "")) {
+                    if ($partner->code === $route->code_dooring) {
+                        $isDirectDooring = true;
+                    }
+                }
+            }
+        }
+
+        return $isDirectDooring;
     }
 }
