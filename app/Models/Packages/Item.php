@@ -109,6 +109,7 @@ class Item extends Model implements AttachableContract
         'weight_volume',
         'weight_borne',
         'weight_borne_total',
+        'weight_wood',
         'tier_price',
         'codeable'
     ];
@@ -155,16 +156,18 @@ class Item extends Model implements AttachableContract
         $handling = $this->getHandling();
         return PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
     }
+
     public function getWeightVolumeAttribute()
     {
         $handling = $this->getHandling();
-        if (in_array(Handling::TYPE_WOOD, $handling)) {
-            $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->getServiceCode()));
-        }
+        // if (in_array(Handling::TYPE_WOOD, $handling)) {
+        //     $add_dimension = Handling::ADD_WOOD_DIMENSION;
+        //     return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->getServiceCode()));
+        // }
 
         return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->getServiceCode()));
     }
+
     public function getTierPriceAttribute()
     {
         $package = $this->package()->first();
@@ -215,5 +218,20 @@ class Item extends Model implements AttachableContract
     private function getServiceCode()
     {
         return  $this->package()->first() ? $this->package()->first()->service_code : null;
+    }
+
+    /**
+     * get weight wood attribute
+     */
+    public function getWeightWoodAttribute()
+    {
+        $result = null;
+
+        $handling = $this->getHandling();
+        if (in_array(Handling::TYPE_WOOD, $handling)) {
+            $result = Handling::woodWeightNew($this->weight, $this->height, $this->length, $this->width, $this->getServiceCode());
+        }
+
+        return $result;
     }
 }
