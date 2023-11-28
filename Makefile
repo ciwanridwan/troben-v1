@@ -16,11 +16,11 @@ asset:
 optimize:
 	docker-compose exec core php artisan optimize && docker-compose exec core composer dump-autoload && docker-compose exec core php artisan view:cache && docker-compose exec core chown -R www-data:www-data /var/www/storage
 
-up-quick:
-	docker-compose up -d
+build:
+	docker-compose build
 
 up:
-	docker-compose up -d --build
+	docker-compose up -d
     
 down:
 	docker-compose down
