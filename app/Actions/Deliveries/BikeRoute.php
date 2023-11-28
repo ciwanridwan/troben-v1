@@ -13,7 +13,7 @@ use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class Route
+class BikeRoute
 {
     // list of warehouse
     public const WAREHOUSE_NAROGONG = ['MPW-JKT-01'];
@@ -235,32 +235,32 @@ class Route
         }
 
         // check by regency
-        $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->first();
+        $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->first();
 
         // check by province id if by regency doest not exists
         if (is_null($partner)) {
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->first();
+            $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->first();
         }
 
         // check if route get two destination MTAK
         if (!is_null($partner) && (is_null($partner->note) || $partner->note !== '')) {
             // get by regency
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+            $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
 
             // check if by regency is not, so switch get by province
             if ($partner->isEmpty()) {
-                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->get();
+                $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->get();
             }
         }
 
         // check if route available direct to district
         if ($partner instanceof Partner) {
             if (!is_null($partner) && $partner->district_id !== 0) {
-                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
+                $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
 
                 // if get by district is null
                 if (is_null($partner)) {
-                    $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+                    $partner = DB::table('transport_routes_bikes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
                 }
             }
         }
@@ -328,9 +328,9 @@ class Route
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
         if ($deliveryRoutes->regency_destination_1 === 0) {
-            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+            $partner = DB::table('transport_routes_bikes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
         } else {
-            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
+            $partner = DB::table('transport_routes_bikes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
         }
 
         if (is_null($partner)) {
@@ -367,12 +367,12 @@ class Route
             $warehouse = self::checkWarehouse($deliveryRoutes);
 
             if ($deliveryRoutes->regency_destination_1 === 0) {
-                $countPartner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->count();
+                $countPartner = DB::table('transport_routes_bikes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->count();
                 if ($countPartner === 1) {
-                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+                    $partner = DB::table('transport_routes_bikes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
                     $transporter = self::getSelectedTransporter($deliveryRoutes, $partner);
                 } else {
-                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->get();
+                    $partner = DB::table('transport_routes_bikes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->get();
                     $listTransporter = [];
                     foreach ($partner as $p) {
                         $partnerTransporter = self::getSelectedTransporter($deliveryRoutes, $p);
@@ -381,10 +381,10 @@ class Route
                     $transporter = $listTransporter;
                 }
             } else {
-                $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
+                $partner = DB::table('transport_routes_bikes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
 
                 if (!is_null($partner) && $partner->note) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->get();
+                    $partner = DB::table('transport_routes_bikes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->get();
                 }
 
                 $listTransporter = [];
@@ -762,13 +762,13 @@ class Route
         $regencyId = $package->destination_regency_id;
         $provinceId = $package->destination_regency->province_id;
 
-        $route = DB::table('transport_routes')
+        $route = DB::table('transport_routes_bikes')
             ->where('warehouse', $warehouse)
             ->where('regency_id', $regencyId)
             ->first();
         // if regency not found, fallback to province level
         if (is_null($route)) {
-            $route = DB::table('transport_routes')
+            $route = DB::table('transport_routes_bikes')
                 ->where(function ($q) use ($warehouse, $provinceId) {
                     $q->where('warehouse', $warehouse);
                     $q->where('regency_id', 0);
