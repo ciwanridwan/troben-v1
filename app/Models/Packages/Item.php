@@ -110,6 +110,7 @@ class Item extends Model implements AttachableContract
         'weight_borne',
         'weight_borne_total',
         'weight_wood',
+        'weight_original',
         'tier_price',
         'codeable'
     ];
@@ -231,6 +232,23 @@ class Item extends Model implements AttachableContract
         if (in_array(Handling::TYPE_WOOD, $handling)) {
             $result = Handling::woodWeightNew($this->weight, $this->height, $this->length, $this->width, $this->getServiceCode());
         }
+
+        return $result;
+    }
+
+    /**
+     * get weight wood attribute
+     */
+    public function getWeightOriginalAttribute()
+    {
+        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->getServiceCode()));
+
+        $result = [
+            'height' => $this->height,
+            'length' => $this->length,
+            'width' => $this->width,
+            'volume' => $volume,
+        ];
 
         return $result;
     }
