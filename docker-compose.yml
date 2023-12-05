@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   nginx:
-    container_name: tb-core-nginx
+    container_name: tb-core-nginx${CONTAINER_POSTFIX}
     build:
       context: .
       dockerfile: Dockerfile-nginx
@@ -19,7 +19,7 @@ services:
     networks:
       - tbcorenet
   core:
-    container_name: tb-core
+    container_name: tb-core${CONTAINER_POSTFIX}
     build:
       context: .
       dockerfile: Dockerfile-phpfpm
@@ -34,7 +34,7 @@ services:
     networks:
       - tbcorenet
   cache:
-    container_name: tb-core-cache
+    container_name: tb-core-cache${CONTAINER_POSTFIX}
     image: redis:6-alpine
     restart: always
     networks:

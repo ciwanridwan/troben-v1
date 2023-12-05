@@ -156,16 +156,18 @@ class Item extends Model implements AttachableContract
         $handling = $this->getHandling();
         return PricingCalculator::getWeightBorne($this->height, $this->length, $this->width, $this->weight, $this->qty, $handling);
     }
+
     public function getWeightVolumeAttribute()
     {
         $handling = $this->getHandling();
-        if (in_array(Handling::TYPE_WOOD, $handling)) {
-            $add_dimension = Handling::ADD_WOOD_DIMENSION;
-            return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->getServiceCode()));
-        }
+        // if (in_array(Handling::TYPE_WOOD, $handling)) {
+        //     $add_dimension = Handling::ADD_WOOD_DIMENSION;
+        //     return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height + $add_dimension, $this->length + $add_dimension, $this->width + $add_dimension, $this->getServiceCode()));
+        // }
 
         return PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($this->height, $this->length, $this->width, $this->getServiceCode()));
     }
+
     public function getTierPriceAttribute()
     {
         $package = $this->package()->first();
@@ -223,9 +225,13 @@ class Item extends Model implements AttachableContract
      */
     public function getWeightWoodAttribute()
     {
+        $result = null;
+
         $handling = $this->getHandling();
         if (in_array(Handling::TYPE_WOOD, $handling)) {
-            return 'test';
+            $result = Handling::woodWeightNew($this->weight, $this->height, $this->length, $this->width, $this->getServiceCode());
         }
+
+        return $result;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Internal;
 
+use App\Actions\Deliveries\BikeRoute;
 use App\Actions\Deliveries\Route;
 use App\Concerns\Controllers\HasResource;
 use App\Http\Controllers\Controller;
@@ -133,7 +134,11 @@ class ManifestController extends Controller
             } else {
                 foreach ($packages as $package) {
                     if (!is_null($package->deliveryRoutes)) {
-                        $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                        if (!is_null($package->motoBikes)) {
+                            $partnerCode = BikeRoute::setPartnerTransporter($package->deliveryRoutes);
+                        } else {
+                            $partnerCode = Route::setPartnerTransporter($package->deliveryRoutes);
+                        }
                         if (!is_null($partnerCode)) {
                             if (!is_array($partnerCode)) {
                                 $partnerCode = [$partnerCode];
@@ -150,10 +155,15 @@ class ManifestController extends Controller
             // todo checker for dooring
             if ($delivery->type === Delivery::TYPE_DOORING) {
                 $package = $delivery->packages()->first();
-                $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
+                if (!is_null($package->motoBikes)) {
+                    $route = BikeRoute::getWarehousePartner($delivery->origin_partner->code, $package);
+                } else {
+                    $route = Route::getWarehousePartner($delivery->origin_partner->code, $package);
+                }
+
                 // todo check logic condition
                 if (!is_null($route) || !empty($route)) {
-			$route = $route->first();
+                    $route = $route->first();
                     if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest) && isset($route->code_mtak_1) && !is_null($route->code_mtak_1)) {
                         $query->where('code', $route->code_mtak_1);
                     }

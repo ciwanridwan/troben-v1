@@ -619,10 +619,10 @@ class GenerateBalanceHistory
                 }
 
                 # set weight without minimal
-                // $weight = $this->package->items->sum('weight_borne_total');
+                $weight = $this->package->items->sum('weight_borne_total');
 
                 # set weight minimal charge weight
-                $weight = $this->package->total_weight;
+                // $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
                 /** @var Dooring $price */

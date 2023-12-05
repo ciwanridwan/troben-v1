@@ -72,6 +72,7 @@ class Handling implements CastsAttributes
 
     public static function woodWeightBorne($height, $length, $width, $weight, $serviceCode)
     {
+        // todo update handling
         $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
         $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
         $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
@@ -82,7 +83,6 @@ class Handling implements CastsAttributes
         } else {
             $weight = $volume_packed;
         }
-
         return $weight;
     }
 
@@ -182,16 +182,19 @@ class Handling implements CastsAttributes
         return $dimensions;
     }
 
-    public static function woodWeightNew($weight, $height, $length, $width)
+    public static function woodWeightNew($weight, $height, $length, $width, $serviceCode)
     {
         $addDimension = self::ADD_WOOD_DIMENSION;
-        $volume = 0;
+        $height += $addDimension;
+        $width += $addDimension;
+        $length += $addDimension;
+        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($height, $length, $width, $serviceCode));
 
         $result = [
-            'height' => $height + $addDimension,
-            'length' => $length + $addDimension,
-            'width' => $width + $addDimension,
-            'volume' => 0,
+            'height' => $height,
+            'length' => $length,
+            'width' => $width,
+            'volume' => $volume,
         ];
 
         return $result;
