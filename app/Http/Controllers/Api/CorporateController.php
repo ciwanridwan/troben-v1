@@ -222,6 +222,14 @@ class CorporateController extends Controller
             $items[$key] = (new Collection($item))->toArray();
         }
 
+        // check price and tier is available or not
+        $price = PricingCalculator::getPrice($partner->geo_province_id, $partner->geo_regency_id, $inputs['destination_id']);
+        $totalWeight = array_sum(array_column($items, 'weight'));
+        $tier = PricingCalculator::getTier($price, $totalWeight);
+        if (!$tier) { // double check
+            return (new Response(Response::RC_OUT_OF_RANGE, ['message' => 'Price is not available to this destination']))->json();
+        }
+
         $job = new CreateWalkinOrder($inputs, $items);
         $this->dispatchNow($job);
 
