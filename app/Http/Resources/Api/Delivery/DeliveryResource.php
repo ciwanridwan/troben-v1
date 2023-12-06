@@ -117,7 +117,7 @@ class DeliveryResource extends JsonResource
 
             $data['total_weight_min'] = array_sum($totalWeightMin);
         } else {
-            if (isset($request->delivery_type) && $request->delivery_type [0] === Delivery::TYPE_DOORING) {
+            if (isset($request->delivery_type) && $request->delivery_type[0] === Delivery::TYPE_DOORING) {
                 $totalWeightMin = array();
                 $itemCodes = $this->resource->item_codes;
                 foreach ($itemCodes as $key => $value) {
@@ -128,52 +128,60 @@ class DeliveryResource extends JsonResource
 
                 $data['total_weight_min'] = array_sum($totalWeightMin);
             } elseif (isset($request->delivery_type) && $request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
-                switch (true) {
-                    // ini keberangkatan manifest transit
-                    case $request->arrival == 1:
-                        $totalWeightMin = $this->resource->packages->sum('total_weight');
+                // switch (true) {
+                //     // ini keberangkatan manifest transit
+                //     case $request->arrival == 1:
+                //         $totalWeightMin = $this->resource->packages->sum('total_weight');
 
-                        $data['total_weight_min'] = $totalWeightMin;
-                        break;
-                    // ini kedatangan manifest transit
-                    case $request->departure == 1:
-                        $totalWeightMin = array();
-                        $itemCodes = $this->resource->item_codes;
-                        foreach ($itemCodes as $key => $value) {
-                            $totalWeight = $value->codeable->weight_borne_total;
+                //         $data['total_weight_min'] = $totalWeightMin;
+                //         break;
+                //     // ini kedatangan manifest transit
+                //     case $request->departure == 1:
+                //         $totalWeightMin = array();
+                //         $itemCodes = $this->resource->item_codes;
+                //         foreach ($itemCodes as $key => $value) {
+                //             $totalWeight = $value->codeable->weight_borne_total;
 
-                            array_push($totalWeightMin, $totalWeight);
-                        }
+                //             array_push($totalWeightMin, $totalWeight);
+                //         }
 
-                        $data['total_weight_min'] = array_sum($totalWeightMin);
-                        break;
-                    default:
-                        $isDeparture = false;
-                        $partner = $request->user()->partners->first();
+                //         $data['total_weight_min'] = array_sum($totalWeightMin);
+                //         break;
+                //     default:
+                //         $isDeparture = false;
+                //         $partner = $request->user()->partners->first();
 
-                        if ($this->resource->origin_partner_id === $partner->id && $this->resource->partner_id !== $partner->id) {
-                            $isDeparture = true;
-                        }
+                //         if ($this->resource->origin_partner_id === $partner->id && $this->resource->partner_id !== $partner->id) {
+                //             $isDeparture = true;
+                //         }
 
-                        // set total on weight on departure condition
-                        if ($isDeparture) {
-                            $totalWeightMin = array();
-                            $itemCodes = $this->resource->item_codes;
-                            foreach ($itemCodes as $key => $value) {
-                                $totalWeight = $value->codeable->weight_borne_total;
+                //         // set total on weight on departure condition
+                //         if ($isDeparture) {
+                //             $totalWeightMin = array();
+                //             $itemCodes = $this->resource->item_codes;
+                //             foreach ($itemCodes as $key => $value) {
+                //                 $totalWeight = $value->codeable->weight_borne_total;
 
-                                array_push($totalWeightMin, $totalWeight);
-                            }
+                //                 array_push($totalWeightMin, $totalWeight);
+                //             }
 
-                            $data['total_weight_min'] = array_sum($totalWeightMin);
-                        } else {
-                            // set total weight on arrival condition
-                            $totalWeightMin = $this->resource->packages->sum('total_weight');
+                //             $data['total_weight_min'] = array_sum($totalWeightMin);
+                //         } else {
+                //             // set total weight on arrival condition
+                //             $totalWeightMin = $this->resource->packages->sum('total_weight');
 
-                            $data['total_weight_min'] = $totalWeightMin;
-                        }
-                        break;
+                //             $data['total_weight_min'] = $totalWeightMin;
+                //         }
+                //         break;
+                // }
+                $totalWeightMin = array();
+                $itemCodes = $this->resource->item_codes;
+                foreach ($itemCodes as $key => $value) {
+                    $totalWeight = $value->codeable->weight_borne_total;
+
+                    array_push($totalWeightMin, $totalWeight);
                 }
+                $data['total_weight_min'] = array_sum($totalWeightMin);
             } else {
                 $data['total_weight_min'] = $this->resource->packages->sum('total_weight');
             }
