@@ -53,52 +53,62 @@ class WarehouseManifestResource extends DeliveryResource
 
                 $this->resource->total_weight_min = array_sum($totalWeightMin);
             } elseif (isset($request->delivery_type) && $request->delivery_type[0] === Delivery::TYPE_TRANSIT) {
-                switch (true) {
-                        // ini keberangkatan manifest transit
-                    case $request->arrival == 1:
-                        $totalWeightMin = $this->resource->packages->sum('total_weight');
+                // switch (true) {
+                //         // ini keberangkatan manifest transit
+                //     case $request->arrival == 1:
+                //         $totalWeightMin = $this->resource->packages->sum('total_weight');
 
-                        $this->resource->total_weight_min = $totalWeightMin;
-                        break;
-                        // ini kedatangan manifest transit
-                    case $request->departure == 1:
-                        $totalWeightMin = array();
-                        $itemCodes = $this->resource->item_codes;
-                        foreach ($itemCodes as $key => $value) {
-                            $totalWeight = $value->codeable->weight_borne_total;
+                //         $this->resource->total_weight_min = $totalWeightMin;
+                //         break;
+                //         // ini kedatangan manifest transit
+                //     case $request->departure == 1:
+                //         $totalWeightMin = array();
+                //         $itemCodes = $this->resource->item_codes;
+                //         foreach ($itemCodes as $key => $value) {
+                //             $totalWeight = $value->codeable->weight_borne_total;
 
-                            array_push($totalWeightMin, $totalWeight);
-                        }
+                //             array_push($totalWeightMin, $totalWeight);
+                //         }
 
-                        $this->resource->total_weight_min = array_sum($totalWeightMin);
-                        break;
-                    default:
-                        $isDeparture = false;
-                        $partner = $request->user()->partners->first();
+                //         $this->resource->total_weight_min = array_sum($totalWeightMin);
+                //         break;
+                //     default:
+                //         $isDeparture = false;
+                //         $partner = $request->user()->partners->first();
 
-                        if ($this->resource->origin_partner_id === $partner->id && $this->resource->partner_id !== $partner->id) {
-                            $isDeparture = true;
-                        }
+                //         if ($this->resource->origin_partner_id === $partner->id && $this->resource->partner_id !== $partner->id) {
+                //             $isDeparture = true;
+                //         }
 
-                        // set total on weight on departure condition
-                        if ($isDeparture) {
-                            $totalWeightMin = array();
-                            $itemCodes = $this->resource->item_codes;
-                            foreach ($itemCodes as $key => $value) {
-                                $totalWeight = $value->codeable->weight_borne_total;
+                //         // set total on weight on departure condition
+                //         if ($isDeparture) {
+                //             $totalWeightMin = array();
+                //             $itemCodes = $this->resource->item_codes;
+                //             foreach ($itemCodes as $key => $value) {
+                //                 $totalWeight = $value->codeable->weight_borne_total;
 
-                                array_push($totalWeightMin, $totalWeight);
-                            }
+                //                 array_push($totalWeightMin, $totalWeight);
+                //             }
 
-                            $this->resource->total_weight_min = array_sum($totalWeightMin);
-                        } else {
-                            // set total weight on arrival condition
-                            $totalWeightMin = $this->resource->packages->sum('total_weight');
+                //             $this->resource->total_weight_min = array_sum($totalWeightMin);
+                //         } else {
+                //             // set total weight on arrival condition
+                //             $totalWeightMin = $this->resource->packages->sum('total_weight');
 
-                            $this->resource->total_weight_min = $totalWeightMin;
-                        }
-                        break;
+                //             $this->resource->total_weight_min = $totalWeightMin;
+                //         }
+                //         break;
+                // }
+
+                $totalWeightMin = array();
+                $itemCodes = $this->resource->item_codes;
+                foreach ($itemCodes as $key => $value) {
+                    $totalWeight = $value->codeable->weight_borne_total;
+
+                    array_push($totalWeightMin, $totalWeight);
                 }
+
+                $this->resource->total_weight_min = array_sum($totalWeightMin);
             } else {
                 $this->resource->total_weight_min = $this->resource->packages->sum('total_weight');
             }
