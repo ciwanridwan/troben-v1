@@ -244,6 +244,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -448,6 +449,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -461,10 +463,11 @@ class PricingCalculator
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
-                    ]);
+                    ])->toArray();
                     $item['handling'] = $handlingResult;
                 }
             }
+
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
