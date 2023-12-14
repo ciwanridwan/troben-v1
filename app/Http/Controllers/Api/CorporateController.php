@@ -597,7 +597,7 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination.packages.corporate', 'picked_up_by'
+            'multiDestination.packages.code', 'parentDestination.packages.corporate', 'parentDestination.packages.code', 'picked_up_by'
         ]);
 
         if (! $isAdmin) {
