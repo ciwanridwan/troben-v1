@@ -828,6 +828,9 @@ class CorporateController extends Controller
         $insurance = 0;
         $insurance = ceil(MotorBikeController::getInsurancePrice($request->input('price')));
 
+	if (! isset($req['destination_id'])) {
+		return (new Response(Response::RC_INVALID_DATA, ['message' => 'No destination found']))->json();
+	}
         $getPrice = PricingCalculator::getBikePrice($partner->geo_regency_id, $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
