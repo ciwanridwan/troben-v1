@@ -605,7 +605,7 @@ class CorporateController extends Controller
             'corporate',
             'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
             'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination', 'parentDestination.packages.corporate', 'picked_up_by'
+            'multiDestination.packages.code', 'parentDestination.packages.corporate', 'parentDestination.packages.code', 'picked_up_by'
         ]);
 
         if (! $isAdmin) {
@@ -709,6 +709,7 @@ class CorporateController extends Controller
                 'items', 'prices', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
                 'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices',
                 'motoBikes',
+                'multiDestination.packages.code', 'parentDestination.packages.corporate', 'parentDestination.packages.code',
             ])
             // ->whereHas('corporate')
             ->findOrFail($request->get('package_id'));
@@ -836,6 +837,9 @@ class CorporateController extends Controller
         $insurance = 0;
         $insurance = ceil(MotorBikeController::getInsurancePrice($request->input('price')));
 
+	if (! isset($req['destination_id'])) {
+		return (new Response(Response::RC_INVALID_DATA, ['message' => 'No destination found']))->json();
+	}
         $getPrice = PricingCalculator::getBikePrice($partner->geo_regency_id, $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
