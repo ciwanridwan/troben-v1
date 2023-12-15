@@ -154,7 +154,13 @@ class CreateWalkinOrderTypeBike
         Log::info('trying insert package to db. ', [$this->attributes['sender_name']]);
 
         if ($this->package->exists) {
-            $this->item->fill($this->items);
+	$itemBike = $this->items;
+	$itemBike['height'] = (int) $itemBike['height'];
+	$itemBike['length'] = (int) $itemBike['length'];
+	$itemBike['width'] = (int) $itemBike['width'];
+	$itemBike['weight'] = (int) $itemBike['weight'];
+
+            $this->item->fill($itemBike);
             $this->item->package_id = $this->package->id;
             $this->item->qty = 1;
             $this->item->weight = 0;
