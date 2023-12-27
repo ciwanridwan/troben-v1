@@ -610,16 +610,15 @@ class CorporateController extends Controller
 
         if (! $isAdmin) {
             $partner = auth()->user()->partners->first();
-	if (! is_null($partner)) {
-            $partnerId = $partner->getKey();
-            $results = $results->where(function($q) use ($partnerId) {
-                $q->where('created_by', auth()->id())
-                ->orWhereHas('deliveries', function($q2) use ($partnerId) {
-                    $q2->where('partner_id', $partnerId);
-                });
-            });
-	}
-
+            if (! is_null($partner)) {
+                    $partnerId = $partner->getKey();
+                    $results = $results->where(function($q) use ($partnerId) {
+                        $q->where('created_by', auth()->id())
+                        ->orWhereHas('deliveries', function($q2) use ($partnerId) {
+                            $q2->where('partner_id', $partnerId);
+                        });
+                    });
+            }
         }
         if ($request->get('status')) {
             $results = $results->where('payment_status', $request->get('status'));
@@ -639,8 +638,14 @@ class CorporateController extends Controller
                 ->orWhere('receiver_name', 'ILIKE', '%'.$search.'%')
                 ->orWhere('receiver_phone', 'ILIKE', '%'.$search.'%')
                 ->orWhereHas('code', function($q) use ($search) {
-                    $q->where('content', 'ILIKE', $search);
+                    $q->where('content', 'ILIKE', $search.'%');
                 });
+            });
+            $results = $results->orWhereHas('origin_regency',function($q) use($search){
+                $q->where('name','ilike','%'.$search.'%');
+            });
+            $results = $results->orWhereHas('destination_regency',function($q) use($search){
+                $q->where('name','ilike','%'.$search.'%');
             });
         }
 
