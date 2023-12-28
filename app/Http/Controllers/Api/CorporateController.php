@@ -37,6 +37,7 @@ use App\Models\Payments\Payment;
 use App\Models\User;
 use App\Supports\DistanceMatrix;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CorporateController extends Controller
@@ -601,12 +602,31 @@ class CorporateController extends Controller
 
         $isAdmin = auth()->user()->is_admin;
 
-        $results = Package::query()->with([
-            'corporate',
-            'items', 'prices', 'payments', 'items.codes', 'origin_regency.province', 'origin_regency', 'origin_district', 'destination_regency.province',
-            'destination_regency', 'destination_district', 'destination_sub_district', 'code', 'items.prices', 'attachments',
-            'multiDestination.packages.code', 'parentDestination.packages.corporate', 'parentDestination.packages.code', 'picked_up_by'
-        ]);
+        // DB::enableQueryLog();
+
+        $results = Package::query()
+            ->with([
+                'corporate','items' => function($q) {
+                    $q->with('codes','prices');
+                },
+                'prices', 'payments',
+                'origin_regency' => function($q) {
+                    $q->with(['province']);
+                },
+                'destination_regency' => function($q) {
+                    $q->with(['province']);
+                },
+                'origin_district',
+                'destination_district', 'destination_sub_district',
+                'code', 'attachments','multiDestination.packages.code',
+                'parentDestination' => function($q) {
+                    $q->with(['packages' => function($q) {
+                        $q->with(['corporate','code']);
+                    }]);
+                },
+                // 'parentDestination.packages.corporate', 'parentDestination.packages.code',
+                'picked_up_by'
+            ]);
 
         if (! $isAdmin) {
             $partner = auth()->user()->partners->first();
