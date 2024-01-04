@@ -467,4 +467,33 @@ class PricingController extends Controller
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
+
+    /**
+     * cubic calculator
+     */
+    public function cubicCalculate(Request $request)
+    {
+
+        $request->validate([
+            'origin_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'items' => ['nullable', 'array'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric']
+        ]);
+
+        $price = PricingCalculator::getCubicPrice($request->origin_id, $request->destination_id);
+
+        $calculate = PricingCalculator::cubicCalculate($request->items);
+        $totalWeight = array_sum(array_column($calculate, 'weight'));
+
+        $result = [
+            'dimensions' => $calculate,
+            'total_weight' => $totalWeight,
+            'service_amount' => $price->amount * $totalWeight
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
 }
