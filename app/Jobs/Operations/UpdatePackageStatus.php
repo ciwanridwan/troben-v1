@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Operations;
 
-use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Collection;

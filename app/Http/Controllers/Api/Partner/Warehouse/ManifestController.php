@@ -53,7 +53,7 @@ class ManifestController extends Controller
             }
         });
 
-        if ($request->has('q')) {
+        if ($request->has('q') && $request->get('q')) {
             $id = Code::select('codeable_id')
                 ->where('content', 'like', '%' . $request->q . '%')
                 ->pluck('codeable_id');

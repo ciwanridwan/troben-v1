@@ -39,7 +39,12 @@ class DriverUnloadedPackageInDestinationWarehouse
     {
         $this->delivery = $delivery;
 
-        $this->user = $delivery->partner->users()->wherePivotIn('role', [UserablePivot::ROLE_WAREHOUSE])->get();
+        if (! is_null($delivery->partner) && $delivery->partner) {
+            $this->user = $delivery->partner->users()->wherePivotIn('role', [UserablePivot::ROLE_WAREHOUSE])->get();
+        } else {
+            // Set an empty collection if $delivery->partner is null
+            $this->user = collect();
+        }
 
         $this->notification = Template::where('type', Template::TYPE_WAREHOUSE_GOOD_RECEIVE)->first();
     }

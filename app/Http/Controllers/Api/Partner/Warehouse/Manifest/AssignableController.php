@@ -107,7 +107,7 @@ class AssignableController extends Controller
         $query->whereIn('status', [Package::STATUS_PACKED, Package::STATUS_IN_TRANSIT]);
         $query->with('estimator', 'packager', 'items', 'partner_performance');
 
-        if ($request->has('q')) {
+        if ($request->has('q') && $request->get('q')) {
             $id = Code::select('codeable_id')
                 ->where('content', 'like', '%' . $request->q . '%')
                 ->pluck('codeable_id');
