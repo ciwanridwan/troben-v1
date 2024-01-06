@@ -128,7 +128,7 @@ class ManifestController extends Controller
             }
 
             $originPartner = $delivery->origin_partner;
-            if ($originPartner->isJabodetabek() && $fromPickup) {
+            if (! is_null($originPartner) && $originPartner->isJabodetabek() && $fromPickup) {
                 // partner pickup for jabodetabek, hardcoded to this
                 $query->where('code', 'MTM-CGK-00');
             } else {
