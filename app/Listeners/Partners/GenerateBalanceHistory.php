@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Partners;
 
+use App\Actions\Deliveries\Route;
 use App\Actions\Pricing\PricingCalculator;
 use App\Actions\Transporter\ShippingCalculator;
 use App\Broadcasting\User\PrivateChannel;
@@ -203,15 +204,13 @@ class GenerateBalanceHistory
                             }
 
                             /** Get fee extra be as commission partners with 0.05*/
-                            if ($package->total_weight > 99) {
-                                $extraFee = $package->service_price * 0.05;
-                                $this
-                                    ->setBalance($extraFee)
-                                    ->setType(History::TYPE_CHARGE)
-                                    ->setDescription(History::DESCRIPTION_ADDITIONAL)
-                                    ->setAttributes()
-                                    ->recordHistory();
+                            $serviceFromPackagePrices = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', '!=', Price::TYPE_ADDITIONAL)->first();
+                            $serviceFee = $serviceFromPackagePrices ? $serviceFromPackagePrices->amount : 0;
+                            if (!is_null($discountService)) {
+                                $serviceFee -= $discountService->amount;
                             }
+
+                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
                         }
 
                         # total balance insurance > record insurance fee
@@ -457,6 +456,153 @@ class GenerateBalanceHistory
                     ->setPartner($this->transporter->partner)
                     ->setPackage($event->package);
 
+                // initialize some income
+                $servicePrice = 0;
+                $balance_handling = 0;
+                $balance_insurance = 0;
+                $balancePickup = 0;
+                $extraFee = 0;
+                $bikeServiceFee = 0;
+                $discountServiceFee = 0;
+                $discountPickupFee = 0;
+                // $feeAdditional = 0;
+
+                // check if package direct dooring doesnt transit
+                // and partner should get income
+                $routes = Route::getWarehousePartner($this->partner->code, $this->package);
+                $isDirectDooring = Route::checkDirectDooring($this->partner, $routes);
+
+                if ($isDirectDooring) {
+                    # total balance service > record service balance
+                    if ($this->partner->get_fee_service) {
+                        $variant = '0';
+                        if (!is_null($this->package->motoBikes)) {
+                            // add condition for exception on java island depend on partner income
+                            $originProvince = $this->package->origin_regency->province;
+                            $destinationProvince = $this->package->destination_regency->province;
+
+                            $itemBikes =  [
+                                'origin_province_id' => $originProvince->id,
+                                'destination_province_id' => $destinationProvince->id,
+                                'cc' => $this->package->motoBikes->cc
+                            ];
+
+                            $servicePrice = $this->saveServiceFee($this->partner->type, $variant, false, $itemBikes);
+                        } else {
+                            $servicePrice = $this->saveServiceFee($this->partner->type, $variant);
+                        }
+
+                        $discountService = $this->package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_SERVICE)->first();
+
+                        // set discount fee service
+                        if (!is_null($discountService)) {
+                            $discountServiceFee = $discountService->amount;
+                            $this
+                                ->setBalance($discountServiceFee)
+                                ->setType(History::TYPE_DISCOUNT)
+                                ->setDescription(History::DESCRIPTION_SERVICE)
+                                ->setAttributes()
+                                ->recordHistory();
+                        }
+
+                        /** Get fee extra for commission partners*/
+                        /** Get fee extra be as commission partners with 0.05*/
+                        $serviceFromPackagePrices = $this->package->prices()->where('type', Price::TYPE_SERVICE)->where('description', '!=', Price::TYPE_ADDITIONAL)->first();
+                        $serviceFee = $serviceFromPackagePrices ? $serviceFromPackagePrices->amount : 0;
+                        if (!is_null($discountService)) {
+                            $serviceFee -= $discountService->amount;
+                        }
+                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
+                    }
+
+                    # total balance insurance > record insurance fee
+                    if ($this->partner->get_fee_insurance) {
+                        $balance_insurance = $this->package->items()->where('is_insured', true)->get()->sum(function ($item) {
+                            return $item->price * PricingCalculator::INSURANCE_PARTNER;
+                        });
+
+                        if ($balance_insurance !== 0) {
+                            $this
+                                ->setBalance($balance_insurance)
+                                ->setType(History::TYPE_DEPOSIT)
+                                ->setDescription(History::DESCRIPTION_INSURANCE)
+                                ->setAttributes()
+                                ->recordHistory();
+                        }
+                    }
+
+                    # total balance handling > record handling fee
+                    if ($this->partner->get_fee_handling) {
+                        $balance_handling = 0;
+                        $package_prices = $this->package->prices()->where('type', Price::TYPE_HANDLING)->get();
+                        foreach ($package_prices as $price) {
+                            $handling_price = $price->amount;
+                            //$item_qty = $price->item->qty;
+                            //remove multiplier qty, as handling calculate already all qty
+                            $balance_handling += $handling_price;
+                        }
+
+                        if ($balance_handling !== 0.0) {
+                            $this
+                                ->setBalance($balance_handling)
+                                ->setType(History::TYPE_DEPOSIT)
+                                ->setDescription(History::DESCRIPTION_HANDLING)
+                                ->setAttributes()
+                                ->recordHistory();
+                        }
+                    }
+
+                    /**Get Fee Pickup */
+                    if ($this->partner->get_fee_pickup) {
+                        if ($this->package->type == Package::TYPE_APP) {
+                            $balancePickup = $this->package->prices()->where('type', Price::TYPE_DELIVERY)->where('description', Price::TYPE_PICKUP)->first()->amount;
+                            $discountPickup = $this->package->prices()->where('type', Price::TYPE_DISCOUNT)->where('description', Price::TYPE_PICKUP)->first();
+
+                            // set fee discount pickup
+                            if (is_null($this->package->promos)) {
+                                if (!is_null($discountPickup)) {
+                                    $discountPickupFee = $discountPickup->amount;
+                                    $this
+                                        ->setBalance($discountPickupFee)
+                                        ->setType(History::TYPE_DISCOUNT)
+                                        ->setDescription(History::DESCRIPTION_PICKUP)
+                                        ->setAttributes()
+                                        ->recordHistory();
+                                }
+                            }
+
+                            $this
+                                ->setBalance($balancePickup)
+                                ->setType(History::TYPE_DEPOSIT)
+                                ->setDescription(History::DESCRIPTION_PICKUP)
+                                ->setAttributes()
+                                ->recordHistory();
+                        } else {
+                            $balancePickup = 0;
+                        }
+                    }
+
+                    switch (true) {
+                        case $discountServiceFee !== 0:
+                            $discount = $discountServiceFee;
+                            break;
+                        case $discountPickupFee !== 0:
+                            $discount = $discountPickupFee;
+                            break;
+                        default:
+                            $discount = 0;
+                            break;
+                    }
+
+                    /** Set balance partner*/
+                    $newIncome = $servicePrice + $balancePickup + $balance_handling + $balance_insurance + $extraFee - $discount;
+
+                    $balanceExisting = floatval($this->partner->balance);
+                    $totalBalance = $balanceExisting + $newIncome;
+                    $this->partner->balance = $totalBalance;
+                    $this->partner->save();
+                }
+
                 if (!is_null($this->package->motoBikes)) {
                     $bikeServiceFee = PricingCalculator::getIncomeBikeDooringPartner($this->package->motoBikes->cc);
                     $this->partner->balance += $bikeServiceFee;
@@ -472,7 +618,11 @@ class GenerateBalanceHistory
                     break;
                 }
 
+                # set weight without minimal
                 $weight = $this->package->items->sum('weight_borne_total');
+
+                # set weight minimal charge weight
+                // $weight = $this->package->total_weight;
 
                 $tier = PricingCalculator::getTierType($weight);
                 /** @var Dooring $price */
@@ -1151,5 +1301,37 @@ class GenerateBalanceHistory
         }
 
         return $manifestWeight;
+    }
+
+    /**
+     * Income charge partner from 5% - 20%
+     */
+    protected function getIncomeChargePartner(int $totalWeight, $serviceFee): int
+    {
+        switch (true) {
+            case $totalWeight > 99 && $totalWeight <= 499:
+                $fee = $serviceFee * 0.05;
+                break;
+            case $totalWeight > 499 && $totalWeight <= 999:
+                $fee = $serviceFee * 0.10;
+                break;
+            case $totalWeight > 999:
+                $fee = $serviceFee * 0.20;
+                break;
+            default:
+                $fee = 0;
+                break;
+        }
+
+        if ($fee != 0) {
+            $this
+                ->setBalance($fee)
+                ->setType(History::TYPE_CHARGE)
+                ->setDescription(History::DESCRIPTION_ADDITIONAL)
+                ->setAttributes()
+                ->recordHistory();
+        }
+
+        return $fee;
     }
 }

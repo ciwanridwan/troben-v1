@@ -70,20 +70,27 @@ class Handling implements CastsAttributes
         ];
     }
 
-    public static function woodWeightBorne($height, $length, $width, $weight, $serviceCode)
+    public static function woodWeightBorne($height, $length, $width, $weightActual, $serviceCode)
     {
+        // todo update handling
+        // $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
+        // $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
+        // $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
+
+        // if ($weight > $volume_packed) {
+        //     $volume_diff = $volume_packed - $volume;
+        //     $weight += $volume_diff;
+        // } else {
+        //     $weight = $volume_packed;
+        // }
+
+        // new calculate
         $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
-        $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
-        $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
+        $volumeBefore = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
+        $volumeAfter = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
 
-        if ($weight > $volume_packed) {
-            $volume_diff = $volume_packed - $volume;
-            $weight += $volume_diff;
-        } else {
-            $weight = $volume_packed;
-        }
-
-        return $weight;
+        $weight = ($volumeAfter - $volumeBefore) + $weightActual;
+        return $weight > $volumeAfter ? $weight : $volumeAfter;
     }
 
     public static function calculator($type, $height, $length, $width, $weight, $itemId = null)
@@ -126,8 +133,9 @@ class Handling implements CastsAttributes
                 return $price;
             case self::TYPE_WOOD:
                 $min_price = 50000;
-                $add_dimension = self::ADD_WOOD_DIMENSION;
-                $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.6);
+                // $add_dimension = self::ADD_WOOD_DIMENSION;
+                // $price = ceil(($height + $add_dimension) * ($length + $add_dimension) * ($width + $add_dimension) * 0.6);
+                $price = ceil($height * $length * $width * 0.6);
 
                 return $price < $min_price ? $min_price : $price;
             case self::TYPE_BIKES:
@@ -180,5 +188,23 @@ class Handling implements CastsAttributes
         }
 
         return $dimensions;
+    }
+
+    public static function woodWeightNew($weight, $height, $length, $width, $serviceCode)
+    {
+        $addDimension = self::ADD_WOOD_DIMENSION;
+        $height += $addDimension;
+        $width += $addDimension;
+        $length += $addDimension;
+        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($height, $length, $width, $serviceCode));
+
+        $result = [
+            'height' => $height,
+            'length' => $length,
+            'width' => $width,
+            'volume' => $volume,
+        ];
+
+        return $result;
     }
 }

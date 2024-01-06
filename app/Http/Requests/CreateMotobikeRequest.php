@@ -30,8 +30,8 @@ class CreateMotobikeRequest extends FormRequest
         return [
             'customer_id' => ['nullable', 'exists:customers,id'],
             'service_code' => ['required', 'exists:services,code'],
-            'transporter_type' => ['required', Rule::in(Transporter::getListForBike())],
-            'partner_code' => ['required', 'exists:partners,code'],
+            'transporter_type' => ['nullable', Rule::in(Transporter::getListForBike())],
+            'partner_code' => ['nullable', 'exists:partners,code'],
             'partner_satellite' => ['nullable'],
 
             'sender_name' => ['required', 'string'],
@@ -56,14 +56,21 @@ class CreateMotobikeRequest extends FormRequest
             'photos.*' => ['image:jpg,jpeg,png', 'max:10240'],
 
             'item' => ['required', 'array'],
-            '*.moto_type' => ['nullable', Rule::in(MotorBike::getListType())],  
+            '*.moto_type' => ['nullable', Rule::in(MotorBike::getListType())],
             '*.moto_brand' => ['nullable', 'string'],
             '*.moto_cc' => ['nullable', 'numeric'],
             '*.moto_year' => ['nullable', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
-            
+
             'created_by' => ['nullable', 'exists:customers,id'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'transporter_type.in' => 'transporter tidak tersedia, silahkan pilih PICKUP, CDD DOUBLE DAN CDE ENGKEL'
         ];
     }
 }

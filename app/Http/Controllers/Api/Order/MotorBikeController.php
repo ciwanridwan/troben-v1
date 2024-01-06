@@ -253,6 +253,10 @@ class MotorBikeController extends Controller
 
     public function motorbikeCheck(Request $request): JsonResponse
     {
+        $messages = [
+            'transporter_type.in' => 'Transporter tidak tersedia, silahkan pilih transporter pickup, cdd double dan cde engkel sejenisnya'
+        ];
+
         $request->validate([
             'origin_lat' => 'required|numeric',
             'origin_lon' => 'required|numeric',
@@ -268,13 +272,15 @@ class MotorBikeController extends Controller
             'width' => 'required_if:handling,wood|numeric',
 
             /**Pickup Fee */
-            'transporter_type' => 'nullable',
+            'transporter_type' => 'nullable|in:pickup,pickup box,engkel box,cde engkel bak,cdd double bak,cdd double box',
+            // 'transporter_type' => 'nullable',
             'partner_code' => 'nullable|exists:partners,code',
             'partner_satellite' => 'nullable',
 
             /**Insurance Price */
+            'insurance' => 'nullable|numeric',
             'price' => 'nullable',
-        ]);
+        ], $messages);
         $req = $request->all();
 
         $coordOrigin = sprintf('%s,%s', $request->get('origin_lat'), $request->get('origin_lon'));
@@ -309,7 +315,10 @@ class MotorBikeController extends Controller
             }
         }
         $insurance = 0;
-        $insurance = ceil(self::getInsurancePrice($request->input('price')));
+        // new condition for web
+        if ($request->input('insurance') == 1 && !is_null($request->input('price'))) {
+            $insurance = ceil(self::getInsurancePrice($request->input('price')));
+        }
 
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
@@ -399,6 +408,10 @@ class MotorBikeController extends Controller
         }
 
         $bikePrices = PricingCalculator::getBikePrice($resultOrigin['regency'], $this->attributes['destination_sub_district_id']);
+        if (!isset($this->attributes['item']['moto_cc'])) {
+            return (new Response(Response::RC_BAD_REQUEST, ['Item Moto CC not submit, please input again']));
+        }
+
         switch ($this->attributes['item']['moto_cc']) {
             case 150:
                 $checkPrices = $bikePrices->lower_cc;
@@ -441,6 +454,7 @@ class MotorBikeController extends Controller
         $this->attributes['item']['width'] = 0;
         $this->attributes['item']['length'] = 0;
 
+        // insert new record
         $this->items = $this->attributes['item'];
         $job = new CreatePackageForBike($this->attributes, $this->items);
         $this->dispatchNow($job);
@@ -459,11 +473,13 @@ class MotorBikeController extends Controller
             ]);
         }
 
+        // upload foto motor
         $uploadJob = new CustomerUploadPackagePhotos($job->package, $request->file('photos') ?? []);
         $this->dispatchNow($uploadJob);
 
         event(new PackageBikeCreated($job->package, $partner->code));
 
+        // assign resi to manifest and partner
         $this->orderAssignation($job->package, $partner);
 
         $result = [

@@ -28,9 +28,9 @@ class PricingCalculatorRequest extends FormRequest
     {
         return [
             'service_code' => ['required', 'exists:services,code'],
-            'partner_code' => ['required', 'exists:partners,code'],
-            'transporter_type' => ['required', Rule::in(Transporter::getAvailableTypes())],
-            
+            'partner_code' => ['nullable', 'exists:partners,code'],
+            'transporter_type' => ['nullable', Rule::in(Transporter::getAvailableTypes())],
+
             // location
             'sender_latitude' => ['required', 'string'],
             'sender_longitude' => ['required', 'string'],
@@ -47,9 +47,10 @@ class PricingCalculatorRequest extends FormRequest
             'items.*.width.*' => ['required', 'numeric'],
             'items.*.length.*' => ['required', 'numeric'],
             'items.*.price.*' => ['required_if:*.is_insured,true', 'numeric'],
-            'items.*.handling.*' => ['nullable', 'array'],
-            'items.*.handling.*.type' => ['string', Rule::in(Handling::getTypes())],
-            'items.*.handling.*.price' => ['numeric']
+            'items.*.handling' => ['nullable', 'array'],
+            'items.*.handling.*' => ['nullable', 'string'],
+            // 'items.*.handling.*.type' => ['string', Rule::in(Handling::getTypes())],
+            // 'items.*.handling.*.price' => ['numeric']
         ];
     }
 }

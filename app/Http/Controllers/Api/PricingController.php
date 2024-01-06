@@ -417,12 +417,12 @@ class PricingController extends Controller
 
         $rows = array();
         $grandTotal = array();
-
         // get data by loop
         for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
             $row = PricingCalculator::calculate($this->attributes, 'array');
+            $row['result']['total_amount'] += PackagesPrice::FEE_PLATFORM;
             $subGrandTotal = $row['result'];
 
             array_push($grandTotal, $subGrandTotal);
@@ -455,7 +455,7 @@ class PricingController extends Controller
             'tier' => $totalTier,
             'additional_price' => $totalAdditionalPrice,
             'service' => $totalServicePrice,
-            'platfofrm_fee' => $platformFee,
+            'platform_fee' => $platformFee,
             'total_amount' => $totalAmount
         ];
 
@@ -463,6 +463,35 @@ class PricingController extends Controller
         $result = [
             'rows' => $rows,
             'grand_total' => $resultGrandTotal
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * cubic calculator
+     */
+    public function cubicCalculate(Request $request)
+    {
+
+        $request->validate([
+            'origin_id' => ['required', 'exists:geo_regencies,id'],
+            'destination_id' => ['required', 'exists:geo_sub_districts,id'],
+            'items' => ['nullable', 'array'],
+            'items.*.height' => ['required', 'numeric'],
+            'items.*.length' => ['required', 'numeric'],
+            'items.*.width' => ['required', 'numeric']
+        ]);
+
+        $price = PricingCalculator::getCubicPrice($request->origin_id, $request->destination_id);
+
+        $calculate = PricingCalculator::cubicCalculate($request->items);
+        $totalWeight = array_sum(array_column($calculate, 'weight'));
+
+        $result = [
+            'dimensions' => $calculate,
+            'total_weight' => $totalWeight,
+            'service_amount' => $price->amount * $totalWeight
         ];
 
         return (new Response(Response::RC_SUCCESS, $result))->json();

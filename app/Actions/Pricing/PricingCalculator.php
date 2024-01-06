@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use App\Casts\Package\Items\Handling;
+use App\Exceptions\Error;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Resources\Api\Pricings\ExpressPriceResource;
@@ -244,10 +245,12 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
                     $packingType = $packing;
+                    // handling for compability
                     if (is_array($packingType) && isset($packingType['type'])) {
                         $packingType = $packingType['type'];
                     }
@@ -447,6 +450,7 @@ class PricingCalculator
             if (!Arr::has($item, 'handling')) {
                 $item['handling'] = [];
             }
+
             $handlingResult = [];
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
@@ -460,10 +464,11 @@ class PricingCalculator
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
-                    ]);
+                    ])->toArray();
                     $item['handling'] = $handlingResult;
                 }
             }
+
             $item['handling'] = self::checkHandling($item['handling']);
             $item['weight_borne'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], 1, $item['handling']);
             $item['weight_borne_total'] = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling']);
@@ -969,9 +974,9 @@ class PricingCalculator
     public static function getCubicPrice($originRegencyId, $destinationId)
     {
         $price = CubicPrice::where('origin_regency_id', $originRegencyId)->where('destination_id', $destinationId)->first();
-        // $message = ['message' => 'Lokasi tujuan belum tersedia, silahkan hubungi customer kami'];
+        $message = ['message' => 'Mohon maaf rute belum tersedia, mohon masukkan rute lain'];
 
-        // throw_if($price === null, Error::make(Response::RC_SUCCESS, $message));
+        throw_if($price === null, Error::make(Response::RC_DATA_NOT_FOUND, $message));
         return $price;
     }
 
@@ -1094,27 +1099,7 @@ class PricingCalculator
      */
     public static function getAdditionalPrices($items, $serviceCode)
     {
-        // foreach ($items as $item) {
-        //     # not use, use $item['weight']
-        //     // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
-        //     $item['additional_price'] = 0;
-
-        //     if ($item['weight'] < 100) {
-        //         $item['additional_price'] = 0;
-        //     } elseif ($item['weight'] < 300) {
-        //         $item['additional_price'] = 100000;
-        //     } elseif ($item['weight'] < 2000) {
-        //         $item['additional_price'] = 250000;
-        //     } elseif ($item['weight'] < 5000) {
-        //         $item['additional_price'] = 1500000;
-        //     } else {
-        //         $item['additional_price'] = 0;
-        //     }
-
-        //     array_push($additionalPrice, $item['additional_price']);
-        // }
-
-	$additionalPrice = [];
+        $additionalPrice = [];
 
         foreach ($items as $item) {
             if ($item['qty'] == 1) {
@@ -1297,24 +1282,42 @@ class PricingCalculator
         $cc = $itemBikes['cc'];
         switch ($cc) {
             case 150:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 100000;
-                } else {
-                    $income = 200000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
+                        $income = 100000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
+                        $income = 100000;
+                        break;
+                    default:
+                        $income = 200000;
+                        break;
                 }
                 break;
             case 250:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 150000;
-                } else {
-                    $income = 250000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
+                        $income = 150000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
+                        $income = 150000;
+                        break;
+                    default:
+                        $income = 250000;
+                        break;
                 }
                 break;
             case 999:
-                if (in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId())) {
-                    $income = 150000;
-                } else {
-                    $income = 350000;
+                switch (true) {
+                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
+                        $income = 350000;
+                        break;
+                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
+                        $income = 350000;
+                        break;
+                    default:
+                        $income = 350000;
+                        break;
                 }
                 break;
             default:
@@ -1348,19 +1351,43 @@ class PricingCalculator
     /**
      * Partner get commision of cubic service
      */
-    public static function cubicCalculate($items): float
+    public static function cubicCalculate($items): float|array
     {
         $weightVolume = [];
+        $calculateForAdmin = false;
+
         foreach ($items as $item) {
-            $dimension = $item->height * $item->length * $item->width / 1000000;
+            if (is_array($item)) {
+                $dimension = $item['height'] * $item['length'] * $item['width'] / 1000000;
+                $calculateForAdmin = true;
+            } else {
+                $dimension = $item->height * $item->length * $item->width / 1000000;
+            }
+
             if ($dimension < 3) {
                 $dimension = 3;
             }
 
-            array_push($weightVolume, $dimension);
+            if (is_array($item)) {
+                $dimensions = [
+                    'weight' => $dimension,
+                    'height' => $item['height'],
+                    'length' => $item['length'],
+                    'width' => $item['width']
+                ];
+            } else {
+                $dimensions = $dimension;
+            }
+
+            array_push($weightVolume, $dimensions);
         }
-        $cubic = array_sum($weightVolume);
-        $cubicResult = floatval(number_format($cubic, 2, '.', ''));
+
+        if ($calculateForAdmin) {
+            $cubicResult = $weightVolume;
+        } else {
+            $cubic = array_sum($weightVolume);
+            $cubicResult = floatval(number_format($cubic, 2, '.', ''));
+        }
 
         return $cubicResult;
     }

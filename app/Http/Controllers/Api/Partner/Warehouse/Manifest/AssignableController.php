@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner\Warehouse\Manifest;
 
+use App\Actions\Deliveries\BikeRoute;
 use App\Actions\Deliveries\Route;
 use App\Http\Response;
 use App\Models\Code;
@@ -23,6 +24,13 @@ class AssignableController extends Controller
 {
     public function partner(Request $request, PartnerRepository $repository): JsonResponse
     {
+        $isBikePackage = false;
+        $packageByHash = Package::byHash($request->package_hash[0]);
+        // check package if bike order
+        if (!is_null($packageByHash->motoBikes)) {
+            $isBikePackage = true;
+        }
+
         $setPartner = Route::checkPackages($request->all());
         switch (true) {
             case $setPartner === 1:
@@ -30,7 +38,11 @@ class AssignableController extends Controller
                 $partnerByRoutes = [];
                 foreach ($packages as $package) {
                     if (!is_null($package->deliveryRoutes)) {
-                        $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                        if ($isBikePackage) {
+                            $partnerByRoute = BikeRoute::setPartners($package->deliveryRoutes);
+                        } else {
+                            $partnerByRoute = Route::setPartners($package->deliveryRoutes);
+                        }
                         array_push($partnerByRoutes, $partnerByRoute);
                     } else {
                         $partnerCode = null;
@@ -39,7 +51,11 @@ class AssignableController extends Controller
                 $partnerCode = $partnerByRoutes;
                 break;
             case $setPartner === 2:
-                $partnerCode = Route::generate($repository->getPartner(), $request->all());
+                if ($isBikePackage) {
+                    $partnerCode = BikeRoute::generate($repository->getPartner(), $request->all());
+                } else {
+                    $partnerCode = Route::generate($repository->getPartner(), $request->all());
+                }
                 break;
             case $setPartner === 3:
                 $partnerCode = 'all';
@@ -145,6 +161,7 @@ class AssignableController extends Controller
 
         $variant = 0;
         $allVariant = [];
+        // $partner = $repository->getPartner();
         $firstPackage = $packages->first();
         $check = $this->matchTransit($firstPackage, $packages);
 
@@ -174,7 +191,13 @@ class AssignableController extends Controller
     public function matchTransit($firstPackage, $packages): bool
     {
         $lastPackage = $packages->skip(1);
-        $checkDestination = Route::checkDestinationCityTransit($firstPackage, $lastPackage);
+
+        // check package if bike order or not
+        if (!is_null($firstPackage->motoBikes)) {
+            $checkDestination = BikeRoute::checkDestinationCityTransit($firstPackage, $lastPackage);
+        } else {
+            $checkDestination = Route::checkDestinationCityTransit($firstPackage, $lastPackage);
+        }
 
         return $checkDestination;
     }
@@ -212,14 +235,40 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
                     return true;
                 }
-
             } else {
                 if ($q->deliveries->count() === 1) {
-                    return true;
+                    $partner = Partner::query()->where('id', $partnerId)->first();
+                    if (!is_null($q->motoBikes)) {
+                        $routes = BikeRoute::getWarehousePartner($partner->code, $q);
+                    } else {
+                        $routes = Route::getWarehousePartner($partner->code, $q);
+                    }
+
+                    if (!is_null($routes)) {
+                        if (!is_null($q->motoBikes)) {
+                            $isDirectDooring = BikeRoute::checkDirectDooring($partner, $routes);
+                        } else {
+                            $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                        }
+                    } else {
+                        $isDirectDooring = false;
+                    }
+
+                    if ($isDirectDooring) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 } else {
                     $type = 'transit';
                     $delivery = $q->deliveries->last();
-                    $isDooring = Route::checkDooring($q, $delivery, $type);
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
+
                     if (!$isDooring && $partnerIdFromDeliveries === $partnerId) {
                         return true;
                     }
@@ -243,23 +292,54 @@ class AssignableController extends Controller
                 $partnerDooringId = $q->deliveryRoutes->partner_dooring_id;
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
-                } elseif(Route::checkVendorDooring($q->deliveryRoutes)) {
+                } elseif (Route::checkVendorDooring($q->deliveryRoutes)) {
                     return true;
                 } else {
                     $type = 'dooring';
                     $delivery = $q->deliveries->last();
-                    $isDooringFromRoute = Route::checkDooring($q, $delivery, $type);
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooringFromRoute = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooringFromRoute = Route::checkDooring($q, $delivery, $type);
+                    }
+
                     if ($isDooringFromRoute && $partnerDooringId === $partnerId) {
                         return true;
                     }
                 }
             } else {
                 if ($q->deliveries->count() === 1) {
-                    return false;
+                    $partner = Partner::query()->where('id', $partnerId)->first();
+                    if (!is_null($q->motoBikes)) {
+                        $routes = BikeRoute::getWarehousePartner($partner->code, $q);
+                    } else {
+                        $routes = Route::getWarehousePartner($partner->code, $q);
+                    }
+
+                    if (!is_null($routes)) {
+                        if (!is_null($q->motoBikes)) {
+                            $isDirectDooring = BikeRoute::checkDirectDooring($partner, $routes);
+                        } else {
+                            $isDirectDooring = Route::checkDirectDooring($partner, $routes);
+                        }
+                    } else {
+                        $isDirectDooring = false;
+                    }
+
+                    if ($isDirectDooring) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     $type = 'dooring';
                     $delivery = $q->deliveries->last();
-                    $isDooring = Route::checkDooring($q, $delivery, $type);
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
                     if ($partnerIdFromDeliveries !== $partnerId) {
                         return false;
                     } else {
@@ -267,7 +347,6 @@ class AssignableController extends Controller
                             return true;
                         }
                     }
-
                 }
             }
 

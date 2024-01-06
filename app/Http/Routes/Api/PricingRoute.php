@@ -68,6 +68,11 @@ class PricingRoute extends BaseRoute
             'as' => $this->name('delivery.method'),
             'uses' => $this->uses('chooseDeliveryMethod', OrderController::class),
         ])->withoutMiddleware('api');
+
+        $this->router->post($this->prefix('calculator/cubic'), [
+            'as' => $this->name('calculator.cubic'),
+            'uses' => $this->uses('cubicCalculate'),
+        ])->withoutMiddleware('api');
     }
 
     /**
