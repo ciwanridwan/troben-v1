@@ -908,40 +908,44 @@ class Route
     /**
      * Check package direct dooring doesnt need transit
      */
-    public static function checkDirectDooring($partner, $route)
+    public static function checkDirectDooring($partner, $route): bool
     {
         $isDirectDooring = false;
         $isDoorings = [];
 
-        if ($route instanceof SupportCollection) {
-            foreach ($route as $value) {
-                if ($value->code_mtak_1_dest === $value->code_dooring) {
-                    if ((is_null($value->code_mtak_2_dest) || $value->code_mtak_2_dest == "") && (is_null($value->code_mtak_3_dest) || $value->code_mtak_3_dest == "")) {
-                        if ($partner->code === $value->code_dooring) {
-                            $isDooring = 1;
-                        } else {
-                            $isDooring = 0;
-                        }
-                        array_push($isDoorings, $isDooring);
-                    }
-                }
-            }
-
-            if (in_array(0, $isDoorings) || empty($isDoorings)) {
-                $isDirectDooring = false;
-            } else {
-                $isDirectDooring = true;
-            }
+        if (is_null($route)) {
+            return $isDirectDooring;
         } else {
-            if ($route->code_mtak_1_dest === $route->code_dooring) {
-                if ((is_null($route->code_mtak_2_dest) || $route->code_mtak_2_dest == "") && (is_null($route->code_mtak_3_dest) || $route->code_mtak_3_dest == "")) {
-                    if ($partner->code === $route->code_dooring) {
-                        $isDirectDooring = true;
+            if ($route instanceof SupportCollection) {
+                foreach ($route as $value) {
+                    if ($value->code_mtak_1_dest === $value->code_dooring) {
+                        if ((is_null($value->code_mtak_2_dest) || $value->code_mtak_2_dest == "") && (is_null($value->code_mtak_3_dest) || $value->code_mtak_3_dest == "")) {
+                            if ($partner->code === $value->code_dooring) {
+                                $isDooring = 1;
+                            } else {
+                                $isDooring = 0;
+                            }
+                            array_push($isDoorings, $isDooring);
+                        }
+                    }
+                }
+
+                if (in_array(0, $isDoorings) || empty($isDoorings)) {
+                    $isDirectDooring = false;
+                } else {
+                    $isDirectDooring = true;
+                }
+            } else {
+                if ($route->code_mtak_1_dest === $route->code_dooring) {
+                    if ((is_null($route->code_mtak_2_dest) || $route->code_mtak_2_dest == "") && (is_null($route->code_mtak_3_dest) || $route->code_mtak_3_dest == "")) {
+                        if ($partner->code === $route->code_dooring) {
+                            $isDirectDooring = true;
+                        }
                     }
                 }
             }
-        }
 
-        return $isDirectDooring;
+            return $isDirectDooring;
+        }
     }
 }
