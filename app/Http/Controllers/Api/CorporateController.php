@@ -226,9 +226,15 @@ class CorporateController extends Controller
         // check price and tier is available or not
         $price = PricingCalculator::getPrice($partner->geo_province_id, $partner->geo_regency_id, $inputs['destination_id']);
         $totalWeight = array_sum(array_column($items, 'weight'));
-        $tier = PricingCalculator::getTier($price, $totalWeight);
-        if (!$tier) { // double check
+
+        // double check
+        try {
+            PricingCalculator::getTier($price, $totalWeight);
+        } catch (OutOfRangePricingException $e) {
             return (new Response(Response::RC_OUT_OF_RANGE, ['message' => 'Price is not available to this destination']))->json();
+        } catch (\Exception $e) {
+            report($e);
+            return (new Response(Response::RC_OUT_OF_RANGE, ['message' => 'Something wrong']))->json();
         }
 
         $job = new CreateWalkinOrder($inputs, $items);

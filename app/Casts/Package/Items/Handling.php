@@ -72,17 +72,19 @@ class Handling implements CastsAttributes
 
     public static function woodWeightBorne($height, $length, $width, $weightActual, $serviceCode)
     {
-        // todo update handling
-        // $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
-        // $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
-        // $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
+        /*
+        old script
+        $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
+        $volume = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
+        $volume_packed = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
 
-        // if ($weight > $volume_packed) {
-        //     $volume_diff = $volume_packed - $volume;
-        //     $weight += $volume_diff;
-        // } else {
-        //     $weight = $volume_packed;
-        // }
+        if ($weight > $volume_packed) {
+            $volume_diff = $volume_packed - $volume;
+            $weight += $volume_diff;
+        } else {
+            $weight = $volume_packed;
+        }
+        */
 
         // new calculate
         $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension

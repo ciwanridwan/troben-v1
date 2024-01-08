@@ -1025,7 +1025,24 @@ class Package extends Model implements AttachableContract
 
     public function getEstimationCubicPricesAttribute()
     {
-        $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
+        // if cubic not found dont throw err
+        $cubicPrice = null;
+        try {
+            $cubicPrice = PricingCalculator::getCubicPrice($this->origin_regency_id, $this->destination_sub_district_id);
+        } catch (\Exception $e) {
+            $result = [
+                'handling_fee' => 0,
+                'insurance_fee' => 0,
+                'sub_total_amount' => 0,
+                'additional_fee' => 0,
+                'pickup_fee' => 0,
+                'service_fee' => 0,
+                'platform_fee' => 0,
+                'total_amount' => 0,
+                'items' => [],
+            ];
+            return $result;
+        }
 
         $items = $this->items()->get();
 

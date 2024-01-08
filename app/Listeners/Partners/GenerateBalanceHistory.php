@@ -203,13 +203,13 @@ class GenerateBalanceHistory
                                     ->recordHistory();
                             }
 
-                            /** Get fee extra be as commission partners with 0.05*/
                             $serviceFromPackagePrices = $package->prices()->where('type', Price::TYPE_SERVICE)->where('description', '!=', Price::TYPE_ADDITIONAL)->first();
                             $serviceFee = $serviceFromPackagePrices ? $serviceFromPackagePrices->amount : 0;
                             if (!is_null($discountService)) {
                                 $serviceFee -= $discountService->amount;
                             }
 
+                            /** Get fee extra be as commission partners with 0.05*/
                             $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
                         }
 

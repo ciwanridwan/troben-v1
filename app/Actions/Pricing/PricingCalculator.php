@@ -1358,11 +1358,13 @@ class PricingCalculator
 
         foreach ($items as $item) {
             if (is_array($item)) {
-                $dimension = $item['height'] * $item['length'] * $item['width'] / 1000000;
+                $dimension = $item['height'] * $item['length'] * $item['width'];
                 $calculateForAdmin = true;
             } else {
-                $dimension = $item->height * $item->length * $item->width / 1000000;
+                $dimension = $item->height * $item->length * $item->width;
             }
+
+            $dimension = $dimension / 1000000;
 
             if ($dimension < 3) {
                 $dimension = 3;
