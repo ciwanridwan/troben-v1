@@ -476,7 +476,7 @@ class PricingController extends Controller
     {
 
         $request->validate([
-            'origin_id' => ['required', 'exists:geo_sub_districts,id'],
+            'origin_id' => ['required', 'exists:geo_regencies,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
             'items' => ['nullable', 'array'],
             'items.*.height' => ['required', 'numeric'],
