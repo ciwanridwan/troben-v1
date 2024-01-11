@@ -18,6 +18,7 @@ use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Requests\Api\PricingCalculatorRequest;
+use App\Models\Geo\SubDistrict;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\ScheduleTransportation;
@@ -475,7 +476,7 @@ class PricingController extends Controller
     {
 
         $request->validate([
-            'origin_id' => ['required', 'exists:geo_regencies,id'],
+            'origin_id' => ['required', 'exists:geo_sub_districts,id'],
             'destination_id' => ['required', 'exists:geo_sub_districts,id'],
             'items' => ['nullable', 'array'],
             'items.*.height' => ['required', 'numeric'],
@@ -488,8 +489,17 @@ class PricingController extends Controller
         $calculate = PricingCalculator::cubicCalculate($request->items);
         $totalWeight = array_sum(array_column($calculate, 'weight'));
 
+        $originSubDistrict = SubDistrict::query()->with(['district', 'regency'])->where('id', $request->origin_id)->first();
+        $originAddress = sprintf('%s, %s, %s', $originSubDistrict->regency->name, $originSubDistrict->district->name, $originSubDistrict->name);
+
+        $destinationSubDistrict = SubDistrict::query()->with(['district', 'regency'])->where('id', $request->destination_id)->first();
+        $destinationAddress = sprintf('%s, %s, %s', $destinationSubDistrict->regency->name, $destinationSubDistrict->district->name, $destinationSubDistrict->name);
+
         $result = [
             'dimensions' => $calculate,
+            'origin_address' => $originAddress,
+            'destination_address' => $destinationAddress,
+            'tier_price' => $price->amount,
             'total_weight' => $totalWeight,
             'service_amount' => $price->amount * $totalWeight
         ];
