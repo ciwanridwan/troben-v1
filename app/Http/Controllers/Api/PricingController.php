@@ -457,7 +457,7 @@ class PricingController extends Controller
             'additional_price' => $totalAdditionalPrice,
             'service' => $totalServicePrice,
             'platform_fee' => $platformFee,
-            'total_amount' => $totalAmount
+            'total_amount' => $totalAmount + $platformFee
         ];
 
         // parse to response
