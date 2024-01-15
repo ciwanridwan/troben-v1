@@ -423,7 +423,8 @@ class PricingController extends Controller
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
             $row = PricingCalculator::calculate($this->attributes, 'array');
-            // $row['result']['total_amount'] += PackagesPrice::FEE_PLATFORM;
+            $row['result']['total_amount'] -= $row['result']['pickup_price'];
+            $row['result']['pickup_price'] = 0;
             $subGrandTotal = $row['result'];
 
             array_push($grandTotal, $subGrandTotal);
