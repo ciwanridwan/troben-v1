@@ -422,19 +422,22 @@ class PricingController extends Controller
         for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
+
             $row = PricingCalculator::calculate($this->attributes, 'array');
             $row['result']['total_amount'] -= $row['result']['pickup_price'];
             $row['result']['pickup_price'] = 0;
-            $subGrandTotal = $row['result'];
-
-            array_push($grandTotal, $subGrandTotal);
             array_push($rows, $row);
-        }
 
-        if (count($request->destination_sub_district_id) > 1) {
-            $totalPickupPrice = $rows[0]['result']['pickup_price'];
-        } else {
-            $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));
+            $subGrandTotal = PricingCalculator::calculate($this->attributes, 'array');
+
+            if (count($request->destination_sub_district_id) > 1) {
+                if ($i != 0) {
+                    $subGrandTotal['result']['total_amount'] -= $subGrandTotal['result']['pickup_price'];
+                    $subGrandTotal['result']['pickup_price'] = 0;
+                }
+            }
+
+            array_push($grandTotal, $subGrandTotal['result']);
         }
 
         // sum total
@@ -452,7 +455,7 @@ class PricingController extends Controller
             'insurance_price_total' => $totalInsurancePrice,
             'total_weight_borne' => $totalWeightBorne,
             'handling' => $totalHandlingPrice,
-            'pickup_price' => $totalPickupPrice,
+            'pickup_price' => $grandTotal[0]['pickup_price'],
             'discount' => $totalDiscount,
             'tier' => $totalTier,
             'additional_price' => $totalAdditionalPrice,
