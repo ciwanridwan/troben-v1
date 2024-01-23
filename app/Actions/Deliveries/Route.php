@@ -235,32 +235,32 @@ class Route
         }
 
         // check by regency
-        $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->first();
+        $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->whereNull('deleted_at')->first();
 
         // check by province id if by regency doest not exists
         if (is_null($partner)) {
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->first();
+            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->whereNull('deleted_at')->first();
         }
 
         // check if route get two destination MTAK
         if (!is_null($partner) && (is_null($partner->note) || $partner->note !== '')) {
             // get by regency
-            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+            $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->whereNull('deleted_at')->get();
 
             // check if by regency is not, so switch get by province
             if ($partner->isEmpty()) {
-                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->get();
+                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->whereNull('deleted_at')->get();
             }
         }
 
         // check if route available direct to district
         if ($partner instanceof Partner) {
             if (!is_null($partner) && $partner->district_id !== 0) {
-                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->first();
+                $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->where('district_id', $districtId)->whereNull('deleted_at')->first();
 
                 // if get by district is null
                 if (is_null($partner)) {
-                    $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->get();
+                    $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->whereNull('deleted_at')->get();
                 }
             }
         }
@@ -328,9 +328,9 @@ class Route
         $warehouse = self::checkWarehouse($deliveryRoutes);
 
         if ($deliveryRoutes->regency_destination_1 === 0) {
-            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+            $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->whereNull('deleted_at')->first();
         } else {
-            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->first();
+            $partner = DB::table('transport_routes')->where('regency_id', $regencyId)->where('warehouse', $warehouse)->whereNull('deleted_at')->first();
         }
 
         if (is_null($partner)) {
@@ -367,12 +367,12 @@ class Route
             $warehouse = self::checkWarehouse($deliveryRoutes);
 
             if ($deliveryRoutes->regency_destination_1 === 0) {
-                $countPartner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->count();
+                $countPartner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->whereNull('deleted_at')->count();
                 if ($countPartner === 1) {
-                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->first();
+                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->whereNull('deleted_at')->first();
                     $transporter = self::getSelectedTransporter($deliveryRoutes, $partner);
                 } else {
-                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->get();
+                    $partner = DB::table('transport_routes')->where('province_id', $provinceId)->where('warehouse', $warehouse)->whereNull('deleted_at')->get();
                     $listTransporter = [];
                     foreach ($partner as $p) {
                         $partnerTransporter = self::getSelectedTransporter($deliveryRoutes, $p);
@@ -381,10 +381,10 @@ class Route
                     $transporter = $listTransporter;
                 }
             } else {
-                $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->first();
+                $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->whereNull('deleted_at')->first();
 
                 if (!is_null($partner) && $partner->note) {
-                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->get();
+                    $partner = DB::table('transport_routes')->where('regency_id', $deliveryRoutes->regency_destination_1)->where('warehouse', $warehouse)->whereNull('deleted_at')->get();
                 }
 
                 $listTransporter = [];
@@ -765,10 +765,12 @@ class Route
         $route = DB::table('transport_routes')
             ->where('warehouse', $warehouse)
             ->where('regency_id', $regencyId)
+            ->whereNull('deleted_at')
             ->first();
         // if regency not found, fallback to province level
         if (is_null($route)) {
             $route = DB::table('transport_routes')
+                ->whereNull('deleted_at')
                 ->where(function ($q) use ($warehouse, $provinceId) {
                     $q->where('warehouse', $warehouse);
                     $q->where('regency_id', 0);
