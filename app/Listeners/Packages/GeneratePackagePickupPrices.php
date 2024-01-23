@@ -46,6 +46,26 @@ class GeneratePackagePickupPrices
 
         $distance = DistanceMatrix::calculateDistance($origin, $destination);
 
+        $metaDistance = [
+            'distance' => $distance,
+            'origin' => $origin,
+            'destination' => $destination,
+        ];
+        $pickupDistance = PackageMeta::query()
+            ->where('package_id', $package->getKey())
+            ->where('key', PackageMeta::KEY_PICKUP_DISTANCE)
+            ->first();
+        if (! is_null($pickupDistance)) {
+            $pickupDistance->meta = $metaDistance;
+            $pickupDistance->save();
+        } else {
+            PackageMeta::create([
+                'package_id' => $package->getKey(),
+                'key' => PackageMeta::KEY_PICKUP_DISTANCE,
+                'meta' => $metaDistance,
+            ]);
+        }
+
         if ($package->transporter_type == null) {
             $pickup_price = 0;
         } elseif ($package->transporter_type == Transporter::GENERAL_TYPE_BIKE) {
