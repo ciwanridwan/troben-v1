@@ -18,6 +18,7 @@ use App\Models\Packages\CubicPrice;
 use App\Models\Packages\ExpressPrice;
 use App\Exceptions\OutOfRangePricingException;
 use App\Http\Requests\Api\PricingCalculatorRequest;
+use App\Models\Geo\SubDistrict;
 use App\Models\Packages\BikePrices;
 use App\Models\Packages\Price as PackagesPrice;
 use App\Models\Partners\ScheduleTransportation;
@@ -421,18 +422,22 @@ class PricingController extends Controller
         for ($i = 0; $i < count($request->destination_sub_district_id); $i++) {
             $this->attributes['destination_id'] = $destinationId[$i];
             $this->attributes['items'] = $items[$i];
+
             $row = PricingCalculator::calculate($this->attributes, 'array');
-            $row['result']['total_amount'] += PackagesPrice::FEE_PLATFORM;
-            $subGrandTotal = $row['result'];
-
-            array_push($grandTotal, $subGrandTotal);
+            $row['result']['total_amount'] -= $row['result']['pickup_price'];
+            $row['result']['pickup_price'] = 0;
             array_push($rows, $row);
-        }
 
-        if (count($request->destination_sub_district_id) > 1) {
-            $totalPickupPrice = $rows[0]['result']['pickup_price'];
-        } else {
-            $totalPickupPrice = array_sum(array_column($grandTotal, 'pickup_price'));
+            $subGrandTotal = PricingCalculator::calculate($this->attributes, 'array');
+
+            if (count($request->destination_sub_district_id) > 1) {
+                if ($i != 0) {
+                    $subGrandTotal['result']['total_amount'] -= $subGrandTotal['result']['pickup_price'];
+                    $subGrandTotal['result']['pickup_price'] = 0;
+                }
+            }
+
+            array_push($grandTotal, $subGrandTotal['result']);
         }
 
         // sum total
@@ -450,13 +455,13 @@ class PricingController extends Controller
             'insurance_price_total' => $totalInsurancePrice,
             'total_weight_borne' => $totalWeightBorne,
             'handling' => $totalHandlingPrice,
-            'pickup_price' => $totalPickupPrice,
+            'pickup_price' => $grandTotal[0]['pickup_price'],
             'discount' => $totalDiscount,
             'tier' => $totalTier,
             'additional_price' => $totalAdditionalPrice,
             'service' => $totalServicePrice,
             'platform_fee' => $platformFee,
-            'total_amount' => $totalAmount
+            'total_amount' => $totalAmount + $platformFee
         ];
 
         // parse to response
@@ -488,8 +493,17 @@ class PricingController extends Controller
         $calculate = PricingCalculator::cubicCalculate($request->items);
         $totalWeight = array_sum(array_column($calculate, 'weight'));
 
+        $originSubDistrict = SubDistrict::query()->with(['district', 'regency'])->where('id', $request->origin_id)->first();
+        $originAddress = sprintf('%s, %s, %s', $originSubDistrict->regency->name, $originSubDistrict->district->name, $originSubDistrict->name);
+
+        $destinationSubDistrict = SubDistrict::query()->with(['district', 'regency'])->where('id', $request->destination_id)->first();
+        $destinationAddress = sprintf('%s, %s, %s', $destinationSubDistrict->regency->name, $destinationSubDistrict->district->name, $destinationSubDistrict->name);
+
         $result = [
             'dimensions' => $calculate,
+            'origin_address' => $originAddress,
+            'destination_address' => $destinationAddress,
+            'tier_price' => $price->amount,
             'total_weight' => $totalWeight,
             'service_amount' => $price->amount * $totalWeight
         ];
