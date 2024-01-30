@@ -567,7 +567,7 @@ class Route
                     break;
             }
 
-            if ($destinationCity !== 0) {
+            if ($destinationCity != null && $destinationCity != 0) {
                 $regency = Regency::find($destinationCity);
                 $firstProvinceId = $regency->province_id;
             } else {
