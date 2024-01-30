@@ -592,7 +592,7 @@ class Route
                             break;
                     }
 
-                    if ($destinationTransit !== 0) {
+                    if ($destinationTransit != null && $destinationTransit != 0) {
                         $regency = Regency::find($destinationTransit);
                         $provinceId = $regency->province_id;
                     } else {
