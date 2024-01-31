@@ -601,10 +601,10 @@ class Route
                 } else {
                     $originPartner = $package->deliveries->last()->origin_partner;
                     $destinationPartner = $package->deliveries->last()->partner;
-                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
+                    $deliveryRoutes = self::getTemporaryDeliveryRoutesOrigin($originPartner, $package);
 
                     if (is_null($deliveryRoutes)) {
-                        $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
+                        $deliveryRoutes = self::getTemporaryDeliveryRoutesDestination($destinationPartner, $package);
                         $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
                     } else {
                         $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
@@ -654,10 +654,10 @@ class Route
                 } else {
                     $originPartner = $package->deliveries->last()->origin_partner;
                     $destinationPartner = $package->deliveries->last()->partner;
-                    $deliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $package);
+                    $deliveryRoutes = self::getTemporaryDeliveryRoutesOrigin($originPartner, $package);
 
                     if (is_null($deliveryRoutes)) {
-                        $deliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $package);
+                        $deliveryRoutes = self::getTemporaryDeliveryRoutesDestination($destinationPartner, $package);
                         $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
                     } else {
                         $destinationTransit = self::getTemporaryTransitCount($deliveryRoutes, $package);
@@ -669,10 +669,10 @@ class Route
                 if (is_null($firstPackage->deliveryRoutes)) {
                     $originPartner = $firstPackage->deliveries->last()->origin_partner;
                     $destinationPartner = $firstPackage->deliveries->last()->partner;
-                    $firstDeliveryRoutes = self::getTemporaryDeliveryRoutes($originPartner, $firstPackage);
+                    $firstDeliveryRoutes = self::getTemporaryDeliveryRoutesOrigin($originPartner, $firstPackage);
 
                     if (is_null($firstDeliveryRoutes)) {
-                        $firstDeliveryRoutes = self::getTemporaryDeliveryRoutes($destinationPartner, $firstPackage);
+                        $firstDeliveryRoutes = self::getTemporaryDeliveryRoutesDestination($destinationPartner, $firstPackage);
                         $destinationCity = self::getTemporaryTransitCount($firstDeliveryRoutes, $firstPackage);
                     } else {
                         $destinationCity = self::getTemporaryTransitCount($firstDeliveryRoutes, $firstPackage);
@@ -825,9 +825,9 @@ class Route
     }
 
     /**
-     * Get temporary delivery_routes
+     * Get temporary delivery_routes from origin partner
      */
-    public static function getTemporaryDeliveryRoutes($partner, $package)
+    public static function getTemporaryDeliveryRoutesOrigin($partner, $package)
     {
         $warehouse = null;
         if (!is_null($partner)) {
@@ -841,6 +841,67 @@ class Route
         $result = null;
         if (!is_null($warehouse)) {
             $checkRegency = self::checkRegency($warehouse);
+            if ($checkRegency) {
+                $regencyId = self::getFirstPartnerRegency($warehouse);
+                $provinceId = $warehouse->province_id;
+            } else {
+                $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
+                $provinceId = $warehouse instanceof SupportCollection ? $warehouse[0]->province_id : $warehouse->province_id;
+            }
+
+            if ($regencyId !== $package->destination_regency_id) {
+                $regencyId = $warehouse instanceof SupportCollection ? $warehouse[0]->regency_id : $warehouse->regency_id;
+                $provinceId = $warehouse instanceof SupportCollection ? $warehouse[0]->province_id : $warehouse->province_id;
+            }
+
+            switch (true) {
+                case $warehouse instanceof SupportCollection:
+                    $dooringPartner = self::getDooringPartner($warehouse[0]->code_dooring);
+                    $nextDestination = self::getNextDestination($warehouse->toArray());
+                    break;
+                default:
+                    $dooringPartner = self::getDooringPartner($warehouse->code_dooring);
+                    $nextDestination = self::getNextDestination($warehouse);
+                    break;
+            }
+
+            $checkPackages = DeliveryRoute::query()->where('package_id', $package->id)->first();
+            if (is_null($checkPackages)) {
+                $result = [
+                    'package_id' => $package->id,
+                    'regency_origin_id' => $partner->geo_regency_id,
+                    'origin_warehouse_id' => $partner->id,
+                    'province_destination_1' => $provinceId,
+                    'regency_destination_1' => $regencyId,
+                    'regency_destination_2' => is_array($nextDestination) ? $nextDestination['second'] : null,
+                    'regency_destination_3' => is_array($nextDestination) ? $nextDestination['third'] : null,
+                    'regency_dooring_id' => $dooringPartner->geo_regency_id,
+                    'partner_dooring_id' => $dooringPartner->id
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get temporary delivery_routes from destination partner
+     */
+    public static function getTemporaryDeliveryRoutesDestination($partner, $package)
+    {
+        $warehouse = null;
+        if (!is_null($partner)) {
+            if (in_array($partner->geo_regency_id, Regency::getJabodetabekId())) {
+                $warehouse = self::getWarehousePartner(self::WAREHOUSE_NAROGONG[0], $package);
+            } else {
+                $warehouse = self::getWarehousePartner($partner->code, $package);
+            }
+        }
+        
+        $result = null;
+        if (!is_null($warehouse)) {
+            $checkRegency = self::checkRegency($warehouse);
+            
             if ($checkRegency) {
                 $regencyId = self::getFirstPartnerRegency($warehouse);
                 $provinceId = $warehouse->province_id;
@@ -950,4 +1011,38 @@ class Route
             return $isDirectDooring;
         }
     }
+
+    /**
+     * check if packages should goes to warehouse nearby 
+     */
+    public static function isShouldToWarehouseNearby($packages, $currentPartnerCode)
+    {
+        $check = false;
+        $checkPartners = []; // value be false
+        $countDeliveries = [];
+
+        foreach ($packages as $package) {
+            $countDelivery = $package->deliveries()->count();
+            $checkPartner = 0; // default value is false
+
+            if ($countDelivery === 1) {
+                $partner = $package->deliveries->last()->partner;
+                $partnerCode = $partner->code;
+                if ($partnerCode === $currentPartnerCode) {
+                    $checkPartner = 1; // value be true
+                }
+            }
+            
+            array_push($countDeliveries, $countDelivery);
+            array_push($checkPartners, $checkPartner);
+        }
+
+        // dd(count(array_flip($checkPartners)) === 1);
+
+        if (count(array_flip($checkPartners)) === 1 && count(array_flip($countDeliveries)) === 1) {
+           $check = true; 
+        }
+
+        return $check;
+    } 
 }
