@@ -541,6 +541,43 @@ class FinanceController extends Controller
         return $q;
     }
 
+    private function newQueryDetailDisbursmentNotDisbursed($partnerId)
+    {
+        $q = "select
+            c.content receipt,
+            p.total_amount total_payment,
+            pbh.total_accepted,
+            pbh.partner_id
+        from
+            (
+            select
+                package_id,
+                partner_id,
+                SUM(
+                case when pbh.type = 'discount' 
+                then pbh.balance * -1 
+                else pbh.balance 
+                end) total_accepted
+            from
+                partner_balance_histories pbh
+            where
+                pbh.partner_id = %d
+		AND pbh.type != 'withdraw'
+            group by
+                partner_id,
+                package_id
+        ) pbh
+        left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
+        left join packages p on pbh.package_id = p.id
+        
+        left join v_disbursed_package_by_partner v ON c.content = v.receipt and pbh.partner_id = v.partner_id
+        where v.partner_id is null";
+
+        $q = sprintf($q, $partnerId);
+
+        return $q;
+    }
+
     /**
      * To get detail disbursment of partner transporter.
      * @param $partnerId
@@ -708,25 +745,22 @@ class FinanceController extends Controller
 
         $partnerId = $disbursment->partner_id;
 
-        $query = $this->newQueryDetailDisbursment($partnerId);
-        $packages = collect(DB::select($query))->sortByDesc('created_at');
-
-        if ($date_start = $request->get('date_start')) {
-            $packages = $packages->where('created_at', '>=', $date_start);
-        }
-        if ($date_end = $request->get('date_end')) {
-            $packages = $packages->where('created_at', '<=', $date_end);
-        }
-
-        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function($q) use ($partnerId) {
-            $q->where('partner_id', $partnerId);
-        })->get();
-
         if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
-            $data = $this->detailWithRequest($disbursment, $packages, $disbursHistory);
+            $query = $this->newQueryDetailDisbursmentNotDisbursed($partnerId);
+            $packages = collect(DB::select($query))->sortByDesc('created_at');
+            $data = $this->detailWithRequest($disbursment, $packages);
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
+            $query = $this->newQueryDetailDisbursment($partnerId);
+            $packages = collect(DB::select($query))->sortByDesc('created_at');
+
+            if ($date_start = $request->get('date_start'))
+                $packages = $packages->where('created_at', '>=', $date_start);
+            if ($date_end = $request->get('date_end'))
+                $packages = $packages->where('created_at', '<=', $date_end);
+
             $data = $this->detailWithApprove($disbursment, $packages);
+
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
@@ -897,13 +931,9 @@ class FinanceController extends Controller
         return $data;
     }
 
-    private function detailWithRequest($disbursment, $packages, $disbursHistory): array
+    private function detailWithRequest($disbursment, $packages): array
     {
-        $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
-            return $r->receipt;
-        })->values());
-
-        $getPendingReceipts = $receiptRequested->map(function ($r) {
+        $getPendingReceipts = $packages->map(function ($r) {
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->total_accepted = intval($r->total_accepted);
