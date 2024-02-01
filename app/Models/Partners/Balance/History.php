@@ -106,7 +106,7 @@ class History extends Model
         ];
     }
 
-    public static function getAvailableServices(): array 
+    public static function getAvailableServices(): array
     {
         return [
             self::DESCRIPTION_SERVICE_REGULAR,

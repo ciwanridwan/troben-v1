@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
+use App\Http\Resources\Api\Internal\Finance\incomeComponentsResource;
 use App\Http\Response;
+use App\Models\Code;
+use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Balance\History;
@@ -125,7 +128,7 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
-        if (! isset($this->attributes['receipt'])) {
+        if (!isset($this->attributes['receipt'])) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
@@ -224,7 +227,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
+        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');
@@ -410,7 +413,7 @@ class FinanceController extends Controller
         }
 
         $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode) {
-            if (! is_null($partnerCode)) {
+            if (!is_null($partnerCode)) {
                 $q->where('code', $partnerCode);
             }
         });
@@ -420,7 +423,7 @@ class FinanceController extends Controller
         }
 
         if (request()->get('date')) {
-            $q = $q->whereRaw("DATE(created_at) = '".request()->get('date')."'");
+            $q = $q->whereRaw("DATE(created_at) = '" . request()->get('date') . "'");
         }
 
         if (request()->get('start_date') && request()->get('end_date')) {
@@ -520,9 +523,9 @@ class FinanceController extends Controller
                 package_id,
                 partner_id,
                 SUM(
-                case when pbh.type = 'discount' 
-                then pbh.balance * -1 
-                else pbh.balance 
+                case when pbh.type = 'discount'
+                then pbh.balance * -1
+                else pbh.balance
                 end) total_accepted
             from
                 partner_balance_histories pbh
@@ -550,26 +553,26 @@ class FinanceController extends Controller
         $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId);
 
         if ($date_start = $request->get('date_start')) {
-            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_start) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function ($q) use ($date_start) {
                 $q->where('created_at', '>=', sprintf('%s 00:00:00', $date_start));
             });
         }
         if ($date_end = $request->get('date_end')) {
-            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_end) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function ($q) use ($date_end) {
                 $q->where('created_at', '<=', sprintf('%s 23:59:59', $date_end));
             });
         }
 
         $deliveryHistory = $deliveryHistory->orderByDesc('created_at')->get()->map(function ($q) {
-                $amount = $q->deliveries->packages->sum('total_amount');
-                $res = [
-                    'receipt' => $q->deliveries->code->content,
-                    'total_accepted' => $q->balance,
-                    'total_payment' => $amount
-                ];
+            $amount = $q->deliveries->packages->sum('total_amount');
+            $res = [
+                'receipt' => $q->deliveries->code->content,
+                'total_accepted' => $q->balance,
+                'total_payment' => $amount
+            ];
 
-                return $res;
-            })->toArray();
+            return $res;
+        })->toArray();
 
         $balanceHistory = Partner::with(['balance_history' => function ($query) {
             $query->where('type', History::TYPE_DEPOSIT);
@@ -626,7 +629,7 @@ class FinanceController extends Controller
                 $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -678,7 +681,7 @@ class FinanceController extends Controller
                 $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -718,7 +721,7 @@ class FinanceController extends Controller
             $packages = $packages->where('created_at', '<=', $date_end);
         }
 
-        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function($q) use ($partnerId) {
+        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function ($q) use ($partnerId) {
             $q->where('partner_id', $partnerId);
         })->get();
 
@@ -872,7 +875,7 @@ class FinanceController extends Controller
         $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $filteredReceipts = $receipts->filter(function ($r) use ($alreadyDis) {
@@ -922,7 +925,7 @@ class FinanceController extends Controller
         $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $data = [
@@ -936,5 +939,92 @@ class FinanceController extends Controller
         ];
 
         return $data;
+    }
+
+    /**
+     * get all components of income partner
+     */
+    public function incomeComponents(Request $request)
+    {
+        $request->validate([
+            'partner_code' => ['nullable', 'exists:partners,code'],
+            'receipt_code' => ['nullable', 'exists:codes,content']
+        ]);
+
+        $package = null;
+        $partner = Partner::query()->where('code', $request->get('partner_code'))->first();
+        if (is_null($partner)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Partner not found']))->json();
+        }
+
+        $codes = Code::query()->with('codeable')->where('content', $request->get('receipt_code'))->where('codeable_type', Package::class)->first();
+
+        if (!is_null($codes) && !is_null($codes->codeable)) {
+            $package = $codes->codeable;
+        }
+
+        if (is_null($package)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Receipt not found']))->json();
+        }
+
+        $totalBalance = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->sum('balance');
+        $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->get()->map(function ($r) {
+            $label = null;
+
+            switch (true) {
+                case $r->type === History::TYPE_DISCOUNT && $r->description === History::DESCRIPTION_SERVICE:
+                    $label = 'Diskon Pengiriman';
+                    break;
+                case $r->type === History::TYPE_DISCOUNT && $r->description === History::DESCRIPTION_PICKUP:
+                    $label = 'Diskon Penjemputan';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_PICKUP:
+                    $label = 'Penjemputan';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_SERVICE:
+                    $label = 'Pengiriman';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_DOORING:
+                    $label = 'Dooring';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_DELIVERY:
+                    $label = 'Delivery';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_INSURANCE:
+                    $label = 'Asuransi';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_HANDLING:
+                    $label = 'Handling';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_ADDITIONAL:
+                    $label = 'Biaya Tambahan';
+                    break;
+                case $r->type === History::TYPE_CHARGE && $r->description === History::DESCRIPTION_ADDITIONAL:
+                    $label = 'Biaya Tambahan';
+                    break;
+                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_TRANSIT:
+                    $label = 'Transit';
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+
+            $resMapping = [
+                'label' => $label,
+                'type' => $r->type,
+                'type_sub' => $r->description,
+                'amount' => $r->balance
+            ];
+
+            return $resMapping;
+        });
+
+        $result = [
+            'incomes' => $incomes,
+            'total' => (int)$totalBalance
+        ];
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
     }
 }
