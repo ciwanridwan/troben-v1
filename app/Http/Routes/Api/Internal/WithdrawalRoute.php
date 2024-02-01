@@ -86,6 +86,11 @@ class WithdrawalRoute extends BaseRoute
             'as' => $this->name('attachmentTransfer'),
             'uses' => $this->uses('attachmentTransfer', WithdrawalController::class)
         ]);
+
+        $this->router->get($this->prefix('/components'), [//
+            'as' => $this->name('components'),
+            'uses' => $this->uses('incomeComponents', FinanceController::class)
+        ]);
         // action end
     }
 }
