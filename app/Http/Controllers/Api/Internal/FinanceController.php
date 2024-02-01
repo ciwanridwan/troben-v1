@@ -513,7 +513,8 @@ class FinanceController extends Controller
             c.content receipt,
             p.total_amount total_payment,
             pbh.total_accepted,
-            pbh.partner_id
+            pbh.partner_id,
+            CASE WHEN v.receipt IS NOT NULL THEN 'disbursed' ELSE 'notdisbursed' END is_disbursed
         from
             (
             select
@@ -534,7 +535,9 @@ class FinanceController extends Controller
                 package_id
         ) pbh
         left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
-        left join packages p on pbh.package_id = p.id";
+        left join packages p on pbh.package_id = p.id
+        
+        left join v_disbursed_package_by_partner v ON pbh.package_id = v.package_id and pbh.partner_id = v.partner_id";
 
         $q = sprintf($q, $partnerId);
 
@@ -875,8 +878,6 @@ class FinanceController extends Controller
     {
         $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
 
-        $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $packages->pluck('receipt'))->get();
-
         $receipts = $packages->map(function ($r) use ($getDisburs) {
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
@@ -909,13 +910,7 @@ class FinanceController extends Controller
             Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
-        $filteredReceipts = $receipts->filter(function ($r) use ($alreadyDis) {
-            $check = $alreadyDis->where('receipt', $r->receipt)->first();
-            if ($check) {
-                return false;
-            }
-            return true;
-        })->values();
+        $filteredReceipts = $receipts->where('is_disbursed', 'notdisbursed')->values();
 
         $data = [
             'transferred_at' => $disbursment->transferred_at,
