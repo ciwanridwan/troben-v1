@@ -147,7 +147,7 @@ class AssignableController extends Controller
         return $this->jsonSuccess(PackageResource::collection($result), null, true);
     }
 
-    public function checkPackages(Request $request)
+    public function checkPackages(Request $request, PartnerRepository $repository)
     {
         $request->validate([
             'package_code' => ['required', 'array', Rule::exists('codes', 'content')->whereIn('codeable_type', [
@@ -159,6 +159,12 @@ class AssignableController extends Controller
             return $q->codeable;
         });
 
+        // to check if packages should transit to warehouse nearby
+        $isShouldToWarehouseNearby = Route::isShouldToWarehouseNearby($packages, $repository->getPartner()->code);
+        if ($isShouldToWarehouseNearby) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        }
+        
         $variant = 0;
         $allVariant = [];
         // $partner = $repository->getPartner();
