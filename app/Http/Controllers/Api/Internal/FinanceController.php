@@ -952,78 +952,66 @@ class FinanceController extends Controller
         ]);
 
         $package = null;
+        $manifest = null;
+
         $partner = Partner::query()->where('code', $request->get('partner_code'))->first();
         if (is_null($partner)) {
             return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Partner not found']))->json();
         }
 
-        $codes = Code::query()->with('codeable')->where('content', $request->get('receipt_code'))->where('codeable_type', Package::class)->first();
+        $codes = Code::query()->with('codeable')->where('content', $request->get('receipt_code'))->first();
 
-        if (!is_null($codes) && !is_null($codes->codeable)) {
+        if (is_null($codes)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Receipt code not found or not available']))->json();
+        }
+
+        if (is_null($codes->codeable)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Package or Manifest not found']))->json();
+        }
+
+        if ($codes->codeable instanceof Package) {
             $package = $codes->codeable;
-        }
 
-        if (is_null($package)) {
-            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Receipt not found']))->json();
-        }
+            $totalBalance = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->sum('balance');
+            $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->get()->map(function ($r) {
+                $label = History::setLabel($r->type, $r->description);
 
-        $totalBalance = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->sum('balance');
-        $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->get()->map(function ($r) {
-            $label = null;
+                $resMapping = [
+                    'label' => $label,
+                    'type' => $r->type,
+                    'type_sub' => $r->description,
+                    'amount' => $r->balance
+                ];
 
-            switch (true) {
-                case $r->type === History::TYPE_DISCOUNT && $r->description === History::DESCRIPTION_SERVICE:
-                    $label = 'Diskon Pengiriman';
-                    break;
-                case $r->type === History::TYPE_DISCOUNT && $r->description === History::DESCRIPTION_PICKUP:
-                    $label = 'Diskon Penjemputan';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_PICKUP:
-                    $label = 'Penjemputan';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_SERVICE:
-                    $label = 'Pengiriman';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_DOORING:
-                    $label = 'Dooring';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_DELIVERY:
-                    $label = 'Delivery';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_INSURANCE:
-                    $label = 'Asuransi';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_HANDLING:
-                    $label = 'Handling';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_ADDITIONAL:
-                    $label = 'Biaya Tambahan';
-                    break;
-                case $r->type === History::TYPE_CHARGE && $r->description === History::DESCRIPTION_ADDITIONAL:
-                    $label = 'Biaya Tambahan';
-                    break;
-                case $r->type === History::TYPE_DEPOSIT && $r->description === History::DESCRIPTION_TRANSIT:
-                    $label = 'Transit';
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+                return $resMapping;
+            });
 
-            $resMapping = [
-                'label' => $label,
-                'type' => $r->type,
-                'type_sub' => $r->description,
-                'amount' => $r->balance
+
+            $result = [
+                'incomes' => $incomes,
+                'total' => (int)$totalBalance
             ];
+        } else {
+            $manifest = $codes->codeable;
+            $totalBalance = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->sum('balance');
+                $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->get()->map(function ($r) {
+                    $label = History::setLabel($r->type, $r->description);
 
-            return $resMapping;
-        });
+                    $resMapping = [
+                        'label' => $label,
+                        'type' => $r->type,
+                        'type_sub' => $r->description,
+                        'amount' => $r->balance
+                    ];
 
-        $result = [
-            'incomes' => $incomes,
-            'total' => (int)$totalBalance
-        ];
+                    return $resMapping;
+                });
+
+            $result = [
+                'incomes' => $deliveryIncomes,
+                'total' => (int)$totalBalance
+            ];
+        }
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }
