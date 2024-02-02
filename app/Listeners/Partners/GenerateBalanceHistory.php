@@ -209,8 +209,9 @@ class GenerateBalanceHistory
                                 $serviceFee -= $discountService->amount;
                             }
 
+                            # disable
                             /** Get fee extra be as commission partners with 0.05*/
-                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
+                            // $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
                         }
 
                         # total balance insurance > record insurance fee
@@ -433,15 +434,15 @@ class GenerateBalanceHistory
                                             ->recordHistory();
 
                                         # charge partner origin
-                                        $this->setPartner($this->delivery->origin_partner);
-                                        if ($this->partner->get_charge_delivery) {
-                                            $this
-                                                ->setBalance($balance)
-                                                ->setType(History::TYPE_CHARGE)
-                                                ->setDescription(History::DESCRIPTION_DELIVERY)
-                                                ->setAttributes()
-                                                ->recordHistory();
-                                        }
+                                        // $this->setPartner($this->delivery->origin_partner);
+                                        // if ($this->partner->get_charge_delivery) {
+                                        //     $this
+                                        //         ->setBalance($balance)
+                                        //         ->setType(History::TYPE_CHARGE)
+                                        //         ->setDescription(History::DESCRIPTION_DELIVERY)
+                                        //         ->setAttributes()
+                                        //         ->recordHistory();
+                                        // }
                                     }
                                 }
                                 break;
@@ -512,7 +513,7 @@ class GenerateBalanceHistory
                         if (!is_null($discountService)) {
                             $serviceFee -= $discountService->amount;
                         }
-                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
+                        // $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
                     }
 
                     # total balance insurance > record insurance fee
