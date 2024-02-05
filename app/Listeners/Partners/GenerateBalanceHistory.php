@@ -472,6 +472,14 @@ class GenerateBalanceHistory
                 // and partner should get income
                 $routes = Route::getWarehousePartner($this->partner->code, $this->package);
                 $isDirectDooring = Route::checkDirectDooring($this->partner, $routes);
+                
+                // add validation to double check if valid direct dooring or not
+                $firstManifest = $this->package->deliveries()->latest()->first();
+                $lastManifest = $this->package->deliveries->last();
+
+                if ($firstManifest->partner_id !== $this->partner->id && $firstManifest->partner_id !== $lastManifest->origin_partner_id) {
+                    $isDirectDooring = false;
+                }
 
                 if ($isDirectDooring) {
                     # total balance service > record service balance
@@ -692,7 +700,8 @@ class GenerateBalanceHistory
                 //         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                 //         $this->dispatchNow($job);
 
-                //         $manifest_weight = 0;
+                //          = $this->package->deliveries()->latest();
+                // _weight = 0;
                 //         try {
                 //             $this->package->items->each(function ($item) use (&$manifest_weight) {
                 //                 $manifest_weight += $item->weight_borne_total;
