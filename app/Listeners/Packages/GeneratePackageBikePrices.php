@@ -79,15 +79,19 @@ class GeneratePackageBikePrices
                 ];
 
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
-                switch ($service_input['moto_cc']) {
-                    case 150:
+                $cc = $service_input['moto_cc'];
+                switch (true) {
+                    case $cc <= 150:
                         $servicePrice = $result->lower_cc;
                         break;
-                    case 250:
+                    case $cc === 250:
                         $servicePrice = $result->middle_cc;
                         break;
-                    case 999:
+                    case $cc > 250:
                         $servicePrice = $result->high_cc;
+                        break;
+                    default: 
+                        $servicePrice = 0;
                         break;
                 }
                 $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
@@ -168,19 +172,18 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
             }
 
-            // dd('abbb');
             try {
                 $ccInput = [
                     'moto_cc' => $package->motoBikes()->first()->cc
                 ];
-                switch ($ccInput['moto_cc']) {
-                    case 150:
+                switch (true) {
+                    case $ccInput['moto_cc'] <= 150:
                         $handlingBikePrices = 175000;
                         break;
-                    case 250:
+                    case $ccInput['moto_cc'] === 250:
                         $handlingBikePrices = 250000;
                         break;
-                    case 999:
+                    case $ccInput['moto_cc'] > 250:
                         $handlingBikePrices = 450000;
                         break;
                     default:

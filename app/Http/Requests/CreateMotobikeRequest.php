@@ -58,7 +58,7 @@ class CreateMotobikeRequest extends FormRequest
             'item' => ['required', 'array'],
             '*.moto_type' => ['nullable', Rule::in(MotorBike::getListType())],
             '*.moto_brand' => ['nullable', 'string'],
-            '*.moto_cc' => ['nullable', 'numeric'],
+            '*.moto_cc' => ['nullable', 'numeric', Rule::in(MotorBike::getListCc())],
             '*.moto_year' => ['nullable', 'numeric'],
             '*.is_insured' => ['nullable', 'boolean'],
             '*.price' => ['required_if:*.is_insured,true', 'numeric'],
