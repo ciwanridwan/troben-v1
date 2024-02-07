@@ -262,8 +262,8 @@ class MotorBikeController extends Controller
             'origin_lon' => 'required|numeric',
             'destination_id' => 'nullable|numeric|exists:geo_sub_districts,id',
 
+            'moto_cc' => ['required', 'numeric', Rule::in(MotorBike::getListCc())],
             'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_cc' => 'required|numeric|in:150,250,999',
 
             /**Handling */
             'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
@@ -323,14 +323,16 @@ class MotorBikeController extends Controller
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
-        switch ($request->get('moto_cc')) {
-            case 150:
+        $cc = $request->get('moto_cc');
+
+        switch (true) {
+            case $cc <= 150:
                 $service_price = $getPrice->lower_cc;
                 break;
-            case 250:
+            case $cc === 250:
                 $service_price = $getPrice->middle_cc;
                 break;
-            case 999:
+            case $cc > 250:
                 $service_price = $getPrice->high_cc;
                 break;
         }
@@ -412,14 +414,17 @@ class MotorBikeController extends Controller
             return (new Response(Response::RC_BAD_REQUEST, ['Item Moto CC not submit, please input again']));
         }
 
-        switch ($this->attributes['item']['moto_cc']) {
-            case 150:
+        /** set prices base on cc */
+        $cc = $this->attributes['item']['moto_cc'];
+
+        switch (true) {
+            case $cc <= 150:
                 $checkPrices = $bikePrices->lower_cc;
                 break;
-            case 250:
+            case $cc === 250:
                 $checkPrices = $bikePrices->middle_cc;
                 break;
-            case 999:
+            case $cc > 250:
                 $checkPrices = $bikePrices->high_cc;
                 break;
             default:
