@@ -243,10 +243,9 @@ class Route
         }
 
         // check if route get two destination MTAK
-        if (!is_null($partner) && (is_null($partner->note) || $partner->note !== '')) {
+        if (!is_null($partner) && (!is_null($partner->note) && $partner->note !== '')) {
             // get by regency
             $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', $regencyId)->whereNull('deleted_at')->get();
-
             // check if by regency is not, so switch get by province
             if ($partner->isEmpty()) {
                 $partner = DB::table('transport_routes')->where('warehouse', $warehouse)->where('regency_id', 0)->where('province_id', $provinceId)->whereNull('deleted_at')->get();
@@ -548,7 +547,7 @@ class Route
     {
         $firstCount = null;
         $transits = [];
-
+        
         // if first package have a delivery routes
         if ($firstPackage->deliveryRoutes) {
             $firstCount = $firstPackage->deliveryRoutes->transit_count;
@@ -681,7 +680,6 @@ class Route
                     $firstProvinceId = $firstDeliveryRoutes['province_destination_1'];
                 }
 
-
                 if ($destinationCity === $destinationTransit) {
                     $transit = 1;
                 } else {
@@ -695,7 +693,6 @@ class Route
                 array_push($transits, $transit);
             }
         }
-
         if (!in_array(0, $transits)) {
             return true;
         } else {
@@ -897,11 +894,11 @@ class Route
                 $warehouse = self::getWarehousePartner($partner->code, $package);
             }
         }
-        
+
         $result = null;
         if (!is_null($warehouse)) {
             $checkRegency = self::checkRegency($warehouse);
-            
+
             if ($checkRegency) {
                 $regencyId = self::getFirstPartnerRegency($warehouse);
                 $provinceId = $warehouse->province_id;
@@ -1017,32 +1014,35 @@ class Route
      */
     public static function isShouldToWarehouseNearby($packages, $currentPartnerCode)
     {
-        $check = false;
+        $check = true;
         $checkPartners = []; // value be false
         $countDeliveries = [];
 
         foreach ($packages as $package) {
             $countDelivery = $package->deliveries()->count();
-            $checkPartner = 0; // default value is false
+            $checkPartner = 1; // default value is false
 
             if ($countDelivery === 1) {
                 $partner = $package->deliveries->last()->partner;
                 $partnerCode = $partner->code;
-                if ($partnerCode === $currentPartnerCode) {
-                    $checkPartner = 1; // value be true
+
+                foreach (self::listWarehouse() as $key => $value) {
+                    if ($partnerCode === $currentPartnerCode) {
+                        if (in_array($currentPartnerCode, $value) && in_array($partnerCode, $value)) {
+                            $checkPartner = 0;
+                        }
+                    }
                 }
             }
-            
+
             array_push($countDeliveries, $countDelivery);
             array_push($checkPartners, $checkPartner);
         }
 
-        // dd(count(array_flip($checkPartners)) === 1);
-
-        if (count(array_flip($checkPartners)) === 1 && count(array_flip($countDeliveries)) === 1) {
-           $check = true; 
+        if (array_sum($checkPartners) === 0) {
+            $check = false;
         }
 
         return $check;
-    } 
+    }
 }
