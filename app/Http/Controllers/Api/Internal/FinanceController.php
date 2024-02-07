@@ -524,9 +524,9 @@ class FinanceController extends Controller
                 package_id,
                 partner_id,
                 SUM(
-                case when pbh.type = 'discount' 
-                then pbh.balance * -1 
-                else pbh.balance 
+                case when pbh.type = 'discount'
+                then pbh.balance * -1
+                else pbh.balance
                 end) total_accepted
             from
                 partner_balance_histories pbh
@@ -539,7 +539,7 @@ class FinanceController extends Controller
         ) pbh
         left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
         left join packages p on pbh.package_id = p.id
-        
+
         left join v_disbursed_package_by_partner v ON pbh.package_id = v.package_id and pbh.partner_id = v.partner_id";
 
         $q = sprintf($q, $partnerId);
@@ -575,7 +575,7 @@ class FinanceController extends Controller
         ) pbh
         left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
         left join packages p on pbh.package_id = p.id
-        
+
         left join v_disbursed_package_by_partner v ON c.content = v.receipt and pbh.partner_id = v.partner_id
         where v.partner_id is null";
 
@@ -914,13 +914,13 @@ class FinanceController extends Controller
             Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
-        $filteredReceipts = $receipts->where('is_disbursed', 'notdisbursed')->values();
+        // $filteredReceipts = $receipts->where('is_disbursed', 'notdisbursed')->values();
 
         $data = [
             'transferred_at' => $disbursment->transferred_at,
             'attachment_transfer' => $attachment,
-            // 'rows' => $receipts,
-            'rows' => $filteredReceipts,
+            'rows' => $receipts,
+            // 'rows' => $filteredReceipts,
             'total_unapproved' => $totalUnApproved,
             'total_approved' => $totalApproved,
             'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
