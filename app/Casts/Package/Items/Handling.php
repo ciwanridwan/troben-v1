@@ -151,16 +151,16 @@ class Handling implements CastsAttributes
 
     public static function bikeCalculator($cc)
     {
-        switch ($cc) {
-            case 150:
+        switch (true) {
+            case $cc <= 149:
                 $price = 175000;
                 return $price;
                 break;
-            case 250:
+            case $cc === 150:
                 $price = 250000;
                 return $price;
                 break;
-            case 999:
+            case $cc >= 250:
                 $price = 450000;
                 return $price;
                 break;

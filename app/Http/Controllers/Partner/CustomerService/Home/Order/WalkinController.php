@@ -135,16 +135,18 @@ class WalkinController extends Controller
 
             $handling_price = 0;
             $service_price = 0;
-            switch ($paramsCalculator['items'][0]['moto_cc']) {
-                case 150:
+            $cc = $paramsCalculator['items'][0]['moto_cc'];
+
+            switch (true) {
+                case $cc <= 149:
                     $handling_price = 175000;
                     $service_price = $getPrice->lower_cc;
                     break;
-                case 250:
+                case $cc === 150:
                     $handling_price = 250000;
                     $service_price = $getPrice->middle_cc;
                     break;
-                case 999:
+                case $cc >= 250:
                     $handling_price = 450000;
                     $service_price = $getPrice->high_cc;
                     break;

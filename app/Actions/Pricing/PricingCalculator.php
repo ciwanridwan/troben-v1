@@ -1280,8 +1280,8 @@ class PricingCalculator
     public static function getIncomeBikePartner($itemBikes): int
     {
         $cc = $itemBikes['cc'];
-        switch ($cc) {
-            case 150:
+        switch (true) {
+            case $cc <= 149:
                 switch (true) {
                     case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
                         $income = 100000;
@@ -1294,7 +1294,7 @@ class PricingCalculator
                         break;
                 }
                 break;
-            case 250:
+            case $cc === 150:
                 switch (true) {
                     case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
                         $income = 150000;
@@ -1307,7 +1307,7 @@ class PricingCalculator
                         break;
                 }
                 break;
-            case 999:
+            case $cc >= 250:
                 switch (true) {
                     case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
                         $income = 350000;
@@ -1334,10 +1334,10 @@ class PricingCalculator
     public static function getIncomeBikeDooringPartner($cc): int
     {
         switch (true) {
-            case $cc <= 250:
+            case $cc < 250:
                 $income = 150000;
                 break;
-            case $cc == 999:
+            case $cc >= 250:
                 $income = 300000;
                 break;
             default:
