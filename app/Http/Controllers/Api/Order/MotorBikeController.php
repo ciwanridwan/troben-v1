@@ -326,13 +326,13 @@ class MotorBikeController extends Controller
         $cc = $request->get('moto_cc');
 
         switch (true) {
-            case $cc <= 150:
+            case $cc <= 149:
                 $service_price = $getPrice->lower_cc;
                 break;
-            case $cc === 250:
+            case $cc === 150:
                 $service_price = $getPrice->middle_cc;
                 break;
-            case $cc > 250:
+            case $cc >= 250:
                 $service_price = $getPrice->high_cc;
                 break;
         }
@@ -418,13 +418,13 @@ class MotorBikeController extends Controller
         $cc = $this->attributes['item']['moto_cc'];
 
         switch (true) {
-            case $cc <= 150:
+            case $cc <= 149:
                 $checkPrices = $bikePrices->lower_cc;
                 break;
-            case $cc === 250:
+            case $cc === 150:
                 $checkPrices = $bikePrices->middle_cc;
                 break;
-            case $cc > 250:
+            case $cc >= 250:
                 $checkPrices = $bikePrices->high_cc;
                 break;
             default:

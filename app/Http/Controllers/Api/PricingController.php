@@ -290,14 +290,14 @@ class PricingController extends Controller
             $bikePrices = BikePrices::where('origin_regency_id', $originId)->where('destination_id', $destinationId)->first();
             $ccPrices = null;
             if (!is_null($bikePrices)) {
-                switch ($motoCc) {
-                    case 150:
+                switch (true) {
+                    case $motoCc <= 149:
                         $ccPrices = $bikePrices->lower_cc;
                         break;
-                    case 250:
+                    case $motoCc === 150:
                         $ccPrices = $bikePrices->middle_cc;
                         break;
-                    case 999:
+                    case $motoCc >= 250:
                         $ccPrices = $bikePrices->high_cc;
                         break;
                     default:
