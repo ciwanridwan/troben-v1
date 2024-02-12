@@ -903,7 +903,7 @@ class CorporateController extends Controller
             }
         }
 
-        $total_amount = $pickup_price + $insurance + $service_price + $handlingPrice + PackagesPrice::FEE_PLATFORM - $discount;
+        $total_amount = $pickup_price + $insurance + $service_price + $handlingPrice - $discount;
 
         $result = [
             'details' => [
