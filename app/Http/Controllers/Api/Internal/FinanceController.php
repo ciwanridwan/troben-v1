@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Internal\Finance\ListResource;
 use App\Http\Resources\Api\Internal\Finance\CountAmountResource;
 use App\Http\Resources\Api\Internal\Finance\CountDisbursmentResource;
+use App\Http\Resources\Api\Internal\Finance\incomeComponentsResource;
 use App\Http\Response;
+use App\Models\Code;
+use App\Models\Packages\Package;
 use App\Models\Partners\Balance\DeliveryHistory;
 use App\Models\Partners\Balance\DisbursmentHistory;
 use App\Models\Partners\Balance\History;
@@ -125,7 +128,7 @@ class FinanceController extends Controller
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
-        if (! isset($this->attributes['receipt'])) {
+        if (!isset($this->attributes['receipt'])) {
             return (new Response(Response::RC_SUCCESS, []))->json();
         }
 
@@ -224,7 +227,7 @@ class FinanceController extends Controller
         $q = $this->reportReceiptQuery($param);
         $result = collect(DB::select($q));
 
-        $filename = 'TB-Sales '.date('Y-m-d H-i-s').'.xls';
+        $filename = 'TB-Sales ' . date('Y-m-d H-i-s') . '.xls';
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Content-type: application/vnd-ms-excel');
         header('Cache-Control: max-age=0');
@@ -410,7 +413,7 @@ class FinanceController extends Controller
         }
 
         $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode) {
-            if (! is_null($partnerCode)) {
+            if (!is_null($partnerCode)) {
                 $q->where('code', $partnerCode);
             }
         });
@@ -420,7 +423,7 @@ class FinanceController extends Controller
         }
 
         if (request()->get('date')) {
-            $q = $q->whereRaw("DATE(created_at) = '".request()->get('date')."'");
+            $q = $q->whereRaw("DATE(created_at) = '" . request()->get('date') . "'");
         }
 
         if (request()->get('start_date') && request()->get('end_date')) {
@@ -513,16 +516,17 @@ class FinanceController extends Controller
             c.content receipt,
             p.total_amount total_payment,
             pbh.total_accepted,
-            pbh.partner_id
+            pbh.partner_id,
+            CASE WHEN v.receipt IS NOT NULL THEN 'disbursed' ELSE 'notdisbursed' END is_disbursed
         from
             (
             select
                 package_id,
                 partner_id,
                 SUM(
-                case when pbh.type = 'discount' 
-                then pbh.balance * -1 
-                else pbh.balance 
+                case when pbh.type = 'discount'
+                then pbh.balance * -1
+                else pbh.balance
                 end) total_accepted
             from
                 partner_balance_histories pbh
@@ -534,7 +538,46 @@ class FinanceController extends Controller
                 package_id
         ) pbh
         left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
-        left join packages p on pbh.package_id = p.id";
+        left join packages p on pbh.package_id = p.id
+
+        left join v_disbursed_package_by_partner v ON pbh.package_id = v.package_id and pbh.partner_id = v.partner_id";
+
+        $q = sprintf($q, $partnerId);
+
+        return $q;
+    }
+
+    private function newQueryDetailDisbursmentNotDisbursed($partnerId)
+    {
+        $q = "select
+            c.content receipt,
+            p.total_amount total_payment,
+            pbh.total_accepted,
+            pbh.partner_id
+        from
+            (
+            select
+                package_id,
+                partner_id,
+                SUM(
+                case when pbh.type = 'discount'
+                then pbh.balance * -1
+                else pbh.balance
+                end) total_accepted
+            from
+                partner_balance_histories pbh
+            where
+                pbh.partner_id = %d
+		AND pbh.type != 'withdraw'
+            group by
+                partner_id,
+                package_id
+        ) pbh
+        left join codes c on pbh.package_id = c.codeable_id and c.codeable_type = 'App\Models\Packages\Package'
+        left join packages p on pbh.package_id = p.id
+
+        left join v_disbursed_package_by_partner v ON c.content = v.receipt and pbh.partner_id = v.partner_id
+        where v.partner_id is null";
 
         $q = sprintf($q, $partnerId);
 
@@ -550,26 +593,26 @@ class FinanceController extends Controller
         $deliveryHistory = DeliveryHistory::with('deliveries.packages')->where('partner_id', $partnerId);
 
         if ($date_start = $request->get('date_start')) {
-            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_start) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function ($q) use ($date_start) {
                 $q->where('created_at', '>=', sprintf('%s 00:00:00', $date_start));
             });
         }
         if ($date_end = $request->get('date_end')) {
-            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function($q) use ($date_end) {
+            $deliveryHistory = $deliveryHistory->whereHas('deliveries', function ($q) use ($date_end) {
                 $q->where('created_at', '<=', sprintf('%s 23:59:59', $date_end));
             });
         }
 
         $deliveryHistory = $deliveryHistory->orderByDesc('created_at')->get()->map(function ($q) {
-                $amount = $q->deliveries->packages->sum('total_amount');
-                $res = [
-                    'receipt' => $q->deliveries->code->content,
-                    'total_accepted' => $q->balance,
-                    'total_payment' => $amount
-                ];
+            $amount = $q->deliveries->packages->sum('total_amount');
+            $res = [
+                'receipt' => $q->deliveries->code->content,
+                'total_accepted' => $q->balance,
+                'total_payment' => $amount
+            ];
 
-                return $res;
-            })->toArray();
+            return $res;
+        })->toArray();
 
         $balanceHistory = Partner::with(['balance_history' => function ($query) {
             $query->where('type', History::TYPE_DEPOSIT);
@@ -626,7 +669,7 @@ class FinanceController extends Controller
                 $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -678,7 +721,7 @@ class FinanceController extends Controller
                 $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
                 $attachment = $disbursment->attachment_transfer ?
-                    Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+                    Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
                     null;
 
                 $data = [
@@ -708,25 +751,22 @@ class FinanceController extends Controller
 
         $partnerId = $disbursment->partner_id;
 
-        $query = $this->newQueryDetailDisbursment($partnerId);
-        $packages = collect(DB::select($query))->sortByDesc('created_at');
-
-        if ($date_start = $request->get('date_start')) {
-            $packages = $packages->where('created_at', '>=', $date_start);
-        }
-        if ($date_end = $request->get('date_end')) {
-            $packages = $packages->where('created_at', '<=', $date_end);
-        }
-
-        $disbursHistory = DisbursmentHistory::with('parentDisbursment')->whereHas('parentDisbursment', function($q) use ($partnerId) {
-            $q->where('partner_id', $partnerId);
-        })->get();
-
         if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
-            $data = $this->detailWithRequest($disbursment, $packages, $disbursHistory);
+            $query = $this->newQueryDetailDisbursmentNotDisbursed($partnerId);
+            $packages = collect(DB::select($query))->sortByDesc('created_at');
+            $data = $this->detailWithRequest($disbursment, $packages);
             return (new Response(Response::RC_SUCCESS, $data))->json();
         } else {
+            $query = $this->newQueryDetailDisbursment($partnerId);
+            $packages = collect(DB::select($query))->sortByDesc('created_at');
+
+            if ($date_start = $request->get('date_start'))
+                $packages = $packages->where('created_at', '>=', $date_start);
+            if ($date_end = $request->get('date_end'))
+                $packages = $packages->where('created_at', '<=', $date_end);
+
             $data = $this->detailWithApprove($disbursment, $packages);
+
             return (new Response(Response::RC_SUCCESS, $data))->json();
         }
     }
@@ -779,6 +819,7 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
 
+            $this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
@@ -841,8 +882,6 @@ class FinanceController extends Controller
     {
         $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
 
-        $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $packages->pluck('receipt'))->get();
-
         $receipts = $packages->map(function ($r) use ($getDisburs) {
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
@@ -872,22 +911,16 @@ class FinanceController extends Controller
         $approvedAt = $receipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
-        $filteredReceipts = $receipts->filter(function ($r) use ($alreadyDis) {
-            $check = $alreadyDis->where('receipt', $r->receipt)->first();
-            if ($check) {
-                return false;
-            }
-            return true;
-        })->values();
+        // $filteredReceipts = $receipts->where('is_disbursed', 'notdisbursed')->values();
 
         $data = [
             'transferred_at' => $disbursment->transferred_at,
             'attachment_transfer' => $attachment,
-            // 'rows' => $receipts,
-            'rows' => $filteredReceipts,
+            'rows' => $receipts,
+            // 'rows' => $filteredReceipts,
             'total_unapproved' => $totalUnApproved,
             'total_approved' => $totalApproved,
             'approved_at' => $approvedAt ? $approvedAt->approved_at : null,
@@ -897,13 +930,9 @@ class FinanceController extends Controller
         return $data;
     }
 
-    private function detailWithRequest($disbursment, $packages, $disbursHistory): array
+    private function detailWithRequest($disbursment, $packages): array
     {
-        $receiptRequested = $packages->whereNotIn('receipt', $disbursHistory->map(function ($r) {
-            return $r->receipt;
-        })->values());
-
-        $getPendingReceipts = $receiptRequested->map(function ($r) {
+        $getPendingReceipts = $packages->map(function ($r) {
             $r->approved = 'pending';
             $r->total_payment = intval($r->total_payment);
             $r->total_accepted = intval($r->total_accepted);
@@ -922,7 +951,7 @@ class FinanceController extends Controller
         $approvedAt = $getPendingReceipts->whereNotNull('approved_at')->first();
 
         $attachment = $disbursment->attachment_transfer ?
-            Storage::disk('s3')->temporaryUrl('attachment_transfer/'.$disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
+            Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
         $data = [
@@ -936,5 +965,146 @@ class FinanceController extends Controller
         ];
 
         return $data;
+    }
+
+    /**
+     * get all components of income partner
+     */
+    public function incomeComponents(Request $request)
+    {
+        $request->validate([
+            'partner_code' => ['nullable', 'exists:partners,code'],
+            'receipt_code' => ['nullable', 'exists:codes,content']
+        ]);
+
+        $package = null;
+        $manifest = null;
+
+        $partner = Partner::query()->where('code', $request->get('partner_code'))->first();
+        if (is_null($partner)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Partner not found']))->json();
+        }
+
+        $codes = Code::query()->with('codeable')->where('content', $request->get('receipt_code'))->first();
+
+        if (is_null($codes)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Receipt code not found or not available']))->json();
+        }
+
+        if (is_null($codes->codeable)) {
+            return (new Response(Response::RC_DATA_NOT_FOUND, ['message' => 'Package or Manifest not found']))->json();
+        }
+
+        if ($codes->codeable instanceof Package) {
+            $package = $codes->codeable;
+
+            $totalBalance = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->sum('balance');
+            $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->get()->map(function ($r) {
+                $label = History::setLabel($r->type, $r->description);
+
+                $resMapping = [
+                    'label' => $label,
+                    'type' => $r->type,
+                    'type_sub' => $r->description,
+                    'amount' => $r->balance
+                ];
+
+                return $resMapping;
+            });
+
+
+            $result = [
+                'incomes' => $incomes,
+                'total' => (int)$totalBalance
+            ];
+        } else {
+            $manifest = $codes->codeable;
+            $totalBalance = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->sum('balance');
+                $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->get()->map(function ($r) {
+                    $label = History::setLabel($r->type, $r->description);
+
+                    $resMapping = [
+                        'label' => $label,
+                        'type' => $r->type,
+                        'type_sub' => $r->description,
+                        'amount' => $r->balance
+                    ];
+
+                    return $resMapping;
+                });
+
+            $result = [
+                'incomes' => $deliveryIncomes,
+                'total' => (int)$totalBalance
+            ];
+        }
+
+        return (new Response(Response::RC_SUCCESS, $result))->json();
+    }
+
+    /**
+     * set actual balance partner
+     */
+    public function setActualBalance($partnerId)
+    {
+        $query = "SELECT coalesce(SUM(amount), 0) as balance FROM
+        (
+        select
+            *
+        from
+            (
+            select
+                content receipt_income,
+                pbh.amount,
+                pbh.created_at
+            from
+                (
+                select
+                    package_id,
+                    SUM(
+                    case
+                        when partner_balance_histories.type not in ('penalty', 'discount', 'withdraw')
+                        then partner_balance_histories.balance
+                    else partner_balance_histories.balance * -1 end
+                    ) amount,
+                    MAX(partner_balance_histories.created_at) created_at
+                from
+                    partner_balance_histories
+                left join partners on
+                    partner_balance_histories.partner_id = partners.id
+                where
+                    partners.id = '$partnerId'
+                    and package_id is not null
+                group by
+                    package_id
+            ) pbh
+            left join codes c on
+                pbh.package_id = c.codeable_id
+                and
+                c.codeable_type = 'App\Models\Packages\Package'
+        ) income
+        left join lateral (
+            select
+                receipt receipt_disbursed
+            from
+                disbursment_histories
+            left join partner_balance_disbursement on
+                disbursment_histories.disbursment_id = partner_balance_disbursement.id
+            left join partners on
+                partner_balance_disbursement.partner_id = partners.id
+            where
+                partners.id = '$partnerId'
+        ) disbursed on
+            income.receipt_income = disbursed.receipt_disbursed
+        where
+            1 = 1
+            and receipt_disbursed is null
+        order by
+            income.created_at desc
+
+        ) ssss";
+
+        $actualBalance = collect(DB::select($query))->first();
+        Partner::query()->where('id', $partnerId)->update(['balance' => $actualBalance->balance]);
     }
 }

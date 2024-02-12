@@ -147,7 +147,7 @@ class AssignableController extends Controller
         return $this->jsonSuccess(PackageResource::collection($result), null, true);
     }
 
-    public function checkPackages(Request $request)
+    public function checkPackages(Request $request, PartnerRepository $repository)
     {
         $request->validate([
             'package_code' => ['required', 'array', Rule::exists('codes', 'content')->whereIn('codeable_type', [
@@ -158,6 +158,12 @@ class AssignableController extends Controller
         $packages = Code::query()->whereIn('content', $request->package_code)->with('codeable')->get()->map(function ($q) {
             return $q->codeable;
         });
+
+        // to check if packages should transit to warehouse nearby
+        $isShouldToWarehouseNearby = Route::isShouldToWarehouseNearby($packages, $repository->getPartner()->code);
+        if ($isShouldToWarehouseNearby) {
+            return (new Response(Response::RC_SUCCESS))->json();
+        }
 
         $variant = 0;
         $allVariant = [];
@@ -229,7 +235,20 @@ class AssignableController extends Controller
                 $partnerDooring = Partner::query()->where('id', $partnerDooringId)->first();
 
                 if (!is_null($partnerDooring) && $partnerDooring->type === Partner::TYPE_TRANSPORTER) {
-                    return false;
+                    $type = 'transit';
+                    $delivery = $q->deliveries->last();
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
+
+                    if ($isDooring) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
 
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
@@ -293,7 +312,20 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
                 } elseif (Route::checkVendorDooring($q->deliveryRoutes)) {
-                    return true;
+                    $delivery = $q->deliveries->last();
+                    $type = 'dooring';
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
+
+                    if ($isDooring) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     $type = 'dooring';
                     $delivery = $q->deliveries->last();

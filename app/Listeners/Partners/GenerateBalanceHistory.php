@@ -209,8 +209,9 @@ class GenerateBalanceHistory
                                 $serviceFee -= $discountService->amount;
                             }
 
+                            # disable
                             /** Get fee extra be as commission partners with 0.05*/
-                            $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
+                            // $extraFee = $this->getIncomeChargePartner($package->total_weight, $serviceFee);
                         }
 
                         # total balance insurance > record insurance fee
@@ -433,15 +434,15 @@ class GenerateBalanceHistory
                                             ->recordHistory();
 
                                         # charge partner origin
-                                        $this->setPartner($this->delivery->origin_partner);
-                                        if ($this->partner->get_charge_delivery) {
-                                            $this
-                                                ->setBalance($balance)
-                                                ->setType(History::TYPE_CHARGE)
-                                                ->setDescription(History::DESCRIPTION_DELIVERY)
-                                                ->setAttributes()
-                                                ->recordHistory();
-                                        }
+                                        // $this->setPartner($this->delivery->origin_partner);
+                                        // if ($this->partner->get_charge_delivery) {
+                                        //     $this
+                                        //         ->setBalance($balance)
+                                        //         ->setType(History::TYPE_CHARGE)
+                                        //         ->setDescription(History::DESCRIPTION_DELIVERY)
+                                        //         ->setAttributes()
+                                        //         ->recordHistory();
+                                        // }
                                     }
                                 }
                                 break;
@@ -471,6 +472,14 @@ class GenerateBalanceHistory
                 // and partner should get income
                 $routes = Route::getWarehousePartner($this->partner->code, $this->package);
                 $isDirectDooring = Route::checkDirectDooring($this->partner, $routes);
+                
+                // add validation to double check if valid direct dooring or not
+                $firstManifest = $this->package->deliveries()->latest()->first();
+                $lastManifest = $this->package->deliveries->last();
+
+                if ($firstManifest->partner_id !== $this->partner->id && $firstManifest->partner_id !== $lastManifest->origin_partner_id) {
+                    $isDirectDooring = false;
+                }
 
                 if ($isDirectDooring) {
                     # total balance service > record service balance
@@ -512,7 +521,7 @@ class GenerateBalanceHistory
                         if (!is_null($discountService)) {
                             $serviceFee -= $discountService->amount;
                         }
-                        $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
+                        // $extraFee = $this->getIncomeChargePartner($this->package->total_weight, $serviceFee);
                     }
 
                     # total balance insurance > record insurance fee
@@ -691,7 +700,8 @@ class GenerateBalanceHistory
                 //         $job = new CreateNewFailedBalanceHistory($this->delivery, $this->partner, $this->package);
                 //         $this->dispatchNow($job);
 
-                //         $manifest_weight = 0;
+                //          = $this->package->deliveries()->latest();
+                // _weight = 0;
                 //         try {
                 //             $this->package->items->each(function ($item) use (&$manifest_weight) {
                 //                 $manifest_weight += $item->weight_borne_total;

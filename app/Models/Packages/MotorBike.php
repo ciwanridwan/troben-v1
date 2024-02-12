@@ -11,6 +11,16 @@ class MotorBike extends Model
     public CONST TYPE_MATIC = 'matic';
     public CONST TYPE_KOPLING = 'kopling';
     public CONST TYPE_GIGI = 'gigi';
+    
+    /**list cc */ 
+    public const CC_110 = 110;
+    public const CC_125 = 125;
+    public const CC_135 = 135;
+    public const CC_150 = 150;
+    public const CC_250 = 250;
+    public const CC_500 = 500;
+    public const CC_1000 = 1000;
+
 
     protected $table = 'package_bikes';
 
@@ -58,6 +68,19 @@ class MotorBike extends Model
         self::TYPE_GIGI,
         self::TYPE_KOPLING,
         self::TYPE_MATIC   
+        ];
+    }
+
+    public static function getListCc(): array
+    {
+        return [
+            self::CC_110,
+            self::CC_125,
+            self::CC_135,
+            self::CC_150,
+            self::CC_250,
+            self::CC_500,
+            self::CC_1000,
         ];
     }
 }
