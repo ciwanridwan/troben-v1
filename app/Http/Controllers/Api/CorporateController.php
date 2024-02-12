@@ -912,7 +912,8 @@ class CorporateController extends Controller
                 'handling_price' => $handlingPrice,
                 'handling_additional_price' => 0,
                 'service_price' => intval($service_price),
-                'discount_service' => $discount
+                'discount_service' => $discount,
+                'platform_fee' => PackagesPrice::FEE_PLATFORM,
             ],
             'total_amount' => $total_amount,
             'notes' => $getPrice->notes
