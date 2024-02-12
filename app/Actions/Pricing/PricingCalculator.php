@@ -1282,43 +1282,19 @@ class PricingCalculator
         $cc = $itemBikes['cc'];
         switch (true) {
             case $cc <= 149:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 100000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 100000;
-                        break;
-                    default:
-                        $income = 200000;
-                        break;
-                }
+                $income = 150000;
                 break;
             case $cc === 150:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 150000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 150000;
-                        break;
-                    default:
-                        $income = 250000;
-                        break;
-                }
+                $income = 200000;
                 break;
-            case $cc >= 250:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 350000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 350000;
-                        break;
-                    default:
-                        $income = 350000;
-                        break;
-                }
+            case $cc === 250:
+                $income = 300000;
+                break;
+            case $cc === 500:
+                $income = 1000000;
+                break;
+            case $cc === 10000:
+                $income = 2000000;
                 break;
             default:
                 $income = 0;
