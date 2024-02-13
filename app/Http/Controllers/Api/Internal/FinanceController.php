@@ -914,6 +914,7 @@ class FinanceController extends Controller
             Storage::disk('s3')->temporaryUrl('attachment_transfer/' . $disbursment->attachment_transfer, Carbon::now()->addMinutes(60)) :
             null;
 
+        /**disable */
         // $filteredReceipts = $receipts->where('is_disbursed', 'notdisbursed')->values();
 
         $data = [

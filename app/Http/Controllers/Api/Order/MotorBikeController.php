@@ -279,6 +279,7 @@ class MotorBikeController extends Controller
 
             /**Insurance Price */
             'insurance' => 'nullable|numeric',
+            'is_insured' => 'nullable|numeric', // add compabilities attribute to handle insurance attribute if not present
             'price' => 'nullable',
         ], $messages);
         $req = $request->all();
@@ -318,6 +319,13 @@ class MotorBikeController extends Controller
         // new condition for web
         if ($request->input('insurance') == 1 && !is_null($request->input('price'))) {
             $insurance = ceil(self::getInsurancePrice($request->input('price')));
+        }
+
+        // compabilities attribute of insurance
+        if (is_null($request->get('insurance')) || $request->get('insurance') == 0) {
+            if ($request->input('is_insured') == 1 && !is_null($request->input('price'))) {
+                $insurance = ceil(self::getInsurancePrice($request->input('price')));
+            }
         }
 
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
