@@ -2,6 +2,7 @@
 
 namespace App\Supports;
 
+use App\Models\Geo\SubDistrict;
 use App\Models\MapMapping;
 use App\Models\MapMappingPending;
 use Illuminate\Support\Facades\Cache;
@@ -82,11 +83,13 @@ class Geo
     {
         $coordExp = explode(',', $coord);
         if (count($coordExp) != 2) {
+            Log::info('failed-geo-fase-1', [$coord]);
             return null;
         }
 
         $result = self::getReverseMeta($coord);
         if (is_null($result)) {
+            Log::info('failed-geo-fase-2', [$coord]);
             return null;
         }
 
@@ -144,9 +147,44 @@ class Geo
             ];
         }
 
+        // cannot find, try plus code method
         if ($province == null && $regency == null && $district == null) {
-            return null;
-        }
+            if (is_null($subdistrict_check)) {
+                $plus_code_check = $comps->filter(function($r) {
+                    return in_array('plus_code', $r->types);
+                })->first();
+                if (is_null($plus_code_check)) {
+                    Log::info('failed-geo-fase-3', [$coord]);
+                    return null;
+                }
+
+                $plus_code_find = MapMapping::query()
+                    ->where('level', 'subdistrict')
+                    ->where('google_placeid', $plus_code_check->place_id)
+                    ->first();
+                if (is_null($plus_code_find)) {
+                    Log::info('failed-geo-fase-4', [$coord]);
+                    return null;
+                }
+
+                $geo_find = SubDistrict::find($plus_code_find->regional_id);
+                if (is_null($geo_find)) {
+                    Log::info('failed-geo-fase-5', [$coord]);
+                    return null;
+                }
+
+                // plus code found
+                $result = [
+                    'province' => $geo_find->province_id,
+                    'regency' => $geo_find->regency_id,
+                    'district' => $geo_find->district_id,
+                    'subdistrict' => $geo_find->id,
+                ];
+
+                return $result;
+            }
+            
+        } 
 
         $key = 'province';
         $provinceRegional = null;
@@ -155,6 +193,7 @@ class Geo
         }
         // no province match, terminate func
         if ($provinceRegional == null) {
+            Log::info('failed-geo-fase-6', [$coord]);
             return null;
         }
 
@@ -166,6 +205,7 @@ class Geo
         }
         // no regency match, terminate func
         if ($regencyRegional == null) {
+            Log::info('failed-geo-fase-7', [$coord]);
             return null;
         }
 
@@ -181,6 +221,7 @@ class Geo
 
         // no regency match, terminate func
         if ($districtRegional == null) {
+            Log::info('failed-geo-fase-8', [$coord]);
             return null;
         }
         $districtId = $districtRegional->regional_id;
@@ -205,6 +246,7 @@ class Geo
                 $subdistrictRegional = self::findInDB($key, $subdistrict, $coord, $provinceId);
             }
             if ($subdistrictRegional == null) {
+                Log::info('failed-geo-fase-9', [$coord]);
                 return null;
             }
             $subdistrictId = $subdistrictRegional->regional_id;
