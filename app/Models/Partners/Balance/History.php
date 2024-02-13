@@ -106,7 +106,7 @@ class History extends Model
         ];
     }
 
-    public static function getAvailableServices(): array 
+    public static function getAvailableServices(): array
     {
         return [
             self::DESCRIPTION_SERVICE_REGULAR,
@@ -131,5 +131,49 @@ class History extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
+
+    public static function setLabel(string $type, string $description)
+    {
+            switch (true) {
+                case $type === History::TYPE_DISCOUNT && $description === History::DESCRIPTION_SERVICE:
+                    $label = 'Diskon Pengiriman';
+                    break;
+                case $type === History::TYPE_DISCOUNT && $description === History::DESCRIPTION_PICKUP:
+                    $label = 'Diskon Penjemputan';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_PICKUP:
+                    $label = 'Penjemputan';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_SERVICE:
+                    $label = 'Pengiriman';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_DOORING:
+                    $label = 'Dooring';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_DELIVERY:
+                    $label = 'Delivery';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_INSURANCE:
+                    $label = 'Asuransi';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_HANDLING:
+                    $label = 'Handling';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_ADDITIONAL:
+                    $label = 'Biaya Tambahan';
+                    break;
+                case $type === History::TYPE_CHARGE && $description === History::DESCRIPTION_ADDITIONAL:
+                    $label = 'Biaya Tambahan';
+                    break;
+                case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_TRANSIT:
+                    $label = 'Transit';
+                    break;
+                default:
+                    $label = null;
+                    break;
+            }
+
+            return $label;
     }
 }
