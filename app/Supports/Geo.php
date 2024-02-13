@@ -159,9 +159,24 @@ class Geo
                     return null;
                 }
 
+                $plus_code_name = collect($plus_code_check->address_components)->filter(function($r) {
+                    return in_array('administrative_area_level_4', $r->types);
+                })->first()->long_name ?? '';
+
+                MapMappingPending::create([
+                    'level' => 'place',
+                    'google_name' => $plus_code_check->place_id,
+                    'google_placeid' => '[ '. $plus_code_name .' ]'.$plus_code_check->formatted_address,
+                    'lat' => $coordExp[0],
+                    'lon' => $coordExp[1],
+                ]);
+
                 $plus_code_find = MapMapping::query()
                     ->where('level', 'subdistrict')
-                    ->where('google_placeid', $plus_code_check->place_id)
+                    ->where(function($q) use ($plus_code_name, $plus_code_check) {
+                        $q->where('google_placeid', $plus_code_check->place_id)
+                        ->orWhere('google_name', $plus_code_name);
+                    })
                     ->first();
                 if (is_null($plus_code_find)) {
                     Log::info('failed-geo-fase-4', [$coord]);
