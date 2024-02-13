@@ -81,6 +81,7 @@ class Geo
 
     public static function getRegional(string $coord, bool $get_subdistrict = false)
     {
+\Log::info('test', [$coord]);
         $coordExp = explode(',', $coord);
         if (count($coordExp) != 2) {
             Log::info('failed-geo-fase-1', [$coord]);
