@@ -177,7 +177,7 @@ class History extends Model
                     }
                     break;
                 default:
-                    $label = null;
+                    $label = sprintf('%s: %s', $type, $description);
                     break;
             }
 
