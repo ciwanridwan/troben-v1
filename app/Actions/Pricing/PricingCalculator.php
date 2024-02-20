@@ -270,8 +270,6 @@ class PricingCalculator
                         $item['weight_wood'] = Handling::woodWeightNew($item['weight'], $item['height'], $item['length'], $item['width'], $inputs['service_code']);
                     }
 
-
-
                     $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handling_price += Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handlingResult[] = collect([
@@ -1117,10 +1115,10 @@ class PricingCalculator
     public static function getAdditionalPrices($items, $serviceCode)
     {
         $additionalPrice = [];
-
         foreach ($items as $item) {
             if ($item['qty'] == 1) {
-                $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+                $totalWeight = $item['weight'];
+                // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             } else {
                 $totalWeight = 0;
             }
