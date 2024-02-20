@@ -247,12 +247,27 @@ class PricingCalculator
             }
 
             $handlingResult = [];
+            $item['weight_wood'] = null;
+            $item['weight_original'] = null;
+
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
                     $packingType = $packing;
                     // handling for compability
                     if (is_array($packingType) && isset($packingType['type'])) {
                         $packingType = $packingType['type'];
+                    }
+                    
+                    // add weight wood and weight wood original attribute
+                    if ($packingType === Handling::TYPE_WOOD) {
+                        $item['weight_wood'] = Handling::woodWeightNew($item['weight'], $item['height'], $item['length'], $item['width'], $inputs['service_code']);
+                        $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($item['height'], $item['length'], $item['width'], $inputs['service_code']));
+                        $item['weight_original'] = [
+                            'height' => $item['height'],
+                            'length' => $item['length'],
+                            'width' => $item['width'],
+                            'volume' => $volume,
+                        ];
                     }
 
                     $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
