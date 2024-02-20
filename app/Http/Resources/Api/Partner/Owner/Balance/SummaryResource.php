@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\Partner\Owner\Balance;
 
 use App\Models\Partners\Balance\History;
+use App\Models\Partners\Partner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -110,6 +111,8 @@ class SummaryResource extends JsonResource
         ) ssss";
 
         $result = collect(DB::select($query))->first();
+        Partner::query()->where('code', $partner->code)->update(['balance' => $result->balance]);
+        
         return (int)$result->balance;
     }
 }

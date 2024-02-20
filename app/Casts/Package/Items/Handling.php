@@ -156,7 +156,7 @@ class Handling implements CastsAttributes
                 $price = 175000;
                 return $price;
                 break;
-            case $cc === 150:
+            case $cc == 150:
                 $price = 250000;
                 return $price;
                 break;
