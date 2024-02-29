@@ -337,14 +337,14 @@ class MotorBikeController extends Controller
             case $cc <= 149:
                 $service_price = $getPrice->lower_cc;
                 break;
-            case $cc === 150:
+            case $cc == 150:
                 $service_price = $getPrice->middle_cc;
                 break;
             case $cc >= 250:
                 $service_price = $getPrice->high_cc;
                 break;
         }
-
+        
         throw_if($service_price == 0, new Error(Response::RC_BAD_REQUEST, ["message" => 'Service price not available']));
         // get required handling
         $handlingPrice = Handling::bikeCalculator($req['moto_cc']);
@@ -429,7 +429,7 @@ class MotorBikeController extends Controller
             case $cc <= 149:
                 $checkPrices = $bikePrices->lower_cc;
                 break;
-            case $cc === 150:
+            case $cc == 150:
                 $checkPrices = $bikePrices->middle_cc;
                 break;
             case $cc >= 250:
