@@ -777,7 +777,7 @@ class CorporateController extends Controller
             }
 
             $arrTrxPayment = [
-                'bank' => $trxPayment->gateway->bank,
+                'bank' => ($trxPayment->gateway?->bank ?? $trxPayment->sender_bank),
                 'amount' => $trxPayment->total_payment,
                 'admin' => $trxPayment->payment_admin_charges,
                 'expired_at' => $trxPayment->expired_at,
