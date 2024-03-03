@@ -80,6 +80,23 @@ class GeneratePackageBikePrices
 
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
                 $cc = $service_input['moto_cc'];
+                /**
+                 * set compabitilities service bike prices
+                 */
+                // old price calculate
+                switch ($cc) {
+                    case 150:
+                        $servicePrice = $result->lower_cc;
+                        break;
+                    case 250:
+                        $servicePrice = $result->middle_cc;
+                        break;
+                    case 999:
+                        $servicePrice = $result->high_cc;
+                        break;
+                }
+
+                // new price calculate
                 switch (true) {
                     case $cc <= 149:
                         $servicePrice = $result->lower_cc;
@@ -94,6 +111,7 @@ class GeneratePackageBikePrices
                         $servicePrice = 0;
                         break;
                 }
+
                 $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
             } catch (ValidationException $e) {
                 $servicePrice = 0;
@@ -176,6 +194,27 @@ class GeneratePackageBikePrices
                 $ccInput = [
                     'moto_cc' => $package->motoBikes()->first()->cc
                 ];
+
+                /**
+                 * compabilities for bike handling prices
+                 */
+                // old script
+                switch ($ccInput['moto_cc']) {
+                    case 150:
+                        $handlingBikePrices = 175000;
+                        break;
+                    case 250:
+                        $handlingBikePrices = 250000;
+                        break;
+                    case 999:
+                        $handlingBikePrices = 450000;
+                        break;
+                    default:
+                        $handlingBikePrices = 0;
+                        break;
+                }
+
+                // new script
                 switch (true) {
                     case $ccInput['moto_cc'] <= 149:
                         $handlingBikePrices = 175000;
