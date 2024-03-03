@@ -779,7 +779,7 @@ class CorporateController extends Controller
             }
 
             $arrTrxPayment = [
-                'bank' => $trxPayment->gateway->bank,
+                'bank' => ($trxPayment->gateway?->bank ?? $trxPayment->sender_bank),
                 'amount' => $trxPayment->total_payment,
                 'admin' => $trxPayment->payment_admin_charges,
                 'expired_at' => $trxPayment->expired_at,
@@ -819,7 +819,10 @@ class CorporateController extends Controller
         }
         $result->transporter_detail = $transporterDetail;
 
-        $result->price = Price::where('destination_id', $result->destination_sub_district->id)->where('zip_code', $result->destination_sub_district->zip_code)->first();
+        $result->price = Price::query()
+            ->where('origin_regency_id', $result->origin_regency_id)
+            ->where('destination_id', $result->destination_sub_district_id)
+            ->first();
 
         return (new Response(Response::RC_SUCCESS, $result))->json();
     }

@@ -1001,7 +1001,7 @@ class FinanceController extends Controller
             $package = $codes->codeable;
 
             $totalBalance = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->sum('balance');
-            $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->get()->map(function ($r) {
+            $incomes = History::query()->where('partner_id', $partner->id)->where('package_id', $package->id)->where('balance', '>', 0)->get()->map(function ($r) {
                 $label = History::setLabel($r->type, $r->description);
 
                 $resMapping = [
@@ -1022,7 +1022,7 @@ class FinanceController extends Controller
         } else {
             $manifest = $codes->codeable;
             $totalBalance = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->sum('balance');
-                $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->get()->map(function ($r) {
+                $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->where('balance', '>', 0)->get()->map(function ($r) {
                     $label = History::setLabel($r->type, $r->description);
 
                     $resMapping = [

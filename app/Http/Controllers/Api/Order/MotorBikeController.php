@@ -320,6 +320,10 @@ class MotorBikeController extends Controller
         if ($request->input('insurance') == 1 && !is_null($request->input('price'))) {
             $insurance = ceil(self::getInsurancePrice($request->input('price')));
         }
+        // add fallback if insurance / is_insurance not send, if > 1mio
+        if ($request->get('price') && intval($request->get('price')) > 1000000) {
+            $insurance = ceil(self::getInsurancePrice(intval($request->get('price'))));
+        }
 
         // compabilities attribute of insurance
         if (is_null($request->get('insurance')) || $request->get('insurance') == 0) {
@@ -331,34 +335,20 @@ class MotorBikeController extends Controller
         $getPrice = PricingCalculator::getBikePrice($resultOrigin['regency'], $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
-        $cc = $request->get('moto_cc');
-
-        /**
-         * compabilities for bike price service
-         */
-        // old clasification
-        switch ($cc) {
-            case 150:
-                $service_price = $getPrice->lower_cc;
-                break;
-            case 250:
-                $service_price = $getPrice->middle_cc;
-                break;
-            case 999:
-                $service_price = $getPrice->high_cc;
-                break;
-        }
-
         // new clasification
+        $cc = (int) $request->get('moto_cc');
         switch (true) {
-            case $cc <= 149:
+            case $cc >= 110:
                 $service_price = $getPrice->lower_cc;
                 break;
             case $cc == 150:
                 $service_price = $getPrice->middle_cc;
                 break;
-            case $cc >= 250:
+            case $cc > 150:
                 $service_price = $getPrice->high_cc;
+                break;
+            default:
+                $service_price = 0;
                 break;
         }
 

@@ -11,7 +11,7 @@ services:
       - .:/var/www
       - 'tbcorestorage:/var/www/storage'
     ports:
-      - '${APP_PORT:-8070}:80'
+      - '${APP_PORT}:80'
     links:
       - "core:php-fpm"
     depends_on:
