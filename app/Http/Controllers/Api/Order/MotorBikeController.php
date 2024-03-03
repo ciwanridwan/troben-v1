@@ -320,6 +320,10 @@ class MotorBikeController extends Controller
         if ($request->input('insurance') == 1 && !is_null($request->input('price'))) {
             $insurance = ceil(self::getInsurancePrice($request->input('price')));
         }
+        // add fallback if insurance / is_insurance not send, if > 1mio
+        if ($request->get('price') && intval($request->get('price')) > 1000000) {
+            $insurance = ceil(self::getInsurancePrice(intval($request->get('price'))));
+        }
 
         // compabilities attribute of insurance
         if (is_null($request->get('insurance')) || $request->get('insurance') == 0) {

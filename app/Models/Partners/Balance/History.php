@@ -161,16 +161,23 @@ class History extends Model
                     $label = 'Handling';
                     break;
                 case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_ADDITIONAL:
-                    $label = 'Biaya Tambahan';
+                    $label = 'Biaya Tambahan (Deposit)';
                     break;
                 case $type === History::TYPE_CHARGE && $description === History::DESCRIPTION_ADDITIONAL:
-                    $label = 'Biaya Tambahan';
+                    $label = 'Biaya Tambahan (Charge)';
                     break;
                 case $type === History::TYPE_DEPOSIT && $description === History::DESCRIPTION_TRANSIT:
                     $label = 'Transit';
                     break;
+                case $type === History::TYPE_PENALTY:
+                    if ($description === History::DESCRIPTION_LATENESS) {
+                        $label = 'Denda: Pengiriman Terlambat';
+                    } else {
+                        $label = 'Denda: ' . $description;
+                    }
+                    break;
                 default:
-                    $label = null;
+                    $label = sprintf('%s: %s', $type, $description);
                     break;
             }
 

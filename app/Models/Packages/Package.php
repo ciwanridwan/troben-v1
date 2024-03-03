@@ -1289,6 +1289,9 @@ class Package extends Model implements AttachableContract
             case $status === Package::STATUS_DELIVERED:
                 $message = 'Pesanan telah diterima';
                 break;
+            case $status === Package::STATUS_WAITING_FOR_ESTIMATING:
+                $message = 'Menunggu proses ukur dan timbang';
+                break;
             default:
                 $message = 'Status pesanan tidak diketahui: '.$status;
                 break;
