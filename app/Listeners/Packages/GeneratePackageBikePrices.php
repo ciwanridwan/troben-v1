@@ -79,32 +79,17 @@ class GeneratePackageBikePrices
                 ];
 
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
-                $cc = $service_input['moto_cc'];
-                /**
-                 * set compabitilities service bike prices
-                 */
-                // old price calculate
-                switch ($cc) {
-                    case 150:
-                        $servicePrice = $result->lower_cc;
-                        break;
-                    case 250:
-                        $servicePrice = $result->middle_cc;
-                        break;
-                    case 999:
-                        $servicePrice = $result->high_cc;
-                        break;
-                }
 
                 // new price calculate
+                $cc = (int) ($service_input['moto_cc'] ?? 0);
                 switch (true) {
-                    case $cc <= 149:
+                    case $cc >= 110:
                         $servicePrice = $result->lower_cc;
                         break;
-                    case $cc === 150:
+                    case $cc == 150:
                         $servicePrice = $result->middle_cc;
                         break;
-                    case $cc >= 250:
+                    case $cc > 150:
                         $servicePrice = $result->high_cc;
                         break;
                     default:
@@ -191,38 +176,17 @@ class GeneratePackageBikePrices
             }
 
             try {
-                $ccInput = [
-                    'moto_cc' => $package->motoBikes()->first()->cc
-                ];
+                $ccInput = (int) ($package->motoBikes()->first()->cc ?? 0);
 
-                /**
-                 * compabilities for bike handling prices
-                 */
-                // old script
-                switch ($ccInput['moto_cc']) {
-                    case 150:
-                        $handlingBikePrices = 175000;
-                        break;
-                    case 250:
-                        $handlingBikePrices = 250000;
-                        break;
-                    case 999:
-                        $handlingBikePrices = 450000;
-                        break;
-                    default:
-                        $handlingBikePrices = 0;
-                        break;
-                }
-
-                // new script
+                // new clasification
                 switch (true) {
-                    case $ccInput['moto_cc'] <= 149:
+                    case $ccInput >= 110:
                         $handlingBikePrices = 175000;
                         break;
-                    case $ccInput['moto_cc'] === 150:
+                    case $ccInput == 150:
                         $handlingBikePrices = 250000;
                         break;
-                    case $ccInput['moto_cc'] >= 250:
+                    case $ccInput > 150:
                         $handlingBikePrices = 450000;
                         break;
                     default:
