@@ -164,7 +164,7 @@ class AssignableController extends Controller
         if ($isShouldToWarehouseNearby) {
             return (new Response(Response::RC_SUCCESS))->json();
         }
-        
+
         $variant = 0;
         $allVariant = [];
         // $partner = $repository->getPartner();
@@ -235,7 +235,20 @@ class AssignableController extends Controller
                 $partnerDooring = Partner::query()->where('id', $partnerDooringId)->first();
 
                 if (!is_null($partnerDooring) && $partnerDooring->type === Partner::TYPE_TRANSPORTER) {
-                    return false;
+                    $type = 'transit';
+                    $delivery = $q->deliveries->last();
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
+
+                    if ($isDooring) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
 
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId !== $partnerId) {
@@ -299,7 +312,20 @@ class AssignableController extends Controller
                 if ($partnerIdFromDeliveries === $partnerId &&  $partnerDooringId === $partnerId) {
                     return true;
                 } elseif (Route::checkVendorDooring($q->deliveryRoutes)) {
-                    return true;
+                    $delivery = $q->deliveries->last();
+                    $type = 'dooring';
+
+                    if (!is_null($q->motoBikes)) {
+                        $isDooring = BikeRoute::checkDooring($q, $delivery, $type);
+                    } else {
+                        $isDooring = Route::checkDooring($q, $delivery, $type);
+                    }
+
+                    if ($isDooring) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     $type = 'dooring';
                     $delivery = $q->deliveries->last();

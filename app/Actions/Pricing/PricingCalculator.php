@@ -247,12 +247,27 @@ class PricingCalculator
             }
 
             $handlingResult = [];
+            $item['weight_wood'] = null;
+            // add weight original
+            $volume = PricingCalculator::ceilByTolerance(PricingCalculator::getVolume($item['height'], $item['length'], $item['width'], $inputs['service_code']));
+            $item['weight_original'] = [
+                'height' => $item['height'],
+                'length' => $item['length'],
+                'width' => $item['width'],
+                'volume' => $volume,
+            ];
+
             if ($item['handling'] != null) {
                 foreach ($item['handling'] as $packing) {
                     $packingType = $packing;
                     // handling for compability
                     if (is_array($packingType) && isset($packingType['type'])) {
                         $packingType = $packingType['type'];
+                    }
+
+                    // add weight wood and weight wood original attribute
+                    if ($packingType === Handling::TYPE_WOOD) {
+                        $item['weight_wood'] = Handling::woodWeightNew($item['weight'], $item['height'], $item['length'], $item['width'], $inputs['service_code']);
                     }
 
                     $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
@@ -1100,10 +1115,10 @@ class PricingCalculator
     public static function getAdditionalPrices($items, $serviceCode)
     {
         $additionalPrice = [];
-
         foreach ($items as $item) {
             if ($item['qty'] == 1) {
-                $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
+                $totalWeight = $item['weight'];
+                // $totalWeight = self::getWeightBorne($item['height'], $item['length'], $item['width'], $item['weight'], $item['qty'], $item['handling'], $serviceCode);
             } else {
                 $totalWeight = 0;
             }
@@ -1280,45 +1295,21 @@ class PricingCalculator
     public static function getIncomeBikePartner($itemBikes): int
     {
         $cc = $itemBikes['cc'];
-        switch ($cc) {
-            case 150:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 100000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 100000;
-                        break;
-                    default:
-                        $income = 200000;
-                        break;
-                }
+        switch (true) {
+            case $cc <= 149:
+                $income = 150000;
                 break;
-            case 250:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 150000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 150000;
-                        break;
-                    default:
-                        $income = 250000;
-                        break;
-                }
+            case $cc === 150:
+                $income = 200000;
                 break;
-            case 999:
-                switch (true) {
-                    case $itemBikes['origin_province_id'] === $itemBikes['destination_province_id']: // the same province
-                        $income = 350000;
-                        break;
-                    case in_array($itemBikes['origin_province_id'], Province::getJavaIslandId()) && in_array($itemBikes['destination_province_id'], Province::getJavaIslandId()): // the same islands
-                        $income = 350000;
-                        break;
-                    default:
-                        $income = 350000;
-                        break;
-                }
+            case $cc === 250:
+                $income = 300000;
+                break;
+            case $cc === 500:
+                $income = 1000000;
+                break;
+            case $cc === 10000:
+                $income = 2000000;
                 break;
             default:
                 $income = 0;
@@ -1334,10 +1325,10 @@ class PricingCalculator
     public static function getIncomeBikeDooringPartner($cc): int
     {
         switch (true) {
-            case $cc <= 250:
+            case $cc < 250:
                 $income = 150000;
                 break;
-            case $cc == 999:
+            case $cc >= 250:
                 $income = 300000;
                 break;
             default:

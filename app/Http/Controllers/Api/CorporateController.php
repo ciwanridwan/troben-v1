@@ -23,6 +23,7 @@ use App\Jobs\Packages\Actions\AssignFirstPartnerToPackage;
 use App\Jobs\Packages\Motobikes\CreateWalkinOrderTypeBike;
 use App\Models\Customers\Customer;
 use App\Models\PackageCorporate;
+use App\Models\Packages\MotorBike;
 use App\Models\Packages\MultiDestination;
 use App\Models\Packages\Package;
 use App\Models\Packages\Price as PackagesPrice;
@@ -39,6 +40,7 @@ use App\Supports\DistanceMatrix;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class CorporateController extends Controller
 {
@@ -51,7 +53,7 @@ class CorporateController extends Controller
         $q = $request->get('q');
         $result = Partner::query()
             ->select('id', 'name', 'geo_province_id', 'geo_regency_id', 'geo_district_id', 'code')
-            ->where('name', 'ILIKE', '%'.$q.'%')
+            ->where('name', 'ILIKE', '%' . $q . '%')
             ->where('type', Partner::TYPE_BUSINESS)
             ->whereNotNull(['latitude', 'longitude'])
             ->where('availability', 'open')
@@ -160,7 +162,7 @@ class CorporateController extends Controller
             'sender_phone' => ['required'],
 
             'items' => ['required'],
-            'payment_method' => ['required', 'in:'.implode(',', PackageCorporate::CORPORATE_PAYMENT_ALL)],
+            'payment_method' => ['required', 'in:' . implode(',', PackageCorporate::CORPORATE_PAYMENT_ALL)],
 
             'receiver_name' => ['required'],
             'receiver_phone' => ['required'],
@@ -173,7 +175,7 @@ class CorporateController extends Controller
             'discount_service' => ['nullable']
         ];
 
-        if (! is_null($request->get('customer_id'))) {
+        if (!is_null($request->get('customer_id'))) {
             $rules['customer_id'] = ['required', 'numeric', 'exists:customers,id'];
             $hasCustomerAcc = true;
         } else {
@@ -209,7 +211,7 @@ class CorporateController extends Controller
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
         $inputs['destination_id'] = $inputs['destination_sub_district_id'];
-        if (! $hasCustomerAcc) {
+        if (!$hasCustomerAcc) {
             $inputs['customer_id'] = 0;
         }
 
@@ -219,7 +221,7 @@ class CorporateController extends Controller
         $items = json_decode($request->input('items'), true);
         $payment_method = $request->get('payment_method');
 
-        foreach ($items??[] as $key => $item) {
+        foreach ($items ?? [] as $key => $item) {
             $items[$key] = (new Collection($item))->toArray();
         }
 
@@ -328,7 +330,7 @@ class CorporateController extends Controller
             'discount_service' => ['nullable']
         ];
 
-        if (! is_null($request->get('customer_id'))) {
+        if (!is_null($request->get('customer_id'))) {
             $rules['customer_id'] = ['required', 'exists:customers,id'];
             $hasCustomerAcc = true;
         } else {
@@ -373,7 +375,7 @@ class CorporateController extends Controller
         $inputs['sender_latitude'] = $partner->latitude;
         $inputs['sender_longitude'] = $partner->longitude;
         $inputs['destination_id'] = $inputs['destination_sub_district_id'];
-        if (! $hasCustomerAcc) {
+        if (!$hasCustomerAcc) {
             $inputs['customer_id'] = 0;
         }
 
@@ -384,7 +386,7 @@ class CorporateController extends Controller
         $payment_method = $request->get('payment_method');
 
         $bike = null;
-        foreach ($items??[] as $key => $item) {
+        foreach ($items ?? [] as $key => $item) {
             $bike = [
                 'type' => $item['moto_type'],
                 'merk' => $item['moto_merk'],
@@ -499,7 +501,7 @@ class CorporateController extends Controller
             return $r->type == PackageCorporate::CORPORATE_PAYMENT_VA;
         })->values()->map(function ($r) use ($gatewayChoosed, $picture) {
             $select = false;
-            if (! is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
+            if (!is_null($gatewayChoosed) && $r->channel == $gatewayChoosed->gateway->channel) {
                 $select = true;
             }
 
@@ -571,7 +573,7 @@ class CorporateController extends Controller
 
         foreach ($childPackages as $childPkg) {
             $pickupFee = $childPkg->prices->where('type', PackagesPrice::TYPE_DELIVERY)->where('description', PackagesPrice::TYPE_PICKUP)->first();
-            if (! is_null($pickupFee)) {
+            if (!is_null($pickupFee)) {
                 $childPkg->total_amount -= $pickupFee->amount;
                 $childPkg->save();
 
@@ -612,66 +614,66 @@ class CorporateController extends Controller
 
         $results = Package::query()
             ->with([
-                'corporate','items' => function($q) {
-                    $q->with('codes','prices');
+                'corporate', 'items' => function ($q) {
+                    $q->with('codes', 'prices');
                 },
                 'prices', 'payments',
-                'origin_regency' => function($q) {
+                'origin_regency' => function ($q) {
                     $q->with(['province']);
                 },
-                'destination_regency' => function($q) {
+                'destination_regency' => function ($q) {
                     $q->with(['province']);
                 },
                 'origin_district',
                 'destination_district', 'destination_sub_district',
-                'code', 'attachments','multiDestination.packages.code',
-                'parentDestination' => function($q) {
-                    $q->with(['packages' => function($q) {
-                        $q->with(['corporate','code']);
+                'code', 'attachments', 'multiDestination.packages.code',
+                'parentDestination' => function ($q) {
+                    $q->with(['packages' => function ($q) {
+                        $q->with(['corporate', 'code']);
                     }]);
                 },
                 // 'parentDestination.packages.corporate', 'parentDestination.packages.code',
                 'picked_up_by'
             ]);
 
-        if (! $isAdmin) {
+        if (!$isAdmin) {
             $partner = auth()->user()->partners->first();
-            if (! is_null($partner)) {
-                    $partnerId = $partner->getKey();
-                    $results = $results->where(function($q) use ($partnerId) {
-                        $q->where('created_by', auth()->id())
-                        ->orWhereHas('deliveries', function($q2) use ($partnerId) {
+            if (!is_null($partner)) {
+                $partnerId = $partner->getKey();
+                $results = $results->where(function ($q) use ($partnerId) {
+                    $q->where('created_by', auth()->id())
+                        ->orWhereHas('deliveries', function ($q2) use ($partnerId) {
                             $q2->where('partner_id', $partnerId);
                         });
-                    });
+                });
             }
         }
         if ($request->get('status')) {
             $results = $results->where('payment_status', $request->get('status'));
         }
         if ($request->get('start_date')) {
-            $results = $results->whereRaw("DATE(packages.created_at) >= '".$request->get('start_date')."'");
+            $results = $results->whereRaw("DATE(packages.created_at) >= '" . $request->get('start_date') . "'");
         }
         if ($request->get('end_date')) {
-            $results = $results->whereRaw("DATE(packages.created_at) <= '".$request->get('end_date')."'");
+            $results = $results->whereRaw("DATE(packages.created_at) <= '" . $request->get('end_date') . "'");
         }
         if ($request->get('search')) {
             $search = $request->get('search');
-            $results = $results->where(function($q) use ($search) {
+            $results = $results->where(function ($q) use ($search) {
                 $q
-                ->where('sender_name', 'ILIKE', '%'.$search.'%')
-                ->orWhere('sender_phone', 'ILIKE', '%'.$search.'%')
-                ->orWhere('receiver_name', 'ILIKE', '%'.$search.'%')
-                ->orWhere('receiver_phone', 'ILIKE', '%'.$search.'%')
-                ->orWhereHas('code', function($q) use ($search) {
-                    $q->where('content', 'ILIKE', $search.'%');
-                });
+                    ->where('sender_name', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('sender_phone', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('receiver_name', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('receiver_phone', 'ILIKE', '%' . $search . '%')
+                    ->orWhereHas('code', function ($q) use ($search) {
+                        $q->where('content', 'ILIKE', $search . '%');
+                    });
             });
-            $results = $results->orWhereHas('origin_regency',function($q) use($search){
-                $q->where('name','ilike','%'.$search.'%');
+            $results = $results->orWhereHas('origin_regency', function ($q) use ($search) {
+                $q->where('name', 'ilike', '%' . $search . '%');
             });
-            $results = $results->orWhereHas('destination_regency',function($q) use($search){
-                $q->where('name','ilike','%'.$search.'%');
+            $results = $results->orWhereHas('destination_regency', function ($q) use ($search) {
+                $q->where('name', 'ilike', '%' . $search . '%');
             });
         }
 
@@ -680,14 +682,14 @@ class CorporateController extends Controller
         $results->getCollection()->transform(function ($item) {
             $type2 = 'single';
             $payment_method = 'va';
-            if (! is_null($item->corporate)) {
+            if (!is_null($item->corporate)) {
                 $payment_method = $item->corporate->payment_method;
             }
 
             if ($item->multiDestination->count()) $type2 = 'multi';
-            if (! is_null($item->parentDestination)) {
+            if (!is_null($item->parentDestination)) {
                 $payment_method = 'va';
-                if (! is_null($item->parentDestination->packages->corporate)) {
+                if (!is_null($item->parentDestination->packages->corporate)) {
                     $payment_method = $item->parentDestination->packages->corporate->payment_method;
                 }
                 $type2 = 'multi';
@@ -698,7 +700,7 @@ class CorporateController extends Controller
             $item->payment_method = $payment_method;
             $item->status_label = Package::statusParser($item->status);
 
-            $item->items->map(function($r) {
+            $item->items->map(function ($r) {
                 $r->category_item_name = $r->categories ? $r->categories->name : null;
                 return $r;
             });
@@ -715,7 +717,7 @@ class CorporateController extends Controller
 
         $query = Package::query();
 
-        if (! $isAdmin) {
+        if (!$isAdmin) {
             $query = $query->where('created_by', auth()->id());
         }
 
@@ -749,7 +751,7 @@ class CorporateController extends Controller
         if ($result->payments->count()) {
             $payment = $result->payments->sortByDesc('id')->first();
             $bank = null;
-            if (! is_null($payment->gateway)) {
+            if (!is_null($payment->gateway)) {
                 $bankPicture = Storage::disk('s3')->temporaryUrl('nopic.png', Carbon::now()->addMinutes(60));
                 $filePath = sprintf('asset/bank/%s.png', $payment->gateway->bank);
                 if (Storage::disk('s3')->exists($filePath)) {
@@ -790,10 +792,10 @@ class CorporateController extends Controller
         unset($result->payments);
 
         $partner = null;
-	// partner get from pickup
+        // partner get from pickup
         if (is_null($partner)) {
             $partnerPickup = $result->picked_up_by->where('type', 'pickup')->first();
-            if (! is_null($partnerPickup)) {
+            if (!is_null($partnerPickup)) {
                 $partner = $partnerPickup->partner;
             }
         }
@@ -801,7 +803,7 @@ class CorporateController extends Controller
         $result->total_handling_price = intval($result->prices()->where('type', 'handling')->sum('amount') ?? 0);
 
         $transporterDetail = null;
-        if (! is_null($result->transporter_type)) {
+        if (!is_null($result->transporter_type)) {
             $transporterDetail = collect(Transporter::getDetailAvailableTypes())->map(function ($r) {
                 $result = [
                     'type' => $r['name'],
@@ -833,10 +835,10 @@ class CorporateController extends Controller
             'destination_id' => 'nullable|exists:geo_sub_districts,id',
 
             'moto_type' => 'required|in:matic,kopling,gigi',
-            'moto_cc' => 'required|numeric|in:150,250,999',
+            'moto_cc' => ['required',  Rule::in(MotorBike::getListCc())],
 
             /**Handling */
-            'handling' => 'nullable|in:'.Handling::TYPE_WOOD,
+            'handling' => 'nullable|in:' . Handling::TYPE_WOOD,
             'height' => 'required_if:handling,wood|numeric',
             'length' => 'required_if:handling,wood|numeric',
             'width' => 'required_if:handling,wood|numeric',
@@ -871,20 +873,22 @@ class CorporateController extends Controller
         $insurance = 0;
         $insurance = ceil(MotorBikeController::getInsurancePrice($request->input('price')));
 
-	if (! isset($req['destination_id'])) {
-		return (new Response(Response::RC_INVALID_DATA, ['message' => 'No destination found']))->json();
-	}
+        if (!isset($req['destination_id'])) {
+            return (new Response(Response::RC_INVALID_DATA, ['message' => 'No destination found']))->json();
+        }
+
         $getPrice = PricingCalculator::getBikePrice($partner->geo_regency_id, $req['destination_id']);
         $service_price = 0; // todo get from regional mapping
 
-        switch ($request->get('moto_cc')) {
-            case 150:
+        $cc = (int)$request->get('moto_cc');
+        switch (true) {
+            case $cc <= 149:
                 $service_price = $getPrice->lower_cc;
                 break;
-            case 250:
+            case $cc === 150:
                 $service_price = $getPrice->middle_cc;
                 break;
-            case 999:
+            case $cc >= 250:
                 $service_price = $getPrice->high_cc;
                 break;
         }
@@ -911,7 +915,8 @@ class CorporateController extends Controller
                 'handling_price' => $handlingPrice,
                 'handling_additional_price' => 0,
                 'service_price' => intval($service_price),
-                'discount_service' => $discount
+                'discount_service' => $discount,
+                'platform_fee' => PackagesPrice::FEE_PLATFORM,
             ],
             'total_amount' => $total_amount,
             'notes' => $getPrice->notes

@@ -79,17 +79,24 @@ class GeneratePackageBikePrices
                 ];
 
                 $result = PricingCalculator::getBikePrice($service_input['origin_regency_id'], $service_input['destination_id']);
-                switch ($service_input['moto_cc']) {
-                    case 150:
+
+                // new price calculate
+                $cc = (int) ($service_input['moto_cc'] ?? 0);
+                switch (true) {
+                    case $cc >= 110:
                         $servicePrice = $result->lower_cc;
                         break;
-                    case 250:
+                    case $cc == 150:
                         $servicePrice = $result->middle_cc;
                         break;
-                    case 999:
+                    case $cc > 150:
                         $servicePrice = $result->high_cc;
                         break;
+                    default:
+                        $servicePrice = 0;
+                        break;
                 }
+
                 $package->setAttribute('tier_price', $service_input['moto_cc'])->save();
             } catch (ValidationException $e) {
                 $servicePrice = 0;
@@ -168,19 +175,18 @@ class GeneratePackageBikePrices
                 $this->dispatch($job);
             }
 
-            // dd('abbb');
             try {
-                $ccInput = [
-                    'moto_cc' => $package->motoBikes()->first()->cc
-                ];
-                switch ($ccInput['moto_cc']) {
-                    case 150:
+                $ccInput = (int) ($package->motoBikes()->first()->cc ?? 0);
+
+                // new clasification
+                switch (true) {
+                    case $ccInput >= 110:
                         $handlingBikePrices = 175000;
                         break;
-                    case 250:
+                    case $ccInput == 150:
                         $handlingBikePrices = 250000;
                         break;
-                    case 999:
+                    case $ccInput > 150:
                         $handlingBikePrices = 450000;
                         break;
                     default:
@@ -202,7 +208,7 @@ class GeneratePackageBikePrices
             } catch (\Exception $e) {
                 report($e);
             }
-            
+
             $package->setAttribute('total_amount', PricingCalculator::getPackageTotalAmount($package, $is_approved))->save();
         }
     }
