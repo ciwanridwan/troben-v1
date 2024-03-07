@@ -184,7 +184,7 @@ class PricingController extends Controller
         $this->attributes = $request->validate([
             'origin_id' => ['nullable', 'numeric', 'exists:geo_regencies,id'],
             'destination_id' => ['nullable', 'numeric', 'exists:geo_sub_districts,id'],
-            'moto_cc' => ['nullable', 'numeric', 'in:150,250,999'],
+            'moto_cc' => ['nullable', 'numeric'],
             // 'service_code' => ['nullable', 'exists:services,code'],
         ]);
 
@@ -287,6 +287,7 @@ class PricingController extends Controller
 
         $resultBikePrice = null;
         if (isset($motoCc)) {
+            $motoCc = (int) $motoCc;
             $bikePrices = BikePrices::where('origin_regency_id', $originId)->where('destination_id', $destinationId)->first();
             $ccPrices = null;
             if (!is_null($bikePrices)) {
