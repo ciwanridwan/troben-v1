@@ -163,7 +163,10 @@ class ManifestController extends Controller
 
                 // todo check logic condition
                 if (!is_null($route) || !empty($route)) {
-                    $route = $route->first();
+                    // have more than one result, take first
+                    if (!$route instanceof \stdClass) {
+                        $route = $route->first();
+                    }
                     if (($route->code_mtak_1 === $route->code_dooring) && is_null($route->code_mtak_1_dest) && isset($route->code_mtak_1) && !is_null($route->code_mtak_1)) {
                         $query->where('code', $route->code_mtak_1);
                     }
