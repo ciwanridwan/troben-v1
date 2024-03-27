@@ -83,13 +83,13 @@ class GeneratePackageBikePrices
                 // new price calculate
                 $cc = (int) ($service_input['moto_cc'] ?? 0);
                 switch (true) {
-                    case $cc >= 110:
+                    case $cc <= 149:
                         $servicePrice = $result->lower_cc;
                         break;
                     case $cc == 150:
                         $servicePrice = $result->middle_cc;
                         break;
-                    case $cc > 150:
+                    case $cc >= 250:
                         $servicePrice = $result->high_cc;
                         break;
                     default:
@@ -180,13 +180,13 @@ class GeneratePackageBikePrices
 
                 // new clasification
                 switch (true) {
-                    case $ccInput >= 110:
+                    case $ccInput <= 149:
                         $handlingBikePrices = 175000;
                         break;
                     case $ccInput == 150:
                         $handlingBikePrices = 250000;
                         break;
-                    case $ccInput > 150:
+                    case $ccInput >= 250:
                         $handlingBikePrices = 450000;
                         break;
                     default:
