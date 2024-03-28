@@ -128,6 +128,8 @@ class Code extends Model
                 break;
         }
 
+        if ($codeable_type instanceof Package) sleep(1); // give delay time avoid collision
+
         $pre .= Carbon::now()->format('dmy');
         $last_order = $query->where('content', 'LIKE', $pre.'%')->orderBy('content', 'desc')->first();
         $inc_number = $last_order ? substr($last_order->content, strlen($pre)) : 0;
