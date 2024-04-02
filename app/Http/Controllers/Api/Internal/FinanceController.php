@@ -643,12 +643,14 @@ class FinanceController extends Controller
         if ($partnerType == Partner::TYPE_TRANSPORTER) {
             $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
 
-            $disbursHistory = DisbursmentHistory::all();
+            $disbursHistory = DisbursmentHistory::whereHas('parentDisbursment', function($q) use ($disbursment) {
+                $q->where('partner_id', $disbursment->partner_id);
+            })->get();
 
             if ($disbursment->status == Withdrawal::STATUS_REQUESTED) {
                 $receiptRequested = $deliveries->whereNotIn('receipt', $disbursHistory->map(function ($r) {
                     return $r->receipt;
-                })->values());
+                }))->values();
 
                 $getPendingReceipts = $receiptRequested->map(function ($r) {
                     $r['approved'] = 'pending';

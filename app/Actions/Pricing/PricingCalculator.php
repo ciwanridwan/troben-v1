@@ -111,7 +111,11 @@ class PricingCalculator
                 $handling_price += (array_sum(array_column($item->handling, 'price')) * $item->qty);
             }
 
-            $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
+            # old insurance formula
+            // $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount') * $item->qty);
+
+            # new insurance formula
+            $insurance_price += ($item->prices()->where('type', PackagesPrice::TYPE_INSURANCE)->get()->sum('amount'));
         });
         if (!is_null($package->motoBikes)) {
             $handling_price = 0;
@@ -130,13 +134,13 @@ class PricingCalculator
         $handlingBikePrices = $package->prices()->where('type', PackagePrice::TYPE_HANDLING)->where('description', Handling::TYPE_BIKES)->get()->sum('amount');
 
         $platformPrice = $package->prices()->where('type', PackagesPrice::TYPE_PLATFORM)->get()->sum('amount') ?? 0;
-
+        
         if ($is_approved == true) {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices  + $platformPrice - ($pickup_discount_price + $service_discount_price);
         } else {
             $total_amount = $handling_price + $insurance_price + $service_price + $pickup_price + $handlingBikePrices + $platformPrice - ($pickup_discount_price + $service_discount_price);
         }
-
+        
         if ($package->claimed_promotion != null) {
             $promo = $package->load('claimed_promotion');
             if ($total_amount < $promo->claimed_promotion->promotion->min_payment) {
@@ -476,6 +480,11 @@ class PricingCalculator
 
                     $handling = Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
                     $handling_price += Handling::calculator($packingType, $item['height'], $item['length'], $item['width'], $item['weight']);
+                    // if qty of item more than 1
+                    if ($item['qty'] != 1) {
+                        $handling_price = $handling_price * $item['qty'];
+                    }
+
                     $handlingResult[] = collect([
                         'type' => $packing,
                         'price' => ceil($handling),
@@ -494,7 +503,11 @@ class PricingCalculator
                 $item['insurance_price_total'] = 0;
             } else {
                 $item['insurance_price'] = ceil(self::getInsurancePrice($item['price']));
-                $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price'] * $item['qty']));
+                # with calculate qty, this is old formula
+                // $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price'] * $item['qty'])); 
+
+                # without calculate qty, new formula
+                $item['insurance_price_total'] = ceil(self::getInsurancePrice($item['price']));
             }
             $inputs['items'][$index] = $item;
             $insurancePriceTotal += $item['insurance_price_total'];
@@ -1276,7 +1289,6 @@ class PricingCalculator
 
     private static function checkHandling($handling = [])
     {
-        // dd($handling);
         $handling = Arr::wrap($handling);
 
         if ($handling !== []) {
