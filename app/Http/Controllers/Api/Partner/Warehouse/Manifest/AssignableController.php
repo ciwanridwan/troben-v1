@@ -27,7 +27,7 @@ class AssignableController extends Controller
         $isBikePackage = false;
         $packageByHash = Package::byHash($request->package_hash[0]);
         // check package if bike order
-        if (!is_null($packageByHash->motoBikes)) {
+        if (!is_null($packageByHash) && !is_null($packageByHash->motoBikes)) {
             $isBikePackage = true;
         }
 
@@ -78,7 +78,9 @@ class AssignableController extends Controller
             fn (Builder $builder, $code) => $builder->Where('code', 'LIKE', '%' . $code . '%')
         );
 
-        return $this->jsonSuccess(PartnerResource::collection($query->paginate($request->input('per_page'))));
+        $resources = PartnerResource::collection($query->paginate($request->input('per_page')));
+
+        return $this->jsonSuccess($resources);
     }
 
     public function driver(Request $request, PartnerRepository $repository): JsonResponse
