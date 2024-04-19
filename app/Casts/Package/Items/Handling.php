@@ -88,8 +88,8 @@ class Handling implements CastsAttributes
 
         // new calculate
         $add_dimension = self::ADD_WOOD_DIMENSION; // added 7cm each dimension
-        $volumeBefore = PricingCalculator::getVolume($height, $length, $width, $serviceCode);
-        $volumeAfter = PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode);
+        $volumeBefore = ceil(PricingCalculator::getVolume($height, $length, $width, $serviceCode));
+        $volumeAfter = ceil(PricingCalculator::getVolume($height + $add_dimension, $length + $add_dimension, $width + $add_dimension, $serviceCode));
 
         $weight = ($volumeAfter - $volumeBefore) + $weightActual;
         return $weight > $volumeAfter ? $weight : $volumeAfter;
