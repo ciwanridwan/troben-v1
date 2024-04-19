@@ -687,7 +687,13 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_SUCCESS, $data))->json();
             } else {
                 $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
-                $alreadyDis = DisbursmentHistory::select('receipt')->where('disbursment_id', '!=', $disbursment->id)->whereIn('receipt', $deliveries->pluck('receipt'))->get();
+                $alreadyDis = DisbursmentHistory::select('receipt')
+                    ->whereHas('parentDisbursment', function($q) use ($disbursment) {
+                        $q->where('partner_id', $disbursment->partner_id);
+                    })
+                    ->where('disbursment_id', '!=', $disbursment->id)
+                    ->whereIn('receipt', $deliveries->pluck('receipt'))
+                    ->get();
                 $receipts = $deliveries->filter(function ($r) use ($alreadyDis) {
                     $check = $alreadyDis->where('receipt', $r['receipt'])->first();
                     if ($check) {
