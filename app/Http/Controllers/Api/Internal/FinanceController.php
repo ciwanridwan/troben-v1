@@ -1080,10 +1080,8 @@ class FinanceController extends Controller
                     MAX(partner_balance_histories.created_at) created_at
                 from
                     partner_balance_histories
-                left join partners on
-                    partner_balance_histories.partner_id = partners.id
                 where
-                    partners.id = '$partnerId'
+                    partner_balance_histories.partner_id = $partnerId
                     and package_id is not null
                 group by
                     package_id
@@ -1092,6 +1090,18 @@ class FinanceController extends Controller
                 pbh.package_id = c.codeable_id
                 and
                 c.codeable_type = 'App\Models\Packages\Package'
+
+            UNION ALL
+
+            SELECT
+                c.content receipt_income,
+                pbdh.balance amount,
+                pbdh.created_at
+            FROM partner_balance_delivery_histories pbdh
+            LEFT JOIN codes c ON
+                pbdh.delivery_id = c.codeable_id AND
+                c.codeable_type = 'App\Models\Deliveries\Delivery'
+            WHERE pbdh.partner_id = $partnerId AND pbdh.type = 'deposit'
         ) income
         left join lateral (
             select
