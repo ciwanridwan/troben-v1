@@ -1113,7 +1113,7 @@ class FinanceController extends Controller
             left join partners on
                 partner_balance_disbursement.partner_id = partners.id
             where
-                partners.id = '$partnerId'
+                partners.id = $partnerId
         ) disbursed on
             income.receipt_income = disbursed.receipt_disbursed
         where
