@@ -827,7 +827,7 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
 
-            $this->setActualBalance($disbursment->partner_id);
+            //$this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
@@ -880,7 +880,7 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
             
-            $this->setActualBalance($disbursment->partner_id);
+            //$this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
