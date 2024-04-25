@@ -785,6 +785,7 @@ class FinanceController extends Controller
     private function approveForPackages($disbursment, $receipt): JsonResponse
     {
         $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
+            $this->setActualBalance($disbursment->partner_id);
         $packages = collect(DB::select($query));
 
         $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
@@ -827,7 +828,6 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
 
-            //$this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
@@ -839,6 +839,7 @@ class FinanceController extends Controller
      */
     private function approveForDeliveries(Request $request, $disbursment, $receipt): JsonResponse
     {
+            $this->setActualBalance($disbursment->partner_id);
         $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
         $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
             $r['total_accepted'] = ceil($r['total_accepted']);
@@ -880,7 +881,6 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
             
-            //$this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
