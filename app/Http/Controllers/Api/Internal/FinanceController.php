@@ -614,9 +614,12 @@ class FinanceController extends Controller
             return $res;
         })->toArray();
 
-        $balanceHistory = Partner::with(['balance_history' => function ($query) {
-            $query->where('type', History::TYPE_DEPOSIT);
-        }, 'balance_history.package'])->where('id', $partnerId)->get();
+        $balanceHistory = Partner::with([
+            'balance_history' => function ($query) {
+                $query->where('type', History::TYPE_DEPOSIT);
+            },
+            'balance_history.package'
+        ])->where('id', $partnerId)->get();
 
         $results = [];
         foreach ($balanceHistory as $bh) {
@@ -643,7 +646,7 @@ class FinanceController extends Controller
         if ($partnerType == Partner::TYPE_TRANSPORTER) {
             $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
 
-            $disbursHistory = DisbursmentHistory::whereHas('parentDisbursment', function($q) use ($disbursment) {
+            $disbursHistory = DisbursmentHistory::whereHas('parentDisbursment', function ($q) use ($disbursment) {
                 $q->where('partner_id', $disbursment->partner_id);
             })->get();
 
@@ -688,7 +691,7 @@ class FinanceController extends Controller
             } else {
                 $getDisburs = DisbursmentHistory::where('disbursment_id', $disbursment->id)->get();
                 $alreadyDis = DisbursmentHistory::select('receipt')
-                    ->whereHas('parentDisbursment', function($q) use ($disbursment) {
+                    ->whereHas('parentDisbursment', function ($q) use ($disbursment) {
                         $q->where('partner_id', $disbursment->partner_id);
                     })
                     ->where('disbursment_id', '!=', $disbursment->id)
@@ -785,7 +788,6 @@ class FinanceController extends Controller
     private function approveForPackages($disbursment, $receipt): JsonResponse
     {
         $query = $this->newQueryDetailDisbursment($disbursment->partner_id);
-            $this->setActualBalance($disbursment->partner_id);
         $packages = collect(DB::select($query));
 
         $getReceipt = $packages->whereIn('receipt', $receipt)->map(function ($r) {
@@ -828,6 +830,7 @@ class FinanceController extends Controller
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
 
+            $this->setActualBalance($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
             return (new Response(Response::RC_BAD_REQUEST))->json();
@@ -839,7 +842,6 @@ class FinanceController extends Controller
      */
     private function approveForDeliveries(Request $request, $disbursment, $receipt): JsonResponse
     {
-            $this->setActualBalance($disbursment->partner_id);
         $deliveries = $this->getDetailDisbursmentTransporter($request, $disbursment->partner_id);
         $getReceipt = $deliveries->whereIn('receipt', $receipt)->map(function ($r) {
             $r['total_accepted'] = ceil($r['total_accepted']);
@@ -880,7 +882,7 @@ class FinanceController extends Controller
             } else {
                 return (new Response(Response::RC_BAD_REQUEST))->json();
             }
-            
+
             $this->setActualBalanceTransporter($disbursment->partner_id);
             return (new Response(Response::RC_UPDATED, $disbursment))->json();
         } else {
@@ -1026,27 +1028,27 @@ class FinanceController extends Controller
 
             $result = [
                 'incomes' => $incomes,
-                'total' => (int)$totalBalance
+                'total' => (int) $totalBalance
             ];
         } else {
             $manifest = $codes->codeable;
             $totalBalance = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->sum('balance');
-                $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->where('balance', '>', 0)->get()->map(function ($r) {
-                    $label = History::setLabel($r->type, $r->description);
+            $deliveryIncomes = DeliveryHistory::query()->where('partner_id', $partner->id)->where('delivery_id', $manifest->id)->where('balance', '>', 0)->get()->map(function ($r) {
+                $label = History::setLabel($r->type, $r->description);
 
-                    $resMapping = [
-                        'label' => $label,
-                        'type' => $r->type,
-                        'type_sub' => $r->description,
-                        'amount' => $r->balance
-                    ];
+                $resMapping = [
+                    'label' => $label,
+                    'type' => $r->type,
+                    'type_sub' => $r->description,
+                    'amount' => $r->balance
+                ];
 
-                    return $resMapping;
-                });
+                return $resMapping;
+            });
 
             $result = [
                 'incomes' => $deliveryIncomes,
-                'total' => (int)$totalBalance
+                'total' => (int) $totalBalance
             ];
         }
 
