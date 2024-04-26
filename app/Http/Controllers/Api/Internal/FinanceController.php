@@ -1131,55 +1131,71 @@ class FinanceController extends Controller
     public function setActualBalanceTransporter($partnerId)
     {
         $query = "SELECT
-        coalesce(SUM(amount), 0) as balance
-        from
+        coalesce(SUM(amount), 0)
+    FROM
         (
-            select
+            SELECT
                 *
-            from
+            FROM
                 (
-                    select
+                    SELECT
                         content receipt_income,
                         pbh.amount,
                         pbh.created_at
-                    from
+                    FROM
                         (
-                            select
-                                delivery_id,
+                            SELECT
+                                package_id,
                                 SUM(
-                                    case
-                                        when partner_balance_delivery_histories.type not in ('penalty', 'discount', 'withdraw') then partner_balance_delivery_histories.balance
-                                        else partner_balance_delivery_histories.balance * -1
-                                    end
+                                    CASE
+                                        WHEN partner_balance_histories.type NOT IN ('penalty', 'discount', 'withdraw') THEN partner_balance_histories.balance
+                                        ELSE partner_balance_histories.balance * -1
+                                    END
                                 ) amount,
-                                MAX(partner_balance_delivery_histories.created_at) created_at
-                            from
-                                partner_balance_delivery_histories
-                                left join partners on partner_balance_delivery_histories.partner_id = partners.id
-                            where
-                                partners.id = '$partnerId'
-                                and delivery_id is not null
-                            group by
-                                delivery_id
+                                MAX(partner_balance_histories.created_at) created_at
+                            FROM
+                                partner_balance_histories
+                                LEFT JOIN partners ON partner_balance_histories.partner_id = partners.id
+                            WHERE
+                            partners.id = '$partnerId'
+                                AND package_id IS NOT NULL -- ignore penalty
+                                AND partner_balance_histories.type != 'penalty'
+                                AND partner_balance_histories.description != 'penalty'
+                            GROUP BY
+                                package_id
                         ) pbh
-                        left join codes c on pbh.delivery_id = c.codeable_id
-                        and c.codeable_type = 'App\Models\Packages\Package'
+                        LEFT JOIN codes c ON pbh.package_id = c.codeable_id
+                        AND c.codeable_type = 'App\Models\Packages\Package'
+                    UNION
+                    ALL
+                    SELECT
+                        c.content receipt_income,
+                        pbdh.balance amount,
+                        pbdh.created_at
+                    FROM
+                        partner_balance_delivery_histories pbdh
+                        LEFT JOIN codes c ON pbdh.delivery_id = c.codeable_id
+                        AND c.codeable_type = 'App\Models\Deliveries\Delivery'
+                        LEFT JOIN partners ON pbdh.partner_id = partners.id
+                    WHERE
+                    partners.id = '$partnerId'
+                        AND pbdh.type = 'deposit'
                 ) income
-                left join lateral (
-                    select
+                LEFT JOIN LATERAL (
+                    SELECT
                         receipt receipt_disbursed
-                    from
+                    FROM
                         disbursment_histories
-                        left join partner_balance_disbursement on disbursment_histories.disbursment_id = partner_balance_disbursement.id
-                        left join partners on partner_balance_disbursement.partner_id = partners.id
-                    where
+                        LEFT JOIN partner_balance_disbursement ON disbursment_histories.disbursment_id = partner_balance_disbursement.id
+                        LEFT JOIN partners ON partner_balance_disbursement.partner_id = partners.id
+                    WHERE
                         partners.id = '$partnerId'
-                ) disbursed on income.receipt_income = disbursed.receipt_disbursed
-            where
-                1 = 1
-                and receipt_disbursed is null
-            order by
-                income.created_at desc
+                ) disbursed ON income.receipt_income = disbursed.receipt_disbursed
+            WHERE
+                1 = 1 -- AND income.created_at >= '2023-08-03 13:29:18'
+                AND receipt_disbursed IS NULL
+            ORDER BY
+                income.created_at DESC
         ) ssss";
 
         $actualBalance = collect(DB::select($query))->first();
