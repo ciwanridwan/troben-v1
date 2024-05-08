@@ -1134,7 +1134,7 @@ class FinanceController extends Controller
     public function setActualBalanceTransporter($partnerId)
     {
         $query = "SELECT
-        coalesce(SUM(amount), 0)
+        coalesce(SUM(amount), 0) as balance
     FROM
         (
             SELECT

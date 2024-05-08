@@ -125,7 +125,7 @@ class SummaryResource extends JsonResource
     {
         $partner = $request->user()->partners()->first();
         $query = "SELECT
-        coalesce(SUM(amount), 0)
+        coalesce(SUM(amount), 0) as balance
     FROM
         (
             SELECT
