@@ -44,6 +44,9 @@ class RegistrationPayment
      */
     public function __construct(Package $package, Gateway $gateway)
     {
+        // avoid error accessed before initialization
+        $this->attributes = [];
+
         if ($package->status !== Package::STATUS_CANCEL) {
             Log::debug('Registration payment for: ', ['package_code' => $package->code->content, 'channel' => $gateway->channel]);
             $this->expDate = Carbon::now()->addDay();
