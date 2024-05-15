@@ -924,7 +924,7 @@ class FinanceController extends Controller
             } else {
                 return true;
             }
-        })->values();
+        })->sortByDesc('approved_at')->values();
 
         $totalUnApproved = $receipts->where('approved', 'pending')->map(function ($r) {
             return $r;
