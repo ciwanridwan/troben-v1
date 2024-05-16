@@ -40,8 +40,12 @@ class FinanceController extends Controller
     protected Builder $query;
 
     /**List disbursment */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
+        $request->validate([
+            'partner_type.*' => ['nullable', 'in:service,warehouse,delivery,dooring']
+        ]);
+
         $result = $this->getWithdrawal()->get();
         return $this->jsonSuccess(ListResource::collection($result));
     }
@@ -408,15 +412,43 @@ class FinanceController extends Controller
     private function getWithdrawal()
     {
         $partnerCode = null;
+        $partnerType = null;
+
         if (request()->get('partner_code')) {
             $partnerCode = request()->get('partner_code');
         }
 
-        $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode) {
+        if (request()->get('partner_type')) {
+            $partnerType = request()->get('partner_type');
+        }
+
+        $q = Withdrawal::whereHas('partner', function ($q) use ($partnerCode, $partnerType) {
             if (!is_null($partnerCode)) {
                 $q->where('code', $partnerCode);
             }
+
+            // append filter partner by type like dooring service delivery and others
+            if (!is_null($partnerType)) {
+                $q->where(function ($r) use ($partnerType) {
+                    if (in_array('warehouse', $partnerType)) {
+                        $r->OrWhere('get_fee_transit', true);
+                    }
+
+                    if (in_array('delivery', $partnerType)) {
+                        $r->OrWhere('get_fee_delivery', true);
+                    }
+
+                    if (in_array('dooring', $partnerType)) {
+                        $r->OrWhere('get_fee_dooring', true);
+                    }
+
+                    if (in_array('service', $partnerType)) {
+                        $r->OrWhere('get_fee_service', true)->OrWhere('get_fee_pickup', true)->OrWhere('get_fee_handling', true)->OrWhere('get_fee_insurance', true);
+                    }
+                });
+            }
         });
+
 
         if (request()->get('status')) {
             $q = $q->where('status', request()->get('status'));
@@ -424,6 +456,7 @@ class FinanceController extends Controller
 
         if (request()->get('date')) {
             $q = $q->whereRaw("DATE(created_at) = '" . request()->get('date') . "'");
+
         }
 
         if (request()->get('start_date') && request()->get('end_date')) {
