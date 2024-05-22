@@ -12,7 +12,33 @@ class ListResource extends JsonResource
 {
     public function toArray($request)
     {
-        $partner = Partner::find($this->partner_id)->only('id', 'name', 'code', 'balance');
+        // $partner = Partner::find($this->partner_id)->only('id', 'name', 'code', 'balance');
+        $partner = Partner::find($this->partner_id);
+        $partnerIdResponse = [ // refact partner variable to this 
+            'id' => $partner->id,
+            'name' => $partner->name, 
+            'code' => $partner->code,
+            'balance' => $partner->balance
+        ];
+
+        // append partner type, req from finance division
+        $partnerType = array();
+
+        if ($partner->get_fee_service) {
+            $partnerType[] = 'service';
+        }
+
+        if ($partner->get_fee_transit) {
+            $partnerType[] = 'warehouse';
+        }
+
+        if ($partner->get_fee_delivery) {
+            $partnerType[] = 'delivery';
+        }
+
+        if ($partner->get_fee_dooring) {
+            $partnerType[] = 'dooring';
+        }
 
         /** @var \App\Models\Payments\Withdrawal */
         $attachment = $this['attachment_transfer'] ?
@@ -21,7 +47,8 @@ class ListResource extends JsonResource
         $data = [
             'id' => $this['id'],
             'hash' => $this['hash'],
-            'partner_id' => $partner,
+            'partner_id' => $partnerIdResponse,
+            'partner_type' => $partnerType,
             'first_balance' => $this['first_balance'],
             'created_at' => $this['created_at']->format('Y-m-d'),
             'status' => $this['status'],
